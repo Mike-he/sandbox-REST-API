@@ -1,5 +1,5 @@
 ez_linx_api:
-    resource: "@EZLinxApiBundle/Resources/config/routing.yml"
+    resource: "@SandboxApiBundle/Resources/config/routing.yml"
     type: rest
 
 NelmioApiDocBundle:

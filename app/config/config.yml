@@ -102,9 +102,6 @@ services:
         class:        Sandbox\ApiBundle\Utils\StringUtil
     curl_util:
         class:        Sandbox\ApiBundle\Utils\CurlUtil
-    voip_rest:
-        class:        Sandbox\ApiBundle\Utils\CCPRestSDK
-        arguments:    ["%voip_server_ip%", "%voip_server_port%", "%voip_soft_version%"]
 
 sensio_framework_extra:
     view: { annotations: false }
