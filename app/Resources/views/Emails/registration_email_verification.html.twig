@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}[EasyLinks Registration]{% endblock %}</title>
+    </head>
+    <body>
+        <div>
+            <label>Account Activation Verification Link: </label>
+            <a href='{{web_client_protocol}}{{web_client_domain}}{{web_client_activate_account_base_uri}}{{token}}/{{code}}'>
+                {{web_client_protocol}}{{web_client_domain}}{{web_client_activate_account_base_uri}}{{token}}/{{code}}</a>
+            <br/><br/>
+            <label>Account Activation Verification Code: {{code}}</label>
+        </div>
+    </body>
+</html>

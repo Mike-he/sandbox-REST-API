@@ -1,0 +1,7 @@
+parameters:
+#    ez_linx_api.example.class: Sandbox\ApiBundle\Example
+
+services:
+#    ez_linx_api.example:
+#        class: %ez_linx_api.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
