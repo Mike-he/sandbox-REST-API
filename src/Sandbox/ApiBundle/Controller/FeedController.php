@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @license  http://www.Sandbox.cn/ Proprietary
  * @link     http://www.Sandbox.cn/
  */
-class FeedController extends CommonTaskApprovalController
+class FeedController
 {
     const NOT_FOUND_MESSAGE = "This resource does not exist";
 
