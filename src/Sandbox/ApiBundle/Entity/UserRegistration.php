@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * User registration
  *
- * @ORM\Table(name="ezUserRegistration")
+ * @ORM\Table(name="UserRegistration")
  * @ORM\Entity
  *
  */

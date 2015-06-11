@@ -62,4 +62,3 @@ ez_linx_api_password:
     resource: "@SandboxApiBundle/Controller/PasswordController.php"
     type:     annotation
     prefix:   /
-

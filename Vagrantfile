@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
     for s in /vagrant/provisioning/??-*.sh ; do $s ; done
 END
   config.vm.network :forwarded_port, host: 8042, guest: 80 #Apache server
-  config.vm.hostname = "ezlinx-rest-api.dev"
+  config.vm.hostname = "sandbox-rest-api.dev"
   config.vm.box_check_update = false
   config.vm.synced_folder "./", "/vagrant", id: "vagrant-root",
       owner: "vagrant",
