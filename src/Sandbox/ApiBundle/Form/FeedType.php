@@ -29,6 +29,6 @@ class FeedType extends AbstractType
 
     public function getName()
     {
-        return 'Sandbox_apibundle_feed';
+        return '';
     }
 }

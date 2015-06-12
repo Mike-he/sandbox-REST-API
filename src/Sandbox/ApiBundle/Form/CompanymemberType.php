@@ -37,6 +37,6 @@ class CompanymemberType extends AbstractType
      */
     public function getName()
     {
-        return 'Sandbox_apibundle_companymember';
+        return '';
     }
 }

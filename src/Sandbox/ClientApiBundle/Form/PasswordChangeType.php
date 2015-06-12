@@ -6,19 +6,22 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class FeedCommentType extends AbstractType
+class PasswordChangeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('payload')
+            ->add('userid')
+            ->add('currentpassword')
+            ->add('newpassword')
+            ->add('fulljid')
         ;
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\FeedComment',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Data\PasswordChange',
         ));
     }
 

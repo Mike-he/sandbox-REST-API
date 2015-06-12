@@ -37,6 +37,6 @@ class ClientType extends AbstractType
      */
     public function getName()
     {
-        return 'Sandbox_apibundle_client';
+        return '';
     }
 }

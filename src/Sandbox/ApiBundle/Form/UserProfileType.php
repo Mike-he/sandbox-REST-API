@@ -6,40 +6,32 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class CompanyType extends AbstractType
+class UserProfileType extends AbstractType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('id')
+            ->add('userid')
+            ->add('companyid')
             ->add('name')
-            ->add('address')
-            ->add('website')
+            ->add('email')
             ->add('phone')
-            ->add('fax')
-            ->add('description')
-            ->add('creatorid')
-            ->add('creationdate')
-            ->add('modificationdate')
+            ->add('location')
+            ->add('gender')
+            ->add('aboutme')
+            ->add('hobbies')
+            ->add('skills')
         ;
     }
 
-    /**
-     * @param OptionsResolverInterface $resolver
-     */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Company',
+            'data_class' => 'Sandbox\ApiBundle\Entity\UserProfile',
         ));
     }
 
-    /**
-     * @return string
-     */
     public function getName()
     {
         return '';
