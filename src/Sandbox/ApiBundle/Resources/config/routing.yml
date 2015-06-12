@@ -1,64 +1,64 @@
 # FEEDS/feeds
-ez_linx_api_feed:
+sandbox_api_feed:
     resource: "@SandboxApiBundle/Controller/FeedController.php"
     type:     rest
 
-ez_linx_api_feed_like:
+sandbox_api_feed_like:
     resource: "@SandboxApiBundle/Controller/FeedLikeController.php"
     type:     rest
-    parent:   ez_linx_api_feed
+    parent:   sandbox_api_feed
 
-ez_linx_api_feed_comment:
+sandbox_api_feed_comment:
     resource: "@SandboxApiBundle/Controller/FeedCommentController.php"
     type:     rest
-    parent:   ez_linx_api_feed
+    parent:   sandbox_api_feed
 
 # COMPANIES /companies
-ez_linx_api_company:
+sandbox_api_company:
     resource: "@SandboxApiBundle/Controller/CompanyController.php"
     type:     rest
 
-ez_linx_api_company_member:
+sandbox_api_company_member:
     resource: "@SandboxApiBundle/Controller/CompanyMemberController.php"
     type:     rest
-    parent:   ez_linx_api_company
+    parent:   sandbox_api_company
 
 # DIRECTORIES /directories
-ez_linx_api_directory:
+sandbox_api_directory:
     resource: "@SandboxApiBundle/Controller/DirectoryController.php"
     type:     rest
 
 # VCARDS /vcards
-ez_linx_api_vcard:
+sandbox_api_vcard:
     resource: "@SandboxApiBundle/Controller/VcardController.php"
     type:     rest
 
 # Login /login
-ez_linx_api_login:
+sandbox_api_login:
     resource: "@SandboxApiBundle/Controller/LoginController.php"
     type:     annotation
     prefix:   /
 
 # Bind email /email
-ez_linx_api_email_bind:
+sandbox_api_email_bind:
     resource: "@SandboxApiBundle/Controller/EmailBindingController.php"
     type:     annotation
     prefix:   /
 
 # Bind phone /phone
-ez_linx_api_phone_bind:
+sandbox_api_phone_bind:
     resource: "@SandboxApiBundle/Controller/PhoneBindingController.php"
     type:     annotation
     prefix:   /
 
 # Registration /register
-ez_linx_api_registration:
+sandbox_api_registration:
     resource: "@SandboxApiBundle/Controller/RegistrationController.php"
     type:     annotation
     prefix:   /
 
 # Password /password
-ez_linx_api_password:
+sandbox_api_password:
     resource: "@SandboxApiBundle/Controller/PasswordController.php"
     type:     annotation
     prefix:   /

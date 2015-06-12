@@ -1,4 +1,4 @@
-ez_linx_api:
+sandbox_api:
     resource: "@SandboxApiBundle/Resources/config/routing.yml"
     type: rest
 
