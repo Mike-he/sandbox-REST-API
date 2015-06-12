@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\IncomingData;
+namespace Sandbox\ClientApiBundle\Data;
 
 /**
  * Phone Binding Verify Incoming Data

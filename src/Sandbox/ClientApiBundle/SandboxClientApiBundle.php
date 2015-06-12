@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle;
+namespace Sandbox\ClientApiBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

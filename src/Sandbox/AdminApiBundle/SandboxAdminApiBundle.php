@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle;
+namespace Sandbox\AdminApiBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

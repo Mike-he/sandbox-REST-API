@@ -1,64 +1,64 @@
 # FEEDS/feeds
-ez_linx_api_feed:
-    resource: "@SandboxApiBundle/Controller/FeedController.php"
+sandbox_client_api_feed:
+    resource: "@SandboxClientApiBundle/Controller/ClientFeedController.php"
     type:     rest
 
-ez_linx_api_feed_like:
-    resource: "@SandboxApiBundle/Controller/FeedLikeController.php"
+sandbox_client_api_feed_like:
+    resource: "@SandboxClientApiBundle/Controller/ClientFeedLikeController.php"
     type:     rest
-    parent:   ez_linx_api_feed
+    parent:   sandbox_client_api_feed
 
-ez_linx_api_feed_comment:
-    resource: "@SandboxApiBundle/Controller/FeedCommentController.php"
+sandbox_client_api_feed_comment:
+    resource: "@SandboxClientApiBundle/Controller/ClientFeedCommentController.php"
     type:     rest
-    parent:   ez_linx_api_feed
+    parent:   sandbox_client_api_feed
 
 # COMPANIES /companies
-ez_linx_api_company:
-    resource: "@SandboxApiBundle/Controller/CompanyController.php"
+sandbox_client_api_company:
+    resource: "@SandboxClientApiBundle/Controller/ClientCompanyController.php"
     type:     rest
 
-ez_linx_api_company_member:
-    resource: "@SandboxApiBundle/Controller/CompanyMemberController.php"
+sandbox_client_api_company_member:
+    resource: "@SandboxClientApiBundle/Controller/ClientCompanyMemberController.php"
     type:     rest
-    parent:   ez_linx_api_company
+    parent:   sandbox_client_api_company
 
 # DIRECTORIES /directories
-ez_linx_api_directory:
-    resource: "@SandboxApiBundle/Controller/DirectoryController.php"
+sandbox_client_api_directory:
+    resource: "@SandboxClientApiBundle/Controller/ClientDirectoryController.php"
     type:     rest
 
 # VCARDS /vcards
-ez_linx_api_vcard:
-    resource: "@SandboxApiBundle/Controller/VcardController.php"
+sandbox_client_api_vcard:
+    resource: "@SandboxClientApiBundle/Controller/ClientVcardController.php"
     type:     rest
 
 # Login /login
-ez_linx_api_login:
-    resource: "@SandboxApiBundle/Controller/LoginController.php"
+sandbox_client_api_login:
+    resource: "@SandboxClientApiBundle/Controller/ClientLoginController.php"
     type:     annotation
     prefix:   /
 
 # Bind email /email
-ez_linx_api_email_bind:
-    resource: "@SandboxApiBundle/Controller/EmailBindingController.php"
+sandbox_client_api_email_bind:
+    resource: "@SandboxClientApiBundle/Controller/ClientEmailBindingController.php"
     type:     annotation
     prefix:   /
 
 # Bind phone /phone
-ez_linx_api_phone_bind:
-    resource: "@SandboxApiBundle/Controller/PhoneBindingController.php"
+sandbox_client_api_phone_bind:
+    resource: "@SandboxClientApiBundle/Controller/ClientPhoneBindingController.php"
     type:     annotation
     prefix:   /
 
 # Registration /register
-ez_linx_api_registration:
-    resource: "@SandboxApiBundle/Controller/RegistrationController.php"
+sandbox_client_api_registration:
+    resource: "@SandboxClientApiBundle/Controller/ClientRegistrationController.php"
     type:     annotation
     prefix:   /
 
 # Password /password
-ez_linx_api_password:
-    resource: "@SandboxApiBundle/Controller/PasswordController.php"
+sandbox_client_api_password:
+    resource: "@SandboxClientApiBundle/Controller/ClientPasswordController.php"
     type:     annotation
     prefix:   /
