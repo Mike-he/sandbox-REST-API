@@ -7,20 +7,33 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * User
  *
- * @ORM\Table(name="User")
+ * @ORM\Table(
+ *      name="User",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"}),
+ *          @ORM\UniqueConstraint(name="email_UNIQUE", columns={"email"}),
+ *          @ORM\UniqueConstraint(name="countryCode_phone_UNIQUE", columns={"countryCode", "phone"})
+ *      }
+ * )
  * @ORM\Entity
- *
  */
 class User
 {
     /**
-     * @var int
+     * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="username", type="string", length=64, nullable=true)
+     */
+    private $username;
 
     /**
      * @var string
@@ -41,7 +54,7 @@ class User
      *
      * @ORM\Column(name="countryCode", type="string", length=16, nullable=true)
      */
-    private $countrycode;
+    private $countryCode;
 
     /**
      * @var string
@@ -53,35 +66,28 @@ class User
     /**
      * @var string
      *
-     * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=false)
+     * @ORM\Column(name="status", type="string", nullable=false)
      */
-    private $xmppUsername;
-
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="activated", type="boolean", nullable=true)
-     */
-    private $activated = '0';
+    private $status;
 
     /**
      * @var string
      *
      * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
      */
-    private $creationdate;
+    private $creationDate;
 
     /**
      * @var string
      *
      * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
      */
-    private $modificationdate;
+    private $modificationDate;
 
     /**
      * Get id
      *
-     * @return int
+     * @return integer
      */
     public function getId()
     {
@@ -89,10 +95,33 @@ class User
     }
 
     /**
+     * Set username
+     *
+     * @param  string $username
+     * @return User
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * Get username
+     *
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
      * Set password
      *
      * @param  string $password
-     * @return JtUser
+     * @return User
      */
     public function setPassword($password)
     {
@@ -115,7 +144,7 @@ class User
      * Set email
      *
      * @param  string $email
-     * @return JtUser
+     * @return User
      */
     public function setEmail($email)
     {
@@ -135,33 +164,33 @@ class User
     }
 
     /**
-     * Set countrycode
+     * Set countryCode
      *
-     * @param  string $countrycode
-     * @return JtUser
+     * @param  string $countryCode
+     * @return User
      */
-    public function setCountrycode($countrycode)
+    public function setCountryCode($countryCode)
     {
-        $this->countrycode = $countrycode;
+        $this->countryCode = $countryCode;
 
         return $this;
     }
 
     /**
-     * Get countrycode
+     * Get countryCode
      *
      * @return string
      */
-    public function getCountrycode()
+    public function getCountryCode()
     {
-        return $this->countrycode;
+        return $this->countryCode;
     }
 
     /**
      * Set phone
      *
      * @param  string $phone
-     * @return JtUser
+     * @return User
      */
     public function setPhone($phone)
     {
@@ -181,94 +210,71 @@ class User
     }
 
     /**
-     * Set xmppUsername
+     * Set status
      *
-     * @param  string $xmppUsername
-     * @return JtUser
+     * @param  string $status
+     * @return User
      */
-    public function setXmppUsername($xmppUsername)
+    public function setStatus($status)
     {
-        $this->xmppUsername = $xmppUsername;
+        $this->status = $status;
 
         return $this;
     }
 
     /**
-     * Get xmppUsername
+     * Get status
      *
      * @return string
      */
-    public function getXmppUsername()
+    public function getStatus()
     {
-        return $this->xmppUsername;
+        return $this->status;
     }
 
     /**
-     * Set activated
+     * Set creationDate
      *
-     * @param  boolean $activated
-     * @return JtUser
+     * @param  string $creationDate
+     * @return User
      */
-    public function setActivated($activated)
+    public function setCreationDate($creationDate)
     {
-        $this->activated = $activated;
+        $this->creationDate = $creationDate;
 
         return $this;
     }
 
     /**
-     * Get activated
-     *
-     * @return boolean
-     */
-    public function getActivated()
-    {
-        return $this->activated;
-    }
-
-    /**
-     * Set creationdate
-     *
-     * @param  string $creationdate
-     * @return JtUser
-     */
-    public function setCreationdate($creationdate)
-    {
-        $this->creationdate = $creationdate.'000';
-
-        return $this;
-    }
-
-    /**
-     * Get creationdate
+     * Get creationDate
      *
      * @return string
      */
-    public function getCreationdate()
+    public function getCreationDate()
     {
-        return $this->creationdate;
+        return $this->creationDate;
     }
 
     /**
-     * Set modificationdate
+     * Set modificationDate
      *
-     * @param  string $modificationdate
-     * @return JtUser
+     * @param  string $modificationDate
+     * @return User
      */
-    public function setModificationdate($modificationdate)
+    public function setModificationDate($modificationDate)
     {
-        $this->modificationdate = $modificationdate.'000';
+        $this->modificationDate = $modificationDate;
 
         return $this;
     }
 
     /**
-     * Get modificationdate
+     * Get modificationDate
      *
      * @return string
      */
-    public function getModificationdate()
+    public function getModificationDate()
     {
-        return $this->modificationdate;
+        return $this->modificationDate;
     }
 }
