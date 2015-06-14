@@ -1,21 +1,19 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Entity\Auth;
+namespace Sandbox\AdminApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * ClientApiAuth
+ * AdminUserLogin
  *
- * @ORM\Table(
- *      name="ClientApiAuthView",
- *      uniqueConstraints={@ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"})}
- * )
+ * @ORM\Table(name="Admin")
  * @ORM\Entity
+ *
  */
-class ClientApiAuth implements UserInterface
+class AdminUserLogin implements UserInterface
 {
     /**
      * @var integer
@@ -29,30 +27,16 @@ class ClientApiAuth implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="token", type="string", length=64, nullable=true)
+     * @ORM\Column(name="username", type="string", length=64, nullable=true)
      */
-    private $token;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="clientId", type="integer", nullable=true)
-     */
-    private $clientId;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="userId", type="integer", nullable=true)
-     */
-    private $userId;
+    private $username;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=true)
+     * @ORM\Column(name="password", type="string", length=256, nullable=false)
      */
-    private $username;
+    private $password;
 
     /**
      * Get id
@@ -65,36 +49,6 @@ class ClientApiAuth implements UserInterface
     }
 
     /**
-     * Get token
-     *
-     * @return string
-     */
-    public function getToken()
-    {
-        return $this->token;
-    }
-
-    /**
-     * Get clientId
-     *
-     * @return integer
-     */
-    public function getClientId()
-    {
-        return $this->clientId;
-    }
-
-    /**
-     * Get userId
-     *
-     * @return integer
-     */
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
-    /**
      * Get username
      *
      * @return string
@@ -102,6 +56,16 @@ class ClientApiAuth implements UserInterface
     public function getUsername()
     {
         return $this->username;
+    }
+
+    /**
+     * Get password
+     *
+     * @return string
+     */
+    public function getPassword()
+    {
+        return $this->password;
     }
 
     /**
@@ -122,7 +86,7 @@ class ClientApiAuth implements UserInterface
      */
     public function getRoles()
     {
-        return array('ROLE_USER');
+        return array('ROLE_ADMIN');
     }
 
     /**
@@ -146,20 +110,5 @@ class ClientApiAuth implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
-    }
-
-    /**
-     * Returns the password used to authenticate the user.
-     *
-     * This should be the encoded password. On authentication, a plain-text
-     * password will be salted, encoded, and then compared to this value.
-     *
-     * @return string The password
-     */
-    public function getPassword()
-    {
-        // token as the username
-        // clientId as the password
-        return $this->clientId;
     }
 }

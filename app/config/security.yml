@@ -2,6 +2,7 @@ security:
     encoders:
         Sandbox\ClientApiBundle\Entity\User\ClientUserLogin: plaintext
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
+        Sandbox\AdminApiBundle\Entity\Admin\AdminUserLogin: plaintext
     role_hierarchy:
         ROLE_ADMIN:       ROLE_ADMIN
         ROLE_USER:        ROLE_USER
@@ -10,7 +11,7 @@ security:
     providers:
         chain_provider:
             chain:
-                providers: [userEmail, userPhoneNumber, clientApi]
+                providers: [userEmail, userPhoneNumber, clientApi, adminUser]
         userEmail:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\User\ClientUserLogin
@@ -25,6 +26,10 @@ security:
                 # it's done like that because token is the only things
                 # which is unique in this table
                 property: token
+        adminUser:
+            entity:
+                class: Sandbox\AdminApiBundle\Entity\Admin\AdminUserLogin
+                property: username
 
     firewalls:
         dev:
@@ -38,11 +43,11 @@ security:
             stateless:  true
 
     access_control:
-        - { path: ^/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register/invite, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/password/forget/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/, role: ROLE_USER }
+        - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client/user/password/forget/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client/user/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client, role: ROLE_USER }
+        - { path: ^/admin, role: ROLE_ADMIN }
 

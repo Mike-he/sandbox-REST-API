@@ -3,9 +3,10 @@ sandbox_client_api:
     type: rest
     prefix: /client
 
-#sandbox_admin_api:
-#    resource: "@SandboxAdminApiBundle/Resources/config/routing.yml"
-#    type: rest
+sandbox_admin_api:
+    resource: "@SandboxAdminApiBundle/Resources/config/routing.yml"
+    type: rest
+    prefix: /admin
 
 NelmioApiDocBundle:
   resource: "@NelmioApiDocBundle/Resources/config/routing.yml"

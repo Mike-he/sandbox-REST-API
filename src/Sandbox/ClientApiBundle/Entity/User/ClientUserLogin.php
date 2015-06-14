@@ -7,7 +7,7 @@ use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * UserAuth
+ * ClientUserLogin
  *
  * @ORM\Table(name="ClientUserLoginView")
  * @ORM\Entity

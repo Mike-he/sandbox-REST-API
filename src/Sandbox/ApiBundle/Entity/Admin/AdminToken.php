@@ -1,26 +1,26 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\User;
+namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * UserToken
+ * AdminToken
  *
  * @ORM\Table(
- *      name="UserToken",
+ *      name="AdminToken",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"}),
  *          @ORM\UniqueConstraint(name="username_clientId_UNIQUE", columns={"username", "clientId"})
  *      },
  *      indexes={
- *          @ORM\Index(name="fk_UserToken_username_idx", columns={"username"}),
- *          @ORM\Index(name="fk_UserToken_clientId_idx", columns={"clientId"})
+ *          @ORM\Index(name="fk_AdminToken_username_idx", columns={"username"}),
+ *          @ORM\Index(name="fk_AdminToken_clientId_idx", columns={"clientId"})
  *      }
  * )
  * @ORM\Entity
  */
-class UserToken
+class AdminToken
 {
     /**
      * @var integer
@@ -82,8 +82,8 @@ class UserToken
     /**
      * Set username
      *
-     * @param  string    $username
-     * @return UserToken
+     * @param  string     $username
+     * @return AdminToken
      */
     public function setUsername($username)
     {
@@ -103,8 +103,8 @@ class UserToken
     /**
      * Set clientId
      *
-     * @param  int       $clientId
-     * @return UserToken
+     * @param  int        $clientId
+     * @return AdminToken
      */
     public function setClientId($clientId)
     {
@@ -124,8 +124,8 @@ class UserToken
     /**
      * Set token
      *
-     * @param  string    $token
-     * @return UserToken
+     * @param  string     $token
+     * @return AdminToken
      */
     public function setToken($token)
     {
@@ -145,8 +145,8 @@ class UserToken
     /**
      * Set creationDate
      *
-     * @param  string    $creationDate
-     * @return UserToken
+     * @param  string     $creationDate
+     * @return AdminToken
      */
     public function setCreationDate($creationDate)
     {

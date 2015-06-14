@@ -1,13 +1,13 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Entity\Auth;
+namespace Sandbox\AdminApiBundle\Entity\Auth;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * ClientApiAuth
+ * ClientApiAuthView
  *
  * @ORM\Table(
  *      name="ClientApiAuthView",
@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * )
  * @ORM\Entity
  */
-class ClientApiAuth implements UserInterface
+class AdminApiAuth implements UserInterface
 {
     /**
      * @var integer
