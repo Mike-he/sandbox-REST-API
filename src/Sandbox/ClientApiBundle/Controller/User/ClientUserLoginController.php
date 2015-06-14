@@ -3,8 +3,11 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserToken;
-use Sandbox\ApiBundle\Form\Auth\ClientType;
+use Sandbox\ApiBundle\Entity\User\UserClient;
+use Sandbox\ApiBundle\Form\User\UserClientType;
+use Sandbox\ClientApiBundle\Entity\User\ClientUserLogin;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -23,6 +26,12 @@ use Symfony\Component\Security\Acl\Exception\Exception;
  */
 class ClientUserLoginController extends UserLoginController
 {
+    const ERROR_ACCOUNT_NOT_ACTIVATED_CODE = 401001;
+    const ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE = 'Account is not activated';
+
+    const ERROR_ACCOUNT_BANNED_CODE = 401002;
+    const ERROR_ACCOUNT_BANNED_MESSAGE = 'Account is banned';
+
     /**
      * Login
      *
@@ -36,67 +45,44 @@ class ClientUserLoginController extends UserLoginController
      * )
      *
      * @Route("/login")
-     * @Method({"GET", "POST"})
+     * @Method({"POST"})
      *
      * @return string
      * @throws \Exception
      */
-    public function getLoginAction(
+    public function postClientUserLoginAction(
         Request $request
     ) {
-        die('it works');
+        // get user if account is activated
+        $user = $this->getUserIfActivated($this->getUser());
 
+        // TODO in case user is not found, create a new user again
+
+        return $this->handleClientUserLogin($request, $user);
+    }
+
+    /**
+     * @param  Request    $request
+     * @param  User       $user
+     * @return View
+     * @throws \Exception
+     */
+    private function handleClientUserLogin(
+        Request $request,
+        $user
+    ) {
         try {
-            $user = $this->getUser();
-
-            // check user is activated
-            if (!$user->getActivated()) {
-                return $this->customErrorView(401, 490, 'Account not activated');
-            }
-
             $em = $this->getDoctrine()->getManager();
 
-            $client = new Client();
-            try {
-                // get payload from request
-                $payload = json_decode($request->getContent(), true);
-
-                // get client data from request
-                $clientData = $payload['client'];
-
-                $clientDataId = 0;
-                if (array_key_exists('id', $clientData)) {
-                    $clientDataId = $clientData['id'];
-                }
-
-                // get existing client
-                $client = $this->getRepo('Client')->find($clientDataId);
-                if (is_null($client)) {
-                    // not found, create new one
-                    $client = new Client();
-                    unset($clientData['id']);
-                    $clientDataId = 0;
-                }
-
-                $form = $this->createForm(new ClientType(), $client);
-                $form->submit($clientData, true);
-
-                if ($form->isValid()) {
-                    if ($clientDataId <= 0) {
-                        // save new client
-                        $em->persist($client);
-                        $em->flush();
-                    }
-
-                    // set client ip address
-                    $client->setIpAddress($request->getClientIp());
-                }
-            } catch (Exception $e) {
-                // do nothing...
+            // save or update user client
+            $userClient = $this->saveUserClient($request);
+            if (is_null($userClient->getId())) {
+                $em->persist($userClient);
+                $em->flush();
             }
 
-            // save or refresh token
-            $userToken = $this->setUserToken($user->getId(), $client->getId());
+            // save or refresh user token
+            $userToken = $this->saveUserToken($user, $userClient);
             if (is_null($userToken->getId())) {
                 $em->persist($userToken);
             }
@@ -104,50 +90,102 @@ class ClientUserLoginController extends UserLoginController
 
             // response
             $view = new View();
-            $view->setData(array(
-                'userid' => $user->getId(),
-                'clientid' => $client->getId(),
-                'xmpp_username' => $user->getXmppUsername(),
+
+            return $view->setData(array(
+                'username' => $user->getUsername(),
+                'client_id' => $userClient->getId(),
                 'token' => $userToken->getToken(),
             ));
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
         }
-
-        return $view;
     }
 
     /**
-     * @param $userId
-     * @param $clientId
-     * @return UserToken|object
-     * @throws \Exception
+     * @param  ClientUserLogin $userLogin
+     * @return User
      */
-    private function setUserToken(
-        $userId,
-        $clientId
+    private function getUserIfActivated(
+        $userLogin
     ) {
-        try {
-            $userToken = $this->getRepo('UserToken')->findOneBy(
-                array(
-                    'userid' => $userId,
-                    'clientid' => $clientId,
-                )
-            );
-
-            if (is_null($userToken)) {
-                $userToken = new UserToken();
-                $userToken->setUserid($userId);
-                $userToken->setClientid($clientId);
-                $userToken->setToken(md5(uniqid(rand(), true)));
-            }
-
-            // refresh creation date
-            $userToken->setCreationdate(time());
-
-            return $userToken;
-        } catch (Exception $e) {
-            throw new \Exception('Something went wrong!');
+        if (User::STATUS_REGISTERED === $userLogin->getStatus()) {
+            // user is not activated
+            return $this->customErrorView(
+                401,
+                self::ERROR_ACCOUNT_NOT_ACTIVATED_CODE,
+                self::ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE);
+        } elseif (User::STATUS_BANNED === $userLogin->getStatus()) {
+            // user is banned
+            return $this->customErrorView(
+                401,
+                self::ERROR_ACCOUNT_BANNED_CODE,
+                self::ERROR_ACCOUNT_BANNED_MESSAGE);
         }
+
+        // so far, user is activated, return username
+        return $this->getRepo('User\User')->findOneByUsername(
+            $userLogin->getUsername()
+        );
+    }
+
+    /**
+     * @param  Request    $request
+     * @return UserClient
+     */
+    private function saveUserClient(
+        Request $request
+    ) {
+        $userClient = new UserClient();
+
+        // get client data from request payload
+        $payload = json_decode($request->getContent(), true);
+        $clientData = $payload['client'];
+
+        if (array_key_exists('id', $clientData)) {
+            // get existing user client
+            $userClient = $this->getRepo('User\UserClient')->find($clientData['id']);
+            if (is_null($userClient)) {
+                $userClient = new UserClient();
+                unset($clientData['id']);
+            }
+        }
+
+        // bind client data
+        $form = $this->createForm(new UserClientType(), $userClient);
+        $form->submit($clientData, true);
+
+        if ($form->isValid()) {
+            // set client ip address
+            $userClient->setIpAddress($request->getClientIp());
+        }
+
+        return $userClient;
+    }
+
+    /**
+     * @param  User       $user
+     * @param  UserClient $userClient
+     * @return UserToken
+     */
+    private function saveUserToken(
+        $user,
+        $userClient
+    ) {
+        $userToken = $this->getRepo('User\UserToken')->findOneBy(array(
+            'username' => $user->getUsername(),
+            'clientId' => $userClient->getId(),
+        ));
+
+        if (is_null($userToken)) {
+            $userToken = new UserToken();
+            $userToken->setUsername($user->getUsername());
+            $userToken->setClientId($userClient->getId());
+            $userToken->setToken($this->generateRandomToken());
+        }
+
+        // refresh creation date
+        $userToken->setCreationDate($this->currentTimeMillis());
+
+        return $userToken;
     }
 }

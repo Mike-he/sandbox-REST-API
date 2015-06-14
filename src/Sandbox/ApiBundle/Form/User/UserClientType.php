@@ -1,12 +1,12 @@
 <?php
 
-namespace Sandbox\ApiBundle\Form\Auth;
+namespace Sandbox\ApiBundle\Form\User;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class ClientType extends AbstractType
+class UserClientType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -28,7 +28,7 @@ class ClientType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Client',
+            'data_class' => 'Sandbox\ApiBundle\Entity\User\UserClient',
         ));
     }
 

@@ -19,6 +19,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class User
 {
+    const STATUS_BANNED = 'banned';
+    const STATUS_REGISTERED = 'registered';
+    const STATUS_ACTIVATED = 'activated';
+
     /**
      * @var integer
      *
@@ -68,7 +72,7 @@ class User
      *
      * @ORM\Column(name="status", type="string", nullable=false)
      */
-    private $status;
+    private $status = self::STATUS_REGISTERED;
 
     /**
      * @var string

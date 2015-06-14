@@ -7,33 +7,43 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * UserToken
  *
- * @ORM\Table(name="jtUserToken")
+ * @ORM\Table(
+ *      name="UserToken",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"}),
+ *          @ORM\UniqueConstraint(name="username_clientId_UNIQUE", columns={"username", "clientId"})
+ *      },
+ *      indexes={
+ *          @ORM\Index(name="fk_UserToken_username_idx", columns={"username"}),
+ *          @ORM\Index(name="fk_UserToken_clientId_idx", columns={"clientId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class UserToken
 {
     /**
-     * @var int
+     * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
-     * @var int
+     * @var string
      *
-     * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @ORM\Column(name="username", type="string", length=64, nullable=false)
      */
-    private $userid;
+    private $username;
 
     /**
-     * @var int
+     * @var integer
      *
      * @ORM\Column(name="clientId", type="integer", nullable=false)
      */
-    private $clientid;
+    private $clientId;
 
     /**
      * @var string
@@ -47,11 +57,9 @@ class UserToken
      *
      * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
      */
-    private $creationdate;
+    private $creationDate;
 
     /**
-     * Get id
-     *
      * @return int
      */
     public function getId()
@@ -60,67 +68,38 @@ class UserToken
     }
 
     /**
-     * Set userid
-     *
-     * @param  int       $userid
-     * @return UserToken
+     * @return string
      */
-    public function setUserid($userid)
+    public function getUsername()
     {
-        $this->userid = $userid;
-
-        return $this;
+        return $this->username;
     }
 
     /**
-     * Get userid
-     *
+     * @param string $username
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+    }
+
+    /**
      * @return int
      */
-    public function getUserid()
+    public function getClientId()
     {
-        return $this->userid;
+        return $this->clientId;
     }
 
     /**
-     * Set clientid
-     *
-     * @param  int       $clientid
-     * @return UserToken
+     * @param int $clientId
      */
-    public function setClientid($clientid)
+    public function setClientId($clientId)
     {
-        $this->clientid = $clientid;
-
-        return $this;
+        $this->clientId = $clientId;
     }
 
     /**
-     * Get clientid
-     *
-     * @return int
-     */
-    public function getClientid()
-    {
-        return $this->clientid;
-    }
-
-    /**
-     * Set token
-     *
-     * @param  string    $token
-     * @return UserToken
-     */
-    public function setToken($token)
-    {
-        $this->token = $token;
-
-        return $this;
-    }
-
-    /**
-     * Get token
-     *
      * @return string
      */
     public function getToken()
@@ -129,25 +108,26 @@ class UserToken
     }
 
     /**
-     * Set creationdate
-     *
-     * @param  string    $creationdate
-     * @return UserToken
+     * @param string $token
      */
-    public function setCreationdate($creationdate)
+    public function setToken($token)
     {
-        $this->creationdate = $creationdate.'000';
-
-        return $this;
+        $this->token = $token;
     }
 
     /**
-     * Get creationdate
-     *
      * @return string
      */
-    public function getCreationdate()
+    public function getCreationDate()
     {
-        return $this->creationdate;
+        return $this->creationDate;
+    }
+
+    /**
+     * @param string $creationDate
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
     }
 }

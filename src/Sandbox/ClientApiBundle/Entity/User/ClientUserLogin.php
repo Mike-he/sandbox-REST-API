@@ -52,6 +52,13 @@ class ClientUserLogin implements UserInterface
     private $phoneNumber;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", nullable=false)
+     */
+    private $status;
+
+    /**
      * Get id
      *
      * @return integer
@@ -99,6 +106,16 @@ class ClientUserLogin implements UserInterface
     public function getPhoneNumber()
     {
         return $this->phoneNumber;
+    }
+
+    /**
+     * Get status
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**
