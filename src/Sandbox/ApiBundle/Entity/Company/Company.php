@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity;
+namespace Sandbox\ApiBundle\Entity\Company;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="jtCompany")
  * @ORM\Entity(
- *     repositoryClass="Sandbox\ApiBundle\Entity\CompanyRepository"
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Company\CompanyRepository"
  * )
  */
 class Company

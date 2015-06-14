@@ -1,21 +1,10 @@
 <?php
-/**
- * API for comments of feed
- *
- * PHP version 5.3
- *
- * @category Sandbox
- * @package  ApiBundle
- * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- * @link     http://www.Sandbox.cn/
- *
- */
-namespace Sandbox\ClientApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\FeedCommentController;
-use Sandbox\ApiBundle\Entity\FeedComment;
-use Sandbox\ApiBundle\Form\FeedCommentType;
+namespace Sandbox\ClientApiBundle\Controller\Feed;
+
+use Sandbox\ApiBundle\Controller\Feed\FeedCommentController;
+use Sandbox\ApiBundle\Entity\Feed\FeedComment;
+use Sandbox\ApiBundle\Form\Feed\FeedCommentType;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;

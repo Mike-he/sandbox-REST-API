@@ -1,14 +1,12 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller;
+namespace Sandbox\ClientApiBundle\Controller\User;
 
-use Sandbox\ApiBundle\Controller\EmailBindingController;
-use Sandbox\ApiBundle\Entity\EmailVerification;
-use Sandbox\ApiBundle\Entity\IncomingData\EmailBindingSubmit;
-use Sandbox\ApiBundle\Entity\IncomingData\EmailBindingVerify;
-use Sandbox\ApiBundle\Entity\JtUser;
-use Sandbox\ApiBundle\Form\EmailBindingSubmitType;
-use Sandbox\ApiBundle\Form\EmailBindingVerifyType;
+use Sandbox\ApiBundle\Controller\User\UserEmailBindingController;
+use Sandbox\ClientApiBundle\Data\User\EmailBindingSubmit;
+use Sandbox\ClientApiBundle\Data\User\EmailBindingVerify;
+use Sandbox\ClientApiBundle\Form\EmailBindingSubmitType;
+use Sandbox\ClientApiBundle\Form\EmailBindingVerifyType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -28,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @Route("/email")
  */
-class ClientEmailBindingController extends EmailBindingController
+class ClientUserEmailBindingController extends UserEmailBindingController
 {
     const BAD_PARAM_MESSAGE = "Bad parameters";
 

@@ -1,17 +1,12 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Data;
+namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Password Forget Submit Incoming Data
+ * Phone Binding Submit Incoming Data
  */
-class PasswordForgetSubmit
+class PhoneBindingSubmit
 {
-    /**
-     * @var string
-     */
-    private $email;
-
     /**
      * @var string
      */
@@ -23,33 +18,10 @@ class PasswordForgetSubmit
     private $phone;
 
     /**
-     * Set email
-     *
-     * @param  string               $email
-     * @return PasswordForgetSubmit
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * Get email
-     *
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
      * Set countrycode
      *
-     * @param  string               $countrycode
-     * @return PasswordForgetSubmit
+     * @param  string             $countrycode
+     * @return PhoneBindingSubmit
      */
     public function setCountrycode($countrycode)
     {
@@ -71,8 +43,8 @@ class PasswordForgetSubmit
     /**
      * Set phone
      *
-     * @param  string               $phone
-     * @return PasswordForgetSubmit
+     * @param  string             $phone
+     * @return PhoneBindingSubmit
      */
     public function setPhone($phone)
     {

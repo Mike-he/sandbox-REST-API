@@ -1,6 +1,8 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller;
+namespace Sandbox\ApiBundle\Controller\User;
+
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 /**
  * User Phone Binding Controller

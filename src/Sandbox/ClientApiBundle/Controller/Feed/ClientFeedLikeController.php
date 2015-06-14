@@ -1,20 +1,9 @@
 <?php
-/**
- * API for Likes of feed
- *
- * PHP version 5.3
- *
- * @category Sandbox
- * @package  ApiBundle
- * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- * @link     http://www.Sandbox.cn/
- *
- */
-namespace Sandbox\ClientApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\FeedLikeController;
-use Sandbox\ApiBundle\Entity\FeedLike;
+namespace Sandbox\ClientApiBundle\Controller\Feed;
+
+use Sandbox\ApiBundle\Controller\Feed\FeedLikeController;
+use Sandbox\ApiBundle\Entity\Feed\FeedLike;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;

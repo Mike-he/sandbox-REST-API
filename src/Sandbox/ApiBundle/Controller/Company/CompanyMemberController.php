@@ -1,6 +1,8 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller;
+namespace Sandbox\ApiBundle\Controller\Company;
+
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 /**
  * Company Member Controller

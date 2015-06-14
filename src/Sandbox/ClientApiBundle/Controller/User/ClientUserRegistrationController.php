@@ -1,11 +1,11 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller;
+namespace Sandbox\ClientApiBundle\Controller\User;
 
-use Sandbox\ApiBundle\Controller\RegistrationController;
-use Sandbox\ClientApiBundle\Data\RegisterSubmit;
-use Sandbox\ClientApiBundle\Data\RegisterVerify;
-use Sandbox\ApiBundle\Entity\UserRegistration;
+use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
+use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
+use Sandbox\ClientApiBundle\Data\User\RegisterVerify;
+use Sandbox\ApiBundle\Entity\User\UserRegistration;
 use Sandbox\ClientApiBundle\Form\RegisterSubmitType;
 use Sandbox\ClientApiBundle\Form\RegisterVerifyType;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @Route("/register")
  */
-class ClientRegistrationController extends RegistrationController
+class ClientUserRegistrationController extends UserRegistrationController
 {
     const ONE_DAY_IN_MILLIS = 86400000;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity;
+namespace Sandbox\ApiBundle\Entity\Company;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="DirectoryView")
  * @ORM\Entity
  * @ORM\Entity(
- *     repositoryClass="Sandbox\ApiBundle\Entity\DirectoryRepository"
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Company\DirectoryRepository"
  * )
  */
 class Directory extends Companymember

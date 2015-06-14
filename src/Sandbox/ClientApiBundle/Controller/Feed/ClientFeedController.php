@@ -1,22 +1,11 @@
 <?php
-/**
- * API for Feeditems
- *
- * PHP version 5.3
- *
- * @category Sandbox
- * @package  ApiBundle
- * @author   Allan Simon <simona@gobeta.com.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- * @link     http://www.Sandbox.cn/
- *
- */
-namespace Sandbox\ClientApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\FeedController;
-use Sandbox\ApiBundle\Entity\Feed;
-use Sandbox\ApiBundle\Entity\FeedAttachment;
-use Sandbox\ApiBundle\Form\FeedType;
+namespace Sandbox\ClientApiBundle\Controller\Feed;
+
+use Sandbox\ApiBundle\Controller\Feed\FeedController;
+use Sandbox\ApiBundle\Entity\Feed\Feed;
+use Sandbox\ApiBundle\Entity\Feed\FeedAttachment;
+use Sandbox\ApiBundle\Form\Feed\FeedType;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;

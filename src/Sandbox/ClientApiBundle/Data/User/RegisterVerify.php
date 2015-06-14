@@ -1,11 +1,11 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Data;
+namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Password Forget Verify Incoming Data
+ * Register Verify Incoming Data
  */
-class PasswordForgetVerify
+class RegisterVerify
 {
     /**
      * @var string

@@ -1,19 +1,8 @@
 <?php
-/**
- * API for Directories of companies members
- *
- * PHP version 5.3
- *
- * @category Sandbox
- * @package  ApiBundle
- * @author   Allan Simon <simona@gobeta.com.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- * @link     http://www.Sandbox.cn/
- *
- */
-namespace Sandbox\ClientApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\DirectoryController;
+namespace Sandbox\ClientApiBundle\Controller\Company;
+
+use Sandbox\ApiBundle\Controller\Company\DirectoryController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;

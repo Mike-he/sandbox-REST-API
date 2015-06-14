@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Data;
+namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
  * Register Submit Incoming Data

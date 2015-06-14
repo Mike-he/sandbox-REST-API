@@ -1,19 +1,8 @@
 <?php
-/**
- * API for Vcards
- *
- * PHP version 5.3
- *
- * @category Sandbox
- * @package  ApiBundle
- * @author   Josh Yang
- * @license  http://www.Sandbox.cn/ Proprietary
- * @link     http://www.Sandbox.cn/
- *
- */
-namespace Sandbox\ClientApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\VcardController;
+namespace Sandbox\ClientApiBundle\Controller\User;
+
+use Sandbox\ApiBundle\Controller\User\UserProfileController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -31,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @license  http://www.Sandbox.cn/ Proprietary
  * @link     http://www.Sandbox.cn/
  */
-class ClientVcardController extends VcardController
+class ClientUserProfileController extends UserProfileController
 {
     const NOT_FOUND_MESSAGE = "This resource does not exist";
 

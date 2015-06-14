@@ -1,11 +1,10 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller;
+namespace Sandbox\ClientApiBundle\Controller\User;
 
-use Sandbox\ApiBundle\Controller\PhoneBindingController;
-use Sandbox\ClientApiBundle\Data\PhoneBindingSubmit;
-use Sandbox\ClientApiBundle\Data\PhoneBindingVerify;
-use Sandbox\ApiBundle\Entity\PhoneVerification;
+use Sandbox\ApiBundle\Controller\User\UserPhoneBindingController;
+use Sandbox\ClientApiBundle\Data\User\PhoneBindingSubmit;
+use Sandbox\ClientApiBundle\Data\User\PhoneBindingVerify;
 use Sandbox\ClientApiBundle\Form\PhoneBindingSubmitType;
 use Sandbox\ClientApiBundle\Form\PhoneBindingVerifyType;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @Route("/phone")
  */
-class ClientPhoneBindingController extends PhoneBindingController
+class ClientUserPhoneBindingController extends UserPhoneBindingController
 {
     const BAD_PARAM_MESSAGE = "Bad parameters";
 

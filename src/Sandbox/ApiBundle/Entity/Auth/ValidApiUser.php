@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity;
+namespace Sandbox\ApiBundle\Entity\Auth;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;

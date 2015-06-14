@@ -1,6 +1,8 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller;
+namespace Sandbox\ApiBundle\Controller\Feed;
+
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 /**
  * Feed Controller
@@ -11,6 +13,6 @@ namespace Sandbox\ApiBundle\Controller;
  * @license  http://www.Sandbox.cn/ Proprietary
  * @link     http://www.Sandbox.cn/
  */
-class FeedController
+class FeedController extends SandboxRestController
 {
 }

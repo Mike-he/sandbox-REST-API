@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity;
+namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="UserProfile")
  * @ORM\Entity(
- *     repositoryClass="Sandbox\ApiBundle\Entity\JtVCardRepository"
+ *     repositoryClass="Sandbox\ApiBundle\Repository\User\JtVCardRepository"
  * )
  *
  */

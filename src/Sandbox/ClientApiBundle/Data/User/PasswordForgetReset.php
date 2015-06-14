@@ -1,11 +1,11 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Data;
+namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Register Verify Incoming Data
+ * Password Forget Reset Incoming Data
  */
-class RegisterVerify
+class PasswordForgetReset
 {
     /**
      * @var string
@@ -15,13 +15,13 @@ class RegisterVerify
     /**
      * @var string
      */
-    private $code;
+    private $password;
 
     /**
      * Set token
      *
-     * @param  string               $token
-     * @return PasswordForgetVerify
+     * @param  string              $token
+     * @return PasswordForgetReset
      */
     public function setToken($token)
     {
@@ -41,25 +41,25 @@ class RegisterVerify
     }
 
     /**
-     * Set code
+     * Set password
      *
-     * @param  string               $code
-     * @return PasswordForgetVerify
+     * @param  string              $password
+     * @return PasswordForgetReset
      */
-    public function setCode($code)
+    public function setPassword($password)
     {
-        $this->code = $code;
+        $this->password = $password;
 
         return $this;
     }
 
     /**
-     * Get code
+     * Get password
      *
      * @return string
      */
-    public function getCode()
+    public function getPassword()
     {
-        return $this->code;
+        return $this->password;
     }
 }

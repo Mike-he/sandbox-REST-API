@@ -1,25 +1,11 @@
 <?php
-/**
- * API for Companies
- *
- * PHP version 5.3
- *
- * @category Sandbox
- * @package  ApiBundle
- * @author   Allan Simon <simona@gobeta.com.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- * @link     http://www.Sandbox.cn/
- *
- */
-namespace Sandbox\ClientApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\CompanyController;
-use Sandbox\ApiBundle\Entity\Company;
-use Sandbox\ApiBundle\Entity\CompanyAdmin;
-use Sandbox\ApiBundle\Entity\Companymember;
-use Sandbox\ApiBundle\Entity\GuestTag;
-use Sandbox\ApiBundle\Entity\JtVCard;
-use Sandbox\ApiBundle\Form\CompanyType;
+namespace Sandbox\ClientApiBundle\Controller\Company;
+
+use Sandbox\ApiBundle\Controller\Company\CompanyController;
+use Sandbox\ApiBundle\Entity\Company\Company;
+use Sandbox\ApiBundle\Entity\Company\Companymember;
+use Sandbox\ApiBundle\Form\Company\CompanyType;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;

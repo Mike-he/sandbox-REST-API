@@ -1,10 +1,10 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller;
+namespace Sandbox\ClientApiBundle\Controller\User;
 
-use Sandbox\ApiBundle\Controller\LoginController;
-use Sandbox\ApiBundle\Entity\UserToken;
-use Sandbox\ApiBundle\Form\ClientType;
+use Sandbox\ApiBundle\Controller\User\UserLoginController;
+use Sandbox\ApiBundle\Entity\User\UserToken;
+use Sandbox\ApiBundle\Form\Auth\ClientType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -21,7 +21,7 @@ use Symfony\Component\Security\Acl\Exception\Exception;
  * @license  http://www.Sandbox.cn/ Proprietary
  * @link     http://www.Sandbox.cn/
  */
-class ClientUserLoginController extends LoginController
+class ClientUserLoginController extends UserLoginController
 {
     /**
      * Login
@@ -44,6 +44,8 @@ class ClientUserLoginController extends LoginController
     public function getLoginAction(
         Request $request
     ) {
+        die('it works');
+
         try {
             $user = $this->getUser();
 

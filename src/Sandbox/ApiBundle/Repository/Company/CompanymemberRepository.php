@@ -1,5 +1,6 @@
 <?php
-namespace Sandbox\ApiBundle\Entity;
+
+namespace Sandbox\ApiBundle\Repository\Company;
 
 use Doctrine\ORM\EntityRepository;
 

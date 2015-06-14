@@ -1,6 +1,8 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller;
+namespace Sandbox\ApiBundle\Controller\Feed;
+
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 /**
  * Feed Like Controller

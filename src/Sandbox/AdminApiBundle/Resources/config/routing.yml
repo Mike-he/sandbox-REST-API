@@ -1,4 +1,0 @@
-# FEED S/feeds
-sandbox_admin_api_feed:
-    resource: "@SandboxApiBundle/Controller/FeedController.php"
-    type:     rest

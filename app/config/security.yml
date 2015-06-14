@@ -1,7 +1,7 @@
 security:
     encoders:
-        EZLinx\ApiBundle\Entity\UserAuth: plaintext
-        EZLinx\ApiBundle\Entity\ValidApiUser: plaintext
+        Sandbox\ClientApiBundle\Entity\User\ClientUserLogin: plaintext
+        Sandbox\ApiBundle\Entity\Auth\ValidApiUser: plaintext
     role_hierarchy:
         ROLE_ADMIN:       ROLE_USER
         ROLE_API:         ROLE_USER
@@ -11,18 +11,18 @@ security:
     providers:
         chain_provider:
             chain:
-                providers: [email, phone, api]
-        email:
+                providers: [userEmail, userPhoneNumber, api]
+        userEmail:
             entity:
-                class: Sandbox\ApiBundle\Entity\UserAuth
+                class: Sandbox\ClientApiBundle\Entity\User\ClientUserLogin
                 property: email
-        phone:
+        userPhoneNumber:
             entity:
-                class: Sandbox\ApiBundle\Entity\UserAuth
-                property: phonenum
+                class: Sandbox\ClientApiBundle\Entity\User\ClientUserLogin
+                property: phoneNumber
         api:
             entity:
-                class: Sandbox\ApiBundle\Entity\ValidApiUser
+                class: Sandbox\ApiBundle\Entity\Auth\ValidApiUser
                 # it's done like that because secretDigest is the only things
                 # which is unique in this table
                 property: secretdigest

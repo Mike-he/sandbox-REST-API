@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity;
+namespace Sandbox\ApiBundle\Entity\Feed;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="ezFeed")
  * @ORM\Entity(
- *     repositoryClass="Sandbox\ApiBundle\Entity\FeedRepository"
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Feed\FeedRepository"
  * )
  */
 class Feed

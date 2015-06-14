@@ -1,64 +1,64 @@
 # FEEDS/feeds
 sandbox_client_api_feed:
-    resource: "@SandboxClientApiBundle/Controller/ClientFeedController.php"
+    resource: "@SandboxClientApiBundle/Controller/Feed/ClientFeedController.php"
     type:     rest
 
 sandbox_client_api_feed_like:
-    resource: "@SandboxClientApiBundle/Controller/ClientFeedLikeController.php"
+    resource: "@SandboxClientApiBundle/Controller/Feed/ClientFeedLikeController.php"
     type:     rest
     parent:   sandbox_client_api_feed
 
 sandbox_client_api_feed_comment:
-    resource: "@SandboxClientApiBundle/Controller/ClientFeedCommentController.php"
+    resource: "@SandboxClientApiBundle/Controller/Feed/ClientFeedCommentController.php"
     type:     rest
     parent:   sandbox_client_api_feed
 
 # COMPANIES /companies
 sandbox_client_api_company:
-    resource: "@SandboxClientApiBundle/Controller/ClientCompanyController.php"
+    resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyController.php"
     type:     rest
 
 sandbox_client_api_company_member:
-    resource: "@SandboxClientApiBundle/Controller/ClientCompanyMemberController.php"
+    resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyMemberController.php"
     type:     rest
     parent:   sandbox_client_api_company
 
 # DIRECTORIES /directories
 sandbox_client_api_directory:
-    resource: "@SandboxClientApiBundle/Controller/ClientDirectoryController.php"
+    resource: "@SandboxClientApiBundle/Controller/Company/ClientDirectoryController.php"
     type:     rest
 
 # VCARDS /vcards
-sandbox_client_api_vcard:
-    resource: "@SandboxClientApiBundle/Controller/ClientVcardController.php"
+sandbox_client_api_user_profile:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserProfileController.php"
     type:     rest
 
-# Login /login
-sandbox_client_api_login:
-    resource: "@SandboxClientApiBundle/Controller/ClientLoginController.php"
+# Client User Login /client/user/login
+sandbox_client_api_user_login:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserLoginController.php"
     type:     annotation
-    prefix:   /
+    prefix:   /user
 
 # Bind email /email
-sandbox_client_api_email_bind:
-    resource: "@SandboxClientApiBundle/Controller/ClientEmailBindingController.php"
+sandbox_client_api_user_email_binding:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserEmailBindingController.php"
     type:     annotation
     prefix:   /
 
 # Bind phone /phone
-sandbox_client_api_phone_bind:
-    resource: "@SandboxClientApiBundle/Controller/ClientPhoneBindingController.php"
+sandbox_client_api_user_phone_binding:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserPhoneBindingController.php"
     type:     annotation
     prefix:   /
 
 # Registration /register
-sandbox_client_api_registration:
-    resource: "@SandboxClientApiBundle/Controller/ClientRegistrationController.php"
+sandbox_client_api_user_registration:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserRegistrationController.php"
     type:     annotation
     prefix:   /
 
 # Password /password
-sandbox_client_api_password:
-    resource: "@SandboxClientApiBundle/Controller/ClientPasswordController.php"
+sandbox_client_api_user_password:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserPasswordController.php"
     type:     annotation
     prefix:   /

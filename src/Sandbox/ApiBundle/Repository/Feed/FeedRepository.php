@@ -1,5 +1,5 @@
 <?php
-namespace Sandbox\ApiBundle\Entity;
+namespace Sandbox\ApiBundle\Repository\Feed;
 
 use Doctrine\ORM\EntityRepository;
 

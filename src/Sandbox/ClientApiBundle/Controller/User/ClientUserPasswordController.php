@@ -1,13 +1,12 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller;
+namespace Sandbox\ClientApiBundle\Controller\User;
 
-use Sandbox\ApiBundle\Controller\PasswordController;
-use Sandbox\ApiBundle\Entity\ForgetPassword;
-use Sandbox\ClientApiBundle\Data\PasswordChange;
-use Sandbox\ClientApiBundle\Data\PasswordForgetReset;
-use Sandbox\ClientApiBundle\Data\PasswordForgetVerify;
-use Sandbox\ClientApiBundle\Data\PasswordForgetSubmit;
+use Sandbox\ApiBundle\Controller\User\UserPasswordController;
+use Sandbox\ClientApiBundle\Data\User\PasswordChange;
+use Sandbox\ClientApiBundle\Data\User\PasswordForgetReset;
+use Sandbox\ClientApiBundle\Data\User\PasswordForgetVerify;
+use Sandbox\ClientApiBundle\Data\User\PasswordForgetSubmit;
 use Sandbox\ClientApiBundle\Form\PasswordChangeType;
 use Sandbox\ClientApiBundle\Form\PasswordForgetResetType;
 use Sandbox\ClientApiBundle\Form\PasswordForgetSubmitType;
@@ -31,7 +30,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @Route("/password")
  */
-class ClientPasswordController extends PasswordController
+class ClientUserPasswordController extends UserPasswordController
 {
     const HALF_HOUR_IN_MILLIS = 1800000;
 

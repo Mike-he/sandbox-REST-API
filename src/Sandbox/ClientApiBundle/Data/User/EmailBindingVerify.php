@@ -1,11 +1,11 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Data;
+namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Phone Binding Verify Incoming Data
+ * Email Binding Verify Incoming Data
  */
-class PhoneBindingVerify
+class EmailBindingVerify
 {
     /**
      * @var string
@@ -21,7 +21,7 @@ class PhoneBindingVerify
      * Set token
      *
      * @param  string             $token
-     * @return PhoneBindingVerify
+     * @return EmailBindingVerify
      */
     public function setToken($token)
     {
@@ -44,7 +44,7 @@ class PhoneBindingVerify
      * Set code
      *
      * @param  string             $code
-     * @return PhoneBindingVerify
+     * @return EmailBindingVerify
      */
     public function setCode($code)
     {

@@ -1,20 +1,9 @@
 <?php
-/**
- * API for company members
- *
- * PHP version 5.3
- *
- * @category Sandbox
- * @package  ApiBundle
- * @author   Allan Simon <simona@gobeta.com.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- * @link     http://www.Sandbox.cn/
- *
- */
-namespace Sandbox\ClientApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\CompanyMemberController;
-use Sandbox\ApiBundle\Entity\Companymember;
+namespace Sandbox\ClientApiBundle\Controller\Company;
+
+use Sandbox\ApiBundle\Controller\Company\CompanyMemberController;
+use Sandbox\ApiBundle\Entity\Company\Companymember;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\View\View;
