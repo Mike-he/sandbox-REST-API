@@ -1,17 +1,16 @@
 security:
     encoders:
         Sandbox\ClientApiBundle\Entity\User\ClientUserLogin: plaintext
-        Sandbox\ApiBundle\Entity\Auth\ValidApiUser: plaintext
+        Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
     role_hierarchy:
-        ROLE_ADMIN:       ROLE_USER
-        ROLE_API:         ROLE_USER
+        ROLE_ADMIN:       ROLE_ADMIN
+        ROLE_USER:        ROLE_USER
         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
-        ROLE_EXTERNAL:    ROLE_EXTERNAL
 
     providers:
         chain_provider:
             chain:
-                providers: [userEmail, userPhoneNumber, api]
+                providers: [userEmail, userPhoneNumber, clientApi]
         userEmail:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\User\ClientUserLogin
@@ -20,12 +19,12 @@ security:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\User\ClientUserLogin
                 property: phoneNumber
-        api:
+        clientApi:
             entity:
-                class: Sandbox\ApiBundle\Entity\Auth\ValidApiUser
-                # it's done like that because secretDigest is the only things
+                class: Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth
+                # it's done like that because token is the only things
                 # which is unique in this table
-                property: secretdigest
+                property: token
 
     firewalls:
         dev:

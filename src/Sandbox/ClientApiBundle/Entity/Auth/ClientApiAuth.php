@@ -1,19 +1,21 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Entity\User;
+namespace Sandbox\ClientApiBundle\Entity\Auth;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * UserAuth
+ * ClientApiAuthView
  *
- * @ORM\Table(name="ClientUserLoginView")
+ * @ORM\Table(
+ *      name="ClientApiAuthView",
+ *      uniqueConstraints={@ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"})}
+ * )
  * @ORM\Entity
- *
  */
-class ClientUserLogin implements UserInterface
+class ClientApiAuth implements UserInterface
 {
     /**
      * @var integer
@@ -27,37 +29,30 @@ class ClientUserLogin implements UserInterface
     /**
      * @var string
      *
+     * @ORM\Column(name="token", type="string", length=64, nullable=true)
+     */
+    private $token;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="clientId", type="integer", nullable=true)
+     */
+    private $clientId;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="userId", type="integer", nullable=true)
+     */
+    private $userId;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="username", type="string", length=64, nullable=true)
      */
     private $username;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="password", type="string", length=256, nullable=false)
-     */
-    private $password;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     */
-    private $email;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="phoneNumber", type="string", length=60, nullable=true)
-     */
-    private $phoneNumber;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="status", type="string", nullable=false)
-     */
-    private $status;
 
     /**
      * Get id
@@ -70,6 +65,36 @@ class ClientUserLogin implements UserInterface
     }
 
     /**
+     * Get token
+     *
+     * @return string
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * Get clientId
+     *
+     * @return integer
+     */
+    public function getClientId()
+    {
+        return $this->clientId;
+    }
+
+    /**
+     * Get userId
+     *
+     * @return integer
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
      * Get username
      *
      * @return string
@@ -77,46 +102,6 @@ class ClientUserLogin implements UserInterface
     public function getUsername()
     {
         return $this->username;
-    }
-
-    /**
-     * Get password
-     *
-     * @return string
-     */
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    /**
-     * Get email
-     *
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
-     * Get phone
-     *
-     * @return string
-     */
-    public function getPhoneNumber()
-    {
-        return $this->phoneNumber;
-    }
-
-    /**
-     * Get status
-     *
-     * @return string
-     */
-    public function getStatus()
-    {
-        return $this->status;
     }
 
     /**
@@ -161,5 +146,20 @@ class ClientUserLogin implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+    /**
+     * Returns the password used to authenticate the user.
+     *
+     * This should be the encoded password. On authentication, a plain-text
+     * password will be salted, encoded, and then compared to this value.
+     *
+     * @return string The password
+     */
+    public function getPassword()
+    {
+        // token as the username
+        // clientId as the password
+        return $this->clientId;
     }
 }

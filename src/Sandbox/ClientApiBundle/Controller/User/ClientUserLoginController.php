@@ -56,8 +56,6 @@ class ClientUserLoginController extends UserLoginController
         // get user if account is activated
         $user = $this->getUserIfActivated($this->getUser());
 
-        // TODO in case user is not found, create a new user again
-
         return $this->handleClientUserLogin($request, $user);
     }
 
@@ -122,10 +120,8 @@ class ClientUserLoginController extends UserLoginController
                 self::ERROR_ACCOUNT_BANNED_MESSAGE);
         }
 
-        // so far, user is activated, return username
-        return $this->getRepo('User\User')->findOneByUsername(
-            $userLogin->getUsername()
-        );
+        // so far, user is activated, return user
+        return $this->getRepo('User\User')->find($userLogin->getId());
     }
 
     /**
