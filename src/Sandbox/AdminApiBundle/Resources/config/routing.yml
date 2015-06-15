@@ -1,0 +1,5 @@
+# Admin User Login /admin/user/login
+sandbox_admin_api_user_login:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminUserLoginController.php"
+    type:     annotation
+    prefix:   /user

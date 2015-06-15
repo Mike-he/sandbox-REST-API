@@ -25,6 +25,8 @@ class AppKernel extends Kernel
             new Hautelook\TemplatedUriBundle\HautelookTemplatedUriBundle(),
             new Bazinga\Bundle\RestExtraBundle\BazingaRestExtraBundle(),
             new Sandbox\ApiBundle\SandboxApiBundle(),
+            new Sandbox\ClientApiBundle\SandboxClientApiBundle(),
+            new Sandbox\AdminApiBundle\SandboxAdminApiBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

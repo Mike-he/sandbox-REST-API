@@ -1,6 +1,12 @@
-sandbox_api:
-    resource: "@SandboxApiBundle/Resources/config/routing.yml"
+sandbox_client_api:
+    resource: "@SandboxClientApiBundle/Resources/config/routing.yml"
     type: rest
+    prefix: /client
+
+sandbox_admin_api:
+    resource: "@SandboxAdminApiBundle/Resources/config/routing.yml"
+    type: rest
+    prefix: /admin
 
 NelmioApiDocBundle:
   resource: "@NelmioApiDocBundle/Resources/config/routing.yml"

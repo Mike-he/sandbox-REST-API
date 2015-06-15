@@ -7,17 +7,15 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Sandbox\ApiBundle\Entity\Companymember;
-use Sandbox\ApiBundle\Entity\jtVCard;
 
 //TODO there's certainly a way to get the
 // current bundle name with a magic function
 const BUNDLE = 'SandboxApiBundle';
-const AFFILIATION = 'Affiliation';
-const ATTACHMENT = 'attachment';
 
 class SandboxRestController extends FOSRestController
 {
+    // TODO move constants to constant folder
+
     const NOT_ALLOWED_MESSAGE = "You are not allowed to perform this action";
 
     const NOT_FOUND_MESSAGE = "This resource does not exist";
@@ -30,56 +28,27 @@ class SandboxRestController extends FOSRestController
 
     const HTTP_HEADER_AUTH = "authorization";
 
-    protected function ifNotNullGetItems(
-        $isParamNull,
-        $items,
-        $getItemsFunction
+    //-------------------- System --------------------//
+
+    /**
+     * @return int
+     */
+    protected function currentTimeMillis()
+    {
+        return round(microtime(true) * 1000);
+    }
+
+    //-------------------- Repo --------------------//
+
+    /**
+     * @param $repo
+     * @return \Doctrine\Common\Persistence\ObjectRepository
+     */
+    protected function getRepo(
+        $repo
     ) {
-        if ($isParamNull || !is_null($items)) {
-            return $items;
-        }
-
-        return $getItemsFunction();
-    }
-
-    //--------------------get repo--------------------//
-    /**
-     *
-     */
-    protected function getItemRepo($type)
-    {
-        return $this->getDoctrine()->getRepository(
-            BUNDLE.':'.$type
-        );
-    }
-
-    /**
-     *
-     */
-    protected function getAffilationRepo($type)
-    {
-        return $this->getDoctrine()->getRepository(
-            BUNDLE.':'.$type.AFFILIATION
-        );
-    }
-
-    /**
-     *
-     */
-    protected function getRepo($repo)
-    {
         return $this->getDoctrine()->getRepository(
             BUNDLE.':'.$repo
-        );
-    }
-
-    /**
-     *
-     */
-    protected function getAttachmentRepo($type)
-    {
-        return $this->getDoctrine()->getRepository(
-            BUNDLE.':'.$type.ATTACHMENT
         );
     }
 
