@@ -1,11 +1,10 @@
-CREATE TABLE `UserRegistration` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `userId` int(11) NOT NULL,
-  `name` varchar(128) CHARACTER SET utf8mb4 NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `code` varchar(16) NOT NULL,
-  `creationDate` char(15) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `token_UNIQUE` (`token`),
-  UNIQUE KEY `userId_UNIQUE` (`userId`)
-);
+CREATE  TABLE `UserRegistration` (
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  `phone` VARCHAR(64) NULL ,
+  `email` VARCHAR(128) NULL ,
+  `code` VARCHAR(16) NULL ,
+  `creationDate` VARCHAR(15) NOT NULL ,
+  PRIMARY KEY (`id`) ,
+  UNIQUE KEY `uk_UserRegistration__phone` (`phone`) ,
+  UNIQUE KEY `uk_UserRegistration__email` (`email`)
+) ;
