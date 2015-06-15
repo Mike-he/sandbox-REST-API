@@ -103,26 +103,31 @@ class AdminUserLoginController extends AdminLoginController
     ) {
         $adminClient = new AdminClient();
 
-        // get client data from request payload
-        $payload = json_decode($request->getContent(), true);
-        $clientData = $payload['client'];
+        $requestContent = $request->getContent();
+        if (!is_null($requestContent)) {
+            // get client data from request payload
+            $payload = json_decode($requestContent, true);
+            $clientData = $payload['client'];
 
-        if (array_key_exists('id', $clientData)) {
-            // get existing admin client
-            $adminClient = $this->getRepo('Admin\AdminClient')->find($clientData['id']);
-            if (is_null($adminClient)) {
-                $adminClient = new AdminClient();
-                unset($clientData['id']);
+            if (!is_null($clientData)) {
+                if (array_key_exists('id', $clientData)) {
+                    // get existing admin client
+                    $adminClient = $this->getRepo('Admin\AdminClient')->find($clientData['id']);
+                    if (is_null($adminClient)) {
+                        $adminClient = new AdminClient();
+                        unset($clientData['id']);
+                    }
+                }
+
+                // bind client data
+                $form = $this->createForm(new AdminClientType(), $adminClient);
+                $form->submit($clientData, true);
+
+                if ($form->isValid()) {
+                    // set client ip address
+                    $adminClient->setIpAddress($request->getClientIp());
+                }
             }
-        }
-
-        // bind client data
-        $form = $this->createForm(new AdminClientType(), $adminClient);
-        $form->submit($clientData, true);
-
-        if ($form->isValid()) {
-            // set client ip address
-            $adminClient->setIpAddress($request->getClientIp());
         }
 
         return $adminClient;

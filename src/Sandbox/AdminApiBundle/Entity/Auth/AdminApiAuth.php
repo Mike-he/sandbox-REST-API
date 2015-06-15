@@ -7,10 +7,10 @@ use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * ClientApiAuthView
+ * AdminApiAuth
  *
  * @ORM\Table(
- *      name="ClientApiAuthView",
+ *      name="AdminApiAuthView",
  *      uniqueConstraints={@ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"})}
  * )
  * @ORM\Entity
@@ -43,9 +43,9 @@ class AdminApiAuth implements UserInterface
     /**
      * @var integer
      *
-     * @ORM\Column(name="userId", type="integer", nullable=true)
+     * @ORM\Column(name="adminId", type="integer", nullable=true)
      */
-    private $userId;
+    private $adminId;
 
     /**
      * @var string
@@ -85,13 +85,13 @@ class AdminApiAuth implements UserInterface
     }
 
     /**
-     * Get userId
+     * Get adminId
      *
      * @return integer
      */
-    public function getUserId()
+    public function getAdminId()
     {
-        return $this->userId;
+        return $this->adminId;
     }
 
     /**
@@ -122,7 +122,7 @@ class AdminApiAuth implements UserInterface
      */
     public function getRoles()
     {
-        return array('ROLE_USER');
+        return array('ROLE_ADMIN_API');
     }
 
     /**

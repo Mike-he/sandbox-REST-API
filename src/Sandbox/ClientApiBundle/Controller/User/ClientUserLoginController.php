@@ -133,26 +133,31 @@ class ClientUserLoginController extends UserLoginController
     ) {
         $userClient = new UserClient();
 
-        // get client data from request payload
-        $payload = json_decode($request->getContent(), true);
-        $clientData = $payload['client'];
+        $requestContent = $request->getContent();
+        if (!is_null($requestContent)) {
+            // get client data from request payload
+            $payload = json_decode($requestContent, true);
+            $clientData = $payload['client'];
 
-        if (array_key_exists('id', $clientData)) {
-            // get existing user client
-            $userClient = $this->getRepo('User\UserClient')->find($clientData['id']);
-            if (is_null($userClient)) {
-                $userClient = new UserClient();
-                unset($clientData['id']);
+            if (!is_null($clientData)) {
+                if (array_key_exists('id', $clientData)) {
+                    // get existing user client
+                    $userClient = $this->getRepo('User\UserClient')->find($clientData['id']);
+                    if (is_null($userClient)) {
+                        $userClient = new UserClient();
+                        unset($clientData['id']);
+                    }
+                }
+
+                // bind client data
+                $form = $this->createForm(new UserClientType(), $userClient);
+                $form->submit($clientData, true);
+
+                if ($form->isValid()) {
+                    // set client ip address
+                    $userClient->setIpAddress($request->getClientIp());
+                }
             }
-        }
-
-        // bind client data
-        $form = $this->createForm(new UserClientType(), $userClient);
-        $form->submit($clientData, true);
-
-        if ($form->isValid()) {
-            // set client ip address
-            $userClient->setIpAddress($request->getClientIp());
         }
 
         return $userClient;

@@ -3,15 +3,18 @@ security:
         Sandbox\ClientApiBundle\Entity\User\ClientUserLogin: plaintext
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
         Sandbox\AdminApiBundle\Entity\Admin\AdminUserLogin: plaintext
+        Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
     role_hierarchy:
         ROLE_ADMIN:       ROLE_ADMIN
         ROLE_USER:        ROLE_USER
         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_ADMIN_API:   ROLE_ADMIN_API
+        ROLE_CLIENT_API:  ROLE_CLIENT_API
 
     providers:
         chain_provider:
             chain:
-                providers: [userEmail, userPhoneNumber, clientApi, adminUser]
+                providers: [userEmail, userPhoneNumber, clientApi, adminUser, adminApi]
         userEmail:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\User\ClientUserLogin
@@ -23,13 +26,15 @@ security:
         clientApi:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth
-                # it's done like that because token is the only things
-                # which is unique in this table
                 property: token
         adminUser:
             entity:
                 class: Sandbox\AdminApiBundle\Entity\Admin\AdminUserLogin
                 property: username
+        adminApi:
+            entity:
+                class: Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth
+                property: token
 
     firewalls:
         dev:
@@ -48,6 +53,8 @@ security:
         - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/password/forget/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client, role: ROLE_USER }
-        - { path: ^/admin, role: ROLE_ADMIN }
+        - { path: ^/client/user/login$, role: ROLE_USER }
+        - { path: ^/client, role: ROLE_CLIENT_API }
+        - { path: ^/admin/user/login$, role: ROLE_ADMIN }
+        - { path: ^/admin, role: ROLE_ADMIN_API }
 
