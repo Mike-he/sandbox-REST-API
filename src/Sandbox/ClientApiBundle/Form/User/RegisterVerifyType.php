@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Form;
+namespace Sandbox\ClientApiBundle\Form\User;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
