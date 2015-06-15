@@ -3,11 +3,12 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
+use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
 use Sandbox\ClientApiBundle\Data\User\RegisterVerify;
 use Sandbox\ApiBundle\Entity\User\UserRegistration;
-use Sandbox\ClientApiBundle\Form\RegisterSubmitType;
-use Sandbox\ClientApiBundle\Form\RegisterVerifyType;
+use Sandbox\ClientApiBundle\Form\User\RegisterSubmitType;
+use Sandbox\ClientApiBundle\Form\User\RegisterVerifyType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -29,6 +30,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserRegistrationController extends UserRegistrationController
 {
+    use StringUtil;
+
     const ONE_DAY_IN_MILLIS = 86400000;
 
     /**
@@ -55,7 +58,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $submit = new RegisterSubmit();
 
         $form = $this->createForm(new RegisterSubmitType(), $submit);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
             return $this->handleRegisterSubmit($submit);
@@ -144,31 +147,17 @@ class ClientUserRegistrationController extends UserRegistrationController
         $submit
     ) {
         $email = $submit->getEmail();
-        $countryCode = $submit->getCountrycode();
         $phone = $submit->getPhone();
-        $password = $submit->getPassword();
-        $name = $submit->getName();
-
-        if (is_null($name)) {
-            return $this->customErrorView(400, 495, 'Invalid name');
-        }
-
-        if (is_null($password)) {
-            return $this->customErrorView(400, 496, 'Invalid password');
-        }
 
         // TODO validate password with password rule
 
         if (is_null($email)) {
-            if (is_null($countryCode) || is_null($phone)) {
+            if (is_null($phone)) {
                 return $this->customErrorView(400, 490, 'Missing phone number or email address');
             }
         } else {
-            $countryCode = null;
             $phone = null;
         }
-
-        $registration = new UserRegistration();
 
         if (!is_null($email)) {
             // check email valid
@@ -177,20 +166,19 @@ class ClientUserRegistrationController extends UserRegistrationController
             }
 
             // check email already used
-            $user = $this->getRepo('JtUser')->findOneByEmail($email);
+            $user = $this->getRepo('User\User')->findOneByEmail($email);
             if (!is_null($user) && $user->getActivated()) {
                 return $this->customErrorView(400, 492, 'Email address already used');
             }
         } else {
             // check country code and phone number valid
-            if (is_null($countryCode) || is_null($phone)
-                || !is_numeric($countryCode) || !is_numeric($phone)) {
+            if (is_null($phone)
+                || !is_numeric($phone)) {
                 return $this->customErrorView(400, 493, 'Invalid phone number');
             }
 
             // check phone number already used
-            $user = $this->getRepo('JtUser')->findOneBy(array(
-                'countrycode' => $countryCode,
+            $user = $this->getRepo('User\User')->findOneBy(array(
                 'phone' => $phone,
             ));
             if (!is_null($user) && $user->getActivated()) {
@@ -200,49 +188,20 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         $em = $this->getDoctrine()->getManager();
 
-        $newRegistration = false;
-        if (is_null($user)) {
-            $newRegistration = true;
-
-            $user = new JtUser();
-            $user->setPassword($password);
-
-            if (!is_null($email)) {
-                $user->setEmail($email);
-            } else {
-                $user->setCountrycode($countryCode);
-                $user->setPhone($phone);
-            }
-
-            $user->setActivated(false);
-            $time = time();
-            $user->setCreationdate($time);
-            $user->setModificationdate($time);
-
-            $em->persist($user);
-            $em->flush();
-        } else {
-            $registration = $this->getRepo('UserRegistration')->findOneByUserid($user->getId());
-        }
-
-        $registration->setUserid($user->getId());
-        $registration->setName($name);
-        $registration->setToken($this->generateRandomToken());
+        $registration = new UserRegistration();
+        $registration->setEmail($email);
+        $registration->setPhone($phone);
         $registration->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
-        $registration->setCreationdate(time());
 
-        if ($newRegistration) {
-            $em->persist($registration);
-        }
+        $em->persist($registration);
         $em->flush();
 
         if (!is_null($email)) {
             // send verification URL to email
-            $subject = '[EasyLinks Registration] '.$name.', please confirm your email';
-            $this->sendEmail($subject, $email, $name,
+            $subject = '[Sandbox Registration],'.$this->before('@', $registration->getEmail()).' please confirm your email';
+            $this->sendEmail($subject, $email, $this->before('@', $registration->getEmail()),
                     'Emails/registration_email_verification.html.twig',
                     array(
-                        'token' => $registration->getToken(),
                         'code' => $registration->getCode(),
                     ));
         } else {
@@ -250,14 +209,6 @@ class ClientUserRegistrationController extends UserRegistrationController
             $smsText = 'Verification code: '.$registration->getCode();
             $this->sendSms($phone, urlencode($smsText));
         }
-
-        // response
-        $view = new View();
-        $view->setData(array(
-            'token' => $registration->getToken(),
-        ));
-
-        return $view;
     }
 
     /**
