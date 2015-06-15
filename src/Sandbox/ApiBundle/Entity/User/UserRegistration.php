@@ -23,25 +23,18 @@ class UserRegistration
     private $id;
 
     /**
-     * @var int
+     * @var string
      *
-     * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      */
-    private $userid;
+    private $phone;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=128, nullable=false)
+     * @ORM\Column(name="email", type="string", length=128, nullable=true)
      */
-    private $name;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="token", type="string", length=64, nullable=false)
-     */
-    private $token;
+    private $email;
 
     /**
      * @var string
@@ -55,7 +48,7 @@ class UserRegistration
      *
      * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
      */
-    private $creationdate;
+    private $creationDate;
 
     /**
      * Get id
@@ -68,72 +61,49 @@ class UserRegistration
     }
 
     /**
-     * Set userid
+     * Set phone
      *
-     * @param  string           $userid
+     * @param  string           $phone
      * @return UserRegistration
      */
-    public function setUserid($userid)
+    public function setPhone($phone)
     {
-        $this->userid = $userid;
+        $this->phone = $phone;
 
         return $this;
     }
 
     /**
-     * Get userid
+     * Get phone
      *
      * @return string
      */
-    public function getUserid()
+    public function getPhone()
     {
-        return $this->userid;
+        return $this->phone;
     }
 
     /**
-     * Set name
+     * Set email
      *
-     * @param  string           $name
+     * @param  string           $email
      * @return UserRegistration
      */
-    public function setName($name)
+    public function setEmail($email)
     {
-        $this->name = $name;
+        $this->email = $email;
 
         return $this;
     }
 
     /**
-     * Get name
+     * Get email
      *
      * @return string
      */
-    public function getName()
+    public function getEmail()
     {
-        return $this->name;
-    }
-
-    /**
-     * Set token
-     *
-     * @param  string           $token
-     * @return UserRegistration
-     */
-    public function setToken($token)
-    {
-        $this->token = $token;
-
-        return $this;
-    }
-
-    /**
-     * Get token
-     *
-     * @return string
-     */
-    public function getToken()
-    {
-        return $this->token;
+        return $this->email;
     }
 
     /**
@@ -160,25 +130,30 @@ class UserRegistration
     }
 
     /**
-     * Set creationdate
+     * Set creationDate
      *
-     * @param  string           $creationdate
+     * @param  string           $creationDate
      * @return UserRegistration
      */
-    public function setCreationdate($creationdate)
+    public function setCreationDate($creationDate)
     {
-        $this->creationdate = $creationdate.'000';
+        $this->creationDate = $creationDate.'000';
 
         return $this;
     }
 
     /**
-     * Get creationdate
+     * Get creationDate
      *
      * @return string
      */
-    public function getCreationdate()
+    public function getCreationDate()
     {
-        return $this->creationdate;
+        return $this->creationDate;
+    }
+
+    public function __construct()
+    {
+        $this->setCreationdate(time());
     }
 }
