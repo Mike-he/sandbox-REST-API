@@ -154,6 +154,6 @@ class UserRegistration
 
     public function __construct()
     {
-        $this->setCreationdate(time());
+        $this->setCreationDate(time());
     }
 }

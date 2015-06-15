@@ -281,4 +281,10 @@ class User
     {
         return $this->modificationDate;
     }
+
+    public function __construct()
+    {
+        $this->setCreationDate(time());
+        $this->setModificationDate(time());
+    }
 }

@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
 use Sandbox\ClientApiBundle\Data\User\RegisterVerify;
@@ -91,7 +92,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $verify = new RegisterVerify();
 
         $form = $this->createForm(new RegisterVerifyType(), $verify);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
             return $this->handleRegisterVerify($verify);
@@ -150,6 +151,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         $phone = $submit->getPhone();
 
         // TODO validate password with password rule
+
+        // TODO one minute
 
         if (is_null($email)) {
             if (is_null($phone)) {
@@ -218,32 +221,55 @@ class ClientUserRegistrationController extends UserRegistrationController
     private function handleRegisterVerify(
         $verify
     ) {
-        $token = $verify->getToken();
+        $email = $verify->getEmail();
+        $phone = $verify->getPhone();
+        $pwd = $verify->getPassword();
         $code = $verify->getCode();
 
-        if (is_null($token) || is_null($code)) {
+        if (is_null($email)
+            || is_null($phone)
+            || is_null($pwd)
+            || is_null($code)) {
             return $this->customErrorView(400, 490, 'Invalid verification');
         }
 
         // get registration entity
-        $registration = $this->getRepo('UserRegistration')->findOneBy(array(
-            'token' => $token,
+        $emailOrPhone = $this->getRepo('User\UserRegistration')->findOneBy(array(
+            'email' => $email,
+            'phone' => $phone,
+        ));
+
+        if (is_null($emailOrPhone)) {
+            return $this->customErrorView(400, 490, 'Invalid email or phone');
+        }
+
+        // get registration entity
+        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
+            'email' => $email,
+            'phone' => $phone,
             'code' => $code,
         ));
 
         if (is_null($registration)) {
-            return $this->customErrorView(400, 490, 'Invalid verification');
+            return $this->customErrorView(400, 490, 'Invalid verification code');
         }
-
-        // get user entity
-        $user = $this->getRepo('JtUser')->find($registration->getUserid());
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         // check token validation time
         $currentTime = time().'000';
         if ($currentTime - $registration->getCreationdate() > self::ONE_DAY_IN_MILLIS) {
             return $this->customErrorView(400, 491, 'Expired verification');
         }
+
+        $user = new User();
+        $user->setPassword($pwd);
+
+        if (!is_null($email)) {
+            $user->setEmail($email);
+        } else {
+            $user->setPhone($phone);
+        }
+
+        $user->setActivated(false);
 
         // get response
         $response = $this->createXmppUser($registration, $user);
@@ -259,32 +285,23 @@ class ClientUserRegistrationController extends UserRegistrationController
         $user->setActivated(true);
 
         // create personal vcard
-        $vcard = new JtVCard();
+        $vcard = new VCard();
         $vcard->setUserid($xmppUsername);
         $vcard->setName($registration->getName());
 
         $email = $user->getEmail();
-        $countryCode = $user->getCountrycode();
         $phone = $user->getPhone();
 
         if (!is_null($email)) {
             $vcard->setEmail($email);
-        } elseif (!is_null($countryCode) && !is_null($phone)) {
-            $vcardPhone = $this->constructVCardPhone($countryCode, $phone);
-            $vcard->setPhone($vcardPhone);
-        }
-
-        // bind invitation
-        $invitations = $this->getPendingInvitations($user);
-        if (!is_null($invitations)) {
-            foreach ($invitations as $invitation) {
-                $invitation->setUserid($xmppUsername);
-            }
+        } elseif (!is_null($phone)) {
+            $vcard->setPhone($phone);
         }
 
         // remove verification
         $em = $this->getDoctrine()->getManager();
         $em->persist($vcard);
+        $em->persist($user);
         $em->remove($registration);
         $em->flush();
 

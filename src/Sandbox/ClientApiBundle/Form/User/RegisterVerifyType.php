@@ -11,7 +11,9 @@ class RegisterVerifyType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('token')
+            ->add('email')
+            ->add('phone')
+            ->add('password')
             ->add('code')
         ;
     }
@@ -19,7 +21,7 @@ class RegisterVerifyType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ClientApiBundle\Data\RegisterVerify',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\User\RegisterVerify',
         ));
     }
 

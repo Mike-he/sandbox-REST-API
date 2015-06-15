@@ -10,7 +10,12 @@ class RegisterVerify
     /**
      * @var string
      */
-    private $token;
+    private $email;
+
+    /**
+     * @var string
+     */
+    private $phone;
 
     /**
      * @var string
@@ -18,33 +23,61 @@ class RegisterVerify
     private $code;
 
     /**
-     * Set token
-     *
-     * @param  string               $token
-     * @return PasswordForgetVerify
+     * @var string
      */
-    public function setToken($token)
+    private $password;
+
+    /**
+     * Set phone
+     *
+     * @param  string         $phone
+     * @return RegisterVerify
+     */
+    public function setPhone($phone)
     {
-        $this->token = $token;
+        $this->phone = $phone;
 
         return $this;
     }
 
     /**
-     * Get token
+     * Get phone
      *
      * @return string
      */
-    public function getToken()
+    public function getPhone()
     {
-        return $this->token;
+        return $this->phone;
+    }
+
+    /**
+     * Set email
+     *
+     * @param  string         $email
+     * @return RegisterVerify
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 
     /**
      * Set code
      *
-     * @param  string               $code
-     * @return PasswordForgetVerify
+     * @param  string         $code
+     * @return RegisterVerify
      */
     public function setCode($code)
     {
@@ -61,5 +94,28 @@ class RegisterVerify
     public function getCode()
     {
         return $this->code;
+    }
+
+    /**
+     * Set password
+     *
+     * @param  string         $password
+     * @return RegisterVerify
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get password
+     *
+     * @return string
+     */
+    public function getPassword()
+    {
+        return $this->password;
     }
 }
