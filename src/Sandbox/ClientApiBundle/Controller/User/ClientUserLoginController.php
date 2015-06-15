@@ -152,13 +152,11 @@ class ClientUserLoginController extends UserLoginController
                 // bind client data
                 $form = $this->createForm(new UserClientType(), $userClient);
                 $form->submit($clientData, true);
-
-                if ($form->isValid()) {
-                    // set client ip address
-                    $userClient->setIpAddress($request->getClientIp());
-                }
             }
         }
+
+        // set ip address
+        $userClient->setIpAddress($request->getClientIp());
 
         return $userClient;
     }

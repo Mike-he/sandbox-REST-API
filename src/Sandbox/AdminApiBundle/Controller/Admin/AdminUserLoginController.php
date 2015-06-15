@@ -122,13 +122,11 @@ class AdminUserLoginController extends AdminLoginController
                 // bind client data
                 $form = $this->createForm(new AdminClientType(), $adminClient);
                 $form->submit($clientData, true);
-
-                if ($form->isValid()) {
-                    // set client ip address
-                    $adminClient->setIpAddress($request->getClientIp());
-                }
             }
         }
+
+        // set ip address
+        $adminClient->setIpAddress($request->getClientIp());
 
         return $adminClient;
     }
