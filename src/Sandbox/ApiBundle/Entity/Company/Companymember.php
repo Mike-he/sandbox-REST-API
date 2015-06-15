@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     repositoryClass="Sandbox\ApiBundle\Repository\Company\CompanymemberRepository"
  * )
  */
-class CompanyMember
+class Companymember
 {
     /**
      * @var int
