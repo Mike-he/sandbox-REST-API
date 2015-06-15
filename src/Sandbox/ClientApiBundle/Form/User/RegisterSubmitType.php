@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Form;
+namespace Sandbox\ClientApiBundle\Form\User;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -12,17 +12,14 @@ class RegisterSubmitType extends AbstractType
     {
         $builder
             ->add('email')
-            ->add('country_code')
             ->add('phone')
-            ->add('password')
-            ->add('name')
         ;
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ClientApiBundle\Data\RegisterSubmit',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\User\RegisterSubmit',
         ));
     }
 
