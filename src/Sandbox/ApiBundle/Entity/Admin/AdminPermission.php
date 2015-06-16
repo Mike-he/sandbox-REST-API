@@ -5,12 +5,16 @@ namespace Sandbox\ApiBundle\Entity\Admin;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * AdminClient
+ * AdminPermission
  *
- * @ORM\Table(name="AdminClient")
+ * @ORM\Table(
+ *      name="AdminPermission",
+ *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})},
+ *      indexes={@ORM\Index(name="fk_AdminPermission_typeId_idx", columns={"typeId"})}
+ * )
  * @ORM\Entity
  */
-class AdminClient
+class AdminPermission
 {
     /**
      * @var integer
@@ -24,30 +28,23 @@ class AdminClient
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=128, nullable=true)
+     * @ORM\Column(name="key", type="string", length=32, nullable=true)
+     */
+    private $key;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=64, nullable=false)
      */
     private $name;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="os", type="string", length=256, nullable=true)
+     * @ORM\Column(name="typeId", type="integer", nullable=false)
      */
-    private $os;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="version", type="string", length=16, nullable=true)
-     */
-    private $version;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ipAddress", type="string", length=64, nullable=true)
-     */
-    private $ipAddress;
+    private $typeId;
 
     /**
      * @var string
@@ -74,10 +71,33 @@ class AdminClient
     }
 
     /**
+     * Set key
+     *
+     * @param  string          $key
+     * @return AdminPermission
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+
+        return $this;
+    }
+
+    /**
+     * Get key
+     *
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
      * Set name
      *
-     * @param  string      $name
-     * @return AdminClient
+     * @param  string          $name
+     * @return AdminPermission
      */
     public function setName($name)
     {
@@ -97,83 +117,39 @@ class AdminClient
     }
 
     /**
-     * Set os
+     * Set typeId
      *
-     * @param  string      $os
-     * @return AdminClient
+     * @param  integer         $typeId
+     * @return AdminPermission
      */
-    public function setOs($os)
+    public function setTypeId($typeId)
     {
-        $this->os = $os;
+        $this->typeId = $typeId;
 
         return $this;
     }
 
     /**
-     * Get os
+     * Get typeId
      *
-     * @return string
+     * @return integer
      */
-    public function getOs()
+    public function getTypeId()
     {
-        return $this->os;
-    }
-
-    /**
-     * Set version
-     *
-     * @param  string      $version
-     * @return AdminClient
-     */
-    public function setVersion($version)
-    {
-        $this->version = $version;
-
-        return $this;
-    }
-
-    /**
-     * Get version
-     *
-     * @return string
-     */
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
-    /**
-     * Set ipAddress
-     *
-     * @param  string      $ipAddress
-     * @return AdminClient
-     */
-    public function setIpAddress($ipAddress)
-    {
-        $this->ipAddress = $ipAddress;
-
-        return $this;
-    }
-
-    /**
-     * Get ipAddress
-     *
-     * @return string
-     */
-    public function getIpAddress()
-    {
-        return $this->ipAddress;
+        return $this->typeId;
     }
 
     /**
      * Set creationDate
      *
-     * @param  string $creationDate
-     * @return Admin
+     * @param  string          $creationDate
+     * @return AdminPermission
      */
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
+
+        return $this;
     }
 
     /**
@@ -189,12 +165,14 @@ class AdminClient
     /**
      * Set modificationDate
      *
-     * @param  string $modificationDate
-     * @return Admin
+     * @param  string          $modificationDate
+     * @return AdminPermission
      */
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+
+        return $this;
     }
 
     /**

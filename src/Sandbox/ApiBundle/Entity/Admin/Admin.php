@@ -48,11 +48,11 @@ class Admin
     private $name;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="type", type="integer", nullable=false)
+     * @ORM\Column(name="typeKey", type="string", nullable=false)
      */
-    private $type;
+    private $typeKey;
 
     /**
      * @var string
@@ -142,24 +142,24 @@ class Admin
     }
 
     /**
-     * Get type
+     * Get typeKey
      *
      * @return int
      */
-    public function getType()
+    public function getTypeKey()
     {
-        return $this->type;
+        return $this->typeKey;
     }
 
     /**
-     * Set type
+     * Set typeKey
      *
-     * @param  int   $type
+     * @param  int   $typeKey
      * @return Admin
      */
-    public function setType($type)
+    public function setTypeKey($typeKey)
     {
-        $this->type = $type;
+        $this->typeKey = $typeKey;
     }
 
     /**
