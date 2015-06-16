@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AdminType
@@ -21,6 +22,7 @@ class AdminType
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "secondary"})
      */
     private $id;
 
@@ -28,6 +30,7 @@ class AdminType
      * @var string
      *
      * @ORM\Column(name="key", type="string", length=32, nullable=true)
+     * @Serializer\Groups({"main", "secondary"})
      */
     private $key;
 
@@ -35,6 +38,7 @@ class AdminType
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
+     * @Serializer\Groups({"main", "secondary"})
      */
     private $name;
 
@@ -42,6 +46,7 @@ class AdminType
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", length=15, nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -49,6 +54,7 @@ class AdminType
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
