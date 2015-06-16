@@ -9,6 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(
  *      name="AdminPermissionMap",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="username_permissionId_UNIQUE", columns={"username", "permissionId"})
+ *      },
  *      indexes={
  *          @ORM\Index(name="fk_AdminPermissionMap_username_idx", columns={"username"}),
  *          @ORM\Index(name="fk_AdminPermissionMap_permissionId_idx", columns={"permissionId"})
@@ -47,6 +50,12 @@ class AdminPermissionMap
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
+
+    /**
+     * @ORM\OneToOne(targetEntity="AdminPermission"))
+     * @ORM\JoinColumn(name="permissionId", referencedColumnName="id")
+     **/
+    private $permission;
 
     /**
      * Get id
@@ -125,5 +134,15 @@ class AdminPermissionMap
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * Get permission
+     *
+     * @return AdminPermission
+     */
+    public function getPermission()
+    {
+        return $this->permission;
     }
 }

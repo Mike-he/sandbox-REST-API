@@ -69,12 +69,6 @@ class Admin
     private $modificationDate;
 
     /**
-     * @ORM\OneToOne(targetEntity="AdminType", cascade={"persist"}))
-     * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
-     **/
-    private $type;
-
-    /**
      * Get id
      *
      * @return integer
@@ -208,26 +202,5 @@ class Admin
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
-    }
-
-    /**
-     * Get type
-     *
-     * @return AdminType
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * Set type
-     *
-     * @param  AdminType $type
-     * @return Admin
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
     }
 }

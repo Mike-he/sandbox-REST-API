@@ -4,6 +4,7 @@ CREATE TABLE `AdminPermissionMap` (
   `permissionId` int(11) NOT NULL,
   `creationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `username_permissionId_UNIQUE` (`username`,`permissionId`),
   KEY `fk_AdminPermissionMap_username_idx` (`username`),
   KEY `fk_AdminPermissionMap_permissionId_idx` (`permissionId`),
   CONSTRAINT `fk_AdminPermissionMap_username` FOREIGN KEY (`username`) REFERENCES `Admin` (`username`) ON DELETE CASCADE ON UPDATE NO ACTION,

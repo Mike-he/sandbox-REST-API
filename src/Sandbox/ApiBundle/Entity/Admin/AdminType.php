@@ -39,9 +39,9 @@ class AdminType
     private $name;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", length=15, nullable=false)
      */
     private $creationDate;
 
@@ -111,7 +111,7 @@ class AdminType
     /**
      * Set creationDate
      *
-     * @param  string    $creationDate
+     * @param  \DateTime $creationDate
      * @return AdminType
      */
     public function setCreationDate($creationDate)
@@ -124,7 +124,7 @@ class AdminType
     /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {

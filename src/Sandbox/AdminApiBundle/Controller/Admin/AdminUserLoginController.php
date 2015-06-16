@@ -81,13 +81,21 @@ class AdminUserLoginController extends AdminLoginController
             }
             $em->flush();
 
+            // get type
+            $type = $this->getRepo('Admin\AdminType')->findOneByKey($admin->getTypeKey());
+
+            // get admin permissions
+            $permissions = $this->getAdminPermissions($admin->getUsername());
+
             // response
             $view = new View();
 
             return $view->setData(array(
                 'username' => $admin->getUsername(),
-                'client_id' => $adminClient->getId(),
                 'token' => $adminToken->getToken(),
+                'client_id' => $adminClient->getId(),
+                'type' => $type,
+                'permissions' => $permissions,
             ));
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
@@ -103,30 +111,60 @@ class AdminUserLoginController extends AdminLoginController
     ) {
         $adminClient = new AdminClient();
 
-        $requestContent = $request->getContent();
-        if (!is_null($requestContent)) {
-            // get client data from request payload
-            $payload = json_decode($requestContent, true);
-            $clientData = $payload['client'];
+        // set creation date for new object
+        $now = new \DateTime("now");
+        $adminClient->setCreationDate($now);
 
-            if (!is_null($clientData)) {
-                if (array_key_exists('id', $clientData)) {
-                    // get existing admin client
-                    $adminClient = $this->getRepo('Admin\AdminClient')->find($clientData['id']);
-                    if (is_null($adminClient)) {
-                        $adminClient = new AdminClient();
-                        unset($clientData['id']);
-                    }
-                }
-
-                // bind client data
-                $form = $this->createForm(new AdminClientType(), $adminClient);
-                $form->submit($clientData, true);
-            }
-        }
+        // get admin client if exist
+        $adminClient = $this->getAdminClientIfExist($request, $adminClient);
 
         // set ip address
         $adminClient->setIpAddress($request->getClientIp());
+
+        // set modification date
+        $adminClient->setModificationDate($now);
+
+        return $adminClient;
+    }
+
+    /**
+     * @param  Request     $request
+     * @param  AdminClient $adminClient
+     * @return AdminClient
+     */
+    private function getAdminClientIfExist(
+        Request $request,
+        $adminClient
+    ) {
+        $requestContent = $request->getContent();
+        if (is_null($requestContent)) {
+            return $adminClient;
+        }
+
+        // get client data from request payload
+        $payload = json_decode($requestContent, true);
+        $clientData = $payload['client'];
+
+        if (is_null($clientData)) {
+            return $adminClient;
+        }
+
+        if (array_key_exists('id', $clientData)) {
+            // get existing admin client
+            $adminClientExist = $this->getRepo('Admin\AdminClient')->find($clientData['id']);
+
+            // if exist use the existing object
+            // else remove id from client data for further form binding
+            if (!is_null($adminClientExist)) {
+                $adminClient = $adminClientExist;
+            } else {
+                unset($clientData['id']);
+            }
+        }
+
+        // bind client data
+        $form = $this->createForm(new AdminClientType(), $adminClient);
+        $form->submit($clientData, true);
 
         return $adminClient;
     }
@@ -153,8 +191,30 @@ class AdminUserLoginController extends AdminLoginController
         }
 
         // refresh creation date
-        $adminToken->setCreationDate($this->currentTimeMillis());
+        $adminToken->setCreationDate(new \DateTime("now"));
 
         return $adminToken;
+    }
+
+    /**
+     * @param $username
+     * @return array
+     */
+    private function getAdminPermissions(
+        $username
+    ) {
+        $adminPermissions = array();
+
+        $myPermissions = $this->getRepo('Admin\AdminPermissionMap')->findByUsername($username);
+
+        foreach ($myPermissions as $myPermission) {
+            $permission = $myPermission->getPermission();
+            if (is_null($permission)) {
+                continue;
+            }
+            array_push($adminPermissions, $permission);
+        }
+
+        return $adminPermissions;
     }
 }
