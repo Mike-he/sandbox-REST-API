@@ -26,7 +26,7 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 class ClientUserLoginController extends UserLoginController
 {
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
-    const ERROR_ACCOUNT_BANNED_MESSAGE = 'Account is banned 账号禁用';
+    const ERROR_ACCOUNT_BANNED_MESSAGE = 'Account is banned - 账号被禁用';
 
     /**
      * Login
