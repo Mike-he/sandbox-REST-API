@@ -2,7 +2,7 @@ security:
     encoders:
         Sandbox\ApiBundle\Entity\User\User: plaintext
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
-        Sandbox\AdminApiBundle\Entity\Admin\AdminUserLogin: plaintext
+        Sandbox\ApiBundle\Entity\Admin\Admin: plaintext
         Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
     role_hierarchy:
         ROLE_ADMIN:       ROLE_ADMIN
@@ -29,7 +29,7 @@ security:
                 property: token
         adminUser:
             entity:
-                class: Sandbox\AdminApiBundle\Entity\Admin\AdminUserLogin
+                class: Sandbox\ApiBundle\Entity\Admin\Admin
                 property: username
         adminApi:
             entity:
