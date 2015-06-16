@@ -48,23 +48,23 @@ class Admin
     private $name;
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="type", type="integer", nullable=false)
-     */
-    private $type;
-
-    /**
      * @var string
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="typeKey", type="string", nullable=false)
+     */
+    private $typeKey;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
 
@@ -142,30 +142,30 @@ class Admin
     }
 
     /**
-     * Get type
+     * Get typeKey
      *
      * @return int
      */
-    public function getType()
+    public function getTypeKey()
     {
-        return $this->type;
+        return $this->typeKey;
     }
 
     /**
-     * Set type
+     * Set typeKey
      *
-     * @param  int   $type
+     * @param  int   $typeKey
      * @return Admin
      */
-    public function setType($type)
+    public function setTypeKey($typeKey)
     {
-        $this->type = $type;
+        $this->typeKey = $typeKey;
     }
 
     /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -175,7 +175,7 @@ class Admin
     /**
      * Set creationDate
      *
-     * @param  string $creationDate
+     * @param  \DateTime $creationDate
      * @return Admin
      */
     public function setCreationDate($creationDate)
@@ -186,7 +186,7 @@ class Admin
     /**
      * Get modificationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getModificationDate()
     {
@@ -196,7 +196,7 @@ class Admin
     /**
      * Set modificationDate
      *
-     * @param  string $modificationDate
+     * @param  \DateTime $modificationDate
      * @return Admin
      */
     public function setModificationDate($modificationDate)
