@@ -3,7 +3,7 @@ CREATE TABLE `UserToken` (
   `username` varchar(64) NOT NULL,
   `clientId` int(11) NOT NULL,
   `token` varchar(64) NOT NULL,
-  `creationDate` char(15) NOT NULL,
+  `creationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `token_UNIQUE` (`token`),
   UNIQUE KEY `username_clientId_UNIQUE` (`username`,`clientId`),

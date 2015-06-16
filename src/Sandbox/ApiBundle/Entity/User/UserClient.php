@@ -50,6 +50,20 @@ class UserClient
     private $ipAddress;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     */
+    private $modificationDate;
+
+    /**
      * Get id
      *
      * @return integer
@@ -149,5 +163,47 @@ class UserClient
     public function getIpAddress()
     {
         return $this->ipAddress;
+    }
+
+    /**
+     * Set creationDate
+     *
+     * @param  \DateTime  $creationDate
+     * @return UserClient
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+    }
+
+    /**
+     * Get creationDate
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * Set modificationDate
+     *
+     * @param  \DateTime  $modificationDate
+     * @return UserClient
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * Get modificationDate
+     *
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
     }
 }
