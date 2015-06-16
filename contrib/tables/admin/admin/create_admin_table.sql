@@ -3,9 +3,11 @@ CREATE TABLE `Admin` (
   `username` varchar(64) NOT NULL,
   `password` varchar(256) NOT NULL,
   `name` varchar(128) DEFAULT NULL,
-  `type` tinyint(4) NOT NULL,
-  `creationDate` char(15) NOT NULL,
-  `modificationDate` char(15) NOT NULL,
+  `typeKey` varchar(16) NOT NULL,
+  `creationDate` datetime NOT NULL,
+  `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username_UNIQUE` (`username`)
+  UNIQUE KEY `username_UNIQUE` (`username`),
+  KEY `fk_Admin_typeKey_idx` (`typeKey`),
+  CONSTRAINT `fk_Admin_typeKey` FOREIGN KEY (`typeKey`) REFERENCES `AdminType` (`key`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
