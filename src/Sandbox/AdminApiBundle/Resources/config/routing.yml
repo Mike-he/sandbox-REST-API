@@ -3,3 +3,9 @@ sandbox_admin_api_user_login:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminUserLoginController.php"
     type:     annotation
     prefix:   /user
+
+# Rooms /admin/rooms
+sandbox_admin_api_rooms:
+    resource: "@SandboxAdminApiBundle/Controller/Room/AdminRoomController.php"
+    type:     annotation
+    prefix:   /
