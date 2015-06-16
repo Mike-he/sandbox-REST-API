@@ -9,4 +9,6 @@ FROM UserToken AS t
 JOIN User AS u ON t.username = u.username
 WHERE
     t.creationDate > DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 30 DAY)
+    AND
+    u.banned != 1
 ;
