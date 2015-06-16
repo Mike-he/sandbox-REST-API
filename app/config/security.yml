@@ -1,8 +1,8 @@
 security:
     encoders:
-        Sandbox\ClientApiBundle\Entity\User\ClientUserLogin: plaintext
+        Sandbox\ApiBundle\Entity\User\User: plaintext
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
-        Sandbox\AdminApiBundle\Entity\Admin\AdminUserLogin: plaintext
+        Sandbox\ApiBundle\Entity\Admin\Admin: plaintext
         Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
     role_hierarchy:
         ROLE_ADMIN:       ROLE_ADMIN
@@ -14,22 +14,22 @@ security:
     providers:
         chain_provider:
             chain:
-                providers: [userEmail, userPhoneNumber, clientApi, adminUser, adminApi]
+                providers: [userEmail, userPhone, clientApi, adminUser, adminApi]
         userEmail:
             entity:
-                class: Sandbox\ClientApiBundle\Entity\User\ClientUserLogin
+                class: Sandbox\ApiBundle\Entity\User\User
                 property: email
-        userPhoneNumber:
+        userPhone:
             entity:
-                class: Sandbox\ClientApiBundle\Entity\User\ClientUserLogin
-                property: phoneNumber
+                class: Sandbox\ApiBundle\Entity\User\User
+                property: phone
         clientApi:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth
                 property: token
         adminUser:
             entity:
-                class: Sandbox\AdminApiBundle\Entity\Admin\AdminUserLogin
+                class: Sandbox\ApiBundle\Entity\Admin\Admin
                 property: username
         adminApi:
             entity:

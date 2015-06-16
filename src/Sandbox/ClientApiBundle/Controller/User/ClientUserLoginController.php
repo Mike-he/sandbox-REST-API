@@ -7,7 +7,6 @@ use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserToken;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Form\User\UserClientType;
-use Sandbox\ClientApiBundle\Entity\User\ClientUserLogin;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -26,11 +25,8 @@ use Symfony\Component\Security\Acl\Exception\Exception;
  */
 class ClientUserLoginController extends UserLoginController
 {
-    const ERROR_ACCOUNT_NOT_ACTIVATED_CODE = 401001;
-    const ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE = 'Account is not activated';
-
-    const ERROR_ACCOUNT_BANNED_CODE = 401002;
-    const ERROR_ACCOUNT_BANNED_MESSAGE = 'Account is banned';
+    const ERROR_ACCOUNT_BANNED_CODE = 401001;
+    const ERROR_ACCOUNT_BANNED_MESSAGE = 'Account is banned 账号禁用';
 
     /**
      * Login
@@ -53,8 +49,14 @@ class ClientUserLoginController extends UserLoginController
     public function postClientUserLoginAction(
         Request $request
     ) {
-        // get user if account is activated
-        $user = $this->getUserIfActivated($this->getUser());
+        $user = $this->getUser();
+        if ($user->isBanned()) {
+            // user is banned
+            return $this->customErrorView(
+                401,
+                self::ERROR_ACCOUNT_BANNED_CODE,
+                self::ERROR_ACCOUNT_BANNED_MESSAGE);
+        }
 
         return $this->handleClientUserLogin($request, $user);
     }
@@ -100,31 +102,6 @@ class ClientUserLoginController extends UserLoginController
     }
 
     /**
-     * @param  ClientUserLogin $userLogin
-     * @return User
-     */
-    private function getUserIfActivated(
-        $userLogin
-    ) {
-        if (User::STATUS_REGISTERED === $userLogin->getStatus()) {
-            // user is not activated
-            return $this->customErrorView(
-                401,
-                self::ERROR_ACCOUNT_NOT_ACTIVATED_CODE,
-                self::ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE);
-        } elseif (User::STATUS_BANNED === $userLogin->getStatus()) {
-            // user is banned
-            return $this->customErrorView(
-                401,
-                self::ERROR_ACCOUNT_BANNED_CODE,
-                self::ERROR_ACCOUNT_BANNED_MESSAGE);
-        }
-
-        // so far, user is activated, return user
-        return $this->getRepo('User\User')->find($userLogin->getId());
-    }
-
-    /**
      * @param  Request    $request
      * @return UserClient
      */
@@ -133,30 +110,60 @@ class ClientUserLoginController extends UserLoginController
     ) {
         $userClient = new UserClient();
 
-        $requestContent = $request->getContent();
-        if (!is_null($requestContent)) {
-            // get client data from request payload
-            $payload = json_decode($requestContent, true);
-            $clientData = $payload['client'];
+        // set creation date for new object
+        $now = new \DateTime("now");
+        $userClient->setCreationDate($now);
 
-            if (!is_null($clientData)) {
-                if (array_key_exists('id', $clientData)) {
-                    // get existing user client
-                    $userClient = $this->getRepo('User\UserClient')->find($clientData['id']);
-                    if (is_null($userClient)) {
-                        $userClient = new UserClient();
-                        unset($clientData['id']);
-                    }
-                }
-
-                // bind client data
-                $form = $this->createForm(new UserClientType(), $userClient);
-                $form->submit($clientData, true);
-            }
-        }
+        // get user client if exist
+        $userClient = $this->getUserClientIfExist($request, $userClient);
 
         // set ip address
         $userClient->setIpAddress($request->getClientIp());
+
+        // set modification date
+        $userClient->setModificationDate($now);
+
+        return $userClient;
+    }
+
+    /**
+     * @param  Request    $request
+     * @param  UserClient $userClient
+     * @return UserClient
+     */
+    private function getUserClientIfExist(
+        Request $request,
+        $userClient
+    ) {
+        $requestContent = $request->getContent();
+        if (is_null($requestContent)) {
+            return $userClient;
+        }
+
+        // get client data from request payload
+        $payload = json_decode($requestContent, true);
+        $clientData = $payload['client'];
+
+        if (is_null($clientData)) {
+            return $userClient;
+        }
+
+        if (array_key_exists('id', $clientData)) {
+            // get existing user client
+            $userClientExist = $this->getRepo('User\UserClient')->find($clientData['id']);
+
+            // if exist use the existing object
+            // else remove id from client data for further form binding
+            if (!is_null($userClientExist)) {
+                $userClient = $userClientExist;
+            } else {
+                unset($clientData['id']);
+            }
+        }
+
+        // bind client data
+        $form = $this->createForm(new UserClientType(), $userClient);
+        $form->submit($clientData, true);
 
         return $userClient;
     }
@@ -183,7 +190,7 @@ class ClientUserLoginController extends UserLoginController
         }
 
         // refresh creation date
-        $userToken->setCreationDate($this->currentTimeMillis());
+        $userToken->setCreationDate(new \DateTime("now"));
 
         return $userToken;
     }

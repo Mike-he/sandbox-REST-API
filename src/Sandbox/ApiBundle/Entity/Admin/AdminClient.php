@@ -168,8 +168,8 @@ class AdminClient
     /**
      * Set creationDate
      *
-     * @param  \DateTime $creationDate
-     * @return Admin
+     * @param  \DateTime   $creationDate
+     * @return AdminClient
      */
     public function setCreationDate($creationDate)
     {
@@ -189,8 +189,8 @@ class AdminClient
     /**
      * Set modificationDate
      *
-     * @param  \DateTime $modificationDate
-     * @return Admin
+     * @param  \DateTime   $modificationDate
+     * @return AdminClient
      */
     public function setModificationDate($modificationDate)
     {

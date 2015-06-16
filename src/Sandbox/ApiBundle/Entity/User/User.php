@@ -3,6 +3,8 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\Role\Role;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * User
@@ -17,12 +19,8 @@ use Doctrine\ORM\Mapping as ORM;
  * )
  * @ORM\Entity
  */
-class User
+class User implements UserInterface
 {
-    const STATUS_BANNED = 'banned';
-    const STATUS_REGISTERED = 'registered';
-    const STATUS_ACTIVATED = 'activated';
-
     /**
      * @var integer
      *
@@ -56,35 +54,28 @@ class User
     /**
      * @var string
      *
-     * @ORM\Column(name="countryCode", type="string", length=16, nullable=true)
-     */
-    private $countryCode;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      */
     private $phone;
 
     /**
-     * @var string
+     * @var boolean
      *
-     * @ORM\Column(name="status", type="string", nullable=false)
+     * @ORM\Column(name="banned", type="boolean", nullable=false)
      */
-    private $status = self::STATUS_REGISTERED;
+    private $banned = 0;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
 
@@ -168,29 +159,6 @@ class User
     }
 
     /**
-     * Set countryCode
-     *
-     * @param  string $countryCode
-     * @return User
-     */
-    public function setCountryCode($countryCode)
-    {
-        $this->countryCode = $countryCode;
-
-        return $this;
-    }
-
-    /**
-     * Get countryCode
-     *
-     * @return string
-     */
-    public function getCountryCode()
-    {
-        return $this->countryCode;
-    }
-
-    /**
      * Set phone
      *
      * @param  string $phone
@@ -214,32 +182,32 @@ class User
     }
 
     /**
-     * Set status
+     * Set banned
      *
-     * @param  string $status
+     * @param  boolean $banned
      * @return User
      */
-    public function setStatus($status)
+    public function setBanned($banned)
     {
-        $this->status = $status;
+        $this->banned = $banned;
 
         return $this;
     }
 
     /**
-     * Get status
+     * Is banned
      *
-     * @return string
+     * @return boolean
      */
-    public function getStatus()
+    public function isBanned()
     {
-        return $this->status;
+        return $this->banned;
     }
 
     /**
      * Set creationDate
      *
-     * @param  string $creationDate
+     * @param  \DateTime $creationDate
      * @return User
      */
     public function setCreationDate($creationDate)
@@ -252,7 +220,7 @@ class User
     /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -262,7 +230,7 @@ class User
     /**
      * Set modificationDate
      *
-     * @param  string $modificationDate
+     * @param  \DateTime $modificationDate
      * @return User
      */
     public function setModificationDate($modificationDate)
@@ -275,10 +243,54 @@ class User
     /**
      * Get modificationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Returns the roles granted to the user.
+     *
+     * <code>
+     * public function getRoles()
+     * {
+     *     return array('ROLE_USER');
+     * }
+     * </code>
+     *
+     * Alternatively, the roles might be stored on a ``roles`` property,
+     * and populated in any number of different ways when the user object
+     * is created.
+     *
+     * @return Role[] The user roles
+     */
+    public function getRoles()
+    {
+        return array('ROLE_USER');
+    }
+
+    /**
+     * Returns the salt that was originally used to encode the password.
+     *
+     * This can return null if the password was not encoded using a salt.
+     *
+     * @return string|null The salt
+     */
+    public function getSalt()
+    {
+        return;
+    }
+
+    /**
+     * Removes sensitive data from the user.
+     *
+     * This is important if, at any given point, sensitive information like
+     * the plain-text password is stored on this object.
+     */
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
     }
 }
