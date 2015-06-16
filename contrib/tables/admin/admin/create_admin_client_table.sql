@@ -4,5 +4,7 @@ CREATE TABLE `AdminClient` (
   `os` varchar(256) DEFAULT NULL,
   `version` varchar(16) DEFAULT NULL,
   `ipAddress` varchar(64) DEFAULT NULL,
+  `creationDate` char(15) NOT NULL,
+  `modificationDate` char(15) NOT NULL,
   PRIMARY KEY (`id`)
 );

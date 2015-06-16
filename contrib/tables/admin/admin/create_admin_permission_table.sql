@@ -1,8 +1,10 @@
 CREATE TABLE `AdminPermission` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `typeId` int(11) NOT NULL,
-  `key` varchar(16) NOT NULL,
+  `key` varchar(32) NOT NULL,
   `name` varchar(64) NOT NULL,
+  `creationDate` char(15) NOT NULL,
+  `modificationDate` char(15) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `key_UNIQUE` (`key`),
   KEY `fk_AdminPermission_typeId_idx` (`typeId`),
