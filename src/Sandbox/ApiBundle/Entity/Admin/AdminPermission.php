@@ -47,16 +47,16 @@ class AdminPermission
     private $typeId;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
 
@@ -142,7 +142,7 @@ class AdminPermission
     /**
      * Set creationDate
      *
-     * @param  string          $creationDate
+     * @param  \DateTime       $creationDate
      * @return AdminPermission
      */
     public function setCreationDate($creationDate)
@@ -155,7 +155,7 @@ class AdminPermission
     /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -165,7 +165,7 @@ class AdminPermission
     /**
      * Set modificationDate
      *
-     * @param  string          $modificationDate
+     * @param  \DateTime       $modificationDate
      * @return AdminPermission
      */
     public function setModificationDate($modificationDate)
@@ -178,7 +178,7 @@ class AdminPermission
     /**
      * Get modificationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getModificationDate()
     {

@@ -55,18 +55,24 @@ class Admin
     private $typeKey;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
+
+    /**
+     * @ORM\OneToOne(targetEntity="AdminType", cascade={"persist"}))
+     * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
+     **/
+    private $type;
 
     /**
      * Get id
@@ -165,7 +171,7 @@ class Admin
     /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -175,7 +181,7 @@ class Admin
     /**
      * Set creationDate
      *
-     * @param  string $creationDate
+     * @param  \DateTime $creationDate
      * @return Admin
      */
     public function setCreationDate($creationDate)
@@ -186,7 +192,7 @@ class Admin
     /**
      * Get modificationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getModificationDate()
     {
@@ -196,11 +202,32 @@ class Admin
     /**
      * Set modificationDate
      *
-     * @param  string $modificationDate
+     * @param  \DateTime $modificationDate
      * @return Admin
      */
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * Get type
+     *
+     * @return AdminType
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set type
+     *
+     * @param  AdminType $type
+     * @return Admin
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
     }
 }

@@ -42,9 +42,9 @@ class AdminPermissionMap
     private $permissionId;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
@@ -107,7 +107,7 @@ class AdminPermissionMap
     /**
      * Set creationDate
      *
-     * @param  string             $creationDate
+     * @param  \DateTime          $creationDate
      * @return AdminPermissionMap
      */
     public function setCreationDate($creationDate)
@@ -120,7 +120,7 @@ class AdminPermissionMap
     /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {

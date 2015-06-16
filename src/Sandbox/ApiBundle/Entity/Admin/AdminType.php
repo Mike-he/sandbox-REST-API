@@ -46,9 +46,9 @@ class AdminType
     private $creationDate;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
 
@@ -134,7 +134,7 @@ class AdminType
     /**
      * Set modificationDate
      *
-     * @param  string    $modificationDate
+     * @param  \DateTime $modificationDate
      * @return AdminType
      */
     public function setModificationDate($modificationDate)
@@ -147,7 +147,7 @@ class AdminType
     /**
      * Get modificationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getModificationDate()
     {

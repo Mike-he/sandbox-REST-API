@@ -50,16 +50,16 @@ class AdminClient
     private $ipAddress;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
 
@@ -168,7 +168,7 @@ class AdminClient
     /**
      * Set creationDate
      *
-     * @param  string $creationDate
+     * @param  \DateTime $creationDate
      * @return Admin
      */
     public function setCreationDate($creationDate)
@@ -179,7 +179,7 @@ class AdminClient
     /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -189,7 +189,7 @@ class AdminClient
     /**
      * Set modificationDate
      *
-     * @param  string $modificationDate
+     * @param  \DateTime $modificationDate
      * @return Admin
      */
     public function setModificationDate($modificationDate)
@@ -200,7 +200,7 @@ class AdminClient
     /**
      * Get modificationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getModificationDate()
     {

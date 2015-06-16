@@ -53,9 +53,9 @@ class AdminToken
     private $token;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
@@ -135,7 +135,7 @@ class AdminToken
     /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -145,7 +145,7 @@ class AdminToken
     /**
      * Set creationDate
      *
-     * @param  string     $creationDate
+     * @param  \DateTime  $creationDate
      * @return AdminToken
      */
     public function setCreationDate($creationDate)
