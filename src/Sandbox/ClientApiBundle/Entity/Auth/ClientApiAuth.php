@@ -48,11 +48,12 @@ class ClientApiAuth implements UserInterface
     private $userId;
 
     /**
-     * @var string
+     * @var Sandbox\ApiBundle\Entity\User\User
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=true)
-     */
-    private $username;
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User"))
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     **/
+    private $myUser;
 
     /**
      * Get id
@@ -95,13 +96,24 @@ class ClientApiAuth implements UserInterface
     }
 
     /**
-     * Get username
+     * Get myUser
      *
-     * @return string
+     * @return User
+     */
+    public function getMyUser()
+    {
+        return $this->myUser;
+    }
+
+    /**
+     * Returns the username used to authenticate the user.
+     *
+     * @return string The username
      */
     public function getUsername()
     {
-        return $this->username;
+        // token as the username
+        return $this->token;
     }
 
     /**
@@ -158,7 +170,6 @@ class ClientApiAuth implements UserInterface
      */
     public function getPassword()
     {
-        // token as the username
         // clientId as the password
         return $this->clientId;
     }

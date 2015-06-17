@@ -92,9 +92,9 @@ class ClientUserLoginController extends UserLoginController
             $view = new View();
 
             return $view->setData(array(
-                'username' => $user->getUsername(),
-                'client_id' => $userClient->getId(),
-                'token' => $userToken->getToken(),
+                'user' => $user,
+                'client' => $userClient,
+                'token' => $userToken,
             ));
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
@@ -178,13 +178,13 @@ class ClientUserLoginController extends UserLoginController
         $userClient
     ) {
         $userToken = $this->getRepo('User\UserToken')->findOneBy(array(
-            'username' => $user->getUsername(),
+            'userId' => $user->getId(),
             'clientId' => $userClient->getId(),
         ));
 
         if (is_null($userToken)) {
             $userToken = new UserToken();
-            $userToken->setUsername($user->getUsername());
+            $userToken->setUserId($user->getId());
             $userToken->setClientId($userClient->getId());
             $userToken->setToken($this->generateRandomToken());
         }
