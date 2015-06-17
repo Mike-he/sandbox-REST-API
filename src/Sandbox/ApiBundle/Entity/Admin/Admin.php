@@ -42,7 +42,6 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password", type="string", length=256, nullable=false)
-     * @Serializer\Groups({"main"})
      */
     private $password;
 

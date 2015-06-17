@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * User
@@ -27,6 +28,7 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "login"})
      */
     private $id;
 
@@ -34,6 +36,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $xmppUsername;
 
@@ -48,6 +51,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $email;
 
@@ -55,6 +59,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $phone;
 
@@ -62,6 +67,7 @@ class User implements UserInterface
      * @var boolean
      *
      * @ORM\Column(name="banned", type="boolean", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $banned = 0;
 
@@ -69,6 +75,7 @@ class User implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -76,6 +83,7 @@ class User implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

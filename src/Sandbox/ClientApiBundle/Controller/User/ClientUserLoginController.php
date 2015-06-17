@@ -13,6 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\Security\Acl\Exception\Exception;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Login controller
@@ -90,6 +91,7 @@ class ClientUserLoginController extends UserLoginController
 
             // response
             $view = new View();
+            $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
             return $view->setData(array(
                 'user' => $user,

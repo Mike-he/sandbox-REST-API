@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * UserToken
@@ -28,6 +29,7 @@ class UserToken
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "login"})
      */
     private $id;
 
@@ -35,6 +37,7 @@ class UserToken
      * @var integer
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $userId;
 
@@ -42,6 +45,7 @@ class UserToken
      * @var integer
      *
      * @ORM\Column(name="clientId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $clientId;
 
@@ -49,6 +53,7 @@ class UserToken
      * @var string
      *
      * @ORM\Column(name="token", type="string", length=64, nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $token;
 
@@ -56,6 +61,7 @@ class UserToken
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $creationDate;
 
