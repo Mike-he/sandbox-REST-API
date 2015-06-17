@@ -11,10 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
  *      name="UserToken",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"}),
- *          @ORM\UniqueConstraint(name="username_clientId_UNIQUE", columns={"username", "clientId"})
+ *          @ORM\UniqueConstraint(name="userId_clientId_UNIQUE", columns={"userId", "clientId"})
  *      },
  *      indexes={
- *          @ORM\Index(name="fk_UserToken_username_idx", columns={"username"}),
+ *          @ORM\Index(name="fk_UserToken_userId_idx", columns={"userId"}),
  *          @ORM\Index(name="fk_UserToken_clientId_idx", columns={"clientId"})
  *      }
  * )
@@ -34,9 +34,9 @@ class UserToken
     /**
      * @var string
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=false)
+     * @ORM\Column(name="userId", type="string", length=64, nullable=false)
      */
-    private $username;
+    private $userId;
 
     /**
      * @var integer
@@ -70,24 +70,24 @@ class UserToken
     }
 
     /**
-     * Get username
+     * Get userId
      *
      * @return string
      */
-    public function getUsername()
+    public function getUserId()
     {
-        return $this->username;
+        return $this->userId;
     }
 
     /**
-     * Set username
+     * Set userId
      *
-     * @param  string    $username
+     * @param  string    $userId
      * @return UserToken
      */
-    public function setUsername($username)
+    public function setUserId($userId)
     {
-        $this->username = $username;
+        $this->userId = $userId;
     }
 
     /**

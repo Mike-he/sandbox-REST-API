@@ -12,9 +12,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(
  *      name="User",
  *      uniqueConstraints={
- *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"}),
+ *          @ORM\UniqueConstraint(name="xmppUsername_UNIQUE", columns={"xmppUsername"}),
  *          @ORM\UniqueConstraint(name="email_UNIQUE", columns={"email"}),
- *          @ORM\UniqueConstraint(name="countryCode_phone_UNIQUE", columns={"countryCode", "phone"})
+ *          @ORM\UniqueConstraint(name="phone_UNIQUE", columns={"phone"})
  *      }
  * )
  * @ORM\Entity
@@ -33,9 +33,9 @@ class User implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=true)
+     * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=true)
      */
-    private $username;
+    private $xmppUsername;
 
     /**
      * @var string
@@ -90,26 +90,26 @@ class User implements UserInterface
     }
 
     /**
-     * Set username
+     * Set xmppUsername
      *
-     * @param  string $username
+     * @param  string $xmppUsername
      * @return User
      */
-    public function setUsername($username)
+    public function setXmppUsername($xmppUsername)
     {
-        $this->username = $username;
+        $this->xmppUsername = $xmppUsername;
 
         return $this;
     }
 
     /**
-     * Get username
+     * Get xmppUsername
      *
      * @return string
      */
-    public function getUsername()
+    public function getXmppUsername()
     {
-        return $this->username;
+        return $this->xmppUsername;
     }
 
     /**
@@ -248,6 +248,16 @@ class User implements UserInterface
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Returns the username used to authenticate the user.
+     *
+     * @return string The username
+     */
+    public function getUsername()
+    {
+        // TODO: Implement getUsername() method.
     }
 
     /**
