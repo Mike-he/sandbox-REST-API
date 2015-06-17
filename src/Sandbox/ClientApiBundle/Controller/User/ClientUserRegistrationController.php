@@ -223,23 +223,60 @@ class ClientUserRegistrationController extends UserRegistrationController
     ) {
         $email = $verify->getEmail();
         $phone = $verify->getPhone();
-        $pwd = $verify->getPassword();
+        $password = $verify->getPassword();
         $code = $verify->getCode();
 
-        if (is_null($email)
-            || is_null($phone)
-            || is_null($pwd)
-            || is_null($code)) {
+        // check verify is valid
+        $userRegistration = $this->checkVerificationValid($email, $phone, $password, $code);
+
+        // generate user entity
+        $user = $this->generateUser($email, $phone, $password, $userRegistration->getId());
+
+        // generate user vcard
+        //$vcard = $this->generateVCard();
+
+        $em = $this->getDoctrine()->getManager();
+        //$em->persist($vcard);
+        $em->persist($user);
+        $em->remove($userRegistration);
+        $em->flush();
+
+        // response
+        $view = new View();
+        $view->setData(array(
+            'result' => true,
+        ));
+
+        return $view;
+    }
+
+    /**
+     * @param  string           $email
+     * @param  string           $phone
+     * @param  string           $password
+     * @param  string           $code
+     * @return UserRegistration object
+     */
+    private function checkVerificationValid(
+        $email,
+        $phone,
+        $password,
+        $code
+    ) {
+        if (is_null($password)
+            || is_null($code)
+            || (is_null($email) && is_null($phone)
+                || (!is_null($email) && !is_null($phone)))) {
             return $this->customErrorView(400, 490, 'Invalid verification');
         }
 
         // get registration entity
-        $emailOrPhone = $this->getRepo('User\UserRegistration')->findOneBy(array(
+        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
             'email' => $email,
             'phone' => $phone,
         ));
 
-        if (is_null($emailOrPhone)) {
+        if (is_null($registration)) {
             return $this->customErrorView(400, 490, 'Invalid email or phone');
         }
 
@@ -256,12 +293,28 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // check token validation time
         $currentTime = time().'000';
-        if ($currentTime - $registration->getCreationdate() > self::ONE_DAY_IN_MILLIS) {
+        if ($currentTime - $registration->getCreationDate() > self::ONE_DAY_IN_MILLIS) {
             return $this->customErrorView(400, 491, 'Expired verification');
         }
 
+        return $registration;
+    }
+
+    /**
+     * @param  string $email
+     * @param  string $phone
+     * @param  string $password
+     * @param  int    $registrationId
+     * @return User   User
+     */
+    private function generateUser(
+        $email,
+        $phone,
+        $password,
+        $registrationId
+    ) {
         $user = new User();
-        $user->setPassword($pwd);
+        $user->setPassword($password);
 
         if (!is_null($email)) {
             $user->setEmail($email);
@@ -269,60 +322,28 @@ class ClientUserRegistrationController extends UserRegistrationController
             $user->setPhone($phone);
         }
 
-        $user->setActivated(false);
-
-        // get response
-        $response = $this->createXmppUser($registration, $user);
-
-        // get username info from response
+        // get xmppUsername  from response
+        $response = $this->createXmppUser($user, $registrationId);
         $responseJSON = json_decode($response);
         $xmppUsername = $responseJSON->username;
-
-        // set xmppUsername
         $user->setXmppUsername($xmppUsername);
 
-        // activate user
-        $user->setActivated(true);
+        return $user;
+    }
 
-        // create personal vcard
-        $vcard = new VCard();
-        $vcard->setUserid($xmppUsername);
-        $vcard->setName($registration->getName());
-
-        $email = $user->getEmail();
-        $phone = $user->getPhone();
-
-        if (!is_null($email)) {
-            $vcard->setEmail($email);
-        } elseif (!is_null($phone)) {
-            $vcard->setPhone($phone);
-        }
-
-        // remove verification
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($vcard);
-        $em->persist($user);
-        $em->remove($registration);
-        $em->flush();
-
-        // response
-        $view = new View();
-        $view->setData(array(
-            'result' => true,
-        ));
-
-        return $view;
+    private function generateVCard()
+    {
+        // TODO
     }
 
     /**
-     * @param $registration
-     * @param $user
-     *
+     * @param  User  $user
+     * @param  int registrationId
      * @return mixed
      */
     private function createXmppUser(
-        $registration,
-        $user
+        $user,
+        $registrationId
     ) {
         // get globals
         $twig = $this->container->get('twig');
@@ -336,21 +357,19 @@ class ClientUserRegistrationController extends UserRegistrationController
             $globals['openfire_plugin_bstuser_users'];
 
         // generate username
-        $username = strval(100000000 + $user->getId());
+        $username = strval(1000000 + $registrationId);
 
         // request json
         $jsonData = $this->createJsonData(
             $username,
-            $user->getPassword(),
-            $registration->getName(),
-            $user->getEmail()
+            $user->getPassword()
         );
 
         // set ezUser secret to basic auth
-        $ezuserNameSecret = $globals['openfire_plugin_bstuser_property_name_ezuser'].':'.
+        $userNameSecret = $globals['openfire_plugin_bstuser_property_name_ezuser'].':'.
             $globals['openfire_plugin_bstuser_property_secret_ezuser'];
 
-        $basicAuth = 'Basic '.base64_encode($ezuserNameSecret);
+        $basicAuth = 'Basic '.base64_encode($userNameSecret);
 
         // init curl
         $ch = curl_init($apiUrl);
@@ -359,37 +378,25 @@ class ClientUserRegistrationController extends UserRegistrationController
         $response = $this->callAPI($ch, $jsonData, $basicAuth, 'POST');
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode != self::HTTP_STATUS_OK) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
+
+        $this->throwBadRequestIfCallApiFailed($httpCode);
 
         return $response;
     }
 
     /**
-     * @param $name
-     * @param $password
-     * @param $email
+     * @param string $username
+     * @param string $password
      *
      * @return string
      */
     private function createJsonData(
         $username,
-        $password,
-        $name,
-        $email
+        $password
     ) {
         $dataArray = array();
         $dataArray['username'] = $username;
         $dataArray['password'] = $password;
-
-        if (!is_null($name)) {
-            $dataArray['name'] = $name;
-        }
-
-        if (!is_null($email)) {
-            $dataArray['email'] = $email;
-        }
 
         return json_encode($dataArray);
     }
