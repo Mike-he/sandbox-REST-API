@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Admin;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Admin
@@ -25,6 +26,7 @@ class Admin implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "login"})
      */
     private $id;
 
@@ -32,6 +34,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $username;
 
@@ -39,6 +42,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password", type="string", length=256, nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $password;
 
@@ -46,6 +50,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $name;
 
@@ -53,6 +58,7 @@ class Admin implements UserInterface
      * @var integer
      *
      * @ORM\Column(name="typeId", type="integer", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $typeId;
 
@@ -60,6 +66,7 @@ class Admin implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -67,14 +74,22 @@ class Admin implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
     /**
      * @ORM\OneToOne(targetEntity="AdminType"))
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
+     * @Serializer\Groups({"main", "login"})
      **/
     private $type;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AdminPermissionMap", mappedBy="admin")
+     * @Serializer\Groups({"main"})
+     **/
+    private $permissionIds;
 
     /**
      * Get id
@@ -220,6 +235,16 @@ class Admin implements UserInterface
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Get permissionIds
+     *
+     * @return array
+     */
+    public function getPermissionIds()
+    {
+        return $this->permissionIds;
     }
 
     /**

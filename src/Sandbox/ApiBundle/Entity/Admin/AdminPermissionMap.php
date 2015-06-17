@@ -10,10 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *      name="AdminPermissionMap",
  *      uniqueConstraints={
- *          @ORM\UniqueConstraint(name="username_permissionId_UNIQUE", columns={"username", "permissionId"})
+ *          @ORM\UniqueConstraint(name="adminId_permissionId_UNIQUE", columns={"adminId", "permissionId"})
  *      },
  *      indexes={
- *          @ORM\Index(name="fk_AdminPermissionMap_username_idx", columns={"username"}),
+ *          @ORM\Index(name="fk_AdminPermissionMap_adminId_idx", columns={"adminId"}),
  *          @ORM\Index(name="fk_AdminPermissionMap_permissionId_idx", columns={"permissionId"})
  *      }
  * )
@@ -31,11 +31,11 @@ class AdminPermissionMap
     private $id;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=false)
+     * @ORM\Column(name="adminId", type="integer", nullable=false)
      */
-    private $username;
+    private $adminId;
 
     /**
      * @var integer
@@ -58,6 +58,12 @@ class AdminPermissionMap
     private $permission;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Admin", inversedBy="permissionIds")
+     * @ORM\JoinColumn(name="adminId", referencedColumnName="id")
+     **/
+    private $admin;
+
+    /**
      * Get id
      *
      * @return integer
@@ -68,26 +74,26 @@ class AdminPermissionMap
     }
 
     /**
-     * Set username
+     * Set $adminId
      *
-     * @param  string             $username
+     * @param  integer            $adminId
      * @return AdminPermissionMap
      */
-    public function setUsername($username)
+    public function setAdminId($adminId)
     {
-        $this->username = $username;
+        $this->adminId = $adminId;
 
         return $this;
     }
 
     /**
-     * Get username
+     * Get adminId
      *
-     * @return string
+     * @return integer
      */
-    public function getUsername()
+    public function getAdminId()
     {
-        return $this->username;
+        return $this->adminId;
     }
 
     /**

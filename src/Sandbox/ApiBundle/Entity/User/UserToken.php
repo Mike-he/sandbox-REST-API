@@ -32,9 +32,9 @@ class UserToken
     private $id;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="userId", type="string", length=64, nullable=false)
+     * @ORM\Column(name="userId", type="integer", nullable=false)
      */
     private $userId;
 
@@ -72,7 +72,7 @@ class UserToken
     /**
      * Get userId
      *
-     * @return string
+     * @return integer
      */
     public function getUserId()
     {
@@ -82,7 +82,7 @@ class UserToken
     /**
      * Set userId
      *
-     * @param  string    $userId
+     * @param  integer   $userId
      * @return UserToken
      */
     public function setUserId($userId)
@@ -93,7 +93,7 @@ class UserToken
     /**
      * Get clientId
      *
-     * @return int
+     * @return integer
      */
     public function getClientId()
     {
@@ -103,7 +103,7 @@ class UserToken
     /**
      * Set clientId
      *
-     * @param  int       $clientId
+     * @param  integer   $clientId
      * @return UserToken
      */
     public function setClientId($clientId)
