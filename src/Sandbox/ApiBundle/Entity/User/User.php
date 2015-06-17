@@ -19,10 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class User
 {
-    const STATUS_BANNED = 'banned';
-    const STATUS_REGISTERED = 'registered';
-    const STATUS_ACTIVATED = 'activated';
-
     /**
      * @var integer
      *
@@ -35,9 +31,9 @@ class User
     /**
      * @var string
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=true)
+     * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=true)
      */
-    private $username;
+    private $xmppUsername;
 
     /**
      * @var string
@@ -56,23 +52,16 @@ class User
     /**
      * @var string
      *
-     * @ORM\Column(name="countryCode", type="string", length=16, nullable=true)
-     */
-    private $countryCode;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      */
     private $phone;
 
     /**
-     * @var string
+     * @var boolean
      *
-     * @ORM\Column(name="status", type="string", nullable=false)
+     * @ORM\Column(name="banned", type="int", nullable=false)
      */
-    private $status = self::STATUS_REGISTERED;
+    private $banned = false;
 
     /**
      * @var string
@@ -99,26 +88,26 @@ class User
     }
 
     /**
-     * Set username
+     * Set xmppUsername
      *
-     * @param  string $username
+     * @param  string $xmppUsername
      * @return User
      */
-    public function setUsername($username)
+    public function setXmppUsername($xmppUsername)
     {
-        $this->username = $username;
+        $this->xmppUsername = $xmppUsername;
 
         return $this;
     }
 
     /**
-     * Get username
+     * Get xmppUsername
      *
      * @return string
      */
-    public function getUsername()
+    public function getXmppUsername()
     {
-        return $this->username;
+        return $this->xmppUsername;
     }
 
     /**
@@ -168,29 +157,6 @@ class User
     }
 
     /**
-     * Set countryCode
-     *
-     * @param  string $countryCode
-     * @return User
-     */
-    public function setCountryCode($countryCode)
-    {
-        $this->countryCode = $countryCode;
-
-        return $this;
-    }
-
-    /**
-     * Get countryCode
-     *
-     * @return string
-     */
-    public function getCountryCode()
-    {
-        return $this->countryCode;
-    }
-
-    /**
      * Set phone
      *
      * @param  string $phone
@@ -214,26 +180,26 @@ class User
     }
 
     /**
-     * Set status
+     * Set banned
      *
-     * @param  string $status
+     * @param  boolean $banned
      * @return User
      */
-    public function setStatus($status)
+    public function setBanned($banned)
     {
-        $this->status = $status;
+        $this->banned = $banned;
 
         return $this;
     }
 
     /**
-     * Get status
+     * Get banned
      *
-     * @return string
+     * @return boolean
      */
-    public function getStatus()
+    public function getBanned()
     {
-        return $this->status;
+        return $this->banned;
     }
 
     /**
