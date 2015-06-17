@@ -50,11 +50,11 @@ class Admin implements UserInterface
     private $name;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="typeKey", type="string", nullable=false)
+     * @ORM\Column(name="typeId", type="integer", nullable=false)
      */
-    private $typeKey;
+    private $typeId;
 
     /**
      * @var \DateTime
@@ -69,6 +69,12 @@ class Admin implements UserInterface
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
+
+    /**
+     * @ORM\OneToOne(targetEntity="AdminType"))
+     * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
+     **/
+    private $type;
 
     /**
      * Get id
@@ -144,24 +150,24 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get typeKey
+     * Get typeId
      *
-     * @return int
+     * @return integer
      */
-    public function getTypeKey()
+    public function getTypeId()
     {
-        return $this->typeKey;
+        return $this->typeId;
     }
 
     /**
-     * Set typeKey
+     * Set typeId
      *
-     * @param  int   $typeKey
+     * @param  integer $typeId
      * @return Admin
      */
-    public function setTypeKey($typeKey)
+    public function setTypeId($typeId)
     {
-        $this->typeKey = $typeKey;
+        $this->typeId = $typeId;
     }
 
     /**
@@ -204,6 +210,16 @@ class Admin implements UserInterface
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * Get type
+     *
+     * @return AdminType
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 
     /**
