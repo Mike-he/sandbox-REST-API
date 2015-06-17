@@ -82,9 +82,6 @@ class AdminUserLoginController extends AdminLoginController
             }
             $em->flush();
 
-            // get type
-            $type = $this->getRepo('Admin\AdminType')->findOneByKey($admin->getTypeKey());
-
             // get admin permissions
             $permissions = $this->getAdminPermissions($admin->getUsername());
 
@@ -96,7 +93,7 @@ class AdminUserLoginController extends AdminLoginController
                 'username' => $admin->getUsername(),
                 'token' => $adminToken->getToken(),
                 'client_id' => $adminClient->getId(),
-                'type' => $type,
+                'type' => $admin->getType(),
                 'permissions' => $permissions,
             ));
         } catch (Exception $e) {
