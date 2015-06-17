@@ -82,8 +82,9 @@ class AdminUserLoginController extends AdminLoginController
             }
             $em->flush();
 
-            // get admin permissions
+            // admin permissions
             $permissions = $this->getAdminPermissions($admin);
+            $admin->setPermissions($permissions);
 
             // response
             $view = new View();
@@ -93,7 +94,6 @@ class AdminUserLoginController extends AdminLoginController
                 'admin' => $admin,
                 'token' => $adminToken,
                 'client' => $adminClient,
-                'permissions' => $permissions,
             ));
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');

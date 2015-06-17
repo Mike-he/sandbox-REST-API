@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Entity\Auth;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * ClientApiAuth

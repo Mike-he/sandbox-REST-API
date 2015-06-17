@@ -87,9 +87,13 @@ class Admin implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="AdminPermissionMap", mappedBy="admin")
-     * @Serializer\Groups({"main"})
      **/
     private $permissionIds;
+
+    /**
+     * @Serializer\Groups({"login"})
+     **/
+    private $permissions;
 
     /**
      * Get id
@@ -245,6 +249,27 @@ class Admin implements UserInterface
     public function getPermissionIds()
     {
         return $this->permissionIds;
+    }
+
+    /**
+     * Set permissions
+     *
+     * @param  array $permissions
+     * @return Admin
+     */
+    public function setPermissions($permissions)
+    {
+        $this->permissions = $permissions;
+    }
+
+    /**
+     * Get permissions
+     *
+     * @return array
+     */
+    public function getPermissions()
+    {
+        return $this->permissions;
     }
 
     /**

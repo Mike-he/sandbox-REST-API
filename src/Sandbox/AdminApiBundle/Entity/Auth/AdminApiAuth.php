@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Entity\Auth;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Sandbox\ApiBundle\Entity\Admin\Admin;
 
 /**
  * AdminApiAuth
@@ -55,6 +56,14 @@ class AdminApiAuth implements UserInterface
     private $username;
 
     /**
+     * @var Sandbox\ApiBundle\Entity\Admin\Admin
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Admin\Admin"))
+     * @ORM\JoinColumn(name="adminId", referencedColumnName="id")
+     **/
+    private $myAdmin;
+
+    /**
      * Get id
      *
      * @return integer
@@ -102,6 +111,16 @@ class AdminApiAuth implements UserInterface
     public function getUsername()
     {
         return $this->username;
+    }
+
+    /**
+     * Get myAdmin
+     *
+     * @return Admin
+     */
+    public function getMyAdmin()
+    {
+        return $this->myAdmin;
     }
 
     /**
