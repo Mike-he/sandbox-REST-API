@@ -15,22 +15,7 @@ class RegisterSubmit
     /**
      * @var string
      */
-    private $countrycode;
-
-    /**
-     * @var string
-     */
     private $phone;
-
-    /**
-     * @var string
-     */
-    private $password;
-
-    /**
-     * @var string
-     */
-    private $name;
 
     /**
      * Set email
@@ -56,29 +41,6 @@ class RegisterSubmit
     }
 
     /**
-     * Set countrycode
-     *
-     * @param  string         $countrycode
-     * @return RegisterSubmit
-     */
-    public function setCountrycode($countrycode)
-    {
-        $this->countrycode = $countrycode;
-
-        return $this;
-    }
-
-    /**
-     * Get countrycode
-     *
-     * @return string
-     */
-    public function getCountrycode()
-    {
-        return $this->countrycode;
-    }
-
-    /**
      * Set phone
      *
      * @param  string         $phone
@@ -99,51 +61,5 @@ class RegisterSubmit
     public function getPhone()
     {
         return $this->phone;
-    }
-
-    /**
-     * Set password
-     *
-     * @param  string         $password
-     * @return RegisterSubmit
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * Get password
-     *
-     * @return string
-     */
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    /**
-     * Set name
-     *
-     * @param  string         $name
-     * @return RegisterSubmit
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 }

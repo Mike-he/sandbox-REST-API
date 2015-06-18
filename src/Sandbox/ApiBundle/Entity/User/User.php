@@ -69,7 +69,7 @@ class User implements UserInterface
      * @ORM\Column(name="banned", type="boolean", nullable=false)
      * @Serializer\Groups({"main"})
      */
-    private $banned = 0;
+    private $banned = false;
 
     /**
      * @var \DateTime
@@ -213,6 +213,16 @@ class User implements UserInterface
     }
 
     /**
+     * Get creationDate
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
      * Set creationDate
      *
      * @param  \DateTime $creationDate
@@ -221,18 +231,16 @@ class User implements UserInterface
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
-
-        return $this;
     }
 
     /**
-     * Get creationDate
+     * Get modificationDate
      *
      * @return \DateTime
      */
-    public function getCreationDate()
+    public function getModificationDate()
     {
-        return $this->creationDate;
+        return $this->modificationDate;
     }
 
     /**
@@ -244,18 +252,12 @@ class User implements UserInterface
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
-
-        return $this;
     }
 
-    /**
-     * Get modificationDate
-     *
-     * @return \DateTime
-     */
-    public function getModificationDate()
+    public function __construct()
     {
-        return $this->modificationDate;
+        $this->setCreationDate(new \DateTime("now"));
+        $this->setModificationDate(new \DateTime("now"));
     }
 
     /**

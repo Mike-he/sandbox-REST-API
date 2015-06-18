@@ -55,7 +55,7 @@ sandbox_client_api_user_phone_binding:
 sandbox_client_api_user_registration:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserRegistrationController.php"
     type:     annotation
-    prefix:   /
+    prefix:   /user
 
 # Password /password
 sandbox_client_api_user_password:
