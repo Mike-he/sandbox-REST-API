@@ -37,22 +37,28 @@ class Room
     private $description;
 
     /**
-     * @var string
+     * @var \Sandbox\ApiBundle\Entity\Location\City
      *
-     * @ORM\Column(name="city", type="string", length=255, nullable=false)
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\City")
+     * @ORM\JoinColumn(name="city", referencedColumnName="id")
+     * @ORM\Column(name="city", type="integer", nullable=false)
      */
     private $city;
 
     /**
-     * @var string
+     * @var \Sandbox\ApiBundle\Entity\Location\Building
      *
-     * @ORM\Column(name="building", type="string", length=255, nullable=false)
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\Building")
+     * @ORM\JoinColumn(name="building", referencedColumnName="id")
+     * @ORM\Column(name="building", type="integer", nullable=false)
      */
     private $building;
 
     /**
-     * @var integer
+     * @var \Sandbox\ApiBundle\Entity\Location\Floor
      *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\Floor")
+     * @ORM\JoinColumn(name="floor", referencedColumnName="id")
      * @ORM\Column(name="floor", type="integer", nullable=false)
      */
     private $floor;

@@ -1,68 +1,67 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Room;
+namespace Sandbox\ApiBundle\Entity\Product;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * RoomAttachment
+ * ProductAttachment
  *
- * @ORM\Table(name="RoomAttachment", indexes={@ORM\Index(name="fk_RoomAttachment_roomId_idx", columns={"roomId"})})
+ * @ORM\Table(name="ProductAttachment")
  * @ORM\Entity
  */
-class RoomAttachment
+class ProductAttachment
 {
     /**
      * @var integer
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Room
+     * @var \Sandbox\ApiBundle\Entity\Product\Product
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
-     * })
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
+     * @ORM\JoinColumn(name="productId", referencedColumnName="id")
+     * @ORM\Column(name="productId", type="integer")
      */
-    private $roomId;
+    private $productId;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="content", type="text", nullable=false)
+     * @ORM\Column(name="content", type="text")
      */
     private $content;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
+     * @ORM\Column(name="attachmentType", type="string", length=64)
      */
     private $attachmentType;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="filename", type="string", length=64, nullable=false)
+     * @ORM\Column(name="filename", type="string", length=64)
      */
     private $filename;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="preview", type="text", nullable=true)
+     * @ORM\Column(name="preview", type="text")
      */
     private $preview;
 
     /**
      * @var integer
      *
-     * @ORM\Column(name="size", type="integer", nullable=false)
+     * @ORM\Column(name="size", type="integer")
      */
     private $size;
 
@@ -77,33 +76,33 @@ class RoomAttachment
     }
 
     /**
-     * Set roomId
+     * Set productId
      *
-     * @param  \Sandbox\ApiBundle\Entity\Room\Room $roomId
-     * @return RoomAttachment
+     * @param  integer           $productId
+     * @return ProductAttachment
      */
-    public function setRoomId(\Sandbox\ApiBundle\Entity\Room\Room $roomId = null)
+    public function setProductId($productId)
     {
-        $this->roomId = $roomId;
+        $this->productId = $productId;
 
         return $this;
     }
 
     /**
-     * Get roomId
+     * Get productId
      *
-     * @return \Sandbox\ApiBundle\Entity\Room\Room
+     * @return integer
      */
-    public function getRoomId()
+    public function getProductId()
     {
-        return $this->roomId;
+        return $this->productId;
     }
 
     /**
      * Set content
      *
-     * @param  string         $content
-     * @return RoomAttachment
+     * @param  string            $content
+     * @return ProductAttachment
      */
     public function setContent($content)
     {
@@ -125,8 +124,8 @@ class RoomAttachment
     /**
      * Set attachmentType
      *
-     * @param  string         $attachmentType
-     * @return RoomAttachment
+     * @param  string            $attachmentType
+     * @return ProductAttachment
      */
     public function setAttachmentType($attachmentType)
     {
@@ -148,8 +147,8 @@ class RoomAttachment
     /**
      * Set filename
      *
-     * @param  string         $filename
-     * @return RoomAttachment
+     * @param  string            $filename
+     * @return ProductAttachment
      */
     public function setFilename($filename)
     {
@@ -171,8 +170,8 @@ class RoomAttachment
     /**
      * Set preview
      *
-     * @param  string         $preview
-     * @return RoomAttachment
+     * @param  string            $preview
+     * @return ProductAttachment
      */
     public function setPreview($preview)
     {
@@ -194,8 +193,8 @@ class RoomAttachment
     /**
      * Set size
      *
-     * @param  integer        $size
-     * @return RoomAttachment
+     * @param  integer           $size
+     * @return ProductAttachment
      */
     public function setSize($size)
     {
