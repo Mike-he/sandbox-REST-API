@@ -92,7 +92,7 @@ class Admin implements UserInterface
     /**
      * @Serializer\Groups({"login"})
      **/
-    private $permissions;
+    private $permission;
 
     /**
      * Get id
@@ -251,24 +251,24 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set permissions
+     * Set permission
      *
-     * @param  array $permissions
+     * @param  array $permission
      * @return Admin
      */
-    public function setPermissions($permissions)
+    public function setPermission($permission)
     {
-        $this->permissions = $permissions;
+        $this->permission = $permission;
     }
 
     /**
-     * Get permissions
+     * Get permission
      *
      * @return array
      */
-    public function getPermissions()
+    public function getPermission()
     {
-        return $this->permissions;
+        return $this->permission;
     }
 
     /**
