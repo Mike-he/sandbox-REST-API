@@ -82,19 +82,18 @@ class AdminUserLoginController extends AdminLoginController
             }
             $em->flush();
 
-            // get admin permissions
-            $permissions = $this->getAdminPermissions($admin->getUsername());
+            // admin permissions
+            $permissions = $this->getAdminPermissions($admin);
+            $admin->setPermissions($permissions);
 
             // response
             $view = new View();
-            $view->setSerializationContext(SerializationContext::create()->setGroups(array('secondary')));
+            $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
             return $view->setData(array(
-                'username' => $admin->getUsername(),
-                'token' => $adminToken->getToken(),
-                'client_id' => $adminClient->getId(),
-                'type' => $admin->getType(),
-                'permissions' => $permissions,
+                'admin' => $admin,
+                'token' => $adminToken,
+                'client' => $adminClient,
             ));
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
@@ -178,13 +177,13 @@ class AdminUserLoginController extends AdminLoginController
         $adminClient
     ) {
         $adminToken = $this->getRepo('Admin\AdminToken')->findOneBy(array(
-            'username' => $admin->getUsername(),
+            'adminId' => $admin->getId(),
             'clientId' => $adminClient->getId(),
         ));
 
         if (is_null($adminToken)) {
             $adminToken = new AdminToken();
-            $adminToken->setUsername($admin->getUsername());
+            $adminToken->setAdminId($admin->getId());
             $adminToken->setClientId($adminClient->getId());
             $adminToken->setToken($this->generateRandomToken());
         }
@@ -196,17 +195,15 @@ class AdminUserLoginController extends AdminLoginController
     }
 
     /**
-     * @param $username
+     * @param  Admin $admin
      * @return array
      */
     private function getAdminPermissions(
-        $username
+        $admin
     ) {
         $adminPermissions = array();
 
-        $myPermissions = $this->getRepo('Admin\AdminPermissionMap')->findByUsername($username);
-
-        foreach ($myPermissions as $myPermission) {
+        foreach ($admin->getPermissionIds() as $myPermission) {
             $permission = $myPermission->getPermission();
             if (is_null($permission)) {
                 continue;

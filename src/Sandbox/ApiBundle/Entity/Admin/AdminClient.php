@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AdminClient
@@ -18,6 +19,7 @@ class AdminClient
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "login"})
      */
     private $id;
 
@@ -25,6 +27,7 @@ class AdminClient
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $name;
 
@@ -32,6 +35,7 @@ class AdminClient
      * @var string
      *
      * @ORM\Column(name="os", type="string", length=256, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $os;
 
@@ -39,6 +43,7 @@ class AdminClient
      * @var string
      *
      * @ORM\Column(name="version", type="string", length=16, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $version;
 
@@ -46,6 +51,7 @@ class AdminClient
      * @var string
      *
      * @ORM\Column(name="ipAddress", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $ipAddress;
 
@@ -53,6 +59,7 @@ class AdminClient
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -60,6 +67,7 @@ class AdminClient
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * UserToken
@@ -11,10 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
  *      name="UserToken",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"}),
- *          @ORM\UniqueConstraint(name="username_clientId_UNIQUE", columns={"username", "clientId"})
+ *          @ORM\UniqueConstraint(name="userId_clientId_UNIQUE", columns={"userId", "clientId"})
  *      },
  *      indexes={
- *          @ORM\Index(name="fk_UserToken_username_idx", columns={"username"}),
+ *          @ORM\Index(name="fk_UserToken_userId_idx", columns={"userId"}),
  *          @ORM\Index(name="fk_UserToken_clientId_idx", columns={"clientId"})
  *      }
  * )
@@ -28,20 +29,23 @@ class UserToken
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "login"})
      */
     private $id;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=false)
+     * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
-    private $username;
+    private $userId;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="clientId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $clientId;
 
@@ -49,6 +53,7 @@ class UserToken
      * @var string
      *
      * @ORM\Column(name="token", type="string", length=64, nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $token;
 
@@ -56,6 +61,7 @@ class UserToken
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $creationDate;
 
@@ -70,30 +76,30 @@ class UserToken
     }
 
     /**
-     * Get username
+     * Get userId
      *
-     * @return string
+     * @return integer
      */
-    public function getUsername()
+    public function getUserId()
     {
-        return $this->username;
+        return $this->userId;
     }
 
     /**
-     * Set username
+     * Set userId
      *
-     * @param  string    $username
+     * @param  integer   $userId
      * @return UserToken
      */
-    public function setUsername($username)
+    public function setUserId($userId)
     {
-        $this->username = $username;
+        $this->userId = $userId;
     }
 
     /**
      * Get clientId
      *
-     * @return int
+     * @return integer
      */
     public function getClientId()
     {
@@ -103,7 +109,7 @@ class UserToken
     /**
      * Set clientId
      *
-     * @param  int       $clientId
+     * @param  integer   $clientId
      * @return UserToken
      */
     public function setClientId($clientId)

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AdminToken
@@ -11,10 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
  *      name="AdminToken",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"}),
- *          @ORM\UniqueConstraint(name="username_clientId_UNIQUE", columns={"username", "clientId"})
+ *          @ORM\UniqueConstraint(name="adminId_clientId_UNIQUE", columns={"adminId", "clientId"})
  *      },
  *      indexes={
- *          @ORM\Index(name="fk_AdminToken_username_idx", columns={"username"}),
+ *          @ORM\Index(name="fk_AdminToken_adminId_idx", columns={"adminId"}),
  *          @ORM\Index(name="fk_AdminToken_clientId_idx", columns={"clientId"})
  *      }
  * )
@@ -28,20 +29,23 @@ class AdminToken
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "login"})
      */
     private $id;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=false)
+     * @ORM\Column(name="adminId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
-    private $username;
+    private $adminId;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="clientId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $clientId;
 
@@ -49,6 +53,7 @@ class AdminToken
      * @var string
      *
      * @ORM\Column(name="token", type="string", length=64, nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $token;
 
@@ -56,6 +61,7 @@ class AdminToken
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main", "login"})
      */
     private $creationDate;
 
@@ -70,24 +76,24 @@ class AdminToken
     }
 
     /**
-     * Get username
+     * Get adminId
      *
-     * @return string
+     * @return integer
      */
-    public function getUsername()
+    public function getAdminId()
     {
-        return $this->username;
+        return $this->adminId;
     }
 
     /**
-     * Set username
+     * Set adminId
      *
-     * @param  string     $username
+     * @param  integer    $adminId
      * @return AdminToken
      */
-    public function setUsername($username)
+    public function setAdminId($adminId)
     {
-        $this->username = $username;
+        $this->adminId = $adminId;
     }
 
     /**

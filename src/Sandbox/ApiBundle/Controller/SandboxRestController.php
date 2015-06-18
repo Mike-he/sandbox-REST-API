@@ -7,6 +7,8 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Entity\Admin\Admin;
+use Sandbox\ApiBundle\Entity\User\User;
 
 //TODO there's certainly a way to get the
 // current bundle name with a magic function
@@ -27,16 +29,6 @@ class SandboxRestController extends FOSRestController
     const VERIFICATION_CODE_LENGTH = 6;
 
     const HTTP_HEADER_AUTH = "authorization";
-
-    //-------------------- System --------------------//
-
-    /**
-     * @return int
-     */
-    protected function currentTimeMillis()
-    {
-        return round(microtime(true) * 1000);
-    }
 
     //-------------------- Repo --------------------//
 

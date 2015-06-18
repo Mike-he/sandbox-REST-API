@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * User
@@ -12,9 +13,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(
  *      name="User",
  *      uniqueConstraints={
- *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"}),
+ *          @ORM\UniqueConstraint(name="xmppUsername_UNIQUE", columns={"xmppUsername"}),
  *          @ORM\UniqueConstraint(name="email_UNIQUE", columns={"email"}),
- *          @ORM\UniqueConstraint(name="countryCode_phone_UNIQUE", columns={"countryCode", "phone"})
+ *          @ORM\UniqueConstraint(name="phone_UNIQUE", columns={"phone"})
  *      }
  * )
  * @ORM\Entity
@@ -27,15 +28,17 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "login"})
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=true)
+     * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
-    private $username;
+    private $xmppUsername;
 
     /**
      * @var string
@@ -48,6 +51,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $email;
 
@@ -55,6 +59,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "login"})
      */
     private $phone;
 
@@ -62,6 +67,7 @@ class User implements UserInterface
      * @var boolean
      *
      * @ORM\Column(name="banned", type="boolean", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $banned = 0;
 
@@ -69,6 +75,7 @@ class User implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -76,6 +83,7 @@ class User implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -90,26 +98,26 @@ class User implements UserInterface
     }
 
     /**
-     * Set username
+     * Set xmppUsername
      *
-     * @param  string $username
+     * @param  string $xmppUsername
      * @return User
      */
-    public function setUsername($username)
+    public function setXmppUsername($xmppUsername)
     {
-        $this->username = $username;
+        $this->xmppUsername = $xmppUsername;
 
         return $this;
     }
 
     /**
-     * Get username
+     * Get xmppUsername
      *
      * @return string
      */
-    public function getUsername()
+    public function getXmppUsername()
     {
-        return $this->username;
+        return $this->xmppUsername;
     }
 
     /**
@@ -248,6 +256,16 @@ class User implements UserInterface
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Returns the username used to authenticate the user.
+     *
+     * @return string The username
+     */
+    public function getUsername()
+    {
+        return $this->xmppUsername;
     }
 
     /**
