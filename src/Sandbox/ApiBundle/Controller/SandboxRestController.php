@@ -30,30 +30,6 @@ class SandboxRestController extends FOSRestController
 
     const HTTP_HEADER_AUTH = "authorization";
 
-    //-------------------- My --------------------//
-
-    /**
-     * @param  integer $id
-     * @return Admin
-     *
-     */
-    protected function getMyAdmin(
-        $id
-    ) {
-        return $this->getRepo('Admin\Admin')->find($id);
-    }
-
-    /**
-     * @param  integer $id
-     * @return User
-     *
-     */
-    protected function getMyUser(
-        $id
-    ) {
-        return $this->getRepo('User\User')->find($id);
-    }
-
     //-------------------- Repo --------------------//
 
     /**
