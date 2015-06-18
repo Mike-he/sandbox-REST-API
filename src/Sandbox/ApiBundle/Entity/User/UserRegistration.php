@@ -44,9 +44,9 @@ class UserRegistration
     private $code;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
@@ -130,30 +130,28 @@ class UserRegistration
     }
 
     /**
-     * Set creationDate
-     *
-     * @param  string           $creationDate
-     * @return UserRegistration
-     */
-    public function setCreationDate($creationDate)
-    {
-        $this->creationDate = $creationDate.'000';
-
-        return $this;
-    }
-
-    /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {
         return $this->creationDate;
     }
 
+    /**
+     * Set creationDate
+     *
+     * @param  \DateTime $creationDate
+     * @return User
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+    }
+
     public function __construct()
     {
-        $this->setCreationDate(time());
+        $this->setCreationDate(new \DateTime("now"));
     }
 }

@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"}),
  *          @ORM\UniqueConstraint(name="email_UNIQUE", columns={"email"}),
- *          @ORM\UniqueConstraint(name="countryCode_phone_UNIQUE", columns={"countryCode", "phone"})
+ *          @ORM\UniqueConstraint(name="phone_UNIQUE", columns={"phone"})
  *      }
  * )
  * @ORM\Entity
@@ -59,21 +59,21 @@ class User
     /**
      * @var boolean
      *
-     * @ORM\Column(name="banned", type="int", nullable=false)
+     * @ORM\Column(name="banned", type="boolean", nullable=false)
      */
     private $banned = false;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
 
@@ -203,22 +203,9 @@ class User
     }
 
     /**
-     * Set creationDate
-     *
-     * @param  string $creationDate
-     * @return User
-     */
-    public function setCreationDate($creationDate)
-    {
-        $this->creationDate = $creationDate;
-
-        return $this;
-    }
-
-    /**
      * Get creationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -226,31 +213,40 @@ class User
     }
 
     /**
-     * Set modificationDate
+     * Set creationDate
      *
-     * @param  string $modificationDate
+     * @param  \DateTime $creationDate
      * @return User
      */
-    public function setModificationDate($modificationDate)
+    public function setCreationDate($creationDate)
     {
-        $this->modificationDate = $modificationDate;
-
-        return $this;
+        $this->creationDate = $creationDate;
     }
 
     /**
      * Get modificationDate
      *
-     * @return string
+     * @return \DateTime
      */
     public function getModificationDate()
     {
         return $this->modificationDate;
     }
 
+    /**
+     * Set modificationDate
+     *
+     * @param  \DateTime $modificationDate
+     * @return User
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+    }
+
     public function __construct()
     {
-        $this->setCreationDate(time());
-        $this->setModificationDate(time());
+        $this->setCreationDate(new \DateTime("now"));
+        $this->setModificationDate(new \DateTime("now"));
     }
 }
