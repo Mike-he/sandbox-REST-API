@@ -82,9 +82,9 @@ class AdminUserLoginController extends AdminLoginController
             }
             $em->flush();
 
-            // admin permissions
+            // admin permission
             $permissions = $this->getAdminPermissions($admin);
-            $admin->setPermissions($permissions);
+            $admin->setPermission($permissions);
 
             // response
             $view = new View();
