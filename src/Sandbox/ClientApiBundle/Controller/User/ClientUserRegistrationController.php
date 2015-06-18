@@ -33,6 +33,36 @@ class ClientUserRegistrationController extends UserRegistrationController
 {
     use StringUtil;
 
+    const ERROR_MISSING_PHONE_OR_EMAIL_CODE = 400001;
+    const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'Missing phone number or email address.';
+
+    const ERROR_INVALID_EMAIL_ADDRESS_CODE = 400002;
+    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'Invalid email address.';
+
+    const ERROR_EMAIL_ALREADY_USED_CODE = 400003;
+    const ERROR_EMAIL_ALREADY_USED_MESSAGE = 'Email address already used.';
+
+    const ERROR_INVALID_PHONE_CODE = 400004;
+    const ERROR_INVALID_PHONE_MESSAGE = 'Invalid phone number.';
+
+    const ERROR_PHONE_ALREADY_USED_CODE = 400005;
+    const ERROR_PHONE_ALREADY_USED_CODE_MESSAGE = 'Phone number already used.';
+
+    const ERROR_INVALID_NAME_CODE = 400006;
+    const ERROR_INVALID_NAME_MESSAGE = 'Invalid name.';
+
+    const ERROR_INVALID_PWD_CODE = 400007;
+    const ERROR_INVALID_PWD_MESSAGE = 'Invalid password.';
+
+    const ERROR_INVALID_EMAIL_OR_PHONE_CODE = 400008;
+    const ERROR_INVALID_EMAIL_OR_PHONE_MESSAGE = 'Invalid email or phone.';
+
+    const ERROR_INVALID_VERIFICATION_CODE = 400009;
+    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.';
+
+    const ERROR_EXPIRED_VERIFICATION_CODE = 4000010;
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.';
+
     const ONE_DAY_IN_MILLIS = 86400000;
 
     /**
@@ -156,7 +186,8 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         if (is_null($email)) {
             if (is_null($phone)) {
-                return $this->customErrorView(400, 490, 'Missing phone number or email address');
+                return $this->customErrorView(400, self::ERROR_MISSING_PHONE_OR_EMAIL_CODE,
+                    self::ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE);
             }
         } else {
             $phone = null;
@@ -165,19 +196,22 @@ class ClientUserRegistrationController extends UserRegistrationController
         if (!is_null($email)) {
             // check email valid
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return $this->customErrorView(400, 491, 'Invalid email address');
+                return $this->customErrorView(400, self::ERROR_INVALID_EMAIL_ADDRESS_CODE,
+                    self::ERROR_INVALID_EMAIL_ADDRESS_MESSAGE);
             }
 
             // check email already used
             $user = $this->getRepo('User\User')->findOneByEmail($email);
             if (!is_null($user) && $user->getActivated()) {
-                return $this->customErrorView(400, 492, 'Email address already used');
+                return $this->customErrorView(400, self::ERROR_EMAIL_ALREADY_USED_CODE,
+                    self::ERROR_EMAIL_ALREADY_USED_MESSAGE);
             }
         } else {
             // check country code and phone number valid
             if (is_null($phone)
                 || !is_numeric($phone)) {
-                return $this->customErrorView(400, 493, 'Invalid phone number');
+                return $this->customErrorView(400, self::ERROR_INVALID_PHONE_CODE,
+                    self::ERROR_INVALID_PHONE_MESSAGE);
             }
 
             // check phone number already used
@@ -185,33 +219,60 @@ class ClientUserRegistrationController extends UserRegistrationController
                 'phone' => $phone,
             ));
             if (!is_null($user) && $user->getActivated()) {
-                return $this->customErrorView(400, 494, 'Phone number already used');
+                return $this->customErrorView(400, self::ERROR_PHONE_ALREADY_USED_CODE,
+                    self::ERROR_PHONE_ALREADY_USED_CODE_MESSAGE);
             }
         }
 
         $em = $this->getDoctrine()->getManager();
 
+        // generate registration entity
+        $registration = $this->generateRegistration($email, $phone);
+
+        $em->persist($registration);
+        $em->flush();
+
+        // send verification code by email or sms
+        $this->sendNotification($registration->getEmail(),
+            $registration->getPhone(),
+            $registration->getCode());
+    }
+
+    private function sendNotification(
+        $email,
+        $phone,
+        $code
+    ) {
+        if (!is_null($email)) {
+            // send verification URL to email
+            $subject = '[Sandbox Registration],'.$this->before('@', $email).' please confirm your email';
+            $this->sendEmail($subject, $email, $this->before('@', $email),
+                'Emails/registration_email_verification.html.twig',
+                array(
+                    'code' => $code,
+                ));
+        } else {
+            // sms verification code to phone
+            $smsText = 'Verification code: '.$email;
+            $this->sendSms($phone, urlencode($smsText));
+        }
+    }
+
+    /**
+     * @param  string           $email
+     * @param  string           $phone
+     * @return UserRegistration
+     */
+    private function generateRegistration(
+        $email,
+        $phone
+    ) {
         $registration = new UserRegistration();
         $registration->setEmail($email);
         $registration->setPhone($phone);
         $registration->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
 
-        $em->persist($registration);
-        $em->flush();
-
-        if (!is_null($email)) {
-            // send verification URL to email
-            $subject = '[Sandbox Registration],'.$this->before('@', $registration->getEmail()).' please confirm your email';
-            $this->sendEmail($subject, $email, $this->before('@', $registration->getEmail()),
-                    'Emails/registration_email_verification.html.twig',
-                    array(
-                        'code' => $registration->getCode(),
-                    ));
-        } else {
-            // sms verification code to phone
-            $smsText = 'Verification code: '.$registration->getCode();
-            $this->sendSms($phone, urlencode($smsText));
-        }
+        return $registration;
     }
 
     /**
@@ -226,19 +287,40 @@ class ClientUserRegistrationController extends UserRegistrationController
         $password = $verify->getPassword();
         $code = $verify->getCode();
 
-        // check verify is valid
-        $userRegistration = $this->checkVerificationValid($email, $phone, $password, $code);
+        if (is_null($password)
+            || is_null($code)
+            || (is_null($email) && is_null($phone)
+                || (!is_null($email) && !is_null($phone)))) {
+            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE,
+                self::ERROR_INVALID_VERIFICATION_MESSAGE);
+        }
+
+        // get registration entity
+        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
+            'email' => $email,
+            'phone' => $phone,
+            'code' => $code,
+        ));
+
+        if (is_null($registration)) {
+            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE,
+                self::ERROR_INVALID_VERIFICATION_MESSAGE);
+        }
+
+        // check token validation time
+        $currentTime = time().'000';
+        if ($currentTime - $registration->getCreationDate() > self::ONE_DAY_IN_MILLIS) {
+            return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE,
+                self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
+        }
 
         // generate user entity
-        $user = $this->generateUser($email, $phone, $password, $userRegistration->getId());
-
-        // generate user vcard
-        //$vcard = $this->generateVCard();
+        $user = $this->generateUser($email, $phone, $password, $registration->getId());
 
         $em = $this->getDoctrine()->getManager();
-        //$em->persist($vcard);
         $em->persist($user);
-        $em->remove($userRegistration);
+        $em->flush();
+        $em->remove($registration);
         $em->flush();
 
         // response
@@ -251,11 +333,11 @@ class ClientUserRegistrationController extends UserRegistrationController
     }
 
     /**
-     * @param  string           $email
-     * @param  string           $phone
-     * @param  string           $password
-     * @param  string           $code
-     * @return UserRegistration object
+     * @param  string $email
+     * @param  string $phone
+     * @param  string $password
+     * @param  string $code
+     * @return View
      */
     private function checkVerificationValid(
         $email,
@@ -267,7 +349,8 @@ class ClientUserRegistrationController extends UserRegistrationController
             || is_null($code)
             || (is_null($email) && is_null($phone)
                 || (!is_null($email) && !is_null($phone)))) {
-            return $this->customErrorView(400, 490, 'Invalid verification');
+            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE,
+                self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
         // get registration entity
@@ -277,7 +360,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         ));
 
         if (is_null($registration)) {
-            return $this->customErrorView(400, 490, 'Invalid email or phone');
+            return $this->customErrorView(400, self::ERROR_INVALID_EMAIL_OR_PHONE_CODE,
+                self::ERROR_INVALID_EMAIL_OR_PHONE_MESSAGE);
         }
 
         // get registration entity
@@ -288,16 +372,16 @@ class ClientUserRegistrationController extends UserRegistrationController
         ));
 
         if (is_null($registration)) {
-            return $this->customErrorView(400, 490, 'Invalid verification code');
+            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE,
+                self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
         // check token validation time
         $currentTime = time().'000';
         if ($currentTime - $registration->getCreationDate() > self::ONE_DAY_IN_MILLIS) {
-            return $this->customErrorView(400, 491, 'Expired verification');
+            return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE,
+                self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
-
-        return $registration;
     }
 
     /**
@@ -322,18 +406,13 @@ class ClientUserRegistrationController extends UserRegistrationController
             $user->setPhone($phone);
         }
 
-        // get xmppUsername  from response
-        $response = $this->createXmppUser($user, $registrationId);
-        $responseJSON = json_decode($response);
-        $xmppUsername = $responseJSON->username;
-        $user->setXmppUsername($xmppUsername);
+//        // get xmppUsername  from response
+//        $response = $this->createXmppUser($user, $registrationId);
+//        $responseJSON = json_decode($response);
+//        $xmppUsername = $responseJSON->username;
+        $user->setXmppUsername('hello');
 
         return $user;
-    }
-
-    private function generateVCard()
-    {
-        // TODO
     }
 
     /**
