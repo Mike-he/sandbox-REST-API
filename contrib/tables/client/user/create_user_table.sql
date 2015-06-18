@@ -8,7 +8,7 @@ CREATE TABLE `User` (
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username_UNIQUE` (`xmppUsername`),
+  UNIQUE KEY `xmppUsername_UNIQUE` (`xmppUsername`),
   UNIQUE KEY `email_UNIQUE` (`email`),
   UNIQUE KEY `phone_UNIQUE` (`phone`)
 );
