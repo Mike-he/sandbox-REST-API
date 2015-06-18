@@ -63,7 +63,7 @@ class ClientUserRegistrationController extends UserRegistrationController
     const ERROR_EXPIRED_VERIFICATION_CODE = 4000010;
     const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.';
 
-    const ONE_DAY_IN_MILLIS = 86400000;
+    const PLUS_ONE_DAY = '+1 day';
 
     /**
      * Registration submit
@@ -207,7 +207,7 @@ class ClientUserRegistrationController extends UserRegistrationController
                     self::ERROR_EMAIL_ALREADY_USED_MESSAGE);
             }
         } else {
-            // check country code and phone number valid
+            // check  and phone number valid
             if (is_null($phone)
                 || !is_numeric($phone)) {
                 return $this->customErrorView(400, self::ERROR_INVALID_PHONE_CODE,
@@ -218,7 +218,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             $user = $this->getRepo('User\User')->findOneBy(array(
                 'phone' => $phone,
             ));
-            if (!is_null($user) && $user->getActivated()) {
+            if (!is_null($user)) {
                 return $this->customErrorView(400, self::ERROR_PHONE_ALREADY_USED_CODE,
                     self::ERROR_PHONE_ALREADY_USED_CODE_MESSAGE);
             }
@@ -253,7 +253,7 @@ class ClientUserRegistrationController extends UserRegistrationController
                 ));
         } else {
             // sms verification code to phone
-            $smsText = 'Verification code: '.$email;
+            $smsText = 'Verification code: '.$code;
             $this->sendSms($phone, urlencode($smsText));
         }
     }
@@ -267,9 +267,17 @@ class ClientUserRegistrationController extends UserRegistrationController
         $email,
         $phone
     ) {
-        $registration = new UserRegistration();
-        $registration->setEmail($email);
-        $registration->setPhone($phone);
+        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
+                'email' => $email,
+                'phone' => $phone,
+            )
+        );
+        if (is_null($registration)) {
+            $registration = new UserRegistration();
+            $registration->setEmail($email);
+            $registration->setPhone($phone);
+        }
+        $registration->setCreationDate(new \DateTime("now"));
         $registration->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
 
         return $registration;
@@ -308,8 +316,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         }
 
         // check token validation time
-        $currentTime = time().'000';
-        if ($currentTime - $registration->getCreationDate() > self::ONE_DAY_IN_MILLIS) {
+        if (new \DateTime("now") > $registration->getCreationDate()->modify('+1 day')) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE,
                 self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
@@ -319,7 +326,6 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($user);
-        $em->flush();
         $em->remove($registration);
         $em->flush();
 
@@ -406,11 +412,11 @@ class ClientUserRegistrationController extends UserRegistrationController
             $user->setPhone($phone);
         }
 
-//        // get xmppUsername  from response
-//        $response = $this->createXmppUser($user, $registrationId);
-//        $responseJSON = json_decode($response);
-//        $xmppUsername = $responseJSON->username;
-        $user->setXmppUsername('hello');
+        // get xmppUsername  from response
+        $response = $this->createXmppUser($user, $registrationId);
+        $responseJSON = json_decode($response);
+        $xmppUsername = $responseJSON->username;
+        $user->setXmppUsername($xmppUsername);
 
         return $user;
     }
