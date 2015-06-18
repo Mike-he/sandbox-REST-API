@@ -15,7 +15,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -34,34 +33,34 @@ class ClientUserRegistrationController extends UserRegistrationController
     use StringUtil;
 
     const ERROR_MISSING_PHONE_OR_EMAIL_CODE = 400001;
-    const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'Missing phone number or email address.';
+    const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'Missing phone number or email address.-未填写手机号或邮箱';
 
     const ERROR_INVALID_EMAIL_ADDRESS_CODE = 400002;
-    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'Invalid email address.';
+    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'Invalid email address.-邮箱地址无效';
 
     const ERROR_EMAIL_ALREADY_USED_CODE = 400003;
-    const ERROR_EMAIL_ALREADY_USED_MESSAGE = 'Email address already used.';
+    const ERROR_EMAIL_ALREADY_USED_MESSAGE = 'Email address already used.-邮箱已被使用';
 
     const ERROR_INVALID_PHONE_CODE = 400004;
-    const ERROR_INVALID_PHONE_MESSAGE = 'Invalid phone number.';
+    const ERROR_INVALID_PHONE_MESSAGE = 'Invalid phone number.-手机号无效';
 
     const ERROR_PHONE_ALREADY_USED_CODE = 400005;
-    const ERROR_PHONE_ALREADY_USED_CODE_MESSAGE = 'Phone number already used.';
+    const ERROR_PHONE_ALREADY_USED_CODE_MESSAGE = 'Phone number already used.-手机号已被使用';
 
     const ERROR_INVALID_NAME_CODE = 400006;
-    const ERROR_INVALID_NAME_MESSAGE = 'Invalid name.';
+    const ERROR_INVALID_NAME_MESSAGE = 'Invalid name.-姓名无效';
 
     const ERROR_INVALID_PWD_CODE = 400007;
-    const ERROR_INVALID_PWD_MESSAGE = 'Invalid password.';
+    const ERROR_INVALID_PWD_MESSAGE = 'Invalid password.-密码无效';
 
     const ERROR_INVALID_EMAIL_OR_PHONE_CODE = 400008;
-    const ERROR_INVALID_EMAIL_OR_PHONE_MESSAGE = 'Invalid email or phone.';
+    const ERROR_INVALID_EMAIL_OR_PHONE_MESSAGE = 'Invalid email or phone.-邮箱或手机号无效';
 
     const ERROR_INVALID_VERIFICATION_CODE = 400009;
-    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.';
+    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.-验证无效';
 
     const ERROR_EXPIRED_VERIFICATION_CODE = 4000010;
-    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.';
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.-验证过期';
 
     const PLUS_ONE_DAY = '+1 day';
 
@@ -132,44 +131,6 @@ class ClientUserRegistrationController extends UserRegistrationController
     }
 
     /**
-     * Registration get invitation info
-     *
-     * @param Request $request the request object
-     * @param string  $token   the invitation token for registration
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
-     * @Route("/invite/{token}")
-     * @Method({"GET"})
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function getRegisterInviteAction(
-        Request $request,
-        $token
-    ) {
-        // get invitation by token
-        $invitation = $this->getRepo('Invitation')->findOneByToken($token);
-        $this->throwNotFoundIfNull($invitation, self::NOT_FOUND_MESSAGE);
-
-        // set array for view
-        $array = $this->setRegisterInviteArray(
-            $invitation->getName(),
-            $invitation->getEmail(),
-            $invitation->getCountrycode(),
-            $invitation->getPhone()
-        );
-
-        return new View($array);
-    }
-
-    /**
      * @param RegisterSubmit $submit
      *
      * @return View
@@ -179,10 +140,6 @@ class ClientUserRegistrationController extends UserRegistrationController
     ) {
         $email = $submit->getEmail();
         $phone = $submit->getPhone();
-
-        // TODO validate password with password rule
-
-        // TODO one minute
 
         if (is_null($email)) {
             if (is_null($phone)) {
@@ -236,51 +193,6 @@ class ClientUserRegistrationController extends UserRegistrationController
         $this->sendNotification($registration->getEmail(),
             $registration->getPhone(),
             $registration->getCode());
-    }
-
-    private function sendNotification(
-        $email,
-        $phone,
-        $code
-    ) {
-        if (!is_null($email)) {
-            // send verification URL to email
-            $subject = '[Sandbox Registration],'.$this->before('@', $email).' please confirm your email';
-            $this->sendEmail($subject, $email, $this->before('@', $email),
-                'Emails/registration_email_verification.html.twig',
-                array(
-                    'code' => $code,
-                ));
-        } else {
-            // sms verification code to phone
-            $smsText = 'Verification code: '.$code;
-            $this->sendSms($phone, urlencode($smsText));
-        }
-    }
-
-    /**
-     * @param  string           $email
-     * @param  string           $phone
-     * @return UserRegistration
-     */
-    private function generateRegistration(
-        $email,
-        $phone
-    ) {
-        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
-                'email' => $email,
-                'phone' => $phone,
-            )
-        );
-        if (is_null($registration)) {
-            $registration = new UserRegistration();
-            $registration->setEmail($email);
-            $registration->setPhone($phone);
-        }
-        $registration->setCreationDate(new \DateTime("now"));
-        $registration->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
-
-        return $registration;
     }
 
     /**
@@ -342,58 +254,6 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param  string $email
      * @param  string $phone
      * @param  string $password
-     * @param  string $code
-     * @return View
-     */
-    private function checkVerificationValid(
-        $email,
-        $phone,
-        $password,
-        $code
-    ) {
-        if (is_null($password)
-            || is_null($code)
-            || (is_null($email) && is_null($phone)
-                || (!is_null($email) && !is_null($phone)))) {
-            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE,
-                self::ERROR_INVALID_VERIFICATION_MESSAGE);
-        }
-
-        // get registration entity
-        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
-            'email' => $email,
-            'phone' => $phone,
-        ));
-
-        if (is_null($registration)) {
-            return $this->customErrorView(400, self::ERROR_INVALID_EMAIL_OR_PHONE_CODE,
-                self::ERROR_INVALID_EMAIL_OR_PHONE_MESSAGE);
-        }
-
-        // get registration entity
-        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
-            'email' => $email,
-            'phone' => $phone,
-            'code' => $code,
-        ));
-
-        if (is_null($registration)) {
-            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE,
-                self::ERROR_INVALID_VERIFICATION_MESSAGE);
-        }
-
-        // check token validation time
-        $currentTime = time().'000';
-        if ($currentTime - $registration->getCreationDate() > self::ONE_DAY_IN_MILLIS) {
-            return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE,
-                self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
-        }
-    }
-
-    /**
-     * @param  string $email
-     * @param  string $phone
-     * @param  string $password
      * @param  int    $registrationId
      * @return User   User
      */
@@ -419,6 +279,31 @@ class ClientUserRegistrationController extends UserRegistrationController
         $user->setXmppUsername($xmppUsername);
 
         return $user;
+    }
+
+    /**
+     * @param  string           $email
+     * @param  string           $phone
+     * @return UserRegistration UserRegistration
+     */
+    private function generateRegistration(
+        $email,
+        $phone
+    ) {
+        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
+                'email' => $email,
+                'phone' => $phone,
+            )
+        );
+        if (is_null($registration)) {
+            $registration = new UserRegistration();
+            $registration->setEmail($email);
+            $registration->setPhone($phone);
+        }
+        $registration->setCreationDate(new \DateTime("now"));
+        $registration->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
+
+        return $registration;
     }
 
     /**
@@ -487,66 +372,27 @@ class ClientUserRegistrationController extends UserRegistrationController
     }
 
     /**
-     * @param JtUser $user
-     *
-     * @return array|null
+     * @param string $email
+     * @param string $phone
+     * @param string $code
      */
-    private function getPendingInvitations(
-        $user
-    ) {
-        $invitations = null;
-
-        $email = $user->getEmail();
-        $countryCode = $user->getCountrycode();
-        $phone = $user->getPhone();
-
-        if (!is_null($email)) {
-            $invitations = $this->getRepo('Invitation')->findBy(array(
-                'email' => $email,
-                'status' => 'pending',
-            ));
-        } elseif (!is_null($countryCode) || !is_null($phone)) {
-            $invitations = $this->getRepo('Invitation')->findBy(array(
-                'countrycode' => $countryCode,
-                'phone' => $phone,
-                'status' => 'pending',
-            ));
-        }
-
-        return $invitations;
-    }
-
-    /**
-     * @param $name
-     * @param $email
-     * @param $countryCode
-     * @param $phone
-     * @return array
-     */
-    private function setRegisterInviteArray(
-        $name,
+    private function sendNotification(
         $email,
-        $countryCode,
-        $phone
+        $phone,
+        $code
     ) {
-        $array = array();
-
-        if (!is_null($name)) {
-            $array['name'] = $name;
-        }
-
         if (!is_null($email)) {
-            $array['email'] = $email;
+            // send verification URL to email
+            $subject = '[Sandbox Registration],'.$this->before('@', $email).' please confirm your email';
+            $this->sendEmail($subject, $email, $this->before('@', $email),
+                'Emails/registration_email_verification.html.twig',
+                array(
+                    'code' => $code,
+                ));
+        } else {
+            // sms verification code to phone
+            $smsText = 'Verification code: '.$code;
+            $this->sendSms($phone, urlencode($smsText));
         }
-
-        if (!is_null($countryCode)) {
-            $array['countrycode'] = $countryCode;
-        }
-
-        if (!is_null($phone)) {
-            $array['phone'] = $phone;
-        }
-
-        return $array;
     }
 }
