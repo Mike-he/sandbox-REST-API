@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity;
+namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,9 +22,9 @@ class RoomMeeting
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room
+     * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })
@@ -58,10 +58,10 @@ class RoomMeeting
     /**
      * Set roomId
      *
-     * @param  \Sandbox\ApiBundle\Entity\Room $roomId
+     * @param  \Sandbox\ApiBundle\Entity\Room\Room $roomId
      * @return RoomMeeting
      */
-    public function setRoomId(\Sandbox\ApiBundle\Entity\Room $roomId = null)
+    public function setRoomId(\Sandbox\ApiBundle\Entity\Room\Room $roomId = null)
     {
         $this->roomId = $roomId;
 
@@ -71,7 +71,7 @@ class RoomMeeting
     /**
      * Get roomId
      *
-     * @return \Sandbox\ApiBundle\Entity\Room
+     * @return \Sandbox\ApiBundle\Entity\Room\Room
      */
     public function getRoomId()
     {
