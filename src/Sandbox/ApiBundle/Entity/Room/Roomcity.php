@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="RoomCity")
  * @ORM\Entity
  */
-class RoomCity
+class Roomcity
 {
     /**
      * @var integer
@@ -28,7 +28,6 @@ class RoomCity
      */
     private $name;
 
-
     /**
      * Get id
      *
@@ -42,7 +41,7 @@ class RoomCity
     /**
      * Set name
      *
-     * @param string $name
+     * @param  string   $name
      * @return RoomCity
      */
     public function setName($name)
@@ -55,7 +54,7 @@ class RoomCity
     /**
      * Get name
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {

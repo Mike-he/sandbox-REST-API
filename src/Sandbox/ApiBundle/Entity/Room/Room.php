@@ -109,7 +109,6 @@ class Room
      */
     private $allowedPeople3;
 
-
     /**
      * Get id
      *
@@ -169,7 +168,7 @@ class Room
     /**
      * Set name
      *
-     * @param string $name
+     * @param  string $name
      * @return Room
      */
     public function setName($name)
@@ -182,7 +181,7 @@ class Room
     /**
      * Get name
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -192,7 +191,7 @@ class Room
     /**
      * Set description
      *
-     * @param string $description
+     * @param  string $description
      * @return Room
      */
     public function setDescription($description)
@@ -205,7 +204,7 @@ class Room
     /**
      * Get description
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -215,7 +214,7 @@ class Room
     /**
      * Set number
      *
-     * @param string $number
+     * @param  string $number
      * @return Room
      */
     public function setNumber($number)
@@ -228,19 +227,17 @@ class Room
     /**
      * Get number
      *
-     * @return string 
+     * @return string
      */
     public function getNumber()
     {
         return $this->number;
     }
 
-
-
     /**
      * Set area
      *
-     * @param integer $area
+     * @param  integer $area
      * @return Room
      */
     public function setArea($area)
@@ -253,7 +250,7 @@ class Room
     /**
      * Get area
      *
-     * @return integer 
+     * @return integer
      */
     public function getArea()
     {
@@ -275,7 +272,7 @@ class Room
     /**
      * Set officeSupplies
      *
-     * @param integer $officeSupplies
+     * @param  integer $officeSupplies
      * @return Room
      */
     public function setOfficeSupplies($officeSupplies)
@@ -288,7 +285,7 @@ class Room
     /**
      * Get officeSupplies
      *
-     * @return integer 
+     * @return integer
      */
     public function getOfficeSupplies()
     {
@@ -298,7 +295,7 @@ class Room
     /**
      * Set type
      *
-     * @param string $type
+     * @param  string $type
      * @return Room
      */
     public function setType($type)
@@ -311,7 +308,7 @@ class Room
     /**
      * Get type
      *
-     * @return string 
+     * @return string
      */
     public function getType()
     {
@@ -321,7 +318,7 @@ class Room
     /**
      * Set creationDate
      *
-     * @param \DateTime $creationDate
+     * @param  \DateTime $creationDate
      * @return Room
      */
     public function setCreationDate($creationDate)
@@ -334,7 +331,7 @@ class Room
     /**
      * Get creationDate
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -344,7 +341,7 @@ class Room
     /**
      * Set modificationDate
      *
-     * @param \DateTime $modificationDate
+     * @param  \DateTime $modificationDate
      * @return Room
      */
     public function setModificationDate($modificationDate)
@@ -357,7 +354,7 @@ class Room
     /**
      * Get modificationDate
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {
@@ -367,7 +364,7 @@ class Room
     /**
      * Set floorId
      *
-     * @param integer $floorId
+     * @param  integer $floorId
      * @return Room
      */
     public function setFloorId($floorId)

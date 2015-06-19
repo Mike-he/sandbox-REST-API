@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * )
  * @ORM\Entity
  */
-class RoomBuilding
+class Roombuilding
 {
     /**
      * @var integer
@@ -40,11 +40,10 @@ class RoomBuilding
      */
     private $name;
 
-
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -77,7 +76,7 @@ class RoomBuilding
     /**
      * Set name
      *
-     * @param string $name
+     * @param  string       $name
      * @return RoomBuilding
      */
     public function setName($name)

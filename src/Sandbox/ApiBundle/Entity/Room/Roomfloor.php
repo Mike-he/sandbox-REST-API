@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * )
  * @ORM\Entity
  */
-class RoomFloor
+class Roomfloor
 {
     /**
      * @var integer
@@ -76,7 +76,7 @@ class RoomFloor
     /**
      * Set floorNumber
      *
-     * @param integer $floorNumber
+     * @param  integer   $floorNumber
      * @return RoomFloor
      */
     public function setFloorNumber($floorNumber)
@@ -89,7 +89,7 @@ class RoomFloor
     /**
      * Get floorNumber
      *
-     * @return integer 
+     * @return integer
      */
     public function getFloorNumber()
     {
