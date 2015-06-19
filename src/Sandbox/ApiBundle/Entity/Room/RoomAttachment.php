@@ -7,7 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * RoomAttachment
  *
- * @ORM\Table(name="RoomAttachment", indexes={@ORM\Index(name="fk_RoomAttachment_roomId_idx", columns={"roomId"})})
+ * @ORM\Table(
+ *  name="RoomAttachment",
+ *  indexes={
+ *      @ORM\Index(name="fk_RoomAttachment_roomId_idx", columns={"roomId"})
+ *  })
  * @ORM\Entity
  */
 class RoomAttachment
@@ -22,12 +26,9 @@ class RoomAttachment
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Room
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="roomId", type="integer", nullable=false)
      */
     private $roomId;
 
@@ -79,10 +80,10 @@ class RoomAttachment
     /**
      * Set roomId
      *
-     * @param  \Sandbox\ApiBundle\Entity\Room\Room $roomId
+     * @param  $roomId
      * @return RoomAttachment
      */
-    public function setRoomId(\Sandbox\ApiBundle\Entity\Room\Room $roomId = null)
+    public function setRoomId($roomId)
     {
         $this->roomId = $roomId;
 
@@ -92,7 +93,7 @@ class RoomAttachment
     /**
      * Get roomId
      *
-     * @return \Sandbox\ApiBundle\Entity\Room\Room
+     * @return integer
      */
     public function getRoomId()
     {
