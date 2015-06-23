@@ -26,6 +26,7 @@ use FOS\RestBundle\View\View;
  */
 class AdminRoomController extends RoomController
 {
+
     /**
      * Room
      *
@@ -81,7 +82,7 @@ class AdminRoomController extends RoomController
         $room = $this->getRepo('Room\Room')->find($id);
 
         if (is_null($room)) {
-            $this->createNotFoundException('Not found');
+            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
         }
 
         $result = $this->getRoomObject($room);
@@ -114,6 +115,36 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * Delete a Room
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/rooms/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     * @throws \Exception
+     */
+    public function deleteRoomAction(
+        Request $request,
+        $id
+    ) {
+        // get room
+        $room = $this->getRepo('Room\Room')->find($id);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($room);
+        $em->flush();
+    }
+
+    /**
      * @param  Request    $request
      * @return array|View
      */
@@ -127,7 +158,7 @@ class AdminRoomController extends RoomController
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
-            throw new BadRequestHttpException("Bad parameters");
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
@@ -211,10 +242,10 @@ class AdminRoomController extends RoomController
             'number' => $room->getNumber(),
             'allowed_people' => $room->getAllowedPeople(),
             'area' => $room->getArea(),
-            'office_supplies' => 'TODO', //TODO Add office supplies
+            //'office_supplies' => 'TODO', //TODO Add office supplies - TBD
             'type' => $room->getType(),
-            'available' => 'TODO',      //TODO Check availability
-            'current_user_id' => 'TODO', //TODO Check User ID
+            //'available' => 'TODO',      //TODO Check availability
+            //'current_user_id' => 'TODO', //TODO Check User ID
             'attachments' => $attachments,
             'creation_date' => $room->getCreationDate(),
             'modification_date' => $room->getModificationDate(),
@@ -250,7 +281,7 @@ class AdminRoomController extends RoomController
                 $attachmentType === '' ||
                 is_null($size) ||
                 $size === '') {
-                throw new BadRequestHttpException("Bad parameters");
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
 
             $roomAttachment = new RoomAttachment();
