@@ -18,7 +18,7 @@ class EmailBindingSubmitType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Data\EmailBindingSubmit',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\EmailBindingSubmit',
         ));
     }
 

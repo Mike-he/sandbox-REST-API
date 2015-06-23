@@ -11,7 +11,7 @@ class EmailBindingVerifyType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('token')
+            ->add('email')
             ->add('code')
         ;
     }
@@ -19,7 +19,7 @@ class EmailBindingVerifyType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Data\EmailBindingVerify',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\EmailBindingVerify',
         ));
     }
 
