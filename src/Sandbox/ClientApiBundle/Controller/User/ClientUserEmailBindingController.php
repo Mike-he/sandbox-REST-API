@@ -3,6 +3,9 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserEmailBindingController;
+use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserEmailVerification;
+use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\EmailBindingSubmit;
 use Sandbox\ClientApiBundle\Data\User\EmailBindingVerify;
 use Sandbox\ClientApiBundle\Form\EmailBindingSubmitType;
@@ -28,6 +31,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserEmailBindingController extends UserEmailBindingController
 {
+    use StringUtil;
+
     const BAD_PARAM_MESSAGE = "Bad parameters";
 
     const NOT_FOUND_MESSAGE = "This resource does not exist";
@@ -58,22 +63,21 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         Request $request
     ) {
         $userId = $this->getUserid();
-        $username = $this->getUsername();
 
         $submit = new EmailBindingSubmit();
 
         $form = $this->createForm(new EmailBindingSubmitType(), $submit);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
-            return $this->handleEmailBindSubmit($userId, $username, $submit);
+            return $this->handleEmailBindSubmit($userId, $submit);
         }
 
         throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
     }
 
     /**
-     * Email bind verify token
+     * Email bind verify code
      *
      * @param Request $request the request object
      *
@@ -98,7 +102,7 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         $verify = new EmailBindingVerify();
 
         $form = $this->createForm(new EmailBindingVerifyType(), $verify);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
             return $this->handleEmailBindVerify($userId, $verify);
@@ -108,50 +112,13 @@ class ClientUserEmailBindingController extends UserEmailBindingController
     }
 
     /**
-     * Email unbind
-     *
-     * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
-     * @Route("/unbind")
-     * @Method({"POST"})
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function postEmailUnbindAction(
-        Request $request
-    ) {
-        $userId = $this->getUserid();
-
-        $submit = new EmailBindingSubmit();
-
-        $form = $this->createForm(new EmailBindingSubmitType(), $submit);
-        $form->submit(json_decode($request->getContent(), true));
-
-        if ($form->isValid()) {
-            return $this->handleEmailUnbind($userId, $submit);
-        }
-
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-    }
-
-    /**
      * @param integer            $userId
-     * @param string             $username
      * @param EmailBindingSubmit $submit
      *
      * @return View
      */
     private function handleEmailBindSubmit(
         $userId,
-        $username,
         $submit
     ) {
         $email = $submit->getEmail();
@@ -162,26 +129,25 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         }
 
         // check email already used
-        $user = $this->getRepo('JtUser')->findOneBy(array(
+        $user = $this->getRepo('User')->findOneBy(array(
             'email' => $email,
-            'activated' => true,
+            'banned' => false,
         ));
         if (!is_null($user)) {
             return $this->customErrorView(400, 491, 'Email address already used');
         }
 
         // get email verification entity
-        $emailVerification = $this->getRepo('EmailVerification')->findOneByUserid($userId);
+        $emailVerification = $this->getRepo('User\UserEmailVerification')->findOneByUserid($userId);
 
         $newEmailVerification = false;
         if (is_null($emailVerification)) {
             $newEmailVerification = true;
-            $emailVerification = new EmailVerification();
+            $emailVerification = new UserEmailVerification();
         }
 
         $emailVerification->setUserid($userId);
         $emailVerification->setEmail($email);
-        $emailVerification->setToken($this->generateRandomToken());
         $emailVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
         $emailVerification->setCreationdate(time());
 
@@ -191,25 +157,16 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         }
         $em->flush();
 
-        // find user's own name
-        $name = $this->getUserVCardName($username, null);
-
         // send verification URL to email
-        $subject = '[EasyLinks Bind Email Verification] '.$name.', please confirm your email';
-        $this->sendEmail($subject, $email, $name,
+        $subject = '[Sandbox Bind Email Verification] '.$this->before('@', $email).', please confirm your email';
+        $this->sendEmail($subject, $email, $this->before('@', $email),
             'Emails/bind_email_verification.html.twig',
             array(
                 'code' => $emailVerification->getCode(),
             )
         );
 
-        // response
-        $view = new View();
-        $view->setData(array(
-            'token' => $emailVerification->getToken(),
-        ));
-
-        return $view;
+        return new View();
     }
 
     /**
@@ -222,100 +179,41 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         $userId,
         $verify
     ) {
-        $token = $verify->getToken();
         $code = $verify->getCode();
 
         // get email verification entity
-        $emailVerification = $this->getRepo('EmailVerification')->findOneByUserid($userId);
+        $emailVerification = $this->getRepo('User\UserEmailVerification')->findOneBy(
+            array('userid')
+        );
         $this->throwNotFoundIfNull($emailVerification, self::NOT_FOUND_MESSAGE);
 
-        if ($token != $emailVerification->getToken()
-            || $code != $emailVerification->getCode()) {
+        if ($code != $emailVerification->getCode()) {
             return $this->customErrorView(400, 490, 'Invalid verification');
         }
 
-        $currentTime = time().'000';
-        if ($currentTime - $emailVerification->getCreationdate() > self::HALF_HOUR_IN_MILLIS) {
+        if (new \DateTime("now") >  $emailVerification->getCreationDate()->modify('+0.5 hour')) {
             return $this->customErrorView(400, 491, 'Expired verification');
         }
 
         // bind email
-        $user = $this->getRepo('JtUser')->find($userId);
+        $user = $this->getRepo('User\User')->find($userId);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         $user->setEmail($emailVerification->getEmail());
 
-        // change personal email in vcard
-        $vcard = $this->getRepo('JtVCard')->findOneBy(array(
-            'userid' => $user->getXmppUsername(),
-            'companyid' => null,
-        ));
-        $vcard->setEmail($emailVerification->getEmail());
+        //TODO no vcard
+//        // change personal email in vcard
+//        $vcard = $this->getRepo('JtVCard')->findOneBy(array(
+//            'userid' => $user->getXmppUsername(),
+//            'companyid' => null,
+//        ));
+//        $vcard->setEmail($emailVerification->getEmail());
 
         // remove verification
         $em = $this->getDoctrine()->getManager();
         $em->remove($emailVerification);
         $em->flush();
 
-        // response
-        $view = new View();
-        $view->setData(array(
-            'result' => true,
-        ));
-
-        return $view;
-    }
-
-    /**
-     * @param integer            $userId
-     * @param EmailBindingSubmit $submit
-     *
-     * @return View
-     */
-    private function handleEmailUnbind(
-        $userId,
-        $submit
-    ) {
-        $email = $submit->getEmail();
-
-        // check email valid
-        if (is_null($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->customErrorView(400, 490, 'Invalid email address');
-        }
-
-        // check email not found
-        $user = $this->getRepo('JtUser')->findOneBy(array(
-            'id' => $userId,
-            'email' => $email,
-            'activated' => true,
-        ));
-        if (is_null($user)) {
-            return $this->customErrorView(400, 491, 'Wrong email address');
-        }
-
-        if (is_null($user->getCountrycode()) || is_null($user->getPhone())) {
-            return $this->customErrorView(400, 492, 'Only email address is bound');
-        }
-
-        // unbind email
-        $user->setEmail(null);
-
-        // claer personal email in vcard
-        $vcard = $this->getRepo('JtVCard')->findOneBy(array(
-            'userid' => $user->getXmppUsername(),
-            'companyid' => null,
-        ));
-        $vcard->setEmail(null);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        // response
-        $view = new View();
-        $view->setData(array(
-            'result' => true,
-        ));
-
-        return $view;
+        return new View();
     }
 }
