@@ -14,6 +14,8 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 use Sandbox\ApiBundle\Controller\Room\RoomController;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
+use FOS\RestBundle\Controller\Annotations;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 
 /**
  * Login controller
@@ -39,6 +41,17 @@ class AdminRoomController extends RoomController
      *  }
      * )
      *
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="(office|meeting|flexible|fixed)",
+     *    strict=true,
+     *    description=""
+     * )
+     *
      * @Route("/rooms")
      * @Method({"GET"})
      *
@@ -46,11 +59,25 @@ class AdminRoomController extends RoomController
      * @throws \Exception
      */
     public function getRoomsAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        $allRooms = null;
+
         // get room
         $repo = $this->getRepo('Room\Room');
-        $allRooms = $repo->findAll();
+
+        //filter by status if needed
+        $type = $paramFetcher->get('type');
+
+        if (!is_null($type)) {
+            $allRooms = $repo->findBy(array(
+                    "type" => $type
+                )
+            );
+        } else {
+            $allRooms = $repo->findAll();
+        }
 
         return $this->handleGetRooms($allRooms);
     }

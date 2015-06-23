@@ -1,4 +1,4 @@
-CREATE TABLE `Building` (
+CREATE TABLE `RoomBuilding` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `cityId` int(11) NOT NULL,

@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * )
  * @ORM\Entity
  */
-class Roombuilding
+class RoomBuilding
 {
     /**
      * @var integer
