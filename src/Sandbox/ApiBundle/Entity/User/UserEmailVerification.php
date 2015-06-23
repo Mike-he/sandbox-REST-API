@@ -27,7 +27,7 @@ class UserEmailVerification
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      */
-    private $userid;
+    private $userId;
 
     /**
      * @var string
@@ -61,26 +61,26 @@ class UserEmailVerification
     }
 
     /**
-     * Set userid
+     * Set userId
      *
-     * @param  string                $userid
+     * @param  string                $userId
      * @return UserEmailVerification
      */
-    public function setUserid($userid)
+    public function setUserId($userId)
     {
-        $this->userid = $userid;
+        $this->userId = $userId;
 
         return $this;
     }
 
     /**
-     * Get userid
+     * Get userId
      *
      * @return string
      */
-    public function getUserid()
+    public function getUserId()
     {
-        return $this->userid;
+        return $this->userId;
     }
 
     /**
