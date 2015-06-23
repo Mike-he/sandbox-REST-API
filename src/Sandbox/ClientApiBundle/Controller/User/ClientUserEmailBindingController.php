@@ -129,7 +129,7 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         }
 
         // check email already used
-        $user = $this->getRepo('User')->findOneBy(array(
+        $user = $this->getRepo('User\User')->findOneBy(array(
             'email' => $email,
             'banned' => false,
         ));
@@ -138,7 +138,7 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         }
 
         // get email verification entity
-        $emailVerification = $this->getRepo('User\UserEmailVerification')->findOneByUserid($userId);
+        $emailVerification = $this->getRepo('User\UserEmailVerification')->findOneByUserId($userId);
 
         $newEmailVerification = false;
         if (is_null($emailVerification)) {
@@ -146,10 +146,9 @@ class ClientUserEmailBindingController extends UserEmailBindingController
             $emailVerification = new UserEmailVerification();
         }
 
-        $emailVerification->setUserid($userId);
+        $emailVerification->setUserId($userId);
         $emailVerification->setEmail($email);
         $emailVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
-        $emailVerification->setCreationdate(time());
 
         $em = $this->getDoctrine()->getManager();
         if ($newEmailVerification) {
@@ -180,10 +179,15 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         $verify
     ) {
         $code = $verify->getCode();
+        $email = $verify->getEmail();
 
         // get email verification entity
         $emailVerification = $this->getRepo('User\UserEmailVerification')->findOneBy(
-            array('userid')
+            array(
+                'userId' => $userId,
+                'email' => $email,
+                'code' => $code,
+            )
         );
         $this->throwNotFoundIfNull($emailVerification, self::NOT_FOUND_MESSAGE);
 
