@@ -18,7 +18,7 @@ class PhoneBindingSubmitType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Data\User\PhoneBindingSubmit',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\User\PhoneBindingSubmit',
         ));
     }
 

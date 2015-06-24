@@ -19,7 +19,7 @@ class PhoneBindingVerifyType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Data\User\PhoneBindingVerify',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\User\PhoneBindingVerify',
         ));
     }
 
