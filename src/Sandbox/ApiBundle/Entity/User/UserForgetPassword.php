@@ -27,12 +27,12 @@ class UserForgetPassword
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      */
-    private $userid;
+    private $userId;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="token", type="string", length=64, nullable=false)
+     * @ORM\Column(name="token", type="string", length=64, nullable=true)
      */
     private $token;
 
@@ -58,11 +58,11 @@ class UserForgetPassword
     private $type;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
-    private $creationdate;
+    private $creationDate;
 
     /**
      * Get id
@@ -75,26 +75,26 @@ class UserForgetPassword
     }
 
     /**
-     * Set userid
+     * Set userId
      *
-     * @param  string         $userid
+     * @param  string         $userId
      * @return ForgetPassword
      */
-    public function setUserid($userid)
+    public function setUserId($userId)
     {
-        $this->userid = $userid;
+        $this->userId = $userId;
 
         return $this;
     }
 
     /**
-     * Get userid
+     * Get userId
      *
      * @return string
      */
-    public function getUserid()
+    public function getUserId()
     {
-        return $this->userid;
+        return $this->userId;
     }
 
     /**
@@ -190,25 +190,28 @@ class UserForgetPassword
     }
 
     /**
-     * Set creationdate
+     * Get creationDate
      *
-     * @param  string         $creationdate
-     * @return ForgetPassword
+     * @return \DateTime
      */
-    public function setCreationdate($creationdate)
+    public function getCreationDate()
     {
-        $this->creationdate = $creationdate.'000';
-
-        return $this;
+        return $this->creationDate;
     }
 
     /**
-     * Get creationdate
+     * Set creationDate
      *
-     * @return string
+     * @param  \DateTime $creationDate
+     * @return User
      */
-    public function getCreationdate()
+    public function setCreationDate($creationDate)
     {
-        return $this->creationdate;
+        $this->creationDate = $creationDate;
+    }
+
+    public function __construct()
+    {
+        $this->setCreationDate(new \DateTime("now"));
     }
 }
