@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Form;
+namespace Sandbox\ClientApiBundle\Form\User;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -12,7 +12,6 @@ class PasswordForgetSubmitType extends AbstractType
     {
         $builder
             ->add('email')
-            ->add('countrycode')
             ->add('phone')
         ;
     }
@@ -20,7 +19,7 @@ class PasswordForgetSubmitType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Data\PasswordForgetSubmit',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\User\PasswordForgetSubmit',
         ));
     }
 
