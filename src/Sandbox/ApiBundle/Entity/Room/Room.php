@@ -40,7 +40,7 @@ class Room
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=false)
      */
-    private $buildingId2;
+    private $buildingId;
 
     /**
      * @var integer
@@ -98,16 +98,20 @@ class Room
      */
     private $modificationDate;
 
-    private $officeSupplies;
-
-    private $attachments;
-
     /**
      * @var integer
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
      */
-    private $allowedPeople3;
+    private $allowedPeople;
+
+    private $officeSupplies;
+
+    private $attachments;
+
+    private $startHour;
+
+    private $endHour;
 
     /**
      * Get id
@@ -145,12 +149,12 @@ class Room
     /**
      * Set buildingId
      *
-     * @param $buildingId2
+     * @param $buildingId
      * @return Room
      */
-    public function setBuildingId($buildingId2)
+    public function setBuildingId($buildingId)
     {
-        $this->buildingId2 = $buildingId2;
+        $this->buildingId = $buildingId;
 
         return $this;
     }
@@ -162,7 +166,30 @@ class Room
      */
     public function getBuildingId()
     {
-        return $this->buildingId2;
+        return $this->buildingId;
+    }
+
+    /**
+     * Set floorId
+     *
+     * @param  integer $floorId
+     * @return Room
+     */
+    public function setFloorId($floorId)
+    {
+        $this->floorId = $floorId;
+
+        return $this;
+    }
+
+    /**
+     * Get floorId
+     *
+     * @return integer
+     */
+    public function getFloorId()
+    {
+        return $this->floorId;
     }
 
     /**
@@ -257,14 +284,25 @@ class Room
         return $this->area;
     }
 
+    /**
+     * Get allowed people
+     *
+     * @return int
+     */
     public function getAllowedPeople()
     {
-        return $this->allowedPeople3;
+        return $this->allowedPeople;
     }
 
-    public function setAllowedPeople($allowedPeople3)
+    /**
+     * set allowed people
+     *
+     * @param $allowedPeople
+     * @return $this
+     */
+    public function setAllowedPeople($allowedPeople)
     {
-        $this->allowedPeople3 = $allowedPeople3;
+        $this->allowedPeople = $allowedPeople;
 
         return $this;
     }
@@ -362,29 +400,6 @@ class Room
     }
 
     /**
-     * Set floorId
-     *
-     * @param  integer $floorId
-     * @return Room
-     */
-    public function setFloorId($floorId)
-    {
-        $this->floorId = $floorId;
-
-        return $this;
-    }
-
-    /**
-     * Get floorId
-     *
-     * @return integer
-     */
-    public function getFloorId()
-    {
-        return $this->floorId;
-    }
-
-    /**
      * Set attachments
      *
      * @param  string $attachments
@@ -405,5 +420,49 @@ class Room
     public function getAttachments()
     {
         return $this->attachments;
+    }
+
+    /**
+     * Get start hour
+     *
+     * @return \DateTime
+     */
+    public function getStartHour()
+    {
+        return $this->startHour;
+    }
+
+    /**
+     * Set start hour
+     *
+     * @param  \DateTime $startHour
+     * @return Room
+     */
+    public function setStartHour($startHour)
+    {
+        $this->startHour = $startHour;
+
+        return $this;
+    }
+
+    /**
+     * Set end hour
+     *
+     * @return \DateTime
+     */
+    public function getEndHour()
+    {
+        return $this->endHour;
+    }
+
+    /**
+     * @param  \DateTime $endHour
+     * @return Room
+     */
+    public function setEndHour($endHour)
+    {
+        $this->endHour = $endHour;
+
+        return $this;
     }
 }

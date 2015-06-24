@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
 use Sandbox\ApiBundle\Form\Room\RoomType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -28,6 +29,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
  */
 class AdminRoomController extends RoomController
 {
+    const ALREADY_EXISTS_MESSAGE = "This resource already exists";
 
     /**
      * Room
@@ -88,11 +90,8 @@ class AdminRoomController extends RoomController
         //filters
         $filters = $this->getFilters($paramFetcher);
 
-        if (!is_null($filters)) {
-            $allRooms = $repo->findBy($filters);
-        } else {
-            $allRooms = $repo->findAll();
-        }
+        //find all with or without filters
+        $allRooms = is_null($filters) ? $allRooms = $repo->findAll() : $repo->findBy($filters);
 
         return $this->handleGetRooms($allRooms);
     }
@@ -204,7 +203,7 @@ class AdminRoomController extends RoomController
         }
 
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
-                'buildingId2' => $room->getBuildingId(),
+                'buildingId' => $room->getBuildingId(),
                 'number' => $room->getNumber(),
             )
         );
@@ -214,7 +213,7 @@ class AdminRoomController extends RoomController
             return $this->customErrorView(
                 304,
                 304,
-                'Room already exists'
+                self::ALREADY_EXISTS_MESSAGE
             );
         }
 
@@ -227,7 +226,20 @@ class AdminRoomController extends RoomController
         $em->flush();
 
         //Add attachment (limited to one)
-        $this->addRoomAttachment($em, $room);
+        $this->addRoomAttachment(
+            $em,
+            $room->getId(),
+            $room->getAttachments()
+        );
+
+        //manage room types
+        $this->addRoomTypeData(
+            $em,
+            $room->getId(),
+            $room->getType(),
+            $room->getStartHour(),
+            $room->getEndHour()
+        );
 
         //TODO Add office supplies - TBD
 
@@ -270,9 +282,8 @@ class AdminRoomController extends RoomController
         $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
 
         $attachments =  $this->getRepo('Room\RoomAttachment')->findOneBy(array(
-                'roomId' => $room->getId(),
-            )
-        );
+            'roomId' => $room->getId(),
+        ));
 
         $result = array(
             'id' => $room->getId(),
@@ -284,7 +295,7 @@ class AdminRoomController extends RoomController
             'number' => $room->getNumber(),
             'allowed_people' => $room->getAllowedPeople(),
             'area' => $room->getArea(),
-            //'office_supplies' => 'TODO', //TODO Add office supplies - TBD
+            //'office_supplies' => 'TODO', //TODO Add office supplies
             'type' => $room->getType(),
             //'available' => 'TODO',      //TODO Check availability
             //'current_user_id' => 'TODO', //TODO Check User ID
@@ -293,6 +304,20 @@ class AdminRoomController extends RoomController
             'modification_date' => $room->getModificationDate(),
         );
 
+        switch ($room->getType()) {
+            case 'meeting':
+                $meeting =  $this->getRepo('Room\RoomMeeting')->findOneBy(array(
+                    'roomId' => $room->getId(),
+                ));
+
+                $result['meeting'] = $meeting;
+
+                break;
+
+            default:
+                break;
+        }
+
         return $result;
     }
 
@@ -300,17 +325,18 @@ class AdminRoomController extends RoomController
      * Save attachment to db
      *
      * @param $em
-     * @param $room
+     * @param $id
+     * @param $attachment
      * @throws \Exception
+     * @internal param $room
      * @internal param $attachment
      */
     private function addRoomAttachment(
         $em,
-        $room
+        $id,
+        $attachment
     ) {
         try {
-            $attachment = $room->getAttachments();
-
             $content = $attachment['content'];
             $attachmentType = $attachment['attachment_type'];
             $filename = $attachment['filename'];
@@ -327,7 +353,7 @@ class AdminRoomController extends RoomController
             }
 
             $roomAttachment = new RoomAttachment();
-            $roomAttachment->setRoomId($room->getId());
+            $roomAttachment->setRoomId($id);
             $roomAttachment->setContent($content);
             $roomAttachment->setAttachmenttype($attachmentType);
             $roomAttachment->setFilename($filename);
@@ -338,6 +364,52 @@ class AdminRoomController extends RoomController
             $em->flush();
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
+        }
+    }
+
+    /**
+     * Add room type data
+     *
+     * @param $em
+     * @param $id
+     * @param $type
+     * @param $startHour
+     * @param $endHour
+     * @internal param $room
+     */
+    private function addRoomTypeData(
+        $em,
+        $id,
+        $type,
+        $startHour,
+        $endHour
+    ) {
+        switch ($type) {
+            case 'office':
+                //TODO
+                break;
+            case 'meeting':
+                $format = 'H:i:s';
+
+                $start = \DateTime::createFromFormat($format, $startHour);
+                $end = \DateTime::createFromFormat($format, $endHour);
+
+                $roomMeeting = new RoomMeeting();
+                $roomMeeting->setRoomId($id);
+                $roomMeeting->setStartHour($start);
+                $roomMeeting->setEndHour($end);
+                $em->persist($roomMeeting);
+                $em->flush();
+                break;
+            case 'flexible':
+                //TODO
+                break;
+            case 'fixed':
+                //TODO
+                break;
+            default:
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                break;
         }
     }
 
@@ -365,7 +437,7 @@ class AdminRoomController extends RoomController
         }
 
         if (!is_null($building)) {
-            $filters['buildingId2'] = $building;
+            $filters['buildingId'] = $building;
         }
 
         return empty($filters) ? null : $filters;
