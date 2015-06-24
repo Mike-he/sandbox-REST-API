@@ -26,8 +26,8 @@ class RoomType extends AbstractType
             ->add('office_supplies')
             ->add('type')
             ->add('attachments')
-            ->add('start_hour')
-            ->add('end_hour')
+            ->add('meeting')
+            ->add('fixed')
         ;
     }
 

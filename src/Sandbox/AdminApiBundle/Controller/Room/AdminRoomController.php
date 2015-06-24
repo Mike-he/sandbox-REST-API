@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
 use Sandbox\ApiBundle\Form\Room\RoomType;
 use Symfony\Component\HttpFoundation\Request;
@@ -235,10 +236,7 @@ class AdminRoomController extends RoomController
         //manage room types
         $this->addRoomTypeData(
             $em,
-            $room->getId(),
-            $room->getType(),
-            $room->getStartHour(),
-            $room->getEndHour()
+            $room
         );
 
         //TODO Add office supplies - TBD
@@ -313,8 +311,15 @@ class AdminRoomController extends RoomController
                 $result['meeting'] = $meeting;
 
                 break;
+            case 'fixed':
+                $fixed =  $this->getRepo('Room\RoomFixed')->findBy(array(
+                    'roomId' => $room->getId(),
+                ));
 
+                $result['fixed'] = $fixed;
+                break;
             default:
+                /* Do nothing */
                 break;
         }
 
@@ -371,44 +376,53 @@ class AdminRoomController extends RoomController
      * Add room type data
      *
      * @param $em
-     * @param $id
-     * @param $type
-     * @param $startHour
-     * @param $endHour
+     * @param $room
+     * @internal param $id
+     * @internal param $type
+     * @internal param $meeting
      * @internal param $room
      */
     private function addRoomTypeData(
         $em,
-        $id,
-        $type,
-        $startHour,
-        $endHour
+        $room
     ) {
-        switch ($type) {
-            case 'office':
-                //TODO
-                break;
+        switch ($room->getType()) {
             case 'meeting':
                 $format = 'H:i:s';
+                $meeting = $room->getMeeting();
 
-                $start = \DateTime::createFromFormat($format, $startHour);
-                $end = \DateTime::createFromFormat($format, $endHour);
+                $start = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['start_hour']
+                );
+
+                $end = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['end_hour']
+                );
 
                 $roomMeeting = new RoomMeeting();
-                $roomMeeting->setRoomId($id);
+                $roomMeeting->setRoomId($room->getId());
                 $roomMeeting->setStartHour($start);
                 $roomMeeting->setEndHour($end);
+
                 $em->persist($roomMeeting);
                 $em->flush();
                 break;
-            case 'flexible':
-                //TODO
-                break;
             case 'fixed':
-                //TODO
-                break;
+                $roomsFixed = $room->getFixed();
+
+                foreach ($roomsFixed as $fixed) {
+                    $roomFixed = new RoomFixed();
+                    $roomFixed->setRoomId($room->getId());
+                    $roomFixed->setSeatNumber($fixed['seat_number']);
+                    $roomFixed->setAvailable($fixed['available']);
+                    $em->persist($roomFixed);
+                    $em->flush();
+                }
+            break;
             default:
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                /* Do nothing */
                 break;
         }
     }

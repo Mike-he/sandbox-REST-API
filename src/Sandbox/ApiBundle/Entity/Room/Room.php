@@ -109,9 +109,9 @@ class Room
 
     private $attachments;
 
-    private $startHour;
+    private $meeting;
 
-    private $endHour;
+    private $fixed;
 
     /**
      * Get id
@@ -423,45 +423,47 @@ class Room
     }
 
     /**
-     * Get start hour
+     * Get meeting
      *
-     * @return \DateTime
+     * @return mixed
      */
-    public function getStartHour()
+    public function getMeeting()
     {
-        return $this->startHour;
+        return $this->meeting;
     }
 
     /**
-     * Set start hour
+     * Set meeting
      *
-     * @param  \DateTime $startHour
-     * @return Room
+     * @param  mixed $meeting
+     * @return $this
      */
-    public function setStartHour($startHour)
+    public function setMeeting($meeting)
     {
-        $this->startHour = $startHour;
+        $this->meeting = $meeting;
 
         return $this;
     }
 
     /**
-     * Set end hour
+     * Get fixed
      *
-     * @return \DateTime
+     * @return mixed
      */
-    public function getEndHour()
+    public function getFixed()
     {
-        return $this->endHour;
+        return $this->fixed;
     }
 
     /**
-     * @param  \DateTime $endHour
-     * @return Room
+     * Set fixed
+     *
+     * @param  mixed $fixed
+     * @return $this
      */
-    public function setEndHour($endHour)
+    public function setFixed($fixed)
     {
-        $this->endHour = $endHour;
+        $this->fixed = $fixed;
 
         return $this;
     }
