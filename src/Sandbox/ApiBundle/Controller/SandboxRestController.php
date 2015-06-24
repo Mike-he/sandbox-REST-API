@@ -192,7 +192,7 @@ class SandboxRestController extends FOSRestController
         }
 
         $phoneNumLength = strlen($phone);
-        if ($phoneNumLength != 12) {
+        if ($phoneNumLength != 11) {
             return false;
         }
 
