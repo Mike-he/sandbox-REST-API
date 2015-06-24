@@ -10,7 +10,12 @@ class PasswordForgetVerify
     /**
      * @var string
      */
-    private $token;
+    private $email;
+
+    /**
+     * @var string
+     */
+    private $phone;
 
     /**
      * @var string
@@ -18,26 +23,49 @@ class PasswordForgetVerify
     private $code;
 
     /**
-     * Set token
+     * Set email
      *
-     * @param  string               $token
+     * @param  string               $email
      * @return PasswordForgetVerify
      */
-    public function setToken($token)
+    public function setEmail($email)
     {
-        $this->token = $token;
+        $this->email = $email;
 
         return $this;
     }
 
     /**
-     * Get token
+     * Get email
      *
      * @return string
      */
-    public function getToken()
+    public function getEmail()
     {
-        return $this->token;
+        return $this->email;
+    }
+
+    /**
+     * Set phone
+     *
+     * @param  string               $phone
+     * @return PasswordForgetVerify
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    /**
+     * Get phone
+     *
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
     }
 
     /**
