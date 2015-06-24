@@ -3,6 +3,6 @@ CREATE TABLE `EmailVerification` (
   `userId` int(11) NOT NULL,
   `email` varchar(128) NOT NULL,
   `code` varchar(16) NOT NULL,
-  `creationDate` char(15) NOT NULL,
+  `creationDate` datetime NOT NULL,
   PRIMARY KEY (`id`)
 );
