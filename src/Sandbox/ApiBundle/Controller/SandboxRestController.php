@@ -181,28 +181,18 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param $countryCode
      * @param $phone
-     * @param $withCountryCode
      * @return bool
      */
     protected function isPhoneNumberValid(
-        $countryCode,
-        $phone,
-        $withCountryCode
+        $phone
     ) {
-        if ($withCountryCode) {
-            if (is_null($countryCode) || !ctype_digit($countryCode)) {
-                return false;
-            }
-        }
-
         if (is_null($phone) || !ctype_digit($phone)) {
             return false;
         }
 
-        $phoneNumLength = strlen($countryCode.$phone);
-        if ($phoneNumLength < 7 || $phoneNumLength > 15) {
+        $phoneNumLength = strlen($phone);
+        if ($phoneNumLength != 12) {
             return false;
         }
 
