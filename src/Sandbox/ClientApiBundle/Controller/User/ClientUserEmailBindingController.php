@@ -15,7 +15,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -33,13 +32,17 @@ class ClientUserEmailBindingController extends UserEmailBindingController
 {
     use StringUtil;
 
-    const BAD_PARAM_MESSAGE = "Bad parameters";
+    const ERROR_INVALID_EMAIL_ADDRESS_CODE = 400001;
+    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = "Invalid email address.-该邮箱无效";
 
-    const NOT_FOUND_MESSAGE = "This resource does not exist";
+    const ERROR_EMAIL_ALREADY_USED_CODE = 400002;
+    const ERROR_EMAIL_ALREADY_USED_MESSAGE = "Email address already used.-该邮箱已被使用";
 
-    const NOT_ALLOWED_MESSAGE = "You are not allowed to perform this action";
+    const ERROR_INVALID_VERIFICATION_CODE = 400003;
+    const ERROR_INVALID_VERIFICATION_MESSAGE = "Invalid verification.-该验证无效";
 
-    const HALF_HOUR_IN_MILLIS = 1800000;
+    const ERROR_EXPIRED_VERIFICATION_CODE = 400004;
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = "Expired verification.-该验证已过期";
 
     /**
      * Email bind submit email
@@ -125,7 +128,7 @@ class ClientUserEmailBindingController extends UserEmailBindingController
 
         // check email valid
         if (is_null($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->customErrorView(400, 490, 'Invalid email address');
+            return $this->customErrorView(400, self::ERROR_INVALID_EMAIL_ADDRESS_CODE, self::ERROR_INVALID_EMAIL_ADDRESS_MESSAGE);
         }
 
         // check email already used
@@ -134,36 +137,18 @@ class ClientUserEmailBindingController extends UserEmailBindingController
             'banned' => false,
         ));
         if (!is_null($user)) {
-            return $this->customErrorView(400, 491, 'Email address already used');
+            return $this->customErrorView(400, self::ERROR_EMAIL_ALREADY_USED_CODE, self::ERROR_EMAIL_ALREADY_USED_MESSAGE);
         }
 
-        // get email verification entity
-        $emailVerification = $this->getRepo('User\UserEmailVerification')->findOneByUserId($userId);
-
-        $newEmailVerification = false;
-        if (is_null($emailVerification)) {
-            $newEmailVerification = true;
-            $emailVerification = new UserEmailVerification();
-        }
-
-        $emailVerification->setUserId($userId);
-        $emailVerification->setEmail($email);
-        $emailVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
+        // create email verification entity
+        $emailVerification = $this->generateEmailVerification($userId, $email);
 
         $em = $this->getDoctrine()->getManager();
-        if ($newEmailVerification) {
-            $em->persist($emailVerification);
-        }
+        $em->persist($emailVerification);
         $em->flush();
 
-        // send verification URL to email
-        $subject = '[Sandbox Bind Email Verification] '.$this->before('@', $email).', please confirm your email';
-        $this->sendEmail($subject, $email, $this->before('@', $email),
-            'Emails/bind_email_verification.html.twig',
-            array(
-                'code' => $emailVerification->getCode(),
-            )
-        );
+        // send notification by email
+        $this->sendEmailNotification($emailVerification);
 
         return new View();
     }
@@ -192,11 +177,11 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         $this->throwNotFoundIfNull($emailVerification, self::NOT_FOUND_MESSAGE);
 
         if ($code != $emailVerification->getCode()) {
-            return $this->customErrorView(400, 490, 'Invalid verification');
+            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
         if (new \DateTime("now") >  $emailVerification->getCreationDate()->modify('+0.5 hour')) {
-            return $this->customErrorView(400, 491, 'Expired verification');
+            return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
         // bind email
@@ -205,19 +190,53 @@ class ClientUserEmailBindingController extends UserEmailBindingController
 
         $user->setEmail($emailVerification->getEmail());
 
-        //TODO no vcard
-//        // change personal email in vcard
-//        $vcard = $this->getRepo('JtVCard')->findOneBy(array(
-//            'userid' => $user->getXmppUsername(),
-//            'companyid' => null,
-//        ));
-//        $vcard->setEmail($emailVerification->getEmail());
-
         // remove verification
         $em = $this->getDoctrine()->getManager();
         $em->remove($emailVerification);
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param string $userId
+     * @param string $email
+     *
+     * @return UserEmailVerification
+     */
+    private function generateEmailVerification(
+        $userId,
+        $email
+    ) {
+        // get email verification entity
+        $emailVerification = $this->getRepo('User\UserEmailVerification')->findOneByUserId($userId);
+
+        if (is_null($emailVerification)) {
+            $emailVerification = new UserEmailVerification();
+            $emailVerification->setUserId($userId);
+            $emailVerification->setEmail($email);
+        }
+
+        $emailVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
+
+        return $emailVerification;
+    }
+
+    /**
+     * @param UserEmailVerification $emailVerification
+     */
+    private function sendEmailNotification(
+        $emailVerification
+    ) {
+        $email = $emailVerification->getEmail();
+
+        // send verification URL to email
+        $subject = '[Sandbox Bind Email Verification] '.$this->before('@', $email).', please confirm your email';
+        $this->sendEmail($subject, $email, $this->before('@', $email),
+            'Emails/bind_email_verification.html.twig',
+            array(
+                'code' => $emailVerification->getCode(),
+            )
+        );
     }
 }
