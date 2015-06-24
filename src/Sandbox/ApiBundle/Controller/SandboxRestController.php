@@ -315,7 +315,7 @@ class SandboxRestController extends FOSRestController
             $em = $this->getDoctrine()->getManager();
         }
 
-        $tokens = $this->getRepo('UserToken')->findByUserid($userId);
+        $tokens = $this->getRepo('User\UserToken')->findByUserid($userId);
         foreach ($tokens as $token) {
             if (!is_null($currentToken)
                 && $token->getToken() === $currentToken) {
