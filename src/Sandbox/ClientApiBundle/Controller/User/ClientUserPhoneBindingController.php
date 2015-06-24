@@ -3,10 +3,11 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserPhoneBindingController;
+use Sandbox\ApiBundle\Entity\User\UserPhoneVerification;
 use Sandbox\ClientApiBundle\Data\User\PhoneBindingSubmit;
 use Sandbox\ClientApiBundle\Data\User\PhoneBindingVerify;
-use Sandbox\ClientApiBundle\Form\PhoneBindingSubmitType;
-use Sandbox\ClientApiBundle\Form\PhoneBindingVerifyType;
+use Sandbox\ClientApiBundle\Form\User\PhoneBindingSubmitType;
+use Sandbox\ClientApiBundle\Form\User\PhoneBindingVerifyType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -28,13 +29,17 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserPhoneBindingController extends UserPhoneBindingController
 {
-    const BAD_PARAM_MESSAGE = "Bad parameters";
+    const ERROR_INVALID_PHONE_NUMBER_CODE = 400001;
+    const ERROR_INVALID_PHONE_NUMBER_MESSAGE = "Invalid phone number.-该手机号无效";
 
-    const NOT_FOUND_MESSAGE = "This resource does not exist";
+    const ERROR_PHONE_NUMBER_USED_CODE = 400002;
+    const ERROR_PHONE_NUMBER_USED_MESSAGE = "Phone number already used.-该手机号已被使用";
 
-    const NOT_ALLOWED_MESSAGE = "You are not allowed to perform this action";
+    const ERROR_INVALID_VERIFICATION_CODE = 400003;
+    const ERROR_INVALID_VERIFICATION_MESSAGE = "Invalid verification.-该验证无效";
 
-    const HALF_HOUR_IN_MILLIS = 1800000;
+    const ERROR_EXPIRED_VERIFICATION_CODE = 400004;
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = "Expired verification.-该验证已过期";
 
     /**
      * Phone binding submit country code and phone
@@ -62,7 +67,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $submit = new PhoneBindingSubmit();
 
         $form = $this->createForm(new PhoneBindingSubmitType(), $submit);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
             return $this->handlePhoneBindSubmit($userId, $submit);
@@ -97,45 +102,10 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $verify = new PhoneBindingVerify();
 
         $form = $this->createForm(new PhoneBindingVerifyType(), $verify);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
             return $this->handlePhoneBindVerify($userId, $verify);
-        }
-
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-    }
-
-    /**
-     * Phone unbind
-     *
-     * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
-     * @Route("/unbind")
-     * @Method({"POST"})
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function postPhoneUnbindAction(
-        Request $request
-    ) {
-        $userId = $this->getUserid();
-
-        $submit = new PhoneBindingSubmit();
-
-        $form = $this->createForm(new PhoneBindingSubmitType(), $submit);
-        $form->submit(json_decode($request->getContent(), true));
-
-        if ($form->isValid()) {
-            return $this->handlePhoneUnbind($userId, $submit);
         }
 
         throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -151,57 +121,32 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $userId,
         $submit
     ) {
-        $countryCode = $submit->getCountrycode();
         $phone = $submit->getPhone();
 
         // check country code and phone number valid
-        if (!$this->isPhoneNumberValid($countryCode, $phone, true)) {
-            return $this->customErrorView(400, 490, 'Invalid phone number');
+        if (!$this->isPhoneNumberValid($phone)) {
+            return $this->customErrorView(400, self::ERROR_INVALID_PHONE_NUMBER_CODE, self::ERROR_INVALID_PHONE_NUMBER_MESSAGE);
         }
 
         // check phone number already used
-        $user = $this->getRepo('JtUser')->findOneBy(array(
-            'countrycode' => $countryCode,
+        $user = $this->getRepo('User\User')->findOneBy(array(
             'phone' => $phone,
-            'activated' => true,
+            'banned' => false,
         ));
         if (!is_null($user)) {
-            return $this->customErrorView(400, 491, 'Phone number already used');
+            return $this->customErrorView(400, self::ERROR_PHONE_NUMBER_USED_CODE, self::ERROR_PHONE_NUMBER_USED_MESSAGE);
         }
 
         // get phone verification entity
-        $phoneVerification = $this->getRepo('PhoneVerification')->findOneByUserid($userId);
-
-        $newPhoneVerification = false;
-        if (is_null($phoneVerification)) {
-            $newPhoneVerification = true;
-            $phoneVerification = new PhoneVerification();
-        }
-
-        $phoneVerification->setUserid($userId);
-        $phoneVerification->setCountrycode($countryCode);
-        $phoneVerification->setPhone($phone);
-        $phoneVerification->setToken($this->generateRandomToken());
-        $phoneVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
-        $phoneVerification->setCreationdate(time());
+        $phoneVerification = $this->generatePhoneVerification($userId, $phone);
 
         $em = $this->getDoctrine()->getManager();
-        if ($newPhoneVerification) {
-            $em->persist($phoneVerification);
-        }
+        $em->persist($phoneVerification);
         $em->flush();
 
-        // sms verification code to phone
-        $smsText = 'Verification code: '.$phoneVerification->getCode();
-        $this->sendSms($phone, urlencode($smsText));
+        $this->sendSMSNotification($phoneVerification);
 
-        // response
-        $view = new View();
-        $view->setData(array(
-            'token' => $phoneVerification->getToken(),
-        ));
-
-        return $view;
+        return new View();
     }
 
     /**
@@ -214,105 +159,69 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $userId,
         $verify
     ) {
-        $token = $verify->getToken();
+        $phone = $verify->getPhone();
         $code = $verify->getCode();
 
         // get phone verification entity
-        $phoneVerification = $this->getRepo('PhoneVerification')->findOneByUserid($userId);
+        $phoneVerification = $this->getRepo('User\UserPhoneVerification')->findOneBy(
+            array(
+                'userId' => $userId,
+                'phone' => $phone,
+                'code' => $code,
+            )
+        );
         $this->throwNotFoundIfNull($phoneVerification, self::NOT_FOUND_MESSAGE);
 
-        if ($token != $phoneVerification->getToken()
-            || $code != $phoneVerification->getCode()) {
-            return $this->customErrorView(400, 490, 'Invalid verification');
+        if ($code != $phoneVerification->getCode()) {
+            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        $currentTime = time().'000';
-        if ($currentTime - $phoneVerification->getCreationdate() > self::HALF_HOUR_IN_MILLIS) {
-            return $this->customErrorView(400, 491, 'Expired verification code');
+        if (new \DateTime("now") >  $phoneVerification->getCreationDate()->modify('+0.5 hour')) {
+            return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
         // bind phone
-        $user = $this->getRepo('JtUser')->find($userId);
+        $user = $this->getRepo('User\User')->find($userId);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $user->setCountrycode($phoneVerification->getCountrycode());
         $user->setPhone($phoneVerification->getPhone());
-
-        // change personal phone in vcard
-        $vcard = $this->getRepo('JtVCard')->findOneBy(array(
-            'userid' => $user->getXmppUsername(),
-            'companyid' => null,
-        ));
-        $vcardPhone = $this->constructVCardPhone($phoneVerification->getCountrycode(), $phoneVerification->getPhone());
-        $vcard->setPhone($vcardPhone);
 
         // remove verification
         $em = $this->getDoctrine()->getManager();
         $em->remove($phoneVerification);
         $em->flush();
 
-        // response
-        $view = new View();
-        $view->setData(array(
-            'result' => true,
-        ));
-
-        return $view;
+        return new View();
     }
 
     /**
-     * @param integer            $userId
-     * @param PhoneBindingSubmit $submit
-     *
-     * @return View
+     * @param  string                $userId
+     * @param  string                $phone
+     * @return UserPhoneVerification
      */
-    private function handlePhoneUnbind(
+    private function generatePhoneVerification(
         $userId,
-        $submit
+        $phone
     ) {
-        $countryCode = $submit->getCountrycode();
-        $phone = $submit->getPhone();
-
-        // check country code and phone number valid
-        if (!$this->isPhoneNumberValid($countryCode, $phone, true)) {
-            return $this->customErrorView(400, 490, 'Invalid phone number');
+        $phoneVerification = $this->getRepo('User\UserPhoneVerification')->findOneByUserId($userId);
+        if (is_null($phoneVerification)) {
+            $phoneVerification = new UserPhoneVerification();
+            $phoneVerification->setUserid($userId);
+            $phoneVerification->setPhone($phone);
         }
 
-        // check phone not found
-        $user = $this->getRepo('JtUser')->findOneBy(array(
-            'id' => $userId,
-            'countrycode' => $countryCode,
-            'phone' => $phone,
-            'activated' => true,
-        ));
-        if (is_null($user)) {
-            return $this->customErrorView(400, 491, 'Wrong phone number');
-        }
+        $phoneVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
 
-        if (is_null($user->getEmail())) {
-            return $this->customErrorView(400, 492, 'Only phone number is bound');
-        }
+        return $phoneVerification;
+    }
 
-        // unbind phone
-        $user->setCountrycode(null);
-        $user->setPhone(null);
-
-        // claer personal phone in vcard
-        $vcard = $this->getRepo('JtVCard')->findOneBy(array(
-            'userid' => $user->getXmppUsername(),
-            'companyid' => null,
-        ));
-        $vcard->setPhone(null);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        // response
-        $view = new View();
-        $view->setData(array(
-            'result' => true,
-        ));
-
-        return $view;
+    /**
+     * @param UserPhoneVerification $phoneVerification
+     */
+    private function sendSMSNotification(
+        $phoneVerification
+    ) {
+        $smsText = 'Verification code: '.$phoneVerification->getCode();
+        $this->sendSms($phoneVerification->getPhone(), urlencode($smsText));
     }
 }
