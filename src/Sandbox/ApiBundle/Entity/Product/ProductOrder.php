@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * ProductOrder
  *
  * @ORM\Table(name="ProductOrder")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\OrderRepository")
  */
 class ProductOrder
 {
@@ -22,11 +22,10 @@ class ProductOrder
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\User\User
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
      * @ORM\Column(name="userId", type="integer")
+     *
      */
     private $userId;
 
@@ -35,7 +34,7 @@ class ProductOrder
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
      * @ORM\JoinColumn(name="productId", referencedColumnName="id")
-     * @ORM\Column(name="productId", type="integer")
+     *
      */
     private $productId;
 

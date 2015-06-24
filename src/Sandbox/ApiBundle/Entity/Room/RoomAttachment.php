@@ -22,12 +22,10 @@ class RoomAttachment
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Room
+     * @var Room
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
-     * })
+     * @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      */
     private $roomId;
 
@@ -110,6 +108,16 @@ class RoomAttachment
         $this->content = $content;
 
         return $this;
+    }
+
+    /**
+     * Get room
+     *
+     * @return Room
+     */
+    public function getRoom()
+    {
+        return $this->room;
     }
 
     /**

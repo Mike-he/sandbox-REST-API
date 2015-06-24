@@ -12,3 +12,7 @@ NelmioApiDocBundle:
   resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
   prefix:   /api/doc
 
+sandbox_api:
+    resource: "@SandboxApiBundle/Resources/config/routing.yml"
+    type: rest
+    prefix:

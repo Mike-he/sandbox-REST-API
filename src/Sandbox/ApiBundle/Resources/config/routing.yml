@@ -1,0 +1,18 @@
+# Orders /orders
+sandbox_api_order:
+    resource: "@SandboxApiBundle/Controller/Order/OrderController.php"
+    type:     annotation
+    prefix:   /
+
+# Products /products
+sandbox_api_product:
+    resource: "@SandboxApiBundle/Controller/Product/ProductController.php"
+    type:     annotation
+    prefix:   /
+
+
+# Location
+sandbox_api_location:
+    resource: "@SandboxApiBundle/Controller/Location/LocationController.php"
+    type:     annotation
+    prefix:   /

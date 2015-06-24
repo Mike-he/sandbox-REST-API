@@ -26,7 +26,7 @@ class ProductAttachment
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
      * @ORM\JoinColumn(name="productId", referencedColumnName="id")
-     * @ORM\Column(name="productId", type="integer")
+     *
      */
     private $productId;
 

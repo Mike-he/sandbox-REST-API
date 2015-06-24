@@ -12,7 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Room
 {
-
     /**
      * @var integer
      *
@@ -30,6 +29,38 @@ class Room
     private $name;
 
     /**
+     * @var RoomAttachment
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachment", mappedBy="roomId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     */
+    private $roomAttachment;
+
+    /**
+     * @var RoomRentedDate
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomRentedDate", mappedBy="roomId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     */
+    private $rentedDate;
+
+    /**
+     * @var RoomMeeting
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting", mappedBy="roomId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     */
+    private $meeting;
+
+    /**
+     * @var RoomFixed
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFixed", mappedBy="roomId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     */
+    private $roomFixed;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
@@ -41,7 +72,7 @@ class Room
      *
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\City")
      * @ORM\JoinColumn(name="city", referencedColumnName="id")
-     * @ORM\Column(name="city", type="integer", nullable=false)
+     *
      */
     private $city;
 
@@ -50,7 +81,7 @@ class Room
      *
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\Building")
      * @ORM\JoinColumn(name="building", referencedColumnName="id")
-     * @ORM\Column(name="building", type="integer", nullable=false)
+     *
      */
     private $building;
 
@@ -59,7 +90,7 @@ class Room
      *
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\Floor")
      * @ORM\JoinColumn(name="floor", referencedColumnName="id")
-     * @ORM\Column(name="floor", type="integer", nullable=false)
+     *
      */
     private $floor;
 
@@ -83,13 +114,6 @@ class Room
      * @ORM\Column(name="area", type="integer", nullable=false)
      */
     private $area;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="officeSupplies", type="integer", nullable=true)
-     */
-    private $officeSupplies;
 
     /**
      * @var string
@@ -143,6 +167,98 @@ class Room
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set RoomMeeting
+     *
+     * @param  object $meeting
+     * @return Room
+     */
+    public function setMeeting($meeting)
+    {
+        $this->meeting = $meeting;
+
+        return $this;
+    }
+
+    /**
+     * Get RoomMeeting
+     *
+     * @return RoomMeeting
+     */
+    public function getMeeting()
+    {
+        return $this->meeting;
+    }
+
+    /**
+     * Set RoomFixed
+     *
+     * @param  object $roomFixed
+     * @return Room
+     */
+    public function setRoomFixed($roomFixed)
+    {
+        $this->roomFixed = $roomFixed;
+
+        return $this;
+    }
+
+    /**
+     * Get RoomFixed
+     *
+     * @return RoomFixed
+     */
+    public function getRoomFixed()
+    {
+        return $this->roomFixed;
+    }
+
+    /**
+     * Set RoomRentedDate
+     *
+     * @param  object $rentedDate
+     * @return Room
+     */
+    public function setRentedDate($rentedDate)
+    {
+        $this->rentedDate = $rentedDate;
+
+        return $this;
+    }
+
+    /**
+     * Get RoomRentedDate
+     *
+     * @return RoomRentedDate
+     */
+    public function getRentedDate()
+    {
+        return $this->rentedDate;
+    }
+
+    /**
+     * Set RoomAttachment
+     *
+     * @param  object $attachment
+     * @return Room
+     */
+    public function setRoomAttachment($attachment)
+    {
+        $this->roomAttachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get RoomAttachment
+     *
+     * @return RoomAttachment
+     */
+    public function getRoomAttachment()
+    {
+        return $this->roomAttachment;
     }
 
     /**
@@ -304,29 +420,6 @@ class Room
     public function getArea()
     {
         return $this->area;
-    }
-
-    /**
-     * Set officeSupplies
-     *
-     * @param  integer $officeSupplies
-     * @return Room
-     */
-    public function setOfficeSupplies($officeSupplies)
-    {
-        $this->officeSupplies = $officeSupplies;
-
-        return $this;
-    }
-
-    /**
-     * Get officeSupplies
-     *
-     * @return integer
-     */
-    public function getOfficeSupplies()
-    {
-        return $this->officeSupplies;
     }
 
     /**

@@ -33,7 +33,7 @@ class Floor
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\Building")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
-     * @ORM\Column(name="buildingId", type="integer")
+     *
      */
     private $buildingId;
 
