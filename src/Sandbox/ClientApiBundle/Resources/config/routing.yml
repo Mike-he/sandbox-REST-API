@@ -49,7 +49,7 @@ sandbox_client_api_user_email_binding:
 sandbox_client_api_user_phone_binding:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserPhoneBindingController.php"
     type:     annotation
-    prefix:   /
+    prefix:   /user
 
 # Registration /register
 sandbox_client_api_user_registration:
