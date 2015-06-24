@@ -4,5 +4,5 @@ CREATE TABLE `RoomBuilding` (
   `cityId` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_Building_cityId_idx` (`cityId`),
-  CONSTRAINT `fk_Building_cityId` FOREIGN KEY (`cityId`) REFERENCES `City` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `fk_Building_cityId` FOREIGN KEY (`cityId`) REFERENCES `RoomCity` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );

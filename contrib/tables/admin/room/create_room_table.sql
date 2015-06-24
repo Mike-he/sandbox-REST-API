@@ -1,6 +1,6 @@
 CREATE TABLE `Room` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255),
+  `name` varchar(255) DEFAULT NULL,
   `description` text,
   `cityId` int(11) NOT NULL,
   `buildingId` int(11) NOT NULL,
@@ -12,11 +12,12 @@ CREATE TABLE `Room` (
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `buildingId_number_UNIQUE` (`buildingId`,`number`),
   UNIQUE KEY `floorId_number_UNIQUE` (`floorId`,`number`),
   KEY `fk_Room_cityId_idx` (`cityId`),
   KEY `fk_Room_buildingId_idx` (`buildingId`),
   KEY `fk_Room_floorId_idx` (`floorId`),
-  CONSTRAINT `fk_Room_cityId` FOREIGN KEY (`cityId`) REFERENCES `City` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Room_buildingId` FOREIGN KEY (`buildingId`) REFERENCES `Building` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Room_floorId` FOREIGN KEY (`floorId`) REFERENCES `Floor` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `fk_Room_buildingId` FOREIGN KEY (`buildingId`) REFERENCES `RoomBuilding` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Room_cityId` FOREIGN KEY (`cityId`) REFERENCES `RoomCity` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Room_floorId` FOREIGN KEY (`floorId`) REFERENCES `RoomFloor` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
