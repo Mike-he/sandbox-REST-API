@@ -49,7 +49,25 @@ class AdminRoomController extends RoomController
      *    nullable=true,
      *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
-     *    description=""
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by building id"
      * )
      *
      * @Route("/rooms")
@@ -67,14 +85,11 @@ class AdminRoomController extends RoomController
         // get room
         $repo = $this->getRepo('Room\Room');
 
-        //filter by status if needed
-        $type = $paramFetcher->get('type');
+        //filters
+        $filters = $this->getFilters($paramFetcher);
 
-        if (!is_null($type)) {
-            $allRooms = $repo->findBy(array(
-                    "type" => $type
-                )
-            );
+        if (!is_null($filters)) {
+            $allRooms = $repo->findBy($filters);
         } else {
             $allRooms = $repo->findAll();
         }
@@ -324,5 +339,35 @@ class AdminRoomController extends RoomController
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
         }
+    }
+
+    /**
+     * Get filters from rooms get request
+     *
+     * @param $paramFetcher
+     * @return null|array
+     */
+    private function getFilters(
+        $paramFetcher
+    ) {
+        $type = $paramFetcher->get('type');
+        $city = $paramFetcher->get('city');
+        $building = $paramFetcher->get('building');
+
+        $filters = [];
+
+        if (!is_null($type)) {
+            $filters['type'] = $type;
+        }
+
+        if (!is_null($city)) {
+            $filters['cityId'] = $city;
+        }
+
+        if (!is_null($building)) {
+            $filters['buildingId2'] = $building;
+        }
+
+        return empty($filters) ? null : $filters;
     }
 }
