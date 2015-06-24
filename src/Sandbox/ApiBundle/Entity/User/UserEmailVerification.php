@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Email verification
  *
- * @ORM\Table(name="ezEmailVerification")
+ * @ORM\Table(name="EmailVerification")
  * @ORM\Entity
  *
  */
@@ -27,7 +27,7 @@ class UserEmailVerification
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      */
-    private $userid;
+    private $userId;
 
     /**
      * @var string
@@ -39,23 +39,16 @@ class UserEmailVerification
     /**
      * @var string
      *
-     * @ORM\Column(name="token", type="string", length=64, nullable=false)
-     */
-    private $token;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="code", type="string", length=16, nullable=false)
      */
     private $code;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
-    private $creationdate;
+    private $creationDate;
 
     /**
      * Get id
@@ -68,33 +61,33 @@ class UserEmailVerification
     }
 
     /**
-     * Set userid
+     * Set userId
      *
-     * @param  string            $userid
-     * @return EmailVerification
+     * @param  string                $userId
+     * @return UserEmailVerification
      */
-    public function setUserid($userid)
+    public function setUserId($userId)
     {
-        $this->userid = $userid;
+        $this->userId = $userId;
 
         return $this;
     }
 
     /**
-     * Get userid
+     * Get userId
      *
      * @return string
      */
-    public function getUserid()
+    public function getUserId()
     {
-        return $this->userid;
+        return $this->userId;
     }
 
     /**
      * Set email
      *
-     * @param  string            $email
-     * @return EmailVerification
+     * @param  string                $email
+     * @return UserEmailVerification
      */
     public function setEmail($email)
     {
@@ -114,33 +107,10 @@ class UserEmailVerification
     }
 
     /**
-     * Set token
-     *
-     * @param  string            $token
-     * @return EmailVerification
-     */
-    public function setToken($token)
-    {
-        $this->token = $token;
-
-        return $this;
-    }
-
-    /**
-     * Get token
-     *
-     * @return string
-     */
-    public function getToken()
-    {
-        return $this->token;
-    }
-
-    /**
      * Set code
      *
-     * @param  string            $code
-     * @return EmailVerification
+     * @param  string                $code
+     * @return UserEmailVerification
      */
     public function setCode($code)
     {
@@ -160,25 +130,28 @@ class UserEmailVerification
     }
 
     /**
-     * Set creationdate
+     * Get creationDate
      *
-     * @param  string            $creationdate
-     * @return EmailVerification
+     * @return \DateTime
      */
-    public function setCreationdate($creationdate)
+    public function getCreationDate()
     {
-        $this->creationdate = $creationdate.'000';
-
-        return $this;
+        return $this->creationDate;
     }
 
     /**
-     * Get creationdate
+     * Set creationDate
      *
-     * @return string
+     * @param  \DateTime $creationDate
+     * @return User
      */
-    public function getCreationdate()
+    public function setCreationDate($creationDate)
     {
-        return $this->creationdate;
+        $this->creationDate = $creationDate;
+    }
+
+    public function __construct()
+    {
+        $this->setCreationDate(new \DateTime("now"));
     }
 }
