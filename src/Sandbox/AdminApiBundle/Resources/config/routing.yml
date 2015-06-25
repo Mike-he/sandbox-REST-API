@@ -1,8 +1,8 @@
-# Admin User Login /admin/user/login
-sandbox_admin_api_user_login:
+# Admin User Login /admin/auth/login
+sandbox_admin_api_auth_login:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminUserLoginController.php"
     type:     annotation
-    prefix:   /user
+    prefix:   /auth
 
 # Rooms /admin/rooms
 sandbox_admin_api_rooms:

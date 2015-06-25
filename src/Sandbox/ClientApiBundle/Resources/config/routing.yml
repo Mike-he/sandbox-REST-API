@@ -33,11 +33,11 @@ sandbox_client_api_user_profile:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserProfileController.php"
     type:     rest
 
-# Client User Login /client/user/login
-sandbox_client_api_user_login:
+# Client User Login /client/auth/login
+sandbox_client_api_auth_login:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserLoginController.php"
     type:     annotation
-    prefix:   /user
+    prefix:   /auth
 
 # Bind email /email
 sandbox_client_api_user_email_binding:
