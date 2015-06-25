@@ -10,7 +10,7 @@ class EmailBindingVerify
     /**
      * @var string
      */
-    private $token;
+    private $email;
 
     /**
      * @var string
@@ -18,26 +18,26 @@ class EmailBindingVerify
     private $code;
 
     /**
-     * Set token
+     * Set email
      *
-     * @param  string             $token
+     * @param  string             $email
      * @return EmailBindingVerify
      */
-    public function setToken($token)
+    public function setEmail($email)
     {
-        $this->token = $token;
+        $this->email = $email;
 
         return $this;
     }
 
     /**
-     * Get token
+     * Get email
      *
      * @return string
      */
-    public function getToken()
+    public function getEmail()
     {
-        return $this->token;
+        return $this->email;
     }
 
     /**
