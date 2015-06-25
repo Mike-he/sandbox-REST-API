@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Product
  *
  * @ORM\Table(name="Product")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Product\ProductRepository")
  */
 class Product
 {
@@ -22,13 +22,27 @@ class Product
     private $id;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="roomId", type="integer")
+     */
+    private $roomId;
+
+    /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id")
-     * @ORM\Column(name="roomId", type="integer")
      */
-    private $roomId;
+    private $room;
+
+    /**
+     * @var ProductAttachment
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAttachment", mappedBy="productId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="productId")
+     */
+    private $productAttachment;
 
     /**
      * @var string
@@ -110,6 +124,39 @@ class Product
     public function getRoomId()
     {
         return $this->roomId;
+    }
+
+    /**
+     * Get room
+     *
+     * @return Room
+     */
+    public function getRoom()
+    {
+        return $this->room;
+    }
+
+    /**
+     * Set ProductAttachment
+     *
+     * @param  object  $attachment
+     * @return Product
+     */
+    public function setProductAttachment($attachment)
+    {
+        $this->productAttachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get ProductAttachment
+     *
+     * @return ProductAttachment
+     */
+    public function getProductAttachment()
+    {
+        return $this->productAttachment;
     }
 
     /**

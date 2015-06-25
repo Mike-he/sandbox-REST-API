@@ -1,0 +1,89 @@
+<?php
+
+namespace Sandbox\ApiBundle\Controller\Location;
+
+use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\View\View;
+use FOS\RestBundle\Controller\Annotations;
+use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+
+/**
+ * Location Controller
+ *
+ * @category Sandbox
+ * @package  Sandbox\ApiBundle\Controller
+ * @author   Leo Xu <leox@gobeta.com.cn>
+ * @license  http://www.Sandbox.cn/ Proprietary
+ * @link     http://www.Sandbox.cn/
+ */
+class LocationController extends SandboxRestController
+{
+    /**
+     * @Get("/cities")
+     *
+     * @param  Request $request
+     * @return View
+     */
+    public function getCitiesAction(Request $request)
+    {
+        $cities = $this->getRepo('Location\City')->findAll();
+
+        return new View($cities);
+    }
+
+    /**
+     * @Get("/buildings")
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="city id"
+     * )
+     *
+     * @param  Request               $request
+     * @param  ParamFetcherInterface $paramFetcher
+     * @return View
+     */
+    public function getBuildingsAction(Request $request, ParamFetcherInterface $paramFetcher)
+    {
+        $cityId = $paramFetcher->get('city');
+        if (!is_null($cityId)) {
+            $buildings = $this->getRepo('Location\Building')->findBy(['cityId' => $cityId]);
+
+            return new View($buildings);
+        }
+        $buildings = $this->getRepo('Location\Building')->findAll();
+
+        return new View($buildings);
+    }
+
+    /**
+     * @Get("/floors")
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    description="building id"
+     * )
+     *
+     * @param  Request               $request
+     * @param  ParamFetcherInterface $paramFetcher
+     * @return View
+     */
+    public function getFloorsAction(Request $request, ParamFetcherInterface $paramFetcher)
+    {
+        $buildingId = $paramFetcher->get('building');
+        if (!is_null($buildingId)) {
+            $floors = $this->getRepo('Location\Floor')->findBy(['buildingId' => $buildingId]);
+
+            return new View($floors);
+        }
+        $floors = $this->getRepo('Location\Floor')->findAll();
+
+        return new View($floors);
+    }
+}

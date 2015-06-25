@@ -62,3 +62,15 @@ sandbox_client_api_user_password:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserPasswordController.php"
     type:     annotation
     prefix:   /
+
+# Products /products
+sandbox_client_api_product:
+    resource: "@SandboxClientApiBundle/Controller/Product/ClientProductController.php"
+    type:     annotation
+    prefix:   /
+
+# Orders /orders
+sandbox_client_api_order:
+    resource: "@SandboxClientApiBundle/Controller/Order/ClientOrderController.php"
+    type:     annotation
+    prefix:   /
