@@ -10,7 +10,7 @@ class PhoneBindingVerify
     /**
      * @var string
      */
-    private $token;
+    private $phone;
 
     /**
      * @var string
@@ -18,26 +18,26 @@ class PhoneBindingVerify
     private $code;
 
     /**
-     * Set token
+     * Set phone
      *
-     * @param  string             $token
+     * @param  string             $phone
      * @return PhoneBindingVerify
      */
-    public function setToken($token)
+    public function setPhone($phone)
     {
-        $this->token = $token;
+        $this->phone = $phone;
 
         return $this;
     }
 
     /**
-     * Get token
+     * Get phone
      *
      * @return string
      */
-    public function getToken()
+    public function getPhone()
     {
-        return $this->token;
+        return $this->phone;
     }
 
     /**

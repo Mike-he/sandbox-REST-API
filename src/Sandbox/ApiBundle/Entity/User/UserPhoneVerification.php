@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Phone verification
  *
- * @ORM\Table(name="ezPhoneVerification")
+ * @ORM\Table(name="PhoneVerification")
  * @ORM\Entity
  *
  */
@@ -27,14 +27,7 @@ class UserPhoneVerification
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      */
-    private $userid;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="countryCode", type="string", length=16, nullable=false)
-     */
-    private $countrycode;
+    private $userId;
 
     /**
      * @var string
@@ -46,23 +39,16 @@ class UserPhoneVerification
     /**
      * @var string
      *
-     * @ORM\Column(name="token", type="string", length=64, nullable=false)
-     */
-    private $token;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="code", type="string", length=16, nullable=false)
      */
     private $code;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
-    private $creationdate;
+    private $creationDate;
 
     /**
      * Get id
@@ -75,56 +61,33 @@ class UserPhoneVerification
     }
 
     /**
-     * Set userid
+     * Set userId
      *
-     * @param  string            $userid
-     * @return PhoneVerification
+     * @param  string                $userId
+     * @return UserPhoneVerification
      */
-    public function setUserid($userid)
+    public function setUserId($userId)
     {
-        $this->userid = $userid;
+        $this->userId = $userId;
 
         return $this;
     }
 
     /**
-     * Get userid
+     * Get userId
      *
      * @return string
      */
-    public function getUserid()
+    public function getUserId()
     {
-        return $this->userid;
-    }
-
-    /**
-     * Set countrycode
-     *
-     * @param  string            $countrycode
-     * @return PhoneVerification
-     */
-    public function setCountrycode($countrycode)
-    {
-        $this->countrycode = $countrycode;
-
-        return $this;
-    }
-
-    /**
-     * Get countrycode
-     *
-     * @return string
-     */
-    public function getCountrycode()
-    {
-        return $this->countrycode;
+        return $this->userId;
     }
 
     /**
      * Set phone
      *
-     * @param  string            $phone
-     * @return PhoneVerification
+     * @param  string                $phone
+     * @return UserPhoneVerification
      */
     public function setPhone($phone)
     {
@@ -144,33 +107,10 @@ class UserPhoneVerification
     }
 
     /**
-     * Set token
-     *
-     * @param  string            $token
-     * @return PhoneVerification
-     */
-    public function setToken($token)
-    {
-        $this->token = $token;
-
-        return $this;
-    }
-
-    /**
-     * Get token
-     *
-     * @return string
-     */
-    public function getToken()
-    {
-        return $this->token;
-    }
-
-    /**
      * Set code
      *
-     * @param  string            $code
-     * @return PhoneVerification
+     * @param  string                $code
+     * @return UserPhoneVerification
      */
     public function setCode($code)
     {
@@ -190,25 +130,28 @@ class UserPhoneVerification
     }
 
     /**
-     * Set creationdate
+     * Get creationDate
      *
-     * @param  string            $creationdate
-     * @return PhoneVerification
+     * @return \DateTime
      */
-    public function setCreationdate($creationdate)
+    public function getCreationDate()
     {
-        $this->creationdate = $creationdate.'000';
-
-        return $this;
+        return $this->creationDate;
     }
 
     /**
-     * Get creationdate
+     * Set creationDate
      *
-     * @return string
+     * @param  \DateTime $creationDate
+     * @return User
      */
-    public function getCreationdate()
+    public function setCreationDate($creationDate)
     {
-        return $this->creationdate;
+        $this->creationDate = $creationDate;
+    }
+
+    public function __construct()
+    {
+        $this->setCreationDate(new \DateTime("now"));
     }
 }
