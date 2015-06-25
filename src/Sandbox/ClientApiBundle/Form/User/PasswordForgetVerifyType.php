@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Form;
+namespace Sandbox\ClientApiBundle\Form\User;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -11,7 +11,8 @@ class PasswordForgetVerifyType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('token')
+            ->add('email')
+            ->add('phone')
             ->add('code')
         ;
     }
@@ -19,7 +20,7 @@ class PasswordForgetVerifyType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Data\PasswordForgetVerify',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\User\PasswordForgetVerify',
         ));
     }
 

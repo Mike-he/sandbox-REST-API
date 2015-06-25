@@ -3,20 +3,20 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserPasswordController;
-use Sandbox\ClientApiBundle\Data\User\PasswordChange;
+use Sandbox\ApiBundle\Entity\User\UserForgetPassword;
+use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\PasswordForgetReset;
 use Sandbox\ClientApiBundle\Data\User\PasswordForgetVerify;
 use Sandbox\ClientApiBundle\Data\User\PasswordForgetSubmit;
-use Sandbox\ClientApiBundle\Form\PasswordChangeType;
-use Sandbox\ClientApiBundle\Form\PasswordForgetResetType;
-use Sandbox\ClientApiBundle\Form\PasswordForgetSubmitType;
-use Sandbox\ClientApiBundle\Form\PasswordForgetVerifyType;
+use Sandbox\ClientApiBundle\Form\User\PasswordForgetResetType;
+use Sandbox\ClientApiBundle\Form\User\PasswordForgetSubmitType;
+use Sandbox\ClientApiBundle\Form\User\PasswordForgetVerifyType;
+use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -32,46 +32,40 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserPasswordController extends UserPasswordController
 {
-    const HALF_HOUR_IN_MILLIS = 1800000;
+    use StringUtil;
 
-    /**
-     * Change password
-     *
-     * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
-     * @Route("/change")
-     * @Method({"POST"})
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function postPasswordChangeAction(
-        Request $request
-    ) {
-        $userId = $this->getUsername();
+    const ERROR_MISSING_PHONE_OR_EMAIL_CODE = 400001;
+    const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'Missing phone number or email address.-手机号和邮箱不能同时为空';
 
-        $change = new PasswordChange();
+    const ERROR_INVALID_EMAIL_ADDRESS_CODE = 400002;
+    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'Invalid email address.-邮箱地址无效';
 
-        $form = $this->createForm(new PasswordChangeType(), $change);
-        $form->submit(json_decode($request->getContent(), true));
+    const ERROR_INVALID_PHONE_CODE = 400003;
+    const ERROR_INVALID_PHONE_MESSAGE = 'Invalid phone number.-手机号无效';
 
-        if ($form->isValid()) {
-            return $this->handlePasswordChange(
-                $request,
-                $userId,
-                $change
-            );
-        }
+    const ERROR_ACCOUNT_NOT_FOUND_CODE = 400004;
+    const ERROR_ACCOUNT_NOT_FOUND_MESSAGE = 'Account not found.-账号不存在';
 
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-    }
+    const ERROR_ACCOUNT_NOT_ACTIVATED_CODE = 400005;
+    const ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE = 'Account not activated.-账号未激活';
+
+    const ERROR_INVALID_VERIFICATION_CODE = 400006;
+    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.-验证无效';
+
+    const ERROR_EXPIRED_VERIFICATION_CODE = 400007;
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.-验证过期';
+
+    const ERROR_INVALID_TOKEN_CODE = 400008;
+    const ERROR_INVALID_TOKEN_MESSAGE = 'Invalid token.-令牌无效';
+
+    const ERROR_EXPIRED_TOKEN_CODE = 400009;
+    const ERROR_EXPIRED_TOKEN_MESSAGE = 'Expired token.-令牌过期';
+
+    const ERROR_INVALID_PASSWORD_CODE = 400010;
+    const ERROR_INVALID_PASSWORD_MESSAGE = 'Invalid password.-密码无效';
+
+    const ERROR_SAME_PASSWORD_CODE = 400011;
+    const ERROR_SAME_PASSWORD_MESSAGE = 'Same password.-新密码与旧密码不能相同';
 
     /**
      * Forget password submit email or phone
@@ -97,7 +91,7 @@ class ClientUserPasswordController extends UserPasswordController
         $submit = new PasswordForgetSubmit();
 
         $form = $this->createForm(new PasswordForgetSubmitType(), $submit);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
             return $this->handlePasswordForgetSubmit($submit);
@@ -130,7 +124,7 @@ class ClientUserPasswordController extends UserPasswordController
         $verify = new PasswordForgetVerify();
 
         $form = $this->createForm(new PasswordForgetVerifyType(), $verify);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
             return $this->handlePasswordForgetVerify($verify);
@@ -163,7 +157,7 @@ class ClientUserPasswordController extends UserPasswordController
         $reset = new PasswordForgetReset();
 
         $form = $this->createForm(new PasswordForgetResetType(), $reset);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if ($form->isValid()) {
             return $this->handlePasswordForgetReset($reset);
@@ -173,92 +167,10 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * @param Request        $request
-     * @param string         $userId
-     * @param PasswordChange $change
-     *
-     * @return View
-     */
-    private function handlePasswordChange(
-        $request,
-        $userId,
-        $change
-    ) {
-        $requestUserId = $change->getUserid();
-        $requestCurrentPassword = $change->getCurrentpassword();
-        $newPassword = $change->getNewpassword();
-        $fullJID = $change->getFulljid();
-
-        if ($userId != $requestUserId) {
-            return $this->customErrorView(400, 490, 'Invalid user ID');
-        }
-
-        if ($requestCurrentPassword === $newPassword) {
-            return $this->customErrorView(400, 491, 'Same password');
-        }
-
-        // TODO validate new password with password rule
-
-
-        // get user
-        $user = $this->getRepo('JtUser')->findOneByXmppUsername($userId);
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
-
-        if ($requestCurrentPassword != $user->getPassword()) {
-            return $this->customErrorView(400, 493, 'Wrong current password');
-        }
-
-        if ($newPassword === $user->getPassword()) {
-            return $this->customErrorView(400, 491, 'Same password');
-        }
-
-        // change password
-        $this->changePassword($request, $user, $newPassword, $fullJID);
-
-        // response
-        $view = new View();
-        $view->setData(array(
-            'result' => true,
-        ));
-
-        return $view;
-    }
-
-    /**
-     * @param Request $request
-     * @param JtUser  $user
-     * @param string  $newPassword
-     * @param string  $fullJID
-     */
-    private function changePassword(
-        $request,
-        $user,
-        $newPassword,
-        $fullJID
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        // the request auth from header
-        $auth = $request->headers->get(self::HTTP_HEADER_AUTH);
-
-        // update xmpp user password
-        $this->updateXmppUserPassword($auth, $user->getXmppUsername(), $newPassword, $fullJID);
-
-        // set new password
-        $user->setPassword($newPassword);
-
-        // delete all other tokens of this user
-        $this->removeUserOtherTokens($user->getId(), $this->getUser()->getSecretdigest(), $em);
-
-        // save
-        $em->flush();
-    }
-
-    /**
-     * @param $auth
-     * @param $username
-     * @param $password
-     * @param $fullJID
+     * @param string $auth
+     * @param string $username
+     * @param string $password
+     * @param string $fullJID
      */
     private function updateXmppUserPassword(
         $auth,
@@ -296,9 +208,9 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * @param $username
-     * @param $password
-     * @param $fullJID
+     * @param string $username
+     * @param string $password
+     * @param string $fullJID
      *
      * @return string
      */
@@ -327,81 +239,73 @@ class ClientUserPasswordController extends UserPasswordController
         $submit
     ) {
         $email = $submit->getEmail();
-        $countryCode = $submit->getCountrycode();
         $phone = $submit->getPhone();
 
         if (!is_null($email)) {
             // check email valid
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return $this->customErrorView(400, 491, 'Invalid email address');
+                return $this->customErrorView(400, self::ERROR_INVALID_EMAIL_ADDRESS_CODE, self::ERROR_INVALID_EMAIL_ADDRESS_MESSAGE);
             }
 
             // get user by email
-            $user = $this->getRepo('JtUser')->findOneByEmail($email);
+            $user = $this->getRepo('User\User')->findOneByEmail($email);
         } else {
-            if (is_null($countryCode) || is_null($phone)) {
-                return $this->customErrorView(400, 490, 'Missing phone number or email address');
+            if (is_null($phone)) {
+                return $this->customErrorView(400, self::ERROR_MISSING_PHONE_OR_EMAIL_CODE, self::ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE);
             }
 
             // check country code and phone number valid
-            if (!is_numeric($countryCode) || !is_numeric($phone)) {
-                return $this->customErrorView(400, 492, 'Invalid phone number');
+            if (!is_numeric($phone) || !$this->isPhoneNumberValid($phone)) {
+                return $this->customErrorView(400, self::ERROR_INVALID_PHONE_CODE, self::ERROR_INVALID_PHONE_MESSAGE);
             }
 
             // get user by email
-            $user = $this->getRepo('JtUser')->findOneBy(array(
-                'countrycode' => $countryCode,
-                'phone' => $phone,
-            ));
+            $user = $this->getRepo('User\User')->findOneByPhone($phone);
         }
 
         if (is_null($user)) {
-            return $this->customErrorView(400, 493, 'Account not found');
+            return $this->customErrorView(400, self::ERROR_ACCOUNT_NOT_FOUND_CODE, self::ERROR_ACCOUNT_NOT_FOUND_MESSAGE);
         }
 
-        if (!$user->getActivated()) {
-            return $this->customErrorView(400, 494, 'Account not activated');
+        if ($user->isBanned()) {
+            return $this->customErrorView(400, self::ERROR_ACCOUNT_NOT_ACTIVATED_CODE, self::ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE);
         }
 
         // save or update forget password
-        $forgetPassword = $this->saveOrUpdateForgetPassword($user->getId(), 'submit', $email);
+        $forgetPassword = $this->saveOrUpdateForgetPassword($user->getId(), 'submit', $email, $phone);
 
         // send verification
-        $this->sendVerification($email, $phone, $user->getXmppUsername(), $forgetPassword);
+        $this->sendVerification($email, $phone, $forgetPassword);
 
-        // response
-        $view = new View();
-        $view->setData(array(
-            'token' => $forgetPassword->getToken(),
-        ));
-
-        return $view;
+        return new View();
     }
 
     /**
-     * @param $userId
-     * @param $status
-     * @param $email
+     * @param string $userId
+     * @param string $status
+     * @param string $email
+     * @param string $phone
      *
      * @return ForgetPassword
      */
     private function saveOrUpdateForgetPassword(
         $userId,
         $status,
-        $email
+        $email,
+        $phone
     ) {
         $type = 'email';
         if (is_null($email)) {
             $type = 'phone';
         }
 
-        $forgetPassword = $this->getRepo('ForgetPassword')->findOneBy(array(
-            'userid' => $userId,
+        $forgetPassword = $this->getRepo('User\UserForgetPassword')->findOneBy(array(
+            'userId' => $userId,
             'type' => $type,
         ));
 
         if (is_null($forgetPassword)) {
-            $forgetPassword = $this->saveForgetPassword($userId, $status, $type);
+            $forgetPassword = $this->saveForgetPassword($userId, $status, $type, $email, $phone);
         } else {
             $forgetPassword = $this->updateForgetPassword($forgetPassword, $status);
         }
@@ -410,25 +314,30 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * @param $userId
-     * @param $status
-     * @param $type
+     * @param string $userId
+     * @param string $status
+     * @param string $type
+     * @param string $email
+     * @param string $phone
      *
-     * @return ForgetPassword
+     * @return UserForgetPassword ForgetPassword
      */
     private function saveForgetPassword(
         $userId,
         $status,
-        $type
+        $type,
+        $email,
+        $phone
     ) {
-        $forgetPassword = new ForgetPassword();
+        $forgetPassword = new UserForgetPassword();
 
-        $forgetPassword->setUserid($userId);
-        $forgetPassword->setToken($this->generateRandomToken());
+        $forgetPassword->setUserId($userId);
         $forgetPassword->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
         $forgetPassword->setStatus($status);
         $forgetPassword->setType($type);
-        $forgetPassword->setCreationdate(time());
+        $forgetPassword->setEmail($email);
+        $forgetPassword->setPhone($phone);
+        $forgetPassword->setCreationDate(new \DateTime("now"));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($forgetPassword);
@@ -438,20 +347,21 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * @param  ForgetPassword $forgetPassword
-     * @param  string         $status
-     * @return ForgetPassword
+     * @param  UserForgetPassword $forgetPassword
+     * @param  string             $status
+     * @return UserForgetPassword
      */
     private function updateForgetPassword(
         $forgetPassword,
         $status
     ) {
-        $forgetPassword->setToken($this->generateRandomToken());
         $forgetPassword->setStatus($status);
 
         if ($status === 'submit') {
             $forgetPassword->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
-            $forgetPassword->setCreationdate(time());
+            $forgetPassword->setCreationDate(new \DateTime("now"));
+        } else {
+            $forgetPassword->setToken($this->generateRandomToken());
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -461,27 +371,22 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * @param string         $email
-     * @param string         $phone
-     * @param string         $username
-     * @param ForgetPassword $forgetPassword
+     * @param string             $email
+     * @param string             $phone
+     * @param UserForgetPassword $forgetPassword
      */
     private function sendVerification(
         $email,
         $phone,
-        $username,
         $forgetPassword
     ) {
         if (!is_null($email)) {
-            // find user's own name
-            $name = $this->getUserVCardName($username);
 
             // send verification URL to email
-            $subject = '[EasyLinks Forget Password] '.$name.', please reset your password';
-            $this->sendEmail($subject, $email, $name,
+            $subject = '[SandBox Forget Password] '.$this->before('@', $email).', please reset your password';
+            $this->sendEmail($subject, $email, $this->before('@', $email),
                 'Emails/forget_password_email_verification.html.twig',
                 array(
-                    'token' => $forgetPassword->getToken(),
                     'code' => $forgetPassword->getCode(),
                 )
             );
@@ -500,26 +405,28 @@ class ClientUserPasswordController extends UserPasswordController
     private function handlePasswordForgetVerify(
         $verify
     ) {
-        $token = $verify->getToken();
+        $email = $verify->getEmail();
+        $phone = $verify->getPhone();
         $code = $verify->getCode();
 
-        if (is_null($token) || is_null($code)) {
-            return $this->customErrorView(400, 490, 'Invalid verification');
+        if (is_null($code) ||
+            (!is_null($email) && !is_null($phone))) {
+            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        $forgetPassword = $this->getRepo('ForgetPassword')->findOneBy(array(
-            'token' => $token,
+        $forgetPassword = $this->getRepo('User\UserForgetPassword')->findOneBy(array(
+            'email' => $email,
+            'phone' => $phone,
             'code' => $code,
             'status' => 'submit',
         ));
 
         if (is_null($forgetPassword)) {
-            return $this->customErrorView(400, 490, 'Invalid verification');
+            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        $currentTime = time().'000';
-        if ($currentTime - $forgetPassword->getCreationdate() > self::HALF_HOUR_IN_MILLIS) {
-            return $this->customErrorView(400, 491, 'Expired verification');
+        if (new \DateTime("now") > $forgetPassword->getCreationDate()->modify('+0.5 hour')) {
+            return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
         // update forget password
@@ -546,49 +453,39 @@ class ClientUserPasswordController extends UserPasswordController
         $password = $reset->getPassword();
 
         if (is_null($token)) {
-            return $this->customErrorView(400, 490, 'Invalid token');
+            return $this->customErrorView(400, self::ERROR_INVALID_TOKEN_CODE, self::ERROR_INVALID_TOKEN_MESSAGE);
         }
 
         if (is_null($password)) {
-            return $this->customErrorView(400, 492, 'Invalid password');
+            return $this->customErrorView(400, self::ERROR_INVALID_PASSWORD_CODE, self::ERROR_INVALID_PASSWORD_MESSAGE);
         }
 
-        // TODO validate password with password rule
-
-
-        $forgetPassword = $this->getRepo('ForgetPassword')->findOneBy(array(
+        $forgetPassword = $this->getRepo('User\UserForgetPassword')->findOneBy(array(
             'token' => $token,
             'status' => 'verify',
         ));
         $this->throwNotFoundIfNull($forgetPassword, self::NOT_FOUND_MESSAGE);
 
-        $currentTime = time().'000';
-        if ($currentTime - $forgetPassword->getCreationdate() > self::HALF_HOUR_IN_MILLIS) {
-            return $this->customErrorView(400, 491, 'Expired token');
+        if (new \DateTime("now") > $forgetPassword->getCreationDate()->modify('+0.5 hour')) {
+            return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
-        $user = $this->getRepo('JtUser')->find($forgetPassword->getUserid());
+        $user = $this->getRepo('User\User')->find($forgetPassword->getUserid());
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         if ($password === $user->getPassword()) {
-            return $this->customErrorView(400, 493, 'Same password');
+            return $this->customErrorView(400, self::ERROR_SAME_PASSWORD_CODE, self::ERROR_SAME_PASSWORD_MESSAGE);
         }
 
         $this->resetPassword($user, $password, $forgetPassword);
 
-        // response
-        $view = new View();
-        $view->setData(array(
-            'result' => true,
-        ));
-
-        return $view;
+        return new View();
     }
 
     /**
-     * @param JtUser         $user
-     * @param string         $password
-     * @param ForgetPassword $forgetPassword
+     * @param User               $user
+     * @param string             $password
+     * @param UserForgetPassword $forgetPassword
      */
     private function resetPassword(
         $user,

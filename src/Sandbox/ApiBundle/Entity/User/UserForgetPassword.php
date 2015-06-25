@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Forget password
  *
- * @ORM\Table(name="ezForgetPassword")
+ * @ORM\Table(name="ForgetPassword")
  * @ORM\Entity
  *
  */
@@ -27,12 +27,26 @@ class UserForgetPassword
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      */
-    private $userid;
+    private $userId;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="token", type="string", length=64, nullable=false)
+     * @ORM\Column(name="email", type="string", length=100, nullable=true)
+     */
+    private $email;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
+     */
+    private $phone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="token", type="string", length=64, nullable=true)
      */
     private $token;
 
@@ -58,11 +72,11 @@ class UserForgetPassword
     private $type;
 
     /**
-     * @var string
+     * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      */
-    private $creationdate;
+    private $creationDate;
 
     /**
      * Get id
@@ -75,33 +89,79 @@ class UserForgetPassword
     }
 
     /**
-     * Set userid
+     * Set userId
      *
-     * @param  string         $userid
-     * @return ForgetPassword
+     * @param  string             $userId
+     * @return UserForgetPassword
      */
-    public function setUserid($userid)
+    public function setUserId($userId)
     {
-        $this->userid = $userid;
+        $this->userId = $userId;
 
         return $this;
     }
 
     /**
-     * Get userid
+     * Get userId
      *
      * @return string
      */
-    public function getUserid()
+    public function getUserId()
     {
-        return $this->userid;
+        return $this->userId;
+    }
+
+    /**
+     * Set email
+     *
+     * @param  string             $email
+     * @return UserForgetPassword
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set phone
+     *
+     * @param  string                $phone
+     * @return UserPhoneVerification
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    /**
+     * Get phone
+     *
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
     }
 
     /**
      * Set token
      *
-     * @param  string         $token
-     * @return ForgetPassword
+     * @param  string             $token
+     * @return UserForgetPassword
      */
     public function setToken($token)
     {
@@ -123,8 +183,8 @@ class UserForgetPassword
     /**
      * Set code
      *
-     * @param  string         $code
-     * @return ForgetPassword
+     * @param  string             $code
+     * @return UserForgetPassword
      */
     public function setCode($code)
     {
@@ -146,8 +206,8 @@ class UserForgetPassword
     /**
      * Set status
      *
-     * @param  string         $status
-     * @return ForgetPassword
+     * @param  string             $status
+     * @return UserForgetPassword
      */
     public function setStatus($status)
     {
@@ -169,8 +229,8 @@ class UserForgetPassword
     /**
      * Set type
      *
-     * @param  string         $type
-     * @return ForgetPassword
+     * @param  string             $type
+     * @return UserForgetPassword
      */
     public function setType($type)
     {
@@ -190,25 +250,28 @@ class UserForgetPassword
     }
 
     /**
-     * Set creationdate
+     * Get creationDate
      *
-     * @param  string         $creationdate
-     * @return ForgetPassword
+     * @return \DateTime
      */
-    public function setCreationdate($creationdate)
+    public function getCreationDate()
     {
-        $this->creationdate = $creationdate.'000';
-
-        return $this;
+        return $this->creationDate;
     }
 
     /**
-     * Get creationdate
+     * Set creationDate
      *
-     * @return string
+     * @param  \DateTime $creationDate
+     * @return User
      */
-    public function getCreationdate()
+    public function setCreationDate($creationDate)
     {
-        return $this->creationdate;
+        $this->creationDate = $creationDate;
+    }
+
+    public function __construct()
+    {
+        $this->setCreationDate(new \DateTime("now"));
     }
 }

@@ -61,7 +61,7 @@ sandbox_client_api_user_registration:
 sandbox_client_api_user_password:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserPasswordController.php"
     type:     annotation
-    prefix:   /
+    prefix:   /user
 
 # Products /products
 sandbox_client_api_product:

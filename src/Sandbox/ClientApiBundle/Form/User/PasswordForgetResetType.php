@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Form;
+namespace Sandbox\ClientApiBundle\Form\User;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -19,7 +19,7 @@ class PasswordForgetResetType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Data\PasswordForgetReset',
+            'data_class' => 'Sandbox\ClientApiBundle\Data\User\PasswordForgetReset',
         ));
     }
 
