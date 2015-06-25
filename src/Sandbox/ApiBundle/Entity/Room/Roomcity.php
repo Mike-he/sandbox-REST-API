@@ -1,30 +1,30 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Location;
+namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * City
+ * RoomCity
  *
- * @ORM\Table(name="City")
+ * @ORM\Table(name="RoomCity")
  * @ORM\Entity
  */
-class City
+class RoomCity
 {
     /**
      * @var integer
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255)
+     * @ORM\Column(name="name", type="string", length=255, nullable=false)
      */
     private $name;
 
@@ -41,8 +41,8 @@ class City
     /**
      * Set name
      *
-     * @param  string $name
-     * @return City
+     * @param  string   $name
+     * @return RoomCity
      */
     public function setName($name)
     {

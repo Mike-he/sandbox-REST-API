@@ -7,7 +7,12 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * RoomMeeting
  *
- * @ORM\Table(name="RoomMeeting", indexes={@ORM\Index(name="fk_RoomMeeting_roomId_idx", columns={"roomId"})})
+ * @ORM\Table(
+ *      name="RoomMeeting",
+ *      indexes={
+ *          @ORM\Index(name="fk_RoomMeeting_roomId_idx", columns={"roomId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class RoomMeeting
@@ -22,26 +27,23 @@ class RoomMeeting
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Room
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="roomId", type="integer", nullable=false)
      */
     private $roomId;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="startHour", type="datetime", nullable=false)
+     * @ORM\Column(name="startHour", type="time", nullable=false)
      */
     private $startHour;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="endHour", type="datetime", nullable=false)
+     * @ORM\Column(name="endHour", type="time", nullable=false)
      */
     private $endHour;
 
@@ -58,10 +60,10 @@ class RoomMeeting
     /**
      * Set roomId
      *
-     * @param  \Sandbox\ApiBundle\Entity\Room\Room $roomId
+     * @param  integer     $roomId
      * @return RoomMeeting
      */
-    public function setRoomId(\Sandbox\ApiBundle\Entity\Room\Room $roomId = null)
+    public function setRoomId($roomId)
     {
         $this->roomId = $roomId;
 
@@ -71,7 +73,7 @@ class RoomMeeting
     /**
      * Get roomId
      *
-     * @return \Sandbox\ApiBundle\Entity\Room\Room
+     * @return integer
      */
     public function getRoomId()
     {

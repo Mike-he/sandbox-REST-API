@@ -7,12 +7,18 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Room
  *
- * @ORM\Table(name="Room")
+ * @ORM\Table(
+ *      name="Room",
+ *      indexes={
+ *          @ORM\Index(name="fk_Room_cityId_idx", columns={"cityId"}),
+ *          @ORM\Index(name="fk_Room_buildingId_idx", columns={"buildingId"}),
+ *          @ORM\Index(name="fk_Room_floorId_idx", columns={"floorId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class Room
 {
-
     /**
      * @var integer
      *
@@ -21,6 +27,27 @@ class Room
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="cityId", type="integer", nullable=false)
+     */
+    private $cityId;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="buildingId", type="integer", nullable=false)
+     */
+    private $buildingId;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="floorId", type="integer", nullable=false)
+     */
+    private $floorId;
 
     /**
      * @var string
@@ -37,33 +64,6 @@ class Room
     private $description;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Location\City
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\City")
-     * @ORM\JoinColumn(name="city", referencedColumnName="id")
-     * @ORM\Column(name="city", type="integer", nullable=false)
-     */
-    private $city;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Location\Building
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\Building")
-     * @ORM\JoinColumn(name="building", referencedColumnName="id")
-     * @ORM\Column(name="building", type="integer", nullable=false)
-     */
-    private $building;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Location\Floor
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Location\Floor")
-     * @ORM\JoinColumn(name="floor", referencedColumnName="id")
-     * @ORM\Column(name="floor", type="integer", nullable=false)
-     */
-    private $floor;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="number", type="string", length=64, nullable=false)
@@ -73,23 +73,9 @@ class Room
     /**
      * @var integer
      *
-     * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
-     */
-    private $allowedPeople;
-
-    /**
-     * @var integer
-     *
      * @ORM\Column(name="area", type="integer", nullable=false)
      */
     private $area;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="officeSupplies", type="integer", nullable=true)
-     */
-    private $officeSupplies;
 
     /**
      * @var string
@@ -113,6 +99,21 @@ class Room
     private $modificationDate;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
+     */
+    private $allowedPeople;
+
+    private $officeSupplies;
+
+    private $attachments;
+
+    private $meeting;
+
+    private $fixed;
+
+    /**
      * Get id
      *
      * @return integer
@@ -120,6 +121,75 @@ class Room
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set cityId
+     *
+     * @param $cityId
+     * @return Room
+     */
+    public function setCityId($cityId)
+    {
+        $this->cityId = $cityId;
+
+        return $this;
+    }
+
+    /**
+     * Get cityId
+     *
+     * @return integer
+     */
+    public function getCityId()
+    {
+        return $this->cityId;
+    }
+
+    /**
+     * Set buildingId
+     *
+     * @param $buildingId
+     * @return Room
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+
+        return $this;
+    }
+
+    /**
+     * Get buildingId
+     *
+     * @return int
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * Set floorId
+     *
+     * @param  integer $floorId
+     * @return Room
+     */
+    public function setFloorId($floorId)
+    {
+        $this->floorId = $floorId;
+
+        return $this;
+    }
+
+    /**
+     * Get floorId
+     *
+     * @return integer
+     */
+    public function getFloorId()
+    {
+        return $this->floorId;
     }
 
     /**
@@ -169,75 +239,6 @@ class Room
     }
 
     /**
-     * Set city
-     *
-     * @param  string $city
-     * @return Room
-     */
-    public function setCity($city)
-    {
-        $this->city = $city;
-
-        return $this;
-    }
-
-    /**
-     * Get city
-     *
-     * @return string
-     */
-    public function getCity()
-    {
-        return $this->city;
-    }
-
-    /**
-     * Set building
-     *
-     * @param  string $building
-     * @return Room
-     */
-    public function setBuilding($building)
-    {
-        $this->building = $building;
-
-        return $this;
-    }
-
-    /**
-     * Get building
-     *
-     * @return string
-     */
-    public function getBuilding()
-    {
-        return $this->building;
-    }
-
-    /**
-     * Set floor
-     *
-     * @param  integer $floor
-     * @return Room
-     */
-    public function setFloor($floor)
-    {
-        $this->floor = $floor;
-
-        return $this;
-    }
-
-    /**
-     * Get floor
-     *
-     * @return integer
-     */
-    public function getFloor()
-    {
-        return $this->floor;
-    }
-
-    /**
      * Set number
      *
      * @param  string $number
@@ -258,29 +259,6 @@ class Room
     public function getNumber()
     {
         return $this->number;
-    }
-
-    /**
-     * Set allowedPeople
-     *
-     * @param  integer $allowedPeople
-     * @return Room
-     */
-    public function setAllowedPeople($allowedPeople)
-    {
-        $this->allowedPeople = $allowedPeople;
-
-        return $this;
-    }
-
-    /**
-     * Get allowedPeople
-     *
-     * @return integer
-     */
-    public function getAllowedPeople()
-    {
-        return $this->allowedPeople;
     }
 
     /**
@@ -307,6 +285,29 @@ class Room
     }
 
     /**
+     * Get allowed people
+     *
+     * @return int
+     */
+    public function getAllowedPeople()
+    {
+        return $this->allowedPeople;
+    }
+
+    /**
+     * set allowed people
+     *
+     * @param $allowedPeople
+     * @return $this
+     */
+    public function setAllowedPeople($allowedPeople)
+    {
+        $this->allowedPeople = $allowedPeople;
+
+        return $this;
+    }
+
+    /**
      * Set officeSupplies
      *
      * @param  integer $officeSupplies
@@ -314,7 +315,7 @@ class Room
      */
     public function setOfficeSupplies($officeSupplies)
     {
-        $this->officeSupplies = $officeSupplies;
+        $this->officesupplies = $officeSupplies;
 
         return $this;
     }
@@ -396,5 +397,74 @@ class Room
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Set attachments
+     *
+     * @param  string $attachments
+     * @return Room
+     */
+    public function setAttachments($attachments)
+    {
+        $this->attachments = $attachments;
+
+        return $this;
+    }
+
+    /**
+     * Get attachments
+     *
+     * @return string
+     */
+    public function getAttachments()
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * Get meeting
+     *
+     * @return mixed
+     */
+    public function getMeeting()
+    {
+        return $this->meeting;
+    }
+
+    /**
+     * Set meeting
+     *
+     * @param  mixed $meeting
+     * @return $this
+     */
+    public function setMeeting($meeting)
+    {
+        $this->meeting = $meeting;
+
+        return $this;
+    }
+
+    /**
+     * Get fixed
+     *
+     * @return mixed
+     */
+    public function getFixed()
+    {
+        return $this->fixed;
+    }
+
+    /**
+     * Set fixed
+     *
+     * @param  mixed $fixed
+     * @return $this
+     */
+    public function setFixed($fixed)
+    {
+        $this->fixed = $fixed;
+
+        return $this;
     }
 }
