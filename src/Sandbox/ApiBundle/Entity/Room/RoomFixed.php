@@ -22,9 +22,12 @@ class RoomFixed
     private $id;
 
     /**
-     * @var integer
+     * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\Column(name="roomId", type="integer", nullable=false)
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="fixed")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
+     * })
      */
     private $roomId;
 

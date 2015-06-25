@@ -24,7 +24,7 @@ class ProductAttachment
     /**
      * @var \Sandbox\ApiBundle\Entity\Product\Product
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product", inversedBy="productAttachment")
      * @ORM\JoinColumn(name="productId", referencedColumnName="id")
      *
      */

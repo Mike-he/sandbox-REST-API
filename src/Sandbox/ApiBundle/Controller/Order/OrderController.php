@@ -24,8 +24,9 @@ class OrderController extends SandboxRestController
      * @param  Request $request
      * @return View
      */
-    public function getAllOrdersAction(Request $request)
-    {
+    public function getAllOrdersAction(
+        Request $request
+    ) {
         $orders = $this->getRepo('Product\ProductOrder')->findAll();
 
         return new View($orders);
@@ -37,8 +38,10 @@ class OrderController extends SandboxRestController
      * @param  Request $request
      * @return View
      */
-    public function getOneOrderAction(Request $request, $id)
-    {
+    public function getOneOrderAction(
+        Request $request,
+        $id
+    ) {
         $order = $this->getRepo('Product\ProductOrder')->find($id);
 
         return new View($order);
