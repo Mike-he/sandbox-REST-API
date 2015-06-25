@@ -24,7 +24,7 @@ class RoomRentedDate
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="rentedDates")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })

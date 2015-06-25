@@ -26,9 +26,10 @@ class LocationController extends SandboxRestController
      * @param  Request $request
      * @return View
      */
-    public function getCitiesAction(Request $request)
-    {
-        $cities = $this->getRepo('Location\City')->findAll();
+    public function getCitiesAction(
+        Request $request
+    ) {
+        $cities = $this->getRepo('Room\Roomcity')->findAll();
 
         return new View($cities);
     }
@@ -47,17 +48,36 @@ class LocationController extends SandboxRestController
      * @param  ParamFetcherInterface $paramFetcher
      * @return View
      */
-    public function getBuildingsAction(Request $request, ParamFetcherInterface $paramFetcher)
-    {
+    public function getBuildingsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
         $cityId = $paramFetcher->get('city');
         if (!is_null($cityId)) {
-            $buildings = $this->getRepo('Location\Building')->findBy(['cityId' => $cityId]);
+            $buildings = $this->getRepo('Room\Roombuilding')->findBy(
+                ['cityId' => $cityId]
+            );
 
             return new View($buildings);
         }
-        $buildings = $this->getRepo('Location\Building')->findAll();
+        $buildings = $this->getRepo('Room\Roombuilding')->findAll();
 
         return new View($buildings);
+    }
+
+    /**
+     * @Get("/buildings/{id}")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function getOneBuildingAction(
+        Request $request,
+        $id
+    ) {
+        $building = $this->getRepo('Room\Roombuilding')->find($id);
+
+        return new View($building);
     }
 
     /**
@@ -74,15 +94,19 @@ class LocationController extends SandboxRestController
      * @param  ParamFetcherInterface $paramFetcher
      * @return View
      */
-    public function getFloorsAction(Request $request, ParamFetcherInterface $paramFetcher)
-    {
+    public function getFloorsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
         $buildingId = $paramFetcher->get('building');
         if (!is_null($buildingId)) {
-            $floors = $this->getRepo('Location\Floor')->findBy(['buildingId' => $buildingId]);
+            $floors = $this->getRepo('Room\Roomfloor')->findBy(
+                ['buildingId' => $buildingId]
+            );
 
             return new View($floors);
         }
-        $floors = $this->getRepo('Location\Floor')->findAll();
+        $floors = $this->getRepo('Room\Roomfloor')->findAll();
 
         return new View($floors);
     }

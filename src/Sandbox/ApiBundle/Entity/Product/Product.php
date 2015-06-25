@@ -37,14 +37,6 @@ class Product
     private $room;
 
     /**
-     * @var ProductAttachment
-     *
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAttachment", mappedBy="productId")
-     * @ORM\JoinColumn(name="id", referencedColumnName="productId")
-     */
-    private $productAttachment;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="description", type="text")
@@ -134,29 +126,6 @@ class Product
     public function getRoom()
     {
         return $this->room;
-    }
-
-    /**
-     * Set ProductAttachment
-     *
-     * @param  object  $attachment
-     * @return Product
-     */
-    public function setProductAttachment($attachment)
-    {
-        $this->productAttachment = $attachment;
-
-        return $this;
-    }
-
-    /**
-     * Get ProductAttachment
-     *
-     * @return ProductAttachment
-     */
-    public function getProductAttachment()
-    {
-        return $this->productAttachment;
     }
 
     /**

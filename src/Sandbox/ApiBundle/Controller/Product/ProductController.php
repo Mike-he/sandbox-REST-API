@@ -25,8 +25,9 @@ class ProductController extends SandboxRestController
      * @param  Request $request
      * @return View
      */
-    public function getAllProductsAction(Request $request)
-    {
+    public function getAllProductsAction(
+        Request $request
+    ) {
         $products = $this->getRepo('Product\Product')->findAll();
 
         return new View($products);
@@ -39,8 +40,10 @@ class ProductController extends SandboxRestController
      * @param $id
      * @return View
      */
-    public function getOneProductAction(Request $request, $id)
-    {
+    public function getOneProductAction(
+        Request $request,
+        $id
+    ) {
         $product = $this->getRepo('Product\Product')->find($id);
 
         return new View($product);

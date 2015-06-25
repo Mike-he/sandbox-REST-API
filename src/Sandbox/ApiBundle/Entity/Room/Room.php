@@ -36,6 +36,15 @@ class Room
     private $cityId;
 
     /**
+     * @var \Sandbox\ApiBundle\Entity\Room\Roomcity
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roomcity")
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
+     *
+     */
+    private $city;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=false)
@@ -43,11 +52,29 @@ class Room
     private $buildingId;
 
     /**
+     * @var \Sandbox\ApiBundle\Entity\Room\Roombuilding
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roombuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
+     *
+     */
+    private $building;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="floorId", type="integer", nullable=false)
      */
     private $floorId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\Roomfloor
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roomfloor")
+     * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
+     *
+     */
+    private $floor;
 
     /**
      * @var string
@@ -109,9 +136,29 @@ class Room
 
     private $attachments;
 
+    /**
+     * @var RoomMeeting
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting", mappedBy="roomId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     */
     private $meeting;
 
+    /**
+     * @var RoomFixed
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFixed", mappedBy="roomId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     */
     private $fixed;
+
+    /**
+     * @var RoomRentedDate
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomRentedDate", mappedBy="roomId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     */
+    private $rentedDates;
 
     /**
      * Get id
@@ -466,5 +513,45 @@ class Room
         $this->fixed = $fixed;
 
         return $this;
+    }
+
+    /**
+     * Get city
+     *
+     * @return Room
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * Get building
+     *
+     * @return Room
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * Get floor
+     *
+     * @return Room
+     */
+    public function getFloor()
+    {
+        return $this->floor;
+    }
+
+    /**
+     * Get RoomRentedDate
+     *
+     * @return RoomRentedDate
+     */
+    public function getRentedDates()
+    {
+        return $this->rentedDates;
     }
 }
