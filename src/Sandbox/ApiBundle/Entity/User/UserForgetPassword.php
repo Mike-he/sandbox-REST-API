@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Forget password
  *
- * @ORM\Table(name="ezForgetPassword")
+ * @ORM\Table(name="ForgetPassword")
  * @ORM\Entity
  *
  */
@@ -28,6 +28,20 @@ class UserForgetPassword
      * @ORM\Column(name="userId", type="integer", nullable=false)
      */
     private $userId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=100, nullable=true)
+     */
+    private $email;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
+     */
+    private $phone;
 
     /**
      * @var string
@@ -77,8 +91,8 @@ class UserForgetPassword
     /**
      * Set userId
      *
-     * @param  string         $userId
-     * @return ForgetPassword
+     * @param  string             $userId
+     * @return UserForgetPassword
      */
     public function setUserId($userId)
     {
@@ -98,10 +112,56 @@ class UserForgetPassword
     }
 
     /**
+     * Set email
+     *
+     * @param  string             $email
+     * @return UserForgetPassword
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set phone
+     *
+     * @param  string                $phone
+     * @return UserPhoneVerification
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    /**
+     * Get phone
+     *
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
      * Set token
      *
-     * @param  string         $token
-     * @return ForgetPassword
+     * @param  string             $token
+     * @return UserForgetPassword
      */
     public function setToken($token)
     {
@@ -123,8 +183,8 @@ class UserForgetPassword
     /**
      * Set code
      *
-     * @param  string         $code
-     * @return ForgetPassword
+     * @param  string             $code
+     * @return UserForgetPassword
      */
     public function setCode($code)
     {
@@ -146,8 +206,8 @@ class UserForgetPassword
     /**
      * Set status
      *
-     * @param  string         $status
-     * @return ForgetPassword
+     * @param  string             $status
+     * @return UserForgetPassword
      */
     public function setStatus($status)
     {
@@ -169,8 +229,8 @@ class UserForgetPassword
     /**
      * Set type
      *
-     * @param  string         $type
-     * @return ForgetPassword
+     * @param  string             $type
+     * @return UserForgetPassword
      */
     public function setType($type)
     {
