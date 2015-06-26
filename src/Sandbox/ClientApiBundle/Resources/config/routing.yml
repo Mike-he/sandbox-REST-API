@@ -28,10 +28,11 @@ sandbox_client_api_directory:
     resource: "@SandboxClientApiBundle/Controller/Company/ClientDirectoryController.php"
     type:     rest
 
-# VCARDS /vcards
+# Profile /profile
 sandbox_client_api_user_profile:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserProfileController.php"
-    type:     rest
+    type:     annotation
+    prefix:   /user
 
 # Client User Login /client/auth/login
 sandbox_client_api_auth_login:

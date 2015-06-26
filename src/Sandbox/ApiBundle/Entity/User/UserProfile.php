@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * User Profile
@@ -84,9 +83,9 @@ class UserProfile
     /**
      * @var string
      *
-     * @ORM\Column(name="skills", type="string", nullable=true)
+     * @ORM\Column(name="skill", type="string", nullable=true)
      */
-    private $skills;
+    private $skill;
 
     /**
      * @var string
@@ -130,24 +129,12 @@ class UserProfile
      */
     private $modificationDate;
 
-    /**
-     * @ORM\OneToMany(targetEntity="UserHobbyMap", mappedBy="UserProfile")
-     **/
     private $hobbies;
 
-    /**
-     * @ORM\OneToMany(targetEntity="UserExperience", mappedBy="UserProfile")
-     **/
     private $experiences;
 
-    /**
-     * @ORM\OneToMany(targetEntity="UserEducation", mappedBy="UserProfile")
-     **/
     private $educations;
 
-    /**
-     * @ORM\OneToMany(targetEntity="UserPortfolio", mappedBy="UserProfile")
-     **/
     private $portfolios;
 
     /**
@@ -505,10 +492,5 @@ class UserProfile
         $now = new \DateTime("now");
         $this->setCreationDate($now);
         $this->setModificationDate($now);
-
-        $this->hobbies = new ArrayCollection();
-        $this->experiences = new ArrayCollection();
-        $this->educations = new ArrayCollection();
-        $this->portfolios = new ArrayCollection();
     }
 }

@@ -5,13 +5,13 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User Education
+ * User Portfolio
  *
- * @ORM\Table(name="UserEducation")
+ * @ORM\Table(name="UserPortfolio")
  * @ORM\Entity
  *
  */
-class UserEducation
+class UserPortfolio
 {
     /**
      * @var int
@@ -30,25 +30,34 @@ class UserEducation
     private $userId;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="startDate", type="date", nullable=true)
+     * @var string
+     * @ORM\Column(name="content", type="text", nullable =false)
      */
-    private $startDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="endDate", type="date", nullable=true)
-     */
-    private $endDate;
+    private $content;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="detail", type="text", nullable=true)
+     * @ORM\Column(name="attachmentType", type="string", nullable=false)
      */
-    private $detail;
+    private $attachmentType;
+
+    /**
+     * @var string
+     * @ORM\Column(name="fileName", type="string", nullable=false)
+     */
+    private $fileName;
+
+    /**
+     * @var string
+     * @ORM\Column(name="preview", type="string", nullable=true)
+     */
+    private $preview;
+
+    /**
+     * @var int
+     * @ORM\Column(name="size", type="integer", nullable=false)
+     */
+    private $size;
 
     /**
      * @var \DateTime
@@ -83,7 +92,7 @@ class UserEducation
     /**
      * @param int $userId
      *
-     * @return UserEducation
+     * @return UserPortfolio
      */
     public function setUserId($userId)
     {
@@ -91,57 +100,93 @@ class UserEducation
     }
 
     /**
-     * @return \DateTime
+     * @return string
      */
-    public function getStartDate()
+    public function getContent()
     {
-        return $this->startDate;
+        return $this->content;
     }
 
     /**
-     * @param \DateTime $startDate
+     * @param string $content
      *
-     * @return UserEducation
+     * @return UserPortfolio
      */
-    public function setStartDate($startDate)
+    public function setContent($content)
     {
-        $this->startDate = $startDate;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getEndDate()
-    {
-        return $this->endDate;
-    }
-
-    /**
-     * @param \DateTime $endDate
-     *
-     * @return UserEducation
-     */
-    public function setEndDate($endDate)
-    {
-        $this->endDate = $endDate;
+        $this->content = $content;
     }
 
     /**
      * @return string
      */
-    public function getDetail()
+    public function getAttachmentType()
     {
-        return $this->detail;
+        return $this->attachmentType;
     }
 
     /**
-     * @param string $detail
+     * @param string $attachmentType
      *
-     * @return UserEducation
+     * @return UserPortfolio
      */
-    public function setDetail($detail)
+    public function setAttachmentType($attachmentType)
     {
-        $this->detail = $detail;
+        $this->attachmentType = $attachmentType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+    /**
+     * @param string $fileName
+     *
+     * @return UserPortfolio
+     */
+    public function setFileName($fileName)
+    {
+        $this->fileName = $fileName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPreview()
+    {
+        return $this->preview;
+    }
+
+    /**
+     * @param string $preview
+     *
+     * @return UserPortfolio
+     */
+    public function setPreview($preview)
+    {
+        $this->preview = $preview;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * @param int $size
+     *
+     * @return UserPortfolio
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
     }
 
     /**
@@ -155,7 +200,7 @@ class UserEducation
     /**
      * @param \DateTime $creationDate
      *
-     * @return UserEducation
+     * @return UserPortfolio
      */
     public function setCreationDate($creationDate)
     {
@@ -173,7 +218,7 @@ class UserEducation
     /**
      * @param \DateTime $modificationDate
      *
-     * @return UserEducation
+     * @return UserPortfolio
      */
     public function setModificationDate($modificationDate)
     {

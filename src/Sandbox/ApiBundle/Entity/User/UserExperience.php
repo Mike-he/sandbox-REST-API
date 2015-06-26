@@ -32,14 +32,14 @@ class UserExperience
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="startDate", type="datetime", nullable=true)
+     * @ORM\Column(name="startDate", type="date", nullable=true)
      */
     private $startDate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="endDate", type="datetime", nullable=true)
+     * @ORM\Column(name="endDate", type="date", nullable=true)
      */
     private $endDate;
 
@@ -63,12 +63,6 @@ class UserExperience
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="UserProfile", inversedBy="experiences")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="userId")
-     **/
-    private $userProfile;
 
     /**
      * @return int

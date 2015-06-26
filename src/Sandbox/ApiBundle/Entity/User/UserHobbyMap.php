@@ -37,10 +37,10 @@ class UserHobbyMap
     private $hobbyId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="UserProfile", inversedBy="$hobbies")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="userId")
+     * @ORM\OneToOne(targetEntity="Hobby")
+     * @ORM\JoinColumn(name="hobbyId", referencedColumnName="id")
      **/
-    private $userProfile;
+    private $hobby;
 
     /**
      * @return int
@@ -84,5 +84,13 @@ class UserHobbyMap
     public function setHobbyId($hobbyId)
     {
         $this->hobbyId = $hobbyId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHobby()
+    {
+        return $this->hobby;
     }
 }
