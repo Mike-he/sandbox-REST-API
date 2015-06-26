@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomAttachment
@@ -22,6 +23,8 @@ class RoomAttachment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $id;
 
@@ -29,6 +32,8 @@ class RoomAttachment
      * @var integer
      *
      * @ORM\Column(name="roomId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $roomId;
 
@@ -36,6 +41,8 @@ class RoomAttachment
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $content;
 
@@ -43,6 +50,8 @@ class RoomAttachment
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $attachmentType;
 
@@ -50,6 +59,8 @@ class RoomAttachment
      * @var string
      *
      * @ORM\Column(name="filename", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $filename;
 
@@ -57,6 +68,8 @@ class RoomAttachment
      * @var string
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $preview;
 
@@ -64,6 +77,8 @@ class RoomAttachment
      * @var integer
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $size;
 

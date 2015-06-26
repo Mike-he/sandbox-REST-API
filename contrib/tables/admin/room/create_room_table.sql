@@ -9,6 +9,7 @@ CREATE TABLE `Room` (
   `allowedPeople` int(11) NOT NULL,
   `area` int(11) NOT NULL,
   `type` enum('office','meeting','flexible','fixed') NOT NULL,
+  `attachmentId` int(11) NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

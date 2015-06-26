@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Room
@@ -25,61 +26,17 @@ class Room
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $id;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
-     */
-    private $cityId;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Roomcity
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roomcity")
-     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
-     *
-     */
-    private $city;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="buildingId", type="integer", nullable=false)
-     */
-    private $buildingId;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Roombuilding
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roombuilding")
-     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
-     *
-     */
-    private $building;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="floorId", type="integer", nullable=false)
-     */
-    private $floorId;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Roomfloor
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roomfloor")
-     * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
-     *
-     */
-    private $floor;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $name;
 
@@ -87,13 +44,74 @@ class Room
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $description;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="cityId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $cityId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $city;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="buildingId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $buildingId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $building;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="floorId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $floorId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomFloor
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFloor")
+     * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $floor;
 
     /**
      * @var string
      *
      * @ORM\Column(name="number", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $number;
 
@@ -101,6 +119,8 @@ class Room
      * @var integer
      *
      * @ORM\Column(name="area", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $area;
 
@@ -108,39 +128,32 @@ class Room
      * @var string
      *
      * @ORM\Column(name="type", type="string", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $type;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     */
-    private $creationDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     */
-    private $modificationDate;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $allowedPeople;
 
+    /**
+     * @Serializer\Groups({"admin_room"})
+     **/
     private $officeSupplies;
-
-    private $attachments;
 
     /**
      * @var RoomMeeting
      *
      * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting", mappedBy="roomId")
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $meeting;
 
@@ -149,6 +162,8 @@ class Room
      *
      * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFixed", mappedBy="roomId")
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $fixed;
 
@@ -157,8 +172,36 @@ class Room
      *
      * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomRentedDate", mappedBy="roomId")
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $rentedDates;
+
+    /**
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachment")
+     * @ORM\JoinColumn(name="attachmentId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"admin_room"})
+     **/
+    private $attachments;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $modificationDate;
 
     /**
      * Get id

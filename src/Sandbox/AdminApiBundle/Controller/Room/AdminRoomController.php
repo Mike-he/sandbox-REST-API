@@ -3,7 +3,6 @@
 namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
-use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
 use Sandbox\ApiBundle\Form\Room\RoomType;
@@ -18,6 +17,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Login controller
@@ -86,15 +86,19 @@ class AdminRoomController extends RoomController
         $allRooms = null;
 
         // get room
-        $repo = $this->getRepo('Room\Room');
+        $room = $this->getRepo('Room\Room');
 
         //filters
         $filters = $this->getFilters($paramFetcher);
 
         //find all with or without filters
-        $allRooms = is_null($filters) ? $allRooms = $repo->findAll() : $repo->findBy($filters);
+        $allRooms = is_null($filters) ? $allRooms = $room->findAll() : $room->findBy($filters);
 
-        return $this->handleGetRooms($allRooms);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
+        $view->setData($allRooms);
+
+        return $view;
     }
 
     /**
@@ -127,9 +131,11 @@ class AdminRoomController extends RoomController
             $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
         }
 
-        $result = $this->getRoomObject($room);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
+        $view->setData($room);
 
-        return new View($result);
+        return $view;
     }
 
     /**
@@ -246,84 +252,6 @@ class AdminRoomController extends RoomController
         );
 
         return new View($response);
-    }
-
-    /**
-     * Handle rooms
-     *
-     * @param $rooms
-     * @return View
-     */
-    private function handleGetRooms(
-        $rooms
-    ) {
-        $result = [];
-
-        foreach ($rooms as $room) {
-            $result[] = $this->getRoomObject($room);
-        }
-
-        return new View($result);
-    }
-
-    /**
-     * Create the room array
-     *
-     * @param $room
-     * @return array
-     */
-    private function getRoomObject(
-        $room
-    ) {
-        $city = $this->getRepo('Room\RoomCity')->find($room->getCityId());
-        $building = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
-        $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
-
-        $attachments =  $this->getRepo('Room\RoomAttachment')->findOneBy(array(
-            'roomId' => $room->getId(),
-        ));
-
-        $result = array(
-            'id' => $room->getId(),
-            'name' => $room->getName(),
-            'description' => $room->getDescription(),
-            'city' => $city->getName(),
-            'building' => $building->getName(),
-            'floor' => $floor->getFloorNumber(),
-            'number' => $room->getNumber(),
-            'allowed_people' => $room->getAllowedPeople(),
-            'area' => $room->getArea(),
-            //'office_supplies' => 'TODO', //TODO Add office supplies
-            'type' => $room->getType(),
-            //'available' => 'TODO',      //TODO Check availability
-            //'current_user_id' => 'TODO', //TODO Check User ID
-            'attachments' => $attachments,
-            'creation_date' => $room->getCreationDate(),
-            'modification_date' => $room->getModificationDate(),
-        );
-
-        switch ($room->getType()) {
-            case 'meeting':
-                $meeting =  $this->getRepo('Room\RoomMeeting')->findOneBy(array(
-                    'roomId' => $room->getId(),
-                ));
-
-                $result['meeting'] = $meeting;
-
-                break;
-            case 'fixed':
-                $fixed =  $this->getRepo('Room\RoomFixed')->findBy(array(
-                    'roomId' => $room->getId(),
-                ));
-
-                $result['fixed'] = $fixed;
-                break;
-            default:
-                /* Do nothing */
-                break;
-        }
-
-        return $result;
     }
 
     /**

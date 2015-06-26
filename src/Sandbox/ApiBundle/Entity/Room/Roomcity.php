@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomCity
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="RoomCity")
  * @ORM\Entity
  */
-class Roomcity
+class RoomCity
 {
     /**
      * @var integer
@@ -18,6 +19,8 @@ class Roomcity
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $id;
 
@@ -25,6 +28,8 @@ class Roomcity
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $name;
 

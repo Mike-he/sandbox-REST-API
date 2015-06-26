@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomMeeting
@@ -33,6 +34,8 @@ class RoomMeeting
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $roomId;
 
@@ -40,6 +43,10 @@ class RoomMeeting
      * @var \DateTime
      *
      * @ORM\Column(name="startHour", type="time", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $startHour;
 
@@ -47,6 +54,8 @@ class RoomMeeting
      * @var \DateTime
      *
      * @ORM\Column(name="endHour", type="time", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $endHour;
 
