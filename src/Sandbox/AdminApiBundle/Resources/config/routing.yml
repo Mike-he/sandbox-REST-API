@@ -9,3 +9,9 @@ sandbox_admin_api_rooms:
     resource: "@SandboxAdminApiBundle/Controller/Room/AdminRoomController.php"
     type:     annotation
     prefix:   /
+
+# Announcement /admin/announcements
+sandbox_admin_api_announcements:
+    resource: "@SandboxAdminApiBundle/Controller/Announcement/AdminAnnouncementController.php"
+    type:     annotation
+    prefix:   /
