@@ -236,34 +236,4 @@ class AdminAnnouncementController extends AnnouncementController
         $em->remove($room);
         $em->flush();
     }
-
-    /**
-     * Get order by array
-     *
-     * @param $paramFetcher
-     * @return null|array
-     */
-    private function getSortBy(
-        $paramFetcher
-    ) {
-        $sortBy = $paramFetcher->get('sort');
-
-        switch ($sortBy) {
-            case 'creation_date':
-                return ['creationDate' => 'ASC'];
-                break;
-            case '-creation_date':
-                return ['creationDate' => 'DESC'];
-                break;
-            case 'modification_date':
-                return ['modificationDate' => 'ASC'];
-                break;
-            case '-modification_date':
-                return ['modificationDate' => 'DESC'];
-                break;
-            default:
-                return;
-                break;
-        }
-    }
 }
