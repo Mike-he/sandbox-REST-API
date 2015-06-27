@@ -83,8 +83,6 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $allRooms = null;
-
         // get room
         $room = $this->getRepo('Room\Room');
 
@@ -92,7 +90,7 @@ class AdminRoomController extends RoomController
         $filters = $this->getFilters($paramFetcher);
 
         //find all with or without filters
-        $allRooms = is_null($filters) ? $allRooms = $room->findAll() : $room->findBy($filters);
+        $allRooms = is_null($filters) ? $room->findAll() : $room->findBy($filters);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
