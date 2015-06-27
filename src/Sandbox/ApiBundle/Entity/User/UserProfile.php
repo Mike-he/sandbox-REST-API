@@ -292,19 +292,19 @@ class UserProfile
     /**
      * @return string
      */
-    public function getSkills()
+    public function getSkill()
     {
-        return $this->skills;
+        return $this->skill;
     }
 
     /**
-     * @param string $skills
+     * @param string $skill
      *
      * @return UserProfile
      */
-    public function setSkills($skills)
+    public function setSkill($skill)
     {
-        $this->skills = $skills;
+        $this->skill = $skill;
     }
 
     /**
@@ -366,7 +366,7 @@ class UserProfile
      */
     public function getLinkedin()
     {
-        return $this->linkedin;
+        return $this->linkedininkedin;
     }
 
     /**
