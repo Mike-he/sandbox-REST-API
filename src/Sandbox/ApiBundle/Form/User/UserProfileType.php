@@ -11,24 +11,29 @@ class UserProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id')
-            ->add('userid')
-            ->add('companyid')
             ->add('name')
+            ->add('job_title')
+            ->add('gender')
+            ->add('date_of_birth')
             ->add('email')
             ->add('phone')
-            ->add('location')
-            ->add('gender')
-            ->add('aboutme')
+            ->add('aboutMe')
+            ->add('skill')
+            ->add('sina_weibo')
+            ->add('tencent_weibo')
+            ->add('facebook')
+            ->add('linkedin')
             ->add('hobbies')
-            ->add('skills')
+            ->add('experiences')
+            ->add('educations')
+            ->add('portfolios')
         ;
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\UserProfile',
+            'data_class' => 'Sandbox\ApiBundle\Entity\User\UserProfile',
         ));
     }
 
