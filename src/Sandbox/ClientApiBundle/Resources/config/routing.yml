@@ -34,6 +34,12 @@ sandbox_client_api_user_profile:
     type:     annotation
     prefix:   /user
 
+# Profile /profile/education
+sandbox_client_api_user_profile:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserEducationController.php"
+    type:     annotation
+    prefix:   /user
+
 # Client User Login /client/auth/login
 sandbox_client_api_auth_login:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserLoginController.php"
