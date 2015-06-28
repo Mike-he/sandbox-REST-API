@@ -8,8 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
  * User Portfolio
  *
  * @ORM\Table(name="UserPortfolio")
- * @ORM\Entity
- *
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserPortfolioRepository"
+ * )
  */
 class UserPortfolio
 {
