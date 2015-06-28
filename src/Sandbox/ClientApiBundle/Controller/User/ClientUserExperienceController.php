@@ -135,7 +135,7 @@ class ClientUserExperienceController extends UserProfileController
      *    description=""
      * )
      *
-     * @Route("/education")
+     * @Route("/experience")
      * @Method({"DELETE"})
      *
      * @return View
