@@ -144,8 +144,8 @@ class ClientUserExperienceController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userEducationIds = $paramFetcher->get('id');
-        $this->getRepo('User\UserExperience')->deleteUserExperiencesByIds($userEducationIds);
+        $userExperienceIds = $paramFetcher->get('id');
+        $this->getRepo('User\UserExperience')->deleteUserExperiencesByIds($userExperienceIds);
 
         return new View();
     }

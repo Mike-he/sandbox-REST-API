@@ -108,8 +108,8 @@ class ClientUserPortfolioController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userEducationIds = $paramFetcher->get('id');
-        $this->getRepo('User\UserPortfolio')->deleteUserPortfoliosByIds($userEducationIds);
+        $userPortfolioIds = $paramFetcher->get('id');
+        $this->getRepo('User\UserPortfolio')->deleteUserPortfoliosByIds($userPortfolioIds);
 
         return new View();
     }
