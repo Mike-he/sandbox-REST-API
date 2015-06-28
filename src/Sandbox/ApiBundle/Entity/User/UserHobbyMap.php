@@ -8,8 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
  * User Hobby Map
  *
  * @ORM\Table(name="UserHobbyMap")
- * @ORM\Entity
- *
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserHobbyMapRepository"
+ * )
  */
 class UserHobbyMap
 {
