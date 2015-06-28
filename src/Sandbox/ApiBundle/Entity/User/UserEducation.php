@@ -8,7 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
  * User Education
  *
  * @ORM\Table(name="UserEducation")
- * @ORM\Entity
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserEducationRepository"
+ * )
  *
  */
 class UserEducation
