@@ -49,6 +49,27 @@ class AdminAnnouncementController extends AnnouncementController
      *    description="Sort by date"
      * )
      *
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many announcements to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset from which to start listing announcements"
+     * )
+     *
      * @Route("/announcements")
      * @Method({"GET"})
      *
@@ -63,17 +84,20 @@ class AdminAnnouncementController extends AnnouncementController
         // get announcement
         $announcement = $this->getRepo('Announcement\Announcement');
 
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $order = $paramFetcher->get('sort');
+
         //sort by
-        $sortBy = $this->getSortBy($paramFetcher);
+        $sortBy = $this->getSortBy($order);
 
         //find all with or without sort
-        $announcement = is_null($sortBy) ?
-            $announcement->findAll() :
-            $announcement->findBy(
-                [],
-                $sortBy
-            )
-        ;
+        $announcement = $announcement->findBy(
+            [],
+            $sortBy,
+            $limit,
+            $offset
+        );
 
         return new View($announcement);
     }

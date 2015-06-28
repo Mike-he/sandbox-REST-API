@@ -22,10 +22,8 @@ class AnnouncementController extends SandboxRestController
      * @return null|array
      */
     protected function getSortBy(
-        $paramFetcher
+        $sortBy
     ) {
-        $sortBy = $paramFetcher->get('sort');
-
         switch ($sortBy) {
             case 'creation_date':
                 return ['creationDate' => 'ASC'];
