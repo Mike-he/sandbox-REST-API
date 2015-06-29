@@ -59,13 +59,11 @@ class ClientUserHobbyController extends UserProfileController
                     continue;
                 }
 
-                $hobby = $userHobby->getHobby();
-                $name = $hobby->getName();
                 $id = $userHobby->getId();
                 $hobbyId = $userHobby->getHobbyId();
-
+                $hobby = $this->getRepo('User\Hobby')->findOneById($hobbyId);
                 $insideHobbyArray = array(
-                    'name' => $name,
+                    'name' => $hobby->getName(),
                     'id' => $id,
                     'hobby_id' => $hobbyId,
                 );
