@@ -11,6 +11,8 @@ class UserProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('id')
+            ->add('user_id')
             ->add('name')
             ->add('job_title')
             ->add('gender')
