@@ -38,7 +38,7 @@ class ClientUserEducationController extends UserProfileController
      *    description="userId"
      * )
      *
-     * @Route("/education")
+     * @Route("/educations")
      * @Method({"GET"})
      *
      * @return array
@@ -62,7 +62,7 @@ class ClientUserEducationController extends UserProfileController
      * @param ParamFetcherInterface $paramFetcher
      *
      *
-     * @Route("/education")
+     * @Route("/educations")
      * @Method({"POST"})
      * @return View
      */
@@ -106,7 +106,7 @@ class ClientUserEducationController extends UserProfileController
      * @param ParamFetcherInterface $paramFetcher
      * @param int                   $id
      *
-     * @Route("/education/{id}")
+     * @Route("/educations/{id}")
      * @Method({"PATCH"})
      * @return View
      */
@@ -147,7 +147,7 @@ class ClientUserEducationController extends UserProfileController
      *    description=""
      * )
      *
-     * @Route("/education")
+     * @Route("/educations")
      * @Method({"DELETE"})
      *
      * @return View

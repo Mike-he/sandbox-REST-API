@@ -38,7 +38,7 @@ class ClientUserExperienceController extends UserProfileController
      *    description="userId"
      * )
      *
-     * @Route("/experience")
+     * @Route("/experiences")
      * @Method({"GET"})
      *
      * @return array
@@ -62,7 +62,7 @@ class ClientUserExperienceController extends UserProfileController
      * @param ParamFetcherInterface $paramFetcher
      *
      *
-     * @Route("/experience")
+     * @Route("/experiences")
      * @Method({"POST"})
      * @return View
      */
@@ -106,7 +106,7 @@ class ClientUserExperienceController extends UserProfileController
      * @param ParamFetcherInterface $paramFetcher
      * @param int                   $id
      *
-     * @Route("/experience/{id}")
+     * @Route("/experiences/{id}")
      * @Method({"PATCH"})
      * @return View
      */
@@ -147,7 +147,7 @@ class ClientUserExperienceController extends UserProfileController
      *    description=""
      * )
      *
-     * @Route("/experience")
+     * @Route("/experiences")
      * @Method({"DELETE"})
      *
      * @return View

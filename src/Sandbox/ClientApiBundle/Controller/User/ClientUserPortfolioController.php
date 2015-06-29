@@ -37,7 +37,7 @@ class ClientUserPortfolioController extends UserProfileController
      *    description="userId"
      * )
      *
-     * @Route("/portfolio")
+     * @Route("/portfolios")
      * @Method({"GET"})
      *
      * @return array
@@ -61,7 +61,7 @@ class ClientUserPortfolioController extends UserProfileController
      * @param ParamFetcherInterface $paramFetcher
      *
      *
-     * @Route("/portfolio")
+     * @Route("/portfolios")
      * @Method({"POST"})
      * @return View
      */
@@ -113,7 +113,7 @@ class ClientUserPortfolioController extends UserProfileController
      *    description=""
      * )
      *
-     * @Route("/portfolio")
+     * @Route("/portfolios")
      * @Method({"DELETE"})
      *
      * @return View

@@ -37,7 +37,7 @@ class ClientUserHobbyController extends UserProfileController
      *    description="userId"
      * )
      *
-     * @Route("/hobby")
+     * @Route("/hobbies")
      * @Method({"GET"})
      *
      * @return array
@@ -80,7 +80,7 @@ class ClientUserHobbyController extends UserProfileController
      * @param ParamFetcherInterface $paramFetcher
      *
      *
-     * @Route("/hobby")
+     * @Route("/hobbies")
      * @Method({"POST"})
      * @return View
      */
@@ -124,7 +124,7 @@ class ClientUserHobbyController extends UserProfileController
      *    description=""
      * )
      *
-     * @Route("/hobby")
+     * @Route("/hobbies")
      * @Method({"DELETE"})
      *
      * @return View
