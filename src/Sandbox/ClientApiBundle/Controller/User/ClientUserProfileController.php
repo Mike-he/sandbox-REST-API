@@ -54,7 +54,7 @@ class ClientUserProfileController extends UserProfileController
             $userId = $this->getUserid();
         }
 
-        $userProfile = $this->getRepo('User\UserProfile')->findOneById($userId);
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $this->throwNotFoundIfNull($userProfile, self::NOT_FOUND_MESSAGE);
 
         $userEducation = $this->getRepo('User\UserEducation')->findByUserId($userId);
@@ -80,13 +80,11 @@ class ClientUserProfileController extends UserProfileController
                     continue;
                 }
 
-                $hobby = $userHobby->getHobby();
-                $name = $hobby->getName();
                 $id = $userHobby->getId();
                 $hobbyId = $userHobby->getHobbyId();
-
+                $hobby = $this->getRepo('User\Hobby')->findOneById($hobbyId);
                 $insideHobbyArray = array(
-                    'name' => $name,
+                    'name' => $hobby->getName(),
                     'id' => $id,
                     'hobby_id' => $hobbyId,
                 );
@@ -115,6 +113,12 @@ class ClientUserProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserid();
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        if (!is_null($userProfile)) {
+            throw new BadRequestHttpException('can not add profile.');
+        }
+
         $userProfile = new UserProfile();
 
         $form = $this->createForm(new UserProfileType(), $userProfile);
@@ -193,9 +197,21 @@ class ClientUserProfileController extends UserProfileController
     ) {
         $userEducationEntity = new UserEducation();
         $userEducationEntity->setUserId($userId);
-        $userEducationEntity->setStartDate($userEducation['start_date']);
-        $userEducationEntity->setEndDate($userEducation['end_date']);
-        $userEducationEntity->setDetail($userEducation['detail']);
+
+        $startDate = $userEducation['start_date'];
+        if (!is_null($startDate)) {
+            $userEducationEntity->setStartDate($startDate);
+        }
+
+        $endDate = $userEducation['end_date'];
+        if (!is_null($endDate)) {
+            $userEducationEntity->setEndDate($endDate);
+        }
+
+        $detail = $userEducation['detail'];
+        if (!is_null($detail)) {
+            $userEducationEntity->setDetail($detail);
+        }
 
         return $userEducationEntity;
     }
@@ -211,9 +227,21 @@ class ClientUserProfileController extends UserProfileController
     ) {
         $userExperienceEntity = new UserExperience();
         $userExperienceEntity->setUserId($userId);
-        $userExperienceEntity->setStartDate($userExperience['start_date']);
-        $userExperienceEntity->setEndDate($userExperience['end_date']);
-        $userExperienceEntity->setDetail($userExperience['detail']);
+
+        $startDate = $userExperience['start_date'];
+        if (!is_null($startDate)) {
+            $userExperienceEntity->setStartDate($startDate);
+        }
+
+        $endDate = $userExperience['end_date'];
+        if (!is_null($endDate)) {
+            $userExperienceEntity->setEndDate($endDate);
+        }
+
+        $detail = $userExperience['detail'];
+        if (!is_null($detail)) {
+            $userExperience->setDetail($detail);
+        }
 
         return $userExperienceEntity;
     }
@@ -229,11 +257,31 @@ class ClientUserProfileController extends UserProfileController
     ) {
         $userPortfolioEntity = new UserPortfolio();
         $userPortfolioEntity->setUserId($userId);
-        $userPortfolioEntity->setAttachmentType($userPortfolio['attachment_type']);
-        $userPortfolioEntity->setContent($userPortfolio['content']);
-        $userPortfolioEntity->setFileName($userPortfolio['file_name']);
-        $userPortfolioEntity->setPreview($userPortfolio['preview']);
-        $userPortfolioEntity->setSize($userPortfolio['size']);
+
+        $attachmentType = $userPortfolio['attachment_type'];
+        if (!is_null($attachmentType)) {
+            $userPortfolioEntity->setAttachmentType($attachmentType);
+        }
+
+        $content = $userPortfolio['content'];
+        if (!is_null($content)) {
+            $userPortfolioEntity->setContent($content);
+        }
+
+        $fileName = $userPortfolio['file_name'];
+        if (!is_null($fileName)) {
+            $userPortfolioEntity->setFileName($fileName);
+        }
+
+        $preview = $userPortfolio['preview'];
+        if (!is_null($preview)) {
+            $userPortfolioEntity->setPreview($preview);
+        }
+
+        $size = $userPortfolio['size'];
+        if (!is_null($size)) {
+            $userPortfolioEntity->setSize($size);
+        }
 
         return $userPortfolioEntity;
     }
@@ -249,7 +297,11 @@ class ClientUserProfileController extends UserProfileController
     ) {
         $userHobbyMapEntity = new UserHobbyMap();
         $userHobbyMapEntity->setUserId($userId);
-        $userHobbyMapEntity->setHobbyId($userHobby['hobby_id']);
+
+        $hobbyId = $userHobby['id'];
+        if (!is_null($hobbyId)) {
+            $userHobbyMapEntity->setHobbyId($hobbyId);
+        }
 
         return $userHobbyMapEntity;
     }
