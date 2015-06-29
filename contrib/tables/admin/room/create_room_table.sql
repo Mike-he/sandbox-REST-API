@@ -1,6 +1,6 @@
 CREATE TABLE `Room` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
   `description` text,
   `cityId` int(11) NOT NULL,
   `buildingId` int(11) NOT NULL,
@@ -9,7 +9,6 @@ CREATE TABLE `Room` (
   `allowedPeople` int(11) NOT NULL,
   `area` int(11) NOT NULL,
   `type` enum('office','meeting','flexible','fixed') NOT NULL,
-  `attachmentId` int(11) NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

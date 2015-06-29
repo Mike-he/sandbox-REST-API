@@ -9,13 +9,15 @@ use JMS\Serializer\Annotation as Serializer;
  * Room
  *
  * @ORM\Table(
- *      name="Room",
- *      indexes={
- *          @ORM\Index(name="fk_Room_cityId_idx", columns={"cityId"}),
- *          @ORM\Index(name="fk_Room_buildingId_idx", columns={"buildingId"}),
- *          @ORM\Index(name="fk_Room_floorId_idx", columns={"floorId"})
- *      }
- * )
+ *  name="Room",
+ *  uniqueConstraints={
+ *      @ORM\UniqueConstraint(name="buildingId_number_UNIQUE", columns={"buildingId", "number"}),
+ *      @ORM\UniqueConstraint(name="floorId_number_UNIQUE", columns={"floorId", "number"})
+ *  },
+ *  indexes={
+ *      @ORM\Index(name="fk_Room_cityId_idx", columns={"cityId"}),
+ *      @ORM\Index(name="fk_Room_buildingId_idx", columns={"buildingId"}),
+ *      @ORM\Index(name="fk_Room_floorId_idx", columns={"floorId"})})
  * @ORM\Entity
  */
 class Room
@@ -176,14 +178,6 @@ class Room
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $rentedDates;
-
-    /**
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachment")
-     * @ORM\JoinColumn(name="attachmentId", referencedColumnName="id")
-     *
-     * @Serializer\Groups({"admin_room"})
-     **/
-    private $attachments;
 
     /**
      * @var \DateTime
@@ -487,29 +481,6 @@ class Room
     public function getModificationDate()
     {
         return $this->modificationDate;
-    }
-
-    /**
-     * Set attachments
-     *
-     * @param  string $attachments
-     * @return Room
-     */
-    public function setAttachments($attachments)
-    {
-        $this->attachments = $attachments;
-
-        return $this;
-    }
-
-    /**
-     * Get attachments
-     *
-     * @return string
-     */
-    public function getAttachments()
-    {
-        return $this->attachments;
     }
 
     /**

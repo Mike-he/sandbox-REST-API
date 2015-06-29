@@ -4,6 +4,12 @@ sandbox_admin_api_auth_login:
     type:     annotation
     prefix:   /auth
 
+# Rooms /admin/rooms/attachments
+sandbox_admin_api_rooms_attachments:
+    resource: "@SandboxAdminApiBundle/Controller/Room/AdminRoomAttachmentController.php"
+    type:     annotation
+    prefix:   /
+
 # Rooms /admin/rooms
 sandbox_admin_api_rooms:
     resource: "@SandboxAdminApiBundle/Controller/Room/AdminRoomController.php"

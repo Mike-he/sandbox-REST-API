@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(name="RoomCity")
  * @ORM\Entity
  */
-class RoomCity
+class Roomcity
 {
     /**
      * @var integer

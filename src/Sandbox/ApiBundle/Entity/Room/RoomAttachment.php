@@ -9,10 +9,8 @@ use JMS\Serializer\Annotation as Serializer;
  * RoomAttachment
  *
  * @ORM\Table(
- *  name="RoomAttachment",
- *  indexes={
- *      @ORM\Index(name="fk_RoomAttachment_roomId_idx", columns={"roomId"})
- *  })
+ *      name="RoomAttachment"
+ * )
  * @ORM\Entity
  */
 class RoomAttachment
@@ -27,15 +25,6 @@ class RoomAttachment
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $id;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="roomId", type="integer", nullable=false)
-     *
-     * @Serializer\Groups({"main", "admin_room"})
-     */
-    private $roomId;
 
     /**
      * @var string
@@ -90,29 +79,6 @@ class RoomAttachment
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set roomId
-     *
-     * @param  $roomId
-     * @return RoomAttachment
-     */
-    public function setRoomId($roomId)
-    {
-        $this->roomId = $roomId;
-
-        return $this;
-    }
-
-    /**
-     * Get roomId
-     *
-     * @return integer
-     */
-    public function getRoomId()
-    {
-        return $this->roomId;
     }
 
     /**
