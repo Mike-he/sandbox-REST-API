@@ -50,7 +50,7 @@ class ClientUserProfileController extends UserProfileController
         ParamFetcherInterface $paramFetcher
     ) {
         $userId = (int) $paramFetcher->get('user_id');
-        if (is_null($userId)) {
+        if ($userId === 0) {
             $userId = $this->getUserid();
         }
 
