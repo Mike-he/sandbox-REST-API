@@ -30,13 +30,21 @@ class ProductOrder
     private $userId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Product\Product
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
-     * @ORM\JoinColumn(name="productId", referencedColumnName="id")
+     * @ORM\Column(name="productId", type="integer")
      *
      */
     private $productId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Product\Product
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
+     * @ORM\JoinColumn(name="productId", referencedColumnName="id")
+     *
+     */
+    private $product;
 
     /**
      * @var \DateTime
@@ -148,6 +156,29 @@ class ProductOrder
     public function getProductId()
     {
         return $this->productId;
+    }
+
+    /**
+     * Set product
+     *
+     * @param  Product      $product
+     * @return ProductOrder
+     */
+    public function setProduct($product)
+    {
+        $this->product = $product;
+
+        return $this;
+    }
+
+    /**
+     * Get Product
+     *
+     * @return Product
+     */
+    public function getProduct()
+    {
+        return $this->product;
     }
 
     /**

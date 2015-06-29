@@ -8,6 +8,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\View\View;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * Rest controller for Client Product
@@ -80,19 +81,29 @@ class ClientProductController extends ProductController
          * @param Request $request
          * @param ParamFetcherInterface $paramFetcher
          */
-        public function getProductsAction(Request $request, ParamFetcherInterface $paramFetcher)
-        {
+        public function getProductsAction(
+            Request $request,
+            ParamFetcherInterface $paramFetcher
+        ) {
             $roomType = $paramFetcher->get('type');
             $buildingId = $paramFetcher->get('building');
             $timeUnit = $paramFetcher->get('time_unit');
             $rentPeriod = $paramFetcher->get('rent_period');
             $allowedPeople = $paramFetcher->get('allowed_people');
-            $startTime = new \DateTime($paramFetcher->get('start_time'));
+            $startTime = $paramFetcher->get('start_time');
             $endTime = clone $startTime;
-            if (!is_null($endTime)) {
+            if (!is_null($startTime)) {
+                $endTime = new \DateTime($endTime);
                 $endTime->modify('+'.$rentPeriod.$timeUnit);
             }
-            $productIds = $this->getRepo('Product\Product')->getProductsForClient($roomType, $buildingId, $startTime, $timeUnit, $endTime, $allowedPeople);
+            $productIds = $this->getRepo('Product\Product')->getProductsForClient(
+                $roomType,
+                $buildingId,
+                $startTime,
+                $timeUnit,
+                $endTime,
+                $allowedPeople
+            );
 
             $products = [];
             foreach ($productIds as $productId) {
