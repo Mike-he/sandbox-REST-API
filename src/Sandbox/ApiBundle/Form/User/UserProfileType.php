@@ -19,7 +19,7 @@ class UserProfileType extends AbstractType
             ->add('date_of_birth')
             ->add('email')
             ->add('phone')
-            ->add('aboutMe')
+            ->add('about_me')
             ->add('skill')
             ->add('sina_weibo')
             ->add('tencent_weibo')
