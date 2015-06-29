@@ -27,7 +27,7 @@ use Rs\Json\Patch;
 class ClientUserEducationController extends UserProfileController
 {
     /**
-     * Get a single Profile.
+     * Get user's education
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -72,21 +72,33 @@ class ClientUserEducationController extends UserProfileController
 
     ) {
         $userId = $this->getUserid();
-        $userEducation = new UserEducation();
+        $educationResponseArray = array();
 
-        $form = $this->createForm(new UserEducationType(), $userEducation);
-        $form->handleRequest($request);
+        $em = $this->getDoctrine()->getManager();
 
-        if ($form->isValid()) {
+        $educationsArray = json_decode($request->getContent(), true);
+        foreach ($educationsArray as $education) {
+            $userEducation = new UserEducation();
+            $form = $this->createForm(new UserEducationType(), $userEducation);
+            $form->submit($education);
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
             $userEducation->setUserId($userId);
-            $em = $this->getDoctrine()->getManager();
             $em->persist($userEducation);
             $em->flush();
 
-            return new View($userEducation->getId());
+            $insideEducationArray = array(
+                'id' => $userEducation->getId(),
+                'user_id' => $userEducation->getUserId(),
+                'start_date' => $userEducation->getStartDate(),
+                'end_date' => $userEducation->getEndDate(),
+                'detail' => $userEducation->getDetail(),
+            );
+            array_push($educationResponseArray, $insideEducationArray);
         }
 
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        return new View($educationResponseArray);
     }
 
     /**

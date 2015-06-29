@@ -27,7 +27,7 @@ use Rs\Json\Patch;
 class ClientUserExperienceController extends UserProfileController
 {
     /**
-     * Get a single Profile.
+     * Get user's experience.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -72,21 +72,33 @@ class ClientUserExperienceController extends UserProfileController
 
     ) {
         $userId = $this->getUserid();
-        $userExperience = new UserExperience();
+        $experienceResponseArray = array();
 
-        $form = $this->createForm(new UserExperienceType(), $userExperience);
-        $form->handleRequest($request);
+        $em = $this->getDoctrine()->getManager();
 
-        if ($form->isValid()) {
+        $experiencesArray = json_decode($request->getContent(), true);
+        foreach ($experiencesArray as $experience) {
+            $userExperience = new UserExperience();
+            $form = $this->createForm(new UserExperienceType(), $userExperience);
+            $form->submit($experience);
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
             $userExperience->setUserId($userId);
-            $em = $this->getDoctrine()->getManager();
             $em->persist($userExperience);
             $em->flush();
 
-            return new View($userExperience->getId());
+            $insideExperienceArray = array(
+                'id' => $userExperience->getId(),
+                'user_id' => $userExperience->getUserId(),
+                'start_date' => $userExperience->getStartDate(),
+                'end_date' => $userExperience->getEndDate(),
+                'detail' => $userExperience->getDetail(),
+            );
+            array_push($experienceResponseArray, $insideExperienceArray);
         }
 
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        return new View($experienceResponseArray);
     }
 
     /**

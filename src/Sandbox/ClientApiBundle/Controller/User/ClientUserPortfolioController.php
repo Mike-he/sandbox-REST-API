@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientUserPortfolioController extends UserProfileController
 {
     /**
-     * Get a single Profile.
+     * Get user's portfolio
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -71,21 +71,35 @@ class ClientUserPortfolioController extends UserProfileController
 
     ) {
         $userId = $this->getUserid();
-        $userPortfolio = new UserPortfolio();
 
-        $form = $this->createForm(new UserPortfolioType(), $userPortfolio);
-        $form->handleRequest($request);
+        $portfolioResponseArray = array();
 
-        if ($form->isValid()) {
+        $em = $this->getDoctrine()->getManager();
+
+        $portfoliosArray = json_decode($request->getContent(), true);
+        foreach ($portfoliosArray as $portfolio) {
+            $userPortfolio = new UserPortfolio();
+            $form = $this->createForm(new UserPortfolioType(), $userPortfolio);
+            $form->submit($portfolio);
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
             $userPortfolio->setUserId($userId);
-            $em = $this->getDoctrine()->getManager();
             $em->persist($userPortfolio);
             $em->flush();
 
-            return new View($userPortfolio->getId());
+            $insidePortfolioArray = array(
+                'id' => $userPortfolio->getId(),
+                'content' => $userPortfolio->getContent(),
+                'attachment_type' => $userPortfolio->getAttachmentType(),
+                'file_name' => $userPortfolio->getFileName(),
+                'preview' => $userPortfolio->getPreview(),
+                'size' => $userPortfolio->getSize(),
+            );
+            array_push($portfolioResponseArray, $insidePortfolioArray);
         }
 
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        return new View($portfolioResponseArray);
     }
 
     /**

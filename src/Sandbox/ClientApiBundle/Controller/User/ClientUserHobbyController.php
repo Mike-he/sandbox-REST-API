@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientUserHobbyController extends UserProfileController
 {
     /**
-     * Get user hobbies.
+     * Get user's hobbies.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -92,13 +92,13 @@ class ClientUserHobbyController extends UserProfileController
 
     ) {
         $userId = $this->getUserid();
-        $userHobbyMap = new UserHobbyMap();
 
         $hobbyResponseArray = array();
         $em = $this->getDoctrine()->getManager();
 
         $hobbyIdsArray = json_decode($request->getContent(), true);
         foreach ($hobbyIdsArray as $hobbyId) {
+            $userHobbyMap = new UserHobbyMap();
             $form = $this->createForm(new UserHobbyMapType(), $userHobbyMap);
             $form->submit($hobbyId);
             if (!$form->isValid()) {
