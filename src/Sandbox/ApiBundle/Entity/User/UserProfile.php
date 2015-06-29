@@ -55,7 +55,7 @@ class UserProfile
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="dateOfBirth", type="datetime", nullable=true)
+     * @ORM\Column(name="dateOfBirth", type="date", nullable=true)
      */
     private $dateOfBirth;
 
@@ -232,7 +232,7 @@ class UserProfile
      */
     public function setDateOfBirth($dateOfBirth)
     {
-        $this->dateOfBirth = $dateOfBirth;
+        $this->dateOfBirth = new \DateTime($dateOfBirth);
     }
 
     /**
@@ -366,7 +366,7 @@ class UserProfile
      */
     public function getLinkedin()
     {
-        return $this->linkedininkedin;
+        return $this->linkedin;
     }
 
     /**

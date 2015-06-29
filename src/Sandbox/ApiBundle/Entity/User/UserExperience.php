@@ -106,7 +106,7 @@ class UserExperience
      */
     public function setStartDate($startDate)
     {
-        $this->startDate = $startDate;
+        $this->startDate = new \DateTime($startDate);
     }
 
     /**
@@ -124,7 +124,7 @@ class UserExperience
      */
     public function setEndDate($endDate)
     {
-        $this->endDate = $endDate;
+        $this->endDate = new \DateTime($endDate);
     }
 
     /**
