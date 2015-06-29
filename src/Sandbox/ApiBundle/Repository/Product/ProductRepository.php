@@ -6,8 +6,14 @@ use Doctrine\ORM\EntityRepository;
 
 class ProductRepository extends EntityRepository
 {
-    public function getProductsForClient($roomType, $buildingId, $startTime, $timeUnit, $endTime, $allowedPeople)
-    {
+    public function getProductsForClient(
+        $roomType,
+        $buildingId,
+        $startTime,
+        $timeUnit,
+        $endTime,
+        $allowedPeople
+    ) {
         $query = $this->createQueryBuilder('p')
             ->select('p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
