@@ -33,15 +33,9 @@ class UserHobbyMap
     /**
      * @var int
      *
-     * @ORM\Column(name="hobbyId", type="integer", nullable=false)
+     * @ORM\Column(name="hobbyId", type="integer", nullable=true)
      */
     private $hobbyId;
-
-    /**
-     * @ORM\OneToOne(targetEntity="Hobby")
-     * @ORM\JoinColumn(name="hobbyId", referencedColumnName="id")
-     **/
-    private $hobby;
 
     /**
      * @return int
@@ -85,13 +79,5 @@ class UserHobbyMap
     public function setHobbyId($hobbyId)
     {
         $this->hobbyId = $hobbyId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getHobby()
-    {
-        return $this->hobby;
     }
 }
