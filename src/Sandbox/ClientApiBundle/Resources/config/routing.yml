@@ -74,3 +74,9 @@ sandbox_client_api_order:
     resource: "@SandboxClientApiBundle/Controller/Order/ClientOrderController.php"
     type:     annotation
     prefix:   /
+
+# Announcements /client/announcements
+sandbox_client_api_announcements:
+    resource: "@SandboxClientApiBundle/Controller/Announcement/ClientAnnouncementController.php"
+    type:     annotation
+    prefix:   /
