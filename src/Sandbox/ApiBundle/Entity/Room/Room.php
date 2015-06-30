@@ -152,7 +152,11 @@ class Room
     /**
      * @var RoomMeeting
      *
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting", mappedBy="roomId")
+     * @ORM\OneToOne(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting",
+     *      mappedBy="roomId",
+     *      cascade={"persist"}
+     * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      *
      * @Serializer\Groups({"main", "admin_room"})
@@ -196,6 +200,11 @@ class Room
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $modificationDate;
+
+    /**
+     * @var integer
+     */
+    private $attachmentId;
 
     /**
      * Get id
@@ -486,7 +495,7 @@ class Room
     /**
      * Get meeting
      *
-     * @return mixed
+     * @return RoomMeeting
      */
     public function getMeeting()
     {
@@ -496,8 +505,8 @@ class Room
     /**
      * Set meeting
      *
-     * @param  mixed $meeting
-     * @return $this
+     * @param  RoomMeeting $meeting
+     * @return Room
      */
     public function setMeeting($meeting)
     {
@@ -567,5 +576,63 @@ class Room
     public function getRentedDates()
     {
         return $this->rentedDates;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getAttachmentId()
+    {
+        return $this->attachmentId;
+    }
+
+    /**
+     * @param  integer $attachmentId
+     * @return Room
+     */
+    public function setAttachmentId($attachmentId)
+    {
+        $this->attachmentId = $attachmentId;
+
+        return $this;
+    }
+
+    /**
+     * Set floor
+     *
+     * @param  RoomFloor $floor
+     * @return Room
+     */
+    public function setFloor($floor)
+    {
+        $this->floor = $floor;
+
+        return $this;
+    }
+
+    /**
+     * Set city
+     *
+     * @param  RoomCity $city
+     * @return Room
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    /**
+     * Set building
+     *
+     * @param  RoomBuilding $building
+     * @return Room
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+
+        return $this;
     }
 }

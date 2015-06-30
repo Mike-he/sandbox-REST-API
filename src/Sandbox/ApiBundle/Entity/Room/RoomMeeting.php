@@ -19,32 +19,22 @@ use JMS\Serializer\Annotation as Serializer;
 class RoomMeeting
 {
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
-    private $id;
-
-    /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="meeting")
+     * @ORM\Id
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="meeting")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })
      *
      * @Serializer\Groups({"main"})
      */
-    private $roomId;
+    private $room;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="startHour", type="time", nullable=false)
-     *
-     * @Serializer\Groups({"main"})
      *
      * @Serializer\Groups({"main", "admin_room"})
      */
@@ -58,29 +48,6 @@ class RoomMeeting
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $endHour;
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set roomId
-     *
-     * @param  integer     $roomId
-     * @return RoomMeeting
-     */
-    public function setRoomId($roomId)
-    {
-        $this->roomId = $roomId;
-
-        return $this;
-    }
 
     /**
      * Get roomId
@@ -136,5 +103,24 @@ class RoomMeeting
     public function getEndHour()
     {
         return $this->endHour;
+    }
+
+    /**
+     * @return Room
+     */
+    public function getRoom()
+    {
+        return $this->room;
+    }
+
+    /**
+     * @param  Room $room
+     * @return Room
+     */
+    public function setRoom($room)
+    {
+        $this->room = $room;
+
+        return $this;
     }
 }

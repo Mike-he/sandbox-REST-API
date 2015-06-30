@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Room;
 
+use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
@@ -18,9 +19,10 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\Validator\Tests\Fixtures\Entity;
 
 /**
- * Login controller
+ * Admin room controller
  *
  * @category Sandbox
  * @package  Sandbox\ClientApiBundle\Controller
@@ -90,11 +92,13 @@ class AdminRoomController extends RoomController
         $filters = $this->getFilters($paramFetcher);
 
         //find all with or without filters
-        $allRooms = is_null($filters) ? $room->findAll() : $room->findBy($filters);
+        $rooms = $room->findBy(
+            $filters
+        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
-        $view->setData($allRooms);
+        $view->setData($rooms);
 
         return $view;
     }
@@ -157,7 +161,23 @@ class AdminRoomController extends RoomController
     public function postRoomAction(
         Request $request
     ) {
-        return $this->handleRoomPost($request);
+        $room = new Room();
+
+        $form = $this->createForm(new RoomType(), $room);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $meeting = $form['room_meeting']->getData();
+        $fixed = $form['room_fixed']->getData();
+
+        return $this->handleRoomPost(
+            $room,
+            $meeting,
+            $fixed
+        );
     }
 
     /**
@@ -191,22 +211,16 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * @param  Request    $request
-     * @return array|View
+     * @param  Room        $room
+     * @param  RoomMeeting $meeting
+     * @param  RoomFixed   $roomsFixed
+     * @return View
      */
     private function handleRoomPost(
-        Request $request
+        $room,
+        $meeting,
+        $roomsFixed
     ) {
-        $room = new Room();
-
-        $form = $this->createForm(new RoomType(), $room);
-
-        $form->handleRequest($request);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
                 'buildingId' => $room->getBuildingId(),
                 'number' => $room->getNumber(),
@@ -222,25 +236,34 @@ class AdminRoomController extends RoomController
             );
         }
 
+        $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
+        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
+        $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
+
+        if (is_null($roomCity) ||
+            is_null($roomBuilding) ||
+            is_null($roomFloor)
+        ) {
+            throw new BadRequestHttpException('City, Building or Floor cannot be null');
+        }
+
         $now = new \DateTime("now");
         $room->setCreationDate($now);
         $room->setModificationDate($now);
+        $room->setCity($roomCity);
+        $room->setBuilding($roomBuilding);
+        $room->setFloor($roomFloor);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($room);
         $em->flush();
 
-        //Add attachment (limited to one)
-        $this->addRoomAttachment(
-            $em,
-            $room->getId(),
-            $room->getAttachments()
-        );
-
         //manage room types
         $this->addRoomTypeData(
             $em,
-            $room
+            $room,
+            $meeting,
+            $roomsFixed
         );
 
         //TODO Add office supplies - TBD
@@ -301,8 +324,8 @@ class AdminRoomController extends RoomController
     /**
      * Add room type data
      *
-     * @param $em
-     * @param $room
+     * @param EntityManager $em
+     * @param Room $room
      * @internal param $id
      * @internal param $type
      * @internal param $meeting
@@ -310,12 +333,13 @@ class AdminRoomController extends RoomController
      */
     private function addRoomTypeData(
         $em,
-        $room
+        $room,
+        $meeting,
+        $roomsFixed
     ) {
         switch ($room->getType()) {
             case 'meeting':
                 $format = 'H:i:s';
-                $meeting = $room->getMeeting();
 
                 $start = \DateTime::createFromFormat(
                     $format,
@@ -328,7 +352,7 @@ class AdminRoomController extends RoomController
                 );
 
                 $roomMeeting = new RoomMeeting();
-                $roomMeeting->setRoomId($room->getId());
+                $roomMeeting->setRoom($room);
                 $roomMeeting->setStartHour($start);
                 $roomMeeting->setEndHour($end);
 
@@ -336,16 +360,15 @@ class AdminRoomController extends RoomController
                 $em->flush();
                 break;
             case 'fixed':
-                $roomsFixed = $room->getFixed();
-
-                foreach ($roomsFixed as $fixed) {
-                    $roomFixed = new RoomFixed();
-                    $roomFixed->setRoomId($room->getId());
-                    $roomFixed->setSeatNumber($fixed['seat_number']);
-                    $roomFixed->setAvailable($fixed['available']);
-                    $em->persist($roomFixed);
-                    $em->flush();
-                }
+                //TODO
+//                foreach ($roomsFixed as $fixed) {
+//                    $roomFixed = new RoomFixed();
+//                    $roomFixed->setRoomId($room->getId());
+//                    $roomFixed->setSeatNumber($fixed['seat_number']);
+//                    $roomFixed->setAvailable($fixed['available']);
+//                    $em->persist($roomFixed);
+//                    $em->flush();
+//                }
             break;
             default:
                 /* Do nothing */
@@ -357,7 +380,7 @@ class AdminRoomController extends RoomController
      * Get filters from rooms get request
      *
      * @param $paramFetcher
-     * @return null|array
+     * @return array
      */
     private function getFilters(
         $paramFetcher
@@ -380,6 +403,6 @@ class AdminRoomController extends RoomController
             $filters['buildingId'] = $building;
         }
 
-        return empty($filters) ? null : $filters;
+        return $filters;
     }
 }
