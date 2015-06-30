@@ -5,17 +5,15 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * VCard
+ * User Profile
  *
  * @ORM\Table(name="UserProfile")
- * @ORM\Entity(
- *     repositoryClass="Sandbox\ApiBundle\Repository\User\JtVCardRepository"
- * )
+ * @ORM\Entity
  *
  */
 class UserProfile
 {
-    const DEFAULT_GENDER_OTHER = 'other';
+    const DEFAULT_GENDER_OTHER = "other";
 
     /**
      * @var int
@@ -27,25 +25,39 @@ class UserProfile
     private $id;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="userId", type="string", nullable=false)
-     */
-    private $userid;
-
-    /**
      * @var int
      *
-     * @ORM\Column(name="companyId", type="integer", nullable=false)
+     * @ORM\Column(name="userId", type="integer", nullable=false)
      */
-    private $companyid;
+    private $userId;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=128, nullable=false)
+     * @ORM\Column(name="name", type="string", length=64, nullable=false)
      */
     private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="jobTitle", type="string", length=64, nullable=true)
+     */
+    private $jobTitle;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="gender", type="string", nullable=false)
+     */
+    private $gender = self::DEFAULT_GENDER_OTHER;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="dateOfBirth", type="date", nullable=true)
+     */
+    private $dateOfBirth;
 
     /**
      * @var string
@@ -64,97 +76,94 @@ class UserProfile
     /**
      * @var string
      *
-     * @ORM\Column(name="gender", type="string", nullable=false)
+     * @ORM\Column(name="aboutMe", type="string", nullable=true)
      */
-    private $gender = self::DEFAULT_GENDER_OTHER;
+    private $aboutMe;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="aboutme", type="string", nullable=true)
+     * @ORM\Column(name="skill", type="string", nullable=true)
      */
-    private $aboutme;
+    private $skill;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="hobbies", type="string", nullable=true)
+     * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
      */
+    private $sinaWeibo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
+     */
+    private $tencentWeibo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
+     */
+    private $facebook;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
+     */
+    private $linkedin;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     */
+    private $modificationDate;
+
     private $hobbies;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="skills", type="string", nullable=true)
-     */
-    private $skills;
+    private $experiences;
+
+    private $educations;
+
+    private $portfolios;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="location", type="string", length=512, nullable=true)
+     * @return int
      */
-    private $location;
-
-    /**
-     * Set companyid
-     *
-     * @param  string  $companyid
-     * @return JtVCard
-     */
-    public function setCompanyid($companyid)
+    public function getId()
     {
-        $this->companyid = $companyid;
-
-        return $this;
+        return $this->id;
     }
 
     /**
-     * Get companyid
-     * @return string
+     * @return int
      */
-    public function getCompanyid()
+    public function getUserId()
     {
-        return $this->companyid;
+        return $this->userId;
     }
 
     /**
-     * Set userid
+     * @param int $userId
      *
-     * @param  string  $userid
-     * @return JtVCard
+     * @return UserProfile
      */
-    public function setUserid($userid)
+    public function setUserId($userId)
     {
-        $this->userid = $userid;
-
-        return $this;
+        $this->userId = $userId;
     }
 
     /**
-     * Get userid
-     * @return string
-     */
-    public function getUserid()
-    {
-        return $this->userid;
-    }
-
-    /**
-     * Set name
-     *
-     * @param  string  $name
-     * @return JtVCard
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name
      * @return string
      */
     public function getName()
@@ -163,64 +172,34 @@ class UserProfile
     }
 
     /**
-     * Set email
+     * @param string $name
      *
-     * @param  string  $email
-     * @return JtVCard
+     * @return UserProfile
      */
-    public function setEmail($email)
+    public function setName($name)
     {
-        $this->email = $email;
-
-        return $this;
+        $this->name = $name;
     }
 
     /**
-     * Get email
      * @return string
      */
-    public function getEmail()
+    public function getJobTitle()
     {
-        return $this->email;
+        return $this->jobTitle;
     }
 
     /**
-     * Set phone
+     * @param string $jobTitle
      *
-     * @param  string  $phone
-     * @return JtVCard
+     * @return UserProfile
      */
-    public function setPhone($phone)
+    public function setJobTitle($jobTitle)
     {
-        $this->phone = $phone;
-
-        return $this;
+        $this->jobTitle = $jobTitle;
     }
 
     /**
-     * Get phone
-     * @return string
-     */
-    public function getPhone()
-    {
-        return $this->phone;
-    }
-
-    /**
-     * Set gender
-     *
-     * @param  string  $gender
-     * @return JtVCard
-     */
-    public function setGender($gender)
-    {
-        $this->gender = $gender;
-
-        return $this;
-    }
-
-    /**
-     * Get gender
      * @return string
      */
     public function getGender()
@@ -229,43 +208,215 @@ class UserProfile
     }
 
     /**
-     * Set aboutme
+     * @param string $gender
      *
-     * @param  string  $aboutme
-     * @return JtVCard
+     * @return UserProfile
      */
-    public function setAboutme($aboutme)
+    public function setGender($gender)
     {
-        $this->aboutme = $aboutme;
-
-        return $this;
+        $this->gender = $gender;
     }
 
     /**
-     * Get aboutme
+     * @return \DateTime
+     */
+    public function getDateOfBirth()
+    {
+        return $this->dateOfBirth;
+    }
+
+    /**
+     * @param \DateTime $dateOfBirth
+     *
+     * @return UserProfile
+     */
+    public function setDateOfBirth($dateOfBirth)
+    {
+        $this->dateOfBirth = new \DateTime($dateOfBirth);
+    }
+
+    /**
      * @return string
      */
-    public function getAboutme()
+    public function getEmail()
     {
-        return $this->aboutme;
+        return $this->email;
     }
 
     /**
-     * Set hobbies
+     * @param string $email
      *
-     * @param  string  $hobbies
-     * @return JtVCard
+     * @return UserProfile
      */
-    public function setHobbies($hobbies)
+    public function setEmail($email)
     {
-        $this->hobbies = $hobbies;
-
-        return $this;
+        $this->email = $email;
     }
 
     /**
-     * Get hobbies
      * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     *
+     * @return UserProfile
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAboutMe()
+    {
+        return $this->aboutMe;
+    }
+
+    /**
+     * @param string $aboutMe
+     *
+     * @return UserProfile
+     */
+    public function setAboutMe($aboutMe)
+    {
+        $this->aboutMe = $aboutMe;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSkill()
+    {
+        return $this->skill;
+    }
+
+    /**
+     * @param string $skill
+     *
+     * @return UserProfile
+     */
+    public function setSkill($skill)
+    {
+        $this->skill = $skill;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSinaWeibo()
+    {
+        return $this->sinaWeibo;
+    }
+
+    /**
+     * @param string $sinaWeibo
+     *
+     * @return UserProfile
+     */
+    public function setSinaWeibo($sinaWeibo)
+    {
+        $this->sinaWeibo = $sinaWeibo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTencentWeibo()
+    {
+        return $this->tencentWeibo;
+    }
+
+    /**
+     * @param string $tencentWeibo
+     *
+     * @return UserProfile
+     */
+    public function setTencentWeibo($tencentWeibo)
+    {
+        $this->tencentWeibo = $tencentWeibo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFacebook()
+    {
+        return $this->facebook;
+    }
+
+    /**
+     * @param string $facebook
+     *
+     * @return UserProfile
+     */
+    public function setFacebook($facebook)
+    {
+        $this->facebook = $facebook;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLinkedin()
+    {
+        return $this->linkedin;
+    }
+
+    /**
+     * @param string $linkedin
+     *
+     * @return UserProfile
+     */
+    public function setLinkedin($linkedin)
+    {
+        $this->linkedin = $linkedin;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * @param \DateTime $creationDate
+     *
+     * @return UserProfile
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * @param \DateTime $modificationDate
+     *
+     * @return UserProfile
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return mixed
      */
     public function getHobbies()
     {
@@ -273,56 +424,73 @@ class UserProfile
     }
 
     /**
-     * Set skills
+     * @param mixed $hobbies
      *
-     * @param  string  $skills
-     * @return JtVCard
+     * @return UserProfile
      */
-    public function setSkills($skills)
+    public function setHobbies($hobbies)
     {
-        $this->skills = $skills;
-
-        return $this;
+        $this->hobbies = $hobbies;
     }
 
     /**
-     * Get skills
-     * @return string
+     * @return mixed
      */
-    public function getSkills()
+    public function getExperiences()
     {
-        return $this->skills;
+        return $this->experiences;
     }
 
     /**
-     * Set loction
+     * @param mixed $experiences
      *
-     * @param  string  $location
-     * @return JtVCard
+     * @return UserProfile
      */
-    public function setLocation($location)
+    public function setExperiences($experiences)
     {
-        $this->location = $location;
-
-        return $this;
+        $this->experiences = $experiences;
     }
 
     /**
-     * Get location
-     * @return string
+     * @return mixed
      */
-    public function getLocation()
+    public function getEducations()
     {
-        return $this->location;
+        return $this->educations;
     }
 
     /**
-     * Get vcardid
+     * @param mixed $educations
      *
-     * @return int
+     * @return UserProfile
      */
-    public function getId()
+    public function setEducations($educations)
     {
-        return $this->id;
+        $this->educations = $educations;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPortfolios()
+    {
+        return $this->portfolios;
+    }
+
+    /**
+     * @param mixed $portfolios
+     *
+     * @return UserProfile
+     */
+    public function setPortfolios($portfolios)
+    {
+        $this->portfolios = $portfolios;
+    }
+
+    public function __construct()
+    {
+        $now = new \DateTime("now");
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 }
