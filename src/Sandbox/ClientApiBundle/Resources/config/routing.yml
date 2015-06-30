@@ -28,10 +28,41 @@ sandbox_client_api_directory:
     resource: "@SandboxClientApiBundle/Controller/Company/ClientDirectoryController.php"
     type:     rest
 
-# VCARDS /vcards
+# Profile /profile
 sandbox_client_api_user_profile:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserProfileController.php"
-    type:     rest
+    type:     annotation
+    prefix:   /user
+
+# Profile /profile
+sandbox_client_api_user_profile_basic:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserBasicProfileController.php"
+    type:     annotation
+    prefix:   /user
+
+# Profile /profile/education
+sandbox_client_api_user_profile_education:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserEducationController.php"
+    type:     annotation
+    prefix:   /user
+
+# Profile /profile/experience
+sandbox_client_api_user_profile_experience:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserExperienceController.php"
+    type:     annotation
+    prefix:   /user
+
+# Profile /profile/portfolio
+sandbox_client_api_user_profile_portfolio:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserPortfolioController.php"
+    type:     annotation
+    prefix:   /user
+
+# Profile /profile/hobby
+sandbox_client_api_user_profile_hobby:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserHobbyController.php"
+    type:     annotation
+    prefix:   /user
 
 # Client User Login /client/auth/login
 sandbox_client_api_auth_login:

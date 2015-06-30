@@ -3,16 +3,22 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
+use Sandbox\ApiBundle\Entity\User\UserEducation;
+use Sandbox\ApiBundle\Entity\User\UserExperience;
+use Sandbox\ApiBundle\Entity\User\UserHobbyMap;
+use Sandbox\ApiBundle\Entity\User\UserPortfolio;
+use Sandbox\ApiBundle\Entity\User\UserProfile;
+use Sandbox\ApiBundle\Form\User\UserProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Rs\Json\Patch;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Rest controller for VCards
+ * Rest controller for UserProfile
  *
  * @category Sandbox
  * @package  Sandbox\ApiBundle\Controller
@@ -22,139 +28,281 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserProfileController extends UserProfileController
 {
-    const NOT_FOUND_MESSAGE = "This resource does not exist";
-
-    const BAD_PARAM_MESSAGE = "Bad parameters";
-
     /**
-     * Get a single VCard.
+     * Get a single Profile.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
-     * @ApiDoc(
-     *   output = "VCard",
-     *   statusCodes = {
-     *     200 = "Returned when successful",
-     *     404 = "Returned when the note is not found"
-     *   }
-     * )
      * @Annotations\QueryParam(
-     *    name="companyid",
+     *    name="user_id",
      *    default=null,
-     *    description="
-     *      if precised give the vcard of this user for this company,
-     *      if not precised give the user's own vcard
-     *    "
+     *    description="userId"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="userid",
-     *    default=null,
-     *    description="userid"
-     * )
+     * @Route("/profile")
+     * @Method({"GET"})
+     *
      * @return array
-     *
-     * @throws NotFoundHttpException when resource does not exist
      */
-    public function getVcardsAction(
+    public function getProfileAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userid = $paramFetcher->get('userid');
-        $companyid = $paramFetcher->get('companyid');
-
-        $vcardRepo = $this->getRepo('JtVCard');
-
-        $vcard = null;
-
-        $vcard = $vcardRepo->findOneBy(
-            array(
-                'userid' => $userid,
-                'companyid' => null,
-            )
-        );
-
-        if (!is_null($userid) &&
-            !is_null($companyid)) {
-            $vcard = $vcardRepo->getVCardFromCompany($userid, $companyid);
+        $userId = (int) $paramFetcher->get('user_id');
+        if ($userId === 0) {
+            $userId = $this->getUserid();
         }
 
-        $this->throwNotFoundIfNull($vcard, self::NOT_FOUND_MESSAGE);
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $this->throwNotFoundIfNull($userProfile, self::NOT_FOUND_MESSAGE);
 
-        return new View($vcard);
+        $userEducation = $this->getRepo('User\UserEducation')->findByUserId($userId);
+        if (!empty($userEducation)) {
+            $userProfile->setEducations($userEducation);
+        }
+
+        $userExperience = $this->getRepo('User\UserExperience')->findByUserId($userId);
+        if (!empty($userExperience)) {
+            $userProfile->setExperiences($userExperience);
+        }
+
+        $userPortfolio = $this->getRepo('User\UserPortfolio')->findByUserId($userId);
+        if (!empty($userPortfolio)) {
+            $userProfile->setPortfolios($userPortfolio);
+        }
+
+        $userHobbyMap = $this->getRepo('User\UserHobbyMap')->findByUserId($userId);
+        $userHobbyArray = array();
+        if (!empty($userHobbyMap)) {
+            foreach ($userHobbyMap as $userHobby) {
+                if (is_null($userHobby)) {
+                    continue;
+                }
+
+                $id = $userHobby->getId();
+                $hobbyId = $userHobby->getHobbyId();
+                $hobby = $this->getRepo('User\Hobby')->findOneById($hobbyId);
+                $insideHobbyArray = array(
+                    'name' => $hobby->getName(),
+                    'id' => $id,
+                    'hobby_id' => $hobbyId,
+                );
+
+                array_push($userHobbyArray, $insideHobbyArray);
+            }
+        }
+
+        if (!empty($userHobbyArray)) {
+            $userProfile->setHobbies($userHobbyArray);
+        }
+
+        return new View($userProfile);
     }
 
     /**
-     * @param  Request $request
-     * @param $id
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     *
+     * @Route("/profile")
+     * @Method({"POST"})
      * @return View
      */
-    public function getVcardAction(
+    public function postProfileAction(
         Request $request,
-        $id
+        ParamFetcherInterface $paramFetcher
     ) {
-        $vcardRepo = $this->getRepo('JtVCard');
-        $vcard = $vcardRepo->findOneById($id);
+        $userId = $this->getUserid();
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        if (!is_null($userProfile)) {
+            throw new BadRequestHttpException('can not add profile.');
+        }
 
-        $this->throwNotFoundIfNull($vcard, self::NOT_FOUND_MESSAGE);
+        $userProfile = new UserProfile();
 
-        return new View($vcard);
+        $form = $this->createForm(new UserProfileType(), $userProfile);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            return $this->handlePostUserProfile($userProfile);
+        }
+
+        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
     }
 
     /**
-     * @param  Request                   $request
-     * @param $id
+     * @param  UserProfile $userProfile
      * @return View
-     * @throws Patch\FailedTestException
      */
-    public function patchVcardAction(
-        Request $request,
-        $id
+    private function handlePostUserProfile(
+        $userProfile
     ) {
-        $vcard = $this->getRepo('JtVCard')->find($id);
-        $this->throwNotFoundIfNull($vcard, 'vcard_patch '.self::NOT_FOUND_MESSAGE);
-
-        $vcardJSON = $this->container->get('serializer')->serialize($vcard, 'json');
-        $patch = new Patch($vcardJSON, $request->getContent());
-        $vcardAfterPatchedJSON = $patch->apply();
-
-        $form = $this->createForm(new JtVCardType(), $vcard);
-        $form->submit(json_decode($vcardAfterPatchedJSON, true));
-
+        $userId = (int) $this->getUserid();
         $em = $this->getDoctrine()->getManager();
+
+        $userEducations = $userProfile->getEducations();
+        if (!empty($userEducations)) {
+            foreach ($userEducations as $userEducation) {
+                $userEducationEntity = $this->generateUserEducationEntity($userId, $userEducation);
+                $em->persist($userEducationEntity);
+            }
+        }
+
+        $userExperiences = $userProfile->getExperiences();
+        if (!empty($userExperiences)) {
+            foreach ($userExperiences as $userExperience) {
+                $userExperienceEntity = $this->generateUserExperienceEntity($userId, $userExperience);
+                $em->persist($userExperienceEntity);
+            }
+        }
+
+        $userHobbies = $userProfile->getHobbies();
+        if (!empty($userHobbies)) {
+            foreach ($userHobbies as $userHobby) {
+                $userHobbyMapEntity = $this->generateUserHobbyMapEntity($userId, $userHobby);
+                $em->persist($userHobbyMapEntity);
+            }
+        }
+
+        $userPortfolios = $userProfile->getPortfolios();
+        if (!empty($userPortfolios)) {
+            foreach ($userPortfolios as $userPortfolio) {
+                $userPortfolioEntity = $this->generateUserPortfolioEntity($userId, $userPortfolio);
+                $em->persist($userPortfolioEntity);
+            }
+        }
+
+        $userProfile->setUserId($userId);
+        $em->persist($userProfile);
         $em->flush();
 
         $view = new View();
-        $view->setData(json_decode($vcardAfterPatchedJSON, true));
+        $view->setData(
+            array('id' => $userProfile->getId())
+        );
 
         return $view;
     }
 
     /**
-     * @param  Request               $request
-     * @param  ParamFetcherInterface $paramFetcher
-     * @return View
+     * @param int   $userId
+     * @param array $userEducation
+     *
+     * @return UserEducation
      */
-    public function postVcardAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
+    private function generateUserEducationEntity(
+        $userId,
+        $userEducation
     ) {
-        $vcard = new JtVCard();
-        $form = $this->createForm(new JtVCardType(), $vcard);
-        $form->handleRequest($request);
+        $userEducationEntity = new UserEducation();
+        $userEducationEntity->setUserId($userId);
 
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        $startDate = $userEducation['start_date'];
+        if (!is_null($startDate)) {
+            $userEducationEntity->setStartDate($startDate);
         }
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($vcard);
-        $em->flush();
+        $endDate = $userEducation['end_date'];
+        if (!is_null($endDate)) {
+            $userEducationEntity->setEndDate($endDate);
+        }
 
-        $view = $this->routeRedirectView('get_vcard', array('id' => $vcard->getId()));
-        $view->setData(array('id' => $vcard->getId()));
+        $detail = $userEducation['detail'];
+        if (!is_null($detail)) {
+            $userEducationEntity->setDetail($detail);
+        }
 
-        return $view;
+        return $userEducationEntity;
+    }
+
+    /**
+     * @param  int            $userId
+     * @param  array          $userExperience
+     * @return UserExperience
+     */
+    private function generateUserExperienceEntity(
+        $userId,
+        $userExperience
+    ) {
+        $userExperienceEntity = new UserExperience();
+        $userExperienceEntity->setUserId($userId);
+
+        $startDate = $userExperience['start_date'];
+        if (!is_null($startDate)) {
+            $userExperienceEntity->setStartDate($startDate);
+        }
+
+        $endDate = $userExperience['end_date'];
+        if (!is_null($endDate)) {
+            $userExperienceEntity->setEndDate($endDate);
+        }
+
+        $detail = $userExperience['detail'];
+        if (!is_null($detail)) {
+            $userExperience->setDetail($detail);
+        }
+
+        return $userExperienceEntity;
+    }
+
+    /**
+     * @param  int           $userId
+     * @param  array         $userPortfolio
+     * @return UserPortfolio
+     */
+    private function generateUserPortfolioEntity(
+        $userId,
+        $userPortfolio
+    ) {
+        $userPortfolioEntity = new UserPortfolio();
+        $userPortfolioEntity->setUserId($userId);
+
+        $attachmentType = $userPortfolio['attachment_type'];
+        if (!is_null($attachmentType)) {
+            $userPortfolioEntity->setAttachmentType($attachmentType);
+        }
+
+        $content = $userPortfolio['content'];
+        if (!is_null($content)) {
+            $userPortfolioEntity->setContent($content);
+        }
+
+        $fileName = $userPortfolio['file_name'];
+        if (!is_null($fileName)) {
+            $userPortfolioEntity->setFileName($fileName);
+        }
+
+        $preview = $userPortfolio['preview'];
+        if (!is_null($preview)) {
+            $userPortfolioEntity->setPreview($preview);
+        }
+
+        $size = $userPortfolio['size'];
+        if (!is_null($size)) {
+            $userPortfolioEntity->setSize($size);
+        }
+
+        return $userPortfolioEntity;
+    }
+
+    /**
+     * @param  int          $userId
+     * @param  array        $userHobby
+     * @return UserHobbyMap
+     */
+    private function generateUserHobbyMapEntity(
+        $userId,
+        $userHobby
+    ) {
+        $userHobbyMapEntity = new UserHobbyMap();
+        $userHobbyMapEntity->setUserId($userId);
+
+        $hobbyId = $userHobby['id'];
+        if (!is_null($hobbyId)) {
+            $userHobbyMapEntity->setHobbyId($hobbyId);
+        }
+
+        return $userHobbyMapEntity;
     }
 }
