@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
+use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
 use Sandbox\ApiBundle\Form\Room\RoomType;
@@ -171,11 +172,13 @@ class AdminRoomController extends RoomController
 
         $meeting = $form['room_meeting']->getData();
         $fixed = $form['room_fixed']->getData();
+        $attachments_id = $form['attachment_id']->getData();
 
         return $this->handleRoomPost(
             $room,
             $meeting,
-            $fixed
+            $fixed,
+            $attachments_id
         );
     }
 
@@ -218,7 +221,8 @@ class AdminRoomController extends RoomController
     private function handleRoomPost(
         $room,
         $meeting,
-        $roomsFixed
+        $roomsFixed,
+        $attachments_id
     ) {
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
                 'buildingId' => $room->getBuildingId(),
@@ -257,6 +261,13 @@ class AdminRoomController extends RoomController
         $em->persist($room);
         $em->flush();
 
+        //add attachments
+        $this->addRoomAttachment(
+            $em,
+            $room,
+            $attachments_id
+        );
+
         //manage room types
         $this->addRoomTypeData(
             $em,
@@ -277,46 +288,21 @@ class AdminRoomController extends RoomController
     /**
      * Save attachment to db
      *
-     * @param $em
-     * @param $id
-     * @param $attachment
-     * @throws \Exception
-     * @internal param $room
-     * @internal param $attachment
+     * @param EntityManager $em
+     * @param Room $room
+     * @param $attachments_id
      */
     private function addRoomAttachment(
         $em,
-        $id,
-        $attachment
+        $room,
+        $attachments_id
     ) {
-        try {
-            $content = $attachment['content'];
-            $attachmentType = $attachment['attachment_type'];
-            $filename = $attachment['filename'];
-            $preview = $attachment['preview'];
-            $size = $attachment['size'];
-
-            if (is_null($content) ||
-                $content === '' ||
-                is_null($attachmentType) ||
-                $attachmentType === '' ||
-                is_null($size) ||
-                $size === '') {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-
-            $roomAttachment = new RoomAttachment();
-            $roomAttachment->setRoomId($id);
-            $roomAttachment->setContent($content);
-            $roomAttachment->setAttachmenttype($attachmentType);
-            $roomAttachment->setFilename($filename);
-            $roomAttachment->setPreview($preview);
-            $roomAttachment->setSize($size);
-
+        foreach ($attachments_id as $attachment_id) {
+            $roomAttachment = new RoomAttachmentBinding();
+            $roomAttachment->setRoom($room);
+            $roomAttachment->setAttachmentId($attachment_id['id']);
             $em->persist($roomAttachment);
             $em->flush();
-        } catch (Exception $e) {
-            throw new \Exception('Something went wrong!');
         }
     }
 

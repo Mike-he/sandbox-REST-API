@@ -1,13 +1,18 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity;
+namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * RoomAttachmentBinding
  *
- * @ORM\Table(name="RoomAttachmentBinding")
+ * @ORM\Table(
+ *      name="RoomAttachmentBinding",
+ *      indexes={
+ *          @ORM\Index(name="fk_RoomAttachmentBinding_roomId_idx", columns={"roomId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class RoomAttachmentBinding
@@ -15,48 +20,44 @@ class RoomAttachmentBinding
     /**
      * @var integer
      *
-     * @ORM\Column(name="roomId", type="integer")
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $roomId;
+    private $id;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\Room
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="fixed")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
+     * })
+     */
+    private $room;
 
     /**
      * @var integer
      *
-     * @ORM\Column(name="attachmentId", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
+     * @ORM\Column(name="attachmentId", type="integer", nullable=false)
      */
     private $attachmentId;
 
-    /**
-     * Set roomId
-     *
-     * @param  integer               $roomId
-     * @return RoomAttachmentBinding
-     */
-    public function setRoomId($roomId)
-    {
-        $this->roomId = $roomId;
-
-        return $this;
-    }
 
     /**
-     * Get roomId
+     * Get id
      *
      * @return integer
      */
-    public function getRoomId()
+    public function getId()
     {
-        return $this->roomId;
+        return $this->id;
     }
 
     /**
      * Set attachmentId
      *
-     * @param  integer               $attachmentId
+     * @param integer $attachmentId
      * @return RoomAttachmentBinding
      */
     public function setAttachmentId($attachmentId)
@@ -74,5 +75,28 @@ class RoomAttachmentBinding
     public function getAttachmentId()
     {
         return $this->attachmentId;
+    }
+
+    /**
+     * Set room
+     *
+     * @param Room $room
+     * @return RoomAttachmentBinding
+     */
+    public function setRoom($room)
+    {
+        $this->room = $room;
+
+        return $this;
+    }
+
+    /**
+     * Get roomId
+     *
+     * @return Room
+     */
+    public function getRoomId()
+    {
+        return $this->room;
     }
 }

@@ -25,7 +25,12 @@ class RoomType extends AbstractType
             ->add('area')
             ->add('office_supplies')
             ->add('type')
-//            ->add('attachment_id', [])
+            ->add('attachment_id',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
             ->add(
                 'room_fixed',
                 null,
