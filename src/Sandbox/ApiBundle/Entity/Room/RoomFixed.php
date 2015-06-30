@@ -8,7 +8,12 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * RoomFixed
  *
- * @ORM\Table(name="RoomFixed", indexes={@ORM\Index(name="fk_RoomFixed_roomId_idx", columns={"roomId"})})
+ * @ORM\Table(
+ *      name="RoomFixed",
+ *      indexes={
+ *          @ORM\Index(name="fk_RoomFixed_roomId_idx", columns={"roomId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class RoomFixed
@@ -34,7 +39,7 @@ class RoomFixed
      *
      * @Serializer\Groups({"main"})
      */
-    private $roomId;
+    private $room;
 
     /**
      * @var integer
@@ -65,26 +70,26 @@ class RoomFixed
     }
 
     /**
-     * Set roomId
+     * Set RoomS
      *
-     * @param  integer   $roomId
+     * @param  Room   $room
      * @return RoomFixed
      */
-    public function setRoomId($roomId)
+    public function setRoom($room)
     {
-        $this->roomId = $roomId;
+        $this->room = $room;
 
         return $this;
     }
 
     /**
-     * Get roomId
+     * Get Room
      *
-     * @return integer
+     * @return Room
      */
-    public function getRoomId()
+    public function getRoom()
     {
-        return $this->roomId;
+        return $this->room;
     }
 
     /**

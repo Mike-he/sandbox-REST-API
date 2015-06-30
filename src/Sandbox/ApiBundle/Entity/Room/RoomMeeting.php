@@ -50,16 +50,6 @@ class RoomMeeting
     private $endHour;
 
     /**
-     * Get roomId
-     *
-     * @return integer
-     */
-    public function getRoomId()
-    {
-        return $this->roomId;
-    }
-
-    /**
      * Set startHour
      *
      * @param  \DateTime   $startHour

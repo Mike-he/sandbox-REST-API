@@ -19,7 +19,6 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Symfony\Component\Validator\Tests\Fixtures\Entity;
 
 /**
  * Admin room controller
@@ -325,7 +324,7 @@ class AdminRoomController extends RoomController
      * Add room type data
      *
      * @param EntityManager $em
-     * @param Room $room
+     * @param Room          $room
      * @internal param $id
      * @internal param $type
      * @internal param $meeting
@@ -360,15 +359,14 @@ class AdminRoomController extends RoomController
                 $em->flush();
                 break;
             case 'fixed':
-                //TODO
-//                foreach ($roomsFixed as $fixed) {
-//                    $roomFixed = new RoomFixed();
-//                    $roomFixed->setRoomId($room->getId());
-//                    $roomFixed->setSeatNumber($fixed['seat_number']);
-//                    $roomFixed->setAvailable($fixed['available']);
-//                    $em->persist($roomFixed);
-//                    $em->flush();
-//                }
+                foreach ($roomsFixed as $fixed) {
+                    $roomFixed = new RoomFixed();
+                    $roomFixed->setRoom($room);
+                    $roomFixed->setSeatNumber($fixed['seat_number']);
+                    $roomFixed->setAvailable($fixed['available']);
+                    $em->persist($roomFixed);
+                    $em->flush();
+                }
             break;
             default:
                 /* Do nothing */
@@ -379,7 +377,7 @@ class AdminRoomController extends RoomController
     /**
      * Get filters from rooms get request
      *
-     * @param $paramFetcher
+     * @param ParamFetcherInterface $paramFetcher
      * @return array
      */
     private function getFilters(

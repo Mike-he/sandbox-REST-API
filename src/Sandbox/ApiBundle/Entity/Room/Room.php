@@ -166,7 +166,11 @@ class Room
     /**
      * @var RoomFixed
      *
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFixed", mappedBy="roomId")
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFixed",
+     *      mappedBy="roomId",
+     *      cascade={"persist"}
+     * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      *
      * @Serializer\Groups({"main", "admin_room"})
@@ -518,7 +522,7 @@ class Room
     /**
      * Get fixed
      *
-     * @return mixed
+     * @return RoomFixed
      */
     public function getFixed()
     {
@@ -528,8 +532,8 @@ class Room
     /**
      * Set fixed
      *
-     * @param  mixed $fixed
-     * @return $this
+     * @param  RoomFixed $fixed
+     * @return Room
      */
     public function setFixed($fixed)
     {
