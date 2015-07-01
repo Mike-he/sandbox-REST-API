@@ -289,7 +289,7 @@ class AdminRoomController extends RoomController
      * Save attachment to db
      *
      * @param EntityManager $em
-     * @param Room $room
+     * @param Room          $room
      * @param $attachments_id
      */
     private function addRoomAttachment(
@@ -363,7 +363,7 @@ class AdminRoomController extends RoomController
     /**
      * Get filters from rooms get request
      *
-     * @param ParamFetcherInterface $paramFetcher
+     * @param  ParamFetcherInterface $paramFetcher
      * @return array
      */
     private function getFilters(

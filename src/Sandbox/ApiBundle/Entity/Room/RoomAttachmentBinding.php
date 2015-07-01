@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomAttachmentBinding
@@ -23,6 +24,8 @@ class RoomAttachmentBinding
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -33,6 +36,8 @@ class RoomAttachmentBinding
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $room;
 
@@ -40,9 +45,10 @@ class RoomAttachmentBinding
      * @var integer
      *
      * @ORM\Column(name="attachmentId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $attachmentId;
-
 
     /**
      * Get id
@@ -57,7 +63,7 @@ class RoomAttachmentBinding
     /**
      * Set attachmentId
      *
-     * @param integer $attachmentId
+     * @param  integer               $attachmentId
      * @return RoomAttachmentBinding
      */
     public function setAttachmentId($attachmentId)
@@ -80,7 +86,7 @@ class RoomAttachmentBinding
     /**
      * Set room
      *
-     * @param Room $room
+     * @param  Room                  $room
      * @return RoomAttachmentBinding
      */
     public function setRoom($room)

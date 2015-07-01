@@ -19,9 +19,19 @@ use JMS\Serializer\Annotation as Serializer;
 class RoomMeeting
 {
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $id;
+
+    /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\Id
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="meeting")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
@@ -48,6 +58,16 @@ class RoomMeeting
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $endHour;
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * Set startHour

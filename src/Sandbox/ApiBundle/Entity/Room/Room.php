@@ -149,26 +149,26 @@ class Room
      **/
     private $officeSupplies;
 
-    /**
-     * @var RoomMeeting
-     *
-     * @ORM\OneToOne(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting",
-     *      mappedBy="roomId",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
-     *
-     * @Serializer\Groups({"main", "admin_room"})
-     */
-    private $meeting;
+//    /**
+//     * @var RoomMeeting
+//     *
+//     * @ORM\OneToOne(
+//     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting",
+//     *      mappedBy="room",
+//     *      cascade={"persist"}
+//     * )
+//     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+//     *
+//     * @Serializer\Groups({"main", "admin_room"})
+//     */
+//    private $meeting;
 
     /**
      * @var RoomFixed
      *
      * @ORM\OneToMany(
      *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFixed",
-     *      mappedBy="roomId",
+     *      mappedBy="room",
      *      cascade={"persist"}
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
@@ -206,9 +206,18 @@ class Room
     private $modificationDate;
 
     /**
-     * @var integer
+     * @var RoomAttachmentBinding
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding",
+     *      mappedBy="room",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
-    private $attachmentId;
+    private $attachment;
 
     /**
      * Get id
@@ -496,28 +505,28 @@ class Room
         return $this->modificationDate;
     }
 
-    /**
-     * Get meeting
-     *
-     * @return RoomMeeting
-     */
-    public function getMeeting()
-    {
-        return $this->meeting;
-    }
-
-    /**
-     * Set meeting
-     *
-     * @param  RoomMeeting $meeting
-     * @return Room
-     */
-    public function setMeeting($meeting)
-    {
-        $this->meeting = $meeting;
-
-        return $this;
-    }
+//    /**
+//     * Get meeting
+//     *
+//     * @return RoomMeeting
+//     */
+//    public function getMeeting()
+//    {
+//        return $this->meeting;
+//    }
+//
+//    /**
+//     * Set meeting
+//     *
+//     * @param  RoomMeeting $meeting
+//     * @return Room
+//     */
+//    public function setMeeting($meeting)
+//    {
+//        $this->meeting = $meeting;
+//
+//        return $this;
+//    }
 
     /**
      * Get fixed
@@ -583,20 +592,20 @@ class Room
     }
 
     /**
-     * @return integer
+     * @return RoomAttachmentBinding
      */
-    public function getAttachmentId()
+    public function getAttachment()
     {
-        return $this->attachmentId;
+        return $this->attachment;
     }
 
     /**
-     * @param  integer $attachmentId
+     * @param  RoomAttachmentBinding $attachment
      * @return Room
      */
-    public function setAttachmentId($attachmentId)
+    public function setAttachment($attachment)
     {
-        $this->attachmentId = $attachmentId;
+        $this->attachment = $attachment;
 
         return $this;
     }

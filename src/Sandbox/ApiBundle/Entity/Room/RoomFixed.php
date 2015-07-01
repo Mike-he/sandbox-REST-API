@@ -72,7 +72,7 @@ class RoomFixed
     /**
      * Set RoomS
      *
-     * @param  Room   $room
+     * @param  Room      $room
      * @return RoomFixed
      */
     public function setRoom($room)
