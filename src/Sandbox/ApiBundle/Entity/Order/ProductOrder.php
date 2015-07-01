@@ -100,6 +100,14 @@ class ProductOrder
     private $modificationDate;
 
     /**
+     * @var InvitedPeople
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Order\InvitedPeople", mappedBy="orderId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
+     */
+    private $invitedPeople;
+
+    /**
      * Get id.
      *
      * @return int
@@ -371,5 +379,29 @@ class ProductOrder
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Set invitedPeople.
+     *
+     * @param InvitedPeople $invitedPeople
+     *
+     * @return ProductOrder
+     */
+    public function setInvitedPeople($invitedPeople)
+    {
+        $this->invitedPeople = $invitedPeople;
+
+        return $this;
+    }
+
+    /**
+     * Get invitedPeople.
+     *
+     * @return InvitedPeople
+     */
+    public function getInvitedPeople()
+    {
+        return $this->invitedPeople;
     }
 }

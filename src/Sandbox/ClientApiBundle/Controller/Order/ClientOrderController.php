@@ -3,16 +3,17 @@
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
-use Sandbox\ApiBundle\Form\Order\ChannelType;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -149,6 +150,10 @@ class ClientOrderController extends PaymentController
         return $view;
     }
 
+    /**
+     * @param $chargeId
+     * @param $orderId
+     */
     private function setChargeForProductOrder($chargeId, $orderId)
     {
         $map = $this->getRepo('Order\OrderMap')->findOneBy(
@@ -163,6 +168,11 @@ class ClientOrderController extends PaymentController
         $em->flush();
     }
 
+    /**
+     * @param $order
+     *
+     * @return OrderMap
+     */
     private function createOrderMap($order)
     {
         $map = new OrderMap();
@@ -190,14 +200,7 @@ class ClientOrderController extends PaymentController
             throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
         }
 
-        $form = $this->createForm(new ChannelType(), null);
-        $form->handleRequest($request);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_REQUEST);
-        }
-
-        $channel = $form['channel']->getData();
+        $channel = $request->get('channel');
         if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap') {
             throw new BadRequestHttpException(self::WRONG_CHANNEL);
         }
@@ -243,5 +246,63 @@ class ClientOrderController extends PaymentController
         }
 
         return new View($refund);
+    }
+
+    /**
+     * @Post("/orders/{id}/people/add")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function addPeopleAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        $status = $order->getStatus();
+        $endDate = $order->getEndDate();
+        $now = new \DateTime();
+        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
+            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+        }
+        $users = json_decode($request->getContent(), true);
+        foreach ($users as $user) {
+            $people = new InvitedPeople();
+            $people->setOrderId($order);
+            $people->setUserId($user['user_id']);
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($people);
+            $em->flush();
+        }
+    }
+
+    /**
+     * @Delete("/orders/{id}/people/delete")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function deletePeopleAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        $status = $order->getStatus();
+        $endDate = $order->getEndDate();
+        $now = new \DateTime();
+        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
+            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+        }
+        $userId = $request->get('user_id');
+        $people = $this->getRepo('Order\InvitedPeople')->findOneBy(
+            [
+                'userId' => $userId,
+                'orderId' => $id,
+            ]
+        );
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($people);
+        $em->flush();
     }
 }
