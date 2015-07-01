@@ -3,7 +3,6 @@
 namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Doctrine\ORM\EntityManager;
-use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
@@ -13,7 +12,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use Sandbox\ApiBundle\Controller\Room\RoomController;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
@@ -22,20 +20,21 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 
 /**
- * Admin room controller
+ * Admin room controller.
  *
  * @category Sandbox
- * @package  Sandbox\ClientApiBundle\Controller
+ *
  * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class AdminRoomController extends RoomController
 {
-    const ALREADY_EXISTS_MESSAGE = "This resource already exists";
+    const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
 
     /**
-     * Room
+     * Room.
      *
      * @param Request $request the request object
      *
@@ -79,6 +78,7 @@ class AdminRoomController extends RoomController
      * @Method({"GET"})
      *
      * @return View
+     *
      * @throws \Exception
      */
     public function getRoomsAction(
@@ -104,7 +104,7 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * Get room by id
+     * Get room by id.
      *
      * @param Request $request
      *
@@ -141,7 +141,7 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * Room
+     * Room.
      *
      * @param Request $request the request object
      *
@@ -156,6 +156,7 @@ class AdminRoomController extends RoomController
      * @Method({"POST"})
      *
      * @return View
+     *
      * @throws \Exception
      */
     public function postRoomAction(
@@ -183,7 +184,7 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * Delete a Room
+     * Delete a Room.
      *
      * @param Request $request the request object
      *
@@ -198,6 +199,7 @@ class AdminRoomController extends RoomController
      * @Method({"DELETE"})
      *
      * @return View
+     *
      * @throws \Exception
      */
     public function deleteRoomAction(
@@ -213,9 +215,10 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * @param  Room        $room
-     * @param  RoomMeeting $meeting
-     * @param  RoomFixed   $roomsFixed
+     * @param Room        $room
+     * @param RoomMeeting $meeting
+     * @param RoomFixed   $roomsFixed
+     *
      * @return View
      */
     private function handleRoomPost(
@@ -250,7 +253,7 @@ class AdminRoomController extends RoomController
             throw new BadRequestHttpException('City, Building or Floor cannot be null');
         }
 
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $room->setCreationDate($now);
         $room->setModificationDate($now);
         $room->setCity($roomCity);
@@ -279,14 +282,14 @@ class AdminRoomController extends RoomController
         //TODO Add office supplies - TBD
 
         $response = array(
-            "id" => $room->getId(),
+            'id' => $room->getId(),
         );
 
         return new View($response);
     }
 
     /**
-     * Save attachment to db
+     * Save attachment to db.
      *
      * @param EntityManager $em
      * @param Room          $room
@@ -307,10 +310,11 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * Add room type data
+     * Add room type data.
      *
      * @param EntityManager $em
      * @param Room          $room
+     *
      * @internal param $id
      * @internal param $type
      * @internal param $meeting
@@ -361,9 +365,10 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * Get filters from rooms get request
+     * Get filters from rooms get request.
      *
-     * @param  ParamFetcherInterface $paramFetcher
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @return array
      */
     private function getFilters(

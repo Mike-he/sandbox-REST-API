@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * AdminType
+ * AdminType.
  *
  * @ORM\Table(
  *      name="AdminType",
@@ -17,7 +17,7 @@ use JMS\Serializer\Annotation as Serializer;
 class AdminType
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -59,9 +59,9 @@ class AdminType
     private $modificationDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -69,9 +69,10 @@ class AdminType
     }
 
     /**
-     * Set key
+     * Set key.
      *
-     * @param  string    $key
+     * @param string $key
+     *
      * @return AdminType
      */
     public function setKey($key)
@@ -82,7 +83,7 @@ class AdminType
     }
 
     /**
-     * Get key
+     * Get key.
      *
      * @return string
      */
@@ -92,9 +93,10 @@ class AdminType
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string    $name
+     * @param string $name
+     *
      * @return AdminType
      */
     public function setName($name)
@@ -105,7 +107,7 @@ class AdminType
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -115,9 +117,10 @@ class AdminType
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return AdminType
      */
     public function setCreationDate($creationDate)
@@ -128,7 +131,7 @@ class AdminType
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -138,9 +141,10 @@ class AdminType
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return AdminType
      */
     public function setModificationDate($modificationDate)
@@ -151,7 +155,7 @@ class AdminType
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */

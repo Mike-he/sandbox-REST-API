@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Sandbox\ApiBundle\Entity\User\User;
 
 /**
- * ClientApiAuth
+ * ClientApiAuth.
  *
  * @ORM\Table(
  *      name="ClientApiAuthView",
@@ -19,7 +19,7 @@ use Sandbox\ApiBundle\Entity\User\User;
 class ClientApiAuth implements UserInterface
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -35,14 +35,14 @@ class ClientApiAuth implements UserInterface
     private $token;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="clientId", type="integer", nullable=true)
      */
     private $clientId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=true)
      */
@@ -57,9 +57,9 @@ class ClientApiAuth implements UserInterface
     private $myUser;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -67,7 +67,7 @@ class ClientApiAuth implements UserInterface
     }
 
     /**
-     * Get token
+     * Get token.
      *
      * @return string
      */
@@ -77,9 +77,9 @@ class ClientApiAuth implements UserInterface
     }
 
     /**
-     * Get clientId
+     * Get clientId.
      *
-     * @return integer
+     * @return int
      */
     public function getClientId()
     {
@@ -87,9 +87,9 @@ class ClientApiAuth implements UserInterface
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer
+     * @return int
      */
     public function getUserId()
     {
@@ -97,7 +97,7 @@ class ClientApiAuth implements UserInterface
     }
 
     /**
-     * Get myUser
+     * Get myUser.
      *
      * @return User
      */

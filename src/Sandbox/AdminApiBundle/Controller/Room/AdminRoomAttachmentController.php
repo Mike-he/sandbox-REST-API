@@ -10,23 +10,23 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
 
 /**
- * Admin Room attachment controller
+ * Admin Room attachment controller.
  *
  * @category Sandbox
- * @package  Sandbox\ClientApiBundle\Controller
+ *
  * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class AdminRoomAttachmentController extends RoomAttachmentController
 {
     /**
-     * Get attachments
+     * Get attachments.
      *
      * @param Request $request
      *
@@ -54,7 +54,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
     }
 
     /**
-     * Get an attachment
+     * Get an attachment.
      *
      * @param Request $request
      *
@@ -83,7 +83,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
     }
 
     /**
-     * Add an attachment
+     * Add an attachment.
      *
      * @param Request $request
      *
@@ -118,14 +118,14 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         $em->flush();
 
         $response = array(
-            "id" => $attachment->getId(),
+            'id' => $attachment->getId(),
         );
 
         return new View($response);
     }
 
     /**
-     * Delete an attachment
+     * Delete an attachment.
      *
      * @param Request $request the request object
      *
@@ -140,6 +140,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
      * @Method({"DELETE"})
      *
      * @return View
+     *
      * @throws \Exception
      */
     public function deleteAttachmentAction(

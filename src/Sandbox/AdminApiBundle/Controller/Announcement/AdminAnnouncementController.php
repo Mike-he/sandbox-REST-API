@@ -10,25 +10,24 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Acl\Exception\Exception;
-use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 
 /**
- * Announcement controller
+ * Announcement controller.
  *
  * @category Sandbox
- * @package  Sandbox\AdminApiBundle\Controller
+ *
  * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class AdminAnnouncementController extends AnnouncementController
 {
     /**
-     * Get announcements
+     * Get announcements.
      *
      * @param Request $request
      *
@@ -103,7 +102,7 @@ class AdminAnnouncementController extends AnnouncementController
     }
 
     /**
-     * Get announcement by id
+     * Get announcement by id.
      *
      * @param Request $request
      *
@@ -132,7 +131,7 @@ class AdminAnnouncementController extends AnnouncementController
     }
 
     /**
-     * Post announcement
+     * Post announcement.
      *
      * @param Request $request
      *
@@ -163,7 +162,7 @@ class AdminAnnouncementController extends AnnouncementController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $announcement->setCreationDate($now);
         $announcement->setModificationDate($now);
 
@@ -172,14 +171,14 @@ class AdminAnnouncementController extends AnnouncementController
         $em->flush();
 
         $response = array(
-            "id" => $announcement->getId(),
+            'id' => $announcement->getId(),
         );
 
         return new View($response);
     }
 
     /**
-     * Put announcement
+     * Put announcement.
      *
      * @param Request $request
      *
@@ -219,20 +218,20 @@ class AdminAnnouncementController extends AnnouncementController
 
         $announcement->setTitle($content['title']);
         $announcement->setDescription($content['description']);
-        $announcement->setModificationDate(new \DateTime("now"));
+        $announcement->setModificationDate(new \DateTime('now'));
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         $response = array(
-            "id" => $announcement->getId(),
+            'id' => $announcement->getId(),
         );
 
         return new View($response);
     }
 
     /**
-     * Delete an announcement
+     * Delete an announcement.
      *
      * @param Request $request the request object
      *
@@ -247,6 +246,7 @@ class AdminAnnouncementController extends AnnouncementController
      * @Method({"DELETE"})
      *
      * @return View
+     *
      * @throws \Exception
      */
     public function deleteAnnouncementAction(

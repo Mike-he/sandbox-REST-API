@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Feed;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * FeedComment
+ * FeedComment.
  *
  * @ORM\Table(name="ezFeedComment")
  * @ORM\Entity
@@ -50,7 +50,7 @@ class FeedComment
     private $creationdate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -60,9 +60,10 @@ class FeedComment
     }
 
     /**
-     * Set fid
+     * Set fid.
      *
-     * @param  int         $fid
+     * @param int $fid
+     *
      * @return FeedComment
      */
     public function setFid($fid)
@@ -73,7 +74,7 @@ class FeedComment
     }
 
     /**
-     * Get fid
+     * Get fid.
      *
      * @return int
      */
@@ -83,9 +84,10 @@ class FeedComment
     }
 
     /**
-     * Set authorid
+     * Set authorid.
      *
-     * @param  string      $authorid
+     * @param string $authorid
+     *
      * @return FeedComment
      */
     public function setAuthorid($authorid)
@@ -96,7 +98,7 @@ class FeedComment
     }
 
     /**
-     * Get authorid
+     * Get authorid.
      *
      * @return string
      */
@@ -106,9 +108,10 @@ class FeedComment
     }
 
     /**
-     * Set payload
+     * Set payload.
      *
-     * @param  string      $payload
+     * @param string $payload
+     *
      * @return FeedComment
      */
     public function setPayload($payload)
@@ -119,7 +122,7 @@ class FeedComment
     }
 
     /**
-     * Get payload
+     * Get payload.
      *
      * @return string
      */
@@ -129,9 +132,10 @@ class FeedComment
     }
 
     /**
-     * Set creationdate
+     * Set creationdate.
      *
-     * @param  string      $creationdate
+     * @param string $creationdate
+     *
      * @return FeedComment
      */
     public function setCreationdate($creationdate)
@@ -142,7 +146,7 @@ class FeedComment
     }
 
     /**
-     * Get creationdate
+     * Get creationdate.
      *
      * @return string
      */

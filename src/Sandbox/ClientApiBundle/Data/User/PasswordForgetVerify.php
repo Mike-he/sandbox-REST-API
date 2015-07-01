@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Password Forget Verify Incoming Data
+ * Password Forget Verify Incoming Data.
  */
 class PasswordForgetVerify
 {
@@ -23,9 +23,10 @@ class PasswordForgetVerify
     private $code;
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string               $email
+     * @param string $email
+     *
      * @return PasswordForgetVerify
      */
     public function setEmail($email)
@@ -36,7 +37,7 @@ class PasswordForgetVerify
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -46,9 +47,10 @@ class PasswordForgetVerify
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string               $phone
+     * @param string $phone
+     *
      * @return PasswordForgetVerify
      */
     public function setPhone($phone)
@@ -59,7 +61,7 @@ class PasswordForgetVerify
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -69,9 +71,10 @@ class PasswordForgetVerify
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string               $code
+     * @param string $code
+     *
      * @return PasswordForgetVerify
      */
     public function setCode($code)
@@ -82,7 +85,7 @@ class PasswordForgetVerify
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */

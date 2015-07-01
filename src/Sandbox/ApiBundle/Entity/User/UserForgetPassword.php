@@ -5,11 +5,10 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Forget password
+ * Forget password.
  *
  * @ORM\Table(name="ForgetPassword")
  * @ORM\Entity
- *
  */
 class UserForgetPassword
 {
@@ -79,7 +78,7 @@ class UserForgetPassword
     private $creationDate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -89,9 +88,10 @@ class UserForgetPassword
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param  string             $userId
+     * @param string $userId
+     *
      * @return UserForgetPassword
      */
     public function setUserId($userId)
@@ -102,7 +102,7 @@ class UserForgetPassword
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return string
      */
@@ -112,9 +112,10 @@ class UserForgetPassword
     }
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string             $email
+     * @param string $email
+     *
      * @return UserForgetPassword
      */
     public function setEmail($email)
@@ -125,7 +126,7 @@ class UserForgetPassword
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -135,9 +136,10 @@ class UserForgetPassword
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string                $phone
+     * @param string $phone
+     *
      * @return UserPhoneVerification
      */
     public function setPhone($phone)
@@ -148,7 +150,7 @@ class UserForgetPassword
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -158,9 +160,10 @@ class UserForgetPassword
     }
 
     /**
-     * Set token
+     * Set token.
      *
-     * @param  string             $token
+     * @param string $token
+     *
      * @return UserForgetPassword
      */
     public function setToken($token)
@@ -171,7 +174,7 @@ class UserForgetPassword
     }
 
     /**
-     * Get token
+     * Get token.
      *
      * @return string
      */
@@ -181,9 +184,10 @@ class UserForgetPassword
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string             $code
+     * @param string $code
+     *
      * @return UserForgetPassword
      */
     public function setCode($code)
@@ -194,7 +198,7 @@ class UserForgetPassword
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */
@@ -204,9 +208,10 @@ class UserForgetPassword
     }
 
     /**
-     * Set status
+     * Set status.
      *
-     * @param  string             $status
+     * @param string $status
+     *
      * @return UserForgetPassword
      */
     public function setStatus($status)
@@ -217,7 +222,7 @@ class UserForgetPassword
     }
 
     /**
-     * Get status
+     * Get status.
      *
      * @return string
      */
@@ -227,9 +232,10 @@ class UserForgetPassword
     }
 
     /**
-     * Set type
+     * Set type.
      *
-     * @param  string             $type
+     * @param string $type
+     *
      * @return UserForgetPassword
      */
     public function setType($type)
@@ -240,7 +246,7 @@ class UserForgetPassword
     }
 
     /**
-     * Get type
+     * Get type.
      *
      * @return string
      */
@@ -250,7 +256,7 @@ class UserForgetPassword
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -260,9 +266,10 @@ class UserForgetPassword
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return User
      */
     public function setCreationDate($creationDate)
@@ -272,6 +279,6 @@ class UserForgetPassword
 
     public function __construct()
     {
-        $this->setCreationDate(new \DateTime("now"));
+        $this->setCreationDate(new \DateTime('now'));
     }
 }

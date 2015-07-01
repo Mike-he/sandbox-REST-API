@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Password Forget Reset Incoming Data
+ * Password Forget Reset Incoming Data.
  */
 class PasswordForgetReset
 {
@@ -18,9 +18,10 @@ class PasswordForgetReset
     private $password;
 
     /**
-     * Set token
+     * Set token.
      *
-     * @param  string              $token
+     * @param string $token
+     *
      * @return PasswordForgetReset
      */
     public function setToken($token)
@@ -31,7 +32,7 @@ class PasswordForgetReset
     }
 
     /**
-     * Get token
+     * Get token.
      *
      * @return string
      */
@@ -41,9 +42,10 @@ class PasswordForgetReset
     }
 
     /**
-     * Set password
+     * Set password.
      *
-     * @param  string              $password
+     * @param string $password
+     *
      * @return PasswordForgetReset
      */
     public function setPassword($password)
@@ -54,7 +56,7 @@ class PasswordForgetReset
     }
 
     /**
-     * Get password
+     * Get password.
      *
      * @return string
      */

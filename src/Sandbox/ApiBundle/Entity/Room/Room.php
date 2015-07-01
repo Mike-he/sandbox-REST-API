@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Room
+ * Room.
  *
  * @ORM\Table(
  *  name="Room",
@@ -23,7 +23,7 @@ use JMS\Serializer\Annotation as Serializer;
 class Room
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -52,7 +52,7 @@ class Room
     private $description;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="cityId", type="integer", nullable=false)
      *
@@ -71,7 +71,7 @@ class Room
     private $city;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=false)
      *
@@ -90,7 +90,7 @@ class Room
     private $building;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="floorId", type="integer", nullable=false)
      *
@@ -118,7 +118,7 @@ class Room
     private $number;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="area", type="integer", nullable=false)
      *
@@ -136,7 +136,7 @@ class Room
     private $type;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
      *
@@ -220,9 +220,9 @@ class Room
     private $attachment;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -230,9 +230,10 @@ class Room
     }
 
     /**
-     * Set cityId
+     * Set cityId.
      *
      * @param $cityId
+     *
      * @return Room
      */
     public function setCityId($cityId)
@@ -243,9 +244,9 @@ class Room
     }
 
     /**
-     * Get cityId
+     * Get cityId.
      *
-     * @return integer
+     * @return int
      */
     public function getCityId()
     {
@@ -253,9 +254,10 @@ class Room
     }
 
     /**
-     * Set buildingId
+     * Set buildingId.
      *
      * @param $buildingId
+     *
      * @return Room
      */
     public function setBuildingId($buildingId)
@@ -266,7 +268,7 @@ class Room
     }
 
     /**
-     * Get buildingId
+     * Get buildingId.
      *
      * @return int
      */
@@ -276,9 +278,10 @@ class Room
     }
 
     /**
-     * Set floorId
+     * Set floorId.
      *
-     * @param  integer $floorId
+     * @param int $floorId
+     *
      * @return Room
      */
     public function setFloorId($floorId)
@@ -289,9 +292,9 @@ class Room
     }
 
     /**
-     * Get floorId
+     * Get floorId.
      *
-     * @return integer
+     * @return int
      */
     public function getFloorId()
     {
@@ -299,9 +302,10 @@ class Room
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return Room
      */
     public function setName($name)
@@ -312,7 +316,7 @@ class Room
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -322,9 +326,10 @@ class Room
     }
 
     /**
-     * Set description
+     * Set description.
      *
-     * @param  string $description
+     * @param string $description
+     *
      * @return Room
      */
     public function setDescription($description)
@@ -335,7 +340,7 @@ class Room
     }
 
     /**
-     * Get description
+     * Get description.
      *
      * @return string
      */
@@ -345,9 +350,10 @@ class Room
     }
 
     /**
-     * Set number
+     * Set number.
      *
-     * @param  string $number
+     * @param string $number
+     *
      * @return Room
      */
     public function setNumber($number)
@@ -358,7 +364,7 @@ class Room
     }
 
     /**
-     * Get number
+     * Get number.
      *
      * @return string
      */
@@ -368,9 +374,10 @@ class Room
     }
 
     /**
-     * Set area
+     * Set area.
      *
-     * @param  integer $area
+     * @param int $area
+     *
      * @return Room
      */
     public function setArea($area)
@@ -381,9 +388,9 @@ class Room
     }
 
     /**
-     * Get area
+     * Get area.
      *
-     * @return integer
+     * @return int
      */
     public function getArea()
     {
@@ -391,7 +398,7 @@ class Room
     }
 
     /**
-     * Get allowed people
+     * Get allowed people.
      *
      * @return int
      */
@@ -401,9 +408,10 @@ class Room
     }
 
     /**
-     * set allowed people
+     * set allowed people.
      *
      * @param $allowedPeople
+     *
      * @return $this
      */
     public function setAllowedPeople($allowedPeople)
@@ -414,9 +422,10 @@ class Room
     }
 
     /**
-     * Set officeSupplies
+     * Set officeSupplies.
      *
-     * @param  integer $officeSupplies
+     * @param int $officeSupplies
+     *
      * @return Room
      */
     public function setOfficeSupplies($officeSupplies)
@@ -427,9 +436,9 @@ class Room
     }
 
     /**
-     * Get officeSupplies
+     * Get officeSupplies.
      *
-     * @return integer
+     * @return int
      */
     public function getOfficeSupplies()
     {
@@ -437,9 +446,10 @@ class Room
     }
 
     /**
-     * Set type
+     * Set type.
      *
-     * @param  string $type
+     * @param string $type
+     *
      * @return Room
      */
     public function setType($type)
@@ -450,7 +460,7 @@ class Room
     }
 
     /**
-     * Get type
+     * Get type.
      *
      * @return string
      */
@@ -460,9 +470,10 @@ class Room
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return Room
      */
     public function setCreationDate($creationDate)
@@ -473,7 +484,7 @@ class Room
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -483,9 +494,10 @@ class Room
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return Room
      */
     public function setModificationDate($modificationDate)
@@ -496,7 +508,7 @@ class Room
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */
@@ -529,7 +541,7 @@ class Room
 //    }
 
     /**
-     * Get fixed
+     * Get fixed.
      *
      * @return RoomFixed
      */
@@ -539,9 +551,10 @@ class Room
     }
 
     /**
-     * Set fixed
+     * Set fixed.
      *
-     * @param  RoomFixed $fixed
+     * @param RoomFixed $fixed
+     *
      * @return Room
      */
     public function setFixed($fixed)
@@ -552,7 +565,7 @@ class Room
     }
 
     /**
-     * Get city
+     * Get city.
      *
      * @return Room
      */
@@ -562,7 +575,7 @@ class Room
     }
 
     /**
-     * Get building
+     * Get building.
      *
      * @return Room
      */
@@ -572,7 +585,7 @@ class Room
     }
 
     /**
-     * Get floor
+     * Get floor.
      *
      * @return Room
      */
@@ -582,7 +595,7 @@ class Room
     }
 
     /**
-     * Get RoomRentedDate
+     * Get RoomRentedDate.
      *
      * @return RoomRentedDate
      */
@@ -600,7 +613,8 @@ class Room
     }
 
     /**
-     * @param  RoomAttachmentBinding $attachment
+     * @param RoomAttachmentBinding $attachment
+     *
      * @return Room
      */
     public function setAttachment($attachment)
@@ -611,9 +625,10 @@ class Room
     }
 
     /**
-     * Set floor
+     * Set floor.
      *
-     * @param  RoomFloor $floor
+     * @param RoomFloor $floor
+     *
      * @return Room
      */
     public function setFloor($floor)
@@ -624,9 +639,10 @@ class Room
     }
 
     /**
-     * Set city
+     * Set city.
      *
-     * @param  RoomCity $city
+     * @param RoomCity $city
+     *
      * @return Room
      */
     public function setCity($city)
@@ -637,9 +653,10 @@ class Room
     }
 
     /**
-     * Set building
+     * Set building.
      *
-     * @param  RoomBuilding $building
+     * @param RoomBuilding $building
+     *
      * @return Room
      */
     public function setBuilding($building)

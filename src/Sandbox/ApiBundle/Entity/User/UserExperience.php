@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User Experience
+ * User Experience.
  *
  * @ORM\Table(name="UserExperience")
  * @ORM\Entity(
@@ -183,7 +183,7 @@ class UserExperience
 
     public function __construct()
     {
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
     }

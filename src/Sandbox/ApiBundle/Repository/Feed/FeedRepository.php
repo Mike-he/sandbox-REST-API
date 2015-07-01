@@ -1,20 +1,21 @@
 <?php
+
 namespace Sandbox\ApiBundle\Repository\Feed;
 
 use Doctrine\ORM\EntityRepository;
 
 /**
- * Repository for feed
+ * Repository for feed.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class FeedRepository extends EntityRepository
 {
-
     /**
      * @param $companyID
      */

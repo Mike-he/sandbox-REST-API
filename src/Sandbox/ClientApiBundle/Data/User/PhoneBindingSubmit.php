@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Phone Binding Submit Incoming Data
+ * Phone Binding Submit Incoming Data.
  */
 class PhoneBindingSubmit
 {
@@ -13,9 +13,10 @@ class PhoneBindingSubmit
     private $phone;
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string             $phone
+     * @param string $phone
+     *
      * @return PhoneBindingSubmit
      */
     public function setPhone($phone)
@@ -26,7 +27,7 @@ class PhoneBindingSubmit
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */

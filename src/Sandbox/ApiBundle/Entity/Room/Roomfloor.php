@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomFloor
+ * RoomFloor.
  *
  * @ORM\Table(
  *      name="RoomFloor",
@@ -19,7 +19,7 @@ use JMS\Serializer\Annotation as Serializer;
 class Roomfloor
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -30,7 +30,7 @@ class Roomfloor
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=false)
      *
@@ -39,7 +39,7 @@ class Roomfloor
     private $buildingId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="floorNumber", type="integer", nullable=false)
      *
@@ -48,9 +48,9 @@ class Roomfloor
     private $floorNumber;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -58,9 +58,10 @@ class Roomfloor
     }
 
     /**
-     * Set buildingId
+     * Set buildingId.
      *
      * @param $buildingId
+     *
      * @return RoomFloor
      */
     public function setBuildingId($buildingId)
@@ -71,9 +72,9 @@ class Roomfloor
     }
 
     /**
-     * Get buildingId
+     * Get buildingId.
      *
-     * @return integer
+     * @return int
      */
     public function getBuildingId()
     {
@@ -81,9 +82,10 @@ class Roomfloor
     }
 
     /**
-     * Set floorNumber
+     * Set floorNumber.
      *
-     * @param  integer   $floorNumber
+     * @param int $floorNumber
+     *
      * @return RoomFloor
      */
     public function setFloorNumber($floorNumber)
@@ -94,9 +96,9 @@ class Roomfloor
     }
 
     /**
-     * Get floorNumber
+     * Get floorNumber.
      *
-     * @return integer
+     * @return int
      */
     public function getFloorNumber()
     {

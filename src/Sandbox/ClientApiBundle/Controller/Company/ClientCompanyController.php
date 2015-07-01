@@ -4,7 +4,6 @@ namespace Sandbox\ClientApiBundle\Controller\Company;
 
 use Sandbox\ApiBundle\Controller\Company\CompanyController;
 use Sandbox\ApiBundle\Entity\Company\Company;
-use Sandbox\ApiBundle\Entity\Company\Companymember;
 use Sandbox\ApiBundle\Form\Company\CompanyType;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,17 +14,18 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Rs\Json\Patch;
 
 /**
- * Rest controller for Companies
+ * Rest controller for Companies.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Allan SIMON <simona@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientCompanyController extends CompanyController
 {
-    const INTERNAL_SERVER_ERROR = "Internal server error";
+    const INTERNAL_SERVER_ERROR = 'Internal server error';
 
     const MEMBER_IS_NOT_DELETE = 0;
 
@@ -96,6 +96,7 @@ class ClientCompanyController extends CompanyController
      * )
      *
      * @return string
+     *
      * @throws BadRequestHttpException
      */
     public function postCompanyAction(
@@ -195,6 +196,7 @@ class ClientCompanyController extends CompanyController
      * )
      *
      * @return View
+     *
      * @throws BadRequestHttpException
      */
     public function patchCompanyAction(
@@ -311,6 +313,7 @@ class ClientCompanyController extends CompanyController
 
     /**
      * @param $companyId
+     *
      * @return CompanyAdmin
      */
     private function setCompanyAdmin(
@@ -334,6 +337,7 @@ class ClientCompanyController extends CompanyController
 
     /**
      * @param $companyId
+     *
      * @return array
      */
     private function getCompanyAdminCounts(
@@ -348,6 +352,7 @@ class ClientCompanyController extends CompanyController
 
     /**
      * @param $companyId
+     *
      * @return array
      */
     private function getGroupIdsFromCompany($companyId)
@@ -364,6 +369,7 @@ class ClientCompanyController extends CompanyController
 
     /**
      * @param $companyId
+     *
      * @return array
      */
     private function getGroupChatJIDsFromCompany($companyId)
@@ -388,8 +394,9 @@ class ClientCompanyController extends CompanyController
     }
 
     /**
-     * @param  Request $request
+     * @param Request $request
      * @param $JSONData
+     *
      * @return mixed
      */
     private function callApiDeleteAllGroupChats(
@@ -416,6 +423,7 @@ class ClientCompanyController extends CompanyController
 
     /**
      * @param $company
+     *
      * @throws InternalErrorException
      */
     private function deleteCompanyProcess($company)

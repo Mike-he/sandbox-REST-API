@@ -15,12 +15,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Acl\Exception\Exception;
 
 /**
- * Rest controller for members of companies
+ * Rest controller for members of companies.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Allan SIMON <simona@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientCompanyMemberController extends CompanyMemberController
@@ -29,12 +30,13 @@ class ClientCompanyMemberController extends CompanyMemberController
 
     /**
      * Get all the members of a company
-     * to know who is the owner, refers to /companies/{id}
+     * to know who is the owner, refers to /companies/{id}.
      *
      * @param Request $request contains request info
      * @param string  $id      id of the company
      *
      * @Get("/companies/{id}/members")
+     *
      * @return array
      */
     public function getMembersAction(
@@ -70,7 +72,9 @@ class ClientCompanyMemberController extends CompanyMemberController
      * )
      *
      * @Delete("/companies/{id}/members/{memberId}")
+     *
      * @return string
+     *
      * @throws BadRequestHttpException
      */
     public function deleteCompanyMemberAction(
@@ -125,6 +129,7 @@ class ClientCompanyMemberController extends CompanyMemberController
      * )
      *
      * @Delete("/companies/{id}/members")
+     *
      * @return View
      */
     public function deleteMultipleCompanyMembersAction(
@@ -179,7 +184,7 @@ class ClientCompanyMemberController extends CompanyMemberController
 
     /**
      * @param Request       $request
-     * @param integer       $companyID
+     * @param int           $companyID
      * @param Companymember $companyMember
      * @param $em
      */
@@ -277,8 +282,8 @@ class ClientCompanyMemberController extends CompanyMemberController
     }
 
     /**
-     * @param integer $companyID
-     * @param string  $userID
+     * @param int    $companyID
+     * @param string $userID
      * @param $em
      *
      * @return array
@@ -317,8 +322,8 @@ class ClientCompanyMemberController extends CompanyMemberController
     }
 
     /**
-     * @param integer $companyID
-     * @param string  $userID
+     * @param int    $companyID
+     * @param string $userID
      * @param $em
      *
      * @return array
@@ -331,7 +336,7 @@ class ClientCompanyMemberController extends CompanyMemberController
         $guestServiceJIDs = array();
 
         // get guest services
-        $guestMemberRepo =  $this->getRepo('GuestMember');
+        $guestMemberRepo = $this->getRepo('GuestMember');
         $guestServices = $this->getRepo('GuestView')->findAllWithCompanyAndAffiliation($companyID, $userID);
 
         foreach ($guestServices as $guestService) {
@@ -418,6 +423,7 @@ class ClientCompanyMemberController extends CompanyMemberController
 
     /**
      * @param $data
+     *
      * @return mixed
      */
     private function callOpenfireAPI($ch, $data, $token)
@@ -433,6 +439,7 @@ class ClientCompanyMemberController extends CompanyMemberController
 
     /**
      * @param $companyId
+     *
      * @return string
      */
     private function getCompanyAdminJID(

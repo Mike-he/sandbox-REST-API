@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: josh
  * Date: 5/5/15
- * Time: 3:11 PM
+ * Time: 3:11 PM.
  */
+
 namespace Sandbox\ApiBundle\Utils;
 
 class CurlUtil
@@ -14,6 +16,7 @@ class CurlUtil
      * @param $data
      * @param $auth
      * @param $method
+     *
      * @return mixed
      */
     public function callAPI(

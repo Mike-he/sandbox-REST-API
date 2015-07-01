@@ -16,18 +16,19 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 use JMS\Serializer\SerializationContext;
 
 /**
- * Login controller
+ * Login controller.
  *
  * @category Sandbox
- * @package  Sandbox\ClientApiBundle\Controller
+ *
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class AdminUserLoginController extends AdminLoginController
 {
     /**
-     * Login
+     * Login.
      *
      * @param Request $request the request object
      *
@@ -42,6 +43,7 @@ class AdminUserLoginController extends AdminLoginController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws \Exception
      */
     public function postAdminUserLoginAction(
@@ -56,9 +58,11 @@ class AdminUserLoginController extends AdminLoginController
     }
 
     /**
-     * @param  Request    $request
-     * @param  Admin      $admin
+     * @param Request $request
+     * @param Admin   $admin
+     *
      * @return View
+     *
      * @throws \Exception
      */
     private function handleAdminUserLogin(
@@ -101,7 +105,8 @@ class AdminUserLoginController extends AdminLoginController
     }
 
     /**
-     * @param  Request     $request
+     * @param Request $request
+     *
      * @return AdminClient
      */
     private function saveAdminClient(
@@ -110,7 +115,7 @@ class AdminUserLoginController extends AdminLoginController
         $adminClient = new AdminClient();
 
         // set creation date for new object
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $adminClient->setCreationDate($now);
 
         // get admin client if exist
@@ -126,8 +131,9 @@ class AdminUserLoginController extends AdminLoginController
     }
 
     /**
-     * @param  Request     $request
-     * @param  AdminClient $adminClient
+     * @param Request     $request
+     * @param AdminClient $adminClient
+     *
      * @return AdminClient
      */
     private function getAdminClientIfExist(
@@ -168,8 +174,9 @@ class AdminUserLoginController extends AdminLoginController
     }
 
     /**
-     * @param  Admin       $admin
-     * @param  AdminClient $adminClient
+     * @param Admin       $admin
+     * @param AdminClient $adminClient
+     *
      * @return AdminToken
      */
     private function saveAdminToken(
@@ -189,13 +196,14 @@ class AdminUserLoginController extends AdminLoginController
         }
 
         // refresh creation date
-        $adminToken->setCreationDate(new \DateTime("now"));
+        $adminToken->setCreationDate(new \DateTime('now'));
 
         return $adminToken;
     }
 
     /**
-     * @param  Admin $admin
+     * @param Admin $admin
+     *
      * @return array
      */
     private function getAdminPermissions(

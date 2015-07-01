@@ -5,11 +5,10 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Phone verification
+ * Phone verification.
  *
  * @ORM\Table(name="PhoneVerification")
  * @ORM\Entity
- *
  */
 class UserPhoneVerification
 {
@@ -51,7 +50,7 @@ class UserPhoneVerification
     private $creationDate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -61,9 +60,10 @@ class UserPhoneVerification
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param  string                $userId
+     * @param string $userId
+     *
      * @return UserPhoneVerification
      */
     public function setUserId($userId)
@@ -74,7 +74,7 @@ class UserPhoneVerification
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return string
      */
@@ -84,9 +84,10 @@ class UserPhoneVerification
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string                $phone
+     * @param string $phone
+     *
      * @return UserPhoneVerification
      */
     public function setPhone($phone)
@@ -97,7 +98,7 @@ class UserPhoneVerification
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -107,9 +108,10 @@ class UserPhoneVerification
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string                $code
+     * @param string $code
+     *
      * @return UserPhoneVerification
      */
     public function setCode($code)
@@ -120,7 +122,7 @@ class UserPhoneVerification
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */
@@ -130,7 +132,7 @@ class UserPhoneVerification
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -140,9 +142,10 @@ class UserPhoneVerification
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return User
      */
     public function setCreationDate($creationDate)
@@ -152,6 +155,6 @@ class UserPhoneVerification
 
     public function __construct()
     {
-        $this->setCreationDate(new \DateTime("now"));
+        $this->setCreationDate(new \DateTime('now'));
     }
 }

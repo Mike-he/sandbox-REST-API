@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * UserToken
+ * UserToken.
  *
  * @ORM\Table(
  *      name="UserToken",
@@ -24,7 +24,7 @@ use JMS\Serializer\Annotation as Serializer;
 class UserToken
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -34,7 +34,7 @@ class UserToken
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      * @Serializer\Groups({"main", "login"})
@@ -42,7 +42,7 @@ class UserToken
     private $userId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="clientId", type="integer", nullable=false)
      * @Serializer\Groups({"main", "login"})
@@ -66,7 +66,7 @@ class UserToken
     private $creationDate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -76,9 +76,9 @@ class UserToken
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer
+     * @return int
      */
     public function getUserId()
     {
@@ -86,9 +86,10 @@ class UserToken
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param  integer   $userId
+     * @param int $userId
+     *
      * @return UserToken
      */
     public function setUserId($userId)
@@ -97,9 +98,9 @@ class UserToken
     }
 
     /**
-     * Get clientId
+     * Get clientId.
      *
-     * @return integer
+     * @return int
      */
     public function getClientId()
     {
@@ -107,9 +108,10 @@ class UserToken
     }
 
     /**
-     * Set clientId
+     * Set clientId.
      *
-     * @param  integer   $clientId
+     * @param int $clientId
+     *
      * @return UserToken
      */
     public function setClientId($clientId)
@@ -118,7 +120,7 @@ class UserToken
     }
 
     /**
-     * Get token
+     * Get token.
      *
      * @return string
      */
@@ -128,9 +130,10 @@ class UserToken
     }
 
     /**
-     * Set token
+     * Set token.
      *
-     * @param  string    $token
+     * @param string $token
+     *
      * @return UserToken
      */
     public function setToken($token)
@@ -139,7 +142,7 @@ class UserToken
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -149,9 +152,10 @@ class UserToken
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return UserToken
      */
     public function setCreationDate($creationDate)

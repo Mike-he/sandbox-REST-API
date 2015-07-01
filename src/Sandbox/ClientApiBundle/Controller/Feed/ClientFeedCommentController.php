@@ -13,29 +13,31 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Manipulate the comments of a feed
+ * Manipulate the comments of a feed.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientFeedCommentController extends FeedCommentController
 {
-    const BAD_PARAM_MESSAGE = "Bad parameters";
+    const BAD_PARAM_MESSAGE = 'Bad parameters';
 
-    const NOT_FOUND_MESSAGE = "This resource does not exist";
+    const NOT_FOUND_MESSAGE = 'This resource does not exist';
 
-    const NOT_ALLOWED_MESSAGE = "You are not allowed to perform this action";
+    const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
 
     /**
-     * Get all the comments of a given feed
+     * Get all the comments of a given feed.
      *
      * @param Request $request contains request info
      * @param string  $id      id of the feed
      *
      * @Get("/feeds/{id}/comments")
+     *
      * @return array
      */
     public function getFeedCommentsAction(
@@ -60,7 +62,9 @@ class ClientFeedCommentController extends FeedCommentController
      * @param $id
      *
      * @Post("/feeds/{id}/comments")
+     *
      * @return View
+     *
      * @throws BadRequestHttpException
      */
     public function postFeedCommentAction(
@@ -120,7 +124,9 @@ class ClientFeedCommentController extends FeedCommentController
      * @param int     $commentId id of the comment
      *
      * @Delete("/feeds/{id}/comments/{commentId}")
+     *
      * @return View
+     *
      * @throws BadRequestHttpException
      */
     public function deleteFeedCommentAction(

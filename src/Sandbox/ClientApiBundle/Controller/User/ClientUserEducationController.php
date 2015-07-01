@@ -15,19 +15,20 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Rs\Json\Patch;
 
 /**
- * Rest controller for UserEducation
+ * Rest controller for UserEducation.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  * @Route("/profile")
  */
 class ClientUserEducationController extends UserProfileController
 {
     /**
-     * Get user's education
+     * Get user's education.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -64,6 +65,7 @@ class ClientUserEducationController extends UserProfileController
      *
      * @Route("/educations")
      * @Method({"POST"})
+     *
      * @return View
      */
     public function postUserEducationAction(
@@ -108,6 +110,7 @@ class ClientUserEducationController extends UserProfileController
      *
      * @Route("/educations/{id}")
      * @Method({"PATCH"})
+     *
      * @return View
      */
     public function patchUserEducationAction(
@@ -126,7 +129,7 @@ class ClientUserEducationController extends UserProfileController
         $form->submit(json_decode($userEducationJSON, true));
 
         if ($form->isValid()) {
-            $userEducation->setModificationDate(new \DateTime("now"));
+            $userEducation->setModificationDate(new \DateTime('now'));
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 

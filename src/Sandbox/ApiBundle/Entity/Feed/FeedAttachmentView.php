@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Feed;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * FeedAttachment
+ * FeedAttachment.
  *
  * @ORM\Table(name="ezFeedAttachment")
  * @ORM\Entity
@@ -70,7 +70,7 @@ class FeedAttachmentView
     private $feedview;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return string
      */
@@ -80,9 +80,10 @@ class FeedAttachmentView
     }
 
     /**
-     * Set content
+     * Set content.
      *
-     * @param  string           $content
+     * @param string $content
+     *
      * @return ezFeedAttachment
      */
     public function setContent($content)
@@ -93,7 +94,7 @@ class FeedAttachmentView
     }
 
     /**
-     * Get content
+     * Get content.
      *
      * @return string
      */
@@ -103,9 +104,10 @@ class FeedAttachmentView
     }
 
     /**
-     * Set attachmenttype
+     * Set attachmenttype.
      *
-     * @param  string           $attachmenttype
+     * @param string $attachmenttype
+     *
      * @return ezFeedAttachment
      */
     public function setAttachmenttype($attachmenttype)
@@ -116,7 +118,7 @@ class FeedAttachmentView
     }
 
     /**
-     * Get attachmenttype
+     * Get attachmenttype.
      *
      * @return string
      */
@@ -126,9 +128,10 @@ class FeedAttachmentView
     }
 
     /**
-     * Set filename
+     * Set filename.
      *
-     * @param  string           $filename
+     * @param string $filename
+     *
      * @return ezFeedAttachment
      */
     public function setFilename($filename)
@@ -139,7 +142,7 @@ class FeedAttachmentView
     }
 
     /**
-     * Get filename
+     * Get filename.
      *
      * @return string
      */
@@ -149,9 +152,10 @@ class FeedAttachmentView
     }
 
     /**
-     * Set preview
+     * Set preview.
      *
-     * @param  string           $preview
+     * @param string $preview
+     *
      * @return ezFeedAttachment
      */
     public function setPreview($preview)
@@ -162,7 +166,7 @@ class FeedAttachmentView
     }
 
     /**
-     * Get preview
+     * Get preview.
      *
      * @return string
      */
@@ -172,9 +176,10 @@ class FeedAttachmentView
     }
 
     /**
-     * Set size
+     * Set size.
      *
-     * @param  int              $size
+     * @param int $size
+     *
      * @return ezFeedAttachment
      */
     public function setSize($size)
@@ -185,7 +190,7 @@ class FeedAttachmentView
     }
 
     /**
-     * Get size
+     * Get size.
      *
      * @return int
      */
@@ -195,9 +200,10 @@ class FeedAttachmentView
     }
 
     /**
-     * Set fid
+     * Set fid.
      *
-     * @param  int              $fid
+     * @param int $fid
+     *
      * @return ezFeedAttachment
      */
     public function setFid($fid)
@@ -208,7 +214,7 @@ class FeedAttachmentView
     }
 
     /**
-     * Get fid
+     * Get fid.
      *
      * @return int
      */

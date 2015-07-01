@@ -6,6 +6,7 @@ trait StringUtil
 {
     /**
      * @param $length
+     *
      * @return null|string
      */
     public function randomKeys($length)
@@ -14,7 +15,7 @@ trait StringUtil
 
         $pattern = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLOMNOPQRSTUVWXYZ';
 
-        for ($i = 0; $i<$length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $key .= $pattern{mt_rand(0, 35)};
         }
 
@@ -50,6 +51,7 @@ trait StringUtil
     /**
      * @param $tag
      * @param $inthat
+     *
      * @return string
      */
     public function after(
@@ -57,13 +59,14 @@ trait StringUtil
         $inthat
     ) {
         if (!is_bool(strpos($inthat, $tag))) {
-            return substr($inthat, strpos($inthat, $tag)+strlen($tag));
+            return substr($inthat, strpos($inthat, $tag) + strlen($tag));
         }
     }
 
     /**
      * @param $tag
      * @param $inthat
+     *
      * @return string
      */
     public function before(
@@ -77,6 +80,7 @@ trait StringUtil
      * @param $begin
      * @param $end
      * @param $inthat
+     *
      * @return mixed
      */
     public function between(

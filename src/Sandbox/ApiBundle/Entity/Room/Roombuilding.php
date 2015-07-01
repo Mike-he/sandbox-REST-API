@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomBuilding
+ * RoomBuilding.
  *
  * @ORM\Table(
  *      name="RoomBuilding",
@@ -19,7 +19,7 @@ use JMS\Serializer\Annotation as Serializer;
 class Roombuilding
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -30,7 +30,7 @@ class Roombuilding
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="CityId", type="integer", nullable=false)
      *
@@ -48,9 +48,9 @@ class Roombuilding
     private $name;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -58,9 +58,10 @@ class Roombuilding
     }
 
     /**
-     * Set cityId
+     * Set cityId.
      *
      * @param  $cityId
+     *
      * @return RoomBuilding
      */
     public function setCityId($cityId)
@@ -71,9 +72,9 @@ class Roombuilding
     }
 
     /**
-     * Get cityId
+     * Get cityId.
      *
-     * @return integer
+     * @return int
      */
     public function getCityId()
     {
@@ -81,9 +82,10 @@ class Roombuilding
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string       $name
+     * @param string $name
+     *
      * @return RoomBuilding
      */
     public function setName($name)
@@ -94,7 +96,7 @@ class Roombuilding
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */

@@ -5,11 +5,10 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Email verification
+ * Email verification.
  *
  * @ORM\Table(name="EmailVerification")
  * @ORM\Entity
- *
  */
 class UserEmailVerification
 {
@@ -51,7 +50,7 @@ class UserEmailVerification
     private $creationDate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -61,9 +60,10 @@ class UserEmailVerification
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param  string                $userId
+     * @param string $userId
+     *
      * @return UserEmailVerification
      */
     public function setUserId($userId)
@@ -74,7 +74,7 @@ class UserEmailVerification
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return string
      */
@@ -84,9 +84,10 @@ class UserEmailVerification
     }
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string                $email
+     * @param string $email
+     *
      * @return UserEmailVerification
      */
     public function setEmail($email)
@@ -97,7 +98,7 @@ class UserEmailVerification
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -107,9 +108,10 @@ class UserEmailVerification
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string                $code
+     * @param string $code
+     *
      * @return UserEmailVerification
      */
     public function setCode($code)
@@ -120,7 +122,7 @@ class UserEmailVerification
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */
@@ -130,7 +132,7 @@ class UserEmailVerification
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -140,9 +142,10 @@ class UserEmailVerification
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return User
      */
     public function setCreationDate($creationDate)
@@ -152,6 +155,6 @@ class UserEmailVerification
 
     public function __construct()
     {
-        $this->setCreationDate(new \DateTime("now"));
+        $this->setCreationDate(new \DateTime('now'));
     }
 }

@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Feed;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Feed
+ * Feed.
  *
  * @ORM\Table(name="ezFeed")
  * @ORM\Entity(
@@ -61,7 +61,7 @@ class Feed
     private $attachments;
 
     /**
-     * Get feedid
+     * Get feedid.
      *
      * @return string
      */
@@ -71,9 +71,10 @@ class Feed
     }
 
     /**
-     * Set content
+     * Set content.
      *
-     * @param  string $content
+     * @param string $content
+     *
      * @return Feed
      */
     public function setContent($content)
@@ -84,7 +85,7 @@ class Feed
     }
 
     /**
-     * Get content
+     * Get content.
      *
      * @return string
      */
@@ -94,9 +95,10 @@ class Feed
     }
 
     /**
-     * Set parentid
+     * Set parentid.
      *
-     * @param  int  $parentid
+     * @param int $parentid
+     *
      * @return Feed
      */
     public function setParentid($parentid)
@@ -107,7 +109,7 @@ class Feed
     }
 
     /**
-     * Get parentid
+     * Get parentid.
      *
      * @return int
      */
@@ -117,9 +119,10 @@ class Feed
     }
 
     /**
-     * Set parenttype
+     * Set parenttype.
      *
-     * @param  string $parenttype
+     * @param string $parenttype
+     *
      * @return Feed
      */
     public function setParenttype($parenttype)
@@ -130,7 +133,7 @@ class Feed
     }
 
     /**
-     * Get parenttype
+     * Get parenttype.
      *
      * @return string
      */
@@ -140,9 +143,10 @@ class Feed
     }
 
     /**
-     * Set ownerid
+     * Set ownerid.
      *
-     * @param  string $ownerid
+     * @param string $ownerid
+     *
      * @return Feed
      */
     public function setOwnerid($ownerid)
@@ -153,7 +157,7 @@ class Feed
     }
 
     /**
-     * Get ownerid
+     * Get ownerid.
      *
      * @return string
      */
@@ -163,9 +167,10 @@ class Feed
     }
 
     /**
-     * Set creationdate
+     * Set creationdate.
      *
-     * @param  string $creationdate
+     * @param string $creationdate
+     *
      * @return Feed
      */
     public function setCreationdate($creationdate)
@@ -176,7 +181,7 @@ class Feed
     }
 
     /**
-     * Get creationdate
+     * Get creationdate.
      *
      * @return string
      */
@@ -186,9 +191,10 @@ class Feed
     }
 
     /**
-     * Set attachments
+     * Set attachments.
      *
-     * @param  string $attachments
+     * @param string $attachments
+     *
      * @return Feed
      */
     public function setAttachments($attachments)
@@ -199,7 +205,7 @@ class Feed
     }
 
     /**
-     * Get attachments
+     * Get attachments.
      *
      * @return string
      */
@@ -210,7 +216,7 @@ class Feed
 
     /**
      * Used for array deduplication/array diff
-     * hence why we only return the id
+     * hence why we only return the id.
      */
     public function __toString()
     {

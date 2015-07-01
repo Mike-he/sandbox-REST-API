@@ -18,12 +18,13 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Registration controller
+ * Registration controller.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  *
  * @Route("/register")
@@ -65,7 +66,7 @@ class ClientUserRegistrationController extends UserRegistrationController
     const PLUS_ONE_DAY = '+1 day';
 
     /**
-     * Registration submit
+     * Registration submit.
      *
      * @param Request $request the request object
      *
@@ -80,6 +81,7 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws \Exception
      */
     public function postRegisterSubmitAction(
@@ -98,7 +100,7 @@ class ClientUserRegistrationController extends UserRegistrationController
     }
 
     /**
-     * Registration verification
+     * Registration verification.
      *
      * @param Request $request the request object
      *
@@ -113,6 +115,7 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws \Exception
      */
     public function postRegisterVerifyAction(
@@ -198,7 +201,8 @@ class ClientUserRegistrationController extends UserRegistrationController
     }
 
     /**
-     * @param  RegisterVerify $verify
+     * @param RegisterVerify $verify
+     *
      * @return View
      */
     private function handleRegisterVerify(
@@ -230,7 +234,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         }
 
         // check token validation time
-        if (new \DateTime("now") > $registration->getCreationDate()->modify('+1 day')) {
+        if (new \DateTime('now') > $registration->getCreationDate()->modify('+1 day')) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE,
                 self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
@@ -247,11 +251,12 @@ class ClientUserRegistrationController extends UserRegistrationController
     }
 
     /**
-     * @param  string $email
-     * @param  string $phone
-     * @param  string $password
-     * @param  int    $registrationId
-     * @return User   User
+     * @param string $email
+     * @param string $phone
+     * @param string $password
+     * @param int    $registrationId
+     *
+     * @return User User
      */
     private function generateUser(
         $email,
@@ -278,8 +283,9 @@ class ClientUserRegistrationController extends UserRegistrationController
     }
 
     /**
-     * @param  string           $email
-     * @param  string           $phone
+     * @param string $email
+     * @param string $phone
+     *
      * @return UserRegistration UserRegistration
      */
     private function generateRegistration(
@@ -296,15 +302,16 @@ class ClientUserRegistrationController extends UserRegistrationController
             $registration->setEmail($email);
             $registration->setPhone($phone);
         }
-        $registration->setCreationDate(new \DateTime("now"));
+        $registration->setCreationDate(new \DateTime('now'));
         $registration->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
 
         return $registration;
     }
 
     /**
-     * @param  User  $user
+     * @param User $user
      * @param  int registrationId
+     *
      * @return mixed
      */
     private function createXmppUser(

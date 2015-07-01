@@ -18,12 +18,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Rest controller for UserProfile
+ * Rest controller for UserProfile.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientUserProfileController extends UserProfileController
@@ -107,6 +108,7 @@ class ClientUserProfileController extends UserProfileController
      *
      * @Route("/profile")
      * @Method({"POST"})
+     *
      * @return View
      */
     public function postProfileAction(
@@ -132,7 +134,8 @@ class ClientUserProfileController extends UserProfileController
     }
 
     /**
-     * @param  UserProfile $userProfile
+     * @param UserProfile $userProfile
+     *
      * @return View
      */
     private function handlePostUserProfile(
@@ -217,8 +220,9 @@ class ClientUserProfileController extends UserProfileController
     }
 
     /**
-     * @param  int            $userId
-     * @param  array          $userExperience
+     * @param int   $userId
+     * @param array $userExperience
+     *
      * @return UserExperience
      */
     private function generateUserExperienceEntity(
@@ -247,8 +251,9 @@ class ClientUserProfileController extends UserProfileController
     }
 
     /**
-     * @param  int           $userId
-     * @param  array         $userPortfolio
+     * @param int   $userId
+     * @param array $userPortfolio
+     *
      * @return UserPortfolio
      */
     private function generateUserPortfolioEntity(
@@ -287,8 +292,9 @@ class ClientUserProfileController extends UserProfileController
     }
 
     /**
-     * @param  int          $userId
-     * @param  array        $userHobby
+     * @param int   $userId
+     * @param array $userHobby
+     *
      * @return UserHobbyMap
      */
     private function generateUserHobbyMapEntity(

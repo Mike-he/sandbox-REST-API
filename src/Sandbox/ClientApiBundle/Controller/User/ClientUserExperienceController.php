@@ -15,12 +15,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Rs\Json\Patch;
 
 /**
- * Rest controller for UserExperience
+ * Rest controller for UserExperience.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  * @Route("/profile")
  */
@@ -64,6 +65,7 @@ class ClientUserExperienceController extends UserProfileController
      *
      * @Route("/experiences")
      * @Method({"POST"})
+     *
      * @return View
      */
     public function postUserExperienceAction(
@@ -108,6 +110,7 @@ class ClientUserExperienceController extends UserProfileController
      *
      * @Route("/experiences/{id}")
      * @Method({"PATCH"})
+     *
      * @return View
      */
     public function patchUserExperienceAction(
@@ -126,7 +129,7 @@ class ClientUserExperienceController extends UserProfileController
         $form->submit(json_decode($userExperienceJSON, true));
 
         if ($form->isValid()) {
-            $userExperience->setModificationDate(new \DateTime("now"));
+            $userExperience->setModificationDate(new \DateTime('now'));
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 

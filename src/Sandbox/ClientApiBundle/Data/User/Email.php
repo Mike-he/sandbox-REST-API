@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * email Incoming Data
+ * email Incoming Data.
  */
 class Email
 {
@@ -13,9 +13,10 @@ class Email
     private $email;
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string $email
+     * @param string $email
+     *
      * @return Email
      */
     public function setEmail($email)
@@ -26,7 +27,7 @@ class Email
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
