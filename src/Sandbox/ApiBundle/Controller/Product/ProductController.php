@@ -8,21 +8,22 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 
 /**
- * Product Controller
+ * Product Controller.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ProductController extends SandboxRestController
 {
-
     /**
      * @Get("/products")
      *
-     * @param  Request $request
+     * @param Request $request
+     *
      * @return View
      */
     public function getAllProductsAction(
@@ -36,8 +37,9 @@ class ProductController extends SandboxRestController
     /**
      * @Get("/products/{id}")
      *
-     * @param  Request $request
+     * @param Request $request
      * @param $id
+     *
      * @return View
      */
     public function getOneProductAction(

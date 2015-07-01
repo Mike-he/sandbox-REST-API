@@ -8,12 +8,13 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 
 /**
- * Order Controller
+ * Order Controller.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class OrderController extends SandboxRestController
@@ -21,13 +22,14 @@ class OrderController extends SandboxRestController
     /**
      * @Get("/orders")
      *
-     * @param  Request $request
+     * @param Request $request
+     *
      * @return View
      */
     public function getAllOrdersAction(
         Request $request
     ) {
-        $orders = $this->getRepo('Product\ProductOrder')->findAll();
+        $orders = $this->getRepo('Order\ProductOrder')->findAll();
 
         return new View($orders);
     }
@@ -35,14 +37,15 @@ class OrderController extends SandboxRestController
     /**
      * @Get("/orders/{id}")
      *
-     * @param  Request $request
+     * @param Request $request
+     *
      * @return View
      */
     public function getOneOrderAction(
         Request $request,
         $id
     ) {
-        $order = $this->getRepo('Product\ProductOrder')->find($id);
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
 
         return new View($order);
     }

@@ -12,3 +12,6 @@ parameters:
     locale: en
     secret: ae4f49befc969ff5feada55bcc88e3c0
     database_path: null
+    pingpp_test_key: sk_test_ifjLO8GWnzn9n9abXDqDeTqH
+    pingpp_live_key: sk_live_ic1rw45I839Q5jCJs56Fpm28
+    pingpp_app_id: app_OCqnLKmXfD0OH80a

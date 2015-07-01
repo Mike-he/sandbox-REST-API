@@ -35,6 +35,13 @@ class OrderType extends AbstractType
                 )
             )
             ->add('price')
+            ->add(
+                'channel',
+                'text',
+                array(
+                    'mapped' => false,
+                )
+            )
         ;
     }
 
@@ -44,7 +51,7 @@ class OrderType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Product\ProductOrder',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Order\ProductOrder',
         ));
     }
 

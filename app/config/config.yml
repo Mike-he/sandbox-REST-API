@@ -59,6 +59,9 @@ twig:
         sms_api_key: '9b9c8912a0efb8bb77e6'
         email_from_address: 'notification@ezlinx.cn'
         email_from_name: 'EasyLinks Notification'
+        pingpp_test_key: "%pingpp_test_key%"
+        pingpp_live_key: "%pingpp_live_key%"
+        pingpp_app_id: "%pingpp_app_id%"
 
 # Assetic Configuration
 assetic:
