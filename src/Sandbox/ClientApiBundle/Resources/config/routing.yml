@@ -111,3 +111,9 @@ sandbox_client_api_announcements:
     resource: "@SandboxClientApiBundle/Controller/Announcement/ClientAnnouncementController.php"
     type:     annotation
     prefix:   /
+
+# Payment /client/payment
+sandbox_client_api_payment:
+    resource: "@SandboxClientApiBundle/Controller/Payment/ClientPaymentController.php"
+    type:     annotation
+    prefix:   /

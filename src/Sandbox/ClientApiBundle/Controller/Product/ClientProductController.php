@@ -8,20 +8,20 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\View\View;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
- * Rest controller for Client Product
+ * Rest controller for Client Product.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientProductController extends ProductController
 {
-        /**
+    /**
          * @Get("/products")
          *
          * @Annotations\QueryParam(

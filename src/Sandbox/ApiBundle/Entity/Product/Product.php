@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Product
+ * Product.
  *
  * @ORM\Table(name="Product")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Product\ProductRepository")
@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Product
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -22,7 +22,7 @@ class Product
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="roomId", type="integer")
      */
@@ -44,7 +44,7 @@ class Product
     private $description;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="visibleUserId", type="integer")
      */
@@ -65,7 +65,7 @@ class Product
     private $unitPrice;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="private", type="boolean")
      */
@@ -86,9 +86,9 @@ class Product
     private $modificationDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -96,9 +96,10 @@ class Product
     }
 
     /**
-     * Set roomId
+     * Set roomId.
      *
-     * @param  integer $roomId
+     * @param int $roomId
+     *
      * @return Product
      */
     public function setRoomId($roomId)
@@ -109,9 +110,9 @@ class Product
     }
 
     /**
-     * Get roomId
+     * Get roomId.
      *
-     * @return integer
+     * @return int
      */
     public function getRoomId()
     {
@@ -119,7 +120,7 @@ class Product
     }
 
     /**
-     * Get room
+     * Get room.
      *
      * @return Room
      */
@@ -129,9 +130,10 @@ class Product
     }
 
     /**
-     * Set description
+     * Set description.
      *
-     * @param  string  $description
+     * @param string $description
+     *
      * @return Product
      */
     public function setDescription($description)
@@ -142,7 +144,7 @@ class Product
     }
 
     /**
-     * Get description
+     * Get description.
      *
      * @return string
      */
@@ -152,9 +154,10 @@ class Product
     }
 
     /**
-     * Set visibleUserId
+     * Set visibleUserId.
      *
-     * @param  integer $visibleUserId
+     * @param int $visibleUserId
+     *
      * @return Product
      */
     public function setVisibleUserId($visibleUserId)
@@ -165,9 +168,9 @@ class Product
     }
 
     /**
-     * Get visibleUserId
+     * Get visibleUserId.
      *
-     * @return integer
+     * @return int
      */
     public function getVisibleUserId()
     {
@@ -175,9 +178,10 @@ class Product
     }
 
     /**
-     * Set basePrice
+     * Set basePrice.
      *
-     * @param  string  $basePrice
+     * @param string $basePrice
+     *
      * @return Product
      */
     public function setBasePrice($basePrice)
@@ -188,7 +192,7 @@ class Product
     }
 
     /**
-     * Get basePrice
+     * Get basePrice.
      *
      * @return string
      */
@@ -198,9 +202,10 @@ class Product
     }
 
     /**
-     * Set unitPrice
+     * Set unitPrice.
      *
-     * @param  string  $unitPrice
+     * @param string $unitPrice
+     *
      * @return Product
      */
     public function setUnitPrice($unitPrice)
@@ -211,7 +216,7 @@ class Product
     }
 
     /**
-     * Get unitPrice
+     * Get unitPrice.
      *
      * @return string
      */
@@ -221,9 +226,10 @@ class Product
     }
 
     /**
-     * Set private
+     * Set private.
      *
-     * @param  boolean $private
+     * @param bool $private
+     *
      * @return Product
      */
     public function setPrivate($private)
@@ -234,9 +240,9 @@ class Product
     }
 
     /**
-     * Get private
+     * Get private.
      *
-     * @return boolean
+     * @return bool
      */
     public function getPrivate()
     {
@@ -244,9 +250,10 @@ class Product
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return Product
      */
     public function setCreationDate($creationDate)
@@ -257,7 +264,7 @@ class Product
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -267,9 +274,10 @@ class Product
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return Product
      */
     public function setModificationDate($modificationDate)
@@ -280,7 +288,7 @@ class Product
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */
