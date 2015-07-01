@@ -3,15 +3,14 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomAttachment
  *
  * @ORM\Table(
- *  name="RoomAttachment",
- *  indexes={
- *      @ORM\Index(name="fk_RoomAttachment_roomId_idx", columns={"roomId"})
- *  })
+ *      name="RoomAttachment"
+ * )
  * @ORM\Entity
  */
 class RoomAttachment
@@ -22,20 +21,17 @@ class RoomAttachment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $id;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="roomId", type="integer", nullable=false)
-     */
-    private $roomId;
 
     /**
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $content;
 
@@ -43,6 +39,8 @@ class RoomAttachment
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $attachmentType;
 
@@ -50,6 +48,8 @@ class RoomAttachment
      * @var string
      *
      * @ORM\Column(name="filename", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $filename;
 
@@ -57,6 +57,8 @@ class RoomAttachment
      * @var string
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $preview;
 
@@ -64,6 +66,8 @@ class RoomAttachment
      * @var integer
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $size;
 
@@ -75,29 +79,6 @@ class RoomAttachment
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set roomId
-     *
-     * @param  $roomId
-     * @return RoomAttachment
-     */
-    public function setRoomId($roomId)
-    {
-        $this->roomId = $roomId;
-
-        return $this;
-    }
-
-    /**
-     * Get roomId
-     *
-     * @return integer
-     */
-    public function getRoomId()
-    {
-        return $this->roomId;
     }
 
     /**

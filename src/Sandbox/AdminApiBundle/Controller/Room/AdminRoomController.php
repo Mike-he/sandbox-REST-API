@@ -2,8 +2,9 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Room;
 
+use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
-use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
 use Sandbox\ApiBundle\Form\Room\RoomType;
@@ -18,9 +19,10 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 
 /**
- * Login controller
+ * Admin room controller
  *
  * @category Sandbox
  * @package  Sandbox\ClientApiBundle\Controller
@@ -83,18 +85,22 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $allRooms = null;
-
         // get room
-        $repo = $this->getRepo('Room\Room');
+        $room = $this->getRepo('Room\Room');
 
         //filters
         $filters = $this->getFilters($paramFetcher);
 
         //find all with or without filters
-        $allRooms = is_null($filters) ? $allRooms = $repo->findAll() : $repo->findBy($filters);
+        $rooms = $room->findBy(
+            $filters
+        );
 
-        return $this->handleGetRooms($allRooms);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
+        $view->setData($rooms);
+
+        return $view;
     }
 
     /**
@@ -127,9 +133,11 @@ class AdminRoomController extends RoomController
             $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
         }
 
-        $result = $this->getRoomObject($room);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
+        $view->setData($room);
 
-        return new View($result);
+        return $view;
     }
 
     /**
@@ -153,7 +161,25 @@ class AdminRoomController extends RoomController
     public function postRoomAction(
         Request $request
     ) {
-        return $this->handleRoomPost($request);
+        $room = new Room();
+
+        $form = $this->createForm(new RoomType(), $room);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $meeting = $form['room_meeting']->getData();
+        $fixed = $form['room_fixed']->getData();
+        $attachments_id = $form['attachment_id']->getData();
+
+        return $this->handleRoomPost(
+            $room,
+            $meeting,
+            $fixed,
+            $attachments_id
+        );
     }
 
     /**
@@ -187,22 +213,17 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * @param  Request    $request
-     * @return array|View
+     * @param  Room        $room
+     * @param  RoomMeeting $meeting
+     * @param  RoomFixed   $roomsFixed
+     * @return View
      */
     private function handleRoomPost(
-        Request $request
+        $room,
+        $meeting,
+        $roomsFixed,
+        $attachments_id
     ) {
-        $room = new Room();
-
-        $form = $this->createForm(new RoomType(), $room);
-
-        $form->handleRequest($request);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
                 'buildingId' => $room->getBuildingId(),
                 'number' => $room->getNumber(),
@@ -218,25 +239,41 @@ class AdminRoomController extends RoomController
             );
         }
 
+        $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
+        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
+        $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
+
+        if (is_null($roomCity) ||
+            is_null($roomBuilding) ||
+            is_null($roomFloor)
+        ) {
+            throw new BadRequestHttpException('City, Building or Floor cannot be null');
+        }
+
         $now = new \DateTime("now");
         $room->setCreationDate($now);
         $room->setModificationDate($now);
+        $room->setCity($roomCity);
+        $room->setBuilding($roomBuilding);
+        $room->setFloor($roomFloor);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($room);
         $em->flush();
 
-        //Add attachment (limited to one)
+        //add attachments
         $this->addRoomAttachment(
             $em,
-            $room->getId(),
-            $room->getAttachments()
+            $room,
+            $attachments_id
         );
 
         //manage room types
         $this->addRoomTypeData(
             $em,
-            $room
+            $room,
+            $meeting,
+            $roomsFixed
         );
 
         //TODO Add office supplies - TBD
@@ -249,134 +286,31 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * Handle rooms
-     *
-     * @param $rooms
-     * @return View
-     */
-    private function handleGetRooms(
-        $rooms
-    ) {
-        $result = [];
-
-        foreach ($rooms as $room) {
-            $result[] = $this->getRoomObject($room);
-        }
-
-        return new View($result);
-    }
-
-    /**
-     * Create the room array
-     *
-     * @param $room
-     * @return array
-     */
-    private function getRoomObject(
-        $room
-    ) {
-        $city = $this->getRepo('Room\RoomCity')->find($room->getCityId());
-        $building = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
-        $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
-
-        $attachments =  $this->getRepo('Room\RoomAttachment')->findOneBy(array(
-            'roomId' => $room->getId(),
-        ));
-
-        $result = array(
-            'id' => $room->getId(),
-            'name' => $room->getName(),
-            'description' => $room->getDescription(),
-            'city' => $city->getName(),
-            'building' => $building->getName(),
-            'floor' => $floor->getFloorNumber(),
-            'number' => $room->getNumber(),
-            'allowed_people' => $room->getAllowedPeople(),
-            'area' => $room->getArea(),
-            //'office_supplies' => 'TODO', //TODO Add office supplies
-            'type' => $room->getType(),
-            //'available' => 'TODO',      //TODO Check availability
-            //'current_user_id' => 'TODO', //TODO Check User ID
-            'attachments' => $attachments,
-            'creation_date' => $room->getCreationDate(),
-            'modification_date' => $room->getModificationDate(),
-        );
-
-        switch ($room->getType()) {
-            case 'meeting':
-                $meeting =  $this->getRepo('Room\RoomMeeting')->findOneBy(array(
-                    'roomId' => $room->getId(),
-                ));
-
-                $result['meeting'] = $meeting;
-
-                break;
-            case 'fixed':
-                $fixed =  $this->getRepo('Room\RoomFixed')->findBy(array(
-                    'roomId' => $room->getId(),
-                ));
-
-                $result['fixed'] = $fixed;
-                break;
-            default:
-                /* Do nothing */
-                break;
-        }
-
-        return $result;
-    }
-
-    /**
      * Save attachment to db
      *
-     * @param $em
-     * @param $id
-     * @param $attachment
-     * @throws \Exception
-     * @internal param $room
-     * @internal param $attachment
+     * @param EntityManager $em
+     * @param Room          $room
+     * @param $attachments_id
      */
     private function addRoomAttachment(
         $em,
-        $id,
-        $attachment
+        $room,
+        $attachments_id
     ) {
-        try {
-            $content = $attachment['content'];
-            $attachmentType = $attachment['attachment_type'];
-            $filename = $attachment['filename'];
-            $preview = $attachment['preview'];
-            $size = $attachment['size'];
-
-            if (is_null($content) ||
-                $content === '' ||
-                is_null($attachmentType) ||
-                $attachmentType === '' ||
-                is_null($size) ||
-                $size === '') {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-
-            $roomAttachment = new RoomAttachment();
-            $roomAttachment->setRoomId($id);
-            $roomAttachment->setContent($content);
-            $roomAttachment->setAttachmenttype($attachmentType);
-            $roomAttachment->setFilename($filename);
-            $roomAttachment->setPreview($preview);
-            $roomAttachment->setSize($size);
-
+        foreach ($attachments_id as $attachment_id) {
+            $roomAttachment = new RoomAttachmentBinding();
+            $roomAttachment->setRoom($room);
+            $roomAttachment->setAttachmentId($attachment_id['id']);
             $em->persist($roomAttachment);
             $em->flush();
-        } catch (Exception $e) {
-            throw new \Exception('Something went wrong!');
         }
     }
 
     /**
      * Add room type data
      *
-     * @param $em
-     * @param $room
+     * @param EntityManager $em
+     * @param Room          $room
      * @internal param $id
      * @internal param $type
      * @internal param $meeting
@@ -384,12 +318,13 @@ class AdminRoomController extends RoomController
      */
     private function addRoomTypeData(
         $em,
-        $room
+        $room,
+        $meeting,
+        $roomsFixed
     ) {
         switch ($room->getType()) {
             case 'meeting':
                 $format = 'H:i:s';
-                $meeting = $room->getMeeting();
 
                 $start = \DateTime::createFromFormat(
                     $format,
@@ -402,7 +337,7 @@ class AdminRoomController extends RoomController
                 );
 
                 $roomMeeting = new RoomMeeting();
-                $roomMeeting->setRoomId($room->getId());
+                $roomMeeting->setRoom($room);
                 $roomMeeting->setStartHour($start);
                 $roomMeeting->setEndHour($end);
 
@@ -410,11 +345,9 @@ class AdminRoomController extends RoomController
                 $em->flush();
                 break;
             case 'fixed':
-                $roomsFixed = $room->getFixed();
-
                 foreach ($roomsFixed as $fixed) {
                     $roomFixed = new RoomFixed();
-                    $roomFixed->setRoomId($room->getId());
+                    $roomFixed->setRoom($room);
                     $roomFixed->setSeatNumber($fixed['seat_number']);
                     $roomFixed->setAvailable($fixed['available']);
                     $em->persist($roomFixed);
@@ -430,8 +363,8 @@ class AdminRoomController extends RoomController
     /**
      * Get filters from rooms get request
      *
-     * @param $paramFetcher
-     * @return null|array
+     * @param  ParamFetcherInterface $paramFetcher
+     * @return array
      */
     private function getFilters(
         $paramFetcher
@@ -454,6 +387,6 @@ class AdminRoomController extends RoomController
             $filters['buildingId'] = $building;
         }
 
-        return empty($filters) ? null : $filters;
+        return $filters;
     }
 }

@@ -4,7 +4,6 @@ CREATE TABLE `RoomMeeting` (
   `startHour` time DEFAULT NULL,
   `endHour` time DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `roomId_UNIQUE` (`roomId`),
   KEY `fk_RoomMeeting_roomId_idx` (`roomId`),
-  CONSTRAINT `fk_RoomMeeting_date_roomId` FOREIGN KEY (`roomId`) REFERENCES `Room` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `fk_RoomMeeting_roomId` FOREIGN KEY (`roomId`) REFERENCES `Room` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );

@@ -1,6 +1,6 @@
 CREATE TABLE `Room` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
   `description` text,
   `cityId` int(11) NOT NULL,
   `buildingId` int(11) NOT NULL,

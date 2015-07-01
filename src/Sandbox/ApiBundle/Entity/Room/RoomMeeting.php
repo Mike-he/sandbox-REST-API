@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomMeeting
@@ -23,23 +24,29 @@ class RoomMeeting
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $id;
 
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="meeting")
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="meeting")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
-    private $roomId;
+    private $room;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="startHour", type="time", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $startHour;
 
@@ -47,6 +54,8 @@ class RoomMeeting
      * @var \DateTime
      *
      * @ORM\Column(name="endHour", type="time", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $endHour;
 
@@ -58,29 +67,6 @@ class RoomMeeting
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set roomId
-     *
-     * @param  integer     $roomId
-     * @return RoomMeeting
-     */
-    public function setRoomId($roomId)
-    {
-        $this->roomId = $roomId;
-
-        return $this;
-    }
-
-    /**
-     * Get roomId
-     *
-     * @return integer
-     */
-    public function getRoomId()
-    {
-        return $this->roomId;
     }
 
     /**
@@ -127,5 +113,24 @@ class RoomMeeting
     public function getEndHour()
     {
         return $this->endHour;
+    }
+
+    /**
+     * @return Room
+     */
+    public function getRoom()
+    {
+        return $this->room;
+    }
+
+    /**
+     * @param  Room $room
+     * @return Room
+     */
+    public function setRoom($room)
+    {
+        $this->room = $room;
+
+        return $this;
     }
 }

@@ -3,11 +3,17 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomFixed
  *
- * @ORM\Table(name="RoomFixed", indexes={@ORM\Index(name="fk_RoomFixed_roomId_idx", columns={"roomId"})})
+ * @ORM\Table(
+ *      name="RoomFixed",
+ *      indexes={
+ *          @ORM\Index(name="fk_RoomFixed_roomId_idx", columns={"roomId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class RoomFixed
@@ -18,6 +24,8 @@ class RoomFixed
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $id;
 
@@ -28,13 +36,17 @@ class RoomFixed
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
-    private $roomId;
+    private $room;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="seatNumber", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $seatNumber;
 
@@ -42,6 +54,8 @@ class RoomFixed
      * @var boolean
      *
      * @ORM\Column(name="available", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $available;
 
@@ -56,26 +70,26 @@ class RoomFixed
     }
 
     /**
-     * Set roomId
+     * Set RoomS
      *
-     * @param  integer   $roomId
+     * @param  Room      $room
      * @return RoomFixed
      */
-    public function setRoomId($roomId)
+    public function setRoom($room)
     {
-        $this->roomId = $roomId;
+        $this->room = $room;
 
         return $this;
     }
 
     /**
-     * Get roomId
+     * Get Room
      *
-     * @return integer
+     * @return Room
      */
-    public function getRoomId()
+    public function getRoom()
     {
-        return $this->roomId;
+        return $this->room;
     }
 
     /**
