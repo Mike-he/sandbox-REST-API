@@ -20,12 +20,13 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Password controller
+ * Password controller.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  *
  * @Route("/password")
@@ -68,7 +69,7 @@ class ClientUserPasswordController extends UserPasswordController
     const ERROR_SAME_PASSWORD_MESSAGE = 'Same password.-新密码与旧密码不能相同';
 
     /**
-     * Forget password submit email or phone
+     * Forget password submit email or phone.
      *
      * @param Request $request the request object
      *
@@ -83,6 +84,7 @@ class ClientUserPasswordController extends UserPasswordController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws BadRequestHttpException
      */
     public function postPasswordForgetSubmitAction(
@@ -101,7 +103,7 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * Forget password submit email or phone
+     * Forget password submit email or phone.
      *
      * @param Request $request the request object
      *
@@ -116,6 +118,7 @@ class ClientUserPasswordController extends UserPasswordController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws BadRequestHttpException
      */
     public function postPasswordForgetVerifyAction(
@@ -134,7 +137,7 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * Forget password submit email or phone
+     * Forget password submit email or phone.
      *
      * @param Request $request the request object
      *
@@ -149,6 +152,7 @@ class ClientUserPasswordController extends UserPasswordController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws BadRequestHttpException
      */
     public function postPasswordForgetResetAction(
@@ -337,7 +341,7 @@ class ClientUserPasswordController extends UserPasswordController
         $forgetPassword->setType($type);
         $forgetPassword->setEmail($email);
         $forgetPassword->setPhone($phone);
-        $forgetPassword->setCreationDate(new \DateTime("now"));
+        $forgetPassword->setCreationDate(new \DateTime('now'));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($forgetPassword);
@@ -347,8 +351,9 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * @param  UserForgetPassword $forgetPassword
-     * @param  string             $status
+     * @param UserForgetPassword $forgetPassword
+     * @param string             $status
+     *
      * @return UserForgetPassword
      */
     private function updateForgetPassword(
@@ -359,7 +364,7 @@ class ClientUserPasswordController extends UserPasswordController
 
         if ($status === 'submit') {
             $forgetPassword->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
-            $forgetPassword->setCreationDate(new \DateTime("now"));
+            $forgetPassword->setCreationDate(new \DateTime('now'));
         } else {
             $forgetPassword->setToken($this->generateRandomToken());
         }
@@ -425,7 +430,7 @@ class ClientUserPasswordController extends UserPasswordController
             return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        if (new \DateTime("now") > $forgetPassword->getCreationDate()->modify('+0.5 hour')) {
+        if (new \DateTime('now') > $forgetPassword->getCreationDate()->modify('+0.5 hour')) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
@@ -466,7 +471,7 @@ class ClientUserPasswordController extends UserPasswordController
         ));
         $this->throwNotFoundIfNull($forgetPassword, self::NOT_FOUND_MESSAGE);
 
-        if (new \DateTime("now") > $forgetPassword->getCreationDate()->modify('+0.5 hour')) {
+        if (new \DateTime('now') > $forgetPassword->getCreationDate()->modify('+0.5 hour')) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 

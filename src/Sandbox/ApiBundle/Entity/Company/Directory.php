@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Company;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Directory
+ * Directory.
  *
  * @ORM\Table(name="DirectoryView")
  * @ORM\Entity
@@ -44,9 +44,10 @@ class Directory extends Companymember
     private $jid;
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string    $name
+     * @param string $name
+     *
      * @return Directory
      */
     public function setName($name)
@@ -57,7 +58,8 @@ class Directory extends Companymember
     }
 
     /**
-     * Get name
+     * Get name.
+     *
      * @return string
      */
     public function getName()
@@ -66,9 +68,10 @@ class Directory extends Companymember
     }
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string    $email
+     * @param string $email
+     *
      * @return Directory
      */
     public function setEmail($email)
@@ -79,7 +82,8 @@ class Directory extends Companymember
     }
 
     /**
-     * Get email
+     * Get email.
+     *
      * @return string
      */
     public function getEmail()
@@ -88,9 +92,10 @@ class Directory extends Companymember
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string    $phone
+     * @param string $phone
+     *
      * @return Directory
      */
     public function setPhone($phone)
@@ -101,7 +106,8 @@ class Directory extends Companymember
     }
 
     /**
-     * Get phone
+     * Get phone.
+     *
      * @return string
      */
     public function getPhone()
@@ -110,9 +116,10 @@ class Directory extends Companymember
     }
 
     /**
-     * Set jid
+     * Set jid.
      *
-     * @param  string    $jid
+     * @param string $jid
+     *
      * @return Directory
      */
     public function setJid($jid)
@@ -123,7 +130,7 @@ class Directory extends Companymember
     }
 
     /**
-     * Get jid
+     * Get jid.
      *
      * @return string
      */

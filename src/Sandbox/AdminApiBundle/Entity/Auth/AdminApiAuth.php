@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 
 /**
- * AdminApiAuth
+ * AdminApiAuth.
  *
  * @ORM\Table(
  *      name="AdminApiAuthView",
@@ -19,7 +19,7 @@ use Sandbox\ApiBundle\Entity\Admin\Admin;
 class AdminApiAuth implements UserInterface
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -35,14 +35,14 @@ class AdminApiAuth implements UserInterface
     private $token;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="clientId", type="integer", nullable=true)
      */
     private $clientId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="adminId", type="integer", nullable=true)
      */
@@ -64,9 +64,9 @@ class AdminApiAuth implements UserInterface
     private $myAdmin;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -74,7 +74,7 @@ class AdminApiAuth implements UserInterface
     }
 
     /**
-     * Get token
+     * Get token.
      *
      * @return string
      */
@@ -84,9 +84,9 @@ class AdminApiAuth implements UserInterface
     }
 
     /**
-     * Get clientId
+     * Get clientId.
      *
-     * @return integer
+     * @return int
      */
     public function getClientId()
     {
@@ -94,9 +94,9 @@ class AdminApiAuth implements UserInterface
     }
 
     /**
-     * Get adminId
+     * Get adminId.
      *
-     * @return integer
+     * @return int
      */
     public function getAdminId()
     {
@@ -104,7 +104,7 @@ class AdminApiAuth implements UserInterface
     }
 
     /**
-     * Get username
+     * Get username.
      *
      * @return string
      */
@@ -114,7 +114,7 @@ class AdminApiAuth implements UserInterface
     }
 
     /**
-     * Get myAdmin
+     * Get myAdmin.
      *
      * @return Admin
      */

@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Password Forget Submit Incoming Data
+ * Password Forget Submit Incoming Data.
  */
 class PasswordForgetSubmit
 {
@@ -18,9 +18,10 @@ class PasswordForgetSubmit
     private $phone;
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string               $email
+     * @param string $email
+     *
      * @return PasswordForgetSubmit
      */
     public function setEmail($email)
@@ -31,7 +32,7 @@ class PasswordForgetSubmit
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -41,9 +42,10 @@ class PasswordForgetSubmit
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string               $phone
+     * @param string $phone
+     *
      * @return PasswordForgetSubmit
      */
     public function setPhone($phone)
@@ -54,7 +56,7 @@ class PasswordForgetSubmit
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */

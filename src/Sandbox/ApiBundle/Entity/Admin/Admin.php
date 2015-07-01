@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Admin
+ * Admin.
  *
  * @ORM\Table(
  *      name="Admin",
@@ -21,7 +21,7 @@ use JMS\Serializer\Annotation as Serializer;
 class Admin implements UserInterface
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -54,7 +54,7 @@ class Admin implements UserInterface
     private $name;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="typeId", type="integer", nullable=false)
      * @Serializer\Groups({"main"})
@@ -95,9 +95,9 @@ class Admin implements UserInterface
     private $permission;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -105,7 +105,7 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get username
+     * Get username.
      *
      * @return string
      */
@@ -115,9 +115,10 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set username
+     * Set username.
      *
-     * @param  string $username
+     * @param string $username
+     *
      * @return Admin
      */
     public function setUsername($username)
@@ -126,7 +127,7 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get password
+     * Get password.
      *
      * @return string
      */
@@ -136,9 +137,10 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set password
+     * Set password.
      *
-     * @param  string $password
+     * @param string $password
+     *
      * @return Admin
      */
     public function setPassword($password)
@@ -147,7 +149,7 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -157,9 +159,10 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return Admin
      */
     public function setName($name)
@@ -168,9 +171,9 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get typeId
+     * Get typeId.
      *
-     * @return integer
+     * @return int
      */
     public function getTypeId()
     {
@@ -178,9 +181,10 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set typeId
+     * Set typeId.
      *
-     * @param  integer $typeId
+     * @param int $typeId
+     *
      * @return Admin
      */
     public function setTypeId($typeId)
@@ -189,7 +193,7 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -199,9 +203,10 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return Admin
      */
     public function setCreationDate($creationDate)
@@ -210,7 +215,7 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */
@@ -220,9 +225,10 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return Admin
      */
     public function setModificationDate($modificationDate)
@@ -231,7 +237,7 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get type
+     * Get type.
      *
      * @return AdminType
      */
@@ -241,7 +247,7 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get permissionIds
+     * Get permissionIds.
      *
      * @return array
      */
@@ -251,9 +257,10 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set permission
+     * Set permission.
      *
-     * @param  array $permission
+     * @param array $permission
+     *
      * @return Admin
      */
     public function setPermission($permission)
@@ -262,7 +269,7 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get permission
+     * Get permission.
      *
      * @return array
      */

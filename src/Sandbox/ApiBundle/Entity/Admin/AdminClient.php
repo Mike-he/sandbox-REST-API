@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * AdminClient
+ * AdminClient.
  *
  * @ORM\Table(name="AdminClient")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use JMS\Serializer\Annotation as Serializer;
 class AdminClient
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -72,9 +72,9 @@ class AdminClient
     private $modificationDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -82,9 +82,10 @@ class AdminClient
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string      $name
+     * @param string $name
+     *
      * @return AdminClient
      */
     public function setName($name)
@@ -95,7 +96,7 @@ class AdminClient
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -105,9 +106,10 @@ class AdminClient
     }
 
     /**
-     * Set os
+     * Set os.
      *
-     * @param  string      $os
+     * @param string $os
+     *
      * @return AdminClient
      */
     public function setOs($os)
@@ -118,7 +120,7 @@ class AdminClient
     }
 
     /**
-     * Get os
+     * Get os.
      *
      * @return string
      */
@@ -128,9 +130,10 @@ class AdminClient
     }
 
     /**
-     * Set version
+     * Set version.
      *
-     * @param  string      $version
+     * @param string $version
+     *
      * @return AdminClient
      */
     public function setVersion($version)
@@ -141,7 +144,7 @@ class AdminClient
     }
 
     /**
-     * Get version
+     * Get version.
      *
      * @return string
      */
@@ -151,9 +154,10 @@ class AdminClient
     }
 
     /**
-     * Set ipAddress
+     * Set ipAddress.
      *
-     * @param  string      $ipAddress
+     * @param string $ipAddress
+     *
      * @return AdminClient
      */
     public function setIpAddress($ipAddress)
@@ -164,7 +168,7 @@ class AdminClient
     }
 
     /**
-     * Get ipAddress
+     * Get ipAddress.
      *
      * @return string
      */
@@ -174,9 +178,10 @@ class AdminClient
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime   $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return AdminClient
      */
     public function setCreationDate($creationDate)
@@ -185,7 +190,7 @@ class AdminClient
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -195,9 +200,10 @@ class AdminClient
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime   $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return AdminClient
      */
     public function setModificationDate($modificationDate)
@@ -206,7 +212,7 @@ class AdminClient
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */

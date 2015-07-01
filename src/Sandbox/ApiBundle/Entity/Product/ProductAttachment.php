@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ProductAttachment
+ * ProductAttachment.
  *
  * @ORM\Table(name="ProductAttachment")
  * @ORM\Entity
@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class ProductAttachment
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -26,7 +26,6 @@ class ProductAttachment
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product", inversedBy="productAttachment")
      * @ORM\JoinColumn(name="productId", referencedColumnName="id")
-     *
      */
     private $productId;
 
@@ -59,16 +58,16 @@ class ProductAttachment
     private $preview;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="size", type="integer")
      */
     private $size;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -76,9 +75,10 @@ class ProductAttachment
     }
 
     /**
-     * Set productId
+     * Set productId.
      *
-     * @param  integer           $productId
+     * @param int $productId
+     *
      * @return ProductAttachment
      */
     public function setProductId($productId)
@@ -89,9 +89,9 @@ class ProductAttachment
     }
 
     /**
-     * Get productId
+     * Get productId.
      *
-     * @return integer
+     * @return int
      */
     public function getProductId()
     {
@@ -99,9 +99,10 @@ class ProductAttachment
     }
 
     /**
-     * Set content
+     * Set content.
      *
-     * @param  string            $content
+     * @param string $content
+     *
      * @return ProductAttachment
      */
     public function setContent($content)
@@ -112,7 +113,7 @@ class ProductAttachment
     }
 
     /**
-     * Get content
+     * Get content.
      *
      * @return string
      */
@@ -122,9 +123,10 @@ class ProductAttachment
     }
 
     /**
-     * Set attachmentType
+     * Set attachmentType.
      *
-     * @param  string            $attachmentType
+     * @param string $attachmentType
+     *
      * @return ProductAttachment
      */
     public function setAttachmentType($attachmentType)
@@ -135,7 +137,7 @@ class ProductAttachment
     }
 
     /**
-     * Get attachmentType
+     * Get attachmentType.
      *
      * @return string
      */
@@ -145,9 +147,10 @@ class ProductAttachment
     }
 
     /**
-     * Set filename
+     * Set filename.
      *
-     * @param  string            $filename
+     * @param string $filename
+     *
      * @return ProductAttachment
      */
     public function setFilename($filename)
@@ -158,7 +161,7 @@ class ProductAttachment
     }
 
     /**
-     * Get filename
+     * Get filename.
      *
      * @return string
      */
@@ -168,9 +171,10 @@ class ProductAttachment
     }
 
     /**
-     * Set preview
+     * Set preview.
      *
-     * @param  string            $preview
+     * @param string $preview
+     *
      * @return ProductAttachment
      */
     public function setPreview($preview)
@@ -181,7 +185,7 @@ class ProductAttachment
     }
 
     /**
-     * Get preview
+     * Get preview.
      *
      * @return string
      */
@@ -191,9 +195,10 @@ class ProductAttachment
     }
 
     /**
-     * Set size
+     * Set size.
      *
-     * @param  integer           $size
+     * @param int $size
+     *
      * @return ProductAttachment
      */
     public function setSize($size)
@@ -204,9 +209,9 @@ class ProductAttachment
     }
 
     /**
-     * Get size
+     * Get size.
      *
-     * @return integer
+     * @return int
      */
     public function getSize()
     {

@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Admin;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * AdminPermissionMap
+ * AdminPermissionMap.
  *
  * @ORM\Table(
  *      name="AdminPermissionMap",
@@ -22,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
 class AdminPermissionMap
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -31,14 +31,14 @@ class AdminPermissionMap
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="adminId", type="integer", nullable=false)
      */
     private $adminId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="permissionId", type="integer", nullable=false)
      */
@@ -64,9 +64,9 @@ class AdminPermissionMap
     private $admin;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -74,9 +74,10 @@ class AdminPermissionMap
     }
 
     /**
-     * Set $adminId
+     * Set $adminId.
      *
-     * @param  integer            $adminId
+     * @param int $adminId
+     *
      * @return AdminPermissionMap
      */
     public function setAdminId($adminId)
@@ -87,9 +88,9 @@ class AdminPermissionMap
     }
 
     /**
-     * Get adminId
+     * Get adminId.
      *
-     * @return integer
+     * @return int
      */
     public function getAdminId()
     {
@@ -97,9 +98,10 @@ class AdminPermissionMap
     }
 
     /**
-     * Set permissionId
+     * Set permissionId.
      *
-     * @param  integer            $permissionId
+     * @param int $permissionId
+     *
      * @return AdminPermissionMap
      */
     public function setPermissionId($permissionId)
@@ -110,9 +112,9 @@ class AdminPermissionMap
     }
 
     /**
-     * Get permissionId
+     * Get permissionId.
      *
-     * @return integer
+     * @return int
      */
     public function getPermissionId()
     {
@@ -120,9 +122,10 @@ class AdminPermissionMap
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime          $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return AdminPermissionMap
      */
     public function setCreationDate($creationDate)
@@ -133,7 +136,7 @@ class AdminPermissionMap
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -143,7 +146,7 @@ class AdminPermissionMap
     }
 
     /**
-     * Get permission
+     * Get permission.
      *
      * @return AdminPermission
      */

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * AdminToken
+ * AdminToken.
  *
  * @ORM\Table(
  *      name="AdminToken",
@@ -24,7 +24,7 @@ use JMS\Serializer\Annotation as Serializer;
 class AdminToken
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -34,7 +34,7 @@ class AdminToken
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="adminId", type="integer", nullable=false)
      * @Serializer\Groups({"main", "login"})
@@ -42,7 +42,7 @@ class AdminToken
     private $adminId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="clientId", type="integer", nullable=false)
      * @Serializer\Groups({"main", "login"})
@@ -66,7 +66,7 @@ class AdminToken
     private $creationDate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -76,9 +76,9 @@ class AdminToken
     }
 
     /**
-     * Get adminId
+     * Get adminId.
      *
-     * @return integer
+     * @return int
      */
     public function getAdminId()
     {
@@ -86,9 +86,10 @@ class AdminToken
     }
 
     /**
-     * Set adminId
+     * Set adminId.
      *
-     * @param  integer    $adminId
+     * @param int $adminId
+     *
      * @return AdminToken
      */
     public function setAdminId($adminId)
@@ -97,7 +98,7 @@ class AdminToken
     }
 
     /**
-     * Get clientId
+     * Get clientId.
      *
      * @return int
      */
@@ -107,9 +108,10 @@ class AdminToken
     }
 
     /**
-     * Set clientId
+     * Set clientId.
      *
-     * @param  int        $clientId
+     * @param int $clientId
+     *
      * @return AdminToken
      */
     public function setClientId($clientId)
@@ -118,7 +120,7 @@ class AdminToken
     }
 
     /**
-     * Get token
+     * Get token.
      *
      * @return string
      */
@@ -128,9 +130,10 @@ class AdminToken
     }
 
     /**
-     * Set token
+     * Set token.
      *
-     * @param  string     $token
+     * @param string $token
+     *
      * @return AdminToken
      */
     public function setToken($token)
@@ -139,7 +142,7 @@ class AdminToken
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -149,9 +152,10 @@ class AdminToken
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime  $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return AdminToken
      */
     public function setCreationDate($creationDate)

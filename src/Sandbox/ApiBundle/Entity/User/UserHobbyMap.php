@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User Hobby Map
+ * User Hobby Map.
  *
  * @ORM\Table(name="UserHobbyMap")
  * @ORM\Entity(

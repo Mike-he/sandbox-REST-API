@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Announcement;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Announcement
+ * Announcement.
  *
  * @ORM\Table(name="Announcement")
  * @ORM\Entity
@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Announcement
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -50,9 +50,9 @@ class Announcement
     private $modificationDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -60,9 +60,10 @@ class Announcement
     }
 
     /**
-     * Set title
+     * Set title.
      *
-     * @param  string       $title
+     * @param string $title
+     *
      * @return Announcement
      */
     public function setTitle($title)
@@ -73,7 +74,7 @@ class Announcement
     }
 
     /**
-     * Get title
+     * Get title.
      *
      * @return string
      */
@@ -83,9 +84,10 @@ class Announcement
     }
 
     /**
-     * Set description
+     * Set description.
      *
-     * @param  string       $description
+     * @param string $description
+     *
      * @return Announcement
      */
     public function setDescription($description)
@@ -96,7 +98,7 @@ class Announcement
     }
 
     /**
-     * Get description
+     * Get description.
      *
      * @return string
      */
@@ -106,9 +108,10 @@ class Announcement
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime    $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return Announcement
      */
     public function setCreationDate($creationDate)
@@ -119,7 +122,7 @@ class Announcement
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -129,9 +132,10 @@ class Announcement
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime    $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return Announcement
      */
     public function setModificationDate($modificationDate)
@@ -142,7 +146,7 @@ class Announcement
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */

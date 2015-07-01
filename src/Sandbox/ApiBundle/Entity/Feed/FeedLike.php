@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Feed;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * FeedLike
+ * FeedLike.
  *
  * @ORM\Table(name="ezFeedLike")
  * @ORM\Entity
@@ -43,7 +43,7 @@ class FeedLike
     private $creationdate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -53,9 +53,10 @@ class FeedLike
     }
 
     /**
-     * Set fid
+     * Set fid.
      *
-     * @param  int      $fid
+     * @param int $fid
+     *
      * @return FeedLike
      */
     public function setFid($fid)
@@ -66,7 +67,7 @@ class FeedLike
     }
 
     /**
-     * Get fid
+     * Get fid.
      *
      * @return int
      */
@@ -76,9 +77,10 @@ class FeedLike
     }
 
     /**
-     * Set authorid
+     * Set authorid.
      *
-     * @param  string   $authorid
+     * @param string $authorid
+     *
      * @return FeedLike
      */
     public function setAuthorid($authorid)
@@ -89,7 +91,7 @@ class FeedLike
     }
 
     /**
-     * Get authorid
+     * Get authorid.
      *
      * @return string
      */
@@ -99,9 +101,10 @@ class FeedLike
     }
 
     /**
-     * Set creationdate
+     * Set creationdate.
      *
-     * @param  string   $creationdate
+     * @param string $creationdate
+     *
      * @return FeedLike
      */
     public function setCreationdate($creationdate)
@@ -112,7 +115,7 @@ class FeedLike
     }
 
     /**
-     * Get creationdate
+     * Get creationdate.
      *
      * @return string
      */

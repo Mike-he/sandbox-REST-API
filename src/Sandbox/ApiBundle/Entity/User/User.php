@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * User
+ * User.
  *
  * @ORM\Table(
  *      name="User",
@@ -23,7 +23,7 @@ use JMS\Serializer\Annotation as Serializer;
 class User implements UserInterface
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -64,7 +64,7 @@ class User implements UserInterface
     private $phone;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="banned", type="boolean", nullable=false)
      * @Serializer\Groups({"main"})
@@ -88,9 +88,9 @@ class User implements UserInterface
     private $modificationDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -98,9 +98,10 @@ class User implements UserInterface
     }
 
     /**
-     * Set xmppUsername
+     * Set xmppUsername.
      *
-     * @param  string $xmppUsername
+     * @param string $xmppUsername
+     *
      * @return User
      */
     public function setXmppUsername($xmppUsername)
@@ -111,7 +112,7 @@ class User implements UserInterface
     }
 
     /**
-     * Get xmppUsername
+     * Get xmppUsername.
      *
      * @return string
      */
@@ -121,9 +122,10 @@ class User implements UserInterface
     }
 
     /**
-     * Set password
+     * Set password.
      *
-     * @param  string $password
+     * @param string $password
+     *
      * @return User
      */
     public function setPassword($password)
@@ -134,7 +136,7 @@ class User implements UserInterface
     }
 
     /**
-     * Get password
+     * Get password.
      *
      * @return string
      */
@@ -144,9 +146,10 @@ class User implements UserInterface
     }
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string $email
+     * @param string $email
+     *
      * @return User
      */
     public function setEmail($email)
@@ -157,7 +160,7 @@ class User implements UserInterface
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -167,9 +170,10 @@ class User implements UserInterface
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string $phone
+     * @param string $phone
+     *
      * @return User
      */
     public function setPhone($phone)
@@ -180,7 +184,7 @@ class User implements UserInterface
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -190,9 +194,10 @@ class User implements UserInterface
     }
 
     /**
-     * Set banned
+     * Set banned.
      *
-     * @param  boolean $banned
+     * @param bool $banned
+     *
      * @return User
      */
     public function setBanned($banned)
@@ -203,9 +208,9 @@ class User implements UserInterface
     }
 
     /**
-     * Is banned
+     * Is banned.
      *
-     * @return boolean
+     * @return bool
      */
     public function isBanned()
     {
@@ -213,7 +218,7 @@ class User implements UserInterface
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -223,9 +228,10 @@ class User implements UserInterface
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return User
      */
     public function setCreationDate($creationDate)
@@ -234,7 +240,7 @@ class User implements UserInterface
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */
@@ -244,9 +250,10 @@ class User implements UserInterface
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return User
      */
     public function setModificationDate($modificationDate)
@@ -256,8 +263,8 @@ class User implements UserInterface
 
     public function __construct()
     {
-        $this->setCreationDate(new \DateTime("now"));
-        $this->setModificationDate(new \DateTime("now"));
+        $this->setCreationDate(new \DateTime('now'));
+        $this->setModificationDate(new \DateTime('now'));
     }
 
     /**

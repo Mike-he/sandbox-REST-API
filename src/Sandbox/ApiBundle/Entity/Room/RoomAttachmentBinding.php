@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomAttachmentBinding
+ * RoomAttachmentBinding.
  *
  * @ORM\Table(
  *      name="RoomAttachmentBinding",
@@ -19,7 +19,7 @@ use JMS\Serializer\Annotation as Serializer;
 class RoomAttachmentBinding
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -42,7 +42,7 @@ class RoomAttachmentBinding
     private $room;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="attachmentId", type="integer", nullable=false)
      *
@@ -51,9 +51,9 @@ class RoomAttachmentBinding
     private $attachmentId;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -61,9 +61,10 @@ class RoomAttachmentBinding
     }
 
     /**
-     * Set attachmentId
+     * Set attachmentId.
      *
-     * @param  integer               $attachmentId
+     * @param int $attachmentId
+     *
      * @return RoomAttachmentBinding
      */
     public function setAttachmentId($attachmentId)
@@ -74,9 +75,9 @@ class RoomAttachmentBinding
     }
 
     /**
-     * Get attachmentId
+     * Get attachmentId.
      *
-     * @return integer
+     * @return int
      */
     public function getAttachmentId()
     {
@@ -84,9 +85,10 @@ class RoomAttachmentBinding
     }
 
     /**
-     * Set room
+     * Set room.
      *
-     * @param  Room                  $room
+     * @param Room $room
+     *
      * @return RoomAttachmentBinding
      */
     public function setRoom($room)
@@ -97,7 +99,7 @@ class RoomAttachmentBinding
     }
 
     /**
-     * Get roomId
+     * Get roomId.
      *
      * @return Room
      */

@@ -5,11 +5,10 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User registration
+ * User registration.
  *
  * @ORM\Table(name="UserRegistration")
  * @ORM\Entity
- *
  */
 class UserRegistration
 {
@@ -51,7 +50,7 @@ class UserRegistration
     private $creationDate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -61,9 +60,10 @@ class UserRegistration
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string           $phone
+     * @param string $phone
+     *
      * @return UserRegistration
      */
     public function setPhone($phone)
@@ -74,7 +74,7 @@ class UserRegistration
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -84,9 +84,10 @@ class UserRegistration
     }
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string           $email
+     * @param string $email
+     *
      * @return UserRegistration
      */
     public function setEmail($email)
@@ -97,7 +98,7 @@ class UserRegistration
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -107,9 +108,10 @@ class UserRegistration
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string           $code
+     * @param string $code
+     *
      * @return UserRegistration
      */
     public function setCode($code)
@@ -120,7 +122,7 @@ class UserRegistration
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */
@@ -130,7 +132,7 @@ class UserRegistration
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -140,9 +142,10 @@ class UserRegistration
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return User
      */
     public function setCreationDate($creationDate)
@@ -152,6 +155,6 @@ class UserRegistration
 
     public function __construct()
     {
-        $this->setCreationDate(new \DateTime("now"));
+        $this->setCreationDate(new \DateTime('now'));
     }
 }

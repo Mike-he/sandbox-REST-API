@@ -5,13 +5,12 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User Education
+ * User Education.
  *
  * @ORM\Table(name="UserEducation")
  * @ORM\Entity(
  *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserEducationRepository"
  * )
- *
  */
 class UserEducation
 {
@@ -125,7 +124,7 @@ class UserEducation
      */
     public function setEndDate($endDate)
     {
-        $this->endDate =  new \DateTime($endDate);
+        $this->endDate = new \DateTime($endDate);
     }
 
     /**
@@ -184,7 +183,7 @@ class UserEducation
 
     public function __construct()
     {
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
     }

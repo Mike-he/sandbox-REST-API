@@ -8,24 +8,24 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 
 /**
- * Client Announcement controller
+ * Client Announcement controller.
  *
  * @category Sandbox
- * @package  Sandbox\ClientApiBundle\Controller
+ *
  * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientAnnouncementController extends AnnouncementController
 {
     /**
-     * Get announcements
+     * Get announcements.
      *
      * @param Request $request
      *
@@ -99,7 +99,7 @@ class ClientAnnouncementController extends AnnouncementController
     }
 
     /**
-     * Get announcement by id
+     * Get announcement by id.
      *
      * @param Request $request
      *

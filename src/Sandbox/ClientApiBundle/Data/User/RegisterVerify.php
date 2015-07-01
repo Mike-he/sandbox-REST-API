@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Register Verify Incoming Data
+ * Register Verify Incoming Data.
  */
 class RegisterVerify
 {
@@ -28,9 +28,10 @@ class RegisterVerify
     private $password;
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string         $phone
+     * @param string $phone
+     *
      * @return RegisterVerify
      */
     public function setPhone($phone)
@@ -41,7 +42,7 @@ class RegisterVerify
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -51,9 +52,10 @@ class RegisterVerify
     }
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string         $email
+     * @param string $email
+     *
      * @return RegisterVerify
      */
     public function setEmail($email)
@@ -64,7 +66,7 @@ class RegisterVerify
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -74,9 +76,10 @@ class RegisterVerify
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string         $code
+     * @param string $code
+     *
      * @return RegisterVerify
      */
     public function setCode($code)
@@ -87,7 +90,7 @@ class RegisterVerify
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */
@@ -97,9 +100,10 @@ class RegisterVerify
     }
 
     /**
-     * Set password
+     * Set password.
      *
-     * @param  string         $password
+     * @param string $password
+     *
      * @return RegisterVerify
      */
     public function setPassword($password)
@@ -110,7 +114,7 @@ class RegisterVerify
     }
 
     /**
-     * Get password
+     * Get password.
      *
      * @return string
      */

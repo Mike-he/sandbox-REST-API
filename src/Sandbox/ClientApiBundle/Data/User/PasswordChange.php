@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Password Forget Reset Incoming Data
+ * Password Forget Reset Incoming Data.
  */
 class PasswordChange
 {
@@ -28,9 +28,10 @@ class PasswordChange
     private $fulljid;
 
     /**
-     * Set userid
+     * Set userid.
      *
-     * @param  string         $userid
+     * @param string $userid
+     *
      * @return PasswordChange
      */
     public function setUserid($userid)
@@ -41,7 +42,7 @@ class PasswordChange
     }
 
     /**
-     * Get userid
+     * Get userid.
      *
      * @return string
      */
@@ -51,9 +52,10 @@ class PasswordChange
     }
 
     /**
-     * Set currentpassword
+     * Set currentpassword.
      *
-     * @param  string         $currentpassword
+     * @param string $currentpassword
+     *
      * @return PasswordChange
      */
     public function setCurrentpassword($currentpassword)
@@ -64,7 +66,7 @@ class PasswordChange
     }
 
     /**
-     * Get currentpassword
+     * Get currentpassword.
      *
      * @return string
      */
@@ -74,9 +76,10 @@ class PasswordChange
     }
 
     /**
-     * Set newpassword
+     * Set newpassword.
      *
-     * @param  string         $newpassword
+     * @param string $newpassword
+     *
      * @return PasswordChange
      */
     public function setNewpassword($newpassword)
@@ -87,7 +90,7 @@ class PasswordChange
     }
 
     /**
-     * Get newpassword
+     * Get newpassword.
      *
      * @return string
      */
@@ -97,9 +100,10 @@ class PasswordChange
     }
 
     /**
-     * Set fulljid
+     * Set fulljid.
      *
-     * @param  string         $fulljid
+     * @param string $fulljid
+     *
      * @return PasswordChange
      */
     public function setFulljid($fulljid)
@@ -110,7 +114,7 @@ class PasswordChange
     }
 
     /**
-     * Get fulljid
+     * Get fulljid.
      *
      * @return string
      */

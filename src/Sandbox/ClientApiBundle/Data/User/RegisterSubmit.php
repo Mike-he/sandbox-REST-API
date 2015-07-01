@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Register Submit Incoming Data
+ * Register Submit Incoming Data.
  */
 class RegisterSubmit
 {
@@ -18,9 +18,10 @@ class RegisterSubmit
     private $phone;
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string         $email
+     * @param string $email
+     *
      * @return RegisterSubmit
      */
     public function setEmail($email)
@@ -31,7 +32,7 @@ class RegisterSubmit
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -41,9 +42,10 @@ class RegisterSubmit
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string         $phone
+     * @param string $phone
+     *
      * @return RegisterSubmit
      */
     public function setPhone($phone)
@@ -54,7 +56,7 @@ class RegisterSubmit
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */

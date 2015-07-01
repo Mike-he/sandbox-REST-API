@@ -10,18 +10,19 @@ use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
 /**
- * Rest controller for Directories
+ * Rest controller for Directories.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Allan SIMON <simona@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientDirectoryController extends DirectoryController
 {
     /**
-     * List all members in the companies the current user belongs to
+     * List all members in the companies the current user belongs to.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service

@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Email Binding Submit Incoming Data
+ * Email Binding Submit Incoming Data.
  */
 class EmailBindingSubmit
 {
@@ -13,9 +13,10 @@ class EmailBindingSubmit
     private $email;
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string             $email
+     * @param string $email
+     *
      * @return EmailBindingSubmit
      */
     public function setEmail($email)
@@ -26,7 +27,7 @@ class EmailBindingSubmit
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */

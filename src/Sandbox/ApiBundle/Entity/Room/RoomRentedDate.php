@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * RoomRentedDate
+ * RoomRentedDate.
  *
  * @ORM\Table(name="RoomRentedDate", indexes={@ORM\Index(name="fk_RoomRentedDate_roomId_idx", columns={"roomId"})})
  * @ORM\Entity
@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class RoomRentedDate
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -46,9 +46,9 @@ class RoomRentedDate
     private $endDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -56,9 +56,10 @@ class RoomRentedDate
     }
 
     /**
-     * Set roomId
+     * Set roomId.
      *
-     * @param  \Sandbox\ApiBundle\Entity\Room\Room $roomId
+     * @param \Sandbox\ApiBundle\Entity\Room\Room $roomId
+     *
      * @return RoomRentedDate
      */
     public function setRoomId(\Sandbox\ApiBundle\Entity\Room\Room $roomId = null)
@@ -69,7 +70,7 @@ class RoomRentedDate
     }
 
     /**
-     * Get roomId
+     * Get roomId.
      *
      * @return \Sandbox\ApiBundle\Entity\Room\Room
      */
@@ -79,9 +80,10 @@ class RoomRentedDate
     }
 
     /**
-     * Set startDate
+     * Set startDate.
      *
-     * @param  \DateTime      $startDate
+     * @param \DateTime $startDate
+     *
      * @return RoomRentedDate
      */
     public function setStartDate($startDate)
@@ -92,7 +94,7 @@ class RoomRentedDate
     }
 
     /**
-     * Get startDate
+     * Get startDate.
      *
      * @return \DateTime
      */
@@ -102,9 +104,10 @@ class RoomRentedDate
     }
 
     /**
-     * Set endDate
+     * Set endDate.
      *
-     * @param  \DateTime      $endDate
+     * @param \DateTime $endDate
+     *
      * @return RoomRentedDate
      */
     public function setEndDate($endDate)
@@ -115,7 +118,7 @@ class RoomRentedDate
     }
 
     /**
-     * Get endDate
+     * Get endDate.
      *
      * @return \DateTime
      */

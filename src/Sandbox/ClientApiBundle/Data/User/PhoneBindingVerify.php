@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Phone Binding Verify Incoming Data
+ * Phone Binding Verify Incoming Data.
  */
 class PhoneBindingVerify
 {
@@ -18,9 +18,10 @@ class PhoneBindingVerify
     private $code;
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string             $phone
+     * @param string $phone
+     *
      * @return PhoneBindingVerify
      */
     public function setPhone($phone)
@@ -31,7 +32,7 @@ class PhoneBindingVerify
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -41,9 +42,10 @@ class PhoneBindingVerify
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string             $code
+     * @param string $code
+     *
      * @return PhoneBindingVerify
      */
     public function setCode($code)
@@ -54,7 +56,7 @@ class PhoneBindingVerify
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */
