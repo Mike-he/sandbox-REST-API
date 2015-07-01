@@ -17,17 +17,34 @@ class RoomType extends AbstractType
         $builder
             ->add('name')
             ->add('description')
-            ->add('city_id')
-            ->add('building_id')
-            ->add('floor_id')
+            ->add('city_id', 'integer')
+            ->add('building_id', 'integer')
+            ->add('floor_id', 'integer')
             ->add('number')
-            ->add('allowed_people')
+            ->add('allowed_people', 'integer')
             ->add('area')
             ->add('office_supplies')
             ->add('type')
-            ->add('attachments')
-            ->add('meeting')
-            ->add('fixed')
+            ->add('attachment_id',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
+            ->add(
+                'room_fixed',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
+            ->add(
+                'room_meeting',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
         ;
     }
 

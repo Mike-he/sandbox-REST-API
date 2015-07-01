@@ -3,18 +3,21 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Room
  *
  * @ORM\Table(
- *      name="Room",
- *      indexes={
- *          @ORM\Index(name="fk_Room_cityId_idx", columns={"cityId"}),
- *          @ORM\Index(name="fk_Room_buildingId_idx", columns={"buildingId"}),
- *          @ORM\Index(name="fk_Room_floorId_idx", columns={"floorId"})
- *      }
- * )
+ *  name="Room",
+ *  uniqueConstraints={
+ *      @ORM\UniqueConstraint(name="buildingId_number_UNIQUE", columns={"buildingId", "number"}),
+ *      @ORM\UniqueConstraint(name="floorId_number_UNIQUE", columns={"floorId", "number"})
+ *  },
+ *  indexes={
+ *      @ORM\Index(name="fk_Room_cityId_idx", columns={"cityId"}),
+ *      @ORM\Index(name="fk_Room_buildingId_idx", columns={"buildingId"}),
+ *      @ORM\Index(name="fk_Room_floorId_idx", columns={"floorId"})})
  * @ORM\Entity
  */
 class Room
@@ -25,61 +28,17 @@ class Room
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $id;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
-     */
-    private $cityId;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Roomcity
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roomcity")
-     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
-     *
-     */
-    private $city;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="buildingId", type="integer", nullable=false)
-     */
-    private $buildingId;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Roombuilding
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roombuilding")
-     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
-     *
-     */
-    private $building;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="floorId", type="integer", nullable=false)
-     */
-    private $floorId;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Roomfloor
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Roomfloor")
-     * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
-     *
-     */
-    private $floor;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $name;
 
@@ -87,13 +46,74 @@ class Room
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $description;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="cityId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $cityId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $city;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="buildingId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $buildingId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $building;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="floorId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $floorId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomFloor
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFloor")
+     * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $floor;
 
     /**
      * @var string
      *
      * @ORM\Column(name="number", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $number;
 
@@ -101,6 +121,8 @@ class Room
      * @var integer
      *
      * @ORM\Column(name="area", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $area;
 
@@ -108,47 +130,50 @@ class Room
      * @var string
      *
      * @ORM\Column(name="type", type="string", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $type;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     */
-    private $creationDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     */
-    private $modificationDate;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $allowedPeople;
 
+    /**
+     * @Serializer\Groups({"admin_room"})
+     **/
     private $officeSupplies;
 
-    private $attachments;
-
-    /**
-     * @var RoomMeeting
-     *
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting", mappedBy="roomId")
-     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
-     */
-    private $meeting;
+//    /**
+//     * @var RoomMeeting
+//     *
+//     * @ORM\OneToOne(
+//     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting",
+//     *      mappedBy="room",
+//     *      cascade={"persist"}
+//     * )
+//     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+//     *
+//     * @Serializer\Groups({"main", "admin_room"})
+//     */
+//    private $meeting;
 
     /**
      * @var RoomFixed
      *
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFixed", mappedBy="roomId")
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFixed",
+     *      mappedBy="room",
+     *      cascade={"persist"}
+     * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $fixed;
 
@@ -157,8 +182,42 @@ class Room
      *
      * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomRentedDate", mappedBy="roomId")
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $rentedDates;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $modificationDate;
+
+    /**
+     * @var RoomAttachmentBinding
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding",
+     *      mappedBy="room",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $attachment;
 
     /**
      * Get id
@@ -446,56 +505,33 @@ class Room
         return $this->modificationDate;
     }
 
-    /**
-     * Set attachments
-     *
-     * @param  string $attachments
-     * @return Room
-     */
-    public function setAttachments($attachments)
-    {
-        $this->attachments = $attachments;
-
-        return $this;
-    }
-
-    /**
-     * Get attachments
-     *
-     * @return string
-     */
-    public function getAttachments()
-    {
-        return $this->attachments;
-    }
-
-    /**
-     * Get meeting
-     *
-     * @return mixed
-     */
-    public function getMeeting()
-    {
-        return $this->meeting;
-    }
-
-    /**
-     * Set meeting
-     *
-     * @param  mixed $meeting
-     * @return $this
-     */
-    public function setMeeting($meeting)
-    {
-        $this->meeting = $meeting;
-
-        return $this;
-    }
+//    /**
+//     * Get meeting
+//     *
+//     * @return RoomMeeting
+//     */
+//    public function getMeeting()
+//    {
+//        return $this->meeting;
+//    }
+//
+//    /**
+//     * Set meeting
+//     *
+//     * @param  RoomMeeting $meeting
+//     * @return Room
+//     */
+//    public function setMeeting($meeting)
+//    {
+//        $this->meeting = $meeting;
+//
+//        return $this;
+//    }
 
     /**
      * Get fixed
      *
-     * @return mixed
+     * @return RoomFixed
      */
     public function getFixed()
     {
@@ -505,8 +541,8 @@ class Room
     /**
      * Set fixed
      *
-     * @param  mixed $fixed
-     * @return $this
+     * @param  RoomFixed $fixed
+     * @return Room
      */
     public function setFixed($fixed)
     {
@@ -553,5 +589,63 @@ class Room
     public function getRentedDates()
     {
         return $this->rentedDates;
+    }
+
+    /**
+     * @return RoomAttachmentBinding
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
+    }
+
+    /**
+     * @param  RoomAttachmentBinding $attachment
+     * @return Room
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Set floor
+     *
+     * @param  RoomFloor $floor
+     * @return Room
+     */
+    public function setFloor($floor)
+    {
+        $this->floor = $floor;
+
+        return $this;
+    }
+
+    /**
+     * Set city
+     *
+     * @param  RoomCity $city
+     * @return Room
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    /**
+     * Set building
+     *
+     * @param  RoomBuilding $building
+     * @return Room
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+
+        return $this;
     }
 }
