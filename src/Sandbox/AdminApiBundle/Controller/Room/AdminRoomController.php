@@ -74,6 +74,26 @@ class AdminRoomController extends RoomController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset from which to start listing rooms"
+     * )
+     *
      * @Route("/rooms")
      * @Method({"GET"})
      *
@@ -90,10 +110,15 @@ class AdminRoomController extends RoomController
 
         //filters
         $filters = $this->getFilters($paramFetcher);
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         //find all with or without filters
         $rooms = $room->findBy(
-            $filters
+            $filters,
+            null,
+            $limit,
+            $offset
         );
 
         $view = new View();
