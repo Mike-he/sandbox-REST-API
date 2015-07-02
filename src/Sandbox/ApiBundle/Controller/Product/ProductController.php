@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Product Controller.
@@ -31,7 +32,11 @@ class ProductController extends SandboxRestController
     ) {
         $products = $this->getRepo('Product\Product')->findAll();
 
-        return new View($products);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($products);
+
+        return $view;
     }
 
     /**
@@ -48,6 +53,10 @@ class ProductController extends SandboxRestController
     ) {
         $product = $this->getRepo('Product\Product')->find($id);
 
-        return new View($product);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($product);
+
+        return $view;
     }
 }

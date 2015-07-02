@@ -25,7 +25,7 @@ class Roomfloor
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
@@ -43,7 +43,7 @@ class Roomfloor
      *
      * @ORM\Column(name="floorNumber", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $floorNumber;
 

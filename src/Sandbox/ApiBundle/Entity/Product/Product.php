@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Product;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Product.
@@ -18,6 +19,8 @@ class Product
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $id;
 
@@ -25,6 +28,8 @@ class Product
      * @var int
      *
      * @ORM\Column(name="roomId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $roomId;
 
@@ -33,6 +38,8 @@ class Product
      *
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $room;
 
@@ -40,6 +47,8 @@ class Product
      * @var string
      *
      * @ORM\Column(name="description", type="text")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $description;
 
@@ -47,6 +56,8 @@ class Product
      * @var int
      *
      * @ORM\Column(name="visibleUserId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $visibleUserId;
 
@@ -54,6 +65,8 @@ class Product
      * @var string
      *
      * @ORM\Column(name="basePrice", type="decimal")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $basePrice;
 
@@ -61,6 +74,8 @@ class Product
      * @var string
      *
      * @ORM\Column(name="unitPrice", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $unitPrice;
 
@@ -68,6 +83,8 @@ class Product
      * @var bool
      *
      * @ORM\Column(name="private", type="boolean")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $private;
 
@@ -75,6 +92,8 @@ class Product
      * @var bool
      *
      * @ORM\Column(name="renewable", type="boolean")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $renewable;
 
@@ -82,6 +101,8 @@ class Product
      * @var \DateTime
      *
      * @ORM\Column(name="startDate", type="date", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $startDate;
 
@@ -89,6 +110,8 @@ class Product
      * @var \DateTime
      *
      * @ORM\Column(name="endDate", type="date", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $endDate;
 
@@ -96,6 +119,8 @@ class Product
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -103,6 +128,8 @@ class Product
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

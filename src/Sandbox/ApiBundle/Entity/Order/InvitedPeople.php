@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Order;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * InvitedPeople.
@@ -18,6 +19,8 @@ class InvitedPeople
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -28,6 +31,8 @@ class InvitedPeople
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="orderId", referencedColumnName="id")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $orderId;
 
@@ -35,6 +40,8 @@ class InvitedPeople
      * @var int
      *
      * @ORM\Column(name="userId", type="integer")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $userId;
 
@@ -42,15 +49,10 @@ class InvitedPeople
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="modificationDate", type="datetime")
-     */
-    private $modificationDate;
 
     /**
      * Get id.
@@ -132,29 +134,5 @@ class InvitedPeople
     public function getCreationDate()
     {
         return $this->creationDate;
-    }
-
-    /**
-     * Set modificationDate.
-     *
-     * @param \DateTime $modificationDate
-     *
-     * @return InvitedPeople
-     */
-    public function setModificationDate($modificationDate)
-    {
-        $this->modificationDate = $modificationDate;
-
-        return $this;
-    }
-
-    /**
-     * Get modificationDate.
-     *
-     * @return \DateTime
-     */
-    public function getModificationDate()
-    {
-        return $this->modificationDate;
     }
 }
