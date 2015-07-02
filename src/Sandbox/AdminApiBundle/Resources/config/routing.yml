@@ -10,6 +10,12 @@ sandbox_admin_api_rooms_attachments:
     type:     annotation
     prefix:   /
 
+# Rooms /admin/rooms/supplies
+sandbox_admin_api_rooms_supplies:
+    resource: "@SandboxAdminApiBundle/Controller/Room/AdminRoomSuppliesController.php"
+    type:     annotation
+    prefix:   /
+
 # Rooms /admin/rooms
 sandbox_admin_api_rooms:
     resource: "@SandboxAdminApiBundle/Controller/Room/AdminRoomController.php"
