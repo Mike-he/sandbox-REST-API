@@ -25,7 +25,7 @@ class Roombuilding
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
@@ -43,9 +43,36 @@ class Roombuilding
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $address;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lat", type="decimal")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $lat;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lng", type="decimal")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $lng;
 
     /**
      * Get id.
@@ -103,5 +130,77 @@ class Roombuilding
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set address.
+     *
+     * @param string $address
+     *
+     * @return RoomBuilding
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * Get address.
+     *
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * Set lat.
+     *
+     * @param decimal $lat
+     *
+     * @return RoomBuilding
+     */
+    public function setLat($lat)
+    {
+        $this->lat = $lat;
+
+        return $this;
+    }
+
+    /**
+     * Get lat.
+     *
+     * @return decimal
+     */
+    public function getLat()
+    {
+        return $this->lat;
+    }
+
+    /**
+     * Set lng.
+     *
+     * @param decimal $lng
+     *
+     * @return RoomBuilding
+     */
+    public function setLng($lng)
+    {
+        $this->lng = $lng;
+
+        return $this;
+    }
+
+    /**
+     * Get lng.
+     *
+     * @return decimal
+     */
+    public function getLng()
+    {
+        return $this->lng;
     }
 }

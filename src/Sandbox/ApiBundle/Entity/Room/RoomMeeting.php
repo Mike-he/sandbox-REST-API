@@ -25,7 +25,7 @@ class RoomMeeting
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
@@ -46,7 +46,7 @@ class RoomMeeting
      *
      * @ORM\Column(name="startHour", type="time", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $startHour;
 
@@ -55,7 +55,7 @@ class RoomMeeting
      *
      * @ORM\Column(name="endHour", type="time", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $endHour;
 

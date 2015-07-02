@@ -25,6 +25,8 @@ class ProductRepository extends EntityRepository
             ->andWhere('p.unitPrice = :timeUnit')
             ->andWhere('r.building = :buildingId')
             ->andWhere('r.allowedPeople >= :allowedPeople')
+            ->andWhere('p.startDate <= :startTime')
+            ->andWhere('p.endDate > :endTime')
             ->andWhere('((o.startDate > :startTime AND o.startDate > :endTime) OR (o.endDate < :startTime AND o.endDate < :endTime))')
             ->setParameter('roomType', $roomType)
             ->setParameter('timeUnit', $timeUnit)

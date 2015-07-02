@@ -29,7 +29,7 @@ class Room
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
@@ -38,7 +38,7 @@ class Room
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $name;
 
@@ -47,7 +47,7 @@ class Room
      *
      * @ORM\Column(name="description", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $description;
 
@@ -66,7 +66,7 @@ class Room
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $city;
 
@@ -85,7 +85,7 @@ class Room
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $building;
 
@@ -104,7 +104,7 @@ class Room
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFloor")
      * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $floor;
 
@@ -113,7 +113,7 @@ class Room
      *
      * @ORM\Column(name="number", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $number;
 
@@ -122,7 +122,7 @@ class Room
      *
      * @ORM\Column(name="area", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $area;
 
@@ -131,7 +131,7 @@ class Room
      *
      * @ORM\Column(name="type", type="string", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $type;
 
@@ -140,12 +140,12 @@ class Room
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $allowedPeople;
 
     /**
-     * @Serializer\Groups({"admin_room"})
+     * @Serializer\Groups({"admin_room", "client"})
      **/
     private $officeSupplies;
 
@@ -173,7 +173,7 @@ class Room
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $fixed;
 
@@ -205,7 +205,7 @@ class Room
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $attachment;
 

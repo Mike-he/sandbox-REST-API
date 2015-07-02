@@ -1,6 +1,9 @@
 CREATE TABLE `RoomBuilding` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `address` text NOT NULL,
+  `lat` decimal(9,6) NOT NULL,
+  `lng` decimal(9,6) NOT NULL,
   `cityId` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_Building_cityId_idx` (`cityId`),

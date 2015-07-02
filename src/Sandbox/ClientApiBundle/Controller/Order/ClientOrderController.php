@@ -15,6 +15,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Rest controller for Client Orders.
@@ -72,7 +73,11 @@ class ClientOrderController extends PaymentController
             ['userId' => $userId]
         );
 
-        return new View($orders);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($orders);
+
+        return $view;
     }
 
     /**
