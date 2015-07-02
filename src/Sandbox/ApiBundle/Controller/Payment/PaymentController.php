@@ -47,8 +47,10 @@ class PaymentController extends SandboxRestController
                 break;
         }
 
-        $key = $this->container->getParameter('pingpp_test_key');
-        $appId = $this->container->getParameter('pingpp_app_id');
+        $keyGlobal = $this->get('twig')->getGlobals();
+        $key = $keyGlobal['pingpp_test_key'];
+        $appGlobal = $this->get('twig')->getGlobals();
+        $appId = $appGlobal['pingpp_app_id'];
 
         Pingpp::setApiKey($key);
         try {
@@ -81,7 +83,8 @@ class PaymentController extends SandboxRestController
     public function refundForOrder(
         $chargeId
     ) {
-        $key = $this->container->getParameter('pingpp_test_key');
+        $keyGlobal = $this->get('twig')->getGlobals();
+        $key = $keyGlobal['pingpp_test_key'];
         Pingpp::setApiKey($key);
         try {
             $ch = Charge::retrieve($chargeId);
@@ -105,7 +108,8 @@ class PaymentController extends SandboxRestController
      */
     public function getChargeDetail($chargeId)
     {
-        $key = $this->container->getParameter('pingpp_test_key');
+        $keyGlobal = $this->get('twig')->getGlobals();
+        $key = $keyGlobal['pingpp_test_key'];
         Pingpp::setApiKey($key);
         try {
             $ch = Charge::retrieve($chargeId);
