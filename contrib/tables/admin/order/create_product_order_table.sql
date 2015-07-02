@@ -6,6 +6,7 @@ CREATE TABLE `ProductOrder` (
   `endDate` datetime NOT NULL,
   `price` numeric(15,2),
   `status` enum('paid','unpaid','completed','cancelled') DEFAULT NULL,
+  `location` text,
   `paymentDate` datetime,
   `cancelledDate` datetime,
   `creationDate` datetime NOT NULL,

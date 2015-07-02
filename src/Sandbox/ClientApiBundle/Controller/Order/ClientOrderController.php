@@ -34,6 +34,10 @@ class ClientOrderController extends PaymentController
     const TIME_UNIT_MISMATCH = 'TIME UNIT DOES NOT MATCH';
     const WRONG_PAYMENT_STATUS = 'WRONG STATUS';
     const NO_PAYMENT = 'Payment does not exist';
+    const INSUFFICIENT_FUNDS_CODE = 400001;
+    const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
+    const SYSTEM_ERROR_CODE = 500001;
+    const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
 
     /**
      * Get all orders for current user.
@@ -66,13 +70,11 @@ class ClientOrderController extends PaymentController
                 'userId' => $userId,
                 'status' => $status,
             ));
-
-            return new View($orders);
+        } else {
+            $orders = $this->getRepo('Order\ProductOrder')->findBy(
+                ['userId' => $userId]
+            );
         }
-        $orders = $this->getRepo('Order\ProductOrder')->findBy(
-            ['userId' => $userId]
-        );
-
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($orders);
@@ -130,11 +132,15 @@ class ClientOrderController extends PaymentController
         $em->flush();
 
         $channel = $form['channel']->getData();
-        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap') {
+        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
             throw new BadRequestHttpException(self::WRONG_CHANNEL);
         }
 
         $map = $this->createOrderMap($order);
+
+        if ($channel === 'account') {
+            $this->payByAccount($order);
+        }
 
         $charge = $this->payForOrder($map->getId(), $order, $channel);
         $charge = json_decode($charge, true);
@@ -151,6 +157,39 @@ class ClientOrderController extends PaymentController
         );
 
         return $view;
+    }
+
+    private function payByAccount()
+    {
+        //        //TODO Call CRM API to get current balance
+//        if ($order->getPrice() > $balance){
+//
+//            return $this->customErrorView(
+//                400,
+//                self::INSUFFICIENT_FUNDS_CODE,
+//                self::INSUFFICIENT_FUNDS_MESSAGE
+//            );
+//        }
+//        //TODO Call CRM API to subtract price from current balance
+//        $newBalance = $balance - $order->getPrice();
+//        //TODO Call CRM API to get current balance AGAIN
+//        if ($newBalance !== $balance){
+//
+//            return $this->customErrorView(
+//                500,
+//                self::SYSTEM_ERROR_CODE,
+//                self::SYSTEM_ERROR_MESSAGE
+//            );
+//        }
+//
+//        $view = new View();
+//        $view->setData(
+//            array(
+//                'id' => $order->getId()
+//            )
+//        );
+//
+//        return $view;
     }
 
     /**
@@ -204,8 +243,12 @@ class ClientOrderController extends PaymentController
         }
 
         $channel = $request->get('channel');
-        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap') {
+        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
             throw new BadRequestHttpException(self::WRONG_CHANNEL);
+        }
+
+        if ($channel === 'account') {
+            $this->payByAccount($order);
         }
 
         $map = $this->getRepo('Order\OrderMap')->findOneBy(

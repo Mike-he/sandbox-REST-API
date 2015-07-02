@@ -159,7 +159,7 @@ class Room
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $meeting;
 
@@ -508,7 +508,7 @@ class Room
     }
 
     /**
-     * Get meeting
+     * Get meeting.
      *
      * @return RoomMeeting
      */
@@ -518,9 +518,10 @@ class Room
     }
 
     /**
-     * Set meeting
+     * Set meeting.
      *
-     * @param  RoomMeeting $meeting
+     * @param RoomMeeting $meeting
+     *
      * @return Room
      */
     public function setMeeting($meeting)
