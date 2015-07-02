@@ -126,6 +126,7 @@ class ClientOrderController extends PaymentController
         $order->setStartDate($startDate);
         $order->setEndDate($endDate);
         $order->setUserId($userId);
+        $order->setLocation('下订单时所在地址');
         $order->setStatus('unpaid');
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
