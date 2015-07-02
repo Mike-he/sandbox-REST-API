@@ -178,16 +178,6 @@ class Room
     private $fixed;
 
     /**
-     * @var RoomRentedDate
-     *
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomRentedDate", mappedBy="roomId")
-     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
-     *
-     * @Serializer\Groups({"main", "admin_room"})
-     */
-    private $rentedDates;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -592,16 +582,6 @@ class Room
     public function getFloor()
     {
         return $this->floor;
-    }
-
-    /**
-     * Get RoomRentedDate.
-     *
-     * @return RoomRentedDate
-     */
-    public function getRentedDates()
-    {
-        return $this->rentedDates;
     }
 
     /**
