@@ -120,8 +120,6 @@ class ClientOrderController extends PaymentController
         $order->setEndDate($endDate);
         $order->setUserId($userId);
         $order->setStatus('unpaid');
-        $order->setCreationDate(new \DateTime());
-        $order->setModificationDate(new \DateTime());
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
@@ -270,6 +268,7 @@ class ClientOrderController extends PaymentController
             $people = new InvitedPeople();
             $people->setOrderId($order);
             $people->setUserId($user['user_id']);
+            $people->setCreationDate(new \DateTime());
             $em = $this->getDoctrine()->getManager();
             $em->persist($people);
             $em->flush();

@@ -39,6 +39,20 @@ class InvitedPeople
     private $userId;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime")
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime")
+     */
+    private $modificationDate;
+
+    /**
      * Get id.
      *
      * @return int
@@ -94,5 +108,53 @@ class InvitedPeople
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * Set creationDate.
+     *
+     * @param \DateTime $creationDate
+     *
+     * @return InvitedPeople
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get creationDate.
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * Set modificationDate.
+     *
+     * @param \DateTime $modificationDate
+     *
+     * @return InvitedPeople
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modificationDate.
+     *
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
     }
 }

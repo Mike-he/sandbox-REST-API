@@ -404,4 +404,11 @@ class ProductOrder
     {
         return $this->invitedPeople;
     }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
+    }
 }

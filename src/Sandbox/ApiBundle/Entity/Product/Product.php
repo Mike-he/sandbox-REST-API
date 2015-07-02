@@ -72,6 +72,27 @@ class Product
     private $private;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="renewable", type="boolean")
+     */
+    private $renewable;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="startDate", type="date", nullable=true)
+     */
+    private $startDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="endDate", type="date", nullable=true)
+     */
+    private $endDate;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -295,5 +316,77 @@ class Product
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Set startDate.
+     *
+     * @param \DateTime $startDate
+     *
+     * @return Product
+     */
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    /**
+     * Get startDate.
+     *
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * Set endDate.
+     *
+     * @param \DateTime $endDate
+     *
+     * @return Product
+     */
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    /**
+     * Get endDate.
+     *
+     * @return \DateTime
+     */
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    /**
+     * Set renewable.
+     *
+     * @param bool $renewable
+     *
+     * @return Product
+     */
+    public function setRenewable($renewable)
+    {
+        $this->renewable = $renewable;
+
+        return $this;
+    }
+
+    /**
+     * Get renewable.
+     *
+     * @return bool
+     */
+    public function getRenewable()
+    {
+        return $this->renewable;
     }
 }
