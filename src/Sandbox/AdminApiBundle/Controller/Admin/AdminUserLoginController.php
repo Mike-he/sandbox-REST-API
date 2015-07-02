@@ -88,7 +88,7 @@ class AdminUserLoginController extends AdminLoginController
 
             // admin permission
             $permissions = $this->getAdminPermissions($admin);
-            $admin->setPermission($permissions);
+            $admin->setPermissions($permissions);
 
             // response
             $view = new View();

@@ -27,3 +27,9 @@ sandbox_admin_api_announcements:
     resource: "@SandboxAdminApiBundle/Controller/Announcement/AdminAnnouncementController.php"
     type:     annotation
     prefix:   /
+
+# Admins /admin/admis
+sandbox_admin_api_admins:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminAdminsController.php"
+    type:     annotation
+    prefix:   /

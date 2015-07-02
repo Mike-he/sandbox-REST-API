@@ -85,14 +85,14 @@ class Admin implements UserInterface
     private $type;
 
     /**
-     * @ORM\OneToMany(targetEntity="AdminPermissionMap", mappedBy="admin")
+     * @ORM\OneToMany(targetEntity="AdminPermissionMap", mappedBy="admin", cascade={"persist"})
      **/
     private $permissionIds;
 
     /**
      * @Serializer\Groups({"login"})
      **/
-    private $permission;
+    private $permissions;
 
     /**
      * Get id.
@@ -247,6 +247,18 @@ class Admin implements UserInterface
     }
 
     /**
+     * Set type.
+     *
+     * @param AdminType $type
+     *
+     * @return Admin
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
      * Get permissionIds.
      *
      * @return array
@@ -257,25 +269,37 @@ class Admin implements UserInterface
     }
 
     /**
-     * Set permission.
+     * Set permissionIds.
      *
-     * @param array $permission
-     *
-     * @return Admin
-     */
-    public function setPermission($permission)
-    {
-        $this->permission = $permission;
-    }
-
-    /**
-     * Get permission.
+     * @param array $permissionIds
      *
      * @return array
      */
-    public function getPermission()
+    public function setPermissionIds($permissionIds)
     {
-        return $this->permission;
+        $this->permissionIds = $permissionIds;
+    }
+
+    /**
+     * Get permissions.
+     *
+     * @return array
+     */
+    public function getPermissions()
+    {
+        return $this->permissions;
+    }
+
+    /**
+     * Set permissions.
+     *
+     * @param array $permissions
+     *
+     * @return Admin
+     */
+    public function setPermissions($permissions)
+    {
+        $this->permissions = $permissions;
     }
 
     /**

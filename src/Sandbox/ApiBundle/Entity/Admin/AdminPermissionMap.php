@@ -146,6 +146,20 @@ class AdminPermissionMap
     }
 
     /**
+     * Set permission.
+     *
+     * @param AdminPermission $permission
+     *
+     * @return AdminPermissionMap
+     */
+    public function SetPermission($permission)
+    {
+        $this->permission = $permission;
+
+        return $this;
+    }
+
+    /**
      * Get permission.
      *
      * @return AdminPermission
@@ -153,5 +167,29 @@ class AdminPermissionMap
     public function getPermission()
     {
         return $this->permission;
+    }
+
+    /**
+     * Set $admin.
+     *
+     * @param Admin $admin
+     *
+     * @return AdminPermissionMap
+     */
+    public function setAdmin($admin)
+    {
+        $this->admin = $admin;
+
+        return $this;
+    }
+
+    /**
+     * Get admin.
+     *
+     * @return Admin
+     */
+    public function getAdmin()
+    {
+        return $this->admin;
     }
 }
