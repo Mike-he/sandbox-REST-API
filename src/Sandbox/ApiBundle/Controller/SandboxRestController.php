@@ -18,22 +18,23 @@ class SandboxRestController extends FOSRestController
 {
     // TODO move constants to constant folder
 
-    const NOT_ALLOWED_MESSAGE = "You are not allowed to perform this action";
+    const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
 
-    const NOT_FOUND_MESSAGE = "This resource does not exist";
+    const NOT_FOUND_MESSAGE = 'This resource does not exist';
 
-    const BAD_PARAM_MESSAGE = "Bad parameters";
+    const BAD_PARAM_MESSAGE = 'Bad parameters';
 
     const HTTP_STATUS_OK = 200;
 
     const VERIFICATION_CODE_LENGTH = 6;
 
-    const HTTP_HEADER_AUTH = "authorization";
+    const HTTP_HEADER_AUTH = 'authorization';
 
     //-------------------- Repo --------------------//
 
     /**
      * @param $repo
+     *
      * @return \Doctrine\Common\Persistence\ObjectRepository
      */
     protected function getRepo(
@@ -46,7 +47,8 @@ class SandboxRestController extends FOSRestController
 
     //--------------------get user's info--------------------//
     /**
-     * Get the jid of the guy who's making the API call
+     * Get the jid of the guy who's making the API call.
+     *
      * @return string
      */
     protected function getUserJid()
@@ -55,7 +57,8 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * Get the id of the guy who's making the API call
+     * Get the id of the guy who's making the API call.
+     *
      * @return string
      */
     protected function getUserid()
@@ -64,7 +67,8 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * Get the username of the guy who's making the API call
+     * Get the username of the guy who's making the API call.
+     *
      * @return string
      */
     protected function getUsername()
@@ -76,7 +80,7 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * Get user's vCard name
+     * Get user's vCard name.
      *
      * @param $userId
      * @param $companyId
@@ -103,7 +107,7 @@ class SandboxRestController extends FOSRestController
 
     //--------------------call remote api--------------------//
     /**
-     * Send sms
+     * Send sms.
      *
      * Reference: http://sms.webchinese.cn/api.shtml#top4
      * Example: $url='http://sms.webchinese.cn/web_api/?Uid=账号&Key=接口密钥&smsMob=手机号码&smsText=短信
@@ -145,7 +149,7 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * Send email
+     * Send email.
      *
      * @param $subject
      * @param $toEmail
@@ -182,6 +186,7 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $phone
+     *
      * @return bool
      */
     protected function isPhoneNumberValid(
@@ -230,6 +235,7 @@ class SandboxRestController extends FOSRestController
     //--------------------for user default value--------------------//
     /**
      * @param $username
+     *
      * @return string
      */
     protected function constructXmppJid(
@@ -244,6 +250,7 @@ class SandboxRestController extends FOSRestController
     /**
      * @param $countryCode
      * @param $phone
+     *
      * @return string
      */
     protected function constructVCardPhone(
@@ -283,6 +290,7 @@ class SandboxRestController extends FOSRestController
     //--------------------generate default verification code and token--------------------//
     /**
      * @param $digits
+     *
      * @return string
      */
     protected function generateVerificationCode(
@@ -387,6 +395,7 @@ class SandboxRestController extends FOSRestController
      * @param $companyId
      * @param $fullName
      * @param $gender
+     *
      * @return JtVCard
      */
     protected function setDefaultVCard(
@@ -407,6 +416,7 @@ class SandboxRestController extends FOSRestController
     /**
      * @param $userId
      * @param $companyId
+     *
      * @return Companymember
      */
     protected function setCompanyMember(
@@ -423,7 +433,7 @@ class SandboxRestController extends FOSRestController
 
     //--------------------throw customer http error --------------------//
     /**
-     * Custom error view
+     * Custom error view.
      *
      * @param $statusCode
      * @param $errorCode
@@ -484,7 +494,7 @@ class SandboxRestController extends FOSRestController
 
     /**
      * TODO : move that in something specific to Approval related
-     * class
+     * class.
      */
     protected function throwAccessDeniedIfNotAffiliated(
         $type,
@@ -494,8 +504,8 @@ class SandboxRestController extends FOSRestController
         $affiliateRepo = $this->getAffilationRepo($type);
         $affilation = $affiliateRepo->findOneBy(
             array(
-                "jid" => $jid,
-                "itemid" => $approvalId,
+                'jid' => $jid,
+                'itemid' => $approvalId,
             )
         );
 
@@ -558,6 +568,7 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $httpResponseCode
+     *
      * @throws BadRequestHttpException
      */
     protected function throwBadRequestIfCallApiFailed(
@@ -569,9 +580,10 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param  Request $request
-     * @param  int     $companyId
-     * @param  array   $rooms
+     * @param Request $request
+     * @param int     $companyId
+     * @param array   $rooms
+     *
      * @return mixed
      */
     protected function callApiDisableGroupChat(

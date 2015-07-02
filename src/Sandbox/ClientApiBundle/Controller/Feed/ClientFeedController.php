@@ -14,23 +14,24 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Rest controller for Feed
+ * Rest controller for Feed.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientFeedController extends FeedController
 {
-    const NOT_FOUND_MESSAGE = "This resource does not exist";
+    const NOT_FOUND_MESSAGE = 'This resource does not exist';
 
-    const FEED_TYPE = "Feed";
+    const FEED_TYPE = 'Feed';
 
-    const BAD_PARAM_MESSAGE = "Bad parameters";
+    const BAD_PARAM_MESSAGE = 'Bad parameters';
 
-    const NOT_ALLOWED_MESSAGE = "You are not allowed to perform this action";
+    const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
 
     /**
      * List all feed.
@@ -114,7 +115,6 @@ class ClientFeedController extends FeedController
      *   }
      * )
      *
-     *
      * @param Request $request the request object
      * @param String  $id      the feed Id
      *
@@ -146,8 +146,10 @@ class ClientFeedController extends FeedController
     }
 
     /**
-     * @param  Request                 $request
+     * @param Request $request
+     *
      * @return View
+     *
      * @throws BadRequestHttpException
      */
     public function postFeedAction(
@@ -208,8 +210,9 @@ class ClientFeedController extends FeedController
     }
 
     /**
-     * @param  Request                 $request
+     * @param Request $request
      * @param $id
+     *
      * @throws BadRequestHttpException
      */
     public function deleteFeedAction(

@@ -5,15 +5,14 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User Profile
+ * User Profile.
  *
  * @ORM\Table(name="UserProfile")
  * @ORM\Entity
- *
  */
 class UserProfile
 {
-    const DEFAULT_GENDER_OTHER = "other";
+    const DEFAULT_GENDER_OTHER = 'other';
 
     /**
      * @var int
@@ -489,7 +488,7 @@ class UserProfile
 
     public function __construct()
     {
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
     }

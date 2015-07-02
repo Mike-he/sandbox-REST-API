@@ -14,19 +14,20 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Rs\Json\Patch;
 
 /**
- * Rest controller for user`s basic profile
+ * Rest controller for user`s basic profile.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  * @Route("/profile")
  */
 class ClientUserBasicProfileController extends UserProfileController
 {
     /**
-     * Get user's education
+     * Get user's education.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -63,6 +64,7 @@ class ClientUserBasicProfileController extends UserProfileController
      *
      * @Route("/basic/{id}")
      * @Method({"PATCH"})
+     *
      * @return View
      */
     public function patchUserBasicProfileAction(
@@ -81,7 +83,7 @@ class ClientUserBasicProfileController extends UserProfileController
         $form->submit(json_decode($userBasicProfileJSON, true));
 
         if ($form->isValid()) {
-            $userBasicProfile->setModificationDate(new \DateTime("now"));
+            $userBasicProfile->setModificationDate(new \DateTime('now'));
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 

@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Company;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Company
+ * Company.
  *
  * @ORM\Table(name="jtCompany")
  * @ORM\Entity(
@@ -87,7 +87,7 @@ class Company
     private $modificationdate;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return string
      */
@@ -97,9 +97,10 @@ class Company
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return Company
      */
     public function setName($name)
@@ -110,7 +111,7 @@ class Company
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -120,9 +121,10 @@ class Company
     }
 
     /**
-     * Set address
+     * Set address.
      *
-     * @param  string  $address
+     * @param string $address
+     *
      * @return Company
      */
     public function setAddress($address)
@@ -133,7 +135,7 @@ class Company
     }
 
     /**
-     * Get address
+     * Get address.
      *
      * @return string
      */
@@ -143,9 +145,10 @@ class Company
     }
 
     /**
-     * Set website
+     * Set website.
      *
-     * @param  string  $website
+     * @param string $website
+     *
      * @return Company
      */
     public function setWebsite($website)
@@ -156,7 +159,7 @@ class Company
     }
 
     /**
-     * Get website
+     * Get website.
      *
      * @return string
      */
@@ -166,9 +169,10 @@ class Company
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string  $phone
+     * @param string $phone
+     *
      * @return Company
      */
     public function setPhone($phone)
@@ -179,7 +183,7 @@ class Company
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -189,9 +193,10 @@ class Company
     }
 
     /**
-     * Set fax
+     * Set fax.
      *
-     * @param  string  $fax
+     * @param string $fax
+     *
      * @return Company
      */
     public function setFax($fax)
@@ -202,7 +207,7 @@ class Company
     }
 
     /**
-     * Get fax
+     * Get fax.
      *
      * @return string
      */
@@ -212,9 +217,10 @@ class Company
     }
 
     /**
-     * Set description
+     * Set description.
      *
-     * @param  string $description
+     * @param string $description
+     *
      * @return VCard
      */
     public function setDescription($description)
@@ -225,7 +231,7 @@ class Company
     }
 
     /**
-     * Get description
+     * Get description.
      *
      * @return string
      */
@@ -235,9 +241,10 @@ class Company
     }
 
     /**
-     * Set owner
+     * Set owner.
      *
-     * @param  string  $creatorid
+     * @param string $creatorid
+     *
      * @return Company
      */
     public function setCreatorid($creatorid)
@@ -248,7 +255,7 @@ class Company
     }
 
     /**
-     * Get creatorId
+     * Get creatorId.
      *
      * @return string
      */
@@ -258,9 +265,10 @@ class Company
     }
 
     /**
-     * Set creationdate
+     * Set creationdate.
      *
-     * @param  string  $creationdate
+     * @param string $creationdate
+     *
      * @return Company
      */
     public function setCreationdate($creationdate)
@@ -271,7 +279,7 @@ class Company
     }
 
     /**
-     * Get creationdate
+     * Get creationdate.
      *
      * @return string
      */
@@ -281,9 +289,10 @@ class Company
     }
 
     /**
-     * Set modificationdate
+     * Set modificationdate.
      *
-     * @param  string  $modificationdate
+     * @param string $modificationdate
+     *
      * @return Company
      */
     public function setModificationdate($modificationdate)
@@ -294,7 +303,7 @@ class Company
     }
 
     /**
-     * Get modificationdate
+     * Get modificationdate.
      *
      * @return string
      */

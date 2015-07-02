@@ -8,20 +8,21 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\View\View;
-use Symfony\Component\Validator\Constraints\DateTime;
+use JMS\Serializer\SerializationContext;
 
 /**
- * Rest controller for Client Product
+ * Rest controller for Client Product.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientProductController extends ProductController
 {
-        /**
+    /**
          * @Get("/products")
          *
          * @Annotations\QueryParam(
@@ -91,9 +92,9 @@ class ClientProductController extends ProductController
             $rentPeriod = $paramFetcher->get('rent_period');
             $allowedPeople = $paramFetcher->get('allowed_people');
             $startTime = $paramFetcher->get('start_time');
-            $endTime = clone $startTime;
+            $startTime = new \DateTime($startTime);
             if (!is_null($startTime)) {
-                $endTime = new \DateTime($endTime);
+                $endTime = clone $startTime;
                 $endTime->modify('+'.$rentPeriod.$timeUnit);
             }
             $productIds = $this->getRepo('Product\Product')->getProductsForClient(
@@ -111,6 +112,10 @@ class ClientProductController extends ProductController
                 array_push($products, $product);
             }
 
-            return new View($products);
+            $view = new View();
+            $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+            $view->setData($products);
+
+            return $view;
         }
 }

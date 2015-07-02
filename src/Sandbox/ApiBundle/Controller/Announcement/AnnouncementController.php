@@ -5,20 +5,22 @@ namespace Sandbox\ApiBundle\Controller\Announcement;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 /**
- * Announcement Controller
+ * Announcement Controller.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class AnnouncementController extends SandboxRestController
 {
     /**
-     * Get order by array
+     * Get order by array.
      *
      * @param $paramFetcher
+     *
      * @return null|array
      */
     protected function getSortBy(

@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 /**
- * Email Binding Verify Incoming Data
+ * Email Binding Verify Incoming Data.
  */
 class EmailBindingVerify
 {
@@ -18,9 +18,10 @@ class EmailBindingVerify
     private $code;
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string             $email
+     * @param string $email
+     *
      * @return EmailBindingVerify
      */
     public function setEmail($email)
@@ -31,7 +32,7 @@ class EmailBindingVerify
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -41,9 +42,10 @@ class EmailBindingVerify
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string             $code
+     * @param string $code
+     *
      * @return EmailBindingVerify
      */
     public function setCode($code)
@@ -54,7 +56,7 @@ class EmailBindingVerify
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */

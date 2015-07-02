@@ -13,16 +13,16 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Phone binding controller
+ * Phone binding controller.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  *
  * @Route("/phone")
@@ -30,19 +30,19 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientUserPhoneBindingController extends UserPhoneBindingController
 {
     const ERROR_INVALID_PHONE_NUMBER_CODE = 400001;
-    const ERROR_INVALID_PHONE_NUMBER_MESSAGE = "Invalid phone number.-该手机号无效";
+    const ERROR_INVALID_PHONE_NUMBER_MESSAGE = 'Invalid phone number.-该手机号无效';
 
     const ERROR_PHONE_NUMBER_USED_CODE = 400002;
-    const ERROR_PHONE_NUMBER_USED_MESSAGE = "Phone number already used.-该手机号已被使用";
+    const ERROR_PHONE_NUMBER_USED_MESSAGE = 'Phone number already used.-该手机号已被使用';
 
     const ERROR_INVALID_VERIFICATION_CODE = 400003;
-    const ERROR_INVALID_VERIFICATION_MESSAGE = "Invalid verification.-该验证无效";
+    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.-该验证无效';
 
     const ERROR_EXPIRED_VERIFICATION_CODE = 400004;
-    const ERROR_EXPIRED_VERIFICATION_MESSAGE = "Expired verification.-该验证已过期";
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.-该验证已过期';
 
     /**
-     * Phone binding submit country code and phone
+     * Phone binding submit country code and phone.
      *
      * @param Request $request the request object
      *
@@ -57,6 +57,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws \Exception
      */
     public function postPhoneBindSubmitAction(
@@ -77,7 +78,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     }
 
     /**
-     * Phone binding verify code
+     * Phone binding verify code.
      *
      * @param Request $request the request object
      *
@@ -92,6 +93,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws \Exception
      */
     public function postPhoneBindVerifyAction(
@@ -112,7 +114,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     }
 
     /**
-     * @param integer            $userId
+     * @param int                $userId
      * @param PhoneBindingSubmit $submit
      *
      * @return View
@@ -150,7 +152,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     }
 
     /**
-     * @param integer            $userId
+     * @param int                $userId
      * @param PhoneBindingVerify $verify
      *
      * @return View
@@ -176,7 +178,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
             return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        if (new \DateTime("now") >  $phoneVerification->getCreationDate()->modify('+0.5 hour')) {
+        if (new \DateTime('now') >  $phoneVerification->getCreationDate()->modify('+0.5 hour')) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
@@ -195,8 +197,9 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     }
 
     /**
-     * @param  string                $userId
-     * @param  string                $phone
+     * @param string $userId
+     * @param string $phone
+     *
      * @return UserPhoneVerification
      */
     private function generatePhoneVerification(

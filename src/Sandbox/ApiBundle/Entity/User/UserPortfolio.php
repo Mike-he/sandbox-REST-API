@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User Portfolio
+ * User Portfolio.
  *
  * @ORM\Table(name="UserPortfolio")
  * @ORM\Entity(
@@ -228,7 +228,7 @@ class UserPortfolio
 
     public function __construct()
     {
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
     }

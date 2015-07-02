@@ -1,11 +1,12 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Product;
+namespace Sandbox\ApiBundle\Entity\Order;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
- * ProductOrder
+ * ProductOrder.
  *
  * @ORM\Table(name="ProductOrder")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\OrderRepository")
@@ -13,27 +14,31 @@ use Doctrine\ORM\Mapping as ORM;
 class ProductOrder
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="userId", type="integer")
      *
+     * @Serializer\Groups({"main"})
      */
     private $userId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="productId", type="integer")
      *
+     * @Serializer\Groups({"main"})
      */
     private $productId;
 
@@ -43,6 +48,7 @@ class ProductOrder
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
      * @ORM\JoinColumn(name="productId", referencedColumnName="id")
      *
+     * @Serializer\Groups({"main", "client"})
      */
     private $product;
 
@@ -50,6 +56,8 @@ class ProductOrder
      * @var \DateTime
      *
      * @ORM\Column(name="startDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $startDate;
 
@@ -57,6 +65,8 @@ class ProductOrder
      * @var \DateTime
      *
      * @ORM\Column(name="endDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $endDate;
 
@@ -64,6 +74,8 @@ class ProductOrder
      * @var string
      *
      * @ORM\Column(name="price", type="decimal")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $price;
 
@@ -71,6 +83,8 @@ class ProductOrder
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $status;
 
@@ -78,6 +92,8 @@ class ProductOrder
      * @var \DateTime
      *
      * @ORM\Column(name="paymentDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $paymentDate;
 
@@ -85,6 +101,8 @@ class ProductOrder
      * @var \DateTime
      *
      * @ORM\Column(name="cancelledDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $cancelledDate;
 
@@ -92,6 +110,8 @@ class ProductOrder
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -99,13 +119,34 @@ class ProductOrder
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
     /**
-     * Get id
+     * @var InvitedPeople
      *
-     * @return integer
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Order\InvitedPeople", mappedBy="orderId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $invitedPeople;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="location", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $location;
+
+    /**
+     * Get id.
+     *
+     * @return int
      */
     public function getId()
     {
@@ -113,9 +154,10 @@ class ProductOrder
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param  integer      $userId
+     * @param int $userId
+     *
      * @return ProductOrder
      */
     public function setUserId($userId)
@@ -126,9 +168,9 @@ class ProductOrder
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer
+     * @return int
      */
     public function getUserId()
     {
@@ -136,9 +178,10 @@ class ProductOrder
     }
 
     /**
-     * Set productId
+     * Set productId.
      *
-     * @param  integer      $productId
+     * @param int $productId
+     *
      * @return ProductOrder
      */
     public function setProductId($productId)
@@ -149,9 +192,9 @@ class ProductOrder
     }
 
     /**
-     * Get productId
+     * Get productId.
      *
-     * @return integer
+     * @return int
      */
     public function getProductId()
     {
@@ -159,9 +202,10 @@ class ProductOrder
     }
 
     /**
-     * Set product
+     * Set product.
      *
-     * @param  Product      $product
+     * @param Product $product
+     *
      * @return ProductOrder
      */
     public function setProduct($product)
@@ -172,7 +216,7 @@ class ProductOrder
     }
 
     /**
-     * Get Product
+     * Get Product.
      *
      * @return Product
      */
@@ -182,9 +226,10 @@ class ProductOrder
     }
 
     /**
-     * Set startDate
+     * Set startDate.
      *
-     * @param  \DateTime    $startDate
+     * @param \DateTime $startDate
+     *
      * @return ProductOrder
      */
     public function setStartDate($startDate)
@@ -195,7 +240,7 @@ class ProductOrder
     }
 
     /**
-     * Get startDate
+     * Get startDate.
      *
      * @return \DateTime
      */
@@ -205,9 +250,10 @@ class ProductOrder
     }
 
     /**
-     * Set endDate
+     * Set endDate.
      *
-     * @param  \DateTime    $endDate
+     * @param \DateTime $endDate
+     *
      * @return ProductOrder
      */
     public function setEndDate($endDate)
@@ -218,7 +264,7 @@ class ProductOrder
     }
 
     /**
-     * Get endDate
+     * Get endDate.
      *
      * @return \DateTime
      */
@@ -228,9 +274,10 @@ class ProductOrder
     }
 
     /**
-     * Set price
+     * Set price.
      *
-     * @param  string       $price
+     * @param string $price
+     *
      * @return ProductOrder
      */
     public function setPrice($price)
@@ -241,7 +288,7 @@ class ProductOrder
     }
 
     /**
-     * Get price
+     * Get price.
      *
      * @return string
      */
@@ -251,9 +298,10 @@ class ProductOrder
     }
 
     /**
-     * Set status
+     * Set status.
      *
-     * @param  string       $status
+     * @param string $status
+     *
      * @return ProductOrder
      */
     public function setStatus($status)
@@ -264,7 +312,7 @@ class ProductOrder
     }
 
     /**
-     * Get status
+     * Get status.
      *
      * @return string
      */
@@ -274,9 +322,10 @@ class ProductOrder
     }
 
     /**
-     * Set paymentDate
+     * Set paymentDate.
      *
-     * @param  \DateTime    $paymentDate
+     * @param \DateTime $paymentDate
+     *
      * @return ProductOrder
      */
     public function setPaymentDate($paymentDate)
@@ -287,7 +336,7 @@ class ProductOrder
     }
 
     /**
-     * Get paymentDate
+     * Get paymentDate.
      *
      * @return \DateTime
      */
@@ -297,9 +346,10 @@ class ProductOrder
     }
 
     /**
-     * Set cancelledDate
+     * Set cancelledDate.
      *
-     * @param  \DateTime    $cancelledDate
+     * @param \DateTime $cancelledDate
+     *
      * @return ProductOrder
      */
     public function setCancelledDate($cancelledDate)
@@ -310,7 +360,7 @@ class ProductOrder
     }
 
     /**
-     * Get cancelledDate
+     * Get cancelledDate.
      *
      * @return \DateTime
      */
@@ -320,9 +370,10 @@ class ProductOrder
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime    $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return ProductOrder
      */
     public function setCreationDate($creationDate)
@@ -333,7 +384,7 @@ class ProductOrder
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -343,9 +394,10 @@ class ProductOrder
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime    $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return ProductOrder
      */
     public function setModificationDate($modificationDate)
@@ -356,12 +408,67 @@ class ProductOrder
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Set invitedPeople.
+     *
+     * @param InvitedPeople $invitedPeople
+     *
+     * @return ProductOrder
+     */
+    public function setInvitedPeople($invitedPeople)
+    {
+        $this->invitedPeople = $invitedPeople;
+
+        return $this;
+    }
+
+    /**
+     * Get invitedPeople.
+     *
+     * @return InvitedPeople
+     */
+    public function getInvitedPeople()
+    {
+        return $this->invitedPeople;
+    }
+
+    /**
+     * Set location.
+     *
+     * @param string $location
+     *
+     * @return ProductOrder
+     */
+    public function setLocation($location)
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    /**
+     * Get location.
+     *
+     * @return string
+     */
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 }

@@ -16,12 +16,13 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 use JMS\Serializer\SerializationContext;
 
 /**
- * Login controller
+ * Login controller.
  *
  * @category Sandbox
- * @package  Sandbox\ClientApiBundle\Controller
+ *
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientUserLoginController extends UserLoginController
@@ -30,7 +31,7 @@ class ClientUserLoginController extends UserLoginController
     const ERROR_ACCOUNT_BANNED_MESSAGE = 'Account is banned - 账号被禁用';
 
     /**
-     * Login
+     * Login.
      *
      * @param Request $request the request object
      *
@@ -45,6 +46,7 @@ class ClientUserLoginController extends UserLoginController
      * @Method({"POST"})
      *
      * @return string
+     *
      * @throws \Exception
      */
     public function postClientUserLoginAction(
@@ -63,9 +65,11 @@ class ClientUserLoginController extends UserLoginController
     }
 
     /**
-     * @param  Request    $request
-     * @param  User       $user
+     * @param Request $request
+     * @param User    $user
+     *
      * @return View
+     *
      * @throws \Exception
      */
     private function handleClientUserLogin(
@@ -104,7 +108,8 @@ class ClientUserLoginController extends UserLoginController
     }
 
     /**
-     * @param  Request    $request
+     * @param Request $request
+     *
      * @return UserClient
      */
     private function saveUserClient(
@@ -113,7 +118,7 @@ class ClientUserLoginController extends UserLoginController
         $userClient = new UserClient();
 
         // set creation date for new object
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $userClient->setCreationDate($now);
 
         // get user client if exist
@@ -129,8 +134,9 @@ class ClientUserLoginController extends UserLoginController
     }
 
     /**
-     * @param  Request    $request
-     * @param  UserClient $userClient
+     * @param Request    $request
+     * @param UserClient $userClient
+     *
      * @return UserClient
      */
     private function getUserClientIfExist(
@@ -171,8 +177,9 @@ class ClientUserLoginController extends UserLoginController
     }
 
     /**
-     * @param  User       $user
-     * @param  UserClient $userClient
+     * @param User       $user
+     * @param UserClient $userClient
+     *
      * @return UserToken
      */
     private function saveUserToken(
@@ -192,7 +199,7 @@ class ClientUserLoginController extends UserLoginController
         }
 
         // refresh creation date
-        $userToken->setCreationDate(new \DateTime("now"));
+        $userToken->setCreationDate(new \DateTime('now'));
 
         return $userToken;
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Sandbox\ApiBundle\Repository\Company;
 
 use Doctrine\ORM\EntityRepository;
@@ -7,7 +8,7 @@ class DirectoryRepository extends EntityRepository
 {
     /**
      * Find all the company member visible to the given
-     * userId
+     * userId.
      */
     public function findAllVisible($userId)
     {
@@ -35,7 +36,7 @@ class DirectoryRepository extends EntityRepository
 
     /**
      * Find all the company member visible to given user
-     * and matching search query
+     * and matching search query.
      */
     public function findVisibleMatchingSearch($userId, $search)
     {

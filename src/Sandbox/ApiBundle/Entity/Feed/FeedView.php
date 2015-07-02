@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * Task
+ * Task.
  *
  * @ORM\Table(name="FeedView")
  * @ORM\Entity(
@@ -81,7 +81,7 @@ class FeedView
     private $myLikeId;
 
     /**
-     * Get feedid
+     * Get feedid.
      *
      * @return string
      */
@@ -91,7 +91,7 @@ class FeedView
     }
 
     /**
-     * Get content
+     * Get content.
      *
      * @return string
      */
@@ -101,7 +101,7 @@ class FeedView
     }
 
     /**
-     * Get parentid
+     * Get parentid.
      *
      * @return int
      */
@@ -111,7 +111,7 @@ class FeedView
     }
 
     /**
-     * Get parenttype
+     * Get parenttype.
      *
      * @return string
      */
@@ -121,7 +121,7 @@ class FeedView
     }
 
     /**
-     * Get ownerid
+     * Get ownerid.
      *
      * @return string
      */
@@ -131,7 +131,7 @@ class FeedView
     }
 
     /**
-     * Get creationdate
+     * Get creationdate.
      *
      * @return string
      */
@@ -141,7 +141,7 @@ class FeedView
     }
 
     /**
-     * Get attachments
+     * Get attachments.
      *
      * @return string
      */
@@ -151,7 +151,7 @@ class FeedView
     }
 
     /**
-     * Get likes_count
+     * Get likes_count.
      *
      * @return int
      */
@@ -161,7 +161,7 @@ class FeedView
     }
 
     /**
-     * Get commentsCount
+     * Get commentsCount.
      *
      * @return int
      */
@@ -171,7 +171,7 @@ class FeedView
     }
 
     /**
-     * Get myLikeId
+     * Get myLikeId.
      *
      * @return int
      */
@@ -181,9 +181,10 @@ class FeedView
     }
 
     /**
-     * Set myLikeId
+     * Set myLikeId.
      *
-     * @param  string $myLikeId
+     * @param string $myLikeId
+     *
      * @return int
      */
     public function setMyLikeId($myLikeId)
@@ -195,7 +196,7 @@ class FeedView
 
     /**
      * Used for array deduplication/array diff
-     * hence why we only return the id
+     * hence why we only return the id.
      */
     public function __toString()
     {

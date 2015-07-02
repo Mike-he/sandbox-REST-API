@@ -6,23 +6,25 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
+use JMS\Serializer\SerializationContext;
 
 /**
- * Product Controller
+ * Product Controller.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ProductController extends SandboxRestController
 {
-
     /**
      * @Get("/products")
      *
-     * @param  Request $request
+     * @param Request $request
+     *
      * @return View
      */
     public function getAllProductsAction(
@@ -30,14 +32,19 @@ class ProductController extends SandboxRestController
     ) {
         $products = $this->getRepo('Product\Product')->findAll();
 
-        return new View($products);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($products);
+
+        return $view;
     }
 
     /**
      * @Get("/products/{id}")
      *
-     * @param  Request $request
+     * @param Request $request
      * @param $id
+     *
      * @return View
      */
     public function getOneProductAction(
@@ -46,6 +53,10 @@ class ProductController extends SandboxRestController
     ) {
         $product = $this->getRepo('Product\Product')->find($id);
 
-        return new View($product);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($product);
+
+        return $view;
     }
 }

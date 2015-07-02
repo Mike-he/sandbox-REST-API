@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Company;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Company Member View
+ * Company Member View.
  *
  * @ORM\Table(name="CompanyMemberView")
  * @ORM\Entity(
@@ -59,7 +59,7 @@ class CompanymemberView
     private $phone;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -69,9 +69,10 @@ class CompanymemberView
     }
 
     /**
-     * Set userid
+     * Set userid.
      *
-     * @param  string            $userid
+     * @param string $userid
+     *
      * @return CompanymemberView
      */
     public function setUserid($userid)
@@ -82,7 +83,7 @@ class CompanymemberView
     }
 
     /**
-     * Get userid
+     * Get userid.
      *
      * @return string
      */
@@ -92,9 +93,10 @@ class CompanymemberView
     }
 
     /**
-     * Set companyid
+     * Set companyid.
      *
-     * @param  int               $companyid
+     * @param int $companyid
+     *
      * @return CompanymemberView
      */
     public function setCompanyid($companyid)
@@ -105,7 +107,7 @@ class CompanymemberView
     }
 
     /**
-     * Get companyid
+     * Get companyid.
      *
      * @return int
      */
@@ -115,9 +117,10 @@ class CompanymemberView
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string            $name
+     * @param string $name
+     *
      * @return CompanymemberView
      */
     public function setName($name)
@@ -128,7 +131,7 @@ class CompanymemberView
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -138,9 +141,10 @@ class CompanymemberView
     }
 
     /**
-     * Set email
+     * Set email.
      *
-     * @param  string            $email
+     * @param string $email
+     *
      * @return CompanymemberView
      */
     public function setEmail($email)
@@ -151,7 +155,8 @@ class CompanymemberView
     }
 
     /**
-     * Get email
+     * Get email.
+     *
      * @return string
      */
     public function getEmail()
@@ -160,9 +165,10 @@ class CompanymemberView
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
-     * @param  string            $phone
+     * @param string $phone
+     *
      * @return CompanymemberView
      */
     public function setPhone($phone)
@@ -173,7 +179,8 @@ class CompanymemberView
     }
 
     /**
-     * Get phone
+     * Get phone.
+     *
      * @return string
      */
     public function getPhone()

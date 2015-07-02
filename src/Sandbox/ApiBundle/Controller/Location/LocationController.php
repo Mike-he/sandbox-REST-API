@@ -10,12 +10,13 @@ use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 
 /**
- * Location Controller
+ * Location Controller.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class LocationController extends SandboxRestController
@@ -23,7 +24,8 @@ class LocationController extends SandboxRestController
     /**
      * @Get("/cities")
      *
-     * @param  Request $request
+     * @param Request $request
+     *
      * @return View
      */
     public function getCitiesAction(
@@ -44,8 +46,9 @@ class LocationController extends SandboxRestController
      *    description="city id"
      * )
      *
-     * @param  Request               $request
-     * @param  ParamFetcherInterface $paramFetcher
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @return View
      */
     public function getBuildingsAction(
@@ -90,8 +93,9 @@ class LocationController extends SandboxRestController
      *    description="building id"
      * )
      *
-     * @param  Request               $request
-     * @param  ParamFetcherInterface $paramFetcher
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @return View
      */
     public function getFloorsAction(

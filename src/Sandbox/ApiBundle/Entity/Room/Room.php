@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Room
+ * Room.
  *
  * @ORM\Table(
  *  name="Room",
@@ -23,13 +23,13 @@ use JMS\Serializer\Annotation as Serializer;
 class Room
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
@@ -38,7 +38,7 @@ class Room
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $name;
 
@@ -47,12 +47,12 @@ class Room
      *
      * @ORM\Column(name="description", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $description;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="cityId", type="integer", nullable=false)
      *
@@ -66,12 +66,12 @@ class Room
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $city;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=false)
      *
@@ -85,12 +85,12 @@ class Room
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $building;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="floorId", type="integer", nullable=false)
      *
@@ -104,7 +104,7 @@ class Room
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFloor")
      * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $floor;
 
@@ -113,16 +113,16 @@ class Room
      *
      * @ORM\Column(name="number", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $number;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="area", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $area;
 
@@ -131,37 +131,37 @@ class Room
      *
      * @ORM\Column(name="type", type="string", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $type;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $allowedPeople;
 
     /**
-     * @Serializer\Groups({"admin_room"})
+     * @Serializer\Groups({"admin_room", "client"})
      **/
     private $officeSupplies;
 
-//    /**
-//     * @var RoomMeeting
-//     *
-//     * @ORM\OneToOne(
-//     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting",
-//     *      mappedBy="room",
-//     *      cascade={"persist"}
-//     * )
-//     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
-//     *
-//     * @Serializer\Groups({"main", "admin_room"})
-//     */
-//    private $meeting;
+    /**
+     * @var RoomMeeting
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting",
+     *      mappedBy="room",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $meeting;
 
     /**
      * @var RoomFixed
@@ -173,19 +173,9 @@ class Room
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $fixed;
-
-    /**
-     * @var RoomRentedDate
-     *
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomRentedDate", mappedBy="roomId")
-     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
-     *
-     * @Serializer\Groups({"main", "admin_room"})
-     */
-    private $rentedDates;
 
     /**
      * @var \DateTime
@@ -215,14 +205,14 @@ class Room
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $attachment;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -230,9 +220,10 @@ class Room
     }
 
     /**
-     * Set cityId
+     * Set cityId.
      *
      * @param $cityId
+     *
      * @return Room
      */
     public function setCityId($cityId)
@@ -243,9 +234,9 @@ class Room
     }
 
     /**
-     * Get cityId
+     * Get cityId.
      *
-     * @return integer
+     * @return int
      */
     public function getCityId()
     {
@@ -253,9 +244,10 @@ class Room
     }
 
     /**
-     * Set buildingId
+     * Set buildingId.
      *
      * @param $buildingId
+     *
      * @return Room
      */
     public function setBuildingId($buildingId)
@@ -266,7 +258,7 @@ class Room
     }
 
     /**
-     * Get buildingId
+     * Get buildingId.
      *
      * @return int
      */
@@ -276,9 +268,10 @@ class Room
     }
 
     /**
-     * Set floorId
+     * Set floorId.
      *
-     * @param  integer $floorId
+     * @param int $floorId
+     *
      * @return Room
      */
     public function setFloorId($floorId)
@@ -289,9 +282,9 @@ class Room
     }
 
     /**
-     * Get floorId
+     * Get floorId.
      *
-     * @return integer
+     * @return int
      */
     public function getFloorId()
     {
@@ -299,9 +292,10 @@ class Room
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return Room
      */
     public function setName($name)
@@ -312,7 +306,7 @@ class Room
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -322,9 +316,10 @@ class Room
     }
 
     /**
-     * Set description
+     * Set description.
      *
-     * @param  string $description
+     * @param string $description
+     *
      * @return Room
      */
     public function setDescription($description)
@@ -335,7 +330,7 @@ class Room
     }
 
     /**
-     * Get description
+     * Get description.
      *
      * @return string
      */
@@ -345,9 +340,10 @@ class Room
     }
 
     /**
-     * Set number
+     * Set number.
      *
-     * @param  string $number
+     * @param string $number
+     *
      * @return Room
      */
     public function setNumber($number)
@@ -358,7 +354,7 @@ class Room
     }
 
     /**
-     * Get number
+     * Get number.
      *
      * @return string
      */
@@ -368,9 +364,10 @@ class Room
     }
 
     /**
-     * Set area
+     * Set area.
      *
-     * @param  integer $area
+     * @param int $area
+     *
      * @return Room
      */
     public function setArea($area)
@@ -381,9 +378,9 @@ class Room
     }
 
     /**
-     * Get area
+     * Get area.
      *
-     * @return integer
+     * @return int
      */
     public function getArea()
     {
@@ -391,7 +388,7 @@ class Room
     }
 
     /**
-     * Get allowed people
+     * Get allowed people.
      *
      * @return int
      */
@@ -401,9 +398,10 @@ class Room
     }
 
     /**
-     * set allowed people
+     * set allowed people.
      *
      * @param $allowedPeople
+     *
      * @return $this
      */
     public function setAllowedPeople($allowedPeople)
@@ -414,9 +412,10 @@ class Room
     }
 
     /**
-     * Set officeSupplies
+     * Set officeSupplies.
      *
-     * @param  integer $officeSupplies
+     * @param int $officeSupplies
+     *
      * @return Room
      */
     public function setOfficeSupplies($officeSupplies)
@@ -427,9 +426,9 @@ class Room
     }
 
     /**
-     * Get officeSupplies
+     * Get officeSupplies.
      *
-     * @return integer
+     * @return int
      */
     public function getOfficeSupplies()
     {
@@ -437,9 +436,10 @@ class Room
     }
 
     /**
-     * Set type
+     * Set type.
      *
-     * @param  string $type
+     * @param string $type
+     *
      * @return Room
      */
     public function setType($type)
@@ -450,7 +450,7 @@ class Room
     }
 
     /**
-     * Get type
+     * Get type.
      *
      * @return string
      */
@@ -460,9 +460,10 @@ class Room
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return Room
      */
     public function setCreationDate($creationDate)
@@ -473,7 +474,7 @@ class Room
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -483,9 +484,10 @@ class Room
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return Room
      */
     public function setModificationDate($modificationDate)
@@ -496,7 +498,7 @@ class Room
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */
@@ -505,31 +507,32 @@ class Room
         return $this->modificationDate;
     }
 
-//    /**
-//     * Get meeting
-//     *
-//     * @return RoomMeeting
-//     */
-//    public function getMeeting()
-//    {
-//        return $this->meeting;
-//    }
-//
-//    /**
-//     * Set meeting
-//     *
-//     * @param  RoomMeeting $meeting
-//     * @return Room
-//     */
-//    public function setMeeting($meeting)
-//    {
-//        $this->meeting = $meeting;
-//
-//        return $this;
-//    }
+    /**
+     * Get meeting.
+     *
+     * @return RoomMeeting
+     */
+    public function getMeeting()
+    {
+        return $this->meeting;
+    }
 
     /**
-     * Get fixed
+     * Set meeting.
+     *
+     * @param RoomMeeting $meeting
+     *
+     * @return Room
+     */
+    public function setMeeting($meeting)
+    {
+        $this->meeting = $meeting;
+
+        return $this;
+    }
+
+    /**
+     * Get fixed.
      *
      * @return RoomFixed
      */
@@ -539,9 +542,10 @@ class Room
     }
 
     /**
-     * Set fixed
+     * Set fixed.
      *
-     * @param  RoomFixed $fixed
+     * @param RoomFixed $fixed
+     *
      * @return Room
      */
     public function setFixed($fixed)
@@ -552,7 +556,7 @@ class Room
     }
 
     /**
-     * Get city
+     * Get city.
      *
      * @return Room
      */
@@ -562,7 +566,7 @@ class Room
     }
 
     /**
-     * Get building
+     * Get building.
      *
      * @return Room
      */
@@ -572,23 +576,13 @@ class Room
     }
 
     /**
-     * Get floor
+     * Get floor.
      *
      * @return Room
      */
     public function getFloor()
     {
         return $this->floor;
-    }
-
-    /**
-     * Get RoomRentedDate
-     *
-     * @return RoomRentedDate
-     */
-    public function getRentedDates()
-    {
-        return $this->rentedDates;
     }
 
     /**
@@ -600,7 +594,8 @@ class Room
     }
 
     /**
-     * @param  RoomAttachmentBinding $attachment
+     * @param RoomAttachmentBinding $attachment
+     *
      * @return Room
      */
     public function setAttachment($attachment)
@@ -611,9 +606,10 @@ class Room
     }
 
     /**
-     * Set floor
+     * Set floor.
      *
-     * @param  RoomFloor $floor
+     * @param RoomFloor $floor
+     *
      * @return Room
      */
     public function setFloor($floor)
@@ -624,9 +620,10 @@ class Room
     }
 
     /**
-     * Set city
+     * Set city.
      *
-     * @param  RoomCity $city
+     * @param RoomCity $city
+     *
      * @return Room
      */
     public function setCity($city)
@@ -637,9 +634,10 @@ class Room
     }
 
     /**
-     * Set building
+     * Set building.
      *
-     * @param  RoomBuilding $building
+     * @param RoomBuilding $building
+     *
      * @return Room
      */
     public function setBuilding($building)

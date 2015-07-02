@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomCity
+ * RoomCity.
  *
  * @ORM\Table(name="RoomCity")
  * @ORM\Entity
@@ -14,13 +14,13 @@ use JMS\Serializer\Annotation as Serializer;
 class Roomcity
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
@@ -29,14 +29,14 @@ class Roomcity
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $name;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -44,9 +44,10 @@ class Roomcity
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string   $name
+     * @param string $name
+     *
      * @return RoomCity
      */
     public function setName($name)
@@ -57,7 +58,7 @@ class Roomcity
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */

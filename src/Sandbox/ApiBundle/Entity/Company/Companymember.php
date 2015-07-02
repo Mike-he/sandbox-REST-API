@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Company;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Company Member
+ * Company Member.
  *
  * @ORM\Table(name="jtCompanyMember")
  * @ORM\MappedSuperclass
@@ -39,14 +39,14 @@ class Companymember
     private $companyid;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="isDelete", type="boolean",  nullable=false)
      */
     private $isdelete;
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -56,9 +56,10 @@ class Companymember
     }
 
     /**
-     * Set userid
+     * Set userid.
      *
-     * @param  string        $userid
+     * @param string $userid
+     *
      * @return CompanyMember
      */
     public function setUserid($userid)
@@ -69,7 +70,7 @@ class Companymember
     }
 
     /**
-     * Get userid
+     * Get userid.
      *
      * @return string
      */
@@ -79,9 +80,10 @@ class Companymember
     }
 
     /**
-     * Set companyid
+     * Set companyid.
      *
-     * @param  int           $companyid
+     * @param int $companyid
+     *
      * @return CompanyMember
      */
     public function setCompanyid($companyid)
@@ -92,7 +94,7 @@ class Companymember
     }
 
     /**
-     * Get companyid
+     * Get companyid.
      *
      * @return int
      */
@@ -102,9 +104,10 @@ class Companymember
     }
 
     /**
-     * Set isdelete
+     * Set isdelete.
      *
-     * @param  boolean       $isdelete
+     * @param bool $isdelete
+     *
      * @return CompanyMember
      */
     public function setIsdelete($isdelete)
@@ -115,9 +118,9 @@ class Companymember
     }
 
     /**
-     * Get isdelete
+     * Get isdelete.
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsdelete()
     {

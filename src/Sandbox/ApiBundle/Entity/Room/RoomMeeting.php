@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomMeeting
+ * RoomMeeting.
  *
  * @ORM\Table(
  *      name="RoomMeeting",
@@ -19,20 +19,20 @@ use JMS\Serializer\Annotation as Serializer;
 class RoomMeeting
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="meeting")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="meeting")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })
@@ -46,7 +46,7 @@ class RoomMeeting
      *
      * @ORM\Column(name="startHour", type="time", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $startHour;
 
@@ -55,14 +55,14 @@ class RoomMeeting
      *
      * @ORM\Column(name="endHour", type="time", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $endHour;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -70,9 +70,10 @@ class RoomMeeting
     }
 
     /**
-     * Set startHour
+     * Set startHour.
      *
-     * @param  \DateTime   $startHour
+     * @param \DateTime $startHour
+     *
      * @return RoomMeeting
      */
     public function setStartHour($startHour)
@@ -83,7 +84,7 @@ class RoomMeeting
     }
 
     /**
-     * Get startHour
+     * Get startHour.
      *
      * @return \DateTime
      */
@@ -93,9 +94,10 @@ class RoomMeeting
     }
 
     /**
-     * Set endHour
+     * Set endHour.
      *
-     * @param  \DateTime   $endHour
+     * @param \DateTime $endHour
+     *
      * @return RoomMeeting
      */
     public function setEndHour($endHour)
@@ -106,7 +108,7 @@ class RoomMeeting
     }
 
     /**
-     * Get endHour
+     * Get endHour.
      *
      * @return \DateTime
      */
@@ -124,7 +126,8 @@ class RoomMeeting
     }
 
     /**
-     * @param  Room $room
+     * @param Room $room
+     *
      * @return Room
      */
     public function setRoom($room)

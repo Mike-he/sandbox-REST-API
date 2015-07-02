@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomAttachment
+ * RoomAttachment.
  *
  * @ORM\Table(
  *      name="RoomAttachment"
@@ -16,13 +16,13 @@ use JMS\Serializer\Annotation as Serializer;
 class RoomAttachment
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
@@ -31,7 +31,7 @@ class RoomAttachment
      *
      * @ORM\Column(name="content", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $content;
 
@@ -40,7 +40,7 @@ class RoomAttachment
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $attachmentType;
 
@@ -49,7 +49,7 @@ class RoomAttachment
      *
      * @ORM\Column(name="filename", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $filename;
 
@@ -58,23 +58,23 @@ class RoomAttachment
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $preview;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $size;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -82,9 +82,10 @@ class RoomAttachment
     }
 
     /**
-     * Set content
+     * Set content.
      *
-     * @param  string         $content
+     * @param string $content
+     *
      * @return RoomAttachment
      */
     public function setContent($content)
@@ -95,7 +96,7 @@ class RoomAttachment
     }
 
     /**
-     * Get content
+     * Get content.
      *
      * @return string
      */
@@ -105,9 +106,10 @@ class RoomAttachment
     }
 
     /**
-     * Set attachmentType
+     * Set attachmentType.
      *
-     * @param  string         $attachmentType
+     * @param string $attachmentType
+     *
      * @return RoomAttachment
      */
     public function setAttachmentType($attachmentType)
@@ -118,7 +120,7 @@ class RoomAttachment
     }
 
     /**
-     * Get attachmentType
+     * Get attachmentType.
      *
      * @return string
      */
@@ -128,9 +130,10 @@ class RoomAttachment
     }
 
     /**
-     * Set filename
+     * Set filename.
      *
-     * @param  string         $filename
+     * @param string $filename
+     *
      * @return RoomAttachment
      */
     public function setFilename($filename)
@@ -141,7 +144,7 @@ class RoomAttachment
     }
 
     /**
-     * Get filename
+     * Get filename.
      *
      * @return string
      */
@@ -151,9 +154,10 @@ class RoomAttachment
     }
 
     /**
-     * Set preview
+     * Set preview.
      *
-     * @param  string         $preview
+     * @param string $preview
+     *
      * @return RoomAttachment
      */
     public function setPreview($preview)
@@ -164,7 +168,7 @@ class RoomAttachment
     }
 
     /**
-     * Get preview
+     * Get preview.
      *
      * @return string
      */
@@ -174,9 +178,10 @@ class RoomAttachment
     }
 
     /**
-     * Set size
+     * Set size.
      *
-     * @param  integer        $size
+     * @param int $size
+     *
      * @return RoomAttachment
      */
     public function setSize($size)
@@ -187,9 +192,9 @@ class RoomAttachment
     }
 
     /**
-     * Get size
+     * Get size.
      *
-     * @return integer
+     * @return int
      */
     public function getSize()
     {

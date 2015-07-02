@@ -14,19 +14,20 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Rest controller for UserPortfolio
+ * Rest controller for UserPortfolio.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  * @Route("/profile")
  */
 class ClientUserPortfolioController extends UserProfileController
 {
     /**
-     * Get user's portfolio
+     * Get user's portfolio.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -63,6 +64,7 @@ class ClientUserPortfolioController extends UserProfileController
      *
      * @Route("/portfolios")
      * @Method({"POST"})
+     *
      * @return View
      */
     public function postUserPortfolioAction(

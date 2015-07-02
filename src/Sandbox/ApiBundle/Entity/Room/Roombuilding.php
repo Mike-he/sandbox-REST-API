@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomBuilding
+ * RoomBuilding.
  *
  * @ORM\Table(
  *      name="RoomBuilding",
@@ -19,18 +19,18 @@ use JMS\Serializer\Annotation as Serializer;
 class Roombuilding
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="CityId", type="integer", nullable=false)
      *
@@ -43,14 +43,41 @@ class Roombuilding
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $name;
 
     /**
-     * Get id
+     * @var string
      *
-     * @return integer
+     * @ORM\Column(name="address", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $address;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lat", type="decimal")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $lat;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lng", type="decimal")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $lng;
+
+    /**
+     * Get id.
+     *
+     * @return int
      */
     public function getId()
     {
@@ -58,9 +85,10 @@ class Roombuilding
     }
 
     /**
-     * Set cityId
+     * Set cityId.
      *
      * @param  $cityId
+     *
      * @return RoomBuilding
      */
     public function setCityId($cityId)
@@ -71,9 +99,9 @@ class Roombuilding
     }
 
     /**
-     * Get cityId
+     * Get cityId.
      *
-     * @return integer
+     * @return int
      */
     public function getCityId()
     {
@@ -81,9 +109,10 @@ class Roombuilding
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string       $name
+     * @param string $name
+     *
      * @return RoomBuilding
      */
     public function setName($name)
@@ -94,12 +123,84 @@ class Roombuilding
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set address.
+     *
+     * @param string $address
+     *
+     * @return RoomBuilding
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * Get address.
+     *
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * Set lat.
+     *
+     * @param decimal $lat
+     *
+     * @return RoomBuilding
+     */
+    public function setLat($lat)
+    {
+        $this->lat = $lat;
+
+        return $this;
+    }
+
+    /**
+     * Get lat.
+     *
+     * @return decimal
+     */
+    public function getLat()
+    {
+        return $this->lat;
+    }
+
+    /**
+     * Set lng.
+     *
+     * @param decimal $lng
+     *
+     * @return RoomBuilding
+     */
+    public function setLng($lng)
+    {
+        $this->lng = $lng;
+
+        return $this;
+    }
+
+    /**
+     * Get lng.
+     *
+     * @return decimal
+     */
+    public function getLng()
+    {
+        return $this->lng;
     }
 }

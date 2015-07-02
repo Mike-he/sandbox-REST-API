@@ -12,29 +12,31 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Manipulate the likes of a feed
+ * Manipulate the likes of a feed.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  */
 class ClientFeedLikeController extends FeedLikeController
 {
-    const BAD_PARAM_MESSAGE = "Bad parameters";
+    const BAD_PARAM_MESSAGE = 'Bad parameters';
 
-    const NOT_FOUND_MESSAGE = "This resource does not exist";
+    const NOT_FOUND_MESSAGE = 'This resource does not exist';
 
-    const NOT_ALLOWED_MESSAGE = "You are not allowed to perform this action";
+    const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
 
     /**
-     * Get all the likes of a given feed
+     * Get all the likes of a given feed.
      *
      * @param Request $request contains request info
      * @param string  $id      id of the feed
      *
      * @Get("/feeds/{id}/likes")
+     *
      * @return array
      */
     public function getFeedLikesAction(
@@ -59,7 +61,9 @@ class ClientFeedLikeController extends FeedLikeController
      * @param $id
      *
      * @Post("/feeds/{id}/likes")
+     *
      * @return View
+     *
      * @throws BadRequestHttpException
      */
     public function postFeedLikeAction(
@@ -99,7 +103,9 @@ class ClientFeedLikeController extends FeedLikeController
      * @param int     $id      id of the feed
      *
      * @Delete("/feeds/{id}/likes")
+     *
      * @return View
+     *
      * @throws BadRequestHttpException
      */
     public function feedUnlikeAction(
@@ -134,7 +140,9 @@ class ClientFeedLikeController extends FeedLikeController
      * @param int     $likeId  id of the like
      *
      * @Delete("/feeds/{id}/likes/{likeId}")
+     *
      * @return View
+     *
      * @throws BadRequestHttpException
      */
     public function deleteFeedLikeAction(

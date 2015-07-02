@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomFixed
+ * RoomFixed.
  *
  * @ORM\Table(
  *      name="RoomFixed",
@@ -19,13 +19,13 @@ use JMS\Serializer\Annotation as Serializer;
 class RoomFixed
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $id;
 
@@ -42,27 +42,27 @@ class RoomFixed
     private $room;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="seatNumber", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $seatNumber;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="available", type="boolean", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $available;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -70,9 +70,10 @@ class RoomFixed
     }
 
     /**
-     * Set RoomS
+     * Set RoomS.
      *
-     * @param  Room      $room
+     * @param Room $room
+     *
      * @return RoomFixed
      */
     public function setRoom($room)
@@ -83,7 +84,7 @@ class RoomFixed
     }
 
     /**
-     * Get Room
+     * Get Room.
      *
      * @return Room
      */
@@ -93,9 +94,10 @@ class RoomFixed
     }
 
     /**
-     * Set seatNumber
+     * Set seatNumber.
      *
-     * @param  integer   $seatNumber
+     * @param int $seatNumber
+     *
      * @return RoomFixed
      */
     public function setSeatNumber($seatNumber)
@@ -106,9 +108,9 @@ class RoomFixed
     }
 
     /**
-     * Get seatNumber
+     * Get seatNumber.
      *
-     * @return integer
+     * @return int
      */
     public function getSeatNumber()
     {
@@ -116,9 +118,10 @@ class RoomFixed
     }
 
     /**
-     * Set available
+     * Set available.
      *
-     * @param  boolean   $available
+     * @param bool $available
+     *
      * @return RoomFixed
      */
     public function setAvailable($available)
@@ -129,9 +132,9 @@ class RoomFixed
     }
 
     /**
-     * Get available
+     * Get available.
      *
-     * @return boolean
+     * @return bool
      */
     public function getAvailable()
     {

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * AdminPermission
+ * AdminPermission.
  *
  * @ORM\Table(
  *      name="AdminPermission",
@@ -18,7 +18,7 @@ use JMS\Serializer\Annotation as Serializer;
 class AdminPermission
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -44,7 +44,7 @@ class AdminPermission
     private $name;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="typeId", type="integer", nullable=false)
      * @Serializer\Groups({"main", "login"})
@@ -68,9 +68,9 @@ class AdminPermission
     private $modificationDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -78,9 +78,10 @@ class AdminPermission
     }
 
     /**
-     * Set key
+     * Set key.
      *
-     * @param  string          $key
+     * @param string $key
+     *
      * @return AdminPermission
      */
     public function setKey($key)
@@ -91,7 +92,7 @@ class AdminPermission
     }
 
     /**
-     * Get key
+     * Get key.
      *
      * @return string
      */
@@ -101,9 +102,10 @@ class AdminPermission
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string          $name
+     * @param string $name
+     *
      * @return AdminPermission
      */
     public function setName($name)
@@ -114,7 +116,7 @@ class AdminPermission
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -124,9 +126,10 @@ class AdminPermission
     }
 
     /**
-     * Set typeId
+     * Set typeId.
      *
-     * @param  integer         $typeId
+     * @param int $typeId
+     *
      * @return AdminPermission
      */
     public function setTypeId($typeId)
@@ -137,9 +140,9 @@ class AdminPermission
     }
 
     /**
-     * Get typeId
+     * Get typeId.
      *
-     * @return integer
+     * @return int
      */
     public function getTypeId()
     {
@@ -147,9 +150,10 @@ class AdminPermission
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
-     * @param  \DateTime       $creationDate
+     * @param \DateTime $creationDate
+     *
      * @return AdminPermission
      */
     public function setCreationDate($creationDate)
@@ -160,7 +164,7 @@ class AdminPermission
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -170,9 +174,10 @@ class AdminPermission
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
-     * @param  \DateTime       $modificationDate
+     * @param \DateTime $modificationDate
+     *
      * @return AdminPermission
      */
     public function setModificationDate($modificationDate)
@@ -183,7 +188,7 @@ class AdminPermission
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */

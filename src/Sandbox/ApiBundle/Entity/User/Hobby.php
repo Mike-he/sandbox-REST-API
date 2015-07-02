@@ -5,11 +5,10 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Hobby
+ * Hobby.
  *
  * @ORM\Table(name="Hobby")
  * @ORM\Entity
- *
  */
 class Hobby
 {
@@ -107,7 +106,7 @@ class Hobby
 
     public function __construct()
     {
-        $now = new \DateTime("now");
+        $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
     }

@@ -14,12 +14,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Rest controller for UserHobbyMap
+ * Rest controller for UserHobbyMap.
  *
  * @category Sandbox
- * @package  Sandbox\ApiBundle\Controller
+ *
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
+ *
  * @link     http://www.Sandbox.cn/
  * @Route("/profile")
  */
@@ -82,6 +83,7 @@ class ClientUserHobbyController extends UserProfileController
      *
      * @Route("/hobbies")
      * @Method({"POST"})
+     *
      * @return View
      */
     public function postUserHobbyAction(
