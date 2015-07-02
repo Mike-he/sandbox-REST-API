@@ -144,11 +144,6 @@ class Room
      */
     private $allowedPeople;
 
-//    /**
-//     * @Serializer\Groups({"admin_room", "client"})
-//     **/
-//    private $officeSupplies;
-
     /**
      * @var RoomSupplies
      *
@@ -424,30 +419,6 @@ class Room
 
         return $this;
     }
-
-//    /**
-//     * Set officeSupplies.
-//     *
-//     * @param int $officeSupplies
-//     *
-//     * @return Room
-//     */
-//    public function setOfficeSupplies($officeSupplies)
-//    {
-//        $this->officesupplies = $officeSupplies;
-//
-//        return $this;
-//    }
-//
-//    /**
-//     * Get officeSupplies.
-//     *
-//     * @return int
-//     */
-//    public function getOfficeSupplies()
-//    {
-//        return $this->officeSupplies;
-//    }
 
     /**
      * Set type.
