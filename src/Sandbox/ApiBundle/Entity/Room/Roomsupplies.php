@@ -3,19 +3,50 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomSupplies.
  *
- * @ORM\Table(name="RoomSupplies", indexes={@ORM\Index(name="fk_RoomSupplies_roomId_idx", columns={"roomId"})})
+ * @ORM\Table(
+ *      name="RoomSupplies",
+ *      indexes={
+ *          @ORM\Index(name="fk_RoomSupplies_roomId_idx", columns={"roomId"})
+ *      }
+ * )
  * @ORM\Entity
  */
-class RoomSupplies
+class Roomsupplies
 {
     /**
      * @var int
      *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $id;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\Room
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="fixed")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
+     * })
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $room;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="suppliesId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $suppliesId;
 
@@ -23,27 +54,44 @@ class RoomSupplies
      * @var int
      *
      * @ORM\Column(name="quantity", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $quantity;
 
     /**
-     * @var int
+     * Get id.
      *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @return int
      */
-    private $id;
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room
+     * Set room.
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
-     * })
+     * @param Room $room
+     *
+     * @return RoomAttachmentBinding
      */
-    private $roomId;
+    public function setRoom($room)
+    {
+        $this->room = $room;
+
+        return $this;
+    }
+
+    /**
+     * Get roomId.
+     *
+     * @return Room
+     */
+    public function getRoomId()
+    {
+        return $this->room;
+    }
 
     /**
      * Set suppliesId.
@@ -91,39 +139,5 @@ class RoomSupplies
     public function getQuantity()
     {
         return $this->quantity;
-    }
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set roomId.
-     *
-     * @param \Sandbox\ApiBundle\Entity\Room $roomId
-     *
-     * @return RoomSupplies
-     */
-    public function setRoomId(\Sandbox\ApiBundle\Entity\Room $roomId = null)
-    {
-        $this->roomId = $roomId;
-
-        return $this;
-    }
-
-    /**
-     * Get roomId.
-     *
-     * @return \Sandbox\ApiBundle\Entity\Room
-     */
-    public function getRoomId()
-    {
-        return $this->roomId;
     }
 }
