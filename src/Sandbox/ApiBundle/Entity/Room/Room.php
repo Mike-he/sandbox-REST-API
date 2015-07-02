@@ -149,19 +149,19 @@ class Room
      **/
     private $officeSupplies;
 
-//    /**
-//     * @var RoomMeeting
-//     *
-//     * @ORM\OneToOne(
-//     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting",
-//     *      mappedBy="room",
-//     *      cascade={"persist"}
-//     * )
-//     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
-//     *
-//     * @Serializer\Groups({"main", "admin_room"})
-//     */
-//    private $meeting;
+    /**
+     * @var RoomMeeting
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomMeeting",
+     *      mappedBy="room",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $meeting;
 
     /**
      * @var RoomFixed
@@ -517,28 +517,28 @@ class Room
         return $this->modificationDate;
     }
 
-//    /**
-//     * Get meeting
-//     *
-//     * @return RoomMeeting
-//     */
-//    public function getMeeting()
-//    {
-//        return $this->meeting;
-//    }
-//
-//    /**
-//     * Set meeting
-//     *
-//     * @param  RoomMeeting $meeting
-//     * @return Room
-//     */
-//    public function setMeeting($meeting)
-//    {
-//        $this->meeting = $meeting;
-//
-//        return $this;
-//    }
+    /**
+     * Get meeting
+     *
+     * @return RoomMeeting
+     */
+    public function getMeeting()
+    {
+        return $this->meeting;
+    }
+
+    /**
+     * Set meeting
+     *
+     * @param  RoomMeeting $meeting
+     * @return Room
+     */
+    public function setMeeting($meeting)
+    {
+        $this->meeting = $meeting;
+
+        return $this;
+    }
 
     /**
      * Get fixed.
