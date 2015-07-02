@@ -44,20 +44,23 @@ class ClientPaymentController extends PaymentController
             $em->flush();
 
             http_response_code(200);
-        } elseif ($input_data['type'] == 'refund.succeeded' && $input_data['data']['object']['succeed'] == true) {
-            $mapId = $input_data['data']['object']['order_no'];
-            $map = $this->getRepo('Order\OrderMap')->find($mapId);
-            $orderId = $map->getOrderId();
-            $order = $this->getRepo('Order\ProductOrder')->find($orderId);
-            $order->setStatus(self::STATUS_CANCELLED);
-            $order->setPaymentDate(null);
-            $order->setCancelledDate(new \DateTime());
-            $order->setModificationDate(new \DateTime());
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($order);
-            $em->flush();
-
-            http_response_code(200);
+        } else {
         }
+
+//        elseif ($input_data['type'] == 'refund.succeeded' && $input_data['data']['object']['succeed'] == true) {
+//            $mapId = $input_data['data']['object']['order_no'];
+//            $map = $this->getRepo('Order\OrderMap')->find($mapId);
+//            $orderId = $map->getOrderId();
+//            $order = $this->getRepo('Order\ProductOrder')->find($orderId);
+//            $order->setStatus(self::STATUS_CANCELLED);
+//            $order->setPaymentDate(null);
+//            $order->setCancelledDate(new \DateTime());
+//            $order->setModificationDate(new \DateTime());
+//            $em = $this->getDoctrine()->getManager();
+//            $em->persist($order);
+//            $em->flush();
+//
+//            http_response_code(200);
+//        }
     }
 }

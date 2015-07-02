@@ -135,6 +135,15 @@ class ProductOrder
     private $invitedPeople;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="location", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $location;
+
+    /**
      * Get id.
      *
      * @return int
@@ -430,6 +439,30 @@ class ProductOrder
     public function getInvitedPeople()
     {
         return $this->invitedPeople;
+    }
+
+    /**
+     * Set location.
+     *
+     * @param string $location
+     *
+     * @return ProductOrder
+     */
+    public function setLocation($location)
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    /**
+     * Get location.
+     *
+     * @return string
+     */
+    public function getLocation()
+    {
+        return $this->location;
     }
 
     public function __construct()
