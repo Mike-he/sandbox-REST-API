@@ -23,6 +23,21 @@ use JMS\Serializer\SerializationContext;
 class ClientProductController extends ProductController
 {
     /**
+     * @Get("/products/{id}")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return View
+     */
+    public function getOneProductAction(
+        Request $request,
+        $id
+    ) {
+        return $this->getOneProduct($id);
+    }
+
+        /**
          * @Get("/products")
          *
          * @Annotations\QueryParam(

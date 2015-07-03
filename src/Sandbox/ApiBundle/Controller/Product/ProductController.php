@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\Controller\Product;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
-use FOS\RestBundle\Controller\Annotations\Get;
 use JMS\Serializer\SerializationContext;
 
 /**
@@ -21,15 +20,10 @@ use JMS\Serializer\SerializationContext;
 class ProductController extends SandboxRestController
 {
     /**
-     * @Get("/products")
-     *
-     * @param Request $request
-     *
      * @return View
      */
-    public function getAllProductsAction(
-        Request $request
-    ) {
+    public function getAllProductsAction()
+    {
         $products = $this->getRepo('Product\Product')->findAll();
 
         $view = new View();
@@ -40,15 +34,12 @@ class ProductController extends SandboxRestController
     }
 
     /**
-     * @Get("/products/{id}")
-     *
      * @param Request $request
      * @param $id
      *
      * @return View
      */
-    public function getOneProductAction(
-        Request $request,
+    public function getOneProduct(
         $id
     ) {
         $product = $this->getRepo('Product\Product')->find($id);
