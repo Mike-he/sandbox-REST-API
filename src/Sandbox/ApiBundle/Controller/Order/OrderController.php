@@ -5,8 +5,6 @@ namespace Sandbox\ApiBundle\Controller\Order;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
-use FOS\RestBundle\Controller\Annotations\Get;
-use JMS\Serializer\SerializationContext;
 
 /**
  * Order Controller.
@@ -21,41 +19,27 @@ use JMS\Serializer\SerializationContext;
 class OrderController extends SandboxRestController
 {
     /**
-     * @Get("/orders")
-     *
      * @param Request $request
      *
      * @return View
      */
-    public function getAllOrdersAction(
-        Request $request
-    ) {
+    public function getAllOrders()
+    {
         $orders = $this->getRepo('Order\ProductOrder')->findAll();
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($orders);
-
-        return $view;
+        return $orders;
     }
 
     /**
-     * @Get("/orders/{id}")
-     *
-     * @param Request $request
+     * @param $id
      *
      * @return View
      */
-    public function getOneOrderAction(
-        Request $request,
+    public function getOneOrder(
         $id
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($order);
-
-        return $view;
+        return $order;
     }
 }

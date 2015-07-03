@@ -40,6 +40,26 @@ class ClientOrderController extends PaymentController
     const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
 
     /**
+     * @Get("/orders/{id}")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getOneOrderAction(
+        Request $request,
+        $id
+    ) {
+        $order = $order = $this->getRepo('Order\ProductOrder')->find($id);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($order);
+
+        return $view;
+    }
+
+    /**
      * Get all orders for current user.
      *
      * @Get("/orders/my")
