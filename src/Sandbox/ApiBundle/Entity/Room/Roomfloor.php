@@ -16,7 +16,7 @@ use JMS\Serializer\Annotation as Serializer;
  * )
  * @ORM\Entity
  */
-class Roomfloor
+class RoomFloor
 {
     /**
      * @var int
