@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Product;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\Room\Room;
 
 /**
  * Product.
@@ -20,7 +21,7 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_room"})
      */
     private $id;
 
@@ -34,21 +35,11 @@ class Product
     private $roomId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Room
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
-     * @ORM\JoinColumn(name="roomId", referencedColumnName="id")
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $room;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="description", type="text")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_room"})
      */
     private $description;
 
@@ -57,7 +48,7 @@ class Product
      *
      * @ORM\Column(name="visibleUserId", type="integer")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $visibleUserId;
 
@@ -66,7 +57,7 @@ class Product
      *
      * @ORM\Column(name="basePrice", type="decimal")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_room"})
      */
     private $basePrice;
 
@@ -75,63 +66,9 @@ class Product
      *
      * @ORM\Column(name="unitPrice", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_room"})
      */
     private $unitPrice;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="private", type="boolean")
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $private = false;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="renewable", type="boolean")
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $renewable = true;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="startDate", type="date", nullable=true)
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $startDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="endDate", type="date", nullable=true)
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $endDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="creationDate", type="datetime")
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $creationDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="modificationDate", type="datetime")
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $modificationDate;
 
     /**
      * @var PriceRuleBinding
@@ -143,9 +80,73 @@ class Product
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="productId")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "client", "admin_room"})
      */
     private $priceRule;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="private", type="boolean")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $private = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="renewable", type="boolean")
+     *
+     * @Serializer\Groups({"main", "client", "admin_room"})
+     */
+    private $renewable = true;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="startDate", type="date", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_room"})
+     */
+    private $startDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="endDate", type="date", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_room"})
+     */
+    private $endDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $modificationDate;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\Room
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
+     * @ORM\JoinColumn(name="roomId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "client", "admin_room"})
+     */
+    private $room;
 
     /**
      * Get id.
@@ -189,6 +190,18 @@ class Product
     public function getRoom()
     {
         return $this->room;
+    }
+
+    /**
+     * @param Room $room
+     *
+     * @return Product
+     */
+    public function setRoom($room)
+    {
+        $this->room = $room;
+
+        return $this;
     }
 
     /**
