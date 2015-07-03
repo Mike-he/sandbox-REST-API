@@ -23,6 +23,21 @@ use JMS\Serializer\SerializationContext;
 class ClientProductController extends ProductController
 {
     /**
+     * @Get("/products/{id}")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return View
+     */
+    public function getOneProductAction(
+        Request $request,
+        $id
+    ) {
+        return $this->getOneProduct($id);
+    }
+
+        /**
          * @Get("/products")
          *
          * @Annotations\QueryParam(
@@ -97,13 +112,16 @@ class ClientProductController extends ProductController
                 $endTime = clone $startTime;
                 $endTime->modify('+'.$rentPeriod.$timeUnit);
             }
+            $userId = $this->getUserid();
+
             $productIds = $this->getRepo('Product\Product')->getProductsForClient(
                 $roomType,
                 $buildingId,
                 $startTime,
                 $timeUnit,
                 $endTime,
-                $allowedPeople
+                $allowedPeople,
+                $userId
             );
 
             $products = [];

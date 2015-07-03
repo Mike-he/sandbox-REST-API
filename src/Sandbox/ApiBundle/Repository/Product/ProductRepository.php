@@ -12,7 +12,8 @@ class ProductRepository extends EntityRepository
         $startTime,
         $timeUnit,
         $endTime,
-        $allowedPeople
+        $allowedPeople,
+        $userId
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('p.id')
@@ -23,6 +24,7 @@ class ProductRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Roomfloor', 'f', 'WITH', 'f.id = r.floor')
             ->where('r.type = :roomType')
             ->andWhere('p.unitPrice = :timeUnit')
+            ->andWhere('p.private =: private OR p.visibleUserId =: userId')
             ->andWhere('r.building = :buildingId')
             ->andWhere('r.allowedPeople >= :allowedPeople')
             ->andWhere('p.startDate <= :startTime')
@@ -34,6 +36,8 @@ class ProductRepository extends EntityRepository
             ->setParameter('allowedPeople', $allowedPeople)
             ->setParameter('startTime', $startTime)
             ->setParameter('endTime', $endTime)
+            ->setParameter('private', false)
+            ->setParameter('userId', $userId)
             ->getQuery();
 
         return $query->getResult();

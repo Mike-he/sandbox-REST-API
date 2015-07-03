@@ -34,10 +34,33 @@ class ClientOrderController extends PaymentController
     const TIME_UNIT_MISMATCH = 'TIME UNIT DOES NOT MATCH';
     const WRONG_PAYMENT_STATUS = 'WRONG STATUS';
     const NO_PAYMENT = 'Payment does not exist';
+    const USER_EXIST = 'This user already exist';
+    const ORDER_NOT_FOUND = 'Can not find order';
+    const USER_NOT_FOUND = 'Can not find user in current order';
     const INSUFFICIENT_FUNDS_CODE = 400001;
     const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
     const SYSTEM_ERROR_CODE = 500001;
     const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
+
+    /**
+     * @Get("/orders/{id}")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getOneOrderAction(
+        Request $request,
+        $id
+    ) {
+        $order = $order = $this->getRepo('Order\ProductOrder')->find($id);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($order);
+
+        return $view;
+    }
 
     /**
      * Get all orders for current user.
@@ -334,6 +357,15 @@ class ClientOrderController extends PaymentController
         }
         $users = json_decode($request->getContent(), true);
         foreach ($users as $user) {
+            $checkUser = $this->getRepo('Order\InvitedPeople')->findOneBy(
+                [
+                    'orderId' => $id,
+                    'userId' => $user['user_id'],
+                ]
+            );
+            if (!is_null($checkUser)) {
+                throw new BadRequestHttpException(self::USER_EXIST);
+            }
             $people = new InvitedPeople();
             $people->setOrderId($order);
             $people->setUserId($user['user_id']);
@@ -361,16 +393,49 @@ class ClientOrderController extends PaymentController
         if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
             throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
         }
-        $userId = $request->get('user_id');
-        $people = $this->getRepo('Order\InvitedPeople')->findOneBy(
-            [
-                'userId' => $userId,
-                'orderId' => $id,
-            ]
+        $users = json_decode($request->getContent(), true);
+        foreach ($users as $user) {
+            $checkUser = $this->getRepo('Order\InvitedPeople')->findOneBy(
+                [
+                    'orderId' => $id,
+                    'userId' => $user['user_id'],
+                ]
+            );
+            if (is_null($checkUser)) {
+                throw new BadRequestHttpException(self::USER_NOT_FOUND);
+            }
+
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($checkUser);
+            $em->flush();
+        }
+    }
+
+    /**
+     * @Get("/orders/{id}/invited")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function getInvitedPeopleAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+        $people = $this->getRepo('Order\InvitedPeople')->findBy(
+            ['orderId' => $id]
         );
 
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($people);
-        $em->flush();
+        $users = [];
+        foreach ($people as $person) {
+            $userId = $person->getUserId();
+            $user = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $userId]);
+            array_push($users, $user);
+        }
+
+        return new View($users);
     }
 }
