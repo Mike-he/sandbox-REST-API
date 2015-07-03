@@ -27,6 +27,18 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminAdminsController extends SandboxRestController
 {
+    const ERROR_USERNAME_INVALID_CODE = 400001;
+    const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
+
+    const ERROR_USERNAME_EXIST_CODE = 400002;
+    const ERROR_USERNAME_EXIST_MESSAGE = 'Username already exist - 用户名已被占用';
+
+    const ERROR_PASSWORD_INVALID_CODE = 400003;
+    const ERROR_PASSWORD_INVALID_MESSAGE = 'Invalid password - 无效的密码';
+
+    const ERROR_ADMIN_TYPE_CODE = 400004;
+    const ERROR_ADMIN_TYPE_MESSAGE = 'Invalid admin type - 无效的管理员类型';
+
     /**
      * Create admin.
      *
@@ -60,53 +72,69 @@ class AdminAdminsController extends SandboxRestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        return $this->handleAdminCreate($request);
+        // bind admin data
+        $admin = new Admin();
+        $form = $this->createForm(new AdminForm(), $admin);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            return $this->handleAdminCreate($admin);
+        }
+
+        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
     }
 
     /**
-     * @param Request $request
+     * @param Admin $admin
      *
      * @return View
      */
     private function handleAdminCreate(
-        $request
+        $admin
     ) {
-        // handle admin create data
-        $admin = $this->handleAdminCreateData($request);
+        // check username
+        if (is_null($admin->getUsername())) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_INVALID_CODE,
+                self::ERROR_USERNAME_INVALID_MESSAGE);
+        }
+
+        // check password
+        if (is_null($admin->getPassword())) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_PASSWORD_INVALID_CODE,
+                self::ERROR_PASSWORD_INVALID_MESSAGE);
+        }
+
+        // check admin type
+        if (is_null($admin->getTypeId())) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_ADMIN_TYPE_CODE,
+                self::ERROR_ADMIN_TYPE_MESSAGE);
+        } else {
+            $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
+            if (is_null($type)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_ADMIN_TYPE_CODE,
+                    self::ERROR_ADMIN_TYPE_MESSAGE);
+            }
+            $admin->setType($type);
+        }
 
         // save admin to db
         $admin = $this->saveAdmin($admin);
 
+        // set view
         $view = new View();
         $view->setData(array(
             'id' => $admin->getId(),
         ));
 
         return $view;
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return Admin
-     */
-    private function handleAdminCreateData(
-        $request
-    ) {
-        $admin = new Admin();
-
-        // bind admin data
-        $form = $this->createForm(new AdminForm(), $admin);
-        $form->handleRequest($request);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        // TODO return custom error
-
-
-        return $admin;
     }
 
     /**
@@ -117,13 +145,6 @@ class AdminAdminsController extends SandboxRestController
     private function saveAdmin(
         $admin
     ) {
-        // set type
-        $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
-        if (is_null($type)) {
-            $this->throwNotFoundIfNull($type, self::NOT_FOUND_MESSAGE);
-        }
-        $admin->setType($type);
-
         $now = new \DateTime('now');
 
         // set permissions
