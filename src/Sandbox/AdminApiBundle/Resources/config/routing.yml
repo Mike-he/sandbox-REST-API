@@ -4,6 +4,12 @@ sandbox_admin_api_auth_login:
     type:     annotation
     prefix:   /auth
 
+# Announcement /admin/products
+sandbox_admin_api_products:
+    resource: "@SandboxAdminApiBundle/Controller/Product/AdminProductController.php"
+    type:     annotation
+    prefix:   /
+
 # Rooms /admin/rooms/attachments
 sandbox_admin_api_rooms_attachments:
     resource: "@SandboxAdminApiBundle/Controller/Room/AdminRoomAttachmentController.php"
