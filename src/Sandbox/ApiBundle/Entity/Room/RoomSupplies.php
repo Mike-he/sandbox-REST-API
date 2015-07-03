@@ -32,7 +32,7 @@ class RoomSupplies
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="fixed")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="officeSupplies")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      * })

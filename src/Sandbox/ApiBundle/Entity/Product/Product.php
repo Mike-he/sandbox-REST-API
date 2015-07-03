@@ -134,6 +134,20 @@ class Product
     private $modificationDate;
 
     /**
+     * @var PriceRuleBinding
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Product\PriceRuleBinding",
+     *      mappedBy="product",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="productId")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $priceRule;
+
+    /**
      * Get id.
      *
      * @return int
@@ -415,5 +429,29 @@ class Product
     public function getRenewable()
     {
         return $this->renewable;
+    }
+
+    /**
+     * get PriceRuleBinding.
+     *
+     * @return PriceRuleBinding
+     */
+    public function getPriceRuleBinding()
+    {
+        return $this->priceRule;
+    }
+
+    /**
+     * set PriceRuleBinding.
+     *
+     * @param PriceRuleBinding $priceRule
+     *
+     * @return Product
+     */
+    public function setPriceRuleBinding($priceRule)
+    {
+        $this->priceRule = $priceRule;
+
+        return $this;
     }
 }
