@@ -145,8 +145,17 @@ class Room
     private $allowedPeople;
 
     /**
-     * @Serializer\Groups({"admin_room", "client"})
-     **/
+     * @var RoomSupplies
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomSupplies",
+     *      mappedBy="room",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
     private $officeSupplies;
 
     /**
@@ -412,30 +421,6 @@ class Room
     }
 
     /**
-     * Set officeSupplies.
-     *
-     * @param int $officeSupplies
-     *
-     * @return Room
-     */
-    public function setOfficeSupplies($officeSupplies)
-    {
-        $this->officesupplies = $officeSupplies;
-
-        return $this;
-    }
-
-    /**
-     * Get officeSupplies.
-     *
-     * @return int
-     */
-    public function getOfficeSupplies()
-    {
-        return $this->officeSupplies;
-    }
-
-    /**
      * Set type.
      *
      * @param string $type
@@ -601,6 +586,26 @@ class Room
     public function setAttachment($attachment)
     {
         $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * @return RoomSupplies
+     */
+    public function getOfficeSupplies()
+    {
+        return $this->officeSupplies;
+    }
+
+    /**
+     * @param RoomSupplies $officeSupplies
+     *
+     * @return Room
+     */
+    public function setOfficeSupplies($officeSupplies)
+    {
+        $this->officeSupplies = $officeSupplies;
 
         return $this;
     }

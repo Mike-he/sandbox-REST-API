@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
+use Sandbox\ApiBundle\Entity\Room\RoomSupplies;
 use Sandbox\ApiBundle\Form\Room\RoomType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -174,12 +175,14 @@ class AdminRoomController extends RoomController
         $meeting = $form['room_meeting']->getData();
         $fixed = $form['room_fixed']->getData();
         $attachments_id = $form['attachment_id']->getData();
+        $office_supplies = $form['office_supplies']->getData();
 
         return $this->handleRoomPost(
             $room,
             $meeting,
             $fixed,
-            $attachments_id
+            $attachments_id,
+            $office_supplies
         );
     }
 
@@ -215,9 +218,11 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * @param Room        $room
-     * @param RoomMeeting $meeting
-     * @param RoomFixed   $roomsFixed
+     * @param Room                  $room
+     * @param RoomMeeting           $meeting
+     * @param RoomFixed             $roomsFixed
+     * @param RoomAttachmentBinding $attachments_id
+     * @param RoomSupplies          $office_supplies
      *
      * @return View
      */
@@ -225,7 +230,8 @@ class AdminRoomController extends RoomController
         $room,
         $meeting,
         $roomsFixed,
-        $attachments_id
+        $attachments_id,
+        $office_supplies
     ) {
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
                 'buildingId' => $room->getBuildingId(),
@@ -265,21 +271,33 @@ class AdminRoomController extends RoomController
         $em->flush();
 
         //add attachments
-        $this->addRoomAttachment(
-            $em,
-            $room,
-            $attachments_id
-        );
+        if (!is_null($attachments_id)) {
+            $this->addRoomAttachment(
+                $em,
+                $room,
+                $attachments_id,
+                $office_supplies
+            );
+        }
 
         //manage room types
-        $this->addRoomTypeData(
-            $em,
-            $room,
-            $meeting,
-            $roomsFixed
-        );
+        if (!is_null($meeting) || !is_null($roomsFixed)) {
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                $meeting,
+                $roomsFixed
+            );
+        }
 
-        //TODO Add office supplies - TBD
+        // Add office supplies
+        if (!is_null($office_supplies)) {
+            $this->addOfficeSupplies(
+                $em,
+                $room,
+                $office_supplies
+            );
+        }
 
         $response = array(
             'id' => $room->getId(),
@@ -310,10 +328,36 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * Save office supply id and quantity.
+     *
+     * @param EntityManager $em
+     * @param Room          $room
+     * @param RoomSupplies  $office_supplies
+     *
+     * @internal param $attachments_id
+     */
+    private function addOfficeSupplies(
+        $em,
+        $room,
+        $office_supplies
+    ) {
+        foreach ($office_supplies as $supply) {
+            $roomSupply = new RoomSupplies();
+            $roomSupply->setRoom($room);
+            $roomSupply->setSuppliesId($supply['id']);
+            $roomSupply->setQuantity($supply['quantity']);
+            $em->persist($roomSupply);
+            $em->flush();
+        }
+    }
+
+    /**
      * Add room type data.
      *
      * @param EntityManager $em
      * @param Room          $room
+     * @param RoomMeeting   $meeting
+     * @param RoomFixed     $roomsFixed
      *
      * @internal param $id
      * @internal param $type
