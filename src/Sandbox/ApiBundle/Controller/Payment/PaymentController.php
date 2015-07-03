@@ -75,31 +75,31 @@ class PaymentController extends SandboxRestController
         }
     }
 
-    /**
-     * @param $chargeId
-     *
-     * @return Charge
-     */
-    public function refundForOrder(
-        $chargeId
-    ) {
-        $keyGlobal = $this->get('twig')->getGlobals();
-        $key = $keyGlobal['pingpp_test_key'];
-        Pingpp::setApiKey($key);
-        try {
-            $ch = Charge::retrieve($chargeId);
-            $ch->refunds->create(
-                array(
-                    'description' => 'full refund',
-                )
-            );
-
-            return $ch;
-        } catch (Base $e) {
-            header('Status: '.$e->getHttpStatus());
-            echo($e->getHttpBody());
-        }
-    }
+//    /**
+//     * @param $chargeId
+//     *
+//     * @return Charge
+//     */
+//    public function refundForOrder(
+//        $chargeId
+//    ) {
+//        $keyGlobal = $this->get('twig')->getGlobals();
+//        $key = $keyGlobal['pingpp_test_key'];
+//        Pingpp::setApiKey($key);
+//        try {
+//            $ch = Charge::retrieve($chargeId);
+//            $ch->refunds->create(
+//                array(
+//                    'description' => 'full refund',
+//                )
+//            );
+//
+//            return $ch;
+//        } catch (Base $e) {
+//            header('Status: '.$e->getHttpStatus());
+//            echo($e->getHttpBody());
+//        }
+//    }
 
     /**
      * @param $chargeId

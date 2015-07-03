@@ -44,7 +44,9 @@ class ClientPaymentController extends PaymentController
             $em->flush();
 
             http_response_code(200);
+            //TODO: return succeeded payment
         } else {
+            //TODO: return failed payment
         }
 
 //        elseif ($input_data['type'] == 'refund.succeeded' && $input_data['data']['object']['succeed'] == true) {

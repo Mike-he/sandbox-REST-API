@@ -126,6 +126,7 @@ class ClientOrderController extends PaymentController
         $order->setStartDate($startDate);
         $order->setEndDate($endDate);
         $order->setUserId($userId);
+        $order->setLocation('下订单时所在地址');
         $order->setStatus('unpaid');
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
@@ -159,37 +160,37 @@ class ClientOrderController extends PaymentController
         return $view;
     }
 
-    private function payByAccount()
+    private function payByAccount($order)
     {
-        //        //TODO Call CRM API to get current balance
-//        if ($order->getPrice() > $balance){
-//
-//            return $this->customErrorView(
-//                400,
-//                self::INSUFFICIENT_FUNDS_CODE,
-//                self::INSUFFICIENT_FUNDS_MESSAGE
-//            );
-//        }
-//        //TODO Call CRM API to subtract price from current balance
-//        $newBalance = $balance - $order->getPrice();
-//        //TODO Call CRM API to get current balance AGAIN
-//        if ($newBalance !== $balance){
-//
-//            return $this->customErrorView(
-//                500,
-//                self::SYSTEM_ERROR_CODE,
-//                self::SYSTEM_ERROR_MESSAGE
-//            );
-//        }
-//
-//        $view = new View();
-//        $view->setData(
-//            array(
-//                'id' => $order->getId()
-//            )
-//        );
-//
-//        return $view;
+        //TODO Call CRM API to get current balance
+        $balance = 500;
+        if ($order->getPrice() > $balance) {
+            return $this->customErrorView(
+                400,
+                self::INSUFFICIENT_FUNDS_CODE,
+                self::INSUFFICIENT_FUNDS_MESSAGE
+            );
+        }
+        //TODO Call CRM API to subtract price from current balance
+        $newBalance = $balance - $order->getPrice();
+        //TODO Call CRM API to get current balance AGAIN
+        $updatedbalance = $newBalance;
+        if ($newBalance !== $updatedbalance) {
+            return $this->customErrorView(
+                500,
+                self::SYSTEM_ERROR_CODE,
+                self::SYSTEM_ERROR_MESSAGE
+            );
+        }
+
+        $view = new View();
+        $view->setData(
+            array(
+                'id' => $order->getId(),
+            )
+        );
+
+        return $view;
     }
 
     /**
@@ -278,20 +279,40 @@ class ClientOrderController extends PaymentController
         if ($order->getStatus() !== 'paid') {
             throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
         }
-        $map = $this->getRepo('Order\OrderMap')->findOneBy(
+        $price = $order->getPrice();
+        //TODO: CALL CRM API to get current balance $balance
+        $balance = 500;
+        //TODO: CALL CRM API to request add $price to balance
+        $newBalance = $balance + $price;
+        //TODO: CALL CRM API to get updated balance $updatedBalance
+        $updatedBalance = $newBalance;
+        if ($updatedBalance !== $newBalance) {
+            return $this->customErrorView(
+                500,
+                self::SYSTEM_ERROR_CODE,
+                self::SYSTEM_ERROR_MESSAGE
+            );
+        }
+
+        $order->setStatus('cancelled');
+        $order->setCancelledDate(new \DateTime());
+        $order->setModificationDate(new \DateTime());
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($order);
+        $em->flush();
+
+        $people = $this->getRepo('Order\InvitedPeople')->findBy(
             [
-                'type' => 'product',
                 'orderId' => $id,
             ]
         );
-        $chargeId = $map->getChargeId();
-        $refund = $this->refundForOrder($chargeId);
-        $refund = json_decode($refund, true);
-        if (is_null($refund)) {
-            throw new BadRequestHttpException(self::NO_PAYMENT);
+        if (empty($people)) {
+            return;
         }
-
-        return new View($refund);
+        foreach ($people as $user) {
+            $userId = $user->getUserId();
+            //TODO: Remove access for every user
+        }
     }
 
     /**

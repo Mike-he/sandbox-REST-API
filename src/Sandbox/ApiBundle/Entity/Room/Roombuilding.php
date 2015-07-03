@@ -50,7 +50,7 @@ class Roombuilding
     /**
      * @var string
      *
-     * @ORM\Column(name="address", type="text", nullable=false)
+     * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
      */
@@ -159,7 +159,7 @@ class Roombuilding
     /**
      * Set lat.
      *
-     * @param decimal $lat
+     * @param float $lat
      *
      * @return RoomBuilding
      */
@@ -173,7 +173,7 @@ class Roombuilding
     /**
      * Get lat.
      *
-     * @return decimal
+     * @return float
      */
     public function getLat()
     {
@@ -183,7 +183,7 @@ class Roombuilding
     /**
      * Set lng.
      *
-     * @param decimal $lng
+     * @param float $lng
      *
      * @return RoomBuilding
      */
@@ -197,7 +197,7 @@ class Roombuilding
     /**
      * Get lng.
      *
-     * @return decimal
+     * @return float
      */
     public function getLng()
     {
