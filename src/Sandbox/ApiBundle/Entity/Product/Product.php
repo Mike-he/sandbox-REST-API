@@ -86,7 +86,7 @@ class Product
      *
      * @Serializer\Groups({"main"})
      */
-    private $private;
+    private $private = false;
 
     /**
      * @var bool
@@ -95,7 +95,7 @@ class Product
      *
      * @Serializer\Groups({"main", "client"})
      */
-    private $renewable;
+    private $renewable = true;
 
     /**
      * @var \DateTime
