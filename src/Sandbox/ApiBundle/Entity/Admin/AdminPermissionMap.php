@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AdminPermissionMap.
@@ -27,6 +28,7 @@ class AdminPermissionMap
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -34,6 +36,7 @@ class AdminPermissionMap
      * @var int
      *
      * @ORM\Column(name="adminId", type="integer", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $adminId;
 
@@ -41,6 +44,7 @@ class AdminPermissionMap
      * @var int
      *
      * @ORM\Column(name="permissionId", type="integer", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $permissionId;
 
@@ -48,18 +52,21 @@ class AdminPermissionMap
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
     /**
      * @ORM\OneToOne(targetEntity="AdminPermission"))
      * @ORM\JoinColumn(name="permissionId", referencedColumnName="id")
+     * @Serializer\Groups({"main", "login", "admin"})
      **/
     private $permission;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Admin", inversedBy="permissionIds")
+     * @ORM\ManyToOne(targetEntity="Admin", inversedBy="permissions")
      * @ORM\JoinColumn(name="adminId", referencedColumnName="id")
+     * @Serializer\Groups({"main"})
      **/
     private $admin;
 

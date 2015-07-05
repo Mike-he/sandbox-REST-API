@@ -18,7 +18,7 @@ class AdminType extends AbstractType
             ->add('username')
             ->add('password')
             ->add('type_id')
-            ->add('permissions')
+            ->add('permission_ids')
         ;
     }
 

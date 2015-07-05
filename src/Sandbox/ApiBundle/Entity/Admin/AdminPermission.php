@@ -23,7 +23,7 @@ class AdminPermission
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "admin"})
      */
     private $id;
 
@@ -31,7 +31,7 @@ class AdminPermission
      * @var string
      *
      * @ORM\Column(name="key", type="string", length=32, nullable=true)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "admin"})
      */
     private $key;
 
@@ -39,7 +39,7 @@ class AdminPermission
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "admin"})
      */
     private $name;
 

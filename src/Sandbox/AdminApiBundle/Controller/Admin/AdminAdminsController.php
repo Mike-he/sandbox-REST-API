@@ -14,6 +14,7 @@ use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Admin controller.
@@ -40,6 +41,51 @@ class AdminAdminsController extends SandboxRestController
     const ERROR_ADMIN_TYPE_MESSAGE = 'Invalid admin type - 无效的管理员类型';
 
     /**
+     * List all admins.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/admins")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminsAction(
+        Request $request
+    ) {
+        // TODO a common function to check user permission
+
+        $user = $this->getUser();
+        $myAdmin = $this->getRepo('Admin\Admin')->find($user->getAdminId());
+
+        // only super admin is allowed to create admin account
+        $type = $this->getRepo('Admin\AdminType')->findOneByKey(AdminType::KEY_SUPER);
+        if ($type->getId() != $myAdmin->getType()->getId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        // get all admins
+        $admins = $this->getRepo('Admin\Admin')->findAll();
+
+        // set view
+        $view = new View($admins);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('admin'))
+        );
+
+        return $view;
+    }
+
+    /**
      * Create admin.
      *
      * @param Request $request the request object
@@ -54,7 +100,7 @@ class AdminAdminsController extends SandboxRestController
      * @Method({"POST"})
      * @Route("/admins")
      *
-     * @return string
+     * @return View
      *
      * @throws \Exception
      */
@@ -68,7 +114,7 @@ class AdminAdminsController extends SandboxRestController
 
         // only super admin is allowed to create admin account
         $type = $this->getRepo('Admin\AdminType')->findOneByKey(AdminType::KEY_SUPER);
-        if ($type->getId() != $myAdmin->getTypeId()) {
+        if ($type->getId() != $myAdmin->getType()->getId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
@@ -148,12 +194,11 @@ class AdminAdminsController extends SandboxRestController
         $now = new \DateTime('now');
 
         // set permissions
-        $permissionIds = array();
-        foreach ($admin->getPermissions() as $permission) {
-            $permissionId = $permission['id'];
-
+        $permissions = array();
+        foreach ($admin->getPermissionIds() as $permissionId) {
             $myPermission = $this->getRepo('Admin\AdminPermission')->find($permissionId);
-            if (is_null($myPermission)) {
+            if (is_null($myPermission)
+                || $myPermission->getTypeId() != $admin->getTypeId()) {
                 continue;
             }
 
@@ -162,9 +207,9 @@ class AdminAdminsController extends SandboxRestController
             $permissionMap->setPermission($myPermission);
             $permissionMap->setCreationDate($now);
 
-            array_push($permissionIds, $permissionMap);
+            array_push($permissions, $permissionMap);
         }
-        $admin->setPermissionIds($permissionIds);
+        $admin->setPermissions($permissions);
 
         // set dates
         $admin->setCreationDate($now);
