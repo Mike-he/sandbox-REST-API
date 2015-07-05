@@ -63,8 +63,8 @@ class PaymentController extends SandboxRestController
                     'currency' => 'cny',
                     'extra' => $extra,
                     'client_ip' => $_SERVER['REMOTE_ADDR'],
-                    'subject' => $order->getProduct()->getRoom()->getName(),
-                    'body' => $order->getProduct()->getRoom()->getDescription(),
+                    'subject' => 'payment subject',
+                    'body' => 'payment body',
                 )
             );
 
