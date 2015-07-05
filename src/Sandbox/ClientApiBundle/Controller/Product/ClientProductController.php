@@ -94,6 +94,26 @@ class ClientProductController extends ProductController
          *    "
          * )
          *
+         * @Annotations\QueryParam(
+         *    name="limit",
+         *    array=false,
+         *    default="10",
+         *    nullable=true,
+         *    requirements="\d+",
+         *    strict=true,
+         *    description="limit for the page"
+         * )
+         *
+         * @Annotations\QueryParam(
+         *    name="offset",
+         *    array=false,
+         *    default="0",
+         *    nullable=true,
+         *    requirements="\d+",
+         *    strict=true,
+         *    description="start of the page"
+         * )
+         *
          * @param Request $request
          * @param ParamFetcherInterface $paramFetcher
          */
@@ -101,6 +121,8 @@ class ClientProductController extends ProductController
             Request $request,
             ParamFetcherInterface $paramFetcher
         ) {
+            $limit = $paramFetcher->get('limit');
+            $offset = $paramFetcher->get('offset');
             $roomType = $paramFetcher->get('type');
             $buildingId = $paramFetcher->get('building');
             $timeUnit = $paramFetcher->get('time_unit');
@@ -121,7 +143,9 @@ class ClientProductController extends ProductController
                 $timeUnit,
                 $endTime,
                 $allowedPeople,
-                $userId
+                $userId,
+                $limit,
+                $offset
             );
 
             $products = [];
