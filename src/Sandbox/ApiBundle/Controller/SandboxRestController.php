@@ -59,11 +59,11 @@ class SandboxRestController extends FOSRestController
     /**
      * Get the id of the guy who's making the API call.
      *
-     * @return string
+     * @return int
      */
-    protected function getUserid()
+    protected function getUserId()
     {
-        return $this->getUser()->getUserid();
+        return $this->getUser()->getUserId();
     }
 
     /**

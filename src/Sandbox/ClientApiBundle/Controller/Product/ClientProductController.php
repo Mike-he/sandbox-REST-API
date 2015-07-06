@@ -112,7 +112,7 @@ class ClientProductController extends ProductController
                 $endTime = clone $startTime;
                 $endTime->modify('+'.$rentPeriod.$timeUnit);
             }
-            $userId = $this->getUserid();
+            $userId = $this->getUserId();
 
             $productIds = $this->getRepo('Product\Product')->getProductsForClient(
                 $roomType,

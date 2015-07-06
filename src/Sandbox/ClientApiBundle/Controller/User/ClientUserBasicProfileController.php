@@ -49,7 +49,7 @@ class ClientUserBasicProfileController extends UserProfileController
     ) {
         $userId = (int) $paramFetcher->get('user_id');
         if ($userId === 0) {
-            $userId = $this->getUserid();
+            $userId = $this->getUserId();
         }
 
         $userBasic = $this->getRepo('User\UserProfile')->findByUserId($userId);

@@ -49,7 +49,7 @@ class ClientUserHobbyController extends UserProfileController
     ) {
         $userId = (int) $paramFetcher->get('user_id');
         if ($userId === 0) {
-            $userId = $this->getUserid();
+            $userId = $this->getUserId();
         }
 
         $userHobbyMap = $this->getRepo('User\UserHobbyMap')->findByUserId($userId);
@@ -91,7 +91,7 @@ class ClientUserHobbyController extends UserProfileController
         ParamFetcherInterface $paramFetcher
 
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
 
         $hobbyResponseArray = array();
         $em = $this->getDoctrine()->getManager();

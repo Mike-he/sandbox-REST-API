@@ -63,7 +63,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     public function postPhoneBindSubmitAction(
         Request $request
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
 
         $submit = new PhoneBindingSubmit();
 
@@ -99,7 +99,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     public function postPhoneBindVerifyAction(
         Request $request
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
 
         $verify = new PhoneBindingVerify();
 

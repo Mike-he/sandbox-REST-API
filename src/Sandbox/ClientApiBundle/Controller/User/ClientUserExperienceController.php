@@ -50,7 +50,7 @@ class ClientUserExperienceController extends UserProfileController
     ) {
         $userId = (int) $paramFetcher->get('user_id');
         if ($userId === 0) {
-            $userId = $this->getUserid();
+            $userId = $this->getUserId();
         }
 
         $userExperience = $this->getRepo('User\UserExperience')->findByUserId($userId);
@@ -73,7 +73,7 @@ class ClientUserExperienceController extends UserProfileController
         ParamFetcherInterface $paramFetcher
 
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
         $experienceResponseArray = array();
 
         $em = $this->getDoctrine()->getManager();

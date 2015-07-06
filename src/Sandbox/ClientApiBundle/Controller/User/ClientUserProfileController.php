@@ -115,7 +115,7 @@ class ClientUserProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         if (!is_null($userProfile)) {
             throw new BadRequestHttpException('can not add profile.');
@@ -141,7 +141,7 @@ class ClientUserProfileController extends UserProfileController
     private function handlePostUserProfile(
         $userProfile
     ) {
-        $userId = (int) $this->getUserid();
+        $userId = (int) $this->getUserId();
         $em = $this->getDoctrine()->getManager();
 
         $userEducations = $userProfile->getEducations();
