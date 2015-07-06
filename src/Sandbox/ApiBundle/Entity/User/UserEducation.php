@@ -66,6 +66,12 @@ class UserEducation
     private $modificationDate;
 
     /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="educations")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     **/
+    private $user;
+
+    /**
      * @return int
      */
     public function getId()
@@ -179,6 +185,28 @@ class UserEducation
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return UserEducation
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     public function __construct()

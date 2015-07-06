@@ -129,11 +129,10 @@ class UserProfile
     private $modificationDate;
 
     /**
-     * @var array
-     *
-     * @ORM\OneToMany(targetEntity="UserProfile", mappedBy="profile", cascade={"persist"})
-     */
-    private $hobbies;
+     * @ORM\OneToOne(targetEntity="User"))
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     **/
+    private $user;
 
     /**
      * @var array
@@ -434,21 +433,25 @@ class UserProfile
     }
 
     /**
-     * @return array
+     * Get user.
+     *
+     * @return User
      */
-    public function getHobbies()
+    public function getUser()
     {
-        return $this->hobbies;
+        return $this->user;
     }
 
     /**
-     * @param array $hobbies
+     * Set user.
+     *
+     * @param User $user
      *
      * @return UserProfile
      */
-    public function setHobbies($hobbies)
+    public function setUser($user)
     {
-        $this->hobbies = $hobbies;
+        $this->user = $user;
     }
 
     /**

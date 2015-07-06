@@ -88,6 +88,56 @@ class User implements UserInterface
     private $modificationDate;
 
     /**
+     * @ORM\OneToOne(targetEntity="UserProfile"))
+     * @ORM\JoinColumn(name="id", referencedColumnName="userId")
+     **/
+    private $profile;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserHobbyMap",
+     *      mappedBy="user",
+     *      cascade={"persist"}
+     * )
+     */
+    private $hobbies;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserEducation",
+     *      mappedBy="user",
+     *      cascade={"persist"}
+     * )
+     */
+    private $educations;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserExperience",
+     *      mappedBy="user",
+     *      cascade={"persist"}
+     * )
+     */
+    private $experiences;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserPortfolio",
+     *      mappedBy="user",
+     *      cascade={"persist"}
+     * )
+     */
+    private $portfolios;
+
+    /**
      * Get id.
      *
      * @return int

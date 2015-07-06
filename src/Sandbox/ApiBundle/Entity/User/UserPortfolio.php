@@ -75,6 +75,12 @@ class UserPortfolio
     private $modificationDate;
 
     /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="portfolios")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     **/
+    private $user;
+
+    /**
      * @return int
      */
     public function getId()
@@ -224,6 +230,28 @@ class UserPortfolio
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return UserPortfolio
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     public function __construct()

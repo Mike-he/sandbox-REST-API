@@ -51,6 +51,12 @@ class UserHobbyMap
     private $hobby;
 
     /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="hobbies")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     **/
+    private $user;
+
+    /**
      * @return int
      */
     public function getId()
@@ -128,6 +134,28 @@ class UserHobbyMap
     public function setHobby($hobby)
     {
         $this->hobby = $hobby;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return UserHobbyMap
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     /**

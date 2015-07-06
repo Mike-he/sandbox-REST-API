@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserEducation;
 use Sandbox\ApiBundle\Entity\User\UserExperience;
 use Sandbox\ApiBundle\Entity\User\UserHobby;
@@ -19,6 +20,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
@@ -55,24 +57,28 @@ class ClientUserProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = (int) $paramFetcher->get('user_id');
-        if ($userId === 0) {
-            $userId = $this->getUserid();
+        $userId = $paramFetcher->get('user_id');
+        if (is_null($userId)) {
+            $userId = $this->getUserId();
         }
 
+        // profile
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $this->throwNotFoundIfNull($userProfile, self::NOT_FOUND_MESSAGE);
 
+        // education
         $userEducation = $this->getRepo('User\UserEducation')->findByUserId($userId);
         if (!empty($userEducation)) {
             $userProfile->setEducations($userEducation);
         }
 
+        // experience
         $userExperience = $this->getRepo('User\UserExperience')->findByUserId($userId);
         if (!empty($userExperience)) {
             $userProfile->setExperiences($userExperience);
         }
 
+        // portfolio
         $userPortfolio = $this->getRepo('User\UserPortfolio')->findByUserId($userId);
         if (!empty($userPortfolio)) {
             $userProfile->setPortfolios($userPortfolio);
@@ -150,20 +156,24 @@ class ClientUserProfileController extends UserProfileController
         $em = $this->getDoctrine()->getManager();
 
         // set request user
-        $userId = (int) $this->getUserId();
-        $userProfile->setUserId($userId);
+        $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($userId);
+        if (is_null($user)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+        $userProfile->setUser($user);
 
         // education
         $educations = $userProfile->getEducations();
         foreach ($educations as $education) {
-            $userEducation = $this->generateUserEducation($userId, $education);
+            $userEducation = $this->generateUserEducation($user, $education);
             $em->persist($userEducation);
         }
 
         // experience
         $experiences = $userProfile->getExperiences();
         foreach ($experiences as $experience) {
-            $userExperience = $this->generateUserExperience($userId, $experience);
+            $userExperience = $this->generateUserExperience($user, $experience);
             $em->persist($userExperience);
         }
 
@@ -174,14 +184,23 @@ class ClientUserProfileController extends UserProfileController
             if (is_null($hobby)) {
                 continue;
             }
-            $userHobbyMap = $this->generateUserHobbyMap($userId, $hobby);
+
+            $hobbyMap = $this->getRepo('User\UserHobbyMap')->findOneBy(array(
+                'userId' => $userId,
+                'hobbyId' => $hobbyId,
+            ));
+            if (!is_null($hobbyMap)) {
+                continue;
+            }
+
+            $userHobbyMap = $this->generateUserHobbyMap($user, $hobby);
             $em->persist($userHobbyMap);
         }
 
         // portfolio
         $portfolios = $userProfile->getPortfolios();
         foreach ($portfolios as $portfolio) {
-            $userPortfolio = $this->generateUserPortfolio($userId, $portfolio);
+            $userPortfolio = $this->generateUserPortfolio($user, $portfolio);
             $em->persist($userPortfolio);
         }
 
@@ -199,13 +218,13 @@ class ClientUserProfileController extends UserProfileController
     }
 
     /**
-     * @param int   $userId
+     * @param User  $user
      * @param array $education
      *
      * @return UserEducation
      */
     private function generateUserEducation(
-        $userId,
+        $user,
         $education
     ) {
         $userEducation = new UserEducation();
@@ -213,19 +232,19 @@ class ClientUserProfileController extends UserProfileController
         $form = $this->createForm(new UserEducationType(), $userEducation);
         $form->submit($education);
 
-        $userEducation->setUserId($userId);
+        $userEducation->setUser($user);
 
         return $userEducation;
     }
 
     /**
-     * @param int   $userId
+     * @param User  $user
      * @param array $experience
      *
      * @return UserExperience
      */
     private function generateUserExperience(
-        $userId,
+        $user,
         $experience
     ) {
         $userExperience = new UserExperience();
@@ -233,19 +252,19 @@ class ClientUserProfileController extends UserProfileController
         $form = $this->createForm(new UserExperienceType(), $userExperience);
         $form->submit($experience);
 
-        $userExperience->setUserId($userId);
+        $userExperience->setUser($user);
 
         return $userExperience;
     }
 
     /**
-     * @param int   $userId
+     * @param User  $user
      * @param array $portfolio
      *
      * @return UserPortfolio
      */
     private function generateUserPortfolio(
-        $userId,
+        $user,
         $portfolio
     ) {
         $userPortfolio = new UserPortfolio();
@@ -253,25 +272,25 @@ class ClientUserProfileController extends UserProfileController
         $form = $this->createForm(new UserPortfolioType(), $userPortfolio);
         $form->submit($portfolio);
 
-        $userPortfolio->setUserId($userId);
+        $userPortfolio->setUser($user);
 
         return $userPortfolio;
     }
 
     /**
-     * @param int       $userId
+     * @param User      $user
      * @param UserHobby $hobby
      *
      * @return UserHobbyMap
      */
     private function generateUserHobbyMap(
-        $userId,
+        $user,
         $hobby
     ) {
         $userHobbyMap = new UserHobbyMap();
 
+        $userHobbyMap->setUser($user);
         $userHobbyMap->setHobby($hobby);
-        $userHobbyMap->setUserId($userId);
         $userHobbyMap->setCreationDate(new \DateTime('now'));
 
         return $userHobbyMap;
