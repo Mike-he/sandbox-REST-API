@@ -11,13 +11,9 @@ class UserExperienceType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id')
-            ->add('user_id')
             ->add('start_date')
             ->add('end_date')
             ->add('detail')
-            ->add('creation_date')
-            ->add('modification_date')
         ;
     }
 

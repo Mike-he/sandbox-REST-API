@@ -38,6 +38,19 @@ class UserHobbyMap
     private $hobbyId;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     */
+    private $creationDate;
+
+    /**
+     * @ORM\OneToOne(targetEntity="UserHobby"))
+     * @ORM\JoinColumn(name="hobbyId", referencedColumnName="id")
+     **/
+    private $hobby;
+
+    /**
      * @return int
      */
     public function getId()
@@ -79,5 +92,51 @@ class UserHobbyMap
     public function setHobbyId($hobbyId)
     {
         $this->hobbyId = $hobbyId;
+    }
+
+    /**
+     * Set creationDate.
+     *
+     * @param \DateTime $creationDate
+     *
+     * @return UserHobbyMap
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get creationDate.
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * Set hobby.
+     *
+     * @param UserHobby $hobby
+     *
+     * @return UserHobbyMap
+     */
+    public function setHobby($hobby)
+    {
+        $this->hobby = $hobby;
+    }
+
+    /**
+     * Get hobby.
+     *
+     * @return UserHobby
+     */
+    public function getHobby()
+    {
+        return $this->hobby;
     }
 }

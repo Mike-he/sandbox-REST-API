@@ -61,7 +61,7 @@ class UserHobby
     /**
      * @param string $name
      *
-     * @return Hobby
+     * @return UserHobby
      */
     public function setName($name)
     {
@@ -79,7 +79,7 @@ class UserHobby
     /**
      * @param \DateTime $creationDate
      *
-     * @return Hobby
+     * @return UserHobby
      */
     public function setCreationDate($creationDate)
     {
@@ -97,7 +97,7 @@ class UserHobby
     /**
      * @param \DateTime $modificationDate
      *
-     * @return Hobby
+     * @return UserHobby
      */
     public function setModificationDate($modificationDate)
     {

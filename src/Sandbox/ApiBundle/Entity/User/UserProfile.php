@@ -128,12 +128,31 @@ class UserProfile
      */
     private $modificationDate;
 
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(targetEntity="UserProfile", mappedBy="profile", cascade={"persist"})
+     */
     private $hobbies;
 
+    /**
+     * @var array
+     */
+    private $hobbyIds;
+
+    /**
+     * @var array
+     */
     private $experiences;
 
+    /**
+     * @var array
+     */
     private $educations;
 
+    /**
+     * @var array
+     */
     private $portfolios;
 
     /**
@@ -415,7 +434,7 @@ class UserProfile
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getHobbies()
     {
@@ -423,13 +442,31 @@ class UserProfile
     }
 
     /**
-     * @param mixed $hobbies
+     * @param array $hobbies
      *
      * @return UserProfile
      */
     public function setHobbies($hobbies)
     {
         $this->hobbies = $hobbies;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHobbyIds()
+    {
+        return $this->hobbyIds;
+    }
+
+    /**
+     * @param array $hobbyIds
+     *
+     * @return UserProfile
+     */
+    public function setHobbyIds($hobbyIds)
+    {
+        $this->hobbyIds = $hobbyIds;
     }
 
     /**
