@@ -27,6 +27,7 @@ class AppKernel extends Kernel
             new Sandbox\ApiBundle\SandboxApiBundle(),
             new Sandbox\ClientApiBundle\SandboxClientApiBundle(),
             new Sandbox\AdminApiBundle\SandboxAdminApiBundle(),
+            new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

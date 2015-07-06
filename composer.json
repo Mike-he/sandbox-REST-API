@@ -29,7 +29,8 @@
         "hautelook/templated-uri-bundle": "~2.0",
         "willdurand/rest-extra-bundle": "~1.0",
         "php-jsonpatch/php-jsonpatch": "dev-master",
-        "pingplusplus/pingpp-php": "dev-master"
+        "pingplusplus/pingpp-php": "dev-master",
+        "knplabs/knp-paginator-bundle": "^2.4"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "@stable",
