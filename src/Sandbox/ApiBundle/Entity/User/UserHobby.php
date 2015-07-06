@@ -5,12 +5,12 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Hobby.
+ * UserHobby.
  *
- * @ORM\Table(name="Hobby")
+ * @ORM\Table(name="UserHobby")
  * @ORM\Entity
  */
-class Hobby
+class UserHobby
 {
     /**
      * @var int
