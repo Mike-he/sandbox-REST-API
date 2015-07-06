@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Announcement;
 
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Announcement\AnnouncementController;
 use Sandbox\ApiBundle\Entity\Announcement\Announcement;
 use Sandbox\ApiBundle\Form\Announcement\AnnouncementType;
@@ -39,18 +40,28 @@ class AdminAnnouncementController extends AnnouncementController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="sort",
+     *    name="pageIndex",
      *    array=false,
-     *    default=null,
+     *    default="1",
      *    nullable=true,
-     *    requirements="(creation_date|-creation_date|modification_date|-modification_date)",
+     *    requirements="\d+",
      *    strict=true,
-     *    description="Sort by date"
+     *    description="page number "
      * )
      *
      *
      * @Annotations\QueryParam(
-     *    name="limit",
+     *    name="sortBy",
+     *    array=false,
+     *    default="id",
+     *    nullable=true,
+     *    requirements="(creation_date|modification_date)",
+     *    strict=true,
+     *    description="Sort by date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
      *    array=false,
      *    default="20",
      *    nullable=true,
@@ -60,13 +71,13 @@ class AdminAnnouncementController extends AnnouncementController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="offset",
+     *    name="direction",
      *    array=false,
-     *    default="0",
+     *    default="ASC",
      *    nullable=true,
-     *    requirements="\d+",
+     *    requirements="(ASC|DESC)",
      *    strict=true,
-     *    description="Offset from which to start listing announcements"
+     *    description="sort direction"
      * )
      *
      * @Route("/announcements")
@@ -80,25 +91,32 @@ class AdminAnnouncementController extends AnnouncementController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // get announcement
-        $announcement = $this->getRepo('Announcement\Announcement');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $direction = $paramFetcher->get('direction');
+        $sortBy = $paramFetcher->get('sortBy');
 
-        $limit = $paramFetcher->get('limit');
-        $offset = $paramFetcher->get('offset');
-        $order = $paramFetcher->get('sort');
+        if ($sortBy === 'modification_date') {
+            $sortBy = 'modificationDate';
+        } else if ($sortBy === 'creation_date') {
+            $sortBy = 'creationDate';
+        }
 
-        //sort by
-        $sortBy = $this->getSortBy($order);
+        // get announcement repository
+        $repo = $this->getRepo('Announcement\Announcement');
 
-        //find all with or without sort
-        $announcement = $announcement->findBy(
-            [],
-            $sortBy,
-            $limit,
-            $offset
+        $query = $repo->createQueryBuilder('a')
+            ->orderBy('a.' . $sortBy, $direction)
+            ->getQuery();
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $query,
+            $pageIndex,
+            $pageLimit
         );
 
-        return new View($announcement);
+        return new View($pagination);
     }
 
     /**
