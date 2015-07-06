@@ -98,7 +98,7 @@ class AdminAnnouncementController extends AnnouncementController
 
         if ($sortBy === 'modification_date') {
             $sortBy = 'modificationDate';
-        } else if ($sortBy === 'creation_date') {
+        } elseif ($sortBy === 'creation_date') {
             $sortBy = 'creationDate';
         }
 
@@ -106,7 +106,7 @@ class AdminAnnouncementController extends AnnouncementController
         $repo = $this->getRepo('Announcement\Announcement');
 
         $query = $repo->createQueryBuilder('a')
-            ->orderBy('a.' . $sortBy, $direction)
+            ->orderBy('a.'.$sortBy, $direction)
             ->getQuery();
 
         $paginator = new Paginator();

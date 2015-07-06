@@ -16,5 +16,4 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
  */
 class AnnouncementController extends SandboxRestController
 {
-
 }

@@ -11,6 +11,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
+use FOS\RestBundle\Controller\Annotations\Put;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
@@ -41,6 +42,8 @@ class ClientOrderController extends PaymentController
     const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
     const SYSTEM_ERROR_CODE = 500001;
     const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
+    const PAYMENT_SUBJECT = 'ROOM';
+    const PAYMENT_BODY = 'ROOM ORDER';
 
     /**
      * @Get("/orders/{id}")
@@ -54,6 +57,9 @@ class ClientOrderController extends PaymentController
         $id
     ) {
         $order = $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
@@ -175,11 +181,15 @@ class ClientOrderController extends PaymentController
             throw new BadRequestHttpException(self::PRICE_MISMATCH);
         }
 
+        $datetime = new \DateTime();
+        $date = $datetime->format('Ymdhis');
+        $orderNumber = $date.$userId;
+        $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
         $order->setStartDate($startDate);
         $order->setEndDate($endDate);
         $order->setUserId($userId);
-        $order->setLocation('下订单时所在地址');
+        $order->setLocation('location');
         $order->setStatus('unpaid');
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
@@ -189,28 +199,24 @@ class ClientOrderController extends PaymentController
         if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
             throw new BadRequestHttpException(self::WRONG_CHANNEL);
         }
-
-        $map = $this->createOrderMap($order);
-
         if ($channel === 'account') {
             $this->payByAccount($order);
         }
 
-        $charge = $this->payForOrder($map->getId(), $order, $channel);
+        $this->createOrderMap($order);
+        $charge = $this->payForOrder(
+            $orderNumber,
+            $order->getPrice(),
+            $channel,
+            self::PAYMENT_SUBJECT,
+            self::PAYMENT_BODY
+        );
         $charge = json_decode($charge, true);
         $chargeId = $charge['id'];
 
         $this->setChargeForProductOrder($chargeId, $order->getId());
 
-        $view = new View();
-        $view->setData(
-            array(
-                'id' => $order->getId(),
-                'charge_info' => $charge,
-            )
-        );
-
-        return $view;
+        return new View($charge);
     }
 
     private function payByAccount($order)
@@ -235,6 +241,13 @@ class ClientOrderController extends PaymentController
                 self::SYSTEM_ERROR_MESSAGE
             );
         }
+
+        $order->setStatus(self::STATUS_PAID);
+        $order->setPaymentDate(new \DateTime());
+        $order->setModificationDate(new \DateTime());
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($order);
+        $em->flush();
 
         $view = new View();
         $view->setData(
@@ -379,6 +392,9 @@ class ClientOrderController extends PaymentController
         $id
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
@@ -417,6 +433,9 @@ class ClientOrderController extends PaymentController
         $id
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
@@ -467,5 +486,85 @@ class ClientOrderController extends PaymentController
         }
 
         return new View($users);
+    }
+
+    /**
+     * @Put("/orders/{id}/person/appoint")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function appointPersonAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+        $status = $order->getStatus();
+        $endDate = $order->getEndDate();
+        $now = new \DateTime();
+        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
+            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+        }
+        $user = $request->get('user_id');
+        $order->setAppointed($user);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($order);
+        $em->flush();
+    }
+
+    /**
+     * @Put("/orders/{id}/person/replace")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function replacePersonAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+        $status = $order->getStatus();
+        $endDate = $order->getEndDate();
+        $now = new \DateTime();
+        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
+            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+        }
+        $user = $request->get('user_id');
+        $order->setAppointed($user);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($order);
+        $em->flush();
+    }
+
+    /**
+     * @Put("/orders/{id}/person/delete")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function deletePersonAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+        $status = $order->getStatus();
+        $endDate = $order->getEndDate();
+        $now = new \DateTime();
+        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
+            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+        }
+        $order->setAppointed(null);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($order);
+        $em->flush();
     }
 }
