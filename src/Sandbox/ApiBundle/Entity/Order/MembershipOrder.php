@@ -22,6 +22,13 @@ class MembershipOrder
     private $id;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="orderNumber", type="string")
+     */
+    private $orderNumber;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="userId", type="integer")
@@ -31,7 +38,7 @@ class MembershipOrder
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="endDate", type="datetime")
+     * @ORM\Column(name="endDate", type="date")
      */
     private $endDate;
 
@@ -246,5 +253,36 @@ class MembershipOrder
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Set orderNumber.
+     *
+     * @param string $orderNumber
+     *
+     * @return ProductOrder
+     */
+    public function setOrderNumber($orderNumber)
+    {
+        $this->orderNumber = $orderNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get orderNumber.
+     *
+     * @return string
+     */
+    public function getOrderNumber()
+    {
+        return $this->orderNumber;
+    }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 }
