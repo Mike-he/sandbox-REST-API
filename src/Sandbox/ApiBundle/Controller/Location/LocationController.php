@@ -31,7 +31,7 @@ class LocationController extends SandboxRestController
     public function getCitiesAction(
         Request $request
     ) {
-        $cities = $this->getRepo('Room\Roomcity')->findAll();
+        $cities = $this->getRepo('Room\RoomCity')->findAll();
 
         return new View($cities);
     }
@@ -57,13 +57,13 @@ class LocationController extends SandboxRestController
     ) {
         $cityId = $paramFetcher->get('city');
         if (!is_null($cityId)) {
-            $buildings = $this->getRepo('Room\Roombuilding')->findBy(
+            $buildings = $this->getRepo('Room\RoomBuilding')->findBy(
                 ['cityId' => $cityId]
             );
 
             return new View($buildings);
         }
-        $buildings = $this->getRepo('Room\Roombuilding')->findAll();
+        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
 
         return new View($buildings);
     }
@@ -78,7 +78,7 @@ class LocationController extends SandboxRestController
         Request $request,
         $id
     ) {
-        $building = $this->getRepo('Room\Roombuilding')->find($id);
+        $building = $this->getRepo('Room\RoomBuilding')->find($id);
 
         return new View($building);
     }
@@ -104,13 +104,13 @@ class LocationController extends SandboxRestController
     ) {
         $buildingId = $paramFetcher->get('building');
         if (!is_null($buildingId)) {
-            $floors = $this->getRepo('Room\Roomfloor')->findBy(
+            $floors = $this->getRepo('Room\RoomFloor')->findBy(
                 ['buildingId' => $buildingId]
             );
 
             return new View($floors);
         }
-        $floors = $this->getRepo('Room\Roomfloor')->findAll();
+        $floors = $this->getRepo('Room\RoomFloor')->findAll();
 
         return new View($floors);
     }
