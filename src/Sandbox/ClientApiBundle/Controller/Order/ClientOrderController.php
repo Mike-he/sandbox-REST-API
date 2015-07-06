@@ -76,6 +76,26 @@ class ClientOrderController extends PaymentController
      *    "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -87,15 +107,25 @@ class ClientOrderController extends PaymentController
     ) {
         $userId = $this->getUserid();
         $status = $paramFetcher->get('status');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         if (!is_null($status)) {
-            $orders = $this->getRepo('Order\ProductOrder')->findBy(array(
-                'userId' => $userId,
-                'status' => $status,
-            ));
+            $orders = $this->getRepo('Order\ProductOrder')->findBy(
+                [
+                    'userId' => $userId,
+                    'status' => $status,
+                ],
+                null,
+                $limit,
+                $offset
+            );
         } else {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
-                ['userId' => $userId]
+                ['userId' => $userId],
+                null,
+                $limit,
+                $offset
             );
         }
         $view = new View();

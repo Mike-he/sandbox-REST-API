@@ -117,3 +117,9 @@ sandbox_client_api_payment:
     resource: "@SandboxClientApiBundle/Controller/Payment/ClientPaymentController.php"
     type:     annotation
     prefix:   /
+
+# MembershipOrders /membership
+sandbox_client_api_membership_order:
+    resource: "@SandboxClientApiBundle/Controller/Order/ClientMembershipOrderController.php"
+    type:     annotation
+    prefix:   /
