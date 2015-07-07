@@ -21,7 +21,7 @@ class UserProfile
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class UserProfile
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $userId;
 
@@ -37,7 +37,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $name;
 
@@ -45,7 +45,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="jobTitle", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $jobTitle;
 
@@ -53,7 +53,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="gender", type="string", nullable=false)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $gender = self::DEFAULT_GENDER_OTHER;
 
@@ -61,7 +61,7 @@ class UserProfile
      * @var \DateTime
      *
      * @ORM\Column(name="dateOfBirth", type="date", nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $dateOfBirth;
 
@@ -69,7 +69,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $email;
 
@@ -77,7 +77,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $phone;
 
@@ -85,7 +85,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="aboutMe", type="string", nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $aboutMe;
 
@@ -93,7 +93,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="skill", type="string", nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $skill;
 
@@ -101,7 +101,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $sinaWeibo;
 
@@ -109,7 +109,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $tencentWeibo;
 
@@ -117,7 +117,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $facebook;
 
@@ -125,7 +125,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "basic"})
      */
     private $linkedin;
 

@@ -175,9 +175,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             }
 
             // check phone number already used
-            $user = $this->getRepo('User\User')->findOneBy(array(
-                'phone' => $phone,
-            ));
+            $user = $this->getRepo('User\User')->findOneByPhone($phone);
             if (!is_null($user)) {
                 return $this->customErrorView(400, self::ERROR_PHONE_ALREADY_USED_CODE,
                     self::ERROR_PHONE_ALREADY_USED_CODE_MESSAGE);
