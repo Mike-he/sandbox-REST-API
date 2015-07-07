@@ -7,6 +7,7 @@ CREATE TABLE `Room` (
   `floorId` int(11) NOT NULL,
   `number` varchar(64) NOT NULL,
   `allowedPeople` int(11) NOT NULL,
+  `doorControlId` int(11) NOT NULL,
   `area` int(11) NOT NULL,
   `type` enum('office','meeting','flexible','fixed') NOT NULL,
   `creationDate` datetime NOT NULL,

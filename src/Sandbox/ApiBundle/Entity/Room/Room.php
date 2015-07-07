@@ -145,6 +145,15 @@ class Room
     private $allowedPeople;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="doorControlId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $doorControlId;
+
+    /**
      * @var RoomSupplies
      *
      * @ORM\OneToMany(
@@ -648,6 +657,30 @@ class Room
     public function setBuilding($building)
     {
         $this->building = $building;
+
+        return $this;
+    }
+
+    /**
+     * Get door control id.
+     *
+     * @return int
+     */
+    public function getDoorControlId()
+    {
+        return $this->doorControlId;
+    }
+
+    /**
+     * Set door control id.
+     *
+     * @param int $doorControlId
+     *
+     * @return Room
+     */
+    public function setDoorControlId($doorControlId)
+    {
+        $this->doorControlId = $doorControlId;
 
         return $this;
     }
