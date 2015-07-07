@@ -53,9 +53,9 @@ class ClientUserBasicProfileController extends UserProfileController
             $userId = $this->getUserId();
         }
 
-        $userBasic = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
 
-        $view = new View($userBasic);
+        $view = new View($profile);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile_basic')));
 
         return $view;

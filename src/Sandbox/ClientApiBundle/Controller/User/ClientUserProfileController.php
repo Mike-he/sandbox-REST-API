@@ -6,8 +6,6 @@ use Sandbox\ApiBundle\Controller\User\UserProfileController;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserEducation;
 use Sandbox\ApiBundle\Entity\User\UserExperience;
-use Sandbox\ApiBundle\Entity\User\UserHobby;
-use Sandbox\ApiBundle\Entity\User\UserHobbyMap;
 use Sandbox\ApiBundle\Entity\User\UserPortfolio;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Form\User\UserEducationType;
@@ -255,24 +253,5 @@ class ClientUserProfileController extends UserProfileController
         $userPortfolio->setUser($user);
 
         return $userPortfolio;
-    }
-
-    /**
-     * @param User      $user
-     * @param UserHobby $hobby
-     *
-     * @return UserHobbyMap
-     */
-    private function generateUserHobbyMap(
-        $user,
-        $hobby
-    ) {
-        $userHobbyMap = new UserHobbyMap();
-
-        $userHobbyMap->setUser($user);
-        $userHobbyMap->setHobby($hobby);
-        $userHobbyMap->setCreationDate(new \DateTime('now'));
-
-        return $userHobbyMap;
     }
 }
