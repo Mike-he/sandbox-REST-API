@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * UserHobby.
@@ -18,6 +19,7 @@ class UserHobby
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "profile"})
      */
     private $id;
 
@@ -25,6 +27,7 @@ class UserHobby
      * @var string
      *
      * @ORM\Column(name="name", type="string", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $name;
 
@@ -32,6 +35,7 @@ class UserHobby
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -39,6 +43,7 @@ class UserHobby
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

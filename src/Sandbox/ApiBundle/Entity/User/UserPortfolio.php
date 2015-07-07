@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * User Portfolio.
@@ -20,6 +21,7 @@ class UserPortfolio
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "profile"})
      */
     private $id;
 
@@ -27,36 +29,42 @@ class UserPortfolio
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $userId;
 
     /**
      * @var string
      * @ORM\Column(name="content", type="text", nullable =false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $content;
 
     /**
      * @var string
      * @ORM\Column(name="attachmentType", type="string", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $attachmentType;
 
     /**
      * @var string
      * @ORM\Column(name="fileName", type="string", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $fileName;
 
     /**
      * @var string
      * @ORM\Column(name="preview", type="string", nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $preview;
 
     /**
      * @var int
      * @ORM\Column(name="size", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $size;
 
@@ -64,6 +72,7 @@ class UserPortfolio
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -71,6 +80,7 @@ class UserPortfolio
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * User Education.
@@ -20,6 +21,7 @@ class UserEducation
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "profile"})
      */
     private $id;
 
@@ -27,6 +29,7 @@ class UserEducation
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $userId;
 
@@ -34,6 +37,7 @@ class UserEducation
      * @var \DateTime
      *
      * @ORM\Column(name="startDate", type="date", nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $startDate;
 
@@ -41,6 +45,7 @@ class UserEducation
      * @var \DateTime
      *
      * @ORM\Column(name="endDate", type="date", nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $endDate;
 
@@ -48,6 +53,7 @@ class UserEducation
      * @var string
      *
      * @ORM\Column(name="detail", type="text", nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $detail;
 
@@ -55,6 +61,7 @@ class UserEducation
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -62,6 +69,7 @@ class UserEducation
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

@@ -23,6 +23,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Rest controller for UserProfile.
@@ -62,54 +63,25 @@ class ClientUserProfileController extends UserProfileController
             $userId = $this->getUserId();
         }
 
+        // user
+        $user = $this->getRepo('User\User')->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
         // profile
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $this->throwNotFoundIfNull($userProfile, self::NOT_FOUND_MESSAGE);
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
-        // education
-        $userEducation = $this->getRepo('User\UserEducation')->findByUserId($userId);
-        if (!empty($userEducation)) {
-            $userProfile->setEducations($userEducation);
-        }
+        // set profile extra fields
+        $profile->setHobbies($user->getHobbies());
+        $profile->setEducations($user->getEducations());
+        $profile->setExperiences($user->getExperiences());
+        $profile->setPortfolios($user->getPortfolios());
 
-        // experience
-        $userExperience = $this->getRepo('User\UserExperience')->findByUserId($userId);
-        if (!empty($userExperience)) {
-            $userProfile->setExperiences($userExperience);
-        }
+        // set view
+        $view = new View($profile);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
 
-        // portfolio
-        $userPortfolio = $this->getRepo('User\UserPortfolio')->findByUserId($userId);
-        if (!empty($userPortfolio)) {
-            $userProfile->setPortfolios($userPortfolio);
-        }
-
-        $userHobbyMap = $this->getRepo('User\UserHobbyMap')->findByUserId($userId);
-        $userHobbyArray = array();
-        if (!empty($userHobbyMap)) {
-            foreach ($userHobbyMap as $userHobby) {
-                if (is_null($userHobby)) {
-                    continue;
-                }
-
-                $id = $userHobby->getId();
-                $hobbyId = $userHobby->getHobbyId();
-                $hobby = $this->getRepo('User\Hobby')->findOneById($hobbyId);
-                $insideHobbyArray = array(
-                    'name' => $hobby->getName(),
-                    'id' => $id,
-                    'hobby_id' => $hobbyId,
-                );
-
-                array_push($userHobbyArray, $insideHobbyArray);
-            }
-        }
-
-        if (!empty($userHobbyArray)) {
-            $userProfile->setHobbies($userHobbyArray);
-        }
-
-        return new View($userProfile);
+        return $view;
     }
 
     /**

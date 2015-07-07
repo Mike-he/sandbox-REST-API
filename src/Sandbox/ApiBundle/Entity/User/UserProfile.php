@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * User Profile.
@@ -20,6 +21,7 @@ class UserProfile
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "profile"})
      */
     private $id;
 
@@ -27,6 +29,7 @@ class UserProfile
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $userId;
 
@@ -34,6 +37,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $name;
 
@@ -41,6 +45,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="jobTitle", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $jobTitle;
 
@@ -48,6 +53,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="gender", type="string", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $gender = self::DEFAULT_GENDER_OTHER;
 
@@ -55,6 +61,7 @@ class UserProfile
      * @var \DateTime
      *
      * @ORM\Column(name="dateOfBirth", type="date", nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $dateOfBirth;
 
@@ -62,6 +69,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $email;
 
@@ -69,6 +77,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $phone;
 
@@ -76,6 +85,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="aboutMe", type="string", nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $aboutMe;
 
@@ -83,6 +93,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="skill", type="string", nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $skill;
 
@@ -90,6 +101,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $sinaWeibo;
 
@@ -97,6 +109,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $tencentWeibo;
 
@@ -104,6 +117,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $facebook;
 
@@ -111,6 +125,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $linkedin;
 
@@ -118,6 +133,7 @@ class UserProfile
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -125,6 +141,7 @@ class UserProfile
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -141,16 +158,29 @@ class UserProfile
 
     /**
      * @var array
+     *
+     * @Serializer\Groups({"profile"})
+     */
+    private $hobbies;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"profile"})
      */
     private $experiences;
 
     /**
      * @var array
+     *
+     * @Serializer\Groups({"profile"})
      */
     private $educations;
 
     /**
      * @var array
+     *
+     * @Serializer\Groups({"profile"})
      */
     private $portfolios;
 
@@ -470,6 +500,24 @@ class UserProfile
     public function setHobbyIds($hobbyIds)
     {
         $this->hobbyIds = $hobbyIds;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHobbies()
+    {
+        return $this->hobbies;
+    }
+
+    /**
+     * @param array $hobbies
+     *
+     * @return UserProfile
+     */
+    public function setHobbies($hobbies)
+    {
+        $this->hobbies = $hobbies;
     }
 
     /**

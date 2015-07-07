@@ -88,12 +88,6 @@ class User implements UserInterface
     private $modificationDate;
 
     /**
-     * @ORM\OneToOne(targetEntity="UserProfile"))
-     * @ORM\JoinColumn(name="id", referencedColumnName="userId")
-     **/
-    private $profile;
-
-    /**
      * @var array
      *
      * @ORM\OneToMany(
@@ -297,6 +291,56 @@ class User implements UserInterface
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Get profile.
+     *
+     * @return UserProfile
+     */
+    public function getProfile()
+    {
+        return $this->profile;
+    }
+
+    /**
+     * Get hobbies.
+     *
+     * @return array
+     */
+    public function getHobbies()
+    {
+        return $this->hobbies;
+    }
+
+    /**
+     * Get educations.
+     *
+     * @return array
+     */
+    public function getEducations()
+    {
+        return $this->educations;
+    }
+
+    /**
+     * Get experiences.
+     *
+     * @return array
+     */
+    public function getExperiences()
+    {
+        return $this->experiences;
+    }
+
+    /**
+     * Get portfolios.
+     *
+     * @return array
+     */
+    public function getPortfolios()
+    {
+        return $this->portfolios;
     }
 
     /**
