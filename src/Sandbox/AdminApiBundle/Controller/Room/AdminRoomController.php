@@ -250,12 +250,19 @@ class AdminRoomController extends RoomController
         $em = $this->getDoctrine()->getManager();
 
         //add attachments
-        if (!is_null($attachments_id)) {
-            $this->addRoomAttachment(
-                $em,
-                $room,
-                $attachments_id
-            );
+        foreach ($attachments_id as $attachment_id) {
+            //check if the attachment exists
+            $attachment = $this->getRepo('Room\RoomAttachment')->find($attachment_id);
+            if (is_null($attachment)) {
+                continue;
+            }
+
+            $roomAttachment = new RoomAttachmentBinding();
+            $roomAttachment->setRoom($room);
+            $roomAttachment->setAttachmentId($attachment_id);
+
+            $em->persist($roomAttachment);
+            $em->flush();
         }
     }
 
@@ -282,12 +289,27 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
-        //501 Not Implemented
-        return $this->customErrorView(
-            501,
-            501,
-            'Not Implemented'
-        );
+        $office_supplies = json_decode($request->getContent(), true);
+        if (!is_array($office_supplies)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // get room
+        $room = $this->getRepo('Room\Room')->find($id);
+        if (is_null($room)) {
+            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        // Add office supplies
+        if (!is_null($office_supplies)) {
+            $this->addOfficeSupplies(
+                $em,
+                $room,
+                $office_supplies
+            );
+        }
     }
 
     /**
@@ -493,7 +515,7 @@ class AdminRoomController extends RoomController
 
             $roomAttachment = new RoomAttachmentBinding();
             $roomAttachment->setRoom($room);
-            $roomAttachment->setAttachmentId($attachment_id);
+            $roomAttachment->setAttachmentId($attachment_id['id']);
 
             $em->persist($roomAttachment);
             $em->flush();
@@ -515,6 +537,12 @@ class AdminRoomController extends RoomController
         $office_supplies
     ) {
         foreach ($office_supplies as $supply) {
+            //check if the office supply exists
+            $office_supply = $this->getRepo('Room\RoomSupplies')->find($supply['id']);
+            if (is_null($office_supply)) {
+                continue;
+            }
+
             $roomSupply = new RoomSupplies();
             $roomSupply->setRoom($room);
             $roomSupply->setSuppliesId($supply['id']);
