@@ -133,7 +133,6 @@ class UserProfile
     /**
      * @var int
      *
-     * @ORM\Column(name="buildingId", type="integer", nullable=false)
      * @Serializer\Groups({"main"})
      */
     private $buildingId;

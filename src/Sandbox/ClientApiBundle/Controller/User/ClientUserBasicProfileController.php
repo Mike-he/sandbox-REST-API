@@ -53,8 +53,10 @@ class ClientUserBasicProfileController extends UserProfileController
             $userId = $this->getUserId();
         }
 
+        // get profile
         $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
 
+        // set view
         $view = new View($profile);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile_basic')));
 
@@ -83,6 +85,7 @@ class ClientUserBasicProfileController extends UserProfileController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
+        // bind data
         $profileJson = $this->container->get('serializer')->serialize($profile, 'json');
         $patch = new Patch($profileJson, $request->getContent());
         $profileJson = $patch->apply();
@@ -90,7 +93,15 @@ class ClientUserBasicProfileController extends UserProfileController
         $form = $this->createForm(new UserProfileBasicType(), $profile);
         $form->submit(json_decode($profileJson, true));
 
+        // set profile
+        $building = $this->getRepo('Room\RoomBuilding')->find($profile->getBuildingId());
+        if (!is_null($building)) {
+            $profile->setBuilding($building);
+        }
+
         $profile->setModificationDate(new \DateTime('now'));
+
+        // update to db
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
