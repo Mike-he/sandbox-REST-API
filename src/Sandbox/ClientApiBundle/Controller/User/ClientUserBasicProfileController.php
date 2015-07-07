@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Rs\Json\Patch;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Rest controller for user`s basic profile.
@@ -55,7 +56,7 @@ class ClientUserBasicProfileController extends UserProfileController
         $userBasic = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
 
         $view = new View($userBasic);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('basic')));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile_basic')));
 
         return $view;
     }
@@ -77,6 +78,10 @@ class ClientUserBasicProfileController extends UserProfileController
     ) {
         $profile = $this->getRepo('User\UserProfile')->find($id);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+
+        if ($this->getUserId() != $profile->getUserId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
 
         $profileJson = $this->container->get('serializer')->serialize($profile, 'json');
         $patch = new Patch($profileJson, $request->getContent());

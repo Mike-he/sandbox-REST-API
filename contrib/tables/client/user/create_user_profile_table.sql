@@ -13,10 +13,13 @@ CREATE TABLE `UserProfile` (
   `tencentWeibo` varchar(128) DEFAULT NULL,
   `facebook` varchar(128) DEFAULT NULL,
   `linkedin` varchar(128) DEFAULT NULL,
+  `buildingId` int(11) DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_UserProfile_userId` (`userId`),
   KEY `fk_UserProfile_userId_idx` (`userId`),
-  CONSTRAINT `fk_UserProfile_userId` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `fk_UserProfile_userId` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  KEY `fk_UserProfile_buildingId_idx` (`buildingId`),
+  CONSTRAINT `fk_UserProfile_buildingId` FOREIGN KEY (`buildingId`) REFERENCES `RoomBuilding` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );

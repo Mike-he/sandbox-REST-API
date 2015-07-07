@@ -23,6 +23,7 @@ class UserProfileType extends AbstractType
             ->add('tencent_weibo')
             ->add('facebook')
             ->add('linkedin')
+            ->add('building_id')
             ->add('hobby_ids')
             ->add('experiences')
             ->add('educations')

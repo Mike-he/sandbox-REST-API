@@ -27,6 +27,7 @@ class UserProfileBasicType extends AbstractType
             ->add('tencent_weibo')
             ->add('facebook')
             ->add('linkedin')
+            ->add('building_id')
         ;
     }
 

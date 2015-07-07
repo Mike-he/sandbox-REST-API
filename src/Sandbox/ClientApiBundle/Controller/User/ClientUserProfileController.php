@@ -127,13 +127,21 @@ class ClientUserProfileController extends UserProfileController
     ) {
         $em = $this->getDoctrine()->getManager();
 
-        // set request user
+        // set user
         $userId = $this->getUserId();
         $user = $this->getRepo('User\User')->find($userId);
         if (is_null($user)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
         $userProfile->setUser($user);
+
+        // set building
+        $buildingId = $userProfile->getBuildingId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        if (is_null($building)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+        $userProfile->setBuilding($building);
 
         // education
         $educations = $userProfile->getEducations();
