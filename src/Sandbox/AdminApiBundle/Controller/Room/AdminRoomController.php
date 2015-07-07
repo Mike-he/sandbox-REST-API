@@ -366,12 +366,28 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
-        //501 Not Implemented
-        return $this->customErrorView(
-            501,
-            501,
-            'Not Implemented'
-        );
+        // get room
+        $room = $this->getRepo('Room\Room')->find($id);
+
+        //get array with ids
+        $attachments_id = json_decode($request->getContent(), true);
+        if (!is_array($attachments_id)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        //remove attachments
+        foreach ($attachments_id as $attachment_id) {
+            //check if the attachment exists
+            $attachmentBind = $this->getRepo('Room\RoomAttachmentBinding')->findOneBy(array(
+                'room' => $room,
+                'attachmentId' => $attachment_id,
+            ));
+
+            $em->remove($attachmentBind);
+            $em->flush();
+        }
     }
 
     /**
