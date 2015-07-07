@@ -1,5 +1,6 @@
 CREATE TABLE `ProductOrder` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `orderNumber` varchar(128) NOT NULL,
   `userId` int(11) NOT NULL,
   `productId` int(11),
   `startDate` datetime NOT NULL,
@@ -11,6 +12,7 @@ CREATE TABLE `ProductOrder` (
   `cancelledDate` datetime,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
+  `appointedPerson` int(11),
   PRIMARY KEY (`id`),
   KEY `fk_ProductOrder_userId_idx` (`userId`),
   KEY `fk_ProductOrder_productId_idx` (`productId`),

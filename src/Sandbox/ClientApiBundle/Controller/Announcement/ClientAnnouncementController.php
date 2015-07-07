@@ -37,16 +37,6 @@ class ClientAnnouncementController extends AnnouncementController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="sort",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="(creation_date|-creation_date|modification_date|-modification_date)",
-     *    strict=true,
-     *    description="Sort by date"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="20",
@@ -82,15 +72,11 @@ class ClientAnnouncementController extends AnnouncementController
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
-        $order = $paramFetcher->get('sort');
-
-        //sort by
-        $sortBy = $this->getSortBy($order);
 
         //find all with or without sort
         $announcement = $announcement->findBy(
             [],
-            $sortBy,
+            ['creationDate' => 'DESC'],
             $limit,
             $offset
         );

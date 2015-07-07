@@ -25,6 +25,15 @@ class ProductOrder
     private $id;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="orderNumber", type="string")
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $orderNumber;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="userId", type="integer")
@@ -111,7 +120,7 @@ class ProductOrder
      *
      * @ORM\Column(name="creationDate", type="datetime")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client"})
      */
     private $creationDate;
 
@@ -133,6 +142,16 @@ class ProductOrder
      * @Serializer\Groups({"main", "client"})
      */
     private $invitedPeople;
+
+    /**
+     * @var int
+     *
+     *
+     * @ORM\Column(name="appointedPerson", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $appointed;
 
     /**
      * @var string
@@ -442,6 +461,30 @@ class ProductOrder
     }
 
     /**
+     * Set appointed.
+     *
+     * @param int $userId
+     *
+     * @return ProductOrder
+     */
+    public function setAppointed($userId)
+    {
+        $this->appointed = $userId;
+
+        return $this;
+    }
+
+    /**
+     * Get appointed.
+     *
+     * @return int
+     */
+    public function getAppointed()
+    {
+        return $this->appointed;
+    }
+
+    /**
      * Set location.
      *
      * @param string $location
@@ -463,6 +506,30 @@ class ProductOrder
     public function getLocation()
     {
         return $this->location;
+    }
+
+    /**
+     * Set orderNumber.
+     *
+     * @param string $orderNumber
+     *
+     * @return ProductOrder
+     */
+    public function setOrderNumber($orderNumber)
+    {
+        $this->orderNumber = $orderNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get orderNumber.
+     *
+     * @return string
+     */
+    public function getOrderNumber()
+    {
+        return $this->orderNumber;
     }
 
     public function __construct()

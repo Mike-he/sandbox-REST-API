@@ -18,9 +18,6 @@ use FOS\RestBundle\Controller\Annotations\Post;
  */
 class ClientPaymentController extends PaymentController
 {
-    const STATUS_PAID = 'paid';
-    const STATUS_CANCELLED = 'cancelled';
-
     /**
      * @Post("/payment/webhooks")
      *
@@ -29,22 +26,20 @@ class ClientPaymentController extends PaymentController
     public function getWebhooksAction(
         Request $request
     ) {
-        $input_data = json_decode($request->getContent(), true);
-
-        if ($input_data['type'] == 'charge.succeeded' && $input_data['data']['object']['paid'] == true) {
-            $mapId = $input_data['data']['object']['order_no'];
-            $map = $this->getRepo('Order\OrderMap')->find($mapId);
-            $orderId = $map->getOrderId();
-            $order = $this->getRepo('Order\ProductOrder')->find($orderId);
-            $order->setStatus(self::STATUS_PAID);
-            $order->setPaymentDate(new \DateTime());
-            $order->setModificationDate(new \DateTime());
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($order);
-            $em->flush();
+        $data = json_decode($request->getContent(), true);
+        if ($data['type'] == 'charge.succeeded' && $data['data']['object']['paid'] == true) {
+            switch ($data['data']['object']['subject']) {
+                case 'ROOM':
+                    $this->setProductOrder($data);
+                    break;
+                case 'VIP':
+                    $type = $data['data']['object']['body'];
+                    $price = $data['data']['object']['amount'] / 100;
+                    $order = $this->setMembershipOrder($type, $price);
+                    break;
+            }
 
             http_response_code(200);
-            //TODO: return succeeded payment
         } else {
             //TODO: return failed payment
         }

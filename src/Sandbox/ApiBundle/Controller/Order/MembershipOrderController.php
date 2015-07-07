@@ -1,19 +1,19 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller\Announcement;
+namespace Sandbox\ApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 /**
- * Announcement Controller.
+ * MembershipOrder Controller.
  *
  * @category Sandbox
  *
- * @author   Sergi Uceda <sergiu@gobeta.com.cn>
+ * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
  */
-class AnnouncementController extends SandboxRestController
+class MembershipOrderController extends SandboxRestController
 {
 }

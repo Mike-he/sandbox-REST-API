@@ -13,7 +13,9 @@ class ProductRepository extends EntityRepository
         $timeUnit,
         $endTime,
         $allowedPeople,
-        $userId
+        $userId,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('p.id')
@@ -38,6 +40,8 @@ class ProductRepository extends EntityRepository
             ->setParameter('endTime', $endTime)
             ->setParameter('private', false)
             ->setParameter('userId', $userId)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
             ->getQuery();
 
         return $query->getResult();
