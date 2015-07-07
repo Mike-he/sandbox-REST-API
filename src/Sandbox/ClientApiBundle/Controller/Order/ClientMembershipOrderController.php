@@ -30,6 +30,7 @@ class ClientMembershipOrderController extends PaymentController
     const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
     const PAYMENT_SUBJECT = 'VIP';
     const PAYMENT_BODY = 'month';
+    const VIP_ORDER_LETTER_HEAD = 'V';
 
     /**
      * @Get("/membership/orders/{id}")
@@ -114,10 +115,8 @@ class ClientMembershipOrderController extends PaymentController
             $this->payMembershipByAccount($type, $price);
         }
 
-        $userId = $this->getUserid();
-        $datetime = new \DateTime();
-        $date = $datetime->format('Ymdhis');
-        $orderNumber = $date.$userId;
+        $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
+
         $charge = $this->payForOrder(
             $orderNumber,
             $price,
@@ -159,7 +158,8 @@ class ClientMembershipOrderController extends PaymentController
             );
         }
 
-        $order = $this->setMembershipOrder($type, $price);
+        $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
+        $order = $this->setMembershipOrder($type, $price, $orderNumber);
 
         $view = new View();
         $view->setData(

@@ -11,7 +11,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
-use FOS\RestBundle\Controller\Annotations\Put;
+use FOS\RestBundle\Controller\Annotations\Patch;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
@@ -44,6 +44,7 @@ class ClientOrderController extends PaymentController
     const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
     const PAYMENT_SUBJECT = 'ROOM';
     const PAYMENT_BODY = 'ROOM ORDER';
+    const PRODUCT_ORDER_LETTER_HEAD = 'P';
 
     /**
      * @Get("/orders/{id}")
@@ -181,9 +182,8 @@ class ClientOrderController extends PaymentController
             throw new BadRequestHttpException(self::PRICE_MISMATCH);
         }
 
-        $datetime = new \DateTime();
-        $date = $datetime->format('Ymdhis');
-        $orderNumber = $date.$userId;
+        $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
+
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
         $order->setStartDate($startDate);
@@ -489,7 +489,7 @@ class ClientOrderController extends PaymentController
     }
 
     /**
-     * @Put("/orders/{id}/person/appoint")
+     * @Patch("/orders/{id}/person/appoint")
      *
      * @param Request $request
      * @param $id
@@ -509,60 +509,12 @@ class ClientOrderController extends PaymentController
             throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
         }
         $user = $request->get('user_id');
-        $order->setAppointed($user);
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($order);
-        $em->flush();
-    }
 
-    /**
-     * @Put("/orders/{id}/person/replace")
-     *
-     * @param Request $request
-     * @param $id
-     */
-    public function replacePersonAction(
-        Request $request,
-        $id
-    ) {
-        $order = $this->getRepo('Order\ProductOrder')->find($id);
-        if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        if (is_null($user)) {
+            $order->setAppointed(null);
+        } else {
+            $order->setAppointed($user);
         }
-        $status = $order->getStatus();
-        $endDate = $order->getEndDate();
-        $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
-            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
-        }
-        $user = $request->get('user_id');
-        $order->setAppointed($user);
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($order);
-        $em->flush();
-    }
-
-    /**
-     * @Put("/orders/{id}/person/delete")
-     *
-     * @param Request $request
-     * @param $id
-     */
-    public function deletePersonAction(
-        Request $request,
-        $id
-    ) {
-        $order = $this->getRepo('Order\ProductOrder')->find($id);
-        if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
-        }
-        $status = $order->getStatus();
-        $endDate = $order->getEndDate();
-        $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
-            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
-        }
-        $order->setAppointed(null);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
