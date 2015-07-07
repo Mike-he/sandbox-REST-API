@@ -213,6 +213,49 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * Update Room.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/rooms/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchRoomAction(
+        Request $request,
+        $id
+    ) {
+        // get room
+        $room = $this->getRepo('Room\Room')->find($id);
+
+        $form = $this->createForm(new RoomType(), $room, array('method' => 'PATCH'));
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $meeting = $form['room_meeting']->getData();
+        $fixed = $form['room_fixed']->getData();
+
+        return $this->handleRoomPatch(
+            $room,
+            $meeting,
+            $fixed
+        );
+    }
+
+    /**
      * Room attachment.
      *
      * @param Request $request the request object
@@ -435,6 +478,80 @@ class AdminRoomController extends RoomController
         $em = $this->getDoctrine()->getManager();
         $em->remove($room);
         $em->flush();
+    }
+
+    /**
+     * @param Room        $room
+     * @param RoomMeeting $meeting
+     * @param RoomFixed   $roomsFixed
+     *
+     * @return View
+     */
+    private function handleRoomPatch(
+        $room,
+        $meeting,
+        $roomsFixed
+    ) {
+        $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
+        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
+        $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
+
+        if (is_null($roomCity) ||
+            is_null($roomBuilding) ||
+            is_null($roomFloor)
+        ) {
+            throw new BadRequestHttpException(self::LOCATION_CANNOT_NULL);
+        }
+
+        $room->setModificationDate(new \DateTime('now'));
+        $room->setCity($roomCity);
+        $room->setBuilding($roomBuilding);
+        $room->setFloor($roomFloor);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        //remove meeting from the current room if type is not meeting
+        if ($room->getType() !== 'meeting') {
+            // get room meeting
+            $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneBy(array(
+                    'room' => $room,
+            ));
+
+            if (!is_null($roomMeeting)) {
+                $em->remove($roomMeeting);
+                $em->flush();
+            }
+        }
+
+        //remove fixed from the current room if type is not fixed
+        if ($room->getType() !== 'fixed') {
+            // get room meeting
+            $roomFixed = $this->getRepo('Room\RoomFixed')->findBy(array(
+                'room' => $room,
+            ));
+
+            foreach ($roomFixed as $fixed) {
+                $em->remove($fixed);
+            }
+            $em->flush();
+        }
+
+        //manage room types
+        if (!is_null($meeting) || !is_null($roomsFixed)) {
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                $meeting,
+                $roomsFixed
+            );
+        }
+
+        $response = array(
+            'id' => $room->getId(),
+        );
+
+        return new View($response);
     }
 
     /**
