@@ -29,3 +29,9 @@ sandbox_api_membership_order:
     resource: "@SandboxApiBundle/Controller/Order/MembershipOrderController.php"
     type:     annotation
     prefix:   /
+
+# MembershipOrder
+sandbox_api_topup_order:
+    resource: "@SandboxApiBundle/Controller/Order/TopUpOrderController.php"
+    type:     annotation
+    prefix:   /

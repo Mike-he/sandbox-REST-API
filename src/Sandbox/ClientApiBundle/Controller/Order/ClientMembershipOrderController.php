@@ -35,22 +35,6 @@ class ClientMembershipOrderController extends PaymentController
     const VIP_ORDER_LETTER_HEAD = 'V';
 
     /**
-     * @Get("/membership/orders/{id}")
-     *
-     * @param Request $request
-     *
-     * @return View
-     */
-    public function getOneMembershipOrderAction(
-        Request $request,
-        $id
-    ) {
-        $order = $order = $this->getRepo('Order\MembershipOrder')->find($id);
-
-        return new View($order);
-    }
-
-    /**
      * Get all orders for current user.
      *
      * @Get("/membership/orders/my")
@@ -200,5 +184,25 @@ class ClientMembershipOrderController extends PaymentController
         );
 
         return $view;
+    }
+
+    /**
+     * @Get("/membership/orders/{id}")
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getOneMembershipOrderAction(
+        Request $request,
+        $id
+    ) {
+        $order = $order = $this->getRepo('Order\MembershipOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+
+        return new View($order);
     }
 }

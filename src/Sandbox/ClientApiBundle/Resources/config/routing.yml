@@ -123,3 +123,9 @@ sandbox_client_api_membership_order:
     resource: "@SandboxClientApiBundle/Controller/Order/ClientMembershipOrderController.php"
     type:     annotation
     prefix:   /
+
+# TopUpOrders /topup
+sandbox_client_api_topup_order:
+    resource: "@SandboxClientApiBundle/Controller/Order/ClientTopUpOrderController.php"
+    type:     annotation
+    prefix:   /
