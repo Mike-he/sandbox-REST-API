@@ -35,7 +35,8 @@ class ClientPaymentController extends PaymentController
                 case 'VIP':
                     $type = $data['data']['object']['body'];
                     $price = $data['data']['object']['amount'] / 100;
-                    $order = $this->setMembershipOrder($type, $price);
+                    $orderNumber = $data['data']['object']['order_no'];
+                    $order = $this->setMembershipOrder($type, $price, $orderNumber);
                     break;
             }
 
