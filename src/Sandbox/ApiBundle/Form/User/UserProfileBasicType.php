@@ -5,8 +5,9 @@ namespace Sandbox\ApiBundle\Form\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToStringTransformer;
 
-class UserProfileType extends AbstractType
+class UserProfileBasicType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -14,7 +15,10 @@ class UserProfileType extends AbstractType
             ->add('name')
             ->add('job_title')
             ->add('gender')
-            ->add('date_of_birth')
+            ->add(
+                $builder->create('date_of_birth', 'hidden')
+                    ->addViewTransformer(new DateTimeToStringTransformer())
+            )
             ->add('email')
             ->add('phone')
             ->add('about_me')
@@ -24,10 +28,6 @@ class UserProfileType extends AbstractType
             ->add('facebook')
             ->add('linkedin')
             ->add('building_id')
-            ->add('hobby_ids')
-            ->add('experiences')
-            ->add('educations')
-            ->add('portfolios')
         ;
     }
 

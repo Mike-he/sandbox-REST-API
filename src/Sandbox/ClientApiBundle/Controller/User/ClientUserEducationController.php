@@ -50,7 +50,7 @@ class ClientUserEducationController extends UserProfileController
     ) {
         $userId = (int) $paramFetcher->get('user_id');
         if ($userId === 0) {
-            $userId = $this->getUserid();
+            $userId = $this->getUserId();
         }
 
         $userEducation = $this->getRepo('User\UserEducation')->findByUserId($userId);
@@ -73,7 +73,7 @@ class ClientUserEducationController extends UserProfileController
         ParamFetcherInterface $paramFetcher
 
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
         $educationResponseArray = array();
 
         $em = $this->getDoctrine()->getManager();

@@ -3,6 +3,8 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * User Profile.
@@ -20,6 +22,7 @@ class UserProfile
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $id;
 
@@ -27,6 +30,7 @@ class UserProfile
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $userId;
 
@@ -34,6 +38,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $name;
 
@@ -41,6 +46,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="jobTitle", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $jobTitle;
 
@@ -48,6 +54,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="gender", type="string", nullable=false)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $gender = self::DEFAULT_GENDER_OTHER;
 
@@ -55,6 +62,7 @@ class UserProfile
      * @var \DateTime
      *
      * @ORM\Column(name="dateOfBirth", type="date", nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $dateOfBirth;
 
@@ -62,6 +70,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $email;
 
@@ -69,6 +78,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $phone;
 
@@ -76,6 +86,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="aboutMe", type="string", nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $aboutMe;
 
@@ -83,6 +94,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="skill", type="string", nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $skill;
 
@@ -90,6 +102,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $sinaWeibo;
 
@@ -97,6 +110,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $tencentWeibo;
 
@@ -104,6 +118,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $facebook;
 
@@ -111,13 +126,23 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $linkedin;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="buildingId", type="integer", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $buildingId;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -125,15 +150,54 @@ class UserProfile
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
+    /**
+     * @ORM\OneToOne(targetEntity="User"))
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     **/
+    private $user;
+
+    /**
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding"))
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
+     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     **/
+    private $building;
+
+    /**
+     * @var array
+     */
+    private $hobbyIds;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"profile"})
+     */
     private $hobbies;
 
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"profile"})
+     */
     private $experiences;
 
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"profile"})
+     */
     private $educations;
 
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"profile"})
+     */
     private $portfolios;
 
     /**
@@ -379,6 +443,24 @@ class UserProfile
     }
 
     /**
+     * @return int
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param int $buildingId
+     *
+     * @return UserProfile
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+    }
+
+    /**
      * @return \DateTime
      */
     public function getCreationDate()
@@ -415,7 +497,65 @@ class UserProfile
     }
 
     /**
-     * @return mixed
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return UserProfile
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return RoomBuilding
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param RoomBuilding $building
+     *
+     * @return UserProfile
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHobbyIds()
+    {
+        return $this->hobbyIds;
+    }
+
+    /**
+     * @param array $hobbyIds
+     *
+     * @return UserProfile
+     */
+    public function setHobbyIds($hobbyIds)
+    {
+        $this->hobbyIds = $hobbyIds;
+    }
+
+    /**
+     * @return array
      */
     public function getHobbies()
     {
@@ -423,7 +563,7 @@ class UserProfile
     }
 
     /**
-     * @param mixed $hobbies
+     * @param array $hobbies
      *
      * @return UserProfile
      */

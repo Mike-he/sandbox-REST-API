@@ -101,6 +101,8 @@ class ClientProductController extends ProductController
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
      */
     public function getProductsAction(
         Request $request,

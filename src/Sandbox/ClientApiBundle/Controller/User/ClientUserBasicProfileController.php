@@ -3,15 +3,16 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
-use Sandbox\ApiBundle\Form\User\UserProfileType;
+use Sandbox\ApiBundle\Form\User\UserProfileBasicType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Rs\Json\Patch;
+use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Rest controller for user`s basic profile.
@@ -47,14 +48,17 @@ class ClientUserBasicProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = (int) $paramFetcher->get('user_id');
-        if ($userId === 0) {
-            $userId = $this->getUserid();
+        $userId = $paramFetcher->get('user_id');
+        if (is_null($userId)) {
+            $userId = $this->getUserId();
         }
 
-        $userBasic = $this->getRepo('User\UserProfile')->findByUserId($userId);
+        $userBasic = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
 
-        return new View($userBasic);
+        $view = new View($userBasic);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile_basic')));
+
+        return $view;
     }
 
     /**
@@ -72,24 +76,24 @@ class ClientUserBasicProfileController extends UserProfileController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $userBasicProfile = $this->getRepo('User\UserProfile')->findOneById($id);
-        $this->throwNotFoundIfNull($userBasicProfile, self::NOT_FOUND_MESSAGE);
+        $profile = $this->getRepo('User\UserProfile')->find($id);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
-        $userBasicProfileJSON = $this->container->get('serializer')->serialize($userBasicProfile, 'json');
-        $patch = new Patch($userBasicProfileJSON, $request->getContent());
-        $userBasicProfileJSON = $patch->apply();
-
-        $form = $this->createForm(new UserProfileType(), $userBasicProfileJSON);
-        $form->submit(json_decode($userBasicProfileJSON, true));
-
-        if ($form->isValid()) {
-            $userBasicProfile->setModificationDate(new \DateTime('now'));
-            $em = $this->getDoctrine()->getManager();
-            $em->flush();
-
-            return new View();
+        if ($this->getUserId() != $profile->getUserId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        $profileJson = $this->container->get('serializer')->serialize($profile, 'json');
+        $patch = new Patch($profileJson, $request->getContent());
+        $profileJson = $patch->apply();
+
+        $form = $this->createForm(new UserProfileBasicType(), $profile);
+        $form->submit(json_decode($profileJson, true));
+
+        $profile->setModificationDate(new \DateTime('now'));
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 }

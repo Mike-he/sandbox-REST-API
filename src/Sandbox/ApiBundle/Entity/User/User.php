@@ -88,6 +88,50 @@ class User implements UserInterface
     private $modificationDate;
 
     /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserHobbyMap",
+     *      mappedBy="user",
+     *      cascade={"persist"}
+     * )
+     */
+    private $hobbies;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserEducation",
+     *      mappedBy="user",
+     *      cascade={"persist"}
+     * )
+     */
+    private $educations;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserExperience",
+     *      mappedBy="user",
+     *      cascade={"persist"}
+     * )
+     */
+    private $experiences;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserPortfolio",
+     *      mappedBy="user",
+     *      cascade={"persist"}
+     * )
+     */
+    private $portfolios;
+
+    /**
      * Get id.
      *
      * @return int
@@ -247,6 +291,56 @@ class User implements UserInterface
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Get profile.
+     *
+     * @return UserProfile
+     */
+    public function getProfile()
+    {
+        return $this->profile;
+    }
+
+    /**
+     * Get hobbies.
+     *
+     * @return array
+     */
+    public function getHobbies()
+    {
+        return $this->hobbies;
+    }
+
+    /**
+     * Get educations.
+     *
+     * @return array
+     */
+    public function getEducations()
+    {
+        return $this->educations;
+    }
+
+    /**
+     * Get experiences.
+     *
+     * @return array
+     */
+    public function getExperiences()
+    {
+        return $this->experiences;
+    }
+
+    /**
+     * Get portfolios.
+     *
+     * @return array
+     */
+    public function getPortfolios()
+    {
+        return $this->portfolios;
     }
 
     /**

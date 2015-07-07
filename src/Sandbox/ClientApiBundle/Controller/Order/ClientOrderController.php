@@ -89,7 +89,7 @@ class ClientOrderController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
         $status = $paramFetcher->get('status');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -131,7 +131,7 @@ class ClientOrderController extends PaymentController
     public function createOrdersAction(
         Request $request
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
         $order = new ProductOrder();
 
         $form = $this->createForm(new OrderType(), $order);

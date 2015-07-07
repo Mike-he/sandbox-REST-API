@@ -49,7 +49,7 @@ class ClientUserPortfolioController extends UserProfileController
     ) {
         $userId = (int) $paramFetcher->get('user_id');
         if ($userId === 0) {
-            $userId = $this->getUserid();
+            $userId = $this->getUserId();
         }
 
         $userPortfolios = $this->getRepo('User\UserPortfolio')->findByUserId($userId);
@@ -72,7 +72,7 @@ class ClientUserPortfolioController extends UserProfileController
         ParamFetcherInterface $paramFetcher
 
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
 
         $portfolioResponseArray = array();
 

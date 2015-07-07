@@ -3,11 +3,16 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserEducation;
 use Sandbox\ApiBundle\Entity\User\UserExperience;
+use Sandbox\ApiBundle\Entity\User\UserHobby;
 use Sandbox\ApiBundle\Entity\User\UserHobbyMap;
 use Sandbox\ApiBundle\Entity\User\UserPortfolio;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
+use Sandbox\ApiBundle\Form\User\UserEducationType;
+use Sandbox\ApiBundle\Form\User\UserExperienceType;
+use Sandbox\ApiBundle\Form\User\UserPortfolioType;
 use Sandbox\ApiBundle\Form\User\UserProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
@@ -15,7 +20,10 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Rest controller for UserProfile.
@@ -50,55 +58,30 @@ class ClientUserProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = (int) $paramFetcher->get('user_id');
-        if ($userId === 0) {
-            $userId = $this->getUserid();
+        $userId = $paramFetcher->get('user_id');
+        if (is_null($userId)) {
+            $userId = $this->getUserId();
         }
 
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $this->throwNotFoundIfNull($userProfile, self::NOT_FOUND_MESSAGE);
+        // user
+        $user = $this->getRepo('User\User')->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $userEducation = $this->getRepo('User\UserEducation')->findByUserId($userId);
-        if (!empty($userEducation)) {
-            $userProfile->setEducations($userEducation);
-        }
+        // profile
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
-        $userExperience = $this->getRepo('User\UserExperience')->findByUserId($userId);
-        if (!empty($userExperience)) {
-            $userProfile->setExperiences($userExperience);
-        }
+        // set profile extra fields
+        $profile->setHobbies($user->getHobbies());
+        $profile->setEducations($user->getEducations());
+        $profile->setExperiences($user->getExperiences());
+        $profile->setPortfolios($user->getPortfolios());
 
-        $userPortfolio = $this->getRepo('User\UserPortfolio')->findByUserId($userId);
-        if (!empty($userPortfolio)) {
-            $userProfile->setPortfolios($userPortfolio);
-        }
+        // set view
+        $view = new View($profile);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
 
-        $userHobbyMap = $this->getRepo('User\UserHobbyMap')->findByUserId($userId);
-        $userHobbyArray = array();
-        if (!empty($userHobbyMap)) {
-            foreach ($userHobbyMap as $userHobby) {
-                if (is_null($userHobby)) {
-                    continue;
-                }
-
-                $id = $userHobby->getId();
-                $hobbyId = $userHobby->getHobbyId();
-                $hobby = $this->getRepo('User\Hobby')->findOneById($hobbyId);
-                $insideHobbyArray = array(
-                    'name' => $hobby->getName(),
-                    'id' => $id,
-                    'hobby_id' => $hobbyId,
-                );
-
-                array_push($userHobbyArray, $insideHobbyArray);
-            }
-        }
-
-        if (!empty($userHobbyArray)) {
-            $userProfile->setHobbies($userHobbyArray);
-        }
-
-        return new View($userProfile);
+        return $view;
     }
 
     /**
@@ -115,10 +98,11 @@ class ClientUserProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
+
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         if (!is_null($userProfile)) {
-            throw new BadRequestHttpException('can not add profile.');
+            throw new ConflictHttpException(self::CONFLICT_MESSAGE);
         }
 
         $userProfile = new UserProfile();
@@ -141,45 +125,70 @@ class ClientUserProfileController extends UserProfileController
     private function handlePostUserProfile(
         $userProfile
     ) {
-        $userId = (int) $this->getUserid();
         $em = $this->getDoctrine()->getManager();
 
-        $userEducations = $userProfile->getEducations();
-        if (!empty($userEducations)) {
-            foreach ($userEducations as $userEducation) {
-                $userEducationEntity = $this->generateUserEducationEntity($userId, $userEducation);
-                $em->persist($userEducationEntity);
-            }
+        // set user
+        $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($userId);
+        if (is_null($user)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+        $userProfile->setUser($user);
+
+        // set building
+        $buildingId = $userProfile->getBuildingId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        if (is_null($building)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+        $userProfile->setBuilding($building);
+
+        // education
+        $educations = $userProfile->getEducations();
+        foreach ($educations as $education) {
+            $userEducation = $this->generateUserEducation($user, $education);
+            $em->persist($userEducation);
         }
 
-        $userExperiences = $userProfile->getExperiences();
-        if (!empty($userExperiences)) {
-            foreach ($userExperiences as $userExperience) {
-                $userExperienceEntity = $this->generateUserExperienceEntity($userId, $userExperience);
-                $em->persist($userExperienceEntity);
-            }
+        // experience
+        $experiences = $userProfile->getExperiences();
+        foreach ($experiences as $experience) {
+            $userExperience = $this->generateUserExperience($user, $experience);
+            $em->persist($userExperience);
         }
 
-        $userHobbies = $userProfile->getHobbies();
-        if (!empty($userHobbies)) {
-            foreach ($userHobbies as $userHobby) {
-                $userHobbyMapEntity = $this->generateUserHobbyMapEntity($userId, $userHobby);
-                $em->persist($userHobbyMapEntity);
+        // hobby
+        $hobbyIds = $userProfile->getHobbyIds();
+        foreach ($hobbyIds as $hobbyId) {
+            $hobby = $this->getRepo('User\UserHobby')->find($hobbyId);
+            if (is_null($hobby)) {
+                continue;
             }
+
+            $hobbyMap = $this->getRepo('User\UserHobbyMap')->findOneBy(array(
+                'userId' => $userId,
+                'hobbyId' => $hobbyId,
+            ));
+            if (!is_null($hobbyMap)) {
+                continue;
+            }
+
+            $userHobbyMap = $this->generateUserHobbyMap($user, $hobby);
+            $em->persist($userHobbyMap);
         }
 
-        $userPortfolios = $userProfile->getPortfolios();
-        if (!empty($userPortfolios)) {
-            foreach ($userPortfolios as $userPortfolio) {
-                $userPortfolioEntity = $this->generateUserPortfolioEntity($userId, $userPortfolio);
-                $em->persist($userPortfolioEntity);
-            }
+        // portfolio
+        $portfolios = $userProfile->getPortfolios();
+        foreach ($portfolios as $portfolio) {
+            $userPortfolio = $this->generateUserPortfolio($user, $portfolio);
+            $em->persist($userPortfolio);
         }
 
-        $userProfile->setUserId($userId);
+        // save to db
         $em->persist($userProfile);
         $em->flush();
 
+        // set view
         $view = new View();
         $view->setData(
             array('id' => $userProfile->getId())
@@ -189,126 +198,81 @@ class ClientUserProfileController extends UserProfileController
     }
 
     /**
-     * @param int   $userId
-     * @param array $userEducation
+     * @param User  $user
+     * @param array $education
      *
      * @return UserEducation
      */
-    private function generateUserEducationEntity(
-        $userId,
-        $userEducation
+    private function generateUserEducation(
+        $user,
+        $education
     ) {
-        $userEducationEntity = new UserEducation();
-        $userEducationEntity->setUserId($userId);
+        $userEducation = new UserEducation();
 
-        $startDate = $userEducation['start_date'];
-        if (!is_null($startDate)) {
-            $userEducationEntity->setStartDate($startDate);
-        }
+        $form = $this->createForm(new UserEducationType(), $userEducation);
+        $form->submit($education);
 
-        $endDate = $userEducation['end_date'];
-        if (!is_null($endDate)) {
-            $userEducationEntity->setEndDate($endDate);
-        }
+        $userEducation->setUser($user);
 
-        $detail = $userEducation['detail'];
-        if (!is_null($detail)) {
-            $userEducationEntity->setDetail($detail);
-        }
-
-        return $userEducationEntity;
+        return $userEducation;
     }
 
     /**
-     * @param int   $userId
-     * @param array $userExperience
+     * @param User  $user
+     * @param array $experience
      *
      * @return UserExperience
      */
-    private function generateUserExperienceEntity(
-        $userId,
-        $userExperience
+    private function generateUserExperience(
+        $user,
+        $experience
     ) {
-        $userExperienceEntity = new UserExperience();
-        $userExperienceEntity->setUserId($userId);
+        $userExperience = new UserExperience();
 
-        $startDate = $userExperience['start_date'];
-        if (!is_null($startDate)) {
-            $userExperienceEntity->setStartDate($startDate);
-        }
+        $form = $this->createForm(new UserExperienceType(), $userExperience);
+        $form->submit($experience);
 
-        $endDate = $userExperience['end_date'];
-        if (!is_null($endDate)) {
-            $userExperienceEntity->setEndDate($endDate);
-        }
+        $userExperience->setUser($user);
 
-        $detail = $userExperience['detail'];
-        if (!is_null($detail)) {
-            $userExperience->setDetail($detail);
-        }
-
-        return $userExperienceEntity;
+        return $userExperience;
     }
 
     /**
-     * @param int   $userId
-     * @param array $userPortfolio
+     * @param User  $user
+     * @param array $portfolio
      *
      * @return UserPortfolio
      */
-    private function generateUserPortfolioEntity(
-        $userId,
-        $userPortfolio
+    private function generateUserPortfolio(
+        $user,
+        $portfolio
     ) {
-        $userPortfolioEntity = new UserPortfolio();
-        $userPortfolioEntity->setUserId($userId);
+        $userPortfolio = new UserPortfolio();
 
-        $attachmentType = $userPortfolio['attachment_type'];
-        if (!is_null($attachmentType)) {
-            $userPortfolioEntity->setAttachmentType($attachmentType);
-        }
+        $form = $this->createForm(new UserPortfolioType(), $userPortfolio);
+        $form->submit($portfolio);
 
-        $content = $userPortfolio['content'];
-        if (!is_null($content)) {
-            $userPortfolioEntity->setContent($content);
-        }
+        $userPortfolio->setUser($user);
 
-        $fileName = $userPortfolio['file_name'];
-        if (!is_null($fileName)) {
-            $userPortfolioEntity->setFileName($fileName);
-        }
-
-        $preview = $userPortfolio['preview'];
-        if (!is_null($preview)) {
-            $userPortfolioEntity->setPreview($preview);
-        }
-
-        $size = $userPortfolio['size'];
-        if (!is_null($size)) {
-            $userPortfolioEntity->setSize($size);
-        }
-
-        return $userPortfolioEntity;
+        return $userPortfolio;
     }
 
     /**
-     * @param int   $userId
-     * @param array $userHobby
+     * @param User      $user
+     * @param UserHobby $hobby
      *
      * @return UserHobbyMap
      */
-    private function generateUserHobbyMapEntity(
-        $userId,
-        $userHobby
+    private function generateUserHobbyMap(
+        $user,
+        $hobby
     ) {
-        $userHobbyMapEntity = new UserHobbyMap();
-        $userHobbyMapEntity->setUserId($userId);
+        $userHobbyMap = new UserHobbyMap();
 
-        $hobbyId = $userHobby['id'];
-        if (!is_null($hobbyId)) {
-            $userHobbyMapEntity->setHobbyId($hobbyId);
-        }
+        $userHobbyMap->setUser($user);
+        $userHobbyMap->setHobby($hobby);
+        $userHobbyMap->setCreationDate(new \DateTime('now'));
 
-        return $userHobbyMapEntity;
+        return $userHobbyMap;
     }
 }
