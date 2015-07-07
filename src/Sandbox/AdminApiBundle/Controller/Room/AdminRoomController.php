@@ -33,6 +33,7 @@ use JMS\Serializer\SerializationContext;
 class AdminRoomController extends RoomController
 {
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
+    const LOCATION_CANNOT_NULL = 'City, Building or Floor cannot be null';
 
     /**
      * Room.
@@ -212,6 +213,146 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * Room attachment.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Route("/rooms/{id}/attachments")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchRoomAttachmentsAction(
+        Request $request,
+        $id
+    ) {
+        //get array with ids
+        $attachments_id = json_decode($request->getContent(), true);
+        if (!is_array($attachments_id)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // get room
+        $room = $this->getRepo('Room\Room')->find($id);
+        if (is_null($room)) {
+            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        //add attachments
+        if (!is_null($attachments_id)) {
+            $this->addRoomAttachment(
+                $em,
+                $room,
+                $attachments_id
+            );
+        }
+    }
+
+    /**
+     * Room office supplies.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Route("/rooms/{id}/supplies")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchRoomSuppliesAction(
+        Request $request,
+        $id
+    ) {
+        //501 Not Implemented
+        return $this->customErrorView(
+            501,
+            501,
+            'Not Implemented'
+        );
+    }
+
+    /**
+     * Delete Room supplies.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/rooms/{id}/supplies")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function deleteRoomSuppliesAction(
+        Request $request,
+        $id
+    ) {
+        //501 Not Implemented
+        return $this->customErrorView(
+            501,
+            501,
+            'Not Implemented'
+        );
+    }
+
+    /**
+     * Delete Room attachments.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/rooms/{id}/attachments")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function deleteRoomAttachmentsAction(
+        Request $request,
+        $id
+    ) {
+        //501 Not Implemented
+        return $this->customErrorView(
+            501,
+            501,
+            'Not Implemented'
+        );
+    }
+
+    /**
      * Delete a Room.
      *
      * @param Request $request the request object
@@ -281,7 +422,7 @@ class AdminRoomController extends RoomController
             is_null($roomBuilding) ||
             is_null($roomFloor)
         ) {
-            throw new BadRequestHttpException('City, Building or Floor cannot be null');
+            throw new BadRequestHttpException(self::LOCATION_CANNOT_NULL);
         }
 
         $now = new \DateTime('now');
@@ -300,8 +441,7 @@ class AdminRoomController extends RoomController
             $this->addRoomAttachment(
                 $em,
                 $room,
-                $attachments_id,
-                $office_supplies
+                $attachments_id
             );
         }
 
@@ -336,7 +476,7 @@ class AdminRoomController extends RoomController
      *
      * @param EntityManager $em
      * @param Room          $room
-     * @param $attachments_id
+     * @param Array         $attachments_id
      */
     private function addRoomAttachment(
         $em,
@@ -344,9 +484,17 @@ class AdminRoomController extends RoomController
         $attachments_id
     ) {
         foreach ($attachments_id as $attachment_id) {
+
+            //check if the attachment exists
+            $attachment = $this->getRepo('Room\RoomAttachment')->find($attachment_id);
+            if (is_null($attachment)) {
+                continue;
+            }
+
             $roomAttachment = new RoomAttachmentBinding();
             $roomAttachment->setRoom($room);
-            $roomAttachment->setAttachmentId($attachment_id['id']);
+            $roomAttachment->setAttachmentId($attachment_id);
+
             $em->persist($roomAttachment);
             $em->flush();
         }
