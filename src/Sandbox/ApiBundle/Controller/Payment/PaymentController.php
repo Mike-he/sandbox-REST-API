@@ -187,12 +187,13 @@ class PaymentController extends SandboxRestController
      */
     public function calculateEndDate($type)
     {
-        $order = $this->getRepo('Order\MembershipOrder')->findBy(
+        $orderArray = $this->getRepo('Order\MembershipOrder')->findBy(
             ['userId' => $this->getUserid()],
             ['id' => 'DESC'],
             1
         );
-        if (!empty($order)) {
+        $order = $orderArray[0];
+        if (empty($order)) {
             $startDate = new \DateTime();
         } else {
             $startDate = $order->getEndDate();

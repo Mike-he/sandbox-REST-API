@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Patch;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -28,6 +29,7 @@ class ClientMembershipOrderController extends PaymentController
     const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
     const SYSTEM_ERROR_CODE = 500001;
     const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
+    const ORDER_NOT_FOUND = 'Can not find order';
     const PAYMENT_SUBJECT = 'VIP';
     const PAYMENT_BODY = 'month';
     const VIP_ORDER_LETTER_HEAD = 'V';
@@ -127,6 +129,35 @@ class ClientMembershipOrderController extends PaymentController
         $charge = json_decode($charge, true);
 
         return new View($charge);
+    }
+
+    /**
+     * @Patch("/membership/cancel")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function cancelMembershipAction(
+        Request $request
+    ) {
+        $orderArray = $this->getRepo('Order\MembershipOrder')->findBy(
+            ['userId' => $this->getUserid()],
+            ['id' => 'DESC'],
+            1
+        );
+        $order = $orderArray[0];
+        if (empty($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+        $order->setCancelledDate(new \DateTime());
+        $order->setModificationDate(new \DateTime());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($order);
+        $em->flush();
+
+        return new View($order);
     }
 
     /**
