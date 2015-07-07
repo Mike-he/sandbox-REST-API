@@ -47,29 +47,6 @@ class ClientOrderController extends PaymentController
     const PRODUCT_ORDER_LETTER_HEAD = 'P';
 
     /**
-     * @Get("/orders/{id}")
-     *
-     * @param Request $request
-     *
-     * @return View
-     */
-    public function getOneOrderAction(
-        Request $request,
-        $id
-    ) {
-        $order = $order = $this->getRepo('Order\ProductOrder')->find($id);
-        if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
-        }
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($order);
-
-        return $view;
-    }
-
-    /**
      * Get all orders for current user.
      *
      * @Get("/orders/my")
@@ -518,5 +495,29 @@ class ClientOrderController extends PaymentController
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
+    }
+
+    /**
+     * @Get("/orders/{id}")
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getOneOrderAction(
+        Request $request,
+        $id
+    ) {
+        $order = $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($order);
+
+        return $view;
     }
 }
