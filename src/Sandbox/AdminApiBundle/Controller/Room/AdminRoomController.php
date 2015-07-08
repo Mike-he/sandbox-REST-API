@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Doctrine\ORM\EntityManager;
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
@@ -77,23 +78,23 @@ class AdminRoomController extends RoomController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="limit",
+     *    name="pageLimit",
      *    array=false,
      *    default="20",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many rooms to return "
+     *    description="How many announcements to return "
      * )
      *
      * @Annotations\QueryParam(
-     *    name="offset",
+     *    name="pageIndex",
      *    array=false,
-     *    default="0",
+     *    default="1",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="Offset from which to start listing rooms"
+     *    description="page number "
      * )
      *
      * @Route("/rooms")
@@ -107,27 +108,23 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // get room
-        $room = $this->getRepo('Room\Room');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
 
-        //filters
-        $filters = $this->getFilters($paramFetcher);
-        $limit = $paramFetcher->get('limit');
-        $offset = $paramFetcher->get('offset');
+        $repo = $this->getRepo('Room\Room');
 
-        //find all with or without filters
-        $rooms = $room->findBy(
-            $filters,
-            null,
-            $limit,
-            $offset
+        //TODO Add filters
+        $query = $repo->createQueryBuilder('r')
+            ->getQuery();
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $query,
+            $pageIndex,
+            $pageLimit
         );
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
-        $view->setData($rooms);
-
-        return $view;
+        return new View($pagination);
     }
 
     /**
@@ -570,8 +567,12 @@ class AdminRoomController extends RoomController
         $attachments_id,
         $office_supplies
     ) {
+        $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
+        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
+        $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
+
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
-                'buildingId' => $room->getBuildingId(),
+                'building' => $roomBuilding,
                 'number' => $room->getNumber(),
             )
         );
@@ -584,10 +585,6 @@ class AdminRoomController extends RoomController
                 self::ALREADY_EXISTS_MESSAGE
             );
         }
-
-        $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
-        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
-        $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
 
         if (is_null($roomCity) ||
             is_null($roomBuilding) ||
@@ -686,16 +683,11 @@ class AdminRoomController extends RoomController
         $office_supplies
     ) {
         foreach ($office_supplies as $supply) {
-            //check if the office supply exists
-            $office_supply = $this->getRepo('Room\RoomSupplies')->find($supply['id']);
-            if (is_null($office_supply)) {
-                continue;
-            }
-
             $roomSupply = new RoomSupplies();
             $roomSupply->setRoom($room);
             $roomSupply->setSuppliesId($supply['id']);
             $roomSupply->setQuantity($supply['quantity']);
+
             $em->persist($roomSupply);
             $em->flush();
         }
