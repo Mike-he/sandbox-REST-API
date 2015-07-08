@@ -24,6 +24,8 @@ class SandboxRestController extends FOSRestController
 
     const BAD_PARAM_MESSAGE = 'Bad parameters';
 
+    const CONFLICT_MESSAGE = 'This resource already exists';
+
     const HTTP_STATUS_OK = 200;
 
     const VERIFICATION_CODE_LENGTH = 6;
@@ -59,11 +61,11 @@ class SandboxRestController extends FOSRestController
     /**
      * Get the id of the guy who's making the API call.
      *
-     * @return string
+     * @return int
      */
-    protected function getUserid()
+    protected function getUserId()
     {
-        return $this->getUser()->getUserid();
+        return $this->getUser()->getUserId();
     }
 
     /**

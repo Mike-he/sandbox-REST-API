@@ -1,4 +1,4 @@
-CREATE TABLE `Hobby` (
+CREATE TABLE `UserHobby` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `name` varchar(64) NOT NULL,
 `creationDate` datetime NOT NULL,

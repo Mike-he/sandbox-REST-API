@@ -23,6 +23,132 @@ use JMS\Serializer\SerializationContext;
 class ClientProductController extends ProductController
 {
     /**
+     * @Get("/products")
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        type of room
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        building id
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_time",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        rent time
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="time_unit",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        month|day|hour
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rent_period",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        rent period
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="allowed_people",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        maximum allowed people
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getProductsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $roomType = $paramFetcher->get('type');
+        $buildingId = $paramFetcher->get('building');
+        $timeUnit = $paramFetcher->get('time_unit');
+        $rentPeriod = $paramFetcher->get('rent_period');
+        $allowedPeople = $paramFetcher->get('allowed_people');
+        $startTime = $paramFetcher->get('start_time');
+        $startTime = new \DateTime($startTime);
+        if (!is_null($startTime)) {
+            $endTime = clone $startTime;
+            $endTime->modify('+'.$rentPeriod.$timeUnit);
+        }
+        $userId = $this->getUserid();
+
+        $productIds = $this->getRepo('Product\Product')->getProductsForClient(
+            $roomType,
+            $buildingId,
+            $startTime,
+            $timeUnit,
+            $endTime,
+            $allowedPeople,
+            $userId,
+            $limit,
+            $offset
+        );
+
+        $products = [];
+        foreach ($productIds as $productId) {
+            $product = $this->getRepo('Product\Product')->find($productId);
+            array_push($products, $product);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($products);
+
+        return $view;
+    }
+
+    /**
      * @Get("/products/{id}")
      *
      * @param Request $request
@@ -36,128 +162,4 @@ class ClientProductController extends ProductController
     ) {
         return $this->getOneProduct($id);
     }
-
-        /**
-         * @Get("/products")
-         *
-         * @Annotations\QueryParam(
-         *    name="type",
-         *    default=null,
-         *    nullable=true,
-         *    description="
-         *        type of room
-         *    "
-         * )
-         *
-         * @Annotations\QueryParam(
-         *    name="building",
-         *    default=null,
-         *    nullable=true,
-         *    description="
-         *        building id
-         *    "
-         * )
-         *
-         * @Annotations\QueryParam(
-         *    name="start_time",
-         *    default=null,
-         *    nullable=true,
-         *    description="
-         *        rent time
-         *    "
-         * )
-         *
-         * @Annotations\QueryParam(
-         *    name="time_unit",
-         *    default=null,
-         *    nullable=true,
-         *    description="
-         *        month|day|hour
-         *    "
-         * )
-         *
-         * @Annotations\QueryParam(
-         *    name="rent_period",
-         *    default=null,
-         *    nullable=true,
-         *    description="
-         *        rent period
-         *    "
-         * )
-         *
-         * @Annotations\QueryParam(
-         *    name="allowed_people",
-         *    default=null,
-         *    nullable=true,
-         *    description="
-         *        maximum allowed people
-         *    "
-         * )
-         *
-         * @Annotations\QueryParam(
-         *    name="limit",
-         *    array=false,
-         *    default="10",
-         *    nullable=true,
-         *    requirements="\d+",
-         *    strict=true,
-         *    description="limit for the page"
-         * )
-         *
-         * @Annotations\QueryParam(
-         *    name="offset",
-         *    array=false,
-         *    default="0",
-         *    nullable=true,
-         *    requirements="\d+",
-         *    strict=true,
-         *    description="start of the page"
-         * )
-         *
-         * @param Request $request
-         * @param ParamFetcherInterface $paramFetcher
-         */
-        public function getProductsAction(
-            Request $request,
-            ParamFetcherInterface $paramFetcher
-        ) {
-            $limit = $paramFetcher->get('limit');
-            $offset = $paramFetcher->get('offset');
-            $roomType = $paramFetcher->get('type');
-            $buildingId = $paramFetcher->get('building');
-            $timeUnit = $paramFetcher->get('time_unit');
-            $rentPeriod = $paramFetcher->get('rent_period');
-            $allowedPeople = $paramFetcher->get('allowed_people');
-            $startTime = $paramFetcher->get('start_time');
-            $startTime = new \DateTime($startTime);
-            if (!is_null($startTime)) {
-                $endTime = clone $startTime;
-                $endTime->modify('+'.$rentPeriod.$timeUnit);
-            }
-            $userId = $this->getUserid();
-
-            $productIds = $this->getRepo('Product\Product')->getProductsForClient(
-                $roomType,
-                $buildingId,
-                $startTime,
-                $timeUnit,
-                $endTime,
-                $allowedPeople,
-                $userId,
-                $limit,
-                $offset
-            );
-
-            $products = [];
-            foreach ($productIds as $productId) {
-                $product = $this->getRepo('Product\Product')->find($productId);
-                array_push($products, $product);
-            }
-
-            $view = new View();
-            $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-            $view->setData($products);
-
-            return $view;
-        }
 }

@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Patch;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -28,24 +29,10 @@ class ClientMembershipOrderController extends PaymentController
     const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
     const SYSTEM_ERROR_CODE = 500001;
     const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
+    const ORDER_NOT_FOUND = 'Can not find order';
     const PAYMENT_SUBJECT = 'VIP';
     const PAYMENT_BODY = 'month';
-
-    /**
-     * @Get("/membership/orders/{id}")
-     *
-     * @param Request $request
-     *
-     * @return View
-     */
-    public function getOneMembershipOrderAction(
-        Request $request,
-        $id
-    ) {
-        $order = $order = $this->getRepo('Order\MembershipOrder')->find($id);
-
-        return new View($order);
-    }
+    const VIP_ORDER_LETTER_HEAD = 'V';
 
     /**
      * Get all orders for current user.
@@ -114,10 +101,8 @@ class ClientMembershipOrderController extends PaymentController
             $this->payMembershipByAccount($type, $price);
         }
 
-        $userId = $this->getUserid();
-        $datetime = new \DateTime();
-        $date = $datetime->format('Ymdhis');
-        $orderNumber = $date.$userId;
+        $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
+
         $charge = $this->payForOrder(
             $orderNumber,
             $price,
@@ -128,6 +113,35 @@ class ClientMembershipOrderController extends PaymentController
         $charge = json_decode($charge, true);
 
         return new View($charge);
+    }
+
+    /**
+     * @Patch("/membership/cancel")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function cancelMembershipAction(
+        Request $request
+    ) {
+        $orderArray = $this->getRepo('Order\MembershipOrder')->findBy(
+            ['userId' => $this->getUserid()],
+            ['id' => 'DESC'],
+            1
+        );
+        $order = $orderArray[0];
+        if (empty($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+        $order->setCancelledDate(new \DateTime());
+        $order->setModificationDate(new \DateTime());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($order);
+        $em->flush();
+
+        return new View($order);
     }
 
     /**
@@ -159,7 +173,8 @@ class ClientMembershipOrderController extends PaymentController
             );
         }
 
-        $order = $this->setMembershipOrder($type, $price);
+        $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
+        $order = $this->setMembershipOrder($type, $price, $orderNumber);
 
         $view = new View();
         $view->setData(
@@ -169,5 +184,25 @@ class ClientMembershipOrderController extends PaymentController
         );
 
         return $view;
+    }
+
+    /**
+     * @Get("/membership/orders/{id}")
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getOneMembershipOrderAction(
+        Request $request,
+        $id
+    ) {
+        $order = $order = $this->getRepo('Order\MembershipOrder')->find($id);
+        if (is_null($order)) {
+            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        }
+
+        return new View($order);
     }
 }

@@ -35,29 +35,21 @@ class ClientPaymentController extends PaymentController
                 case 'VIP':
                     $type = $data['data']['object']['body'];
                     $price = $data['data']['object']['amount'] / 100;
-                    $order = $this->setMembershipOrder($type, $price);
+                    $orderNumber = $data['data']['object']['order_no'];
+                    $order = $this->setMembershipOrder($type, $price, $orderNumber);
+                    //TODO: CALL CRM UPGRADE USER TO VIP
+                    break;
+                case 'TOPUP':
+                    $price = $data['data']['object']['amount'] / 100;
+                    $orderNumber = $data['data']['object']['order_no'];
+                    $order = $this->setTopUpOrder($price, $orderNumber);
+                    //TODO: CALL CRM UPDATE BALANCE
                     break;
             }
-
             http_response_code(200);
         } else {
-            //TODO: return failed payment
+            //return failed payment
+            http_response_code(500);
         }
-
-//        elseif ($input_data['type'] == 'refund.succeeded' && $input_data['data']['object']['succeed'] == true) {
-//            $mapId = $input_data['data']['object']['order_no'];
-//            $map = $this->getRepo('Order\OrderMap')->find($mapId);
-//            $orderId = $map->getOrderId();
-//            $order = $this->getRepo('Order\ProductOrder')->find($orderId);
-//            $order->setStatus(self::STATUS_CANCELLED);
-//            $order->setPaymentDate(null);
-//            $order->setCancelledDate(new \DateTime());
-//            $order->setModificationDate(new \DateTime());
-//            $em = $this->getDoctrine()->getManager();
-//            $em->persist($order);
-//            $em->flush();
-//
-//            http_response_code(200);
-//        }
     }
 }

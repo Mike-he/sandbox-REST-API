@@ -54,8 +54,6 @@ class Room
     /**
      * @var int
      *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
-     *
      * @Serializer\Groups({"main"})
      */
     private $cityId;
@@ -73,8 +71,6 @@ class Room
     /**
      * @var int
      *
-     * @ORM\Column(name="buildingId", type="integer", nullable=false)
-     *
      * @Serializer\Groups({"main"})
      */
     private $buildingId;
@@ -91,8 +87,6 @@ class Room
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="floorId", type="integer", nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
@@ -143,6 +137,15 @@ class Room
      * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $allowedPeople;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="doorControlId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $doorControlId;
 
     /**
      * @var RoomSupplies
@@ -648,6 +651,30 @@ class Room
     public function setBuilding($building)
     {
         $this->building = $building;
+
+        return $this;
+    }
+
+    /**
+     * Get door control id.
+     *
+     * @return int
+     */
+    public function getDoorControlId()
+    {
+        return $this->doorControlId;
+    }
+
+    /**
+     * Set door control id.
+     *
+     * @param int $doorControlId
+     *
+     * @return Room
+     */
+    public function setDoorControlId($doorControlId)
+    {
+        $this->doorControlId = $doorControlId;
 
         return $this;
     }

@@ -14,7 +14,9 @@ use JMS\Serializer\Annotation as Serializer;
  *          @ORM\Index(name="fk_RoomSupplies_roomId_idx", columns={"roomId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomSuppliesRepository"
+ * )
  */
 class RoomSupplies
 {

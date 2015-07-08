@@ -3,8 +3,9 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Symfony\Component\HttpFoundation\Request;
+use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
+use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
@@ -32,8 +33,13 @@ class PaymentController extends SandboxRestController
      *
      * @return Charge
      */
-    public function payForOrder($orderNumber, $price, $channel, $subject, $body)
-    {
+    public function payForOrder(
+        $orderNumber,
+        $price,
+        $channel,
+        $subject,
+        $body
+    ) {
         $extra = [];
         switch ($channel) {
             case 'alipay_wap':
@@ -82,8 +88,9 @@ class PaymentController extends SandboxRestController
      *
      * @return Charge
      */
-    public function getChargeDetail($chargeId)
-    {
+    public function getChargeDetail(
+        $chargeId
+    ) {
         $keyGlobal = $this->get('twig')->getGlobals();
         $key = $keyGlobal['pingpp_test_key'];
         Pingpp::setApiKey($key);
@@ -100,8 +107,9 @@ class PaymentController extends SandboxRestController
     /**
      * @param $data
      */
-    public function setProductOrder($data)
-    {
+    public function setProductOrder(
+        $data
+    ) {
         $mapId = $data['data']['object']['order_no'];
         $map = $this->getRepo('Order\OrderMap')->find($mapId);
         $orderId = $map->getOrderId();
@@ -120,13 +128,13 @@ class PaymentController extends SandboxRestController
      *
      * @return MembershipOrder
      */
-    public function setMembershipOrder($type, $price)
-    {
+    public function setMembershipOrder(
+        $type,
+        $price,
+        $orderNumber
+    ) {
         $userId = $this->getUserid();
         $endDate = $this->calculateEndDate($type);
-        $datetime = new \DateTime();
-        $date = $datetime->format('Ymdhis');
-        $orderNumber = $date.$userId;
 
         $order = new MembershipOrder();
         $order->setUserId($userId);
@@ -142,18 +150,87 @@ class PaymentController extends SandboxRestController
     }
 
     /**
+     * @param $price
+     * @param $orderNumber
+     *
+     * @return TopUpOrder
+     */
+    public function setTopUpOrder(
+        $price,
+        $orderNumber
+    ) {
+        $userId = $this->getUserid();
+
+        $order = new TopUpOrder();
+        $order->setUserId($userId);
+        $order->setOrderNumber($orderNumber);
+        $order->setPrice($price);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($order);
+        $em->flush();
+
+        return $order;
+    }
+
+    /**
+     * @param $count
+     * @param $now
+     */
+    public function setOrderCount(
+        $count,
+        $now
+    ) {
+        $counter = new OrderCount();
+        $counter->setCount($count);
+        $counter->setOrderDate($now);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($counter);
+        $em->flush();
+    }
+
+    /**
+     * @param $letter
+     *
+     * @return string
+     */
+    public function getOrderNumber(
+        $letter
+    ) {
+        $datetime = new \DateTime();
+        $now = clone $datetime;
+        $now->setTime(00, 00, 00);
+        $date = $datetime->format('Ymdhis');
+        $counter = $this->getRepo('Order\OrderCount')->findOneBy(['orderDate' => $now]);
+        if (is_null($counter)) {
+            $count = 1;
+            $this->setOrderCount($count, $now);
+        } else {
+            $count = $counter->getCount() + 1;
+            $counter->setCount($count);
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($counter);
+            $em->flush();
+        }
+        $orderNumber = $letter.$date.$count;
+
+        return $orderNumber;
+    }
+
+    /**
      * @param $type
      *
      * @return \DateTime
      */
-    public function calculateEndDate($type)
-    {
-        $order = $this->getRepo('Order\MembershipOrder')->findBy(
+    public function calculateEndDate(
+        $type
+    ) {
+        $orderArray = $this->getRepo('Order\MembershipOrder')->findBy(
             ['userId' => $this->getUserid()],
             ['id' => 'DESC'],
             1
         );
-        if (!empty($order)) {
+        $order = $orderArray[0];
+        if (empty($order)) {
             $startDate = new \DateTime();
         } else {
             $startDate = $order->getEndDate();
@@ -174,30 +251,4 @@ class PaymentController extends SandboxRestController
 
         return $endDate;
     }
-
-    //    /**
-//     * @param $chargeId
-//     *
-//     * @return Charge
-//     */
-//    public function refundForOrder(
-//        $chargeId
-//    ) {
-//        $keyGlobal = $this->get('twig')->getGlobals();
-//        $key = $keyGlobal['pingpp_test_key'];
-//        Pingpp::setApiKey($key);
-//        try {
-//            $ch = Charge::retrieve($chargeId);
-//            $ch->refunds->create(
-//                array(
-//                    'description' => 'full refund',
-//                )
-//            );
-//
-//            return $ch;
-//        } catch (Base $e) {
-//            header('Status: '.$e->getHttpStatus());
-//            echo($e->getHttpBody());
-//        }
-//    }
 }

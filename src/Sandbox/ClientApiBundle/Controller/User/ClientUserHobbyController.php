@@ -4,14 +4,13 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
 use Sandbox\ApiBundle\Entity\User\UserHobbyMap;
-use Sandbox\ApiBundle\Form\User\UserHobbyMapType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Rest controller for UserHobbyMap.
@@ -47,33 +46,18 @@ class ClientUserHobbyController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = (int) $paramFetcher->get('user_id');
-        if ($userId === 0) {
-            $userId = $this->getUserid();
+        $userId = $paramFetcher->get('user_id');
+        if (is_null($userId)) {
+            $userId = $this->getUserId();
         }
 
-        $userHobbyMap = $this->getRepo('User\UserHobbyMap')->findByUserId($userId);
-        $userHobbyArray = array();
-        if (!empty($userHobbyMap)) {
-            foreach ($userHobbyMap as $userHobby) {
-                if (is_null($userHobby)) {
-                    continue;
-                }
+        $user = $this->getRepo('User\User')->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-                $id = $userHobby->getId();
-                $hobbyId = $userHobby->getHobbyId();
-                $hobby = $this->getRepo('User\Hobby')->findOneById($hobbyId);
-                $insideHobbyArray = array(
-                    'name' => $hobby->getName(),
-                    'id' => $id,
-                    'hobby_id' => $hobbyId,
-                );
+        $view = new View($user->getHobbies());
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
 
-                array_push($userHobbyArray, $insideHobbyArray);
-            }
-        }
-
-        return new View($userHobbyArray);
+        return $view;
     }
 
     /**
@@ -91,28 +75,33 @@ class ClientUserHobbyController extends UserProfileController
         ParamFetcherInterface $paramFetcher
 
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($userId);
 
-        $hobbyResponseArray = array();
         $em = $this->getDoctrine()->getManager();
 
-        $hobbyIdsArray = json_decode($request->getContent(), true);
-        foreach ($hobbyIdsArray as $hobbyId) {
-            $userHobbyMap = new UserHobbyMap();
-            $form = $this->createForm(new UserHobbyMapType(), $userHobbyMap);
-            $form->submit($hobbyId);
-            if (!$form->isValid()) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        $hobbyIds = json_decode($request->getContent(), true);
+        foreach ($hobbyIds as $hobbyId) {
+            $hobby = $this->getRepo('User\UserHobby')->find($hobbyId);
+            if (is_null($hobby)) {
+                continue;
             }
-            $userHobbyMap->setUserId($userId);
-            $em->persist($userHobbyMap);
-            $em->flush();
 
-            $insideHobbyIdArray = array('id' => $userHobbyMap->getId());
-            array_push($hobbyResponseArray, $insideHobbyIdArray);
+            $hobbyMap = $this->getRepo('User\UserHobbyMap')->findOneBy(array(
+                'userId' => $userId,
+                'hobbyId' => $hobbyId,
+            ));
+            if (!is_null($hobbyMap)) {
+                continue;
+            }
+
+            $userHobbyMap = $this->generateUserHobbyMap($user, $hobby);
+            $em->persist($userHobbyMap);
         }
 
-        return new View($hobbyResponseArray);
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -135,8 +124,10 @@ class ClientUserHobbyController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userHobbyMaps = $paramFetcher->get('id');
-        $this->getRepo('User\UserHobbyMap')->deleteUserHobbyMapsByIds($userHobbyMaps);
+        $this->getRepo('User\UserHobbyMap')->deleteUserHobbies(
+            $paramFetcher->get('id'),
+            $this->getUserId()
+        );
 
         return new View();
     }

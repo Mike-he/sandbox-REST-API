@@ -3,14 +3,15 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Hobby.
+ * UserHobby.
  *
- * @ORM\Table(name="Hobby")
+ * @ORM\Table(name="UserHobby")
  * @ORM\Entity
  */
-class Hobby
+class UserHobby
 {
     /**
      * @var int
@@ -18,6 +19,7 @@ class Hobby
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "profile"})
      */
     private $id;
 
@@ -25,6 +27,7 @@ class Hobby
      * @var string
      *
      * @ORM\Column(name="name", type="string", nullable=false)
+     * @Serializer\Groups({"main", "profile"})
      */
     private $name;
 
@@ -32,6 +35,7 @@ class Hobby
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -39,6 +43,7 @@ class Hobby
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -61,7 +66,7 @@ class Hobby
     /**
      * @param string $name
      *
-     * @return Hobby
+     * @return UserHobby
      */
     public function setName($name)
     {
@@ -79,7 +84,7 @@ class Hobby
     /**
      * @param \DateTime $creationDate
      *
-     * @return Hobby
+     * @return UserHobby
      */
     public function setCreationDate($creationDate)
     {
@@ -97,7 +102,7 @@ class Hobby
     /**
      * @param \DateTime $modificationDate
      *
-     * @return Hobby
+     * @return UserHobby
      */
     public function setModificationDate($modificationDate)
     {

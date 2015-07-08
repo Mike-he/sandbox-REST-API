@@ -67,7 +67,7 @@ class ClientUserEmailBindingController extends UserEmailBindingController
     public function postEmailBindSubmitAction(
         Request $request
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
 
         $submit = new EmailBindingSubmit();
 
@@ -103,7 +103,7 @@ class ClientUserEmailBindingController extends UserEmailBindingController
     public function postEmailBindVerifyAction(
         Request $request
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
 
         $verify = new EmailBindingVerify();
 
