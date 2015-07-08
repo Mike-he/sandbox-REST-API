@@ -34,17 +34,17 @@ class UserExperience
     private $userId;
 
     /**
-     * @var \DateTime
+     * @var string
      *
-     * @ORM\Column(name="startDate", type="date", nullable=true)
+     * @ORM\Column(name="startDate", type="string", length=16, nullable=true)
      * @Serializer\Groups({"main", "profile"})
      */
     private $startDate;
 
     /**
-     * @var \DateTime
+     * @var string
      *
-     * @ORM\Column(name="endDate", type="date", nullable=true)
+     * @ORM\Column(name="endDate", type="string", length=16, nullable=true)
      * @Serializer\Groups({"main", "profile"})
      */
     private $endDate;
@@ -106,7 +106,7 @@ class UserExperience
     }
 
     /**
-     * @return \DateTime
+     * @return string
      */
     public function getStartDate()
     {
@@ -114,17 +114,17 @@ class UserExperience
     }
 
     /**
-     * @param \DateTime $startDate
+     * @param string $startDate
      *
      * @return UserExperience
      */
     public function setStartDate($startDate)
     {
-        $this->startDate = new \DateTime($startDate);
+        $this->startDate = $startDate;
     }
 
     /**
-     * @return \DateTime
+     * @return string
      */
     public function getEndDate()
     {
@@ -132,13 +132,13 @@ class UserExperience
     }
 
     /**
-     * @param \DateTime $endDate
+     * @param string $endDate
      *
      * @return UserExperience
      */
     public function setEndDate($endDate)
     {
-        $this->endDate = new \DateTime($endDate);
+        $this->endDate = $endDate;
     }
 
     /**

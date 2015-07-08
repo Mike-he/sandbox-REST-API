@@ -1,8 +1,8 @@
 CREATE TABLE `UserExperience` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userId` int(11) NOT NULL,
-  `startDate` date DEFAULT NULL,
-  `endDate` date DEFAULT NULL,
+  `startDate` varchar(16) DEFAULT NULL,
+  `endDate` varchar(16) DEFAULT NULL,
   `detail` text NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,

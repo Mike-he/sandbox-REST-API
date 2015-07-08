@@ -59,9 +59,9 @@ class UserProfile
     private $gender = self::DEFAULT_GENDER_OTHER;
 
     /**
-     * @var \DateTime
+     * @var string
      *
-     * @ORM\Column(name="dateOfBirth", type="date", nullable=true)
+     * @ORM\Column(name="dateOfBirth", type="string", length=16, nullable=true)
      * @Serializer\Groups({"main", "profile", "profile_basic"})
      */
     private $dateOfBirth;
@@ -133,6 +133,7 @@ class UserProfile
     /**
      * @var int
      *
+     * @ORM\Column(name="buildingId", type="integer", nullable=true)
      * @Serializer\Groups({"main"})
      */
     private $buildingId;
@@ -280,7 +281,7 @@ class UserProfile
     }
 
     /**
-     * @return \DateTime
+     * @return string
      */
     public function getDateOfBirth()
     {
@@ -288,13 +289,13 @@ class UserProfile
     }
 
     /**
-     * @param \DateTime $dateOfBirth
+     * @param string $dateOfBirth
      *
      * @return UserProfile
      */
     public function setDateOfBirth($dateOfBirth)
     {
-        $this->dateOfBirth = new \DateTime($dateOfBirth);
+        $this->dateOfBirth = $dateOfBirth;
     }
 
     /**

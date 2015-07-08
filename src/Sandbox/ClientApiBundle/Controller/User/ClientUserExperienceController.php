@@ -11,8 +11,9 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Rs\Json\Patch;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Rest controller for UserExperience.
@@ -48,20 +49,22 @@ class ClientUserExperienceController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = (int) $paramFetcher->get('user_id');
-        if ($userId === 0) {
+        $userId = $paramFetcher->get('user_id');
+        if (is_null($userId)) {
             $userId = $this->getUserId();
         }
 
-        $userExperience = $this->getRepo('User\UserExperience')->findByUserId($userId);
+        $user = $this->getRepo('User\User')->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        return new View($userExperience);
+        $view = new View($user->getExperiences());
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
+
+        return $view;
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
+     * @param Request $request
      *
      * @Route("/experiences")
      * @Method({"POST"})
@@ -69,44 +72,27 @@ class ClientUserExperienceController extends UserProfileController
      * @return View
      */
     public function postUserExperienceAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-
+        Request $request
     ) {
         $userId = $this->getUserId();
-        $experienceResponseArray = array();
+        $user = $this->getRepo('User\User')->find($userId);
 
         $em = $this->getDoctrine()->getManager();
 
-        $experiencesArray = json_decode($request->getContent(), true);
-        foreach ($experiencesArray as $experience) {
-            $userExperience = new UserExperience();
-            $form = $this->createForm(new UserExperienceType(), $userExperience);
-            $form->submit($experience);
-            if (!$form->isValid()) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-            $userExperience->setUserId($userId);
+        $experiences = json_decode($request->getContent(), true);
+        foreach ($experiences as $experience) {
+            $userExperience = $this->generateUserExperience($user, $experience);
             $em->persist($userExperience);
-            $em->flush();
-
-            $insideExperienceArray = array(
-                'id' => $userExperience->getId(),
-                'user_id' => $userExperience->getUserId(),
-                'start_date' => $userExperience->getStartDate(),
-                'end_date' => $userExperience->getEndDate(),
-                'detail' => $userExperience->getDetail(),
-            );
-            array_push($experienceResponseArray, $insideExperienceArray);
         }
 
-        return new View($experienceResponseArray);
+        $em->flush();
+
+        return new View();
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
+     * @param Request $request
+     * @param int     $id
      *
      * @Route("/experiences/{id}")
      * @Method({"PATCH"})
@@ -115,28 +101,33 @@ class ClientUserExperienceController extends UserProfileController
      */
     public function patchUserExperienceAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $userExperience = $this->getRepo('User\UserExperience')->findOneById($id);
-        $this->throwNotFoundIfNull($userExperience, self::NOT_FOUND_MESSAGE);
+        // get experience
+        $experience = $this->getRepo('User\UserExperience')->find($id);
+        $this->throwNotFoundIfNull($experience, self::NOT_FOUND_MESSAGE);
 
-        $userExperienceJSON = $this->container->get('serializer')->serialize($userExperience, 'json');
-        $patch = new Patch($userExperienceJSON, $request->getContent());
-        $userExperienceJSON = $patch->apply();
-
-        $form = $this->createForm(new UserExperienceType(), $userExperience);
-        $form->submit(json_decode($userExperienceJSON, true));
-
-        if ($form->isValid()) {
-            $userExperience->setModificationDate(new \DateTime('now'));
-            $em = $this->getDoctrine()->getManager();
-            $em->flush();
-
-            return new View();
+        // check user is allowed to modify
+        if ($this->getUserId() != $experience->getUser()->getId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        // bind data
+        $experienceJson = $this->container->get('serializer')->serialize($experience, 'json');
+        $patch = new Patch($experienceJson, $request->getContent());
+        $experienceJson = $patch->apply();
+
+        $form = $this->createForm(new UserExperienceType(), $experience);
+        $form->submit(json_decode($experienceJson, true));
+
+        // set experience
+        $experience->setModificationDate(new \DateTime('now'));
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -159,8 +150,10 @@ class ClientUserExperienceController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userExperienceIds = $paramFetcher->get('id');
-        $this->getRepo('User\UserExperience')->deleteUserExperiencesByIds($userExperienceIds);
+        $this->getRepo('User\UserExperience')->deleteUserExperiences(
+            $paramFetcher->get('id'),
+            $this->getUserId()
+        );
 
         return new View();
     }

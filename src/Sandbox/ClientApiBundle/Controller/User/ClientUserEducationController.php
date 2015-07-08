@@ -64,9 +64,7 @@ class ClientUserEducationController extends UserProfileController
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
+     * @param Request $request
      *
      * @Route("/educations")
      * @Method({"POST"})
@@ -74,9 +72,7 @@ class ClientUserEducationController extends UserProfileController
      * @return View
      */
     public function postUserEducationAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-
+        Request $request
     ) {
         $userId = $this->getUserId();
         $user = $this->getRepo('User\User')->find($userId);

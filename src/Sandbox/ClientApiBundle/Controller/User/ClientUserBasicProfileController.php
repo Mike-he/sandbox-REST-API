@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
-use Sandbox\ApiBundle\Form\User\UserProfileBasicType;
+use Sandbox\ApiBundle\Form\User\UserProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -90,7 +90,7 @@ class ClientUserBasicProfileController extends UserProfileController
         $patch = new Patch($profileJson, $request->getContent());
         $profileJson = $patch->apply();
 
-        $form = $this->createForm(new UserProfileBasicType(), $profile);
+        $form = $this->createForm(new UserProfileType(), $profile);
         $form->submit(json_decode($profileJson, true));
 
         // set profile
