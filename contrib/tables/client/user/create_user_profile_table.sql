@@ -4,7 +4,7 @@ CREATE TABLE `UserProfile` (
   `name` varchar(64) NOT NULL,
   `jobTitle` varchar(64) DEFAULT NULL,
   `gender` enum('other','female','male') DEFAULT NULL,
-  `dateOfBirth` varchar(16) DEFAULT NULL,
+  `dateOfBirth` date DEFAULT NULL,
   `phone` varchar(64) DEFAULT NULL,
   `email` varchar(128) DEFAULT NULL,
   `aboutMe` text,
@@ -18,7 +18,6 @@ CREATE TABLE `UserProfile` (
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_UserProfile_userId` (`userId`),
-  KEY `fk_UserProfile_userId_idx` (`userId`),
   CONSTRAINT `fk_UserProfile_userId` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   KEY `fk_UserProfile_buildingId_idx` (`buildingId`),
   CONSTRAINT `fk_UserProfile_buildingId` FOREIGN KEY (`buildingId`) REFERENCES `RoomBuilding` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
