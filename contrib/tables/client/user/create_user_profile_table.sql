@@ -4,7 +4,7 @@ CREATE TABLE `UserProfile` (
   `name` varchar(64) NOT NULL,
   `jobTitle` varchar(64) DEFAULT NULL,
   `gender` enum('other','female','male') DEFAULT NULL,
-  `dateOfBirth` date DEFAULT NULL,
+  `dateOfBirth` varchar(16) DEFAULT NULL,
   `phone` varchar(64) DEFAULT NULL,
   `email` varchar(128) DEFAULT NULL,
   `aboutMe` text,

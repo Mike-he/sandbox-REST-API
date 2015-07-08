@@ -11,8 +11,9 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Rs\Json\Patch;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Rest controller for UserEducation.
@@ -48,20 +49,22 @@ class ClientUserEducationController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = (int) $paramFetcher->get('user_id');
-        if ($userId === 0) {
+        $userId = $paramFetcher->get('user_id');
+        if (is_null($userId)) {
             $userId = $this->getUserId();
         }
 
-        $userEducation = $this->getRepo('User\UserEducation')->findByUserId($userId);
+        $user = $this->getRepo('User\User')->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        return new View($userEducation);
+        $view = new View($user->getEducations());
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
+
+        return $view;
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
+     * @param Request $request
      *
      * @Route("/educations")
      * @Method({"POST"})
@@ -69,44 +72,27 @@ class ClientUserEducationController extends UserProfileController
      * @return View
      */
     public function postUserEducationAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-
+        Request $request
     ) {
         $userId = $this->getUserId();
-        $educationResponseArray = array();
+        $user = $this->getRepo('User\User')->find($userId);
 
         $em = $this->getDoctrine()->getManager();
 
-        $educationsArray = json_decode($request->getContent(), true);
-        foreach ($educationsArray as $education) {
-            $userEducation = new UserEducation();
-            $form = $this->createForm(new UserEducationType(), $userEducation);
-            $form->submit($education);
-            if (!$form->isValid()) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-            $userEducation->setUserId($userId);
+        $educations = json_decode($request->getContent(), true);
+        foreach ($educations as $education) {
+            $userEducation = $this->generateUserEducation($user, $education);
             $em->persist($userEducation);
-            $em->flush();
-
-            $insideEducationArray = array(
-                'id' => $userEducation->getId(),
-                'user_id' => $userEducation->getUserId(),
-                'start_date' => $userEducation->getStartDate(),
-                'end_date' => $userEducation->getEndDate(),
-                'detail' => $userEducation->getDetail(),
-            );
-            array_push($educationResponseArray, $insideEducationArray);
         }
 
-        return new View($educationResponseArray);
+        $em->flush();
+
+        return new View();
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
+     * @param Request $request
+     * @param int     $id
      *
      * @Route("/educations/{id}")
      * @Method({"PATCH"})
@@ -115,28 +101,33 @@ class ClientUserEducationController extends UserProfileController
      */
     public function patchUserEducationAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $userEducation = $this->getRepo('User\UserEducation')->findOneById($id);
-        $this->throwNotFoundIfNull($userEducation, self::NOT_FOUND_MESSAGE);
+        // get education
+        $education = $this->getRepo('User\UserEducation')->find($id);
+        $this->throwNotFoundIfNull($education, self::NOT_FOUND_MESSAGE);
 
-        $userEducationJSON = $this->container->get('serializer')->serialize($userEducation, 'json');
-        $patch = new Patch($userEducationJSON, $request->getContent());
-        $userEducationJSON = $patch->apply();
-
-        $form = $this->createForm(new UserEducationType(), $userEducation);
-        $form->submit(json_decode($userEducationJSON, true));
-
-        if ($form->isValid()) {
-            $userEducation->setModificationDate(new \DateTime('now'));
-            $em = $this->getDoctrine()->getManager();
-            $em->flush();
-
-            return new View();
+        // check user is allowed to modify
+        if ($this->getUserId() != $education->getUser()->getId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        // bind data
+        $educationJson = $this->container->get('serializer')->serialize($education, 'json');
+        $patch = new Patch($educationJson, $request->getContent());
+        $educationJson = $patch->apply();
+
+        $form = $this->createForm(new UserEducationType(), $education);
+        $form->submit(json_decode($educationJson, true));
+
+        // set education
+        $education->setModificationDate(new \DateTime('now'));
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -159,8 +150,10 @@ class ClientUserEducationController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userEducationIds = $paramFetcher->get('id');
-        $this->getRepo('User\UserEducation')->deleteUserEducationsByIds($userEducationIds);
+        $this->getRepo('User\UserEducation')->deleteUserEducations(
+            $paramFetcher->get('id'),
+            $this->getUserId()
+        );
 
         return new View();
     }
