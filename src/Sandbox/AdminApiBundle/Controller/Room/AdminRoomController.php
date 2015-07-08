@@ -222,20 +222,20 @@ class AdminRoomController extends RoomController
      * )
      *
      * @Route("/rooms/{id}")
-     * @Method({"PATCH"})
+     * @Method({"PUT"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function patchRoomAction(
+    public function putRoomAction(
         Request $request,
         $id
     ) {
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
-        $form = $this->createForm(new RoomType(), $room, array('method' => 'PATCH'));
+        $form = $this->createForm(new RoomType(), $room);
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -265,13 +265,13 @@ class AdminRoomController extends RoomController
      * )
      *
      * @Route("/rooms/{id}/attachments")
-     * @Method({"PATCH"})
+     * @Method({"POST"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function patchRoomAttachmentsAction(
+    public function postRoomAttachmentsAction(
         Request $request,
         $id
     ) {
@@ -319,13 +319,13 @@ class AdminRoomController extends RoomController
      * )
      *
      * @Route("/rooms/{id}/supplies")
-     * @Method({"PATCH"})
+     * @Method({"POST"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function patchRoomSuppliesAction(
+    public function postRoomSuppliesAction(
         Request $request,
         $id
     ) {
@@ -364,6 +364,13 @@ class AdminRoomController extends RoomController
      *  }
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    strict=true,
+     *    description=""
+     * )
+     *
      * @Route("/rooms/{id}/supplies")
      * @Method({"DELETE"})
      *
@@ -373,42 +380,41 @@ class AdminRoomController extends RoomController
      */
     public function deleteRoomSuppliesAction(
         Request $request,
+        ParamFetcherInterface $paramFetcher,
         $id
     ) {
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
-        //get array with ids
-        $office_supplies_id = json_decode($request->getContent(), true);
-        if (!is_array($office_supplies_id)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
+        //supplies id
+        $suppliesIds = $paramFetcher->get('id');
 
-        $em = $this->getDoctrine()->getManager();
+        $this->getRepo('Room\RoomSupplies')->deleteRoomSuppliesByIds(
+            $room,
+            $suppliesIds
+        );
 
-        //remove supplies
-        foreach ($office_supplies_id as $supplies_id) {
-            //check if the attachment exists
-            $supply = $this->getRepo('Room\RoomSupplies')->findOneBy(array(
-                'room' => $room,
-                'suppliesId' => $supplies_id,
-            ));
-
-            $em->remove($supply);
-            $em->flush();
-        }
+        return new View();
     }
 
     /**
      * Delete Room attachments.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @ApiDoc(
      *   resource = true,
      *   statusCodes = {
      *     204 = "OK"
      *  }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    strict=true,
+     *    description=""
      * )
      *
      * @Route("/rooms/{id}/attachments")
@@ -420,30 +426,21 @@ class AdminRoomController extends RoomController
      */
     public function deleteRoomAttachmentsAction(
         Request $request,
+        ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        // get room
+        //get room
         $room = $this->getRepo('Room\Room')->find($id);
 
-        //get array with ids
-        $attachments_id = json_decode($request->getContent(), true);
-        if (!is_array($attachments_id)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
+        //attachments id
+        $attachmentIds = $paramFetcher->get('id');
 
-        $em = $this->getDoctrine()->getManager();
+        $this->getRepo('Room\RoomAttachmentBinding')->deleteRoomAttachmentByIds(
+            $room,
+            $attachmentIds
+        );
 
-        //remove attachments
-        foreach ($attachments_id as $attachment_id) {
-            //check if the attachment exists
-            $attachmentBind = $this->getRepo('Room\RoomAttachmentBinding')->findOneBy(array(
-                'room' => $room,
-                'attachmentId' => $attachment_id,
-            ));
-
-            $em->remove($attachmentBind);
-            $em->flush();
-        }
+        return new View();
     }
 
     /**
