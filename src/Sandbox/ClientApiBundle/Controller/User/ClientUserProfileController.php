@@ -4,13 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
 use Sandbox\ApiBundle\Entity\User\User;
-use Sandbox\ApiBundle\Entity\User\UserEducation;
-use Sandbox\ApiBundle\Entity\User\UserExperience;
-use Sandbox\ApiBundle\Entity\User\UserPortfolio;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
-use Sandbox\ApiBundle\Form\User\UserEducationType;
-use Sandbox\ApiBundle\Form\User\UserExperienceType;
-use Sandbox\ApiBundle\Form\User\UserPortfolioType;
 use Sandbox\ApiBundle\Form\User\UserProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
@@ -18,7 +12,6 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use JMS\Serializer\SerializationContext;
@@ -61,12 +54,12 @@ class ClientUserProfileController extends UserProfileController
             $userId = $this->getUserId();
         }
 
-        // user
+        // get user
         $user = $this->getRepo('User\User')->find($userId);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        // profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        // get profile
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         // set profile extra fields
@@ -97,8 +90,10 @@ class ClientUserProfileController extends UserProfileController
         ParamFetcherInterface $paramFetcher
     ) {
         $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUser($user);
         if (!is_null($userProfile)) {
             throw new ConflictHttpException(self::CONFLICT_MESSAGE);
         }
@@ -109,7 +104,7 @@ class ClientUserProfileController extends UserProfileController
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            return $this->handlePostUserProfile($userProfile);
+            return $this->handlePostUserProfile($userProfile, $user);
         }
 
         throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -117,20 +112,17 @@ class ClientUserProfileController extends UserProfileController
 
     /**
      * @param UserProfile $userProfile
+     * @param User        $user
      *
      * @return View
      */
     private function handlePostUserProfile(
-        $userProfile
+        $userProfile,
+        $user
     ) {
         $em = $this->getDoctrine()->getManager();
 
         // set user
-        $userId = $this->getUserId();
-        $user = $this->getRepo('User\User')->find($userId);
-        if (is_null($user)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
         $userProfile->setUser($user);
 
         // set building
@@ -164,8 +156,8 @@ class ClientUserProfileController extends UserProfileController
             }
 
             $hobbyMap = $this->getRepo('User\UserHobbyMap')->findOneBy(array(
-                'userId' => $userId,
-                'hobbyId' => $hobbyId,
+                'user' => $user,
+                'hobby' => $hobby,
             ));
             if (!is_null($hobbyMap)) {
                 continue;
@@ -193,65 +185,5 @@ class ClientUserProfileController extends UserProfileController
         );
 
         return $view;
-    }
-
-    /**
-     * @param User  $user
-     * @param array $education
-     *
-     * @return UserEducation
-     */
-    private function generateUserEducation(
-        $user,
-        $education
-    ) {
-        $userEducation = new UserEducation();
-
-        $form = $this->createForm(new UserEducationType(), $userEducation);
-        $form->submit($education);
-
-        $userEducation->setUser($user);
-
-        return $userEducation;
-    }
-
-    /**
-     * @param User  $user
-     * @param array $experience
-     *
-     * @return UserExperience
-     */
-    private function generateUserExperience(
-        $user,
-        $experience
-    ) {
-        $userExperience = new UserExperience();
-
-        $form = $this->createForm(new UserExperienceType(), $userExperience);
-        $form->submit($experience);
-
-        $userExperience->setUser($user);
-
-        return $userExperience;
-    }
-
-    /**
-     * @param User  $user
-     * @param array $portfolio
-     *
-     * @return UserPortfolio
-     */
-    private function generateUserPortfolio(
-        $user,
-        $portfolio
-    ) {
-        $userPortfolio = new UserPortfolio();
-
-        $form = $this->createForm(new UserPortfolioType(), $userPortfolio);
-        $form->submit($portfolio);
-
-        $userPortfolio->setUser($user);
-
-        return $userPortfolio;
     }
 }

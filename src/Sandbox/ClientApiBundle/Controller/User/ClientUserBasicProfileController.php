@@ -64,9 +64,8 @@ class ClientUserBasicProfileController extends UserProfileController
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
+     * @param Request $request
+     * @param int     $id
      *
      * @Route("/basic/{id}")
      * @Method({"PATCH"})
@@ -75,13 +74,14 @@ class ClientUserBasicProfileController extends UserProfileController
      */
     public function patchUserBasicProfileAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // get profile
         $profile = $this->getRepo('User\UserProfile')->find($id);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
-        if ($this->getUserId() != $profile->getUserId()) {
+        // check user is allowed to modify
+        if ($this->getUserId() != $profile->getUser()->getId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
