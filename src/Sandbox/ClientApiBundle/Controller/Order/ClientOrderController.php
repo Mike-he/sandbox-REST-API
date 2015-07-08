@@ -11,7 +11,6 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
-use FOS\RestBundle\Controller\Annotations\Patch;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
@@ -37,7 +36,9 @@ class ClientOrderController extends PaymentController
     const NO_PAYMENT = 'Payment does not exist';
     const USER_EXIST = 'This user already exist';
     const ORDER_NOT_FOUND = 'Can not find order';
+    const PRODUCT_NOT_FOUND = 'Product Does Not Exist';
     const USER_NOT_FOUND = 'Can not find user in current order';
+    const ORDER_CONFLICT = 'Order Conflict';
     const INSUFFICIENT_FUNDS_CODE = 400001;
     const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
     const SYSTEM_ERROR_CODE = 500001;
@@ -140,19 +141,32 @@ class ClientOrderController extends PaymentController
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_REQUEST);
         }
-        $product = $this->getRepo('Product\Product')->find($order->getProductId());
-        $unit = $product->getUnitPrice();
-        $period = $form['rent_period']->getData();
-        $timeUnit = $form['time_unit']->getData();
-
-        if ($unit !== $timeUnit) {
-            throw new BadRequestHttpException(self::TIME_UNIT_MISMATCH);
+        $productId = $order->getProductId();
+        $product = $this->getRepo('Product\Product')->find($productId);
+        if (is_null($product)) {
+            throw new BadRequestHttpException(self::PRODUCT_NOT_FOUND);
         }
 
+        $period = $form['rent_period']->getData();
+        $timeUnit = $form['time_unit']->getData();
         $startDate = new \DateTime($order->getStartDate());
         $endDate = clone $startDate;
-        $endDate->modify('+'.$period.$unit);
+        $endDate->modify('+'.$period.$timeUnit);
         $basePrice = $product->getBasePrice();
+
+        $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
+            $productId,
+            $startDate,
+            $endDate
+        );
+
+        if (!empty($checkOrder)) {
+            throw new BadRequestHttpException(self::ORDER_CONFLICT);
+        }
+
+        if ($timeUnit === 'min') {
+            $period = $period / 60;
+        }
         $calculatedPrice = $basePrice * $period;
 
         if ($order->getPrice() !== $calculatedPrice) {
@@ -466,7 +480,7 @@ class ClientOrderController extends PaymentController
     }
 
     /**
-     * @Patch("/orders/{id}/person/appoint")
+     * @Post("/orders/{id}/person/appoint")
      *
      * @param Request $request
      * @param $id
@@ -489,8 +503,10 @@ class ClientOrderController extends PaymentController
 
         if (is_null($user)) {
             $order->setAppointed(null);
+            $order->setModificationDate(new \DateTime());
         } else {
             $order->setAppointed($user);
+            $order->setModificationDate(new \DateTime());
         }
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
