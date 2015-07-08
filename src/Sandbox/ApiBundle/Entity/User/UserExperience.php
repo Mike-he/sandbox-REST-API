@@ -29,7 +29,7 @@ class UserExperience
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main"})
      */
     private $userId;
 

@@ -94,11 +94,6 @@ class ClientUserBasicProfileController extends UserProfileController
         $form->submit(json_decode($profileJson, true));
 
         // set profile
-        $building = $this->getRepo('Room\RoomBuilding')->find($profile->getBuildingId());
-        if (!is_null($building)) {
-            $profile->setBuilding($building);
-        }
-
         $profile->setModificationDate(new \DateTime('now'));
 
         // update to db

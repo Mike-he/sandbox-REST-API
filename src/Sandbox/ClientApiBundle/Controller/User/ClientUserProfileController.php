@@ -127,51 +127,61 @@ class ClientUserProfileController extends UserProfileController
 
         // set building
         $buildingId = $userProfile->getBuildingId();
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        if (is_null($building)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-        $userProfile->setBuilding($building);
-
-        // education
-        $educations = $userProfile->getEducations();
-        foreach ($educations as $education) {
-            $userEducation = $this->generateUserEducation($user, $education);
-            $em->persist($userEducation);
-        }
-
-        // experience
-        $experiences = $userProfile->getExperiences();
-        foreach ($experiences as $experience) {
-            $userExperience = $this->generateUserExperience($user, $experience);
-            $em->persist($userExperience);
+        if (!is_null($buildingId)) {
+            $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+            if (is_null($building)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+            $userProfile->setBuilding($building);
         }
 
         // hobby
         $hobbyIds = $userProfile->getHobbyIds();
-        foreach ($hobbyIds as $hobbyId) {
-            $hobby = $this->getRepo('User\UserHobby')->find($hobbyId);
-            if (is_null($hobby)) {
-                continue;
-            }
+        if (!is_null($hobbyIds) && !empty($hobbyIds)) {
+            foreach ($hobbyIds as $hobbyId) {
+                $hobby = $this->getRepo('User\UserHobby')->find($hobbyId);
+                if (is_null($hobby)) {
+                    continue;
+                }
 
-            $hobbyMap = $this->getRepo('User\UserHobbyMap')->findOneBy(array(
-                'user' => $user,
-                'hobby' => $hobby,
-            ));
-            if (!is_null($hobbyMap)) {
-                continue;
-            }
+                $hobbyMap = $this->getRepo('User\UserHobbyMap')->findOneBy(array(
+                    'user' => $user,
+                    'hobby' => $hobby,
+                ));
+                if (!is_null($hobbyMap)) {
+                    continue;
+                }
 
-            $userHobbyMap = $this->generateUserHobbyMap($user, $hobby);
-            $em->persist($userHobbyMap);
+                $userHobbyMap = $this->generateUserHobbyMap($user, $hobby);
+                $em->persist($userHobbyMap);
+            }
+        }
+
+        // education
+        $educations = $userProfile->getEducations();
+        if (!is_null($educations) && !empty($educations)) {
+            foreach ($educations as $education) {
+                $userEducation = $this->generateUserEducation($user, $education);
+                $em->persist($userEducation);
+            }
+        }
+
+        // experience
+        $experiences = $userProfile->getExperiences();
+        if (!is_null($experiences) && !empty($experiences)) {
+            foreach ($experiences as $experience) {
+                $userExperience = $this->generateUserExperience($user, $experience);
+                $em->persist($userExperience);
+            }
         }
 
         // portfolio
         $portfolios = $userProfile->getPortfolios();
-        foreach ($portfolios as $portfolio) {
-            $userPortfolio = $this->generateUserPortfolio($user, $portfolio);
-            $em->persist($userPortfolio);
+        if (!is_null($portfolios) && !empty($portfolios)) {
+            foreach ($portfolios as $portfolio) {
+                $userPortfolio = $this->generateUserPortfolio($user, $portfolio);
+                $em->persist($userPortfolio);
+            }
         }
 
         // save to db
