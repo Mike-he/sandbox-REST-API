@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
-use Sandbox\ApiBundle\Form\User\UserProfileBasicType;
+use Sandbox\ApiBundle\Form\User\UserProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -53,18 +53,19 @@ class ClientUserBasicProfileController extends UserProfileController
             $userId = $this->getUserId();
         }
 
-        $userBasic = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        // get profile
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
 
-        $view = new View($userBasic);
+        // set view
+        $view = new View($profile);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile_basic')));
 
         return $view;
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
+     * @param Request $request
+     * @param int     $id
      *
      * @Route("/basic/{id}")
      * @Method({"PATCH"})
@@ -73,24 +74,29 @@ class ClientUserBasicProfileController extends UserProfileController
      */
     public function patchUserBasicProfileAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // get profile
         $profile = $this->getRepo('User\UserProfile')->find($id);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
-        if ($this->getUserId() != $profile->getUserId()) {
+        // check user is allowed to modify
+        if ($this->getUserId() != $profile->getUser()->getId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
+        // bind data
         $profileJson = $this->container->get('serializer')->serialize($profile, 'json');
         $patch = new Patch($profileJson, $request->getContent());
         $profileJson = $patch->apply();
 
-        $form = $this->createForm(new UserProfileBasicType(), $profile);
+        $form = $this->createForm(new UserProfileType(), $profile);
         $form->submit(json_decode($profileJson, true));
 
+        // set profile
         $profile->setModificationDate(new \DateTime('now'));
+
+        // update to db
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 

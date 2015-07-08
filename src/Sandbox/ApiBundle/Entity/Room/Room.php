@@ -54,8 +54,6 @@ class Room
     /**
      * @var int
      *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
-     *
      * @Serializer\Groups({"main"})
      */
     private $cityId;
@@ -73,8 +71,6 @@ class Room
     /**
      * @var int
      *
-     * @ORM\Column(name="buildingId", type="integer", nullable=false)
-     *
      * @Serializer\Groups({"main"})
      */
     private $buildingId;
@@ -91,8 +87,6 @@ class Room
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="floorId", type="integer", nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
