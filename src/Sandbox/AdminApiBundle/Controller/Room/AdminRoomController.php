@@ -84,7 +84,7 @@ class AdminRoomController extends RoomController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many announcements to return "
+     *    description="How many rooms to return "
      * )
      *
      * @Annotations\QueryParam(
