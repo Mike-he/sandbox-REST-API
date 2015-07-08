@@ -1,24 +1,17 @@
-# Orders /orders
-sandbox_api_order:
-    resource: "@SandboxApiBundle/Controller/Order/OrderController.php"
-    type:     annotation
-    prefix:   /
-
-# Products /products
-sandbox_api_product:
-    resource: "@SandboxApiBundle/Controller/Product/ProductController.php"
-    type:     annotation
-    prefix:   /
-
-
-# Location
+# Location /location
 sandbox_api_location:
     resource: "@SandboxApiBundle/Controller/Location/LocationController.php"
     type:     annotation
     prefix:   /location
 
-# Location
+# Payment
 sandbox_api_payment:
     resource: "@SandboxApiBundle/Controller/Payment/PaymentController.php"
     type:     annotation
     prefix:   /
+
+# User Hobby /user/hobbies
+sandbox_api_user_hobby:
+    resource: "@SandboxApiBundle/Controller/User/UserHobbyController.php"
+    type:     rest
+    prefix:   /user
