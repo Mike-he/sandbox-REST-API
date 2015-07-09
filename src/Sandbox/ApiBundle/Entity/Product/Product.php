@@ -103,6 +103,15 @@ class Product
     private $renewable = true;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="visible", type="boolean")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $visible = true;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="startDate", type="date", nullable=true)
@@ -442,6 +451,30 @@ class Product
     public function getRenewable()
     {
         return $this->renewable;
+    }
+
+    /**
+     * Set visible.
+     *
+     * @param bool $visible
+     *
+     * @return Product
+     */
+    public function setVisible($visible)
+    {
+        $this->renewable = $visible;
+
+        return $this;
+    }
+
+    /**
+     * Get visible.
+     *
+     * @return bool
+     */
+    public function getVisible()
+    {
+        return $this->visible;
     }
 
     /**
