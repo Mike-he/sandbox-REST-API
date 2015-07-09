@@ -101,14 +101,14 @@ class ClientOrderController extends PaymentController
                     'userId' => $userId,
                     'status' => $status,
                 ],
-                null,
+                ['creationDate' => 'DESC'],
                 $limit,
                 $offset
             );
         } else {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
                 ['userId' => $userId],
-                null,
+                ['creationDate' => 'DESC'],
                 $limit,
                 $offset
             );
