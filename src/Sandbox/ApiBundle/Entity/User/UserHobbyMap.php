@@ -26,12 +26,26 @@ class UserHobbyMap
     private $id;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="userId", type="integer",  nullable=false)
+     */
+    private $userId;
+
+    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="hobbies")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id")
      **/
     private $user;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="hobbyId", type="integer",  nullable=false)
+     */
+    private $hobbyId;
 
     /**
      * @var UserHobby
@@ -59,15 +73,25 @@ class UserHobbyMap
     }
 
     /**
-     * Set hobby.
+     * Get userId.
      *
-     * @param UserHobby $hobby
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * Set userId.
+     *
+     * @param int $userId
      *
      * @return UserHobbyMap
      */
-    public function setHobby($hobby)
+    public function setUserId($userId)
     {
-        $this->hobby = $hobby;
+        $this->userId = $userId;
     }
 
     /**
@@ -93,6 +117,28 @@ class UserHobbyMap
     }
 
     /**
+     * Get hobbyId.
+     *
+     * @return int
+     */
+    public function getHobbyId()
+    {
+        return $this->hobbyId;
+    }
+
+    /**
+     * Set hobbyId.
+     *
+     * @param int $hobbyId
+     *
+     * @return UserHobbyMap
+     */
+    public function setHobbyId($hobbyId)
+    {
+        $this->hobbyId = $hobbyId;
+    }
+
+    /**
      * Get hobby.
      *
      * @return UserHobby
@@ -100,6 +146,18 @@ class UserHobbyMap
     public function getHobby()
     {
         return $this->hobby;
+    }
+
+    /**
+     * Set hobby.
+     *
+     * @param UserHobby $hobby
+     *
+     * @return UserHobbyMap
+     */
+    public function setHobby($hobby)
+    {
+        $this->hobby = $hobby;
     }
 
     /**
