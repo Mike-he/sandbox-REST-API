@@ -3,6 +3,8 @@
 namespace Sandbox\ApiBundle\Repository\Product;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 
 class ProductRepository extends EntityRepository
 {
@@ -93,5 +95,80 @@ class ProductRepository extends EntityRepository
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    /**
+     * Get all products.
+     *
+     * @param String       $type
+     * @param RoomCity     $city
+     * @param RoomBuilding $building
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getAdminProducts(
+        $type,
+        $city,
+        $building,
+        $visible
+    ) {
+        $notFirst = false;
+        $parameters = [];
+
+        $query = $this->createQueryBuilder('p')
+            ->select('p')
+            ->innerJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->where('r.type = :type');
+            $parameters['type'] = $type;
+            $notFirst = true;
+        }
+
+        // filter by visible
+        if (!is_null($visible)) {
+            $visibleWhere = 'p.visible = :visible';
+            if ($notFirst) {
+                $query->andWhere($visibleWhere);
+            } else {
+                $query->where($visibleWhere);
+            }
+            $parameters['visible'] = $visible;
+            $notFirst = true;
+        }
+
+        // filter by city
+        if (!is_null($city)) {
+            $cityWhere = 'r.city = :city';
+            if ($notFirst) {
+                $query->andWhere($cityWhere);
+            } else {
+                $query->where($cityWhere);
+            }
+            $parameters['city'] = $city;
+            $notFirst = true;
+        }
+
+        // filter by building
+        if (!is_null($building)) {
+            $buildingWhere = 'r.building = :building';
+            if ($notFirst) {
+                $query->andWhere($buildingWhere);
+            } else {
+                $query->where($buildingWhere);
+            }
+            $parameters['building'] = $building;
+            $notFirst = true;
+        }
+
+        //set all parameters
+        if ($notFirst) {
+            $query->setParameters($parameters);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }
