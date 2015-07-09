@@ -128,26 +128,6 @@ class User implements UserInterface
     private $portfolios;
 
     /**
-     * @var array
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Buddy\BuddyRequest",
-     *      mappedBy="askUser"
-     * )
-     */
-    private $askBuddyRequests;
-
-    /**
-     * @var array
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Buddy\BuddyRequest",
-     *      mappedBy="recvUser"
-     * )
-     */
-    private $recvBuddyRequests;
-
-    /**
      * Get id.
      *
      * @return int
@@ -347,26 +327,6 @@ class User implements UserInterface
     public function getPortfolios()
     {
         return $this->portfolios;
-    }
-
-    /**
-     * Get askBuddyRequests.
-     *
-     * @return array
-     */
-    public function getAskBuddyRequests()
-    {
-        return $this->askBuddyRequests;
-    }
-
-    /**
-     * Get recvBuddyRequests.
-     *
-     * @return array
-     */
-    public function getRecvBuddyRequests()
-    {
-        return $this->recvBuddyRequests;
     }
 
     /**

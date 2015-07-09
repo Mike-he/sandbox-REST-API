@@ -129,4 +129,9 @@ class Buddy
     {
         return $this->creationDate;
     }
+
+    public function __construct()
+    {
+        $this->setCreationDate(new \DateTime('now'));
+    }
 }

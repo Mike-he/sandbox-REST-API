@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Entity\Buddy;
 
 use Doctrine\ORM\Mapping as ORM;
-use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * BuddyRequest.
@@ -39,27 +38,11 @@ class BuddyRequest
     private $askUserId;
 
     /**
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="askBuddyRequests")
-     * @ORM\JoinColumn(name="askUserId", referencedColumnName="id")
-     **/
-    private $askUser;
-
-    /**
      * @var int
      *
      * @ORM\Column(name="recvUserId", type="integer", nullable=false)
      */
     private $recvUserId;
-
-    /**
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="recvBuddyRequests")
-     * @ORM\JoinColumn(name="recvUserId", referencedColumnName="id")
-     **/
-    private $recvUser;
 
     /**
      * @var string
@@ -117,30 +100,6 @@ class BuddyRequest
     }
 
     /**
-     * Set askUser.
-     *
-     * @param User $askUser
-     *
-     * @return BuddyRequest
-     */
-    public function setAskUser($askUser)
-    {
-        $this->askUser = $askUser;
-
-        return $this;
-    }
-
-    /**
-     * Get askUser.
-     *
-     * @return User
-     */
-    public function getAskUser()
-    {
-        return $this->askUser;
-    }
-
-    /**
      * Set recvUserId.
      *
      * @param int $recvUserId
@@ -162,30 +121,6 @@ class BuddyRequest
     public function getRecvUserId()
     {
         return $this->recvUserId;
-    }
-
-    /**
-     * Set recvUser.
-     *
-     * @param User $recvUser
-     *
-     * @return BuddyRequest
-     */
-    public function setRecvUser($recvUser)
-    {
-        $this->recvUser = $recvUser;
-
-        return $this;
-    }
-
-    /**
-     * Get recvUser.
-     *
-     * @return User
-     */
-    public function getRecvUser()
-    {
-        return $this->recvUser;
     }
 
     /**
