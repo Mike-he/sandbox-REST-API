@@ -152,6 +152,37 @@ class AdminProductController extends ProductController
     }
 
     /**
+     * Delete a product.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/products/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function deleteProductAction(
+        Request $request,
+        $id
+    ) {
+        // get product
+        $product = $this->getRepo('Product\Product')->find($id);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($product);
+        $em->flush();
+    }
+
+    /**
      * Product.
      *
      * @param Request $request the request object
