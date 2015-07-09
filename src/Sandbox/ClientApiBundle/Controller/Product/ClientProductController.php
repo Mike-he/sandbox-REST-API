@@ -108,29 +108,38 @@ class ClientProductController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $limit = $paramFetcher->get('limit');
-        $offset = $paramFetcher->get('offset');
         $roomType = $paramFetcher->get('type');
         $buildingId = $paramFetcher->get('building');
         $timeUnit = $paramFetcher->get('time_unit');
         $rentPeriod = $paramFetcher->get('rent_period');
-        $allowedPeople = $paramFetcher->get('allowed_people');
+        $allowedPeople = (int) $paramFetcher->get('allowed_people');
         $startTime = $paramFetcher->get('start_time');
-        $startTime = new \DateTime($startTime);
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $endTime = null;
         if (!is_null($startTime)) {
+            $startTime = new \DateTime($startTime);
             $endTime = clone $startTime;
             $endTime->modify('+'.$rentPeriod.$timeUnit);
         }
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
+
+        $startHour = null;
+        $endHour = null;
+        if ($roomType === 'meeting') {
+            $startHour = $startTime->format('H:i:s');
+            $endHour = $endTime->format('H:i:s');
+        }
 
         $productIds = $this->getRepo('Product\Product')->getProductsForClient(
             $roomType,
             $buildingId,
             $startTime,
-            $timeUnit,
             $endTime,
             $allowedPeople,
             $userId,
+            $startHour,
+            $endHour,
             $limit,
             $offset
         );

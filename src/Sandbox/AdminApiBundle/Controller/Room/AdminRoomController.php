@@ -111,11 +111,11 @@ class AdminRoomController extends RoomController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
-        $repo = $this->getRepo('Room\Room');
+        $filters = $this->getFilters($paramFetcher);
 
-        //TODO Add filters
-        $query = $repo->createQueryBuilder('r')
-            ->getQuery();
+        $query = is_null($filters) ?
+            $this->getRepo('Room\Room')->getRooms() :
+            $this->getRepo('Room\Room')->getRoomsWithFilters($filters);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -748,7 +748,7 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * Get filters from rooms get request.
+     * Get filters and where clause from rooms get request.
      *
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -758,23 +758,54 @@ class AdminRoomController extends RoomController
         $paramFetcher
     ) {
         $type = $paramFetcher->get('type');
-        $city = $paramFetcher->get('city');
-        $building = $paramFetcher->get('building');
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
 
-        $filters = [];
+        $parameters = [];
+        $whereQuery = '';
+        $notFirst = false;
 
         if (!is_null($type)) {
-            $filters['type'] = $type;
+            $parameters['type'] = $type;
+            $whereQuery = 'r.type = :type';
+            $notFirst = true;
         }
 
-        if (!is_null($city)) {
-            $filters['cityId'] = $city;
+        if (!is_null($cityId)) {
+            $city = $this->getRepo('Room\RoomCity')->find($cityId);
+            if (is_null($city)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            $parameters['city'] = $city;
+
+            if ($notFirst) {
+                $whereQuery .= ' AND ';
+            }
+            $whereQuery .= 'r.city = :city';
+
+            $notFirst = true;
         }
 
-        if (!is_null($building)) {
-            $filters['buildingId'] = $building;
+        if (!is_null($buildingId)) {
+            $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+            if (is_null($building)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            $parameters['building'] = $building;
+
+            if ($notFirst) {
+                $whereQuery .= ' AND ';
+            }
+            $whereQuery .= 'r.building = :building';
         }
 
-        return $filters;
+        $filtersInfo = array(
+            'parameters' => $parameters,
+            'whereQuery' => $whereQuery,
+        );
+
+        return empty($parameters) ? null : $filtersInfo;
     }
 }
