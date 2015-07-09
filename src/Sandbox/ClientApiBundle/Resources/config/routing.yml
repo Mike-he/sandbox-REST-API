@@ -129,3 +129,10 @@ sandbox_client_api_topup_order:
     resource: "@SandboxClientApiBundle/Controller/Order/ClientTopUpOrderController.php"
     type:     annotation
     prefix:   /
+
+# Buddy /buddies
+sandbox_client_api_buddy_request:
+    resource: "@SandboxClientApiBundle/Controller/Buddy/ClientBuddyRequestController.php"
+    type:     annotation
+    prefix:   /buddies
+

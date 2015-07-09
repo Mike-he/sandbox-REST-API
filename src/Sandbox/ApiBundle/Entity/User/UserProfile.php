@@ -15,6 +15,8 @@ use JMS\Serializer\Annotation as Serializer;
 class UserProfile
 {
     const DEFAULT_GENDER_OTHER = 'other';
+    const DEFAULT_GENDER_MALE = 'male';
+    const DEFAULT_GENDER_FEMALE = 'female';
 
     /**
      * @var int
@@ -30,7 +32,7 @@ class UserProfile
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      */
     private $userId;
 
@@ -38,7 +40,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      */
     private $name;
 
@@ -46,7 +48,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="jobTitle", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      */
     private $jobTitle;
 
@@ -54,7 +56,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="gender", type="string", nullable=false)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      */
     private $gender = self::DEFAULT_GENDER_OTHER;
 
@@ -70,7 +72,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      */
     private $email;
 
@@ -78,7 +80,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      */
     private $phone;
 
@@ -163,7 +165,7 @@ class UserProfile
     /**
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding"))
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      **/
     private $building;
 

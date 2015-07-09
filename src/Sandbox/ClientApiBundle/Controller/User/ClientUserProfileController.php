@@ -76,9 +76,7 @@ class ClientUserProfileController extends UserProfileController
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
+     * @param Request $request
      *
      * @Route("/profile")
      * @Method({"POST"})
@@ -86,8 +84,7 @@ class ClientUserProfileController extends UserProfileController
      * @return View
      */
     public function postProfileAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
+        Request $request
     ) {
         $userId = $this->getUserId();
         $user = $this->getRepo('User\User')->find($userId);

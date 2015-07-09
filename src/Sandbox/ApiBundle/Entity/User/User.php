@@ -92,8 +92,7 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(
      *      targetEntity="UserHobbyMap",
-     *      mappedBy="user",
-     *      cascade={"persist"}
+     *      mappedBy="user"
      * )
      */
     private $hobbies;
@@ -103,8 +102,7 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(
      *      targetEntity="UserEducation",
-     *      mappedBy="user",
-     *      cascade={"persist"}
+     *      mappedBy="user"
      * )
      */
     private $educations;
@@ -114,8 +112,7 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(
      *      targetEntity="UserExperience",
-     *      mappedBy="user",
-     *      cascade={"persist"}
+     *      mappedBy="user"
      * )
      */
     private $experiences;
@@ -125,11 +122,30 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(
      *      targetEntity="UserPortfolio",
-     *      mappedBy="user",
-     *      cascade={"persist"}
+     *      mappedBy="user"
      * )
      */
     private $portfolios;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Buddy\BuddyRequest",
+     *      mappedBy="askUser"
+     * )
+     */
+    private $askBuddyRequests;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Buddy\BuddyRequest",
+     *      mappedBy="recvUser"
+     * )
+     */
+    private $recvBuddyRequests;
 
     /**
      * Get id.
@@ -294,16 +310,6 @@ class User implements UserInterface
     }
 
     /**
-     * Get profile.
-     *
-     * @return UserProfile
-     */
-    public function getProfile()
-    {
-        return $this->profile;
-    }
-
-    /**
      * Get hobbies.
      *
      * @return array
@@ -341,6 +347,26 @@ class User implements UserInterface
     public function getPortfolios()
     {
         return $this->portfolios;
+    }
+
+    /**
+     * Get askBuddyRequests.
+     *
+     * @return array
+     */
+    public function getAskBuddyRequests()
+    {
+        return $this->askBuddyRequests;
+    }
+
+    /**
+     * Get recvBuddyRequests.
+     *
+     * @return array
+     */
+    public function getRecvBuddyRequests()
+    {
+        return $this->recvBuddyRequests;
     }
 
     /**
