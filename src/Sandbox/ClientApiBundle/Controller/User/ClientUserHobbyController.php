@@ -88,8 +88,8 @@ class ClientUserHobbyController extends UserProfileController
             }
 
             $hobbyMap = $this->getRepo('User\UserHobbyMap')->findOneBy(array(
-                'userId' => $userId,
-                'hobbyId' => $hobbyId,
+                'user' => $user,
+                'hobby' => $hobby,
             ));
             if (!is_null($hobbyMap)) {
                 continue;
