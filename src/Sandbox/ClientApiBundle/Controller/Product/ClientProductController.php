@@ -35,6 +35,15 @@ class ClientProductController extends ProductController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        city id
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="building",
      *    default=null,
      *    nullable=true,
@@ -109,30 +118,29 @@ class ClientProductController extends ProductController
         ParamFetcherInterface $paramFetcher
     ) {
         $roomType = $paramFetcher->get('type');
+        $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
         $timeUnit = $paramFetcher->get('time_unit');
         $rentPeriod = $paramFetcher->get('rent_period');
-        $allowedPeople = (int) $paramFetcher->get('allowed_people');
+        $allowedPeople = $paramFetcher->get('allowed_people');
         $startTime = $paramFetcher->get('start_time');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
         $endTime = null;
+        $startHour = null;
+        $endHour = null;
         if (!is_null($startTime)) {
             $startTime = new \DateTime($startTime);
             $endTime = clone $startTime;
             $endTime->modify('+'.$rentPeriod.$timeUnit);
-        }
-        $userId = $this->getUserId();
-
-        $startHour = null;
-        $endHour = null;
-        if ($roomType === 'meeting') {
             $startHour = $startTime->format('H:i:s');
             $endHour = $endTime->format('H:i:s');
         }
+        $userId = $this->getUserId();
 
         $productIds = $this->getRepo('Product\Product')->getProductsForClient(
             $roomType,
+            $cityId,
             $buildingId,
             $startTime,
             $endTime,
