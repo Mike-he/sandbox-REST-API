@@ -373,7 +373,7 @@ class ClientOrderController extends PaymentController
     }
 
     /**
-     * @Post("/orders/{id}/people/add")
+     * @Post("/orders/{id}/people")
      *
      * @param Request $request
      * @param $id
@@ -414,14 +414,26 @@ class ClientOrderController extends PaymentController
     }
 
     /**
-     * @Delete("/orders/{id}/people/delete")
+     * @Delete("/orders/{id}/people")
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default="",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
      *
      * @param Request $request
      * @param $id
+     * @param ParamFetcherInterface $paramFetcher
      */
     public function deletePeopleAction(
         Request $request,
-        $id
+        $id,
+        ParamFetcherInterface $paramFetcher
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         if (is_null($order)) {
@@ -433,12 +445,17 @@ class ClientOrderController extends PaymentController
         if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
             throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
         }
-        $users = json_decode($request->getContent(), true);
-        foreach ($users as $user) {
+        $userIds = $paramFetcher->get('id');
+
+        if (empty($userIds)) {
+            throw new BadRequestHttpException(self::USER_NOT_FOUND);
+        }
+
+        foreach ($userIds as $userId) {
             $checkUser = $this->getRepo('Order\InvitedPeople')->findOneBy(
                 [
                     'orderId' => $id,
-                    'userId' => $user['user_id'],
+                    'userId' => $userId,
                 ]
             );
             if (is_null($checkUser)) {
