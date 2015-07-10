@@ -68,15 +68,13 @@ class ClientBuddyController extends BuddyController
             // set status
             // if the search target is my buddy, then stauts = accepted
             // else if the search target have a pending buddy request from me, then status = pending
-            $status = null;
-
             $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
                 'userId' => $userId,
                 'buddyId' => $user->getId(),
             ));
 
             if (!is_null($myBuddy)) {
-                $status = BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED;
+                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
             } else {
                 $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
                     'askUserId' => $userId,
@@ -85,7 +83,7 @@ class ClientBuddyController extends BuddyController
                 ));
 
                 if (!is_null($myBuddyRequest)) {
-                    $status = BuddyRequest::BUDDY_REQUEST_STATUS_PENDING;
+                    $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
                 }
             }
 
@@ -95,7 +93,6 @@ class ClientBuddyController extends BuddyController
                 'profile' => $profile,
                 'company' => '',
                 'match' => $query,
-                'status' => $status,
             );
 
             array_push($buddies, $buddy);

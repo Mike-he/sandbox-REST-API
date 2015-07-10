@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
+use Sandbox\ApiBundle\Entity\Buddy\BuddyRequest;
 use Sandbox\ApiBundle\Form\User\UserProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
@@ -55,10 +56,39 @@ class ClientUserBasicProfileController extends UserProfileController
 
         // get profile
         $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+
+        $viewGroup = 'profile_basic';
+
+        // if user is not my buddy, then do not show email, phone or birthday
+        if ($this->getUserId() != $userId) {
+            $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                'userId' => $this->getUserId(),
+                'buddyId' => $userId,
+            ));
+
+            if (!is_null($myBuddy)) {
+                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+            } else {
+                $viewGroup = $viewGroup.'_stranger';
+
+                $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                    'askUserId' => $userId,
+                    'recvUserId' => $this->getUserId(),
+                    'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                ));
+
+                if (!is_null($myBuddyRequest)) {
+                    $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+                }
+            }
+        }
 
         // set view
         $view = new View($profile);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile_basic')));
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array($viewGroup)))
+        ;
 
         return $view;
     }

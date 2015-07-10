@@ -21,7 +21,7 @@ class UserPortfolio
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $id;
 
@@ -36,35 +36,35 @@ class UserPortfolio
     /**
      * @var string
      * @ORM\Column(name="content", type="text", nullable =false)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $content;
 
     /**
      * @var string
      * @ORM\Column(name="attachmentType", type="string", nullable=false)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $attachmentType;
 
     /**
      * @var string
      * @ORM\Column(name="fileName", type="string", nullable=false)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $fileName;
 
     /**
      * @var string
      * @ORM\Column(name="preview", type="string", nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $preview;
 
     /**
      * @var int
      * @ORM\Column(name="size", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $size;
 
