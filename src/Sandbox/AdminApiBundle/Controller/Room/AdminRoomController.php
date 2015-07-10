@@ -154,7 +154,7 @@ class AdminRoomController extends RoomController
         $room = $this->getRepo('Room\Room')->find($id);
 
         if (is_null($room)) {
-            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
         }
 
         $view = new View();
@@ -337,7 +337,7 @@ class AdminRoomController extends RoomController
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
         if (is_null($room)) {
-            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -774,7 +774,7 @@ class AdminRoomController extends RoomController
         if (!is_null($cityId)) {
             $city = $this->getRepo('Room\RoomCity')->find($cityId);
             if (is_null($city)) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                $this->throwNotFoundIfNull($city, self::NOT_FOUND_MESSAGE);
             }
 
             $parameters['city'] = $city;
@@ -790,7 +790,7 @@ class AdminRoomController extends RoomController
         if (!is_null($buildingId)) {
             $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
             if (is_null($building)) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
             }
 
             $parameters['building'] = $building;

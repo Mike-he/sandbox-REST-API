@@ -165,7 +165,7 @@ class AdminProductController extends ProductController
         $product = $this->getRepo('Product\Product')->find($id);
 
         if (is_null($product)) {
-            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
         }
 
         $view = new View();
@@ -240,7 +240,7 @@ class AdminProductController extends ProductController
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
 
         if (is_null($room)) {
-            $this->createNotFoundException(self::ROOM_DO_NOT_EXISTS);
+            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
         }
 
         $product->setRoom($room);
