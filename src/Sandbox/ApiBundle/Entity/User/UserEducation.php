@@ -21,7 +21,7 @@ class UserEducation
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $id;
 
@@ -37,7 +37,7 @@ class UserEducation
      * @var string
      *
      * @ORM\Column(name="startDate", type="string", length=16, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $startDate;
 
@@ -45,7 +45,7 @@ class UserEducation
      * @var string
      *
      * @ORM\Column(name="endDate", type="string", length=16, nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $endDate;
 
@@ -53,7 +53,7 @@ class UserEducation
      * @var string
      *
      * @ORM\Column(name="detail", type="text", nullable=true)
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $detail;
 

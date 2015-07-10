@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\Product;
 
 use JMS\Serializer\SerializationContext;
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Form\Product\ProductType;
@@ -72,7 +73,16 @@ class AdminProductController extends ProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="limit",
+     *    name="visible",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
      *    array=false,
      *    default="20",
      *    nullable=true,
@@ -82,13 +92,13 @@ class AdminProductController extends ProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="offset",
+     *    name="pageIndex",
      *    array=false,
-     *    default="0",
+     *    default="1",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="Offset from which to start listing products"
+     *    description="page number "
      * )
      *
      * @Route("/products")
@@ -102,17 +112,31 @@ class AdminProductController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $product = $this->getRepo('Product\Product')->findAll();
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $type = $paramFetcher->get('type');
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
+        $visible = $paramFetcher->get('visible');
 
-        if (is_null($product)) {
-            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
-        }
+        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
+        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
-        $view->setData($product);
+        $query = $this->getRepo('Product\Product')->getAdminProducts(
+            $type,
+            $city,
+            $building,
+            $visible
+        );
 
-        return $view;
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $query,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
@@ -141,7 +165,7 @@ class AdminProductController extends ProductController
         $product = $this->getRepo('Product\Product')->find($id);
 
         if (is_null($product)) {
-            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
         }
 
         $view = new View();
@@ -149,6 +173,37 @@ class AdminProductController extends ProductController
         $view->setData($product);
 
         return $view;
+    }
+
+    /**
+     * Delete a product.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/products/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function deleteProductAction(
+        Request $request,
+        $id
+    ) {
+        // get product
+        $product = $this->getRepo('Product\Product')->find($id);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($product);
+        $em->flush();
     }
 
     /**
@@ -185,7 +240,7 @@ class AdminProductController extends ProductController
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
 
         if (is_null($room)) {
-            $this->createNotFoundException(self::ROOM_DO_NOT_EXISTS);
+            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
         }
 
         $product->setRoom($room);
@@ -196,6 +251,63 @@ class AdminProductController extends ProductController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
+        $em->flush();
+
+        $response = array(
+            'id' => $product->getId(),
+        );
+
+        return new View($response);
+    }
+
+    /**
+     * Update a product.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/products/{id}")
+     * @Method({"PUT"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function putProductAction(
+        Request $request,
+        $id
+    ) {
+        $product = $this->getRepo('Product\Product')->find($id);
+
+        $form = $this->createForm(
+            new ProductType(),
+            $product,
+            array('method' => 'PUT')
+        );
+
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $room = $this->getRepo('Room\Room')->find($product->getRoomId());
+
+        if (is_null($room)) {
+            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+        }
+
+        $product->setRoom($room);
+
+        $product->setModificationDate(new \DateTime('now'));
+
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         $response = array(

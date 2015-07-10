@@ -19,7 +19,7 @@ class UserHobby
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "profile", "hobbies"})
+     * @Serializer\Groups({"main", "profile", "hobbies", "profile_stranger"})
      */
     private $id;
 
@@ -27,7 +27,7 @@ class UserHobby
      * @var string
      *
      * @ORM\Column(name="name", type="string", nullable=false)
-     * @Serializer\Groups({"main", "profile", "hobbies"})
+     * @Serializer\Groups({"main", "profile", "hobbies", "profile_stranger"})
      */
     private $name;
 

@@ -18,7 +18,7 @@ class UserHobbyMapRepository extends EntityRepository
             ->createQuery(
                 '
                     DELETE FROM SandboxApiBundle:User\UserHobbyMap uhm
-                    WHERE uhm.userId = (:userId)
+                    WHERE uhm.userId = :userId
                     AND uhm.hobbyId IN (:ids)
                 '
             )

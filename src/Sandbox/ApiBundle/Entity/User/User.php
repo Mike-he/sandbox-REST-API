@@ -92,8 +92,7 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(
      *      targetEntity="UserHobbyMap",
-     *      mappedBy="user",
-     *      cascade={"persist"}
+     *      mappedBy="user"
      * )
      */
     private $hobbies;
@@ -103,8 +102,7 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(
      *      targetEntity="UserEducation",
-     *      mappedBy="user",
-     *      cascade={"persist"}
+     *      mappedBy="user"
      * )
      */
     private $educations;
@@ -114,8 +112,7 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(
      *      targetEntity="UserExperience",
-     *      mappedBy="user",
-     *      cascade={"persist"}
+     *      mappedBy="user"
      * )
      */
     private $experiences;
@@ -125,8 +122,7 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(
      *      targetEntity="UserPortfolio",
-     *      mappedBy="user",
-     *      cascade={"persist"}
+     *      mappedBy="user"
      * )
      */
     private $portfolios;
@@ -291,16 +287,6 @@ class User implements UserInterface
     public function getModificationDate()
     {
         return $this->modificationDate;
-    }
-
-    /**
-     * Get profile.
-     *
-     * @return UserProfile
-     */
-    public function getProfile()
-    {
-        return $this->profile;
     }
 
     /**
