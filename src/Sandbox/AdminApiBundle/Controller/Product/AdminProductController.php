@@ -259,4 +259,61 @@ class AdminProductController extends ProductController
 
         return new View($response);
     }
+
+    /**
+     * Update a product.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/products/{id}")
+     * @Method({"PUT"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function putProductAction(
+        Request $request,
+        $id
+    ) {
+        $product = $this->getRepo('Product\Product')->find($id);
+
+        $form = $this->createForm(
+            new ProductType(),
+            $product,
+            array('method' => 'PUT')
+        );
+
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $room = $this->getRepo('Room\Room')->find($product->getRoomId());
+
+        if (is_null($room)) {
+            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+        }
+
+        $product->setRoom($room);
+
+        $product->setModificationDate(new \DateTime('now'));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $response = array(
+            'id' => $product->getId(),
+        );
+
+        return new View($response);
+    }
 }
