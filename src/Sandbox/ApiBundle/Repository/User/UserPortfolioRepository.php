@@ -18,7 +18,7 @@ class UserPortfolioRepository extends EntityRepository
             ->createQuery(
                 '
                     DELETE FROM SandboxApiBundle:User\UserPortfolio up
-                    WHERE up.userId = (:userId)
+                    WHERE up.userId = :userId
                     AND up.id IN (:ids)
                 '
             )

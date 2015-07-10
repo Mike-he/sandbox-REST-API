@@ -100,11 +100,19 @@ class ClientBuddyRequestController extends BuddyRequestController
         $recvUser = $this->getRepo('User\User')->find($recvUserId);
         $this->throwNotFoundIfNull($recvUser, self::NOT_FOUND_MESSAGE);
 
-        // find pending buddy request
+        // if the user is already my buddy, don't proceed
+        $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+            'userId' => $userId,
+            'buddyId' => $recvUserId,
+        ));
+        if (!is_null($buddy)) {
+            return new View();
+        }
+
+        // if buddy request exist, then change status back to pending
         $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
             'askUserId' => $userId,
             'recvUserId' => $recvUserId,
-            'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
         ));
 
         $em = $this->getDoctrine()->getManager();
@@ -117,7 +125,8 @@ class ClientBuddyRequestController extends BuddyRequestController
 
             $em->persist($buddyRequest);
         } else {
-            // update modification date
+            // update buddy request
+            $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
             $buddyRequest->setModificationDate(new \DateTime('now'));
         }
 
