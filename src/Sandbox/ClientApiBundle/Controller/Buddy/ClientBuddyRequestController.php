@@ -7,7 +7,8 @@ use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\Buddy\BuddyRequest;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
-use Sandbox\ApiBundle\Form\Buddy\BuddyRequestType;
+use Sandbox\ApiBundle\Form\Buddy\BuddyRequestPatchType;
+use Sandbox\ApiBundle\Form\Buddy\BuddyRequestPostType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -45,20 +46,21 @@ class ClientBuddyRequestController extends BuddyRequestController
     ) {
         // get user
         $userId = $this->getUserId();
-        $requests = $this->getRepo('Buddy\BuddyRequest')->findByRecvUserId($userId);
+        $buddyRequests = $this->getRepo('Buddy\BuddyRequest')->findByRecvUserId($userId);
 
         $myRequests = array();
 
-        foreach ($requests as $request) {
-            $askUserId = $request->getAskUserId();
+        foreach ($buddyRequests as $buddyRequest) {
+            $askUserId = $buddyRequest->getAskUserId();
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($askUserId);
 
             // TODO set user's company
 
             $myRequest = array(
-                'id' => $request->getId(),
+                'id' => $buddyRequest->getId(),
                 'ask_user_id' => $askUserId,
-                'status' => $request->getStatus(),
+                'message' => $buddyRequest->getMessage(),
+                'status' => $buddyRequest->getStatus(),
                 'profile' => $profile,
                 'company' => '',
             );
@@ -87,16 +89,17 @@ class ClientBuddyRequestController extends BuddyRequestController
         // get userId
         $userId = $this->getUserId();
 
-        // get recvUser
-        $requestContent = $request->getContent();
-        if (is_null($requestContent)) {
+        // get incoming data
+        $buddyRequestData = new BuddyRequest();
+        $form = $this->createForm(new BuddyRequestPostType(), $buddyRequestData);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $payload = json_decode($requestContent, true);
-        $recvUserId = $payload['user_id'];
-
         // check user exist
+        $recvUserId = $form['user_id']->getData();
         $recvUser = $this->getRepo('User\User')->find($recvUserId);
         $this->throwNotFoundIfNull($recvUser, self::NOT_FOUND_MESSAGE);
 
@@ -128,6 +131,11 @@ class ClientBuddyRequestController extends BuddyRequestController
             // update buddy request
             $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
             $buddyRequest->setModificationDate(new \DateTime('now'));
+        }
+
+        $message = $buddyRequestData->getMessage();
+        if (!is_null($message)) {
+            $buddyRequest->setMessage($message);
         }
 
         $em->flush();
@@ -175,7 +183,7 @@ class ClientBuddyRequestController extends BuddyRequestController
         $patch = new Patch($buddyRequestJson, $request->getContent());
         $buddyRequestJson = $patch->apply();
 
-        $form = $this->createForm(new BuddyRequestType(), $buddyRequest);
+        $form = $this->createForm(new BuddyRequestPatchType(), $buddyRequest);
         $form->submit(json_decode($buddyRequestJson, true));
 
         // set profile
@@ -185,11 +193,24 @@ class ClientBuddyRequestController extends BuddyRequestController
         $em = $this->getDoctrine()->getManager();
 
         if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED) {
+            $askUserId = $buddyRequest->getAskUserId();
+
             // save my buddy
-            $this->saveBuddy($em, $userId, $buddyRequest->getAskUserId());
+            $this->saveBuddy($em, $userId, $askUserId);
 
             // save others' buddy
-            $this->saveBuddy($em, $buddyRequest->getAskUserId(), $userId);
+            $this->saveBuddy($em, $askUserId, $userId);
+
+            // find my pending buddy request to the other user
+            // update the status to accepted
+            $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                'askUserId' => $userId,
+                'recvUserId' => $askUserId,
+                'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+            ));
+            if (!is_null($buddyRequest)) {
+                $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+            }
         }
 
         $em->flush();

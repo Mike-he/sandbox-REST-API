@@ -2,6 +2,7 @@ CREATE TABLE `BuddyRequest` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `askUserId` int(11) NOT NULL,
   `recvUserId` int(11) NOT NULL,
+  `message` varchar(128) DEFAULT NULL,
   `status` enum('pending','accepted') NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,

@@ -47,7 +47,14 @@ class BuddyRequest
     /**
      * @var string
      *
-     * @ORM\Column(name="status", type="string", nullable=true)
+     * @ORM\Column(name="message", type="string", length=128, nullable=true)
+     */
+    private $message;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", nullable=false)
      */
     private $status = self::BUDDY_REQUEST_STATUS_PENDING;
 
@@ -121,6 +128,30 @@ class BuddyRequest
     public function getRecvUserId()
     {
         return $this->recvUserId;
+    }
+
+    /**
+     * Set message.
+     *
+     * @param string $message
+     *
+     * @return BuddyRequest
+     */
+    public function setMessage($message)
+    {
+        $this->message = $message;
+
+        return $this;
+    }
+
+    /**
+     * Get message.
+     *
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
 
     /**
