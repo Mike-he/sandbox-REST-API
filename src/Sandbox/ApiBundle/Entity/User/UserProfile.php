@@ -15,6 +15,8 @@ use JMS\Serializer\Annotation as Serializer;
 class UserProfile
 {
     const DEFAULT_GENDER_OTHER = 'other';
+    const DEFAULT_GENDER_MALE = 'male';
+    const DEFAULT_GENDER_FEMALE = 'female';
 
     /**
      * @var int
@@ -22,7 +24,7 @@ class UserProfile
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger"})
      */
     private $id;
 
@@ -30,7 +32,7 @@ class UserProfile
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger"})
      */
     private $userId;
 
@@ -38,7 +40,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger"})
      */
     private $name;
 
@@ -46,7 +48,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="jobTitle", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger"})
      */
     private $jobTitle;
 
@@ -54,7 +56,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="gender", type="string", nullable=false)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger"})
      */
     private $gender = self::DEFAULT_GENDER_OTHER;
 
@@ -70,7 +72,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      */
     private $email;
 
@@ -78,7 +80,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
      */
     private $phone;
 
@@ -86,7 +88,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="aboutMe", type="string", nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger"})
      */
     private $aboutMe;
 
@@ -94,7 +96,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="skill", type="string", nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger"})
      */
     private $skill;
 
@@ -102,7 +104,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger"})
      */
     private $sinaWeibo;
 
@@ -110,7 +112,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger"})
      */
     private $tencentWeibo;
 
@@ -118,7 +120,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger"})
      */
     private $facebook;
 
@@ -126,7 +128,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger"})
      */
     private $linkedin;
 
@@ -163,7 +165,7 @@ class UserProfile
     /**
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding"))
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
-     * @Serializer\Groups({"main", "profile", "profile_basic"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger"})
      **/
     private $building;
 
@@ -175,30 +177,44 @@ class UserProfile
     /**
      * @var array
      *
-     * @Serializer\Groups({"profile"})
+     * @Serializer\Groups({"profile", "profile_stranger", "profile_basic_stranger"})
      */
     private $hobbies;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"profile"})
+     * @Serializer\Groups({"profile", "profile_stranger", "profile_basic_stranger"})
      */
     private $experiences;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"profile"})
+     * @Serializer\Groups({"profile", "profile_stranger", "profile_basic_stranger"})
      */
     private $educations;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"profile"})
+     * @Serializer\Groups({"profile", "profile_stranger", "profile_basic_stranger"})
      */
     private $portfolios;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger"})
+     */
+    private $status;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"profile", "profile_basic", "buddy"})
+     */
+    private $jid;
 
     /**
      * @return int
@@ -624,6 +640,54 @@ class UserProfile
     public function setPortfolios($portfolios)
     {
         $this->portfolios = $portfolios;
+    }
+
+    /**
+     * Set status.
+     *
+     * @param string $status
+     *
+     * @return UserProfile
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status.
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set jid.
+     *
+     * @param string $jid
+     *
+     * @return UserProfile
+     */
+    public function setJid($jid)
+    {
+        $this->jid = $jid;
+
+        return $this;
+    }
+
+    /**
+     * Get jid.
+     *
+     * @return string
+     */
+    public function getJid()
+    {
+        return $this->jid;
     }
 
     public function __construct()

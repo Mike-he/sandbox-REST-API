@@ -52,7 +52,7 @@ class UserHobbyMap
      *
      * @ORM\OneToOne(targetEntity="UserHobby"))
      * @ORM\JoinColumn(name="hobbyId", referencedColumnName="id")
-     * @Serializer\Groups({"main", "profile"})
+     * @Serializer\Groups({"main", "profile", "profile_stranger"})
      **/
     private $hobby;
 
