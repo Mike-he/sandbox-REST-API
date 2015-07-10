@@ -63,6 +63,10 @@ class ClientUserProfileController extends UserProfileController
         $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
         $viewGroup = 'profile';
 
         // if user is not my buddy, then do not show email, phone or birthday
@@ -74,6 +78,18 @@ class ClientUserProfileController extends UserProfileController
 
             if (!is_null($myBuddy)) {
                 $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+
+                // if both user is buddy with each other
+                // then show user jid
+                $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                    'userId' => $userId,
+                    'buddyId' => $this->getUserId(),
+                ));
+
+                if (!is_null($otherBuddy)) {
+                    $jid = $user->getXmppUsername().'@'.$globals['xmpp_domain'];
+                    $profile->setJid($jid);
+                }
             } else {
                 $viewGroup = $viewGroup.'_stranger';
 

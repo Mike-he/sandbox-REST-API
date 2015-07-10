@@ -60,30 +60,48 @@ class ClientBuddyController extends BuddyController
             $user = $this->getRepo('User\User')->findOneByPhone($query);
         }
 
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
         $buddies = array();
 
         if (!is_null($user)) {
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($user->getId());
 
-            // set status
-            // if the search target is my buddy, then stauts = accepted
-            // else if the search target have a pending buddy request from me, then status = pending
-            $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                'userId' => $userId,
-                'buddyId' => $user->getId(),
-            ));
-
-            if (!is_null($myBuddy)) {
-                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
-            } else {
-                $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                    'askUserId' => $userId,
-                    'recvUserId' => $user->getId(),
-                    'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+            if (!is_null($profile)) {
+                // set status
+                // if the search target is my buddy, then stauts = accepted
+                // else if the search target have a pending buddy request from me, then status = pending
+                $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                    'userId' => $userId,
+                    'buddyId' => $user->getId(),
                 ));
 
-                if (!is_null($myBuddyRequest)) {
-                    $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+                if (!is_null($myBuddy)) {
+                    $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+
+                    // if both user is buddy with each other
+                    // then show user jid
+                    $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                        'userId' => $user->getId(),
+                        'buddyId' => $userId,
+                    ));
+
+                    if (!is_null($otherBuddy)) {
+                        $jid = $user->getXmppUsername().'@'.$globals['xmpp_domain'];
+                        $profile->setJid($jid);
+                    }
+                } else {
+                    $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                        'askUserId' => $userId,
+                        'recvUserId' => $user->getId(),
+                        'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                    ));
+
+                    if (!is_null($myBuddyRequest)) {
+                        $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+                    }
                 }
             }
 
@@ -127,21 +145,48 @@ class ClientBuddyController extends BuddyController
         // get buddies
         $buddies = $this->getRepo('Buddy\Buddy')->findByUserId($userId);
 
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
         $myBuddies = array();
 
         foreach ($buddies as $buddy) {
-            $buddyId = $buddy->getBuddyId();
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($buddyId);
+            try {
+                $buddyId = $buddy->getBuddyId();
 
-            // TODO set user's company
+                $user = $this->getRepo('User\User')->find($buddyId);
+                if (is_null($user)) {
+                    continue;
+                }
 
-            $myBuddy = array(
-                'id' => $buddy->getId(),
-                'profile' => $profile,
-                'company' => '',
-            );
+                $profile = $this->getRepo('User\UserProfile')->findOneByUserId($buddyId);
+                if (!is_null($profile)) {
+                    // if both user is buddy with each other
+                    // then show user jid
+                    $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                        'userId' => $buddyId,
+                        'buddyId' => $userId,
+                    ));
 
-            array_push($myBuddies, $myBuddy);
+                    if (!is_null($otherBuddy)) {
+                        $jid = $user->getXmppUsername().'@'.$globals['xmpp_domain'];
+                        $profile->setJid($jid);
+                    }
+                }
+
+                // TODO set user's company
+
+                $myBuddy = array(
+                    'id' => $buddy->getId(),
+                    'profile' => $profile,
+                    'company' => '',
+                );
+
+                array_push($myBuddies, $myBuddy);
+            } catch (\Exception $e) {
+                continue;
+            }
         }
 
         // set view

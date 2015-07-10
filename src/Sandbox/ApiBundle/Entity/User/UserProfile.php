@@ -210,6 +210,13 @@ class UserProfile
     private $status;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"profile", "profile_basic", "buddy"})
+     */
+    private $jid;
+
+    /**
      * @return int
      */
     public function getId()
@@ -657,6 +664,30 @@ class UserProfile
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set jid.
+     *
+     * @param string $jid
+     *
+     * @return UserProfile
+     */
+    public function setJid($jid)
+    {
+        $this->jid = $jid;
+
+        return $this;
+    }
+
+    /**
+     * Get jid.
+     *
+     * @return string
+     */
+    public function getJid()
+    {
+        return $this->jid;
     }
 
     public function __construct()
