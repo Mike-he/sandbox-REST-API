@@ -20,7 +20,7 @@ class ProductOrder
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class ProductOrder
      *
      * @ORM\Column(name="orderNumber", type="string")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $orderNumber;
 
@@ -38,7 +38,7 @@ class ProductOrder
      *
      * @ORM\Column(name="userId", type="integer")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $userId;
 
@@ -47,44 +47,16 @@ class ProductOrder
      *
      * @ORM\Column(name="productId", type="integer")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $productId;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Product\Product
-     *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
-     * @ORM\JoinColumn(name="productId", referencedColumnName="id")
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $product;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="startDate", type="datetime")
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $startDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="endDate", type="datetime")
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $endDate;
 
     /**
      * @var string
      *
      * @ORM\Column(name="price", type="decimal")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $price;
 
@@ -93,50 +65,17 @@ class ProductOrder
      *
      * @ORM\Column(name="status", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $status;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="paymentDate", type="datetime")
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $paymentDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="cancelledDate", type="datetime")
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $cancelledDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="creationDate", type="datetime")
-     *
-     * @Serializer\Groups({"main", "client"})
-     */
-    private $creationDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="modificationDate", type="datetime")
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $modificationDate;
-
-    /**
      * @var InvitedPeople
      *
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Order\InvitedPeople", mappedBy="orderId")
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Order\InvitedPeople",
+     *      mappedBy="orderId"
+     * )
      * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
      *
      * @Serializer\Groups({"main", "client"})
@@ -149,7 +88,7 @@ class ProductOrder
      *
      * @ORM\Column(name="appointedPerson", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $appointed;
 
@@ -161,6 +100,70 @@ class ProductOrder
      * @Serializer\Groups({"main", "client"})
      */
     private $location;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="startDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $startDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="endDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $endDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="paymentDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $paymentDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="cancelledDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $cancelledDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
+     */
+    private $modificationDate;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Product\Product
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
+     * @ORM\JoinColumn(name="productId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $product;
 
     /**
      * Get id.

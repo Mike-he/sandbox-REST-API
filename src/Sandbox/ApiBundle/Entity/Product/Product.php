@@ -30,7 +30,7 @@ class Product
      *
      * @ORM\Column(name="roomId", type="integer")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $roomId;
 
@@ -153,7 +153,7 @@ class Product
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "client", "admin_room"})
+     * @Serializer\Groups({"main", "client"})
      */
     private $room;
 
