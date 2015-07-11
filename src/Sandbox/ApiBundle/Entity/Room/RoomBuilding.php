@@ -25,7 +25,17 @@ class RoomBuilding
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "profile", "profile_basic", "buddy"})
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "profile",
+     *      "profile_basic",
+     *      "buddy",
+     *      "member"
+     *  }
+     * )
      */
     private $id;
 
@@ -43,7 +53,17 @@ class RoomBuilding
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "profile", "profile_basic", "buddy"})
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "profile",
+     *      "profile_basic",
+     *      "buddy",
+     *      "member"
+     *  }
+     * )
      */
     private $name;
 

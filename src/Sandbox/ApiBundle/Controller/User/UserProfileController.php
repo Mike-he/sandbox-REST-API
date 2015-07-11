@@ -98,8 +98,8 @@ class UserProfileController extends SandboxRestController
         $requestUserId
     ) {
         $visitor = new UserProfileVisitor();
-        $visitor->setUserId($myUserId);
-        $visitor->setVisitorId($requestUserId);
+        $visitor->setUserId($requestUserId);
+        $visitor->setVisitorId($myUserId);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($visitor);
