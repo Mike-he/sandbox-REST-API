@@ -24,7 +24,7 @@ class UserProfile
      * @ORM\Column(name="id", type="integer",  nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "profile_stranger", "profile_basic_stranger", "admin_order"})
      */
     private $id;
 
@@ -32,7 +32,7 @@ class UserProfile
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger", "admin_order"})
      */
     private $userId;
 
@@ -40,7 +40,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "profile_stranger", "profile_basic_stranger", "admin_order"})
      */
     private $name;
 
@@ -72,7 +72,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "admin_order"})
      */
     private $email;
 
@@ -80,7 +80,7 @@ class UserProfile
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy"})
+     * @Serializer\Groups({"main", "profile", "profile_basic", "buddy", "admin_order"})
      */
     private $phone;
 
