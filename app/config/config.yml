@@ -86,6 +86,7 @@ doctrine:
         user:     %database_user%
         password: %database_password%
         charset:  UTF8
+        schema_filter: ~.*[^View]$~
         mapping_types:
             enum: string
         options:
@@ -176,3 +177,9 @@ knp_paginator:
         sort_field_name: sort          # sort field query parameter name
         sort_direction_name: direction # sort direction query parameter name
         distinct: true                 # ensure distinct results, useful when ORM queries are using GROUP BY statements
+
+doctrine_migrations:
+    dir_name: %kernel.root_dir%/DoctrineMigrations
+    namespace: Application\Migrations
+    table_name: migration_versions
+    name: Application Migrations
