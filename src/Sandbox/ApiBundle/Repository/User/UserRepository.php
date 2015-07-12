@@ -41,12 +41,6 @@ class UserRepository extends EntityRepository
             return array();
         }
 
-        // set limit
-        // TODO make default limit global and configurable
-        if (is_null($limit) || $limit <= 0 || $limit > 10) {
-            $limit = 10;
-        }
-
         // get random ids
         $ids = array();
         $count = 0;
@@ -130,6 +124,7 @@ class UserRepository extends EntityRepository
             ->setParameter('longitude', $longitude)
             ->setParameter('range', 100);
 
+        $query->setFirstResult($offset);
         $query->setMaxResults($limit);
 
         return $query->getResult();

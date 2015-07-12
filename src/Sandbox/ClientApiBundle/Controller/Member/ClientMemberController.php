@@ -26,6 +26,9 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientMemberController extends MemberController
 {
+    const ERROR_BUILDING_NOT_SET_CODE = 400001;
+    const ERROR_BUILDING_NOT_SET_MESSAGE = 'Building is not set - 未设置办公楼';
+
     /**
      * Get recommend members.
      *
@@ -66,8 +69,18 @@ class ClientMemberController extends MemberController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set max limit
+        if ($limit > $globals['load_more_limit']) {
+            $limit = $globals['load_more_limit'];
+        }
+
         $em = $this->getDoctrine()->getManager();
 
+        // get user's retrieved member IDs if any
         $myRecords = $this->getRepo('Member\ClientMemberRecommendRandomRecord')
             ->findByUserId($userId);
 
@@ -76,6 +89,7 @@ class ClientMemberController extends MemberController
         foreach ($myRecords as $myRecord) {
             // if offset is not provided, means user is trying to reload the page
             // then we should remove user's retrieval records
+            // otherwise, we should exclude these records for the next page
             if (is_null($offset) || $offset <= 0) {
                 $em->remove($myRecord);
             } else {
@@ -83,12 +97,17 @@ class ClientMemberController extends MemberController
             }
         }
 
+        // find random members
         $users = $this->getRepo('User\User')->findRandomMembers(
             $userId,
             $recordMemberIds,
             $limit
         );
+        if (is_null($users) || empty($users)) {
+            return new View();
+        }
 
+        // members for response
         $members = array();
 
         foreach ($users as $user) {
@@ -164,18 +183,31 @@ class ClientMemberController extends MemberController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set max limit
+        if ($limit > $globals['load_more_limit']) {
+            $limit = $globals['load_more_limit'];
+        }
+
         // get my profile
         $myProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $this->throwNotFoundIfNull($myProfile, self::NOT_FOUND_MESSAGE);
 
         // TODO change to $myProfile->getBuilding()
-        // for some reason, now the mapping is not working in my local environment
+        // for some reason, now this is not working in my local environment
         //var_dump($myProfile->getBuilding());
 
         // get my building
         $buildingId = $myProfile->getBuildingId();
         if (is_null($buildingId)) {
-            // TODO return custom error: building not set
+            return $this->customErrorView(
+                400,
+                self::ERROR_BUILDING_NOT_SET_CODE,
+                self::ERROR_BUILDING_NOT_SET_MESSAGE
+            );
         }
 
         // get my profile)
@@ -190,7 +222,11 @@ class ClientMemberController extends MemberController
             $limit,
             $offset
         );
+        if (is_null($users) || empty($users)) {
+            return new View();
+        }
 
+        // members for response
         $members = array();
 
         foreach ($users as $user) {
@@ -204,6 +240,7 @@ class ClientMemberController extends MemberController
                 'id' => $memberId,
                 'profile' => $profile,
                 'company' => '',
+                'distance' => $user['distance'],
             );
 
             array_push($members, $member);
@@ -221,7 +258,28 @@ class ClientMemberController extends MemberController
     /**
      * Get member who visited my profile.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
      *
      * @Route("/members/visitor")
      * @Method({"GET"})
@@ -229,12 +287,34 @@ class ClientMemberController extends MemberController
      * @return View
      */
     public function getMembersVisitorAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
-        $visitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
-            $this->getUserId()
-        );
+        $userId = $this->getUserId();
 
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set max limit
+        if ($limit > $globals['load_more_limit']) {
+            $limit = $globals['load_more_limit'];
+        }
+
+        // find my visitors
+        $visitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
+            $userId,
+            $limit,
+            $offset
+        );
+        if (is_null($visitors) || empty($visitors)) {
+            return new View();
+        }
+
+        // members for response
         $members = array();
 
         foreach ($visitors as $visitor) {
@@ -248,6 +328,7 @@ class ClientMemberController extends MemberController
                 'id' => $visitorId,
                 'profile' => $profile,
                 'company' => '',
+                'visit_date' => $visitor->getCreationDate(),
             );
 
             array_push($members, $member);
@@ -269,6 +350,26 @@ class ClientMemberController extends MemberController
      * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
      * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="query",
      *    default=null,
      *    description="search query"
@@ -279,7 +380,7 @@ class ClientMemberController extends MemberController
      *
      * @return View
      */
-    public function getBuddiesSearchAction(
+    public function getMembersSearchAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {

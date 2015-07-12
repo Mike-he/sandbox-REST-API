@@ -62,6 +62,8 @@ twig:
         pingpp_test_key: "%pingpp_test_key%"
         pingpp_live_key: "%pingpp_live_key%"
         pingpp_app_id: "%pingpp_app_id%"
+        load_more_limit: "%load_more_limit%"
+        nearby_range_km: "%nearby_range_km%"
 
 # Assetic Configuration
 assetic:
