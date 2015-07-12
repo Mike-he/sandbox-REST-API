@@ -42,7 +42,7 @@ class RoomBuilding
     /**
      * @var int
      *
-     * @ORM\Column(name="CityId", type="integer", nullable=false)
+     * @ORM\Column(name="cityId", type="integer", nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
@@ -77,18 +77,18 @@ class RoomBuilding
     private $address;
 
     /**
-     * @var string
+     * @var float
      *
-     * @ORM\Column(name="lat", type="decimal")
+     * @ORM\Column(name="lat", type="float", precision=9, scale=6, nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $lat;
 
     /**
-     * @var string
+     * @var float
      *
-     * @ORM\Column(name="lng", type="decimal")
+     * @ORM\Column(name="lng", type="float", precision=9, scale=6, nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
      */
@@ -113,7 +113,7 @@ class RoomBuilding
      */
     public function setCityId($cityId)
     {
-        $this->cityid = $cityId;
+        $this->cityId = $cityId;
 
         return $this;
     }

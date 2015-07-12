@@ -27,7 +27,7 @@ use JMS\Serializer\SerializationContext;
 class ClientMemberController extends MemberController
 {
     /**
-     * Get recommend member.
+     * Get recommend members.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -92,14 +92,7 @@ class ClientMemberController extends MemberController
         $members = array();
 
         foreach ($users as $user) {
-            if ($user->isBanned()) {
-                continue;
-            }
-
             $memberId = $user->getId();
-            if ($this->getUserId() === $memberId) {
-                continue;
-            }
 
             // add user's retrieval record
             $randomRecord = new ClientMemberRecommendRandomRecord();
@@ -132,9 +125,30 @@ class ClientMemberController extends MemberController
         return $view;
     }
     /**
-     * Get nearby member.
+     * Get nearby members.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
      *
      * @Route("/members/nearby")
      * @Method({"GET"})
@@ -142,8 +156,66 @@ class ClientMemberController extends MemberController
      * @return View
      */
     public function getMembersNearbyAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        // get my profile
+        $myProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $this->throwNotFoundIfNull($myProfile, self::NOT_FOUND_MESSAGE);
+
+        // TODO change to $myProfile->getBuilding()
+        // for some reason, now the mapping is not working in my local environment
+        //var_dump($myProfile->getBuilding());
+
+        // get my building
+        $buildingId = $myProfile->getBuildingId();
+        if (is_null($buildingId)) {
+            // TODO return custom error: building not set
+        }
+
+        // get my profile)
+        $myBuilding = $this->getRepo('Room\RoomBuilding')->findOneById($buildingId);
+        $this->throwNotFoundIfNull($myBuilding, self::NOT_FOUND_MESSAGE);
+
+        // find nearby members
+        $users = $this->getRepo('User\User')->findNearbyMembers(
+            $userId,
+            $myBuilding->getLat(),
+            $myBuilding->getLng(),
+            $limit,
+            $offset
+        );
+
+        $members = array();
+
+        foreach ($users as $user) {
+            $memberId = $user['id'];
+
+            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
+
+            // TODO set company info
+
+            $member = array(
+                'id' => $memberId,
+                'profile' => $profile,
+                'company' => '',
+            );
+
+            array_push($members, $member);
+        }
+
+        // set view
+        $view = new View($members);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('member'))
+        );
+
+        return $view;
     }
 
     /**
@@ -159,11 +231,11 @@ class ClientMemberController extends MemberController
     public function getMembersVisitorAction(
         Request $request
     ) {
-        $members = array();
-
         $visitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
             $this->getUserId()
         );
+
+        $members = array();
 
         foreach ($visitors as $visitor) {
             $visitorId = $visitor->getVisitorId();

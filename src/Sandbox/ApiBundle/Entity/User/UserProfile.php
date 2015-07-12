@@ -21,7 +21,7 @@ class UserProfile
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer",  nullable=false)
+     * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Serializer\Groups(
@@ -273,12 +273,16 @@ class UserProfile
     private $modificationDate;
 
     /**
+     * @var User
+     *
      * @ORM\OneToOne(targetEntity="User"))
      * @ORM\JoinColumn(name="userId", referencedColumnName="id")
      **/
     private $user;
 
     /**
+     * @var RoomBuilding
+     *
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding"))
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      * @Serializer\Groups(
