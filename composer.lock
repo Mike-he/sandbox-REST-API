@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b96dcf8fd3b170dd73e46503c555bc8c",
+    "hash": "971a1aa843bda3dbc70e157b95437b9f",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
@@ -3399,8 +3399,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "doctrine/migrations": 20,
-        "beberlei/doctrineextensions": 20,
-        "jms/serializer-bundle": 20,
         "willdurand/hateoas-bundle": 20,
         "php-jsonpatch/php-jsonpatch": 20,
         "pingplusplus/pingpp-php": 20,
