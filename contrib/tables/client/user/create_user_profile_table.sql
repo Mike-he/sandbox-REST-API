@@ -18,7 +18,5 @@ CREATE TABLE `UserProfile` (
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_UserProfile_userId` (`userId`),
-  CONSTRAINT `fk_UserProfile_userId` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  KEY `fk_UserProfile_buildingId_idx` (`buildingId`),
-  CONSTRAINT `fk_UserProfile_buildingId` FOREIGN KEY (`buildingId`) REFERENCES `RoomBuilding` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_UserProfile_userId` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );

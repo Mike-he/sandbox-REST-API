@@ -63,7 +63,7 @@ class Room
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
@@ -80,7 +80,7 @@ class Room
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
@@ -97,7 +97,7 @@ class Room
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\RoomFloor
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFloor")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFloor")
      * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
      *
      * @Serializer\Groups({"main", "admin_room", "client"})

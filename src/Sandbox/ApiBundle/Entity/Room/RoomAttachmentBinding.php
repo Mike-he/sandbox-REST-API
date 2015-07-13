@@ -10,6 +10,11 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @ORM\Table(
  *      name="RoomAttachmentBinding",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(
+ *              name="roomId_attachmentId_UNIQUE", columns={"roomId", "attachmentId"}
+ *          )
+ *      },
  *      indexes={
  *          @ORM\Index(name="fk_RoomAttachmentBinding_roomId_idx", columns={"roomId"})
  *      }
@@ -46,7 +51,7 @@ class RoomAttachmentBinding
     /**
      * @var RoomAttachment
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachment")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachment")
      * @ORM\JoinColumn(name="attachmentId", referencedColumnName="id")
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
