@@ -20,7 +20,7 @@ class Company
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $id;
 
@@ -28,7 +28,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=false)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $name;
 
@@ -36,7 +36,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $description;
 
@@ -44,7 +44,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="address", type="string", length=1024, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $address;
 
@@ -52,7 +52,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $phone;
 
@@ -60,7 +60,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="fax", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $fax;
 
@@ -68,7 +68,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $email;
 
@@ -76,7 +76,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="website", type="string", length=256, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $website;
 
@@ -84,7 +84,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $sinaWeibo;
 
@@ -92,7 +92,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $tencentWeibo;
 
@@ -100,7 +100,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $facebook;
 
@@ -108,7 +108,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $linkedin;
 
@@ -162,6 +162,11 @@ class Company
      * @Serializer\Groups({"main", "info"})
      */
     private $industries;
+
+    /**
+     * @var array();
+     */
+    private $industryIds;
 
     /**
      * Set name.
@@ -526,7 +531,9 @@ class Company
      */
     public function setPortfolios($portfolios)
     {
-        $this->company = $portfolios;
+        $this->portfolios = $portfolios;
+
+        return $this;
     }
 
     public function getIndustries()
@@ -536,6 +543,26 @@ class Company
 
     public function setIndustries($industries)
     {
-        $this->company = $industries;
+        $this->industries = $industries;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIndustryIds()
+    {
+        return $this->industryIds;
+    }
+
+    /**
+     * @param $industryIds
+     *
+     * @return Company
+     */
+    public function setIndustryIds($industryIds)
+    {
+        $this->industryIds = $industryIds;
     }
 }

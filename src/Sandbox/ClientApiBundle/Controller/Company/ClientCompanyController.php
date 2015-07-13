@@ -7,8 +7,12 @@ use Sandbox\ApiBundle\Controller\Company\CompanyController;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Rs\Json\Patch;
 
 /**
  * Rest controller for Companies.
@@ -49,7 +53,7 @@ class ClientCompanyController extends CompanyController
 
         //get companies
         $companies = $this->getRepo('Company\Company')->findByCreatorId($userId);
-       // var_dump($companies);
+
         //set view
         $view = new View($companies);
          $view->setSerializationContext(SerializationContext::create()->setGroups(array('info')));
@@ -73,7 +77,8 @@ class ClientCompanyController extends CompanyController
      *
      * */
     public function getCompaniesRecommendAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
     }
 
@@ -99,16 +104,32 @@ class ClientCompanyController extends CompanyController
     /*
      * Create a company
      *
-     * */
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     *
+     * @Route("/companies/")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
     public function postCompaniesAciton(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
     }
 
     /*
      * Edit company info
      *
-     * */
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/companies/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
     public function patchCompaniesAction(
         Request $request,
         $id
