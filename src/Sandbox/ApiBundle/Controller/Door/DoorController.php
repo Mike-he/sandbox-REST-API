@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Door;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Door Controller.
@@ -16,16 +17,39 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
  */
 class DoorController extends SandboxRestController
 {
-    public function getSessionId()
-    {
-        $apiUrl = 'http://192.168.16.234:13390/ADSWebService.asmx/Login?Username=admin&Password=admin';
+    public function callDoorApi(
+        $ch,
+        $method
+    ) {
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, 1);
+        } elseif ($method === 'PUT' || $method === 'DELETE') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        }
 
-        $ch = curl_init($apiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
-        $content = curl_exec($ch);
+        $response = curl_exec($ch);
         curl_close($ch);
 
-        return $content;
+        return $response;
+    }
+
+    public function getArray($xml)
+    {
+        $crawler = new Crawler($xml);
+        $content = $crawler->text();
+        $xmlArray = json_decode($content, true);
+
+        return $xmlArray;
+    }
+
+    public function getDoorApi($url)
+    {
+        $ch = curl_init($url);
+        $response = $this->callDoorApi($ch, 'GET');
+        $xmlArray = $this->getArray($response);
+
+        return $xmlArray;
     }
 }

@@ -149,9 +149,15 @@ class ClientOrderController extends PaymentController
 
         $period = $form['rent_period']->getData();
         $timeUnit = $form['time_unit']->getData();
+        $datePeriod = $period;
+        if ($timeUnit === 'hour') {
+            $datePeriod = $period * 60;
+            $timeUnit = 'mintues';
+        }
+
         $startDate = new \DateTime($order->getStartDate());
         $endDate = clone $startDate;
-        $endDate->modify('+'.$period.$timeUnit);
+        $endDate->modify('+'.$datePeriod.$timeUnit);
         $basePrice = $product->getBasePrice();
 
         $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
@@ -164,9 +170,6 @@ class ClientOrderController extends PaymentController
             throw new BadRequestHttpException(self::ORDER_CONFLICT);
         }
 
-        if ($timeUnit === 'min') {
-            $period = $period / 60;
-        }
         $calculatedPrice = $basePrice * $period;
 
         if ($order->getPrice() !== $calculatedPrice) {

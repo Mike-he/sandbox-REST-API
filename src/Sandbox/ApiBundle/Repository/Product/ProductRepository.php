@@ -91,7 +91,7 @@ class ProductRepository extends EntityRepository
         // paging
         $query = $query->orderBy('p.creationDate', 'DESC')
             ->setMaxResults($limit)
-            ->setFirstResult($offset)
+            ->setFirstResult($offset + 1)
             ->getQuery();
 
         return $query->getResult();
