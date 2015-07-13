@@ -51,7 +51,7 @@ class RoomAttachmentBinding
     /**
      * @var RoomAttachment
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachment")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachment")
      * @ORM\JoinColumn(name="attachmentId", referencedColumnName="id")
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
