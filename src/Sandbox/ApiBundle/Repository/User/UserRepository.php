@@ -41,24 +41,18 @@ class UserRepository extends EntityRepository
             return array();
         }
 
-        // get random ids
-        $ids = array();
-        $count = 0;
+        // set total
         $total = $limit;
-
         $idsCount = count($availableUserIds);
         if ($idsCount < $limit) {
             $total = $idsCount;
         }
 
-        while ($count < $total) {
-            ++$count;
-
-            $randElement = array_rand($availableUserIds);
-            $randNum = $availableUserIds[$randElement];
-            unset($availableUserIds[$randElement]);
-
-            array_push($ids, $randNum);
+        // get random ids
+        $ids = array();
+        $randElements = array_rand($availableUserIds, $total);
+        foreach ($randElements as $randElement) {
+            array_push($ids, $availableUserIds[$randElement]);
         }
 
         if (empty($ids)) {
