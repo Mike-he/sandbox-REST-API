@@ -25,14 +25,24 @@ class RoomBuilding
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "profile", "profile_basic", "buddy"})
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "profile",
+     *      "profile_basic",
+     *      "buddy",
+     *      "member"
+     *  }
+     * )
      */
     private $id;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="CityId", type="integer", nullable=false)
+     * @ORM\Column(name="cityId", type="integer", nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
@@ -43,7 +53,17 @@ class RoomBuilding
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "profile", "profile_basic", "buddy"})
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "profile",
+     *      "profile_basic",
+     *      "buddy",
+     *      "member"
+     *  }
+     * )
      */
     private $name;
 
@@ -93,7 +113,7 @@ class RoomBuilding
      */
     public function setCityId($cityId)
     {
-        $this->cityid = $cityId;
+        $this->cityId = $cityId;
 
         return $this;
     }

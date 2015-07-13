@@ -3,7 +3,6 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
-use Sandbox\ApiBundle\Entity\Buddy\BuddyRequest;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Form\User\UserProfileType;
@@ -55,7 +54,7 @@ class ClientUserProfileController extends UserProfileController
             $userId = $this->getUserId();
         }
 
-        // get user
+        // get request user
         $user = $this->getRepo('User\User')->find($userId);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
@@ -63,46 +62,16 @@ class ClientUserProfileController extends UserProfileController
         $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
         $viewGroup = 'profile';
 
-        // if user is not my buddy, then do not show email, phone or birthday
+        // set profile with view group
         if ($this->getUserId() != $userId) {
-            $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                'userId' => $this->getUserId(),
-                'buddyId' => $userId,
-            ));
-
-            if (!is_null($myBuddy)) {
-                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
-
-                // if both user is buddy with each other
-                // then show user jid
-                $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                    'userId' => $userId,
-                    'buddyId' => $this->getUserId(),
-                ));
-
-                if (!is_null($otherBuddy)) {
-                    $jid = $user->getXmppUsername().'@'.$globals['xmpp_domain'];
-                    $profile->setJid($jid);
-                }
-            } else {
-                $viewGroup = $viewGroup.'_stranger';
-
-                $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                    'askUserId' => $userId,
-                    'recvUserId' => $this->getUserId(),
-                    'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
-                ));
-
-                if (!is_null($myBuddyRequest)) {
-                    $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
-                }
-            }
+            $viewGroup = $this->setProfileWithViewGroup(
+                $this->getUserId(),
+                $user,
+                $profile,
+                $viewGroup
+            );
         }
 
         // set profile extra fields

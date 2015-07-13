@@ -3,12 +3,15 @@
 namespace Sandbox\ApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Buddy\BuddyRequest;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Entity\User\UserHobby;
 use Sandbox\ApiBundle\Entity\User\UserHobbyMap;
 use Sandbox\ApiBundle\Entity\User\UserEducation;
 use Sandbox\ApiBundle\Entity\User\UserExperience;
 use Sandbox\ApiBundle\Entity\User\UserPortfolio;
+use Sandbox\ApiBundle\Entity\User\UserProfileVisitor;
 use Sandbox\ApiBundle\Form\User\UserEducationType;
 use Sandbox\ApiBundle\Form\User\UserExperienceType;
 use Sandbox\ApiBundle\Form\User\UserPortfolioType;
@@ -25,6 +28,84 @@ use Sandbox\ApiBundle\Form\User\UserPortfolioType;
  */
 class UserProfileController extends SandboxRestController
 {
+    /**
+     * @param int         $myUserId
+     * @param User        $requestUser
+     * @param UserProfile $profile
+     * @param string      $viewGroup
+     *
+     * @return string
+     */
+    protected function setProfileWithViewGroup(
+        $myUserId,
+        $requestUser,
+        $profile,
+        $viewGroup
+    ) {
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // save visitor record
+        $this->saveUserProfileVisitor(
+            $myUserId,
+            $requestUser->getId()
+        );
+
+        // if user is not my buddy, then do not show email, phone or birthday
+        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+            'userId' => $myUserId,
+            'buddyId' => $requestUser->getId(),
+        ));
+
+        if (!is_null($myBuddy)) {
+            $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+
+            // if both user is buddy with each other
+            // then show user jid
+            $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                'userId' => $requestUser->getId(),
+                'buddyId' => $myUserId,
+            ));
+
+            if (!is_null($otherBuddy)) {
+                $jid = $requestUser->getXmppUsername().'@'.$globals['xmpp_domain'];
+                $profile->setJid($jid);
+            }
+        } else {
+            $viewGroup = $viewGroup.'_stranger';
+
+            $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                'askUserId' => $requestUser->getId(),
+                'recvUserId' => $myUserId,
+                'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+            ));
+
+            if (!is_null($myBuddyRequest)) {
+                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+            }
+        }
+
+        return $viewGroup;
+    }
+
+    /**
+     * @param $myUserId
+     * @param $requestUserId
+     */
+    protected function saveUserProfileVisitor(
+        $myUserId,
+        $requestUserId
+    ) {
+        $visitor = new UserProfileVisitor();
+        $visitor->setUserId($requestUserId);
+        $visitor->setVisitorId($myUserId);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($visitor);
+        $em->flush();
+    }
+
     /**
      * @param User      $user
      * @param UserHobby $hobby

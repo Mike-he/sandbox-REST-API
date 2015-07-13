@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ec2a928c66c3bbc108f8485ca2256951",
+    "hash": "b96dcf8fd3b170dd73e46503c555bc8c",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
-            "version": "dev-master",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beberlei/DoctrineExtensions.git",
-                "reference": "6f4a04e8c96d687085f54b857708255ccf22a3ba"
+                "reference": "f57bf9a135f9f31231473c6cc67d06515006b8ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beberlei/DoctrineExtensions/zipball/6f4a04e8c96d687085f54b857708255ccf22a3ba",
-                "reference": "6f4a04e8c96d687085f54b857708255ccf22a3ba",
+                "url": "https://api.github.com/repos/beberlei/DoctrineExtensions/zipball/f57bf9a135f9f31231473c6cc67d06515006b8ca",
+                "reference": "f57bf9a135f9f31231473c6cc67d06515006b8ca",
                 "shasum": ""
             },
             "require": {
@@ -66,7 +66,7 @@
                 "doctrine",
                 "orm"
             ],
-            "time": "2015-04-09 09:13:26"
+            "time": "2015-03-15 16:14:21"
         },
         {
             "name": "doctrine/annotations",
@@ -3400,6 +3400,7 @@
     "stability-flags": {
         "doctrine/migrations": 20,
         "beberlei/doctrineextensions": 20,
+        "jms/serializer-bundle": 20,
         "willdurand/hateoas-bundle": 20,
         "php-jsonpatch/php-jsonpatch": 20,
         "pingplusplus/pingpp-php": 20,
