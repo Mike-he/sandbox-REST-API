@@ -3,23 +3,24 @@
 namespace Sandbox\ApiBundle\Entity\Company;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Company.
  *
- * @ORM\Table(name="jtCompany")
- * @ORM\Entity(
- *     repositoryClass="Sandbox\ApiBundle\Repository\Company\CompanyRepository"
- * )
+ * @ORM\Table(name="Company", indexes={
+ * @ORM\Index(name="fk_company_creatorId_idx",columns={"creatorId"})})
+ * @ORM\Entity
  */
 class Company
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer",  nullable=false)
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $id;
 
@@ -27,74 +28,145 @@ class Company
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=false)
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $name;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="address", type="string", length=1024, nullable=true)
-     */
-    private $address;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="website", type="string", length=256, nullable=true)
-     */
-    private $website;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="phone", type="string", length=32, nullable=true)
-     */
-    private $phone;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="fax", type="string", length=32, nullable=true)
-     */
-    private $fax;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="description", type="text", nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
     private $description;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="creatorId", type="string", length=255, nullable=false)
+     * @ORM\Column(name="address", type="string", length=1024, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
-    private $creatorid;
+    private $address;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="creationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
-    private $creationdate;
+    private $phone;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="modificationDate", type="string", length=15, nullable=false)
+     * @ORM\Column(name="fax", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
-    private $modificationdate;
+    private $fax;
 
     /**
-     * Get id.
+     * @var string
      *
-     * @return string
+     * @ORM\Column(name="email", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
      */
-    public function getId()
-    {
-        return $this->id;
-    }
+    private $email;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="website", type="string", length=256, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
+     */
+    private $website;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
+     */
+    private $sinaWeibo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
+     */
+    private $tencentWeibo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
+     */
+    private $facebook;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "info", "info_basic"})
+     */
+    private $linkedin;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $modificationDate;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\User\User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="creatorId", referencedColumnName="id")
+     * })
+     * @Serializer\Groups({"main"})
+     */
+    private $creatorId;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="CompanyPortfolio",
+     *      mappedBy="company",
+     *      cascade={"persist"}
+     * )
+     * @Serializer\Groups({"main", "info"})
+     */
+    private $portfolios;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="CompanyIndustryMap",
+     *      mappedBy="company",
+     *      cascade={"persist"}
+     * )
+     * @Serializer\Groups({"main", "info"})
+     */
+    private $industries;
+
+    /**
+     * @var array();
+     */
+    private $industryIds;
 
     /**
      * Set name.
@@ -121,6 +193,30 @@ class Company
     }
 
     /**
+     * Set description.
+     *
+     * @param string $description
+     *
+     * @return Company
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
      * Set address.
      *
      * @param string $address
@@ -142,30 +238,6 @@ class Company
     public function getAddress()
     {
         return $this->address;
-    }
-
-    /**
-     * Set website.
-     *
-     * @param string $website
-     *
-     * @return Company
-     */
-    public function setWebsite($website)
-    {
-        $this->website = $website;
-
-        return $this;
-    }
-
-    /**
-     * Get website.
-     *
-     * @return string
-     */
-    public function getWebsite()
-    {
-        return $this->website;
     }
 
     /**
@@ -217,39 +289,217 @@ class Company
     }
 
     /**
-     * Set description.
+     * Set email.
      *
-     * @param string $description
+     * @param string $email
      *
-     * @return VCard
+     * @return Company
      */
-    public function setDescription($description)
+    public function setEmail($email)
     {
-        $this->description = $description;
+        $this->email = $email;
 
         return $this;
     }
 
     /**
-     * Get description.
+     * Get email.
      *
      * @return string
      */
-    public function getDescription()
+    public function getEmail()
     {
-        return $this->description;
+        return $this->email;
     }
 
     /**
-     * Set owner.
+     * Set website.
      *
-     * @param string $creatorid
+     * @param string $website
      *
      * @return Company
      */
-    public function setCreatorid($creatorid)
+    public function setWebsite($website)
     {
-        $this->creatorid = $creatorid;
+        $this->website = $website;
+
+        return $this;
+    }
+
+    /**
+     * Get website.
+     *
+     * @return string
+     */
+    public function getWebsite()
+    {
+        return $this->website;
+    }
+
+    /**
+     * Set sinaWeibo.
+     *
+     * @param string $sinaWeibo
+     *
+     * @return Company
+     */
+    public function setSinaWeibo($sinaWeibo)
+    {
+        $this->sinaWeibo = $sinaWeibo;
+
+        return $this;
+    }
+
+    /**
+     * Get sinaWeibo.
+     *
+     * @return string
+     */
+    public function getSinaWeibo()
+    {
+        return $this->sinaWeibo;
+    }
+
+    /**
+     * Set tencentWeibo.
+     *
+     * @param string $tencentWeibo
+     *
+     * @return Company
+     */
+    public function setTencentWeibo($tencentWeibo)
+    {
+        $this->tencentWeibo = $tencentWeibo;
+
+        return $this;
+    }
+
+    /**
+     * Get tencentWeibo.
+     *
+     * @return string
+     */
+    public function getTencentWeibo()
+    {
+        return $this->tencentWeibo;
+    }
+
+    /**
+     * Set facebook.
+     *
+     * @param string $facebook
+     *
+     * @return Company
+     */
+    public function setFacebook($facebook)
+    {
+        $this->facebook = $facebook;
+
+        return $this;
+    }
+
+    /**
+     * Get facebook.
+     *
+     * @return string
+     */
+    public function getFacebook()
+    {
+        return $this->facebook;
+    }
+
+    /**
+     * Set linkedin.
+     *
+     * @param string $linkedin
+     *
+     * @return Company
+     */
+    public function setLinkedin($linkedin)
+    {
+        $this->linkedin = $linkedin;
+
+        return $this;
+    }
+
+    /**
+     * Get linkedin.
+     *
+     * @return string
+     */
+    public function getLinkedin()
+    {
+        return $this->linkedin;
+    }
+
+    /**
+     * Set creationDate.
+     *
+     * @param \DateTime $creationDate
+     *
+     * @return Company
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get creationDate.
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * Set modificationDate.
+     *
+     * @param \DateTime $modificationDate
+     *
+     * @return Company
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modificationDate.
+     *
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * Get id.
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set creatorId.
+     *
+     * @param \Sandbox\ApiBundle\Entity\User\User $creatorId
+     *
+     * @return Company
+     */
+    public function setCreatorId(\Sandbox\ApiBundle\Entity\User\User $creatorId = null)
+    {
+        $this->creatorId = $creatorId;
 
         return $this;
     }
@@ -257,58 +507,62 @@ class Company
     /**
      * Get creatorId.
      *
-     * @return string
+     * @return \Sandbox\ApiBundle\Entity\User\User
      */
-    public function getCreatorid()
+    public function getCreatorId()
     {
-        return $this->creatorid;
+        return $this->creatorId;
     }
 
     /**
-     * Set creationdate.
+     * Get portfolios.
      *
-     * @param string $creationdate
-     *
-     * @return Company
+     * @return array
      */
-    public function setCreationdate($creationdate)
+    public function getPortfolios()
     {
-        $this->creationdate = $creationdate.'000';
+        return $this->portfolios;
+    }
+
+    /**
+     * set portfolios.
+     *
+     * @param $portfolios
+     */
+    public function setPortfolios($portfolios)
+    {
+        $this->portfolios = $portfolios;
+
+        return $this;
+    }
+
+    public function getIndustries()
+    {
+        return $this->industries;
+    }
+
+    public function setIndustries($industries)
+    {
+        $this->industries = $industries;
 
         return $this;
     }
 
     /**
-     * Get creationdate.
-     *
-     * @return string
+     * @return array
      */
-    public function getCreationdate()
+    public function getIndustryIds()
     {
-        return $this->creationdate;
+        return $this->industryIds;
     }
 
     /**
-     * Set modificationdate.
-     *
-     * @param string $modificationdate
+     * @param $industryIds
      *
      * @return Company
      */
-    public function setModificationdate($modificationdate)
+    public function setIndustryIds($industryIds)
     {
-        $this->modificationdate = $modificationdate.'000';
-
-        return $this;
-    }
-
-    /**
-     * Get modificationdate.
-     *
-     * @return string
-     */
-    public function getModificationdate()
-    {
-        return $this->modificationdate;
+        $this->industryIds = $industryIds;
     }
 }

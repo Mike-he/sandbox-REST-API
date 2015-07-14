@@ -18,6 +18,7 @@ sandbox_client_api_company:
     resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyController.php"
     type:     rest
 
+
 sandbox_client_api_company_member:
     resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyMemberController.php"
     type:     rest
