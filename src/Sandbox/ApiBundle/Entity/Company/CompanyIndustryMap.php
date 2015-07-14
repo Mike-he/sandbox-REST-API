@@ -185,13 +185,41 @@ class CompanyIndustryMap
         return $this->companyId;
     }
 
+    /**
+     * @return mixed
+     */
     public function getCompany()
     {
         return $this->company;
     }
 
+    /**
+     * @return CompanyIndustry
+     */
     public function getIndustry()
     {
         return $this->industry;
+    }
+
+    /**
+     * @param $industry
+     */
+    public function setIndustry($industry)
+    {
+        $this->industry = $industry;
+
+        return $this;
+    }
+
+    /**
+     * @param $company
+     *
+     * @return $this
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
+
+        return $this;
     }
 }
