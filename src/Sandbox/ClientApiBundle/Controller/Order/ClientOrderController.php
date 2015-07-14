@@ -152,7 +152,7 @@ class ClientOrderController extends PaymentController
         $datePeriod = $period;
         if ($timeUnit === 'hour') {
             $datePeriod = $period * 60;
-            $timeUnit = 'mintues';
+            $timeUnit = 'min';
         }
 
         $startDate = new \DateTime($order->getStartDate());
