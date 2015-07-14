@@ -42,12 +42,24 @@ class AdminToken
     private $adminId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Admin", inversedBy="tokens"))
+     * @ORM\JoinColumn(name="adminId", referencedColumnName="id")
+     **/
+    private $admin;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="clientId", type="integer", nullable=false)
      * @Serializer\Groups({"main", "login"})
      */
     private $clientId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AdminClient", inversedBy="tokens"))
+     * @ORM\JoinColumn(name="clientId", referencedColumnName="id")
+     **/
+    private $client;
 
     /**
      * @var string
@@ -161,5 +173,25 @@ class AdminToken
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
+    }
+
+    /**
+     * Get admin.
+     *
+     * @return Admin
+     */
+    public function getAdmin()
+    {
+        return $this->admin;
+    }
+
+    /**
+     * Get client.
+     *
+     * @return AdminClient
+     */
+    public function getClient()
+    {
+        return $this->client;
     }
 }

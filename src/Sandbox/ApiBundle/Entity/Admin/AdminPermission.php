@@ -30,7 +30,7 @@ class AdminPermission
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=32, nullable=true)
+     * @ORM\Column(name="key", type="string", length=32, nullable=false)
      * @Serializer\Groups({"main", "login"})
      */
     private $key;
@@ -52,6 +52,15 @@ class AdminPermission
     private $typeId;
 
     /**
+     * @var AdminType
+     *
+     * @ORM\ManyToOne(targetEntity="AdminType", inversedBy="permissions"))
+     * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
+     * @Serializer\Groups({"main"})
+     **/
+    private $type;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -66,6 +75,16 @@ class AdminPermission
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="AdminPermissionMap",
+     *      mappedBy="permission"
+     * )
+     */
+    private $permissionMap;
 
     /**
      * Get id.
@@ -195,5 +214,25 @@ class AdminPermission
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Get type.
+     *
+     * @return AdminType
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Get permissionMap.
+     *
+     * @return array
+     */
+    public function getPermissionMap()
+    {
+        return $this->permissionMap;
     }
 }
