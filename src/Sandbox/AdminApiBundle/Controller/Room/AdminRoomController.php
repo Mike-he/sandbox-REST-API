@@ -60,6 +60,16 @@ class AdminRoomController extends RoomController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="(paid|unpaid|completed|cancelled)",
+     *    strict=true,
+     *    description="Filter by order status"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="city",
      *    array=false,
      *    default=null,
@@ -110,12 +120,20 @@ class AdminRoomController extends RoomController
     ) {
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $type = $paramFetcher->get('type');
+        $status = $paramFetcher->get('status');
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
 
-        $filters = $this->getFilters($paramFetcher);
+        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
+        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = is_null($filters) ?
-            $this->getRepo('Room\Room')->getRooms() :
-            $this->getRepo('Room\Room')->getRoomsWithFilters($filters);
+        $query = $this->getRepo('Room\Room')->getRooms(
+            $type,
+            $city,
+            $building,
+            $status
+        );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -745,67 +763,5 @@ class AdminRoomController extends RoomController
                 /* Do nothing */
                 break;
         }
-    }
-
-    /**
-     * Get filters and where clause from rooms get request.
-     *
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @return array
-     */
-    private function getFilters(
-        $paramFetcher
-    ) {
-        $type = $paramFetcher->get('type');
-        $cityId = $paramFetcher->get('city');
-        $buildingId = $paramFetcher->get('building');
-
-        $parameters = [];
-        $whereQuery = '';
-        $notFirst = false;
-
-        if (!is_null($type)) {
-            $parameters['type'] = $type;
-            $whereQuery = 'r.type = :type';
-            $notFirst = true;
-        }
-
-        if (!is_null($cityId)) {
-            $city = $this->getRepo('Room\RoomCity')->find($cityId);
-            if (is_null($city)) {
-                $this->throwNotFoundIfNull($city, self::NOT_FOUND_MESSAGE);
-            }
-
-            $parameters['city'] = $city;
-
-            if ($notFirst) {
-                $whereQuery .= ' AND ';
-            }
-            $whereQuery .= 'r.city = :city';
-
-            $notFirst = true;
-        }
-
-        if (!is_null($buildingId)) {
-            $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-            if (is_null($building)) {
-                $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
-            }
-
-            $parameters['building'] = $building;
-
-            if ($notFirst) {
-                $whereQuery .= ' AND ';
-            }
-            $whereQuery .= 'r.building = :building';
-        }
-
-        $filtersInfo = array(
-            'parameters' => $parameters,
-            'whereQuery' => $whereQuery,
-        );
-
-        return empty($parameters) ? null : $filtersInfo;
     }
 }
