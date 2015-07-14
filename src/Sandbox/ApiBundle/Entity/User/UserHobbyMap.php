@@ -8,7 +8,15 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * User Hobby Map.
  *
- * @ORM\Table(name="UserHobbyMap")
+ * @ORM\Table(
+ *      name="UserHobbyMap",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(
+ *              name="userId_hobbyId_UNIQUE",
+ *              columns={"userId", "hobbyId"}
+ *          )
+ *      }
+ * )
  * @ORM\Entity(
  *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserHobbyMapRepository"
  * )
@@ -50,7 +58,7 @@ class UserHobbyMap
     /**
      * @var UserHobby
      *
-     * @ORM\OneToOne(targetEntity="UserHobby"))
+     * @ORM\ManyToOne(targetEntity="UserHobby", inversedBy="hobbyMap")
      * @ORM\JoinColumn(name="hobbyId", referencedColumnName="id")
      * @Serializer\Groups({"main", "profile", "profile_stranger"})
      **/

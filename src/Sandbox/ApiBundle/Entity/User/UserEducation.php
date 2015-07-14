@@ -36,7 +36,7 @@ class UserEducation
     /**
      * @var string
      *
-     * @ORM\Column(name="startDate", type="string", length=16, nullable=true)
+     * @ORM\Column(name="startDate", type="string", nullable=false)
      * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $startDate;
@@ -44,7 +44,7 @@ class UserEducation
     /**
      * @var string
      *
-     * @ORM\Column(name="endDate", type="string", length=16, nullable=true)
+     * @ORM\Column(name="endDate", type="string", nullable=true)
      * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $endDate;
@@ -52,7 +52,7 @@ class UserEducation
     /**
      * @var string
      *
-     * @ORM\Column(name="detail", type="text", nullable=true)
+     * @ORM\Column(name="detail", type="text", nullable=false)
      * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $detail;

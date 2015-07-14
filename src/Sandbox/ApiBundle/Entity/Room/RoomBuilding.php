@@ -49,6 +49,13 @@ class RoomBuilding
     private $cityId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="RoomCity", inversedBy="buildings"))
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
+     * @Serializer\Groups({"main"})
+     **/
+    private $city;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
@@ -222,5 +229,15 @@ class RoomBuilding
     public function getLng()
     {
         return $this->lng;
+    }
+
+    /**
+     * Get city.
+     *
+     * @return RoomCity
+     */
+    public function getCity()
+    {
+        return $this->city;
     }
 }

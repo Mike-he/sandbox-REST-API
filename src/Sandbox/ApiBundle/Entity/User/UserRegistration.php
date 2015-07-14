@@ -38,7 +38,7 @@ class UserRegistration
     /**
      * @var string
      *
-     * @ORM\Column(name="code", type="string", length=16, nullable=false)
+     * @ORM\Column(name="code", type="string", length=16, nullable=true)
      */
     private $code;
 
