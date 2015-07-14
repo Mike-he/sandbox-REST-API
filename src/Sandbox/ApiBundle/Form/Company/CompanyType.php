@@ -16,14 +16,18 @@ class CompanyType extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('description')
             ->add('address')
-            ->add('website')
             ->add('phone')
             ->add('fax')
-            ->add('description')
-            ->add('creatorid')
-            ->add('creationdate')
-            ->add('modificationdate')
+            ->add('email')
+            ->add('website')
+            ->add('sina_weibo')
+            ->add('tencent_weibo')
+            ->add('facebook')
+            ->add('linkedin')
+            ->add('industry_ids')
+            ->add('portfolios')
         ;
     }
 
@@ -33,7 +37,7 @@ class CompanyType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Company',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Company\Company',
         ));
     }
 
