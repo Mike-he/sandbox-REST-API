@@ -141,7 +141,7 @@ class LocationController extends SandboxRestController
      *
      * @return View
      */
-    public function getRoomAvatar(
+    public function getBuildingAvatar(
         Request $request,
         $id
     ) {
