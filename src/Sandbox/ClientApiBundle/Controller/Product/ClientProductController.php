@@ -129,7 +129,8 @@ class ClientProductController extends ProductController
         $endTime = null;
         $startHour = null;
         $endHour = null;
-        if (!is_null($startTime)) {
+
+        if (!is_null($startTime) && !empty($startTime)) {
             $startTime = new \DateTime($startTime);
             $endTime = clone $startTime;
             $endTime->modify('+'.$rentPeriod.$timeUnit);
