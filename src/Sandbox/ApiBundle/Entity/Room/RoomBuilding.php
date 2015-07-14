@@ -95,6 +95,15 @@ class RoomBuilding
     private $lng;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="avatar", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"avatar"})
+     */
+    private $avatar;
+
+    /**
      * Get id.
      *
      * @return int
@@ -222,5 +231,29 @@ class RoomBuilding
     public function getLng()
     {
         return $this->lng;
+    }
+
+    /**
+     * Set avatar.
+     *
+     * @param string $avatar
+     *
+     * @return RoomBuilding
+     */
+    public function setAvatar($avatar)
+    {
+        $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * Get avatar.
+     *
+     * @return string
+     */
+    public function getAvatar()
+    {
+        return $this->avatar;
     }
 }
