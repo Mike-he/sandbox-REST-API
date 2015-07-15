@@ -9,7 +9,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use JMS\Serializer\SerializationContext;
 
 /**
- * User Hobby Controller.
+ * Company Industry Controller.
  *
  * @category Sandbox
  *
