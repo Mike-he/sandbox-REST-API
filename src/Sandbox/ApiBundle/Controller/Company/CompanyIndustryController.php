@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller\User;
+namespace Sandbox\ApiBundle\Controller\Company;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
