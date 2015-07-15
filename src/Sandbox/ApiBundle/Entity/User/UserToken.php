@@ -43,7 +43,7 @@ class UserToken
 
     /**
      * @ORM\ManyToOne(targetEntity="User", inversedBy="tokens"))
-     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
 

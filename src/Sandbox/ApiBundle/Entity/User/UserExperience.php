@@ -75,7 +75,7 @@ class UserExperience
 
     /**
      * @ORM\ManyToOne(targetEntity="User", inversedBy="experiences")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
 

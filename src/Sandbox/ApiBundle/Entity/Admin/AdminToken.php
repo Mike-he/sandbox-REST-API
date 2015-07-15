@@ -43,7 +43,7 @@ class AdminToken
 
     /**
      * @ORM\ManyToOne(targetEntity="Admin", inversedBy="tokens"))
-     * @ORM\JoinColumn(name="adminId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="adminId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $admin;
 
@@ -57,7 +57,7 @@ class AdminToken
 
     /**
      * @ORM\ManyToOne(targetEntity="AdminClient", inversedBy="tokens"))
-     * @ORM\JoinColumn(name="clientId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="clientId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $client;
 

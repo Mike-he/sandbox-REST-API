@@ -75,7 +75,7 @@ class UserEducation
 
     /**
      * @ORM\ManyToOne(targetEntity="User", inversedBy="educations")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
 
