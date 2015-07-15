@@ -49,6 +49,10 @@ class ClientUserProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // my user
+        $myUser = $this->getRepo('User\User')->find($this->getUserId());
+
+        // request user
         $userId = $paramFetcher->get('user_id');
         if (is_null($userId)) {
             $userId = $this->getUserId();
@@ -67,7 +71,7 @@ class ClientUserProfileController extends UserProfileController
         // set profile with view group
         if ($this->getUserId() != $userId) {
             $viewGroup = $this->setProfileWithViewGroup(
-                $this->getUserId(),
+                $myUser,
                 $user,
                 $profile,
                 $viewGroup

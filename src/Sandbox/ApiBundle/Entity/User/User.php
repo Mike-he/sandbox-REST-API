@@ -135,6 +135,36 @@ class User implements UserInterface
     private $tokens;
 
     /**
+     * @ORM\OneToMany(targetEntity="UserProfileVisitor", mappedBy="user")
+     **/
+    private $profileVisitorUsers;
+
+    /**
+     * @ORM\OneToMany(targetEntity="UserProfileVisitor", mappedBy="visitor")
+     **/
+    private $profileVisitors;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Buddy\Buddy", mappedBy="user")
+     **/
+    private $buddyUsers;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Buddy\Buddy", mappedBy="buddy")
+     **/
+    private $buddies;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Buddy\BuddyRequest", mappedBy="askUser")
+     **/
+    private $buddyRequestAsks;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Buddy\BuddyRequest", mappedBy="recvUser")
+     **/
+    private $buddyRequestRecvs;
+
+    /**
      * Get id.
      *
      * @return int
@@ -356,6 +386,56 @@ class User implements UserInterface
     public function getTokens()
     {
         return $this->tokens;
+    }
+
+    /**
+     * Get profileVisitorUsers.
+     *
+     * @return array
+     */
+    public function getProfileVisitorUsers()
+    {
+        return $this->profileVisitorUsers;
+    }
+
+    /**
+     * Get profileVisitors.
+     *
+     * @return array
+     */
+    public function getProfileVisitors()
+    {
+        return $this->profileVisitors;
+    }
+
+    /**
+     * Get buddyUsers.
+     *
+     * @return array
+     */
+    public function getBuddyUsers()
+    {
+        return $this->buddyUsers;
+    }
+
+    /**
+     * Get buddyRequestAsks.
+     *
+     * @return array
+     */
+    public function getBuddyRequestAsks()
+    {
+        return $this->buddyRequestAsks;
+    }
+
+    /**
+     * Get buddyRequestRecvs.
+     *
+     * @return array
+     */
+    public function getBuddyRequestRecvs()
+    {
+        return $this->buddyRequestRecvs;
     }
 
     public function __construct()

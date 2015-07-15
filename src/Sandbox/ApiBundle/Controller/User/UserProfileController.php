@@ -29,7 +29,7 @@ use Sandbox\ApiBundle\Form\User\UserPortfolioType;
 class UserProfileController extends SandboxRestController
 {
     /**
-     * @param int         $myUserId
+     * @param User        $myUser
      * @param User        $requestUser
      * @param UserProfile $profile
      * @param string      $viewGroup
@@ -37,7 +37,7 @@ class UserProfileController extends SandboxRestController
      * @return string
      */
     protected function setProfileWithViewGroup(
-        $myUserId,
+        $myUser,
         $requestUser,
         $profile,
         $viewGroup
@@ -48,14 +48,14 @@ class UserProfileController extends SandboxRestController
 
         // save visitor record
         $this->saveUserProfileVisitor(
-            $myUserId,
-            $requestUser->getId()
+            $myUser,
+            $requestUser
         );
 
         // if user is not my buddy, then do not show email, phone or birthday
         $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-            'userId' => $myUserId,
-            'buddyId' => $requestUser->getId(),
+            'user' => $myUser,
+            'buddy' => $requestUser,
         ));
 
         if (!is_null($myBuddy)) {
@@ -64,8 +64,8 @@ class UserProfileController extends SandboxRestController
             // if both user is buddy with each other
             // then show user jid
             $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                'userId' => $requestUser->getId(),
-                'buddyId' => $myUserId,
+                'user' => $requestUser,
+                'buddy' => $myUser,
             ));
 
             if (!is_null($otherBuddy)) {
@@ -76,8 +76,8 @@ class UserProfileController extends SandboxRestController
             $viewGroup = $viewGroup.'_stranger';
 
             $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                'askUserId' => $requestUser->getId(),
-                'recvUserId' => $myUserId,
+                'askUser' => $requestUser,
+                'recvUser' => $myUser,
                 'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
             ));
 
@@ -90,16 +90,16 @@ class UserProfileController extends SandboxRestController
     }
 
     /**
-     * @param $myUserId
-     * @param $requestUserId
+     * @param User $visitor
+     * @param User $requestUser
      */
     protected function saveUserProfileVisitor(
-        $myUserId,
-        $requestUserId
+        $visitor,
+        $requestUser
     ) {
         $visitor = new UserProfileVisitor();
-        $visitor->setUserId($requestUserId);
-        $visitor->setVisitorId($myUserId);
+        $visitor->setUser($requestUser);
+        $visitor->setVisitor($visitor);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($visitor);
