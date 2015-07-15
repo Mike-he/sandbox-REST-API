@@ -33,7 +33,7 @@ class Admin implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="username", type="string", length=64, nullable=true)
+     * @ORM\Column(name="username", type="string", length=64, nullable=false)
      * @Serializer\Groups({"main", "login"})
      */
     private $username;
@@ -48,7 +48,7 @@ class Admin implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=128, nullable=false)
+     * @ORM\Column(name="name", type="string", length=128, nullable=true)
      * @Serializer\Groups({"main", "login"})
      */
     private $name;
@@ -78,7 +78,7 @@ class Admin implements UserInterface
     private $modificationDate;
 
     /**
-     * @ORM\OneToOne(targetEntity="AdminType"))
+     * @ORM\ManyToOne(targetEntity="AdminType", inversedBy="admins"))
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
      * @Serializer\Groups({"main", "login"})
      **/
@@ -93,6 +93,11 @@ class Admin implements UserInterface
      * @Serializer\Groups({"login"})
      **/
     private $permission;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AdminToken", mappedBy="admin")
+     **/
+    private $tokens;
 
     /**
      * Get id.
@@ -276,6 +281,16 @@ class Admin implements UserInterface
     public function getPermission()
     {
         return $this->permission;
+    }
+
+    /**
+     * Get tokens.
+     *
+     * @return array
+     */
+    public function getTokens()
+    {
+        return $this->tokens;
     }
 
     /**

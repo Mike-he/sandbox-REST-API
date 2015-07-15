@@ -42,12 +42,24 @@ class UserToken
     private $userId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="tokens"))
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     **/
+    private $user;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="clientId", type="integer", nullable=false)
      * @Serializer\Groups({"main", "login"})
      */
     private $clientId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="UserClient", inversedBy="tokens"))
+     * @ORM\JoinColumn(name="clientId", referencedColumnName="id")
+     **/
+    private $client;
 
     /**
      * @var string
@@ -161,5 +173,49 @@ class UserToken
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return UserToken
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * Get client.
+     *
+     * @return UserClient
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
+     * Set client.
+     *
+     * @param UserClient $client
+     *
+     * @return UserToken
+     */
+    public function setClient($client)
+    {
+        $this->client = $client;
     }
 }

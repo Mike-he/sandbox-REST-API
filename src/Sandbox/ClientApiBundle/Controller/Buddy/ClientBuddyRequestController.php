@@ -17,7 +17,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Rest controller for UserProfile.
@@ -44,21 +43,23 @@ class ClientBuddyRequestController extends BuddyRequestController
     public function getBuddyRequestsAction(
         Request $request
     ) {
-        // get user
-        $userId = $this->getUserId();
-        $buddyRequests = $this->getRepo('Buddy\BuddyRequest')->findByRecvUserId($userId);
+        // get my user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // get my buddy requests
+        $buddyRequests = $this->getRepo('Buddy\BuddyRequest')->findByRecvUser($myUser);
 
         $myRequests = array();
 
         foreach ($buddyRequests as $buddyRequest) {
-            $askUserId = $buddyRequest->getAskUserId();
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($askUserId);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUser($myUser);
 
             // TODO set user's company
 
             $myRequest = array(
                 'id' => $buddyRequest->getId(),
-                'ask_user_id' => $askUserId,
+                'ask_user_id' => $buddyRequest->getAskUserId(),
                 'message' => $buddyRequest->getMessage(),
                 'status' => $buddyRequest->getStatus(),
                 'profile' => $profile,
@@ -86,8 +87,9 @@ class ClientBuddyRequestController extends BuddyRequestController
     public function postBuddyRequestAction(
         Request $request
     ) {
-        // get userId
-        $userId = $this->getUserId();
+        // get my user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get incoming data
         $buddyRequestData = new BuddyRequest();
@@ -105,8 +107,8 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         // if the user is already my buddy, don't proceed
         $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-            'userId' => $userId,
-            'buddyId' => $recvUserId,
+            'user' => $myUser,
+            'buddy' => $recvUser,
         ));
         if (!is_null($buddy)) {
             return new View();
@@ -114,8 +116,8 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         // if buddy request exist, then change status back to pending
         $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-            'askUserId' => $userId,
-            'recvUserId' => $recvUserId,
+            'askUser' => $myUser,
+            'recvUser' => $recvUser,
         ));
 
         $em = $this->getDoctrine()->getManager();
@@ -123,8 +125,8 @@ class ClientBuddyRequestController extends BuddyRequestController
         if (is_null($buddyRequest)) {
             // save new buddy request
             $buddyRequest = new BuddyRequest();
-            $buddyRequest->setAskUserId($userId);
-            $buddyRequest->setRecvUserId($recvUserId);
+            $buddyRequest->setAskUser($myUser);
+            $buddyRequest->setRecvUser($recvUser);
 
             $em->persist($buddyRequest);
         } else {
@@ -162,81 +164,82 @@ class ClientBuddyRequestController extends BuddyRequestController
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
+        // get my user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get buddy request
         $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->find($id);
         $this->throwNotFoundIfNull($buddyRequest, self::NOT_FOUND_MESSAGE);
 
         // check user is allowed to modify
-        if ($userId != $buddyRequest->getRecvUserId()) {
+        if ($myUserId != $buddyRequest->getRecvUserId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         // check status is pending
-        if ($buddyRequest->getStatus() != BuddyRequest::BUDDY_REQUEST_STATUS_PENDING) {
-            throw new ConflictHttpException(self::CONFLICT_MESSAGE);
-        }
+        if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_PENDING) {
+            // bind data
+            $buddyRequestJson = $this->container->get('serializer')->serialize($buddyRequest, 'json');
+            $patch = new Patch($buddyRequestJson, $request->getContent());
+            $buddyRequestJson = $patch->apply();
 
-        // bind data
-        $buddyRequestJson = $this->container->get('serializer')->serialize($buddyRequest, 'json');
-        $patch = new Patch($buddyRequestJson, $request->getContent());
-        $buddyRequestJson = $patch->apply();
+            $form = $this->createForm(new BuddyRequestPatchType(), $buddyRequest);
+            $form->submit(json_decode($buddyRequestJson, true));
 
-        $form = $this->createForm(new BuddyRequestPatchType(), $buddyRequest);
-        $form->submit(json_decode($buddyRequestJson, true));
+            // set profile
+            $buddyRequest->setModificationDate(new \DateTime('now'));
 
-        // set profile
-        $buddyRequest->setModificationDate(new \DateTime('now'));
+            // update to db
+            $em = $this->getDoctrine()->getManager();
 
-        // update to db
-        $em = $this->getDoctrine()->getManager();
+            if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED) {
+                $askUserId = $buddyRequest->getAskUserId();
+                $askUser = $this->getRepo('User\User')->find($askUserId);
 
-        if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED) {
-            $askUserId = $buddyRequest->getAskUserId();
+                // save my buddy
+                $this->saveBuddy($em, $myUser, $askUser);
 
-            // save my buddy
-            $this->saveBuddy($em, $userId, $askUserId);
+                // save others' buddy
+                $this->saveBuddy($em, $askUser, $myUser);
 
-            // save others' buddy
-            $this->saveBuddy($em, $askUserId, $userId);
-
-            // find my pending buddy request to the other user
-            // update the status to accepted
-            $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                'askUserId' => $userId,
-                'recvUserId' => $askUserId,
-                'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
-            ));
-            if (!is_null($buddyRequest)) {
-                $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+                // find my pending buddy request to the other user
+                // update the status to accepted
+                $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                    'askUser' => $myUser,
+                    'recvUser' => $askUser,
+                    'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                ));
+                if (!is_null($buddyRequest)) {
+                    $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+                }
             }
-        }
 
-        $em->flush();
+            $em->flush();
+        }
 
         return new View();
     }
 
     /**
-     * @param $em
-     * @param $userId
-     * @param $buddyId
+     * @param object $em
+     * @param User   $user
+     * @param User   $buddy
      */
     private function saveBuddy(
         $em,
-        $userId,
-        $buddyId
+        $user,
+        $buddy
     ) {
         $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-            'userId' => $userId,
-            'buddyId' => $buddyId,
+            'user' => $user,
+            'buddy' => $buddy,
         ));
 
         if (is_null($myBuddy)) {
             $myBuddy = new Buddy();
-            $myBuddy->setUserId($userId);
-            $myBuddy->setBuddyId($buddyId);
+            $myBuddy->setUser($user);
+            $myBuddy->setBuddy($buddy);
 
             $em->persist($myBuddy);
         }

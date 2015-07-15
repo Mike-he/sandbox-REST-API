@@ -24,14 +24,14 @@ class ClientMemberRecommendRandomRecord
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer",  nullable=false)
+     * @ORM\Column(name="userId", type="integer",  nullable=true)
      */
     private $userId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="memberId", type="integer",  nullable=false)
+     * @ORM\Column(name="memberId", type="integer",  nullable=true)
      */
     private $memberId;
 

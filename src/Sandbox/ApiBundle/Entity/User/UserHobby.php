@@ -26,7 +26,7 @@ class UserHobby
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", nullable=false)
+     * @ORM\Column(name="name", type="string", length=64, nullable=false)
      * @Serializer\Groups({"main", "profile", "hobbies", "profile_stranger"})
      */
     private $name;
@@ -46,6 +46,16 @@ class UserHobby
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="UserHobbyMap",
+     *      mappedBy="hobby"
+     * )
+     */
+    private $hobbyMap;
 
     /**
      * @return int
@@ -107,6 +117,16 @@ class UserHobby
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * Get hobbyMap.
+     *
+     * @return array
+     */
+    public function getHobbyMap()
+    {
+        return $this->hobbyMap;
     }
 
     public function __construct()

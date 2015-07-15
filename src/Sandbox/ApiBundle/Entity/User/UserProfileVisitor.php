@@ -33,11 +33,23 @@ class UserProfileVisitor
     private $userId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitorUsers"))
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     **/
+    private $user;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="visitorId", type="integer",  nullable=false)
      */
     private $visitorId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitors"))
+     * @ORM\JoinColumn(name="visitorId", referencedColumnName="id", onDelete="CASCADE")
+     **/
+    private $visitor;
 
     /**
      * @var \DateTime
@@ -121,6 +133,50 @@ class UserProfileVisitor
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return UserProfileVisitor
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getVisitor()
+    {
+        return $this->visitor;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $visitor
+     *
+     * @return UserProfileVisitor
+     */
+    public function setVisitor($visitor)
+    {
+        $this->visitor = $visitor;
     }
 
     public function __construct()

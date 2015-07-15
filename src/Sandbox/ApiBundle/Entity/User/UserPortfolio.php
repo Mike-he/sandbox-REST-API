@@ -42,21 +42,21 @@ class UserPortfolio
 
     /**
      * @var string
-     * @ORM\Column(name="attachmentType", type="string", nullable=false)
+     * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
      * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $attachmentType;
 
     /**
      * @var string
-     * @ORM\Column(name="fileName", type="string", nullable=false)
+     * @ORM\Column(name="fileName", type="string", length=64, nullable=false)
      * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $fileName;
 
     /**
      * @var string
-     * @ORM\Column(name="preview", type="string", nullable=true)
+     * @ORM\Column(name="preview", type="text", nullable=true)
      * @Serializer\Groups({"main", "profile", "profile_stranger"})
      */
     private $preview;
@@ -86,7 +86,7 @@ class UserPortfolio
 
     /**
      * @ORM\ManyToOne(targetEntity="User", inversedBy="portfolios")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
 

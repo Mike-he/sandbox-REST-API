@@ -184,14 +184,14 @@ class AdminUserLoginController extends AdminLoginController
         $adminClient
     ) {
         $adminToken = $this->getRepo('Admin\AdminToken')->findOneBy(array(
-            'adminId' => $admin->getId(),
-            'clientId' => $adminClient->getId(),
+            'admin' => $admin,
+            'client' => $adminClient,
         ));
 
         if (is_null($adminToken)) {
             $adminToken = new AdminToken();
-            $adminToken->setAdminId($admin->getId());
-            $adminToken->setClientId($adminClient->getId());
+            $adminToken->setAdmin($admin);
+            $adminToken->setClient($adminClient);
             $adminToken->setToken($this->generateRandomToken());
         }
 

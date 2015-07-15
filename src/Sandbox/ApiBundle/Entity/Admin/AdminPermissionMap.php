@@ -52,14 +52,14 @@ class AdminPermissionMap
     private $creationDate;
 
     /**
-     * @ORM\OneToOne(targetEntity="AdminPermission"))
-     * @ORM\JoinColumn(name="permissionId", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="AdminPermission", inversedBy="permissionMap"))
+     * @ORM\JoinColumn(name="permissionId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $permission;
 
     /**
      * @ORM\ManyToOne(targetEntity="Admin", inversedBy="permissionIds")
-     * @ORM\JoinColumn(name="adminId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="adminId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $admin;
 
@@ -153,5 +153,15 @@ class AdminPermissionMap
     public function getPermission()
     {
         return $this->permission;
+    }
+
+    /**
+     * Get admin.
+     *
+     * @return Admin
+     */
+    public function getAdmin()
+    {
+        return $this->admin;
     }
 }

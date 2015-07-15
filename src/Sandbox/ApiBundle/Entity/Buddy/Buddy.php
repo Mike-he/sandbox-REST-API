@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Buddy;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Buddy.
@@ -35,11 +36,23 @@ class Buddy
     private $userId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="buddyUsers"))
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     **/
+    private $user;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="buddyId", type="integer", nullable=false)
      */
     private $buddyId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="buddies"))
+     * @ORM\JoinColumn(name="buddyId", referencedColumnName="id", onDelete="CASCADE")
+     **/
+    private $buddy;
 
     /**
      * @var \DateTime
@@ -128,6 +141,50 @@ class Buddy
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return Buddy
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * Get buddy.
+     *
+     * @return User
+     */
+    public function getBuddy()
+    {
+        return $this->buddy;
+    }
+
+    /**
+     * Set buddy.
+     *
+     * @param User $buddy
+     *
+     * @return Buddy
+     */
+    public function setBuddy($buddy)
+    {
+        $this->buddy = $buddy;
     }
 
     public function __construct()
