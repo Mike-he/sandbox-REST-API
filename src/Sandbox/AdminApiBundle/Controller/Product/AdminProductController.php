@@ -163,10 +163,7 @@ class AdminProductController extends ProductController
         $id
     ) {
         $product = $this->getRepo('Product\Product')->find($id);
-
-        if (is_null($product)) {
-            $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
@@ -238,10 +235,7 @@ class AdminProductController extends ProductController
         }
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
-
-        if (is_null($room)) {
-            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $product->setRoom($room);
 
@@ -298,10 +292,7 @@ class AdminProductController extends ProductController
         }
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
-
-        if (is_null($room)) {
-            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $product->setRoom($room);
 
