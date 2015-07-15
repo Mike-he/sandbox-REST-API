@@ -22,14 +22,6 @@ class CompanyIndustryMap
     private $creationDate;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
-     */
-    private $modificationDate;
-
-    /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
@@ -101,30 +93,6 @@ class CompanyIndustryMap
     public function getCreationDate()
     {
         return $this->creationDate;
-    }
-
-    /**
-     * Set modificationDate.
-     *
-     * @param \DateTime $modificationDate
-     *
-     * @return CompanyIndustryMap
-     */
-    public function setModificationDate($modificationDate)
-    {
-        $this->modificationDate = $modificationDate;
-
-        return $this;
-    }
-
-    /**
-     * Get modificationDate.
-     *
-     * @return \DateTime
-     */
-    public function getModificationDate()
-    {
-        return $this->modificationDate;
     }
 
     /**
