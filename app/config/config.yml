@@ -64,6 +64,7 @@ twig:
         pingpp_app_id: "%pingpp_app_id%"
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"
+        user_profile_default_name_prefix: "%user_profile_default_name_prefix%"
 
 # Assetic Configuration
 assetic:
