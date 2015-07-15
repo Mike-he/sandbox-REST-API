@@ -187,14 +187,14 @@ class ClientUserLoginController extends UserLoginController
         $userClient
     ) {
         $userToken = $this->getRepo('User\UserToken')->findOneBy(array(
-            'userId' => $user->getId(),
-            'clientId' => $userClient->getId(),
+            'user' => $user,
+            'client' => $userClient,
         ));
 
         if (is_null($userToken)) {
             $userToken = new UserToken();
-            $userToken->setUserId($user->getId());
-            $userToken->setClientId($userClient->getId());
+            $userToken->setUser($user);
+            $userToken->setClient($userClient);
             $userToken->setToken($this->generateRandomToken());
         }
 

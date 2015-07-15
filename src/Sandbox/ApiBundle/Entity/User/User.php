@@ -130,6 +130,11 @@ class User implements UserInterface
     private $portfolios;
 
     /**
+     * @ORM\OneToMany(targetEntity="UserToken", mappedBy="user")
+     **/
+    private $tokens;
+
+    /**
      * Get id.
      *
      * @return int
@@ -292,6 +297,18 @@ class User implements UserInterface
     }
 
     /**
+     * Set modificationDate.
+     *
+     * @param \DateTime $modificationDate
+     *
+     * @return User
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+    }
+
+    /**
      * Get hobbies.
      *
      * @return array
@@ -332,15 +349,13 @@ class User implements UserInterface
     }
 
     /**
-     * Set modificationDate.
+     * Get tokens.
      *
-     * @param \DateTime $modificationDate
-     *
-     * @return User
+     * @return array
      */
-    public function setModificationDate($modificationDate)
+    public function getTokens()
     {
-        $this->modificationDate = $modificationDate;
+        return $this->tokens;
     }
 
     public function __construct()
