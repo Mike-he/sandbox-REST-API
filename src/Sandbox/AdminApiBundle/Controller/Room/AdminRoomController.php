@@ -170,10 +170,7 @@ class AdminRoomController extends RoomController
     ) {
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
-
-        if (is_null($room)) {
-            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
@@ -354,9 +351,7 @@ class AdminRoomController extends RoomController
 
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
-        if (is_null($room)) {
-            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $em = $this->getDoctrine()->getManager();
 
