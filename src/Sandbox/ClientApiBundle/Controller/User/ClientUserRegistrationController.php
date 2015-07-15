@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
 use Sandbox\ClientApiBundle\Data\User\RegisterVerify;
@@ -215,7 +216,9 @@ class ClientUserRegistrationController extends UserRegistrationController
             || is_null($code)
             || (is_null($email) && is_null($phone)
                 || (!is_null($email) && !is_null($phone)))) {
-            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE,
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_VERIFICATION_CODE,
                 self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
@@ -227,13 +230,17 @@ class ClientUserRegistrationController extends UserRegistrationController
         ));
 
         if (is_null($registration)) {
-            return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE,
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_VERIFICATION_CODE,
                 self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
         // check token validation time
         if (new \DateTime('now') > $registration->getCreationDate()->modify('+1 day')) {
-            return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE,
+            return $this->customErrorView(
+                400,
+                self::ERROR_EXPIRED_VERIFICATION_CODE,
                 self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
@@ -242,6 +249,19 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($user);
+        $em->flush();
+
+        // create default profile
+        $profile = new UserProfile();
+
+        $defaultName =
+            $this->getGlobal('user_profile_default_name_prefix').$user->getId();
+        $profile->setName($defaultName);
+
+        $profile->setUser($user);
+        $em->persist($profile);
+
+        // remove registration
         $em->remove($registration);
         $em->flush();
 
@@ -271,11 +291,10 @@ class ClientUserRegistrationController extends UserRegistrationController
             $user->setPhone($phone);
         }
 
-        // get xmppUsername  from response
+        // get xmppUsername from response
         $response = $this->createXmppUser($user, $registrationId);
-        $responseJSON = json_decode($response);
-        $xmppUsername = $responseJSON->username;
-        $user->setXmppUsername($xmppUsername);
+        $responseJson = json_decode($response);
+        $user->setXmppUsername($responseJson->username);
 
         return $user;
     }
@@ -308,7 +327,7 @@ class ClientUserRegistrationController extends UserRegistrationController
 
     /**
      * @param User $user
-     * @param  int registrationId
+     * @param int  $registrationId
      *
      * @return mixed
      */

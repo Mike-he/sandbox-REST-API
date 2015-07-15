@@ -32,6 +32,31 @@ class SandboxRestController extends FOSRestController
 
     const HTTP_HEADER_AUTH = 'authorization';
 
+    //-------------------- Global --------------------//
+
+    /**
+     * @return mixed
+     */
+    protected function getGlobals()
+    {
+        // get globals
+        return $this->container->get('twig')->getGlobals();
+    }
+
+    /**
+     * @param $key
+     *
+     * @return mixed
+     */
+    protected function getGlobal(
+        $key
+    ) {
+        // get globals
+        $globals = $this->container->get('twig')->getGlobals();
+
+        return $globals[$key];
+    }
+
     //-------------------- Repo --------------------//
 
     /**
