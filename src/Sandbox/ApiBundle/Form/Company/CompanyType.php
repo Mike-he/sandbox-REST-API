@@ -26,8 +26,6 @@ class CompanyType extends AbstractType
             ->add('tencent_weibo')
             ->add('facebook')
             ->add('linkedin')
-            ->add('industry_ids')
-            ->add('portfolios')
         ;
     }
 
