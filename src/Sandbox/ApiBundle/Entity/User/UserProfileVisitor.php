@@ -33,7 +33,7 @@ class UserProfileVisitor
     private $userId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitorUser"))
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitorUsers"))
      * @ORM\JoinColumn(name="userId", referencedColumnName="id")
      **/
     private $user;
@@ -46,8 +46,8 @@ class UserProfileVisitor
     private $visitorId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitor"))
-     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitors"))
+     * @ORM\JoinColumn(name="visitorId", referencedColumnName="id")
      **/
     private $visitor;
 
@@ -176,7 +176,7 @@ class UserProfileVisitor
      */
     public function setVisitor($visitor)
     {
-        $this->user = $visitor;
+        $this->visitor = $visitor;
     }
 
     public function __construct()

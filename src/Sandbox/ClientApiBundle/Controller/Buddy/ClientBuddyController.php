@@ -67,7 +67,7 @@ class ClientBuddyController extends BuddyController
 
         $buddies = array();
 
-        if (!is_null($user)) {
+        if (!is_null($user) && $user != $myUser) {
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($user->getId());
 
             if (!is_null($profile)) {

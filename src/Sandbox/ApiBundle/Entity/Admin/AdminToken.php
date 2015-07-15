@@ -186,6 +186,18 @@ class AdminToken
     }
 
     /**
+     * Set admin.
+     *
+     * @param Admin $admin
+     *
+     * @return AdminToken
+     */
+    public function setAdmin($admin)
+    {
+        $this->admin = $admin;
+    }
+
+    /**
      * Get client.
      *
      * @return AdminClient
@@ -193,5 +205,17 @@ class AdminToken
     public function getClient()
     {
         return $this->client;
+    }
+
+    /**
+     * Set client.
+     *
+     * @param AdminClient $client
+     *
+     * @return AdminToken
+     */
+    public function setClient($client)
+    {
+        $this->client = $client;
     }
 }

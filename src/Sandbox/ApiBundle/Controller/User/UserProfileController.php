@@ -90,16 +90,16 @@ class UserProfileController extends SandboxRestController
     }
 
     /**
-     * @param User $visitor
+     * @param User $myVisitor
      * @param User $requestUser
      */
     protected function saveUserProfileVisitor(
-        $visitor,
+        $myVisitor,
         $requestUser
     ) {
         $visitor = new UserProfileVisitor();
         $visitor->setUser($requestUser);
-        $visitor->setVisitor($visitor);
+        $visitor->setVisitor($myVisitor);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($visitor);

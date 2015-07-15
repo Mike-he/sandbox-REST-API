@@ -419,6 +419,16 @@ class User implements UserInterface
     }
 
     /**
+     * Get buddies.
+     *
+     * @return array
+     */
+    public function getBuddies()
+    {
+        return $this->buddies;
+    }
+
+    /**
      * Get buddyRequestAsks.
      *
      * @return array

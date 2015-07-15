@@ -17,7 +17,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Rest controller for UserProfile.
@@ -179,47 +178,45 @@ class ClientBuddyRequestController extends BuddyRequestController
         }
 
         // check status is pending
-        if ($buddyRequest->getStatus() != BuddyRequest::BUDDY_REQUEST_STATUS_PENDING) {
-            throw new ConflictHttpException(self::CONFLICT_MESSAGE);
-        }
+        if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_PENDING) {
+            // bind data
+            $buddyRequestJson = $this->container->get('serializer')->serialize($buddyRequest, 'json');
+            $patch = new Patch($buddyRequestJson, $request->getContent());
+            $buddyRequestJson = $patch->apply();
 
-        // bind data
-        $buddyRequestJson = $this->container->get('serializer')->serialize($buddyRequest, 'json');
-        $patch = new Patch($buddyRequestJson, $request->getContent());
-        $buddyRequestJson = $patch->apply();
+            $form = $this->createForm(new BuddyRequestPatchType(), $buddyRequest);
+            $form->submit(json_decode($buddyRequestJson, true));
 
-        $form = $this->createForm(new BuddyRequestPatchType(), $buddyRequest);
-        $form->submit(json_decode($buddyRequestJson, true));
+            // set profile
+            $buddyRequest->setModificationDate(new \DateTime('now'));
 
-        // set profile
-        $buddyRequest->setModificationDate(new \DateTime('now'));
+            // update to db
+            $em = $this->getDoctrine()->getManager();
 
-        // update to db
-        $em = $this->getDoctrine()->getManager();
+            if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED) {
+                $askUserId = $buddyRequest->getAskUserId();
+                $askUser = $this->getRepo('User\User')->find($askUserId);
 
-        if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED) {
-            $askUserId = $buddyRequest->getAskUserId();
-            $askUser = $this->getRepo('User\User')->find($askUserId);
+                // save my buddy
+                $this->saveBuddy($em, $myUser, $askUser);
 
-            // save my buddy
-            $this->saveBuddy($em, $myUser, $askUser);
+                // save others' buddy
+                $this->saveBuddy($em, $askUser, $myUser);
 
-            // save others' buddy
-            $this->saveBuddy($em, $askUser, $myUser);
-
-            // find my pending buddy request to the other user
-            // update the status to accepted
-            $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                'askUser' => $myUser,
-                'recvUser' => $askUser,
-                'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
-            ));
-            if (!is_null($buddyRequest)) {
-                $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+                // find my pending buddy request to the other user
+                // update the status to accepted
+                $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                    'askUser' => $myUser,
+                    'recvUser' => $askUser,
+                    'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                ));
+                if (!is_null($buddyRequest)) {
+                    $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+                }
             }
-        }
 
-        $em->flush();
+            $em->flush();
+        }
 
         return new View();
     }
