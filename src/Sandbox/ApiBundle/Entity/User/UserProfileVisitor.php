@@ -33,7 +33,7 @@ class UserProfileVisitor
     private $userId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitorUsers"))
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitorUsers")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
@@ -46,7 +46,7 @@ class UserProfileVisitor
     private $visitorId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitors"))
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="profileVisitors")
      * @ORM\JoinColumn(name="visitorId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $visitor;

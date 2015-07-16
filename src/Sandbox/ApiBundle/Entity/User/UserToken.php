@@ -42,7 +42,7 @@ class UserToken
     private $userId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="tokens"))
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="tokens")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
@@ -56,7 +56,7 @@ class UserToken
     private $clientId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="UserClient", inversedBy="tokens"))
+     * @ORM\ManyToOne(targetEntity="UserClient", inversedBy="tokens")
      * @ORM\JoinColumn(name="clientId", referencedColumnName="id")
      **/
     private $client;

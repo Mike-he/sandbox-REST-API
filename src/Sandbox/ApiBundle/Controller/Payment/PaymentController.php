@@ -22,9 +22,30 @@ use Pingpp\Error\Base;
  */
 class PaymentController extends SandboxRestController
 {
-    const BAD_REQUEST = 'BAD REQUEST FOR CREATING ORDER FORM';
-    const WRONG_PAYMENT_STATUS = 'WRONG STATUS';
-    const WRONG_CHANNEL = 'THIS CHANNEL IS NOT SUPPORTED';
+    const INSUFFICIENT_FUNDS_CODE = 400001;
+    const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
+    const SYSTEM_ERROR_CODE = 500001;
+    const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
+    const INVALID_FORM_CODE = 400002;
+    const INVALID_FORM_MESSAGE = 'Invalid Form';
+    const PRODUCT_NOT_FOUND_CODE = 400003;
+    const PRODUCT_NOT_FOUND_MESSAGE = 'Product Does Not Exist';
+    const ORDER_CONFLICT_CODE = 400004;
+    const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
+    const PRICE_MISMATCH_CODE = 400005;
+    const PRICE_MISMATCH_MESSAGE = 'PRICE DOES NOT MATCH';
+    const WRONG_PAYMENT_STATUS_CODE = 400006;
+    const WRONG_PAYMENT_STATUS_MESSAGE = 'WRONG STATUS';
+    const ORDER_NOT_FOUND_CODE = 400007;
+    const ORDER_NOT_FOUND_MESSAGE = 'Can not find order';
+    const USER_NOT_FOUND_CODE = 400008;
+    const USER_NOT_FOUND_MESSAGE = 'Can not find user in current order';
+    const USER_EXIST_CODE = 400009;
+    const USER_EXIST_MESSAGE = 'This user already exist';
+    const WRONG_CHANNEL_CODE = 400010;
+    const WRONG_CHANNEL_MESSAGE = 'THIS CHANNEL IS NOT SUPPORTED';
+    const NO_PRICE_CODE = 400011;
+    const NO_PRICE_MESSAGE = 'Price can not be empty';
     const STATUS_PAID = 'paid';
 
     /**

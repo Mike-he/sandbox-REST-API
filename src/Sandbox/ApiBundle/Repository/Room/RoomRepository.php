@@ -28,15 +28,17 @@ class RoomRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('r')
             ->select('
-                r as Room,
+                r as room,
                 o.status,
                 o.startDate as order_start_date,
                 o.endDate as order_end_date,
-                o.userId as renter_user_id
+                up.name as renter_name,
+                up.email as renter_email
             ')
             ->innerJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
-            ->innerJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId');
-            //->innerJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id');
+            ->innerJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
+            ->innerJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
+            ->innerJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId');
 
         // filter by type
         if (!is_null($type)) {
