@@ -159,7 +159,7 @@ class ProductOrder
      * @var \Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
-     * @ORM\JoinColumn(name="productId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="productId", referencedColumnName="id", onDelete="CASCADE")
      *
      * @Serializer\Groups({"main", "client"})
      */
