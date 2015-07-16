@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
+use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Controller\Feed\FeedController;
 use Sandbox\ApiBundle\Entity\Feed\Feed;
 use Sandbox\ApiBundle\Entity\Feed\FeedAttachment;
@@ -10,6 +11,8 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -18,23 +21,18 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @category Sandbox
  *
- * @author   Josh Yang
+ * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
  */
 class ClientFeedController extends FeedController
 {
-    const NOT_FOUND_MESSAGE = 'This resource does not exist';
-
-    const FEED_TYPE = 'Feed';
-
-    const BAD_PARAM_MESSAGE = 'Bad parameters';
-
-    const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
-
     /**
      * List all feed.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
      * @ApiDoc(
      *   resource = true,
@@ -43,197 +41,192 @@ class ClientFeedController extends FeedController
      *   }
      * )
      *
-     *
-     * @Annotations\QueryParam(
-     *    name="last",
-     *    default="",
-     *    description="
-     *        last task retrieved by client
-     *        to know where to start pagination
-     *    "
-     * )
      * @Annotations\QueryParam(
      *    name="limit",
-     *    requirements="\d\d?",
+     *    array=false,
+     *    default="20",
      *    nullable=true,
-     *    default=20,
+     *    requirements="\d+",
      *    strict=true,
-     *    description="How many task to return. between 0 and 99, default 5"
+     *    description="How many announcements to return "
      * )
+     *
      * @Annotations\QueryParam(
-     *    name="companies",
-     *    array=true,
-     *    default=null,
+     *    name="offset",
+     *    array=false,
+     *    default="0",
      *    nullable=true,
-     *    description=""
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset from which to start listing announcements"
      * )
      *
-     * @Annotations\View()
+     * @Route("feeds/all")
+     * @Method({"GET"})
      *
-     * @param Request               $request      the request object
-     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     * @throws \Exception
      *
-     * @return array
+     * @return View
      */
     public function getFeedsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userID = $this->getUsername();
         $limit = $paramFetcher->get('limit');
-        $last = $paramFetcher->get('last');
+        $offset = $paramFetcher->get('offset');
 
-        $companies = $paramFetcher->get('companies');
-
-        $repo = $this->getRepo('FeedView');
-
-        $feeds = $repo->findAllFeedsByUsersAllCompany($userID, $companies, $limit, $last);
-
-        foreach ($feeds as $feed) {
-            $like = $this->getRepo('FeedLike')->findOneBy(array(
-                'fid' => $feed->getId(),
-                'authorid' => $userID,
-            ));
-
-            if (!is_null($like)) {
-                $likeID = $like->getId();
-                $feed->setMyLikeId($likeID);
-            }
-        }
-
-        return new View($feeds);
-    }
-
-    /**
-     * Get a single feed.
-     *
-     * @ApiDoc(
-     *   output = "Feed",
-     *   statusCodes = {
-     *     200 = "Returned when successful",
-     *     404 = "Returned when the note is not found"
-     *   }
-     * )
-     *
-     * @param Request $request the request object
-     * @param String  $id      the feed Id
-     *
-     * @return array
-     */
-    public function getFeedAction(
-        Request $request,
-        $id
-    ) {
-        $userID = $this->getUsername();
-
-        // check user's permission
-        $feed = $this->getRepo('FeedView')->findOneById($id);
-        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
-
-        $this->throwAccessDeniedIfNotCompanyMember($feed->getParentid(), $userID);
-
-        $like = $this->getRepo('FeedLike')->findOneBy(array(
-            'fid' => $feed->getId(),
-            'authorid' => $userID,
-        ));
-
-        if (!is_null($like)) {
-            $likeID = $like->getId();
-            $feed->setMyLikeId($likeID);
-        }
+        $feed = $this->getRepo('Feed\Feed')->findBy(
+            [],
+            ['creationDate' => 'DESC'],
+            $limit,
+            $offset
+        );
 
         return new View($feed);
     }
 
     /**
+     * Get feed by id.
+     *
      * @param Request $request
      *
-     * @return View
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
      *
-     * @throws BadRequestHttpException
+     * @Route("feeds/{id}")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getFeedAction(
+        Request $request,
+        $id
+    ) {
+        $feed = $this->getRepo('Feed\Feed')->find($id);
+
+        return new View($feed);
+    }
+
+    /**
+     * Add new feed.
+     *
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Route("/feeds")
+     * @Method({"POST"})
+     *
+     * @throws \Exception
+     *
+     * @return View
      */
     public function postFeedAction(
         Request $request
     ) {
         $feed = new Feed();
+
         $form = $this->createForm(new FeedType(), $feed);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
 
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $userID = $this->getUsername();
-
-        $this->throwAccessDeniedIfNotCompanyMember($feed->getParentid(), $userID);
+        $feed->setCreationDate(new \DateTime('now'));
+        $feed->setOwnerid($this->getUserId());
 
         $em = $this->getDoctrine()->getManager();
-
-        $feed->setOwnerid($userID);
-
         $em->persist($feed);
         $em->flush();
 
-        $attachments = $feed->getAttachments();
-        foreach ($attachments as $attachment) {
-            $content = $attachment['content'];
-            $attachmentType = $attachment['attachmenttype'];
-            $filename = $attachment['filename'];
-            $preview = $attachment['preview'];
-            $size = $attachment['size'];
+        //add attachments
+        $attachments = $form['feed_attachments']->getData();
+        $this->addAttachments(
+            $em,
+            $feed,
+            $attachments
+        );
 
-            if (is_null($content) ||
-                $content === '' ||
-                is_null($attachmentType) ||
-                $attachmentType === '' ||
-                is_null($size) ||
-                $size === '') {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
+        $response = array(
+            'id' => $feed->getId(),
+        );
 
-            $feedAttachment = new FeedAttachment();
-            $feedAttachment->setFid($feed->getId());
-            $feedAttachment->setContent($content);
-            $feedAttachment->setAttachmenttype($attachmentType);
-            $feedAttachment->setFilename($filename);
-            $feedAttachment->setPreview($preview);
-            $feedAttachment->setSize($size);
-
-            $em->persist($feedAttachment);
-            $em->flush();
-        }
-
-        $view = $this->routeRedirectView('get_feed', array('id' => $feed->getId()));
-        $view->setData(array('id' => $feed->getId()));
-
-        return $view;
+        return new View($response);
     }
 
     /**
-     * @param Request $request
-     * @param $id
+     * delete feed by id.
      *
-     * @throws BadRequestHttpException
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "No content"
+     *  }
+     * )
+     *
+     * @Route("feeds/{id}")
+     * @Method({"DELETE"})
+     *
+     * @throws \Exception
+     *
+     * @return View
      */
     public function deleteFeedAction(
         Request $request,
         $id
     ) {
-        $userID = $this->getUsername();
-
-        // check user's permission
-        $feed = $this->getRepo('Feed')->findOneById($id);
+        $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
-        $this->throwAccessDeniedIfNotCompanyMember($feed->getParentid(), $userID);
-
-        // only owner can delete feed
-        if ($userID != $feed->getOwnerid()) {
+        // only owner can delete the feed
+        $userId = $this->getUserId();
+        if ($userId != $feed->getOwnerId()) {
             throw new BadRequestHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         $em = $this->getDoctrine()->getManager();
         $em->remove($feed);
+        $em->flush();
+    }
+
+    /**
+     * Add attachments.
+     *
+     * @param EntityManager  $em
+     * @param Feed           $feed
+     * @param FeedAttachment $attachments
+     */
+    private function addAttachments(
+        $em,
+        $feed,
+        $attachments
+    ) {
+        foreach ($attachments as $attachment) {
+            $feedAttachment = new FeedAttachment();
+
+            $feedAttachment->setFeed($feed);
+            $feedAttachment->setContent($attachment['content']);
+            $feedAttachment->setAttachmentType($attachment['attachment_type']);
+            $feedAttachment->setFilename($attachment['filename']);
+            $feedAttachment->setPreview($attachment['preview']);
+            $feedAttachment->setSize($attachment['size']);
+
+            $em->persist($feedAttachment);
+        }
         $em->flush();
     }
 }

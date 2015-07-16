@@ -8,25 +8,36 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class FeedType extends AbstractType
 {
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id')
             ->add('content')
-            ->add('ownerid')
-            ->add('parentid')
-            ->add('parenttype')
-            ->add('attachments')
+            ->add('feed_attachments',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
         ;
     }
 
+    /**
+     * @param OptionsResolverInterface $resolver
+     */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Feed',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Feed\Feed',
         ));
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return '';
