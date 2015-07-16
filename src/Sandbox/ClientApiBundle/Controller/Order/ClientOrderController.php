@@ -14,7 +14,6 @@ use FOS\RestBundle\Controller\Annotations\Delete;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 
 /**
@@ -29,30 +28,9 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientOrderController extends PaymentController
 {
-    const NO_PAYMENT = 'Payment does not exist';
-    const INSUFFICIENT_FUNDS_CODE = 400001;
-    const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
-    const SYSTEM_ERROR_CODE = 500001;
-    const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
     const PAYMENT_SUBJECT = 'ROOM';
     const PAYMENT_BODY = 'ROOM ORDER';
     const PRODUCT_ORDER_LETTER_HEAD = 'P';
-    const INVALID_FORM_CODE = 400002;
-    const INVALID_FORM_MESSAGE = 'Invalid Form';
-    const PRODUCT_NOT_FOUND_CODE = 400003;
-    const PRODUCT_NOT_FOUND_MESSAGE = 'Product Does Not Exist';
-    const ORDER_CONFLICT_CODE = 400004;
-    const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
-    const PRICE_MISMATCH_CODE = 400005;
-    const PRICE_MISMATCH_MESSAGE = 'PRICE DOES NOT MATCH';
-    const WRONG_PAYMENT_STATUS_CODE = 400006;
-    const WRONG_PAYMENT_STATUS_MESSAGE = 'WRONG STATUS';
-    const ORDER_NOT_FOUND_CODE = 400007;
-    const ORDER_NOT_FOUND_MESSAGE = 'Can not find order';
-    const USER_NOT_FOUND_CODE = 400008;
-    const USER_NOT_FOUND_MESSAGE = 'Can not find user in current order';
-    const USER_EXIST_CODE = 400009;
-    const USER_EXIST_MESSAGE = 'This user already exist';
 
     /**
      * Get all orders for current user.
@@ -214,7 +192,11 @@ class ClientOrderController extends PaymentController
 
         $channel = $form['channel']->getData();
         if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
-            throw new BadRequestHttpException(self::WRONG_CHANNEL);
+            return $this->customErrorView(
+                400,
+                self::WRONG_CHANNEL_CODE,
+                self::WRONG_CHANNEL_MESSAGE
+            );
         }
         if ($channel === 'account') {
             $this->payByAccount($order);
@@ -322,6 +304,13 @@ class ClientOrderController extends PaymentController
         $id
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
         if ($order->getStatus() !== 'unpaid') {
             return $this->customErrorView(
                 400,
@@ -332,7 +321,11 @@ class ClientOrderController extends PaymentController
 
         $channel = $request->get('channel');
         if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
-            throw new BadRequestHttpException(self::WRONG_CHANNEL);
+            return $this->customErrorView(
+                400,
+                self::WRONG_CHANNEL_CODE,
+                self::WRONG_CHANNEL_MESSAGE
+            );
         }
 
         if ($channel === 'account') {
@@ -363,6 +356,13 @@ class ClientOrderController extends PaymentController
         $id
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
         if ($order->getStatus() !== 'paid') {
             return $this->customErrorView(
                 400,
@@ -427,8 +427,12 @@ class ClientOrderController extends PaymentController
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
-            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+        if ($status !== 'paid' && $status !== 'completed' || $now > $endDate) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_PAYMENT_STATUS_CODE,
+                self::WRONG_PAYMENT_STATUS_MESSAGE
+            );
         }
         $users = json_decode($request->getContent(), true);
         foreach ($users as $user) {
@@ -489,7 +493,11 @@ class ClientOrderController extends PaymentController
         $endDate = $order->getEndDate();
         $now = new \DateTime();
         if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
-            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+            return $this->customErrorView(
+                400,
+                self::WRONG_CHANNEL_CODE,
+                self::WRONG_CHANNEL_MESSAGE
+            );
         }
         $userIds = $paramFetcher->get('id');
 
@@ -575,8 +583,12 @@ class ClientOrderController extends PaymentController
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
-            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+        if ($status !== 'paid' && $status !== 'completed' || $now > $endDate) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_PAYMENT_STATUS_CODE,
+                self::WRONG_PAYMENT_STATUS_MESSAGE
+            );
         }
         $user = $request->get('user_id');
 

@@ -9,7 +9,6 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for Client TopUpOrders.
@@ -23,12 +22,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientTopUpOrderController extends PaymentController
 {
-    const BAD_REQUEST = 'BAD REQUEST FOR CREATING MEMBERSHIP ORDER FORM';
-    const INSUFFICIENT_FUNDS_CODE = 400001;
-    const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
-    const SYSTEM_ERROR_CODE = 500001;
-    const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
-    const ORDER_NOT_FOUND = 'Can not find order';
     const PAYMENT_SUBJECT = 'TOPUP';
     const PAYMENT_BODY = 'TOPUP ORDER';
     const TOPUP_ORDER_LETTER_HEAD = 'T';
@@ -91,8 +84,20 @@ class ClientTopUpOrderController extends PaymentController
     ) {
         $price = $request->get('price');
         $channel = $request->get('channel');
+
+        if (is_null($price) || empty($price)) {
+            return $this->customErrorView(
+                400,
+                self::NO_PRICE_CODE,
+                self::NO_PRICE_MESSAGE
+            );
+        }
         if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap') {
-            throw new BadRequestHttpException(self::WRONG_CHANNEL);
+            return $this->customErrorView(
+                400,
+                self::WRONG_CHANNEL_CODE,
+                self::WRONG_CHANNEL_MESSAGE
+            );
         }
 
         $orderNumber = $this->getOrderNumber(self::TOPUP_ORDER_LETTER_HEAD);
@@ -122,7 +127,11 @@ class ClientTopUpOrderController extends PaymentController
     ) {
         $order = $order = $this->getRepo('Order\TopUpOrder')->find($id);
         if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
         }
 
         return new View($order);
