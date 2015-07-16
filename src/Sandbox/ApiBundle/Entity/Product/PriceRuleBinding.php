@@ -40,7 +40,7 @@ class PriceRuleBinding
      *
      * @ORM\Column(name="priceRuleId", type="integer")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $priceRuleId;
 

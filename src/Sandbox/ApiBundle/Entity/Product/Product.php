@@ -21,7 +21,7 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "client", "admin_room"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
     private $id;
 
@@ -57,7 +57,7 @@ class Product
      *
      * @ORM\Column(name="basePrice", type="decimal")
      *
-     * @Serializer\Groups({"main", "client", "admin_room"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
     private $basePrice;
 
@@ -66,7 +66,7 @@ class Product
      *
      * @ORM\Column(name="unitPrice", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "client", "admin_room"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
     private $unitPrice;
 
@@ -80,7 +80,7 @@ class Product
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="productId")
      *
-     * @Serializer\Groups({"main", "client", "admin_room"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
     private $priceRule;
 
@@ -153,7 +153,7 @@ class Product
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $room;
 
