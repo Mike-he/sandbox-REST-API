@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Controller\Company;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Sandbox\ApiBundle\Entity\Company\CompanyIndustryMap;
 use Sandbox\ApiBundle\Entity\Company\CompanyPortfolio;
 use Sandbox\ApiBundle\Form\Company\CompanyPortfolioType;
 
@@ -19,19 +18,6 @@ use Sandbox\ApiBundle\Form\Company\CompanyPortfolioType;
  */
 class CompanyController extends SandboxRestController
 {
-    protected function generateCompanyIndustryMap(
-        $company,
-        $industry
-    ) {
-        $CompanyIndustryMap = new CompanyIndustryMap();
-
-        $CompanyIndustryMap->setCompany($company);
-        $CompanyIndustryMap->setIndustry($industry);
-        $CompanyIndustryMap->setCreationDate(new \DateTime('now'));
-
-        return $CompanyIndustryMap;
-    }
-
     protected function generateCompanyPortfolio(
         $company,
         $portfolio

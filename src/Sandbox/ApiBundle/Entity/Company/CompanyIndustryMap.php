@@ -9,7 +9,9 @@ use JMS\Serializer\Annotation as Serializer;
  * CompanyIndustryMap.
  *
  * @ORM\Table(name="CompanyIndustryMap", uniqueConstraints={@ORM\UniqueConstraint(name="companyId_industryId_UNIQUE", columns={"companyId", "industryId"})}, indexes={@ORM\Index(name="fk_CompanyIndustryMap_companyId_idx", columns={"companyId"}), @ORM\Index(name="fk_CompanyIndustryMap_industryId_idx", columns={"industryId"})})
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="Sandbox\ApiBundle\Repository\Company\CompanyIndustryMapRepository"
+ * )
  */
 class CompanyIndustryMap
 {
@@ -38,18 +40,24 @@ class CompanyIndustryMap
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="industryId", referencedColumnName="id")
      * })
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "industry"})
      */
     private $industry;
 
+//    /**
+//     * @var \Sandbox\ApiBundle\Entity\Company\CompanyIndustry
+//     *
+//     *
+//     * @ORM\JoinColumns({
+//     *   @ORM\JoinColumn(name="industryId", referencedColumnName="id")
+//     * })
+//     * @Serializer\Groups({"main", "info", "industry"})
+//     */
+
     /**
-     * @var \Sandbox\ApiBundle\Entity\Company\CompanyIndustry
+     * @var int
      *
-     *
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="industryId", referencedColumnName="id")
-     * })
-     * @Serializer\Groups({"main", "info"})
+     * @ORM\Column(name="industryId", type="integer")
      */
     private $industryId;
 

@@ -192,6 +192,7 @@ class AdminUserLoginController extends AdminLoginController
             $adminToken = new AdminToken();
             $adminToken->setAdmin($admin);
             $adminToken->setClient($adminClient);
+            $adminToken->setClientId($adminClient->getId());
             $adminToken->setToken($this->generateRandomToken());
         }
 
