@@ -170,10 +170,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
-
-        if (is_null($order)) {
-            $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
         $view->setSerializationContext(
@@ -208,10 +205,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         $user = $this->getRepo('User\UserProfile')->find($id);
-
-        if (is_null($user)) {
-            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
         $view->setSerializationContext(

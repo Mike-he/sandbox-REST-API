@@ -1,43 +1,31 @@
 <?php
 
-namespace Sandbox\ApiBundle\Form\Feed;
+namespace Sandbox\ApiBundle\Form\Company;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class FeedType extends AbstractType
+class CompanyPortfolioType extends AbstractType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('content')
-            ->add('feed_attachments',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
+            ->add('attachment_type')
+            ->add('file_name')
+            ->add('preview')
+            ->add('size')
         ;
     }
 
-    /**
-     * @param OptionsResolverInterface $resolver
-     */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Feed\Feed',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Company\CompanyPortfolio',
         ));
     }
 
-    /**
-     * @return string
-     */
     public function getName()
     {
         return '';

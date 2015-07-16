@@ -49,8 +49,9 @@ class ClientBuddyController extends BuddyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // get userId
-        $userId = $this->getUserId();
+        // get my user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get user
         $query = $paramFetcher->get('query');
@@ -66,7 +67,7 @@ class ClientBuddyController extends BuddyController
 
         $buddies = array();
 
-        if (!is_null($user)) {
+        if (!is_null($user) && $user != $myUser) {
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($user->getId());
 
             if (!is_null($profile)) {
@@ -74,8 +75,8 @@ class ClientBuddyController extends BuddyController
                 // if the search target is my buddy, then stauts = accepted
                 // else if the search target have a pending buddy request from me, then status = pending
                 $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                    'userId' => $userId,
-                    'buddyId' => $user->getId(),
+                    'user' => $myUser,
+                    'buddy' => $user,
                 ));
 
                 if (!is_null($myBuddy)) {
@@ -84,8 +85,8 @@ class ClientBuddyController extends BuddyController
                     // if both user is buddy with each other
                     // then show user jid
                     $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                        'userId' => $user->getId(),
-                        'buddyId' => $userId,
+                        'user' => $user,
+                        'buddy' => $myUser,
                     ));
 
                     if (!is_null($otherBuddy)) {
@@ -94,8 +95,8 @@ class ClientBuddyController extends BuddyController
                     }
                 } else {
                     $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                        'askUserId' => $userId,
-                        'recvUserId' => $user->getId(),
+                        'askUser' => $myUser,
+                        'recvUser' => $user,
                         'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
                     ));
 
@@ -136,14 +137,15 @@ class ClientBuddyController extends BuddyController
     public function getBuddiesAction(
         Request $request
     ) {
-        // get user
-        $userId = $this->getUserId();
+        // get my user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // TODO check user is authorized
 
 
         // get buddies
-        $buddies = $this->getRepo('Buddy\Buddy')->findByUserId($userId);
+        $buddies = $this->getRepo('Buddy\Buddy')->findByUser($myUser);
 
         // get globals
         $twig = $this->container->get('twig');
@@ -165,8 +167,8 @@ class ClientBuddyController extends BuddyController
                     // if both user is buddy with each other
                     // then show user jid
                     $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                        'userId' => $buddyId,
-                        'buddyId' => $userId,
+                        'user' => $buddy,
+                        'buddy' => $myUser,
                     ));
 
                     if (!is_null($otherBuddy)) {

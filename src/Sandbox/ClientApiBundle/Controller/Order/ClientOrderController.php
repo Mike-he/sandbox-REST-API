@@ -29,16 +29,7 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientOrderController extends PaymentController
 {
-    const BAD_REQUEST = 'BAD REQUEST FOR CREATING ORDER FORM';
-    const PRICE_MISMATCH = 'PRICE DOES NOT MATCH';
-    const TIME_UNIT_MISMATCH = 'TIME UNIT DOES NOT MATCH';
-    const WRONG_PAYMENT_STATUS = 'WRONG STATUS';
     const NO_PAYMENT = 'Payment does not exist';
-    const USER_EXIST = 'This user already exist';
-    const ORDER_NOT_FOUND = 'Can not find order';
-    const PRODUCT_NOT_FOUND = 'Product Does Not Exist';
-    const USER_NOT_FOUND = 'Can not find user in current order';
-    const ORDER_CONFLICT = 'Order Conflict';
     const INSUFFICIENT_FUNDS_CODE = 400001;
     const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
     const SYSTEM_ERROR_CODE = 500001;
@@ -46,6 +37,22 @@ class ClientOrderController extends PaymentController
     const PAYMENT_SUBJECT = 'ROOM';
     const PAYMENT_BODY = 'ROOM ORDER';
     const PRODUCT_ORDER_LETTER_HEAD = 'P';
+    const INVALID_FORM_CODE = 400002;
+    const INVALID_FORM_MESSAGE = 'Invalid Form';
+    const PRODUCT_NOT_FOUND_CODE = 400003;
+    const PRODUCT_NOT_FOUND_MESSAGE = 'Product Does Not Exist';
+    const ORDER_CONFLICT_CODE = 400004;
+    const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
+    const PRICE_MISMATCH_CODE = 400005;
+    const PRICE_MISMATCH_MESSAGE = 'PRICE DOES NOT MATCH';
+    const WRONG_PAYMENT_STATUS_CODE = 400006;
+    const WRONG_PAYMENT_STATUS_MESSAGE = 'WRONG STATUS';
+    const ORDER_NOT_FOUND_CODE = 400007;
+    const ORDER_NOT_FOUND_MESSAGE = 'Can not find order';
+    const USER_NOT_FOUND_CODE = 400008;
+    const USER_NOT_FOUND_MESSAGE = 'Can not find user in current order';
+    const USER_EXIST_CODE = 400009;
+    const USER_EXIST_MESSAGE = 'This user already exist';
 
     /**
      * Get all orders for current user.
@@ -139,12 +146,20 @@ class ClientOrderController extends PaymentController
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_REQUEST);
+            return $this->customErrorView(
+                400,
+                self::INVALID_FORM_CODE,
+                self::INVALID_FORM_MESSAGE
+            );
         }
         $productId = $order->getProductId();
         $product = $this->getRepo('Product\Product')->find($productId);
         if (is_null($product)) {
-            throw new BadRequestHttpException(self::PRODUCT_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::PRODUCT_NOT_FOUND_CODE,
+                self::PRODUCT_NOT_FOUND_MESSAGE
+            );
         }
 
         $period = $form['rent_period']->getData();
@@ -166,14 +181,22 @@ class ClientOrderController extends PaymentController
             $endDate
         );
 
-        if (!empty($checkOrder)) {
-            throw new BadRequestHttpException(self::ORDER_CONFLICT);
+        if (!empty($checkOrder) && !is_null($checkOrder)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_CONFLICT_CODE,
+                self::ORDER_CONFLICT_MESSAGE
+            );
         }
 
         $calculatedPrice = $basePrice * $period;
 
         if ($order->getPrice() !== $calculatedPrice) {
-            throw new BadRequestHttpException(self::PRICE_MISMATCH);
+            return $this->customErrorView(
+                400,
+                self::PRICE_MISMATCH_CODE,
+                self::PRICE_MISMATCH_MESSAGE
+            );
         }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
@@ -300,7 +323,11 @@ class ClientOrderController extends PaymentController
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         if ($order->getStatus() !== 'unpaid') {
-            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+            return $this->customErrorView(
+                400,
+                self::WRONG_PAYMENT_STATUS_CODE,
+                self::WRONG_PAYMENT_STATUS_MESSAGE
+            );
         }
 
         $channel = $request->get('channel');
@@ -337,7 +364,11 @@ class ClientOrderController extends PaymentController
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         if ($order->getStatus() !== 'paid') {
-            throw new BadRequestHttpException(self::WRONG_PAYMENT_STATUS);
+            return $this->customErrorView(
+                400,
+                self::WRONG_PAYMENT_STATUS_CODE,
+                self::WRONG_PAYMENT_STATUS_MESSAGE
+            );
         }
         $price = $order->getPrice();
         //TODO: CALL CRM API to get current balance $balance
@@ -387,7 +418,11 @@ class ClientOrderController extends PaymentController
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
         }
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
@@ -404,7 +439,11 @@ class ClientOrderController extends PaymentController
                 ]
             );
             if (!is_null($checkUser)) {
-                throw new BadRequestHttpException(self::USER_EXIST);
+                return $this->customErrorView(
+                    400,
+                    self::USER_EXIST_CODE,
+                    self::USER_EXIST_MESSAGE
+                );
             }
             $people = new InvitedPeople();
             $people->setOrderId($order);
@@ -440,7 +479,11 @@ class ClientOrderController extends PaymentController
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
         }
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
@@ -451,7 +494,11 @@ class ClientOrderController extends PaymentController
         $userIds = $paramFetcher->get('id');
 
         if (empty($userIds)) {
-            throw new BadRequestHttpException(self::USER_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::USER_NOT_FOUND_CODE,
+                self::USER_NOT_FOUND_MESSAGE
+            );
         }
 
         foreach ($userIds as $userId) {
@@ -462,7 +509,11 @@ class ClientOrderController extends PaymentController
                 ]
             );
             if (is_null($checkUser)) {
-                throw new BadRequestHttpException(self::USER_NOT_FOUND);
+                return $this->customErrorView(
+                    400,
+                    self::USER_NOT_FOUND_CODE,
+                    self::USER_NOT_FOUND_MESSAGE
+                );
             }
 
             $em = $this->getDoctrine()->getManager();
@@ -483,7 +534,11 @@ class ClientOrderController extends PaymentController
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
         }
         $people = $this->getRepo('Order\InvitedPeople')->findBy(
             ['orderId' => $id]
@@ -511,7 +566,11 @@ class ClientOrderController extends PaymentController
     ) {
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
         }
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
@@ -547,7 +606,11 @@ class ClientOrderController extends PaymentController
     ) {
         $order = $order = $this->getRepo('Order\ProductOrder')->find($id);
         if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
         }
 
         $view = new View();

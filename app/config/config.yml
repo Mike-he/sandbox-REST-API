@@ -64,6 +64,7 @@ twig:
         pingpp_app_id: "%pingpp_app_id%"
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"
+        user_profile_default_name_prefix: "%user_profile_default_name_prefix%"
 
 # Assetic Configuration
 assetic:
@@ -201,7 +202,7 @@ fos_rest:
         include_format:       false
     view:
         mime_types:
-            json: ['application/json', 'application/json;version=1.0', 'application/json;version=1.1', 'application/xml']
+            json: ['application/json; charset=UTF-8', 'application/json', 'application/json;version=1.0', 'application/json;version=1.1', 'application/xml']
         view_response_listener: 'force'
         formats:
             xml:  true

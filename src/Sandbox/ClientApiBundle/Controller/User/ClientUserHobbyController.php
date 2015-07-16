@@ -61,9 +61,7 @@ class ClientUserHobbyController extends UserProfileController
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
+     * @param Request $request
      *
      * @Route("/hobbies")
      * @Method({"POST"})
@@ -71,9 +69,7 @@ class ClientUserHobbyController extends UserProfileController
      * @return View
      */
     public function postUserHobbyAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-
+        Request $request
     ) {
         $userId = $this->getUserId();
         $user = $this->getRepo('User\User')->find($userId);

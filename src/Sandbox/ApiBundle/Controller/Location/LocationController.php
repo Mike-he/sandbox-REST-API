@@ -8,6 +8,11 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Location Controller.
@@ -73,6 +78,8 @@ class LocationController extends SandboxRestController
      *
      * @param Request $request
      * @param $id
+     *
+     * @return View
      */
     public function getOneBuildingAction(
         Request $request,
@@ -113,5 +120,54 @@ class LocationController extends SandboxRestController
         $floors = $this->getRepo('Room\RoomFloor')->findAll();
 
         return new View($floors);
+    }
+
+    /**
+     * Get building avatar.
+     *
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Route("/buildings/{id}/avatar")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getBuildingAvatar(
+        Request $request,
+        $id
+    ) {
+        $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        if (is_null($building)) {
+            throw new NotFoundHttpException();
+        }
+
+        $filePath = $building->getAvatar();
+        if (is_null($filePath)) {
+            throw new NotFoundHttpException();
+        }
+
+        $hash = hash_file('md5', $filePath);
+
+        $response = new StreamedResponse();
+        $response->headers->set('Content-Type', 'image/jpeg');
+        $response->setEtag($hash);
+
+        $response->setCallback(function () use ($filePath) {
+            $bytes = @readfile($filePath);
+            if ($bytes === false || $bytes <= 0) {
+                throw new NotFoundHttpException();
+            }
+        });
+
+        $response->send();
     }
 }

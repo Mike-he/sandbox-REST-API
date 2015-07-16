@@ -49,6 +49,13 @@ class RoomBuilding
     private $cityId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="RoomCity", inversedBy="buildings"))
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main"})
+     **/
+    private $city;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
@@ -93,6 +100,15 @@ class RoomBuilding
      * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $lng;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="avatar", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"avatar"})
+     */
+    private $avatar;
 
     /**
      * Get id.
@@ -222,5 +238,39 @@ class RoomBuilding
     public function getLng()
     {
         return $this->lng;
+    }
+
+    /**
+     * Set avatar.
+     *
+     * @param string $avatar
+     *
+     * @return RoomBuilding
+     */
+    public function setAvatar($avatar)
+    {
+        $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * Get avatar.
+     *
+     * @return string
+     */
+    public function getAvatar()
+    {
+        return $this->avatar;
+    }
+
+    /**
+     * Get city.
+     *
+     * @return RoomCity
+     */
+    public function getCity()
+    {
+        return $this->city;
     }
 }

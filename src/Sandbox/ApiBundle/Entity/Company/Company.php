@@ -9,7 +9,8 @@ use JMS\Serializer\Annotation as Serializer;
  * Company.
  *
  * @ORM\Table(name="Company", indexes={
- * @ORM\Index(name="fk_company_creatorId_idx",columns={"creatorId"})})
+ *     @ORM\Index(name="fk_company_creatorId_idx",columns={"creatorId"})}
+ * )
  * @ORM\Entity
  */
 class Company
@@ -493,11 +494,9 @@ class Company
     /**
      * Set creatorId.
      *
-     * @param \Sandbox\ApiBundle\Entity\User\User $creatorId
-     *
      * @return Company
      */
-    public function setCreatorId(\Sandbox\ApiBundle\Entity\User\User $creatorId = null)
+    public function setCreatorId($creatorId)
     {
         $this->creatorId = $creatorId;
 
@@ -536,11 +535,23 @@ class Company
         return $this;
     }
 
+    /**
+     * get industries.
+     *
+     * @return array
+     */
     public function getIndustries()
     {
         return $this->industries;
     }
 
+    /**
+     * set industries.
+     *
+     * @param $industries
+     *
+     * @return $this
+     */
     public function setIndustries($industries)
     {
         $this->industries = $industries;

@@ -17,3 +17,4 @@ parameters:
     pingpp_app_id: app_OCqnLKmXfD0OH80a
     load_more_limit: 20
     nearby_range_km: 100
+    user_profile_default_name_prefix: 用户_
