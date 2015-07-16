@@ -1,12 +1,9 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller\User;
+namespace Sandbox\ApiBundle\Controller\Company;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Symfony\Component\HttpFoundation\Request;
-use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Entity\Company\CompanyIndustryMap;
 
 /**
  * Company Industry Controller.
@@ -20,54 +17,16 @@ use JMS\Serializer\SerializationContext;
  */
 class CompanyIndustryController extends SandboxRestController
 {
-    /**
-     * Get all industries.
-     *
-     * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
-     * @return View
-     */
-    public function getIndustriesAction(
-        Request $request
+    protected function generateCompanyIndustryMap(
+        $company,
+        $industry
     ) {
-        $industries = $this->getRepo('Company\CompanyIndustry')->findAll();
+        $CompanyIndustryMap = new CompanyIndustryMap();
 
-        $view = new View($industries);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('industries'))
-        );
+        $CompanyIndustryMap->setCompany($company);
+        $CompanyIndustryMap->setIndustry($industry);
+        $CompanyIndustryMap->setCreationDate(new \DateTime('now'));
 
-        return $view;
-    }
-
-    /**
-     * Get a single industry.
-     *
-     * @param Request $request the request object
-     * @param String  $id      the industry Id
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
-     * @return View
-     */
-    public function getIndustryAction(
-        Request $request,
-        $id
-    ) {
-        $industry = $this->getRepo('Company\CompanyIndustry')->find($id);
-
-        return new View($industry);
+        return $CompanyIndustryMap;
     }
 }
