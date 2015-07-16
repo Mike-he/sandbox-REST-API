@@ -1,17 +1,18 @@
 # FEEDS/feeds
 sandbox_client_api_feed:
     resource: "@SandboxClientApiBundle/Controller/Feed/ClientFeedController.php"
-    type:     rest
+    type:     annotation
+    prefix:   /
 
 sandbox_client_api_feed_like:
     resource: "@SandboxClientApiBundle/Controller/Feed/ClientFeedLikeController.php"
-    type:     rest
-    parent:   sandbox_client_api_feed
+    type:     annotation
+    prefix:   /
 
 sandbox_client_api_feed_comment:
     resource: "@SandboxClientApiBundle/Controller/Feed/ClientFeedCommentController.php"
-    type:     rest
-    parent:   sandbox_client_api_feed
+    type:     annotation
+    prefix:   /
 
 # COMPANIES /companies
 sandbox_client_api_company:

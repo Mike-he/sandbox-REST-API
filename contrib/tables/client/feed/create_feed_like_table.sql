@@ -1,10 +1,10 @@
 CREATE TABLE `FeedLike` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `fid` int(11) NOT NULL,
-  `authorID` varchar(64) NOT NULL,
-  `creationDate` char(15) NOT NULL,
+  `feedId` int(11) NOT NULL,
+  `authorId` varchar(64) NOT NULL,
+  `creationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `feed_like_fid_authorid_UNIQUE` (`fid`,`authorID`),
-  KEY `feed_like_fk_fid_idx` (`fid`),
-  CONSTRAINT `fk_feedlike_fid` FOREIGN KEY (`fid`) REFERENCES `Feed` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  UNIQUE KEY `feed_like_feedId_authorId_UNIQUE` (`feedId`,`authorId`),
+  KEY `feed_like_fk_fid_idx` (`feedId`),
+  CONSTRAINT `fk_feedLike_fid` FOREIGN KEY (`feedId`) REFERENCES `Feed` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
