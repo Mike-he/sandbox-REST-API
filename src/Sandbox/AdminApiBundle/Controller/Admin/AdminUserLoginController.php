@@ -191,6 +191,7 @@ class AdminUserLoginController extends AdminLoginController
         if (is_null($adminToken)) {
             $adminToken = new AdminToken();
             $adminToken->setAdmin($admin);
+            $adminToken->setAdminId($admin->getId());
             $adminToken->setClient($adminClient);
             $adminToken->setClientId($adminClient->getId());
             $adminToken->setToken($this->generateRandomToken());
