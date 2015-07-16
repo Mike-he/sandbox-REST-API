@@ -38,7 +38,7 @@ class ProductOrder
      *
      * @ORM\Column(name="userId", type="integer")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main"})
      */
     private $userId;
 
@@ -47,7 +47,7 @@ class ProductOrder
      *
      * @ORM\Column(name="productId", type="integer")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main"})
      */
     private $productId;
 
@@ -161,7 +161,7 @@ class ProductOrder
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
      * @ORM\JoinColumn(name="productId", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $product;
 

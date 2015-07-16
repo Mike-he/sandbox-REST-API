@@ -31,7 +31,7 @@ class Room
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $id;
 
@@ -40,7 +40,7 @@ class Room
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $name;
 
@@ -66,7 +66,7 @@ class Room
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $city;
 
@@ -83,7 +83,7 @@ class Room
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $building;
 
@@ -100,7 +100,7 @@ class Room
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFloor")
      * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $floor;
 
@@ -109,7 +109,7 @@ class Room
      *
      * @ORM\Column(name="number", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $number;
 
@@ -127,7 +127,7 @@ class Room
      *
      * @ORM\Column(name="type", type="string", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $type;
 
