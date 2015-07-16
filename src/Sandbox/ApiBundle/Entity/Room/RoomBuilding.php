@@ -115,16 +115,6 @@ class RoomBuilding
     private $avatar;
 
     /**
-     * @var array
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\User\UserProfile",
-     *      mappedBy="building"
-     * )
-     */
-    private $profiles;
-
-    /**
      * Get id.
      *
      * @return int
@@ -286,15 +276,5 @@ class RoomBuilding
     public function getCity()
     {
         return $this->city;
-    }
-
-    /**
-     * Get profiles.
-     *
-     * @return array
-     */
-    public function getProfiles()
-    {
-        return $this->profiles;
     }
 }
