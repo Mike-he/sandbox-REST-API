@@ -25,6 +25,12 @@ sandbox_client_api_company_industry:
     type:     rest
     parent:   sandbox_client_api_company
 
+# COMPANIES /companies/portfolios
+sandbox_client_api_company_portfolio:
+    resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyPortfolioController.php"
+    type:     rest
+    parent:   sandbox_client_api_company
+
 sandbox_client_api_company_member:
     resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyMemberController.php"
     type:     rest
