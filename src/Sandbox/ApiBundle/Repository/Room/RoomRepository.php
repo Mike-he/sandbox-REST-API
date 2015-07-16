@@ -28,7 +28,7 @@ class RoomRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('r')
             ->select('
-                r as Room,
+                r as room,
                 o.status,
                 o.startDate as order_start_date,
                 o.endDate as order_end_date,
