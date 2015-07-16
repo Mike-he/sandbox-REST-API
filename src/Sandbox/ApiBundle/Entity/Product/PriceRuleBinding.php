@@ -28,7 +28,7 @@ class PriceRuleBinding
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product", inversedBy="priceRule")
      *
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="productId", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="productId", referencedColumnName="id", onDelete="CASCADE")
      * })
      *
      * @Serializer\Groups({"main"})

@@ -50,7 +50,7 @@ class RoomBuilding
 
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity", inversedBy="buildings"))
-     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main"})
      **/
     private $city;

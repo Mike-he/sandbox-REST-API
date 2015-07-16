@@ -150,7 +150,7 @@ class Product
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id")
      *
      * @Serializer\Groups({"main", "client"})
