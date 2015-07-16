@@ -19,7 +19,7 @@ sandbox_client_api_company:
     type:     rest
 
 # COMPANIES /companies/industries
-sandbox_client_api_company:
+sandbox_client_api_company_industry:
     resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyIndustryController.php"
     type:     rest
     parent:   sandbox_client_api_company

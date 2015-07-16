@@ -4,12 +4,14 @@ namespace Sandbox\ClientApiBundle\Controller\Company;
 
 use Sandbox\ApiBundle\Controller\Company\CompanyIndustryController;
 use Sandbox\ApiBundle\Entity\Company\CompanyIndustryMap;
+use Sandbox\ApiBundle\Entity\Company\Company;
+use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use JMS\Serializer\SerializationContext;
 
 /**
@@ -21,22 +23,14 @@ use JMS\Serializer\SerializationContext;
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
- * @Route("/profile")
  */
 class ClientCompanyIndustryController extends CompanyIndustryController
 {
     /**
      * Get Company's industries.
      *
-     * @param Request $request the request object
+     * @param Request $request contains request info
      * @param int     $id      id of the company
-     *
-     * @Annotations\QueryParam(
-     *    name="company_id",
-     *    default=null,
-     *    description="companyId"
-     * )
-     *
      *
      * @Get("/companies/{id}/industries")
      *
@@ -46,40 +40,33 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         Request $request,
         $id
     ) {
-        die('HolyShit!!!');
-        $companyId = $paramFetcher->get('company_id');
-        if (is_null($companyId)) {
-            $companyId = $this->getCompanyId();
-        }
-
-        $company = $this->getRepo('Company\Company')->find($companyId);
+        $company = $this->getRepo('Company\Company')->find($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
         $view = new View($company->getIndustries());
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('industry')));
 
         return $view;
     }
 
     /**
+     * add industries.
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      *
-     * @Route("/industries")
-     * @Method({"POST"})
+     * @POST("/companies/{id}/industries")
      *
      * @return View
      */
     public function postCompanyIndustryAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher
-
+        $id
     ) {
-        $companyId = $this->getCompanyId();
-        $company = $this->getRepo('Company\Company')->find($companyId);
-
         $em = $this->getDoctrine()->getManager();
+
+        $company = $this->getRepo('Company\Company')->find($id);
 
         $industryIds = json_decode($request->getContent(), true);
         foreach ($industryIds as $industryId) {
@@ -102,10 +89,13 @@ class ClientCompanyIndustryController extends CompanyIndustryController
 
         $em->flush();
 
-        return new View();
+        return new view();
     }
 
     /**
+     * delete industries.
+     *
+     * @param $id
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -116,18 +106,19 @@ class ClientCompanyIndustryController extends CompanyIndustryController
      *    description=""
      * )
      *
-     * @Route("/industries")
-     * @Method({"DELETE"})
+     * @Delete("/companies/{id}/industries")
      *
      * @return View
      */
-    public function deleteCompanyIndustryAction(
+    public function deleteCompanyIndustriesAction(
+        $id,
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        //TODO check user‘s auth
         $this->getRepo('Company\CompanyIndustryMap')->deleteCompanyIndustries(
             $paramFetcher->get('id'),
-            $this->getCompanyId()
+            $id
         );
 
         return new View();
