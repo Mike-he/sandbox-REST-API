@@ -10,7 +10,6 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Patch;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for Client MembershipOrders.
@@ -24,12 +23,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientMembershipOrderController extends PaymentController
 {
-    const BAD_REQUEST = 'BAD REQUEST FOR CREATING MEMBERSHIP ORDER FORM';
-    const INSUFFICIENT_FUNDS_CODE = 400001;
-    const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
-    const SYSTEM_ERROR_CODE = 500001;
-    const SYSTEM_ERROR_MESSAGE = 'System error - 系统出错';
-    const ORDER_NOT_FOUND = 'Can not find order';
     const PAYMENT_SUBJECT = 'VIP';
     const PAYMENT_BODY = 'month';
     const VIP_ORDER_LETTER_HEAD = 'V';
@@ -93,8 +86,20 @@ class ClientMembershipOrderController extends PaymentController
         $type = $request->get('type');
         $price = $request->get('price');
         $channel = $request->get('channel');
+
+        if (is_null($price) || empty($price)) {
+            return $this->customErrorView(
+                400,
+                self::NO_PRICE_CODE,
+                self::NO_PRICE_MESSAGE
+            );
+        }
         if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
-            throw new BadRequestHttpException(self::WRONG_CHANNEL);
+            return $this->customErrorView(
+                400,
+                self::WRONG_PAYMENT_STATUS_CODE,
+                self::WRONG_PAYMENT_STATUS_MESSAGE
+            );
         }
 
         if ($channel === 'account') {
@@ -131,8 +136,12 @@ class ClientMembershipOrderController extends PaymentController
             1
         );
         $order = $orderArray[0];
-        if (empty($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
         }
         $order->setCancelledDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
@@ -200,7 +209,11 @@ class ClientMembershipOrderController extends PaymentController
     ) {
         $order = $order = $this->getRepo('Order\MembershipOrder')->find($id);
         if (is_null($order)) {
-            throw new BadRequestHttpException(self::ORDER_NOT_FOUND);
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
         }
 
         return new View($order);
