@@ -32,6 +32,8 @@ class RoomBuilding
      *      "client",
      *      "profile",
      *      "profile_basic",
+     *      "profile_stranger",
+     *      "profile_basic_stranger",
      *      "buddy",
      *      "member"
      *  }
@@ -49,7 +51,7 @@ class RoomBuilding
     private $cityId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="RoomCity", inversedBy="buildings"))
+     * @ORM\ManyToOne(targetEntity="RoomCity", inversedBy="buildings")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main"})
      **/
@@ -67,6 +69,8 @@ class RoomBuilding
      *      "client",
      *      "profile",
      *      "profile_basic",
+     *      "profile_stranger",
+     *      "profile_basic_stranger",
      *      "buddy",
      *      "member"
      *  }
@@ -109,6 +113,16 @@ class RoomBuilding
      * @Serializer\Groups({"avatar"})
      */
     private $avatar;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\User\UserProfile",
+     *      mappedBy="building"
+     * )
+     */
+    private $profiles;
 
     /**
      * Get id.
@@ -272,5 +286,15 @@ class RoomBuilding
     public function getCity()
     {
         return $this->city;
+    }
+
+    /**
+     * Get profiles.
+     *
+     * @return array
+     */
+    public function getProfiles()
+    {
+        return $this->profiles;
     }
 }

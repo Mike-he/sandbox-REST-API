@@ -9,7 +9,15 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * User Profile.
  *
- * @ORM\Table(name="UserProfile")
+ * @ORM\Table(
+ *      name="UserProfile",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="userId_UNIQUE", columns={"userId"})
+ *      },
+ *      indexes={
+ *          @ORM\Index(name="fk_UserProfile_buildingId_idx", columns={"buildingId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class UserProfile
@@ -288,7 +296,7 @@ class UserProfile
     /**
      * @var RoomBuilding
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding"))
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding", inversedBy="profiles")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      * @Serializer\Groups(
      *  {

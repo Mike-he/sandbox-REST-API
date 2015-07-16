@@ -39,7 +39,7 @@ class BuddyRequest
     private $askUserId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="buddyRequestAsk"))
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="buddyRequestAsk")
      * @ORM\JoinColumn(name="askUserId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $askUser;
@@ -52,7 +52,7 @@ class BuddyRequest
     private $recvUserId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="buddyRequestRecv"))
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="buddyRequestRecv")
      * @ORM\JoinColumn(name="recvUserId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $recvUser;
