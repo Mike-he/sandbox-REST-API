@@ -1,18 +1,17 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller\Auth;
+namespace Sandbox\AdminApiBundle\Controller\Auth;
 
 use Sandbox\ApiBundle\Controller\Auth\AuthController;
-use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
- * Client Auth controller.
+ * Admin Auth controller.
  *
  * @category Sandbox
  *
@@ -21,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ClientAuthController extends AuthController
+class AdminAuthController extends AuthController
 {
     /**
      * Token auth.
@@ -42,20 +41,15 @@ class ClientAuthController extends AuthController
      *
      * @throws \Exception
      */
-    public function getClientAuthMeAction(
+    public function getAdminAuthMeAction(
         Request $request
     ) {
-        $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
+        $myAdminId = $this->getAdminId();
+        $myAdmin = $this->getRepo('Admin\Admin')->find($myAdminId);
 
-        if ($myUser->isBanned()) {
-            throw new UnauthorizedHttpException(null);
-        }
-
-        $view = new View();
-        $view->setData(array(
-            'id' => $myUserId,
-        ));
+        // response
+        $view = new View($myAdmin);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('auth')));
 
         return $view;
     }
