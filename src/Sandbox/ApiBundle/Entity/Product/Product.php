@@ -46,7 +46,7 @@ class Product
     /**
      * @var int
      *
-     * @ORM\Column(name="visibleUserId", type="integer")
+     * @ORM\Column(name="visibleUserId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main", "admin_room"})
      */
@@ -78,7 +78,7 @@ class Product
      *      mappedBy="product",
      *      cascade={"persist"}
      * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="productId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="productId", nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
