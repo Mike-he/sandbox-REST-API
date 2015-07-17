@@ -5,7 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Admin;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Form\Admin\AdminType as AdminForm;
+use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -120,7 +120,7 @@ class AdminAdminsController extends SandboxRestController
 
         // bind admin data
         $admin = new Admin();
-        $form = $this->createForm(new AdminForm(), $admin);
+        $form = $this->createForm(new AdminPostType(), $admin);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
@@ -191,32 +191,38 @@ class AdminAdminsController extends SandboxRestController
     private function saveAdmin(
         $admin
     ) {
+        $em = $this->getDoctrine()->getManager();
+
         $now = new \DateTime('now');
 
         // set permissions
-        $permissions = array();
-        foreach ($admin->getPermissionIds() as $permissionId) {
-            $myPermission = $this->getRepo('Admin\AdminPermission')->find($permissionId);
-            if (is_null($myPermission)
-                || $myPermission->getTypeId() != $admin->getTypeId()) {
-                continue;
+        $permissionIds = $admin->getPermissionIds();
+        if (!is_null($permissionIds) && !empty($permissionIds)) {
+            foreach ($permissionIds as $permissionId) {
+                // get permission
+                $myPermission = $this->getRepo('Admin\AdminPermission')->find($permissionId);
+                if (is_null($myPermission)
+                    || $myPermission->getTypeId() != $admin->getTypeId()
+                ) {
+                    // if permission's type is different
+                    // don't add the permission
+                    continue;
+                }
+
+                // save permission map
+                $permissionMap = new AdminPermissionMap();
+                $permissionMap->setAdmin($admin);
+                $permissionMap->setPermission($myPermission);
+                $permissionMap->setCreationDate($now);
+                $em->persist($permissionMap);
             }
-
-            $permissionMap = new AdminPermissionMap();
-            $permissionMap->setAdmin($admin);
-            $permissionMap->setPermission($myPermission);
-            $permissionMap->setCreationDate($now);
-
-            array_push($permissions, $permissionMap);
         }
-        $admin->setPermissions($permissions);
 
         // set dates
         $admin->setCreationDate($now);
         $admin->setModificationDate($now);
 
         // save admin
-        $em = $this->getDoctrine()->getManager();
         $em->persist($admin);
         $em->flush();
 

@@ -96,6 +96,11 @@ class Admin implements UserInterface
     private $permissions;
 
     /**
+     * @var array
+     */
+    private $permissionIds;
+
+    /**
      * Get id.
      *
      * @return int
@@ -248,6 +253,18 @@ class Admin implements UserInterface
     }
 
     /**
+     * Set type.
+     *
+     * @param AdminType $type
+     *
+     * @return Admin
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
      * Get permissions.
      *
      * @return array
@@ -255,6 +272,24 @@ class Admin implements UserInterface
     public function getPermissions()
     {
         return $this->permissions;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPermissionIds()
+    {
+        return $this->permissionIds;
+    }
+
+    /**
+     * @param array $permissionIds
+     *
+     * @return Admin
+     */
+    public function setPermissionIds($permissionIds)
+    {
+        $this->permissionIds = $permissionIds;
     }
 
     /**

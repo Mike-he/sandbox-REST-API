@@ -16,6 +16,10 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class AdminType
 {
+    const KEY_SUPER = 'super';
+    const KEY_PLATFORM = 'platform';
+    const KEY_BUILDING = 'building';
+
     /**
      * @var int
      *

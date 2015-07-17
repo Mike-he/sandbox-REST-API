@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class AdminType extends AbstractType
+class AdminPostType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -17,6 +17,7 @@ class AdminType extends AbstractType
         $builder
             ->add('username')
             ->add('password')
+            ->add('name')
             ->add('type_id')
             ->add('permission_ids')
         ;
