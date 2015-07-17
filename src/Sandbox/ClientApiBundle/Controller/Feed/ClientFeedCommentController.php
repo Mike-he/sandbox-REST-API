@@ -109,38 +109,36 @@ class ClientFeedCommentController extends FeedCommentController
     }
 
     /**
+     * delete comment.
+     *
      * @param Request $request   the request object
      * @param int     $id        id of the feed
      * @param int     $commentId id of the comment
      *
-     * @Delete("/feeds/{id}/comments/{commentId}")
+     * @Route("feeds/{id}/comments/{commentId}")
+     * @Method({"DELETE"})
+     *
+     * @throws \Exception
      *
      * @return View
-     *
-     * @throws BadRequestHttpException
      */
     public function deleteFeedCommentAction(
         Request $request,
         $id,
         $commentId
     ) {
-        $username = $this->getUsername();
-
-        // check user's permission
-        $feed = $this->getRepo('Feed')->findOneById($id);
+        $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
-        $this->throwAccessDeniedIfNotCompanyMember($feed->getParentid(), $username);
-
         // get comment by id and commentId
-        $comment = $this->getRepo('FeedComment')->findOneBy(array(
+        $comment = $this->getRepo('Feed\FeedComment')->findOneBy(array(
             'id' => $commentId,
-            'fid' => $id,
+            'feedId' => $id,
         ));
         $this->throwNotFoundIfNull($comment, self::NOT_FOUND_MESSAGE);
 
         // if user is not the author of this comment
-        if ($username != $comment->getAuthorid()) {
+        if ($this->getUserId() != $comment->getAuthorId()) {
             throw new BadRequestHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
