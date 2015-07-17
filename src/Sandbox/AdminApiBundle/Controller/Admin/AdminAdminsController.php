@@ -62,16 +62,8 @@ class AdminAdminsController extends SandboxRestController
     public function getAdminsAction(
         Request $request
     ) {
-        // TODO a common function to check user permission
-
-        $user = $this->getUser();
-        $myAdmin = $this->getRepo('Admin\Admin')->find($user->getAdminId());
-
-        // only super admin is allowed to create admin account
-        $type = $this->getRepo('Admin\AdminType')->findOneByKey(AdminType::KEY_SUPER);
-        if ($type->getId() != $myAdmin->getType()->getId()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
         // get all admins
         $admins = $this->getRepo('Admin\Admin')->findAll();
@@ -107,16 +99,8 @@ class AdminAdminsController extends SandboxRestController
     public function postAdminsAction(
         Request $request
     ) {
-        // TODO a common function to check user permission
-
-        $user = $this->getUser();
-        $myAdmin = $this->getRepo('Admin\Admin')->find($user->getAdminId());
-
-        // only super admin is allowed to create admin account
-        $type = $this->getRepo('Admin\AdminType')->findOneByKey(AdminType::KEY_SUPER);
-        if ($type->getId() != $myAdmin->getType()->getId()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
         // bind admin data
         $admin = new Admin();
@@ -128,6 +112,42 @@ class AdminAdminsController extends SandboxRestController
         }
 
         throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+    }
+
+    /**
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/admins/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deleteAdminAction(
+        Request $request,
+        $id
+    ) {
+        $myAdminId = $this->getAdminId();
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed($myAdminId, AdminType::KEY_SUPER);
+
+        // get admin
+        $admin = $this->getRepo('Admin\Admin')->find($id);
+
+        if (!is_null($admin)) {
+            // check admin is myself
+            if ($myAdminId == $admin->getId()) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            // remove from db
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($admin);
+            $em->flush();
+        }
+
+        return new View();
     }
 
     /**
@@ -227,48 +247,5 @@ class AdminAdminsController extends SandboxRestController
         $em->flush();
 
         return $admin;
-    }
-
-    /**
-     * @param Request $request
-     * @param int     $id
-     *
-     * @Route("/admins/{id}")
-     * @Method({"DELETE"})
-     *
-     * @return View
-     */
-    public function deleteAdminAction(
-        Request $request,
-        $id
-    ) {
-        $AdminId = $this->getAdminId();
-        // get admin
-        $admin = $this->getRepo('Admin\Admin')->find($id);
-
-        // TODO a common function to check user permission
-
-        $user = $this->getUser();
-        $myAdmin = $this->getRepo('Admin\Admin')->find($user->getAdminId());
-
-        // only super admin is allowed to create admin account
-        $type = $this->getRepo('Admin\AdminType')->findOneByKey(AdminType::KEY_SUPER);
-        if ($type->getId() != $myAdmin->getType()->getId()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        if (!is_null($admin)) {
-            //check admin is allowed to delete
-            if ($AdminId != $admin->getAdminId()) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-            }
-
-            // remove from db
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($admin);
-            $em->flush();
-        }
-
-        return new View();
     }
 }
