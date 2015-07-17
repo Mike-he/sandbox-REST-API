@@ -86,13 +86,11 @@ class AdminUserLoginController extends AdminLoginController
             }
             $em->flush();
 
-            // admin permission
-            $permissions = $this->getAdminPermissions($admin);
-            $admin->setPermission($permissions);
-
             // response
             $view = new View();
-            $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
+            $view->setSerializationContext(
+                SerializationContext::create()->setGroups(array('login'))
+            );
 
             return $view->setData(array(
                 'admin' => $admin,
@@ -201,26 +199,5 @@ class AdminUserLoginController extends AdminLoginController
         $adminToken->setCreationDate(new \DateTime('now'));
 
         return $adminToken;
-    }
-
-    /**
-     * @param Admin $admin
-     *
-     * @return array
-     */
-    private function getAdminPermissions(
-        $admin
-    ) {
-        $adminPermissions = array();
-
-        foreach ($admin->getPermissionIds() as $myPermission) {
-            $permission = $myPermission->getPermission();
-            if (is_null($permission)) {
-                continue;
-            }
-            array_push($adminPermissions, $permission);
-        }
-
-        return $adminPermissions;
     }
 }

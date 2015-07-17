@@ -26,7 +26,7 @@ class Admin implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "admin"})
      */
     private $id;
 
@@ -34,7 +34,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "admin"})
      */
     private $username;
 
@@ -49,7 +49,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "admin"})
      */
     private $name;
 
@@ -65,7 +65,7 @@ class Admin implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin"})
      */
     private $creationDate;
 
@@ -73,14 +73,14 @@ class Admin implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin"})
      */
     private $modificationDate;
 
     /**
      * @ORM\ManyToOne(targetEntity="AdminType", inversedBy="admins")
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "admin"})
      **/
     private $type;
 
