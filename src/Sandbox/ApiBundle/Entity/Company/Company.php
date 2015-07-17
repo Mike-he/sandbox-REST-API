@@ -148,7 +148,7 @@ class Company
      *      mappedBy="company",
      *      cascade={"persist"}
      * )
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "portfolio"})
      */
     private $portfolios;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller\Company;
+namespace Sandbox\ApiBundle\Controller\Auth;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 /**
- * Company Controller.
+ * Auth Controller.
  *
  * @category Sandbox
  *
@@ -14,6 +14,6 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
  *
  * @link     http://www.Sandbox.cn/
  */
-class CompanyController extends SandboxRestController
+class AuthController extends SandboxRestController
 {
 }

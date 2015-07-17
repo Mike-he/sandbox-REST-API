@@ -26,7 +26,7 @@ class Admin implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "auth"})
      */
     private $id;
 
@@ -34,7 +34,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "auth"})
      */
     private $username;
 
@@ -49,7 +49,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "auth"})
      */
     private $name;
 
@@ -80,24 +80,20 @@ class Admin implements UserInterface
     /**
      * @ORM\ManyToOne(targetEntity="AdminType", inversedBy="admins")
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "auth"})
      **/
     private $type;
 
     /**
-     * @ORM\OneToMany(targetEntity="AdminPermissionMap", mappedBy="admin")
-     **/
-    private $permissionIds;
-
-    /**
-     * @Serializer\Groups({"login"})
-     **/
-    private $permission;
-
-    /**
-     * @ORM\OneToMany(targetEntity="AdminToken", mappedBy="admin")
-     **/
-    private $tokens;
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="AdminPermissionMap",
+     *      mappedBy="admin"
+     * )
+     * @Serializer\Groups({"main", "login", "auth"})
+     */
+    private $permissions;
 
     /**
      * Get id.
@@ -252,45 +248,13 @@ class Admin implements UserInterface
     }
 
     /**
-     * Get permissionIds.
+     * Get permissions.
      *
      * @return array
      */
-    public function getPermissionIds()
+    public function getPermissions()
     {
-        return $this->permissionIds;
-    }
-
-    /**
-     * Set permission.
-     *
-     * @param array $permission
-     *
-     * @return Admin
-     */
-    public function setPermission($permission)
-    {
-        $this->permission = $permission;
-    }
-
-    /**
-     * Get permission.
-     *
-     * @return array
-     */
-    public function getPermission()
-    {
-        return $this->permission;
-    }
-
-    /**
-     * Get tokens.
-     *
-     * @return array
-     */
-    public function getTokens()
-    {
-        return $this->tokens;
+        return $this->permissions;
     }
 
     /**

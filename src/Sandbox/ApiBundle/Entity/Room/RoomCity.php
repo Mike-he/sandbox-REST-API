@@ -20,7 +20,7 @@ class RoomCity
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class RoomCity
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $name;
 

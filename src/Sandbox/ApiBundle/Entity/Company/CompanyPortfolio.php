@@ -9,16 +9,46 @@ use JMS\Serializer\Annotation as Serializer;
  * CompanyPortfolio.
  *
  * @ORM\Table(name="CompanyPortfolio", indexes={@ORM\Index(name="fk_CompanyPortfolio_companyId_idx", columns={"companyId"})})
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="Sandbox\ApiBundle\Repository\Company\CompanyPortfolioRepository"
+ * )
  */
 class CompanyPortfolio
 {
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "info", "portfolio"})
+     */
+    private $id;
+
+//    /**
+//     * @var \Sandbox\ApiBundle\Entity\Company\Company
+//     *
+//     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
+//     * @ORM\JoinColumns({
+//     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
+//     * })
+//     * @Serializer\Groups({"main", "info", "portfolio"})
+//     */
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="companyId", type="integer", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $companyId;
+
     /**
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "portfolio"})
      */
     private $content;
 
@@ -26,7 +56,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "portfolio"})
      */
     private $attachmentType;
 
@@ -34,7 +64,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="fileName", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "portfolio"})
      */
     private $fileName;
 
@@ -42,7 +72,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="preview", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "portfolio"})
      */
     private $preview;
 
@@ -50,7 +80,7 @@ class CompanyPortfolio
      * @var int
      *
      * @ORM\Column(name="size", type="integer", nullable=true)
-     * @Serializer\Groups({"main", "info"})
+     * @Serializer\Groups({"main", "info", "portfolio"})
      */
     private $size;
 
@@ -69,27 +99,6 @@ class CompanyPortfolio
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "info"})
-     */
-    private $id;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Company\Company
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
-     * })
-     * @Serializer\Groups({"main", "info"})
-     */
-    private $companyId;
 
     /**
      * @ORM\ManyToOne(targetEntity="Company", inversedBy="portfolios")

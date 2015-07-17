@@ -35,7 +35,8 @@ class RoomBuilding
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "buddy",
-     *      "member"
+     *      "member",
+     *      "admin_detail"
      *  }
      * )
      */
@@ -72,7 +73,8 @@ class RoomBuilding
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "buddy",
-     *      "member"
+     *      "member",
+     *      "admin_detail"
      *  }
      * )
      */
@@ -83,7 +85,7 @@ class RoomBuilding
      *
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $address;
 
