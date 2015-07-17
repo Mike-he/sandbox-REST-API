@@ -194,7 +194,9 @@ class ClientUserLoginController extends UserLoginController
         if (is_null($userToken)) {
             $userToken = new UserToken();
             $userToken->setUser($user);
+            $userToken->setUserId($user->getId());
             $userToken->setClient($userClient);
+            $userToken->setClientId($userClient->getId());
             $userToken->setToken($this->generateRandomToken());
         }
 
