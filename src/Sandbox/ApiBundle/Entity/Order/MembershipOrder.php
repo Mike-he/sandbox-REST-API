@@ -59,7 +59,7 @@ class MembershipOrder
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="cancelledDate", type="datetime")
+     * @ORM\Column(name="cancelledDate", type="datetime", nullable=true)
      */
     private $cancelledDate;
 
