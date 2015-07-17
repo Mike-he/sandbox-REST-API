@@ -228,4 +228,47 @@ class AdminAdminsController extends SandboxRestController
 
         return $admin;
     }
+
+    /**
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/admins/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deleteAdminAction(
+        Request $request,
+        $id
+    ) {
+        $AdminId = $this->getAdminId();
+        // get admin
+        $admin = $this->getRepo('Admin\Admin')->find($id);
+
+        // TODO a common function to check user permission
+
+        $user = $this->getUser();
+        $myAdmin = $this->getRepo('Admin\Admin')->find($user->getAdminId());
+
+        // only super admin is allowed to create admin account
+        $type = $this->getRepo('Admin\AdminType')->findOneByKey(AdminType::KEY_SUPER);
+        if ($type->getId() != $myAdmin->getType()->getId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        if (!is_null($admin)) {
+            //check admin is allowed to delete
+            if ($AdminId != $admin->getAdminId()) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            // remove from db
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($admin);
+            $em->flush();
+        }
+
+        return new View();
+    }
 }
