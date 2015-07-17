@@ -73,14 +73,15 @@ class SandboxRestController extends FOSRestController
     }
 
     //--------------------get user's info--------------------//
+
     /**
      * Get the jid of the guy who's making the API call.
      *
-     * @return string
+     * @return int
      */
-    protected function getUserJid()
+    protected function getAdminId()
     {
-        return $this->getUser()->getJid();
+        return $this->getUser()->getAdminId();
     }
 
     /**
