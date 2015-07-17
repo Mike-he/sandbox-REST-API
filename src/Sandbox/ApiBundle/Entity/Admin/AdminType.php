@@ -16,17 +16,13 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class AdminType
 {
-    const KEY_SUPER = 'super';
-    const KEY_PLATFORM = 'platform';
-    const KEY_BUILDING = 'building';
-
     /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "admin"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $id;
 
@@ -34,7 +30,7 @@ class AdminType
      * @var string
      *
      * @ORM\Column(name="key", type="string", length=32, nullable=true)
-     * @Serializer\Groups({"main", "login", "admin"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $key;
 
@@ -42,7 +38,7 @@ class AdminType
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login", "admin"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $name;
 

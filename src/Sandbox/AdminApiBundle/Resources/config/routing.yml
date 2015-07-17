@@ -52,3 +52,9 @@ sandbox_admin_api_admins:
     type:     annotation
     prefix:   /
 
+# Adnub Token Auth /admin/auth/me
+sandbox_admin_api_auth:
+    resource: "@SandboxAdminApiBundle/Controller/Auth/AdminAuthController.php"
+    type:     annotation
+    prefix:   /auth
+

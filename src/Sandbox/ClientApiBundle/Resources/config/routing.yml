@@ -160,3 +160,9 @@ sandbox_client_api_member:
     resource: "@SandboxClientApiBundle/Controller/Member/ClientMemberController.php"
     type:     annotation
     prefix:   /
+
+# Client Token Auth /client/auth/me
+sandbox_client_api_auth:
+    resource: "@SandboxClientApiBundle/Controller/Auth/ClientAuthController.php"
+    type:     annotation
+    prefix:   /auth

@@ -68,7 +68,6 @@ class UserHobbyMap
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
