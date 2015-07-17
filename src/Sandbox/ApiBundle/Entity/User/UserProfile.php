@@ -39,7 +39,8 @@ class UserProfile
      *      "profile_basic",
      *      "profile_stranger",
      *      "profile_basic_stranger",
-     *      "admin_order"
+     *      "admin_order",
+     *      "feed"
      *  }
      * )
      */
@@ -77,7 +78,8 @@ class UserProfile
      *      "profile_basic_stranger",
      *      "buddy",
      *      "member",
-     *      "admin_order"
+     *      "admin_order",
+     *      "feed"
      *  }
      * )
      */
@@ -95,7 +97,8 @@ class UserProfile
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "buddy",
-     *      "member"
+     *      "member",
+     *      "feed"
      *  }
      * )
      */
@@ -113,7 +116,8 @@ class UserProfile
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "buddy",
-     *      "member"
+     *      "member",
+     *      "feed"
      *  }
      * )
      */
@@ -127,7 +131,8 @@ class UserProfile
      *  {
      *      "main",
      *      "profile",
-     *      "profile_basic"
+     *      "profile_basic",
+     *      "feed"
      *  }
      * )
      */
@@ -142,7 +147,8 @@ class UserProfile
      *      "main",
      *      "profile",
      *      "profile_basic",
-     *      "admin_order"
+     *      "admin_order",
+     *      "feed"
      *  }
      * )
      */
@@ -157,7 +163,8 @@ class UserProfile
      *      "main",
      *      "profile",
      *      "profile_basic",
-     *      "admin_order"
+     *      "admin_order",
+     *      "feed"
      *  }
      * )
      */
@@ -174,7 +181,8 @@ class UserProfile
      *      "profile_basic",
      *      "profile_stranger",
      *      "profile_basic_stranger",
-     *      "member"
+     *      "member",
+     *      "feed"
      *  }
      * )
      */
@@ -191,7 +199,8 @@ class UserProfile
      *      "profile_basic",
      *      "profile_stranger",
      *      "profile_basic_stranger",
-     *      "member"
+     *      "member",
+     *      "feed"
      *  }
      * )
      */
@@ -207,7 +216,8 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "profile_stranger",
-     *      "profile_basic_stranger"
+     *      "profile_basic_stranger",
+     *      "feed"
      *  }
      * )
      */
@@ -223,7 +233,8 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "profile_stranger",
-     *      "profile_basic_stranger"
+     *      "profile_basic_stranger",
+     *      "feed"
      *  }
      * )
      */
@@ -239,7 +250,8 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "profile_stranger",
-     *      "profile_basic_stranger"
+     *      "profile_basic_stranger",
+     *      "feed"
      *  }
      * )
      */
@@ -255,7 +267,8 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "profile_stranger",
-     *      "profile_basic_stranger"
+     *      "profile_basic_stranger",
+     *      "feed"
      *  }
      * )
      */

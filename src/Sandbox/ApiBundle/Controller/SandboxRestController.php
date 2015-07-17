@@ -9,6 +9,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 
 //TODO there's certainly a way to get the
 // current bundle name with a magic function
@@ -92,6 +93,41 @@ class SandboxRestController extends FOSRestController
     protected function getUserId()
     {
         return $this->getUser()->getUserId();
+    }
+
+    //-------------------- check admin permission --------------------//
+
+    /**
+     * Check admin's permission, is allowed to operate.
+     *
+     * @param int    $adminId
+     * @param string $typeKey
+     * @param string $permissionKey
+     *
+     * @return bool
+     */
+    protected function isAdminAllowed(
+        $adminId,
+        $typeKey,
+        $permissionKey
+    ) {
+        $admin = $this->getRepo('Admin\Admin')->find($adminId);
+
+        $type = $admin->getType();
+        if ($typeKey != $type->getKey()) {
+            return false;
+        }
+
+        if ($typeKey === AdminType::KEY_SUPER) {
+            return true;
+        }
+
+        // not super admin
+        // check permission
+        $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
+        $permissions = $admin->getPermissions();
+
+        return in_array($permission, $permissions);
     }
 
     /**

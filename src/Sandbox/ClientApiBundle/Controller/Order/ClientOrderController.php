@@ -169,7 +169,7 @@ class ClientOrderController extends PaymentController
 
         $calculatedPrice = $basePrice * $period;
 
-        if ($order->getPrice() !== $calculatedPrice) {
+        if ($order->getPrice() != $calculatedPrice) {
             return $this->customErrorView(
                 400,
                 self::PRICE_MISMATCH_CODE,

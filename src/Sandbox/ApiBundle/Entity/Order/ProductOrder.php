@@ -122,7 +122,7 @@ class ProductOrder
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="paymentDate", type="datetime")
+     * @ORM\Column(name="paymentDate", type="datetime", nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */
@@ -131,7 +131,7 @@ class ProductOrder
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="cancelledDate", type="datetime")
+     * @ORM\Column(name="cancelledDate", type="datetime", nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */

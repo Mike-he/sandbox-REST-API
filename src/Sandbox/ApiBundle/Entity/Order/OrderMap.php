@@ -38,7 +38,7 @@ class OrderMap
     /**
      * @var string
      *
-     * @ORM\Column(name="chargeId", type="string", length=128)
+     * @ORM\Column(name="chargeId", type="string", length=128, nullable=true)
      */
     private $chargeId;
 

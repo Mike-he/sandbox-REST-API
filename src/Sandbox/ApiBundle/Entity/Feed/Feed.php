@@ -43,30 +43,6 @@ class Feed
     private $creationDate;
 
     /**
-     * @var FeedAttachment
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Feed\FeedAttachment",
-     *      mappedBy="feed",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="feedId")
-     */
-    private $attachments;
-
-    /**
-     * @var FeedComment
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Feed\FeedComment",
-     *      mappedBy="feed",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="feedId")
-     */
-    private $comments;
-
-    /**
      * Get id.
      *
      * @return int
@@ -146,53 +122,5 @@ class Feed
     public function getCreationDate()
     {
         return $this->creationDate;
-    }
-
-    /**
-     * Get attachments.
-     *
-     * @return FeedAttachment
-     */
-    public function getAttachments()
-    {
-        return $this->attachments;
-    }
-
-    /**
-     * Set attachments.
-     *
-     * @param FeedAttachment $attachments
-     *
-     * @return Feed
-     */
-    public function setAttachments($attachments)
-    {
-        $this->attachments = $attachments;
-
-        return $this;
-    }
-
-    /**
-     * Get comments.
-     *
-     * @return FeedComment
-     */
-    public function getComments()
-    {
-        return $this->comments;
-    }
-
-    /**
-     * Set comments.
-     *
-     * @param FeedComment $comments
-     *
-     * @return Feed
-     */
-    public function setComments($comments)
-    {
-        $this->comment = $comments;
-
-        return $this;
     }
 }

@@ -8,6 +8,8 @@ use Sandbox\ApiBundle\Form\Feed\FeedCommentType;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -24,66 +26,54 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientFeedCommentController extends FeedCommentController
 {
-    const BAD_PARAM_MESSAGE = 'Bad parameters';
-
-    const NOT_FOUND_MESSAGE = 'This resource does not exist';
-
-    const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
-
     /**
-     * Get all the comments of a given feed.
+     * Get all comments of a given feed.
      *
-     * @param Request $request contains request info
-     * @param string  $id      id of the feed
+     * @param Request $request
      *
-     * @Get("/feeds/{id}/comments")
+     * @Route("feeds/{id}/comments")
+     * @Method({"GET"})
      *
-     * @return array
+     * @throws \Exception
+     *
+     * @return View
      */
     public function getFeedCommentsAction(
         Request $request,
         $id
     ) {
-        $username = $this->getUsername();
-
-        // check user's permission
-        $feed = $this->getRepo('Feed')->findOneById($id);
+        $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
-        $this->throwAccessDeniedIfNotCompanyMember($feed->getParentid(), $username);
-
-        $comments = $this->getRepo('FeedComment')->findByFid($id);
+        $comments = $this->getRepo('Feed\FeedComment')->findByFeedId($id);
 
         return new View($comments);
     }
 
     /**
-     * @param Request $request
-     * @param $id
+     * post a comment for a given feed.
      *
-     * @Post("/feeds/{id}/comments")
+     * @param Request $request
+     *
+     * @Route("feeds/{id}/comments")
+     * @Method({"POST"})
+     *
+     * @throws \Exception
      *
      * @return View
-     *
-     * @throws BadRequestHttpException
      */
     public function postFeedCommentAction(
         Request $request,
         $id
     ) {
-        $username = $this->getUsername();
-
-        // check user's permission
-        $feed = $this->getRepo('Feed')->findOneById($id);
+        $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
-
-        $this->throwAccessDeniedIfNotCompanyMember($feed->getParentid(), $username);
 
         // get request payload
         $comment = new FeedComment();
 
         $form = $this->createForm(new FeedCommentType(), $comment);
-        $form->submit(json_decode($request->getContent(), true));
+        $form->handleRequest($request);
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
@@ -98,10 +88,10 @@ class ClientFeedCommentController extends FeedCommentController
         }
 
         // set comment
-        $comment->setFid($id);
-        $comment->setAuthorid($username);
+        $comment->setFeedId($id);
+        $comment->setAuthorId($this->getUserId());
         $comment->setPayload($payload);
-        $comment->setCreationdate(time());
+        $comment->setCreationdate(new \DateTime('now'));
 
         // save to db
         $em = $this->getDoctrine()->getManager();
@@ -112,7 +102,7 @@ class ClientFeedCommentController extends FeedCommentController
         $view = new View();
         $view->setData(array(
             'id' => $comment->getId(),
-            'creationdate' => $comment->getCreationdate(),
+            'creationDate' => $comment->getCreationDate(),
         ));
 
         return $view;

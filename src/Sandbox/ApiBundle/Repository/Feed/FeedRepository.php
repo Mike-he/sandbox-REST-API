@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityRepository;
  *
  * @category Sandbox
  *
- * @author   Josh Yang
+ * @author   Sergi Uceda
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
@@ -17,21 +17,25 @@ use Doctrine\ORM\EntityRepository;
 class FeedRepository extends EntityRepository
 {
     /**
-     * @param $companyID
+     * Get list of feeds.
+     *
+     * @return array
      */
-    public function deleteAllFeedsByCompany(
-        $companyID
+    public function getFeeds(
+        $limit,
+        $offset
     ) {
-        $query = $this->getEntityManager()
-            ->createQuery('
-                    DELETE FROM SandboxApiBundle:Feed f
-                    WHERE
-                    f.parenttype = :parentType
-                    AND f.parentid = :parentID
-                ')
-            ->setParameter('parentType', 'company')
-            ->setParameter('parentID', $companyID);
+        $query = $this->createQueryBuilder('f')
+            ->select('
+                f
+            ');
 
-        $query->execute();
+        $query->orderBy('f.creationDate', 'DESC');
+        $query->setFirstResult($offset);
+        $query->setMaxResults($limit);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }
