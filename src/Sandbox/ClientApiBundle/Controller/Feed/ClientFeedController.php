@@ -112,12 +112,13 @@ class ClientFeedController extends FeedController
         Request $request,
         $id
     ) {
-        $feed = $this->getRepo('Feed\Feed')->find($id);
+        $feed = $this->getRepo('Feed\FeedView')->find($id);
+        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
         $view = new View($feed);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
 
-        return new $view();
+        return $view;
     }
 
     /**
