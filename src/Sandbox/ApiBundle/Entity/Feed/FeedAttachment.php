@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Feed;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FeedAttachment.
@@ -23,6 +24,8 @@ class FeedAttachment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "client"})
      */
     private $id;
 
@@ -33,6 +36,8 @@ class FeedAttachment
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="feedId", referencedColumnName="id", onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $feed;
 
@@ -40,6 +45,8 @@ class FeedAttachment
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $content;
 
@@ -47,6 +54,8 @@ class FeedAttachment
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $attachmentType;
 
@@ -54,6 +63,8 @@ class FeedAttachment
      * @var string
      *
      * @ORM\Column(name="filename", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $filename;
 
@@ -61,6 +72,8 @@ class FeedAttachment
      * @var string
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $preview;
 
@@ -68,6 +81,8 @@ class FeedAttachment
      * @var int
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $size;
 

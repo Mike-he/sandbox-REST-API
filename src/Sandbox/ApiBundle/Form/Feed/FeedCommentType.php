@@ -18,7 +18,7 @@ class FeedCommentType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\FeedComment',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Feed\FeedComment',
         ));
     }
 
