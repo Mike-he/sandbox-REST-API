@@ -27,14 +27,11 @@ class FeedComment
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Feed\Feed
+     * @var int
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Feed\Feed", inversedBy="comments")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="feedId", referencedColumnName="id", onDelete="CASCADE")
-     * })
+     * @ORM\Column(name="feedId", type="integer", nullable=false)
      */
-    private $feed;
+    private $feedId;
 
     /**
      * @var string
@@ -68,27 +65,27 @@ class FeedComment
     }
 
     /**
-     * Set Feeds.
+     * Set Feed id.
      *
-     * @param Feed $feed
+     * @param int
      *
      * @return FeedComment
      */
-    public function setFeed($feed)
+    public function setFeedId($feedId)
     {
-        $this->feed = $feed;
+        $this->feedId = $feedId;
 
         return $this;
     }
 
     /**
-     * Get Feed.
+     * Get Feed id.
      *
-     * @return Feed
+     * @return int
      */
-    public function getFeed()
+    public function getFeedId()
     {
-        return $this->feed;
+        return $this->feedId;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
 use Doctrine\ORM\EntityManager;
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Feed\FeedController;
 use Sandbox\ApiBundle\Entity\Feed\Feed;
 use Sandbox\ApiBundle\Entity\Feed\FeedAttachment;
@@ -75,14 +76,17 @@ class ClientFeedController extends FeedController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $feed = $this->getRepo('Feed\Feed')->findBy(
+        $feed = $this->getRepo('Feed\FeedView')->findBy(
             [],
             ['creationDate' => 'DESC'],
             $limit,
             $offset
         );
 
-        return new View($feed);
+        $view = new View($feed);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
+
+        return $view;
     }
 
     /**
@@ -108,9 +112,13 @@ class ClientFeedController extends FeedController
         Request $request,
         $id
     ) {
-        $feed = $this->getRepo('Feed\Feed')->find($id);
+        $feed = $this->getRepo('Feed\FeedView')->find($id);
+        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
-        return new View($feed);
+        $view = new View($feed);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
+
+        return $view;
     }
 
     /**
