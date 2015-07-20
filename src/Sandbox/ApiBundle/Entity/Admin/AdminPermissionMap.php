@@ -53,14 +53,14 @@ class AdminPermissionMap
     private $creationDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="AdminPermission", inversedBy="permissionMap")
+     * @ORM\ManyToOne(targetEntity="AdminPermission")
      * @ORM\JoinColumn(name="permissionId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main", "login", "admin", "auth"})
      **/
     private $permission;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Admin", inversedBy="permissions")
+     * @ORM\ManyToOne(targetEntity="Admin")
      * @ORM\JoinColumn(name="adminId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $admin;
