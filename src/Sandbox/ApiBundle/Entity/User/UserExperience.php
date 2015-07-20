@@ -74,7 +74,7 @@ class UserExperience
     private $modificationDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="experiences")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;

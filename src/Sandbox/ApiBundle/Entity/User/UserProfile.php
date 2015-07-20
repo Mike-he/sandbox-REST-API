@@ -309,7 +309,7 @@ class UserProfile
     /**
      * @var RoomBuilding
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding", inversedBy="profiles")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      * @Serializer\Groups(
      *  {

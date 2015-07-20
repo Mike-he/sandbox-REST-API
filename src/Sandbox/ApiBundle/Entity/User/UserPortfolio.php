@@ -85,7 +85,7 @@ class UserPortfolio
     private $modificationDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="portfolios")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
