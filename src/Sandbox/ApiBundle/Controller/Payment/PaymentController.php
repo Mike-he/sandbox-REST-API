@@ -131,8 +131,8 @@ class PaymentController extends SandboxRestController
     public function setProductOrder(
         $data
     ) {
-        $mapId = $data['data']['object']['order_no'];
-        $map = $this->getRepo('Order\OrderMap')->find($mapId);
+        $chargeId = $data['data']['object']['id'];
+        $map = $this->getRepo('Order\OrderMap')->findOneBy(['chargeId' => $chargeId]);
         $orderId = $map->getOrderId();
         $order = $this->getRepo('Order\ProductOrder')->find($orderId);
         $order->setStatus(self::STATUS_PAID);
