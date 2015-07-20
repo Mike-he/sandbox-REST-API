@@ -9,13 +9,22 @@ use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {
+    /**
+     * Check for Order Conflict.
+     *
+     * @param $productId
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
     public function checkProductForClient(
         $productId,
         $startDate,
         $endDate
     ) {
         $query = $this->createQueryBuilder('o')
-            ->Where('o.productId = :productId')
+            ->where('o.productId = :productId')
             ->andWhere('o.status <> \'cancelled\'')
             ->andWhere(
                 '(
@@ -26,6 +35,54 @@ class OrderRepository extends EntityRepository
             ->setParameter('productId', $productId)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * Get Booked Times for Meeting Room.
+     *
+     * @param $id
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getTimesByDate(
+        $id,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.productId = :productId')
+            ->andWhere('o.status <> \'cancelled\'')
+            ->andWhere('o.startDate >= :startDate')
+            ->andWhere('o.endDate <= :endDate')
+            ->orderBy('o.startDate', 'ASC')
+            ->setParameter('productId', $id)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * Get Booked Times for Room.
+     *
+     * @param $id
+     *
+     * @return array
+     */
+    public function getBookedDates(
+        $id
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.productId = :productId')
+            ->andWhere('o.status <> \'cancelled\'')
+            ->orderBy('o.startDate', 'ASC')
+            ->setParameter('productId', $id)
             ->getQuery();
 
         return $query->getResult();

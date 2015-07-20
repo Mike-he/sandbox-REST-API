@@ -180,4 +180,65 @@ class ClientProductController extends ProductController
     ) {
         return $this->getOneProduct($id);
     }
+
+    /**
+     * @Get("/products/{id}/dates")
+     *
+     * @Annotations\QueryParam(
+     *    name="rent_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        rent date
+     *    "
+     * )
+     *
+     * @param Request $request
+     * @param $id
+     * @param ParamFetcherInterface $paramFetcher
+     */
+    public function getBookedDatesAction(
+        Request $request,
+        $id,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $product = $this->getRepo('Product\Product')->find($id);
+        if (is_null($product)) {
+            return $this->customErrorView(
+                400,
+                self::PRODUCT_NOT_FOUND_CODE,
+                self::PRODUCT_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $type = $product->getRoom()->getType();
+        $rentDate = $paramFetcher->get('rent_date');
+        if ($type === 'meeting' && !is_null($rentDate) && !empty($rentDate)) {
+            $startDate = new \DateTime($rentDate);
+            $endDate = clone $startDate;
+            $endDate->setTime(23, 59, 59);
+            $orders = $this->getRepo('Order\ProductOrder')->getTimesByDate(
+                $id,
+                $startDate,
+                $endDate
+            );
+        } else {
+            $orders = $this->getRepo('Order\ProductOrder')->getBookedDates($id);
+        }
+
+        if (empty($orders)) {
+            return;
+        }
+
+        $response = [];
+        foreach ($orders as $order) {
+            $dates = array(
+                'start' => $order->getStartDate(),
+                'end' => $order->getEndDate(),
+            );
+            array_push($response, $dates);
+        }
+
+        return new View($response);
+    }
 }
