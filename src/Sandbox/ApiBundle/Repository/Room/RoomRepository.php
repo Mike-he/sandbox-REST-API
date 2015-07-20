@@ -35,10 +35,10 @@ class RoomRepository extends EntityRepository
                 up.name as renter_name,
                 up.email as renter_email
             ')
-            ->innerJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
-            ->innerJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
-            ->innerJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
-            ->innerJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId');
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId');
 
         // filter by type
         if (!is_null($type)) {
