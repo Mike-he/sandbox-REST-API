@@ -49,7 +49,7 @@ class ClientFeedController extends FeedController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many announcements to return "
+     *    description="How many feeds to return "
      * )
      *
      * @Annotations\QueryParam(
@@ -59,7 +59,7 @@ class ClientFeedController extends FeedController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="Offset from which to start listing announcements"
+     *    description="Offset from which to start listing feeds"
      * )
      *
      * @Route("feeds/all")
@@ -76,14 +76,31 @@ class ClientFeedController extends FeedController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $feed = $this->getRepo('Feed\FeedView')->findBy(
+        $feeds = $this->getRepo('Feed\FeedView')->findBy(
             [],
             ['creationDate' => 'DESC'],
             $limit,
             $offset
         );
 
-        $view = new View($feed);
+        foreach ($feeds as $feed) {
+            $userId = $this->getUserId();
+
+            $profile = $this->getRepo('User\UserProfile')->findByUserId($userId);
+            $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+            $feed->setOwner($profile);
+
+            $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
+                'feedId' => $feed->getId(),
+                'authorId' => $userId,
+            ));
+
+            if (!is_null($like)) {
+                $feed->setMyLikeId($like->getId());
+            }
+        }
+
+        $view = new View($feeds);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
 
         return $view;
@@ -114,6 +131,21 @@ class ClientFeedController extends FeedController
     ) {
         $feed = $this->getRepo('Feed\FeedView')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
+
+        $userId = $this->getUserId();
+
+        $profile = $this->getRepo('User\UserProfile')->findByUserId($userId);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+        $feed->setOwner($profile);
+
+        $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
+            'feedId' => $feed->getId(),
+            'authorId' => $userId,
+        ));
+
+        if (!is_null($like)) {
+            $feed->setMyLikeId($like->getId());
+        }
 
         $view = new View($feed);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));

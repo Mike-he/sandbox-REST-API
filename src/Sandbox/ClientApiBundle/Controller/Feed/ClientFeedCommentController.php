@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Feed\FeedCommentController;
 use Sandbox\ApiBundle\Entity\Feed\FeedComment;
 use Sandbox\ApiBundle\Form\Feed\FeedCommentType;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @category Sandbox
  *
- * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
+ * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
@@ -47,7 +48,18 @@ class ClientFeedCommentController extends FeedCommentController
 
         $comments = $this->getRepo('Feed\FeedComment')->findByFeedId($id);
 
-        return new View($comments);
+        foreach ($comments as $comment) {
+            $userId = $this->getUserId();
+
+            $profile = $this->getRepo('User\UserProfile')->findByUserId($userId);
+            $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+            $comment->setAuthor($profile);
+        }
+
+        $view = new View($comments);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
+
+        return $view;
     }
 
     /**
