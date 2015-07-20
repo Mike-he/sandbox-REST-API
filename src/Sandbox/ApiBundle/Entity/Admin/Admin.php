@@ -78,7 +78,7 @@ class Admin implements UserInterface
     private $modificationDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="AdminType", inversedBy="admins")
+     * @ORM\ManyToOne(targetEntity="AdminType")
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
      * @Serializer\Groups({"main", "login", "admin", "auth"})
      **/

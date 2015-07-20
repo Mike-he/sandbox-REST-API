@@ -617,7 +617,7 @@ class ClientOrderController extends PaymentController
         Request $request,
         $id
     ) {
-        $order = $order = $this->getRepo('Order\ProductOrder')->find($id);
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
         if (is_null($order)) {
             return $this->customErrorView(
                 400,

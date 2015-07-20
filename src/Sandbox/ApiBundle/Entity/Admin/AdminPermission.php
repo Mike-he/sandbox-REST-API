@@ -63,7 +63,7 @@ class AdminPermission
     /**
      * @var AdminType
      *
-     * @ORM\ManyToOne(targetEntity="AdminType", inversedBy="permissions")
+     * @ORM\ManyToOne(targetEntity="AdminType")
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main"})
      **/

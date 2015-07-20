@@ -72,11 +72,6 @@ class AdminClient
     private $modificationDate;
 
     /**
-     * @ORM\OneToMany(targetEntity="AdminToken", mappedBy="client")
-     **/
-    private $tokens;
-
-    /**
      * Get id.
      *
      * @return int
@@ -224,15 +219,5 @@ class AdminClient
     public function getModificationDate()
     {
         return $this->modificationDate;
-    }
-
-    /**
-     * Get tokens.
-     *
-     * @return array
-     */
-    public function getTokens()
-    {
-        return $this->tokens;
     }
 }

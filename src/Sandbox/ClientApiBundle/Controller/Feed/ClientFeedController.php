@@ -86,7 +86,7 @@ class ClientFeedController extends FeedController
         foreach ($feeds as $feed) {
             $userId = $this->getUserId();
 
-            $profile = $this->getRepo('User\UserProfile')->findByUserId($userId);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
             $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
             $feed->setOwner($profile);
 
@@ -134,7 +134,7 @@ class ClientFeedController extends FeedController
 
         $userId = $this->getUserId();
 
-        $profile = $this->getRepo('User\UserProfile')->findByUserId($userId);
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
         $feed->setOwner($profile);
 

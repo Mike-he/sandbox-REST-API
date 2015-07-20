@@ -19,6 +19,9 @@ use JMS\Serializer\SerializationContext;
  */
 class ProductController extends SandboxRestController
 {
+    const PRODUCT_NOT_FOUND_CODE = 400012;
+    const PRODUCT_NOT_FOUND_MESSAGE = 'Product Not Found';
+
     /**
      * @return View
      */
@@ -43,6 +46,13 @@ class ProductController extends SandboxRestController
         $id
     ) {
         $product = $this->getRepo('Product\Product')->find($id);
+        if (is_null($product)) {
+            return $this->customErrorView(
+                400,
+                self::PRODUCT_NOT_FOUND_CODE,
+                self::PRODUCT_NOT_FOUND_MESSAGE
+            );
+        }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
