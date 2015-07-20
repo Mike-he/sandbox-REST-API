@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
+use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Form\User\UserProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
@@ -88,6 +89,29 @@ class ClientUserBasicProfileController extends UserProfileController
 
     /**
      * @param Request $request
+     *
+     * @Route("/basic")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchUserBasicProfileAction(
+        Request $request
+    ) {
+        // get profile
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId(
+            $this->getUserId()
+        );
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+
+        return $this->handleUserBasicProfilePatch(
+            $request,
+            $profile
+        );
+    }
+
+    /**
+     * @param Request $request
      * @param int     $id
      *
      * @Route("/basic/{id}")
@@ -95,7 +119,7 @@ class ClientUserBasicProfileController extends UserProfileController
      *
      * @return View
      */
-    public function patchUserBasicProfileAction(
+    public function patchUserBasicProfileWithIdAction(
         Request $request,
         $id
     ) {
@@ -104,10 +128,28 @@ class ClientUserBasicProfileController extends UserProfileController
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         // check user is allowed to modify
-        if ($this->getUserId() != $profile->getUser()->getId()) {
+        if ($this->getUserId() != $profile->getUserId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
+        return $this->handleUserBasicProfilePatch(
+            $request,
+            $profile
+        );
+    }
+
+    /**
+     * @param Request     $request
+     * @param UserProfile $profile
+     *
+     * @return View
+     *
+     * @throws Patch\FailedTestException
+     */
+    private function handleUserBasicProfilePatch(
+        Request $request,
+        $profile
+    ) {
         // bind data
         $profileJson = $this->container->get('serializer')->serialize($profile, 'json');
         $patch = new Patch($profileJson, $request->getContent());
