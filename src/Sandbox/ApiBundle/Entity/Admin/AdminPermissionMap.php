@@ -55,7 +55,7 @@ class AdminPermissionMap
     /**
      * @ORM\ManyToOne(targetEntity="AdminPermission", inversedBy="permissionMap")
      * @ORM\JoinColumn(name="permissionId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      **/
     private $permission;
 
@@ -148,6 +148,20 @@ class AdminPermissionMap
     }
 
     /**
+     * Set permission.
+     *
+     * @param AdminPermission $permission
+     *
+     * @return AdminPermissionMap
+     */
+    public function setPermission($permission)
+    {
+        $this->permission = $permission;
+
+        return $this;
+    }
+
+    /**
      * Get permission.
      *
      * @return AdminPermission
@@ -155,6 +169,20 @@ class AdminPermissionMap
     public function getPermission()
     {
         return $this->permission;
+    }
+
+    /**
+     * Set $admin.
+     *
+     * @param Admin $admin
+     *
+     * @return AdminPermissionMap
+     */
+    public function setAdmin($admin)
+    {
+        $this->admin = $admin;
+
+        return $this;
     }
 
     /**

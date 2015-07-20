@@ -26,7 +26,7 @@ class Admin implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $id;
 
@@ -34,7 +34,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $username;
 
@@ -49,7 +49,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $name;
 
@@ -65,7 +65,7 @@ class Admin implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin"})
      */
     private $creationDate;
 
@@ -73,14 +73,14 @@ class Admin implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin"})
      */
     private $modificationDate;
 
     /**
      * @ORM\ManyToOne(targetEntity="AdminType", inversedBy="admins")
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      **/
     private $type;
 
@@ -91,9 +91,14 @@ class Admin implements UserInterface
      *      targetEntity="AdminPermissionMap",
      *      mappedBy="admin"
      * )
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $permissions;
+
+    /**
+     * @var array
+     */
+    private $permissionIds;
 
     /**
      * Get id.
@@ -248,6 +253,18 @@ class Admin implements UserInterface
     }
 
     /**
+     * Set type.
+     *
+     * @param AdminType $type
+     *
+     * @return Admin
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
      * Get permissions.
      *
      * @return array
@@ -255,6 +272,24 @@ class Admin implements UserInterface
     public function getPermissions()
     {
         return $this->permissions;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPermissionIds()
+    {
+        return $this->permissionIds;
+    }
+
+    /**
+     * @param array $permissionIds
+     *
+     * @return Admin
+     */
+    public function setPermissionIds($permissionIds)
+    {
+        $this->permissionIds = $permissionIds;
     }
 
     /**

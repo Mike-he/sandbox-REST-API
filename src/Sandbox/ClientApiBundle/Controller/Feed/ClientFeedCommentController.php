@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Feed\FeedCommentController;
 use Sandbox\ApiBundle\Entity\Feed\FeedComment;
 use Sandbox\ApiBundle\Form\Feed\FeedCommentType;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @category Sandbox
  *
- * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
+ * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
@@ -47,7 +48,18 @@ class ClientFeedCommentController extends FeedCommentController
 
         $comments = $this->getRepo('Feed\FeedComment')->findByFeedId($id);
 
-        return new View($comments);
+        foreach ($comments as $comment) {
+            $userId = $this->getUserId();
+
+            $profile = $this->getRepo('User\UserProfile')->findByUserId($userId);
+            $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+            $comment->setAuthor($profile);
+        }
+
+        $view = new View($comments);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
+
+        return $view;
     }
 
     /**
@@ -109,38 +121,36 @@ class ClientFeedCommentController extends FeedCommentController
     }
 
     /**
+     * delete comment.
+     *
      * @param Request $request   the request object
      * @param int     $id        id of the feed
      * @param int     $commentId id of the comment
      *
-     * @Delete("/feeds/{id}/comments/{commentId}")
+     * @Route("feeds/{id}/comments/{commentId}")
+     * @Method({"DELETE"})
+     *
+     * @throws \Exception
      *
      * @return View
-     *
-     * @throws BadRequestHttpException
      */
     public function deleteFeedCommentAction(
         Request $request,
         $id,
         $commentId
     ) {
-        $username = $this->getUsername();
-
-        // check user's permission
-        $feed = $this->getRepo('Feed')->findOneById($id);
+        $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
-        $this->throwAccessDeniedIfNotCompanyMember($feed->getParentid(), $username);
-
         // get comment by id and commentId
-        $comment = $this->getRepo('FeedComment')->findOneBy(array(
+        $comment = $this->getRepo('Feed\FeedComment')->findOneBy(array(
             'id' => $commentId,
-            'fid' => $id,
+            'feedId' => $id,
         ));
         $this->throwNotFoundIfNull($comment, self::NOT_FOUND_MESSAGE);
 
         // if user is not the author of this comment
-        if ($username != $comment->getAuthorid()) {
+        if ($this->getUserId() != $comment->getAuthorId()) {
             throw new BadRequestHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 

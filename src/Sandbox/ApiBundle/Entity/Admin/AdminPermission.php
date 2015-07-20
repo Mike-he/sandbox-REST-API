@@ -17,13 +17,22 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class AdminPermission
 {
+    const KEY_PLATFORM_ORDER = 'platform.order';
+    const KEY_PLATFORM_USER = 'platform.user';
+    const KEY_PLATFORM_ROOM = 'platform.room';
+    const KEY_PLATFORM_PRODUCT = 'platform.product';
+    const KEY_PLATFORM_PRICE = 'platform.price';
+    const KEY_PLATFORM_ACCESS = 'platform.access';
+    const KEY_BUILDING_ORDER = 'building.order';
+    const KEY_BUILDING_ACCESS = 'building.access';
+
     /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $id;
 
@@ -31,7 +40,7 @@ class AdminPermission
      * @var string
      *
      * @ORM\Column(name="key", type="string", length=32, nullable=false)
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $key;
 
@@ -39,7 +48,7 @@ class AdminPermission
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $name;
 
@@ -47,7 +56,7 @@ class AdminPermission
      * @var int
      *
      * @ORM\Column(name="typeId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "login", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $typeId;
 

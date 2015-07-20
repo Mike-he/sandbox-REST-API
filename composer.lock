@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0ff7f9fda41c006125f0a3c68d064806",
+    "hash": "890ba320b86c415f3bbbd6a845edd353",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
@@ -925,16 +925,16 @@
         },
         {
             "name": "friendsofsymfony/http-cache-bundle",
-            "version": "1.3.1",
+            "version": "1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSHttpCacheBundle.git",
-                "reference": "b048546bfcdef0c0cc0d196b1a62d821f429b8e7"
+                "reference": "ae7aca769497cd68ddf611caff11f22ddf420aba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSHttpCacheBundle/zipball/b048546bfcdef0c0cc0d196b1a62d821f429b8e7",
-                "reference": "b048546bfcdef0c0cc0d196b1a62d821f429b8e7",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSHttpCacheBundle/zipball/ae7aca769497cd68ddf611caff11f22ddf420aba",
+                "reference": "ae7aca769497cd68ddf611caff11f22ddf420aba",
                 "shasum": ""
             },
             "require": {
@@ -998,7 +998,7 @@
                 "purge",
                 "varnish"
             ],
-            "time": "2015-06-11 11:19:02"
+            "time": "2015-07-13 06:45:45"
         },
         {
             "name": "friendsofsymfony/rest-bundle",
@@ -2224,12 +2224,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PingPlusPlus/pingpp-php.git",
-                "reference": "295dd44cf354c0d7b10d431e914679150507b934"
+                "reference": "3a611fc9e560a9900c0a6bf5e695b0141a662613"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PingPlusPlus/pingpp-php/zipball/295dd44cf354c0d7b10d431e914679150507b934",
-                "reference": "295dd44cf354c0d7b10d431e914679150507b934",
+                "url": "https://api.github.com/repos/PingPlusPlus/pingpp-php/zipball/3a611fc9e560a9900c0a6bf5e695b0141a662613",
+                "reference": "3a611fc9e560a9900c0a6bf5e695b0141a662613",
                 "shasum": ""
             },
             "require": {
@@ -2264,7 +2264,7 @@
                 "mobile payment processing",
                 "pingpp"
             ],
-            "time": "2015-06-16 03:25:49"
+            "time": "2015-07-13 08:58:28"
         },
         {
             "name": "psr/log",
@@ -2730,16 +2730,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v2.7.1",
+            "version": "v2.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "932b6e7499c670f4db6d0b871477a4a3ca161e74"
+                "reference": "969d709ad428076bf1084e386dc26dd904d9fb84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/932b6e7499c670f4db6d0b871477a4a3ca161e74",
-                "reference": "932b6e7499c670f4db6d0b871477a4a3ca161e74",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/969d709ad428076bf1084e386dc26dd904d9fb84",
+                "reference": "969d709ad428076bf1084e386dc26dd904d9fb84",
                 "shasum": ""
             },
             "require": {
@@ -2848,7 +2848,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2015-06-11 21:15:28"
+            "time": "2015-07-13 19:27:49"
         },
         {
             "name": "twig/extensions",

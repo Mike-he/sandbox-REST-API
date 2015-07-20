@@ -5,10 +5,12 @@ namespace Sandbox\ApiBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 
 //TODO there's certainly a way to get the
 // current bundle name with a magic function
@@ -92,6 +94,41 @@ class SandboxRestController extends FOSRestController
     protected function getUserId()
     {
         return $this->getUser()->getUserId();
+    }
+
+    //-------------------- check admin permission --------------------//
+
+    /**
+     * Check admin's permission, is allowed to operate.
+     *
+     * @param int    $adminId
+     * @param string $typeKey
+     * @param string $permissionKey
+     *
+     * @throws AccessDeniedHttpException
+     */
+    protected function throwAccessDeniedIfAdminNotAllowed(
+        $adminId,
+        $typeKey,
+        $permissionKey = null
+    ) {
+        $admin = $this->getRepo('Admin\Admin')->find($adminId);
+
+        $type = $admin->getType();
+        if ($typeKey != $type->getKey()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        if ($typeKey != AdminType::KEY_SUPER && !is_null($permissionKey)) {
+            // not super admin
+            // check permission
+            $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
+            $permissions = $admin->getPermissions();
+
+            if (!in_array($permission, $permissions)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+        }
     }
 
     /**

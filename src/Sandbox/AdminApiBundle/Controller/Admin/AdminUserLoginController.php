@@ -88,7 +88,9 @@ class AdminUserLoginController extends AdminLoginController
 
             // response
             $view = new View();
-            $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
+            $view->setSerializationContext(
+                SerializationContext::create()->setGroups(array('login'))
+            );
 
             return $view->setData(array(
                 'admin' => $admin,
