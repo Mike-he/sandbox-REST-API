@@ -19,10 +19,13 @@ class DoorController extends SandboxRestController
 {
     public function callDoorApi(
         $ch,
-        $method
+        $method,
+        $data
     ) {
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         } elseif ($method === 'PUT' || $method === 'DELETE') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
@@ -47,7 +50,16 @@ class DoorController extends SandboxRestController
     public function getDoorApi($url)
     {
         $ch = curl_init($url);
-        $response = $this->callDoorApi($ch, 'GET');
+        $response = $this->callDoorApi($ch, 'GET', null);
+        $xmlArray = $this->getArray($response);
+
+        return $xmlArray;
+    }
+
+    public function postDoorApi($url, $data)
+    {
+        $ch = curl_init($url);
+        $response = $this->callDoorApi($ch, 'POST', $data);
         $xmlArray = $this->getArray($response);
 
         return $xmlArray;
