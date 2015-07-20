@@ -189,6 +189,7 @@ class ClientMembershipOrderController extends PaymentController
         $view->setData(
             array(
                 'id' => $order->getId(),
+                'channel' => 'account',
             )
         );
 
