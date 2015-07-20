@@ -36,7 +36,7 @@ class Buddy
     private $userId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="buddyUsers")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
@@ -49,7 +49,7 @@ class Buddy
     private $buddyId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User", inversedBy="buddies")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="buddyId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $buddy;

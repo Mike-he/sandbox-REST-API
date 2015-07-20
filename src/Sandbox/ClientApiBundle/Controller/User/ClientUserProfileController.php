@@ -78,11 +78,29 @@ class ClientUserProfileController extends UserProfileController
             );
         }
 
-        // set profile extra fields
-        $profile->setHobbies($user->getHobbies());
-        $profile->setEducations($user->getEducations());
-        $profile->setExperiences($user->getExperiences());
-        $profile->setPortfolios($user->getPortfolios());
+        // set user hobbies
+        $hobbies = $this->getRepo('User\UserHobbyMap')->findByUser($user);
+        if (!is_null($hobbies) && !empty($hobbies)) {
+            $profile->setHobbies($hobbies);
+        }
+
+        // set user educations
+        $educations = $this->getRepo('User\UserEducation')->findByUser($user);
+        if (!is_null($educations) && !empty($educations)) {
+            $profile->setEducations($educations);
+        }
+
+        // set user experiences
+        $experiences = $this->getRepo('User\UserExperience')->findByUser($user);
+        if (!is_null($experiences) && !empty($experiences)) {
+            $profile->setExperiences($experiences);
+        }
+
+        // set user portfolios
+        $portfolios = $this->getRepo('User\UserPortfolio')->findByUser($user);
+        if (!is_null($portfolios) && !empty($portfolios)) {
+            $profile->setPortfolios($portfolios);
+        }
 
         // set view
         $view = new View($profile);

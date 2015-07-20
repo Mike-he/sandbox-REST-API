@@ -74,7 +74,7 @@ class UserEducation
     private $modificationDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="educations")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;

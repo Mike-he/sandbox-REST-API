@@ -48,16 +48,6 @@ class UserHobby
     private $modificationDate;
 
     /**
-     * @var array
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="UserHobbyMap",
-     *      mappedBy="hobby"
-     * )
-     */
-    private $hobbyMap;
-
-    /**
      * @return int
      */
     public function getId()

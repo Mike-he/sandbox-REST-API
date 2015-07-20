@@ -43,7 +43,7 @@ class UserHobbyMap
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="hobbies")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
@@ -58,7 +58,7 @@ class UserHobbyMap
     /**
      * @var UserHobby
      *
-     * @ORM\ManyToOne(targetEntity="UserHobby", inversedBy="hobbyMap")
+     * @ORM\ManyToOne(targetEntity="UserHobby")
      * @ORM\JoinColumn(name="hobbyId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main", "profile", "profile_stranger"})
      **/
