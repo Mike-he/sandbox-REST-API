@@ -49,11 +49,11 @@ class ClientFeedCommentController extends FeedCommentController
         $comments = $this->getRepo('Feed\FeedComment')->findByFeedId($id);
 
         foreach ($comments as $comment) {
-            $userId = $this->getUserId();
+            $feedOwnerId = $feed->getOwnerId();
 
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+            $profile = $this->getRepo('User\UserProfile')->findByUserId($feedOwnerId);
             $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-            $comment->setAuthor($profile);
+            $comment->setAuthor($feedOwnerId);
         }
 
         $view = new View($comments);

@@ -59,7 +59,8 @@ class UserProfile
      *      "profile_basic_stranger",
      *      "buddy",
      *      "member",
-     *      "admin_order"
+     *      "admin_order",
+     *      "feed"
      *  }
      * )
      */

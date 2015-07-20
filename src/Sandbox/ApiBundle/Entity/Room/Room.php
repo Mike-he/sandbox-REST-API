@@ -143,7 +143,7 @@ class Room
     /**
      * @var int
      *
-     * @ORM\Column(name="doorControlId", type="integer", nullable=false)
+     * @ORM\Column(name="doorControlId", type="string", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room"})
      */
@@ -660,7 +660,7 @@ class Room
     /**
      * Get door control id.
      *
-     * @return int
+     * @return string
      */
     public function getDoorControlId()
     {
@@ -670,7 +670,7 @@ class Room
     /**
      * Set door control id.
      *
-     * @param int $doorControlId
+     * @param string $doorControlId
      *
      * @return Room
      */

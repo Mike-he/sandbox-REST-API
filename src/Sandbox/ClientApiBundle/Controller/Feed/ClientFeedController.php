@@ -84,15 +84,15 @@ class ClientFeedController extends FeedController
         );
 
         foreach ($feeds as $feed) {
-            $userId = $this->getUserId();
+            $feedOwnerId = $feed->getOwnerId();
 
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+            $profile = $this->getRepo('User\UserProfile')->findByUserId($feedOwnerId);
             $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
             $feed->setOwner($profile);
 
             $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
                 'feedId' => $feed->getId(),
-                'authorId' => $userId,
+                'authorId' => $feedOwnerId,
             ));
 
             if (!is_null($like)) {
@@ -132,15 +132,15 @@ class ClientFeedController extends FeedController
         $feed = $this->getRepo('Feed\FeedView')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
-        $userId = $this->getUserId();
+        $feedOwnerId = $feed->getOwnerId();
 
-        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $profile = $this->getRepo('User\UserProfile')->findByUserId($feedOwnerId);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
         $feed->setOwner($profile);
 
         $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
             'feedId' => $feed->getId(),
-            'authorId' => $userId,
+            'authorId' => $feedOwnerId,
         ));
 
         if (!is_null($like)) {
