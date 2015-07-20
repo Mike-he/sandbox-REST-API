@@ -63,26 +63,6 @@ class AdminType
     private $modificationDate;
 
     /**
-     * @var array
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Admin",
-     *      mappedBy="type"
-     * )
-     */
-    private $admins;
-
-    /**
-     * @var array
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="AdminPermission",
-     *      mappedBy="type"
-     * )
-     */
-    private $permissions;
-
-    /**
      * Get id.
      *
      * @return int
@@ -186,25 +166,5 @@ class AdminType
     public function getModificationDate()
     {
         return $this->modificationDate;
-    }
-
-    /**
-     * Get admins.
-     *
-     * @return array
-     */
-    public function getAdmins()
-    {
-        return $this->admins;
-    }
-
-    /**
-     * Get permissions.
-     *
-     * @return array
-     */
-    public function getPermissions()
-    {
-        return $this->permissions;
     }
 }
