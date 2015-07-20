@@ -5,6 +5,6 @@ SELECT
 	     COUNT(DISTINCT fl.id) AS likes_count
 FROM Feed f
 LEFT JOIN FeedComment fc ON fc.feedId = f.id
-LEFT JOIN FeedLike fl ON fc.feedId = f.id
+LEFT JOIN FeedLike fl ON fl.feedId = f.id
 GROUP BY f.id
 ;
