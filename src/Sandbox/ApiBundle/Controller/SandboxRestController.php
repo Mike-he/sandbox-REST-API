@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
@@ -104,30 +105,30 @@ class SandboxRestController extends FOSRestController
      * @param string $typeKey
      * @param string $permissionKey
      *
-     * @return bool
+     * @throws AccessDeniedHttpException
      */
-    protected function isAdminAllowed(
+    protected function throwAccessDeniedIfAdminNotAllowed(
         $adminId,
         $typeKey,
-        $permissionKey
+        $permissionKey = null
     ) {
         $admin = $this->getRepo('Admin\Admin')->find($adminId);
 
         $type = $admin->getType();
         if ($typeKey != $type->getKey()) {
-            return false;
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        if ($typeKey === AdminType::KEY_SUPER) {
-            return true;
+        if ($typeKey != AdminType::KEY_SUPER && !is_null($permissionKey)) {
+            // not super admin
+            // check permission
+            $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
+            $permissions = $admin->getPermissions();
+
+            if (!in_array($permission, $permissions)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
         }
-
-        // not super admin
-        // check permission
-        $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
-        $permissions = $admin->getPermissions();
-
-        return in_array($permission, $permissions);
     }
 
     /**
