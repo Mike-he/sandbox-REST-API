@@ -119,9 +119,9 @@ class AdminDoorController extends DoorController
             $data = [
                 'ads_card' => [
                     'empid' => '123456', //from user account
-                    'empname' => 'Jack', //from user account
+                    'empname' => 'Max', //from user account
                     'department' => 'Sandhill',
-                    'cardno' => '1568208', //from user account
+                    'cardno' => '3035172', //from user account
                     'begindate' => '2015-07-16 08:00:00',
                     'expiredate' => '2015-09-01 18:00:00',
                     'operation' => 'add',
@@ -131,8 +131,12 @@ class AdminDoorController extends DoorController
                 ],
             ];
             $data = json_encode($data);
-            //var_dump($data); exit;
-            $periodArray = $this->getDoorApi(self::SET_PERMISSION.$sessionId.'&CardPermission='.$data);
+
+            $url = self::SET_PERMISSION.$sessionId.'&CardPermission='.$data;
+            $url = urlencode($url);
+            $url = rawurldecode($url);
+
+            $periodArray = $this->getDoorApi($url);
             $this->logOut($sessionId);
 
             if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
@@ -164,9 +168,9 @@ class AdminDoorController extends DoorController
             $data = [
                 'ads_card' => [
                     'empid' => '123456', //from user account
-                    'empname' => 'Jack', //from user account
+                    'empname' => 'Leo', //from user account
                     'department' => 'Sandhill',
-                    'cardno' => '1568208', //from user account
+                    'cardno' => '1660672', //from user account
                     'begindate' => '2015-07-16 08:00:00',
                     'expiredate' => '2015-09-01 18:00:00',
                     'operation' => 'delete',
@@ -177,7 +181,11 @@ class AdminDoorController extends DoorController
             ];
             $data = json_encode($data);
 
-            $periodArray = $this->getDoorApi(self::SET_PERMISSION.$sessionId.'&CardPermission='.$data);
+            $url = self::SET_PERMISSION.$sessionId.'&CardPermission='.$data;
+            $url = urlencode($url);
+            $url = rawurldecode($url);
+
+            $periodArray = $this->getDoorApi($url);
             $this->logOut($sessionId);
 
             if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
@@ -258,7 +266,7 @@ class AdminDoorController extends DoorController
         try {
             $begin = $paramFetcher->get('begin_time');
             $end = $paramFetcher->get('end_time');
-            if (is_null($begin) || is_null($end)) {
+            if (is_null($end) || empty($end)) {
                 return $this->customErrorView(
                     400,
                     self::TIME_NOT_VALID_CODE,
@@ -322,7 +330,7 @@ class AdminDoorController extends DoorController
         try {
             $begin = $paramFetcher->get('begin_time');
             $end = $paramFetcher->get('end_time');
-            if (is_null($begin) || is_null($end)) {
+            if (is_null($end) || empty($end)) {
                 return $this->customErrorView(
                     400,
                     self::TIME_NOT_VALID_CODE,
