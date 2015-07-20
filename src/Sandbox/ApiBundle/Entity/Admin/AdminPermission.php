@@ -17,6 +17,15 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class AdminPermission
 {
+    const KEY_PLATFORM_ORDER = 'platform.order';
+    const KEY_PLATFORM_USER = 'platform.user';
+    const KEY_PLATFORM_ROOM = 'platform.room';
+    const KEY_PLATFORM_PRODUCT = 'platform.product';
+    const KEY_PLATFORM_PRICE = 'platform.price';
+    const KEY_PLATFORM_ACCESS = 'platform.access';
+    const KEY_BUILDING_ORDER = 'building.order';
+    const KEY_BUILDING_ACCESS = 'building.access';
+
     /**
      * @var int
      *
