@@ -21,6 +21,7 @@ class RoomRepository extends EntityRepository
         $type,
         $city,
         $building,
+        $floor,
         $status
     ) {
         $notFirst = false;
@@ -80,6 +81,18 @@ class RoomRepository extends EntityRepository
                 $query->where($where);
             }
             $parameters['building'] = $building;
+            $notFirst = true;
+        }
+
+        // filter by building
+        if (!is_null($floor)) {
+            $where = 'r.floor = :floor';
+            if ($notFirst) {
+                $query->andWhere($where);
+            } else {
+                $query->where($where);
+            }
+            $parameters['floor'] = $floor;
             $notFirst = true;
         }
 

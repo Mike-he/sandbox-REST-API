@@ -88,6 +88,15 @@ class AdminRoomController extends RoomController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="floor",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by floor id"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -124,14 +133,17 @@ class AdminRoomController extends RoomController
         $status = $paramFetcher->get('status');
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
+        $floorId = $paramFetcher->get('floor');
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
+        $floor = !is_null($floorId) ? $this->getRepo('Room\RoomFloor')->find($floorId) : null;
 
         $query = $this->getRepo('Room\Room')->getRooms(
             $type,
             $city,
             $building,
+            $floor,
             $status
         );
 
