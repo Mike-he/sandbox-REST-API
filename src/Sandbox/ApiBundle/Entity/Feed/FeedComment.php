@@ -3,6 +3,8 @@
 namespace Sandbox\ApiBundle\Entity\Feed;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\User\UserProfile;
 
 /**
  * FeedComment.
@@ -23,6 +25,8 @@ class FeedComment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $id;
 
@@ -30,6 +34,8 @@ class FeedComment
      * @var int
      *
      * @ORM\Column(name="feedId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $feedId;
 
@@ -41,9 +47,18 @@ class FeedComment
     private $authorId;
 
     /**
+     * @var UserProfile
+     *
+     * @Serializer\Groups({"main", "feed"})
+     */
+    private $author;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="payload", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $payload;
 
@@ -51,6 +66,8 @@ class FeedComment
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "feed"})
      */
     private $creationDate;
 
@@ -134,6 +151,26 @@ class FeedComment
     public function getPayload()
     {
         return $this->payload;
+    }
+
+    /**
+     * @return UserProfile
+     */
+    public function getAuthor()
+    {
+        return $this->author;
+    }
+
+    /**
+     * @param UserProfile $author
+     *
+     * @return FeedComment
+     */
+    public function setAuthor($author)
+    {
+        $this->author = $author;
+
+        return $this;
     }
 
     /**

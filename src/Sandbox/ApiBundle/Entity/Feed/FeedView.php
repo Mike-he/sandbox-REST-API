@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Feed;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\User\UserProfile;
 
 /**
  * Feed view.
@@ -39,9 +40,16 @@ class FeedView
      *
      * @ORM\Column(name="ownerID", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "feed"})
+     * @Serializer\Groups({"main"})
      */
     private $ownerId;
+
+    /**
+     * @var UserProfile
+     *
+     * @Serializer\Groups({"main", "feed"})
+     */
+    private $owner;
 
     /**
      * @var \DateTime
@@ -71,6 +79,13 @@ class FeedView
     private $commentsCount;
 
     /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "feed"})
+     */
+    private $myLikeId;
+
+    /**
      * @var FeedAttachment
      *
      * @ORM\OneToMany(
@@ -83,8 +98,6 @@ class FeedView
      * @Serializer\Groups({"main", "feed"})
      */
     private $attachments;
-
-    private $myLikeId;
 
     /**
      * Get id.
@@ -176,6 +189,26 @@ class FeedView
     public function setMyLikeId($myLikeId)
     {
         $this->myLikeId = $myLikeId;
+
+        return $this;
+    }
+
+    /**
+     * @return UserProfile
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * @param UserProfile $owner
+     *
+     * @return FeedView
+     */
+    public function setOwner($owner)
+    {
+        $this->owner = $owner;
 
         return $this;
     }
