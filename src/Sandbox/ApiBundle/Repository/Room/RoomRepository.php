@@ -21,6 +21,7 @@ class RoomRepository extends EntityRepository
         $type,
         $city,
         $building,
+        $floor,
         $status
     ) {
         $notFirst = false;
@@ -35,10 +36,10 @@ class RoomRepository extends EntityRepository
                 up.name as renter_name,
                 up.email as renter_email
             ')
-            ->innerJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
-            ->innerJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
-            ->innerJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
-            ->innerJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId');
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId');
 
         // filter by type
         if (!is_null($type)) {
@@ -80,6 +81,18 @@ class RoomRepository extends EntityRepository
                 $query->where($where);
             }
             $parameters['building'] = $building;
+            $notFirst = true;
+        }
+
+        // filter by building
+        if (!is_null($floor)) {
+            $where = 'r.floor = :floor';
+            if ($notFirst) {
+                $query->andWhere($where);
+            } else {
+                $query->where($where);
+            }
+            $parameters['floor'] = $floor;
             $notFirst = true;
         }
 
