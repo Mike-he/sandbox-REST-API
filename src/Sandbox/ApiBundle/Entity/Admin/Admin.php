@@ -9,7 +9,6 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Admin.
- *
  * @ORM\Table(
  *      name="Admin",
  *      uniqueConstraints={
@@ -42,6 +41,7 @@ class Admin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password", type="string", length=256, nullable=false)
+     * @Serializer\Groups({"main", "admin"})
      */
     private $password;
 
@@ -272,6 +272,18 @@ class Admin implements UserInterface
     public function getPermissions()
     {
         return $this->permissions;
+    }
+
+    /**
+     * Set permissions.
+     *
+     * @param array $permissions
+     *
+     * @return Admin
+     */
+    public function setPermissions($permissions)
+    {
+        $this->permissions = $permissions;
     }
 
     /**
