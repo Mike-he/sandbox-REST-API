@@ -167,7 +167,7 @@ class ClientBuddyController extends BuddyController
                     // if both user is buddy with each other
                     // then show user jid
                     $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                        'user' => $buddy->getUser(),
+                        'user' => $buddy->getBuddy(),
                         'buddy' => $myUser,
                     ));
 
