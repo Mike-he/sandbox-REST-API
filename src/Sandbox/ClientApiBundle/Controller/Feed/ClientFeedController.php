@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Feed\FeedController;
@@ -53,13 +54,13 @@ class ClientFeedController extends FeedController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="offset",
+     *    name="last_id",
      *    array=false,
-     *    default="0",
+     *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="Offset from which to start listing feeds"
+     *    description="last id"
      * )
      *
      * @Route("feeds/all")
@@ -74,36 +75,14 @@ class ClientFeedController extends FeedController
         ParamFetcherInterface $paramFetcher
     ) {
         $limit = $paramFetcher->get('limit');
-        $offset = $paramFetcher->get('offset');
+        $lastId = $paramFetcher->get('last_id');
 
-        $feeds = $this->getRepo('Feed\FeedView')->findBy(
-            [],
-            ['creationDate' => 'DESC'],
+        $feeds = $this->getRepo('Feed\FeedView')->getFeeds(
             $limit,
-            $offset
+            $lastId
         );
 
-        foreach ($feeds as $feed) {
-            $feedOwnerId = $feed->getOwnerId();
-
-            $profile = $this->getRepo('User\UserProfile')->findByUserId($feedOwnerId);
-            $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-            $feed->setOwner($profile);
-
-            $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
-                'feedId' => $feed->getId(),
-                'authorId' => $feedOwnerId,
-            ));
-
-            if (!is_null($like)) {
-                $feed->setMyLikeId($like->getId());
-            }
-        }
-
-        $view = new View($feeds);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
-
-        return $view;
+        return $this->handleGetFeeds($feeds);
     }
 
     /**
@@ -268,5 +247,36 @@ class ClientFeedController extends FeedController
             $em->persist($feedAttachment);
         }
         $em->flush();
+    }
+
+    /**
+     * @param ArrayCollection $feeds
+     *
+     * @return View
+     */
+    private function handleGetFeeds(
+        $feeds
+    ) {
+        foreach ($feeds as $feed) {
+            $feedOwnerId = $feed->getOwnerId();
+
+            $profile = $this->getRepo('User\UserProfile')->findByUserId($feedOwnerId);
+            $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+            $feed->setOwner($profile);
+
+            $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
+                'feedId' => $feed->getId(),
+                'authorId' => $feedOwnerId,
+            ));
+
+            if (!is_null($like)) {
+                $feed->setMyLikeId($like->getId());
+            }
+        }
+
+        $view = new View($feeds);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
+
+        return $view;
     }
 }

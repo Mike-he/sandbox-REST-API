@@ -23,16 +23,31 @@ class FeedRepository extends EntityRepository
      */
     public function getFeeds(
         $limit,
-        $offset
+        $lastId
     ) {
+        $notFirst = false;
+        $parameters = [];
+
         $query = $this->createQueryBuilder('f')
             ->select('
                 f
             ');
 
+        // filter by type
+        if (!is_null($lastId)) {
+            $query->where('f.id < :lastId');
+            $parameters['lastId'] = $lastId;
+            $notFirst = true;
+        }
+
         $query->orderBy('f.creationDate', 'DESC');
-        $query->setFirstResult($offset);
+
         $query->setMaxResults($limit);
+
+        //set all parameters
+        if ($notFirst) {
+            $query->setParameters($parameters);
+        }
 
         $result = $query->getQuery()->getResult();
 
