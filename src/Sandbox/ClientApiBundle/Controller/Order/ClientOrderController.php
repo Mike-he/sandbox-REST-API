@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
 use Symfony\Component\HttpFoundation\Request;
@@ -248,6 +249,17 @@ class ClientOrderController extends PaymentController
         $em->persist($order);
         $em->flush();
 
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+        $userName = $userProfile->getName();
+        if ($order->getStatus() === 'paid') {
+            $this->get('door_service')->getPermission(
+                $order->getUserId(),
+                $userName,
+                $order,
+                DoorController::METHOD_ADD
+            );
+        }
+
         $view = new View();
         $view->setData(
             array(
@@ -393,17 +405,44 @@ class ClientOrderController extends PaymentController
         $em->persist($order);
         $em->flush();
 
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+        $userName = $userProfile->getName();
+        $this->get('door_service')->getPermission(
+            $order->getUserId(),
+            $userName,
+            $order,
+            DoorController::METHOD_DELETE
+        );
+
         $people = $this->getRepo('Order\InvitedPeople')->findBy(
             [
                 'orderId' => $id,
             ]
         );
-        if (empty($people)) {
-            return;
+        if (!empty($people)) {
+            foreach ($people as $user) {
+                $userId = $user->getUserId();
+                $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+                $userName = $userProfile->getName();
+
+                $this->get('door_service')->getPermission(
+                    $userId,
+                    $userName,
+                    $order,
+                    DoorController::METHOD_DELETE
+                );
+            }
         }
-        foreach ($people as $user) {
-            $userId = $user->getUserId();
-            //TODO: Remove access for every user
+        if (!is_null($order->getAppointed())) {
+            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getAppointed());
+            $userName = $userProfile->getName();
+
+            $this->get('door_service')->getPermission(
+                $order->getAppointed(),
+                $userName,
+                $order,
+                DoorController::METHOD_DELETE
+            );
         }
     }
 
@@ -457,6 +496,16 @@ class ClientOrderController extends PaymentController
             $em = $this->getDoctrine()->getManager();
             $em->persist($people);
             $em->flush();
+
+            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($user['user_id']);
+            $userName = $userProfile->getName();
+
+            $this->get('door_service')->getPermission(
+                $user['user_id'],
+                $userName,
+                $order,
+                DoorController::METHOD_ADD
+            );
         }
     }
 
@@ -528,6 +577,16 @@ class ClientOrderController extends PaymentController
             $em = $this->getDoctrine()->getManager();
             $em->remove($checkUser);
             $em->flush();
+
+            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+            $userName = $userProfile->getName();
+
+            $this->get('door_service')->getPermission(
+                $userId,
+                $userName,
+                $order,
+                DoorController::METHOD_DELETE
+            );
         }
     }
 
@@ -592,17 +651,36 @@ class ClientOrderController extends PaymentController
             );
         }
         $user = $request->get('user_id');
-
-        if (is_null($user)) {
-            $order->setAppointed(null);
-            $order->setModificationDate(new \DateTime());
-        } else {
-            $order->setAppointed($user);
-            $order->setModificationDate(new \DateTime());
+        if (is_null($user) || empty($user)) {
+            return $this->customErrorView(
+                400,
+                self::NO_APPOINTED_PERSON_CODE,
+                self::NO_APPOINTED_PERSON_CODE_MESSAGE
+            );
         }
+        $order->setAppointed($user);
+        $order->setModificationDate(new \DateTime());
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
+
+        $appointedProfile = $this->getRepo('User\UserProfile')->findOneByUserId($user);
+        $appointedName = $appointedProfile->getName();
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+        $userName = $userProfile->getName();
+
+        $this->get('door_service')->getPermission(
+            $user,
+            $appointedName,
+            $order,
+            DoorController::METHOD_ADD
+        );
+        $this->get('door_service')->getPermission(
+            $order->getUserId(),
+            $userName,
+            $order,
+            DoorController::METHOD_DELETE
+        );
     }
 
     /**

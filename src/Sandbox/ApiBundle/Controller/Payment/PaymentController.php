@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
@@ -22,6 +23,7 @@ use Pingpp\Error\Base;
  */
 class PaymentController extends SandboxRestController
 {
+    const STATUS_PAID = 'paid';
     const INSUFFICIENT_FUNDS_CODE = 400001;
     const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
     const SYSTEM_ERROR_CODE = 500001;
@@ -46,7 +48,8 @@ class PaymentController extends SandboxRestController
     const WRONG_CHANNEL_MESSAGE = 'THIS CHANNEL IS NOT SUPPORTED';
     const NO_PRICE_CODE = 400011;
     const NO_PRICE_MESSAGE = 'Price can not be empty';
-    const STATUS_PAID = 'paid';
+    const NO_APPOINTED_PERSON_CODE = 400012;
+    const NO_APPOINTED_PERSON_CODE_MESSAGE = 'Need an appoint person ID';
 
     /**
      * @param $order
@@ -141,6 +144,17 @@ class PaymentController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
+
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+        $userName = $userProfile->getName();
+        if ($order->getStatus() === 'paid') {
+            $this->get('door_service')->getPermission(
+                $order->getUserId(),
+                $userName,
+                $order,
+                DoorController::METHOD_ADD
+            );
+        }
     }
 
     /**
