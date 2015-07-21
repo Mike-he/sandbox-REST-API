@@ -53,4 +53,44 @@ class FeedRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * Get list of feeds of my buddies.
+     *
+     * @return array
+     */
+    public function getFeedsByBuddies(
+        $limit,
+        $lastId,
+        $userId
+    ) {
+        $parameters = [];
+
+        $query = $this->createQueryBuilder('f')
+            ->select('
+                f
+            ')
+            ->leftJoin('SandboxApiBundle:Buddy\Buddy', 'b', 'WITH', 'b.buddyId = f.ownerId');
+
+        // filter by buddies
+        $query->where('b.userId = :userId');
+        $parameters['userId'] = $userId;
+
+        // last id
+        if (!is_null($lastId)) {
+            $query->andWhere('f.id < :lastId');
+            $parameters['lastId'] = $lastId;
+        }
+
+        $query->orderBy('f.creationDate', 'DESC');
+
+        $query->setMaxResults($limit);
+
+        //set all parameters
+        $query->setParameters($parameters);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

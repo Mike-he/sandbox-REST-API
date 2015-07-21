@@ -36,13 +36,6 @@ class ClientFeedController extends FeedController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
      * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
@@ -80,6 +73,57 @@ class ClientFeedController extends FeedController
         $feeds = $this->getRepo('Feed\FeedView')->getFeeds(
             $limit,
             $lastId
+        );
+
+        return $this->handleGetFeeds($feeds);
+    }
+
+    /**
+     * List all feed by buddies.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many feeds to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="last_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="last id"
+     * )
+     *
+     * @Route("feeds/buddy")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getFeedsByBuddyAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $limit = $paramFetcher->get('limit');
+        $lastId = $paramFetcher->get('last_id');
+
+        $userId = $this->getUserId();
+
+        $feeds = $this->getRepo('Feed\FeedView')->getFeedsByBuddies(
+            $limit,
+            $lastId,
+            $userId
         );
 
         return $this->handleGetFeeds($feeds);
@@ -172,11 +216,14 @@ class ClientFeedController extends FeedController
 
         //add attachments
         $attachments = $form['feed_attachments']->getData();
-        $this->addAttachments(
-            $em,
-            $feed,
-            $attachments
-        );
+
+        if (!is_null($attachments)) {
+            $this->addAttachments(
+                $em,
+                $feed,
+                $attachments
+            );
+        }
 
         $response = array(
             'id' => $feed->getId(),
@@ -260,7 +307,7 @@ class ClientFeedController extends FeedController
         foreach ($feeds as $feed) {
             $feedOwnerId = $feed->getOwnerId();
 
-            $profile = $this->getRepo('User\UserProfile')->findByUserId($feedOwnerId);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feedOwnerId);
             $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
             $feed->setOwner($profile);
 
