@@ -51,10 +51,9 @@ class ClientUserHobbyController extends UserProfileController
             $userId = $this->getUserId();
         }
 
-        $user = $this->getRepo('User\User')->find($userId);
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+        $hobbies = $this->getRepo('User\UserHobbyMap')->findByUserId($userId);
 
-        $view = new View($user->getHobbies());
+        $view = new View($hobbies);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
 
         return $view;
