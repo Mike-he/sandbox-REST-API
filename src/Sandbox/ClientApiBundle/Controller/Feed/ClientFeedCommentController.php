@@ -51,7 +51,7 @@ class ClientFeedCommentController extends FeedCommentController
         foreach ($comments as $comment) {
             $feedOwnerId = $feed->getOwnerId();
 
-            $profile = $this->getRepo('User\UserProfile')->findByUserId($feedOwnerId);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feedOwnerId);
             $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
             $comment->setAuthor($feedOwnerId);
         }

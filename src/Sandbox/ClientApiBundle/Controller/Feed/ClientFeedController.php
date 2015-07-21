@@ -157,7 +157,7 @@ class ClientFeedController extends FeedController
 
         $feedOwnerId = $feed->getOwnerId();
 
-        $profile = $this->getRepo('User\UserProfile')->findByUserId($feedOwnerId);
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feedOwnerId);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
         $feed->setOwner($profile);
 
