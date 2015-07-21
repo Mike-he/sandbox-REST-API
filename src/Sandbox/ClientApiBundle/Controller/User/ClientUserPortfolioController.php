@@ -51,10 +51,9 @@ class ClientUserPortfolioController extends UserProfileController
             $userId = $this->getUserId();
         }
 
-        $user = $this->getRepo('User\User')->find($userId);
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+        $portfolios = $this->getRepo('User\UserPortfolio')->findByUserId($userId);
 
-        $view = new View($user->getPortfolios());
+        $view = new View($portfolios);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
 
         return $view;

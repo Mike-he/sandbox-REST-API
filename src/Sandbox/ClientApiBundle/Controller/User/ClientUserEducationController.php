@@ -54,10 +54,9 @@ class ClientUserEducationController extends UserProfileController
             $userId = $this->getUserId();
         }
 
-        $user = $this->getRepo('User\User')->find($userId);
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+        $educations = $this->getRepo('User\UserEducation')->findByUserId($userId);
 
-        $view = new View($user->getEducations());
+        $view = new View($educations);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
 
         return $view;

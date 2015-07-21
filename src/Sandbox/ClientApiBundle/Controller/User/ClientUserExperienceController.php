@@ -54,10 +54,9 @@ class ClientUserExperienceController extends UserProfileController
             $userId = $this->getUserId();
         }
 
-        $user = $this->getRepo('User\User')->find($userId);
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+        $experiences = $this->getRepo('User\UserExperience')->findByUserId($userId);
 
-        $view = new View($user->getExperiences());
+        $view = new View($experiences);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile')));
 
         return $view;
