@@ -11,7 +11,9 @@ use Sandbox\ApiBundle\Entity\User\UserProfile;
  * Feed view.
  *
  * @ORM\Table(name="FeedView")
- * @ORM\Entity
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Feed\FeedRepository"
+ * )
  */
 class FeedView
 {

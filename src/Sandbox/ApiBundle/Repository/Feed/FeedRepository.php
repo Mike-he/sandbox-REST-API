@@ -23,16 +23,71 @@ class FeedRepository extends EntityRepository
      */
     public function getFeeds(
         $limit,
-        $offset
+        $lastId
     ) {
+        $notFirst = false;
+        $parameters = [];
+
         $query = $this->createQueryBuilder('f')
             ->select('
                 f
             ');
 
+        // filter by type
+        if (!is_null($lastId)) {
+            $query->where('f.id < :lastId');
+            $parameters['lastId'] = $lastId;
+            $notFirst = true;
+        }
+
         $query->orderBy('f.creationDate', 'DESC');
-        $query->setFirstResult($offset);
+
         $query->setMaxResults($limit);
+
+        //set all parameters
+        if ($notFirst) {
+            $query->setParameters($parameters);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * Get list of feeds of my buddies.
+     *
+     * @return array
+     */
+    public function getFeedsByBuddies(
+        $limit,
+        $lastId,
+        $userId
+    ) {
+        $parameters = [];
+
+        $query = $this->createQueryBuilder('f')
+            ->select('
+                f
+            ')
+            ->leftJoin('SandboxApiBundle:Buddy\Buddy', 'b', 'WITH', 'b.buddyId = f.ownerId');
+
+        // filter by buddies
+        $query->where('b.userId = :userId');
+        $parameters['userId'] = $userId;
+
+        // last id
+        if (!is_null($lastId)) {
+            $query->andWhere('f.id < :lastId');
+            $parameters['lastId'] = $lastId;
+        }
+
+        $query->orderBy('f.creationDate', 'DESC');
+
+        $query->setMaxResults($limit);
+
+        //set all parameters
+        $query->setParameters($parameters);
 
         $result = $query->getQuery()->getResult();
 
