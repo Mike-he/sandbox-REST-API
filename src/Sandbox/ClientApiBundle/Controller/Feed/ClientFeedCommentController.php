@@ -2,10 +2,12 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Feed\FeedCommentController;
 use Sandbox\ApiBundle\Entity\Feed\FeedComment;
 use Sandbox\ApiBundle\Form\Feed\FeedCommentType;
+use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
@@ -32,6 +34,27 @@ class ClientFeedCommentController extends FeedCommentController
      *
      * @param Request $request
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many feeds to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="last_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="last id"
+     * )
+     *
+     *
      * @Route("feeds/{id}/comments")
      * @Method({"GET"})
      *
@@ -41,19 +64,27 @@ class ClientFeedCommentController extends FeedCommentController
      */
     public function getFeedCommentsAction(
         Request $request,
+        ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        $limit = $paramFetcher->get('limit');
+        $lastId = $paramFetcher->get('last_id');
+
         $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
-        $comments = $this->getRepo('Feed\FeedComment')->findByFeedId($id);
+        $comments = $this->getRepo('Feed\FeedComment')->getComments(
+            $id,
+            $limit,
+            $lastId
+        );
 
         foreach ($comments as $comment) {
             $feedOwnerId = $feed->getOwnerId();
 
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feedOwnerId);
             $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-            $comment->setAuthor($feedOwnerId);
+            $comment->setAuthor($profile);
         }
 
         $view = new View($comments);

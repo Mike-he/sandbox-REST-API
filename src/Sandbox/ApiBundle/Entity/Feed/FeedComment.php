@@ -15,7 +15,9 @@ use Sandbox\ApiBundle\Entity\User\UserProfile;
  *      @ORM\Index(name="fk_feedComment_feedId_idx", columns={"feedId"})
  *  }
  * )
- * @ORM\Entity
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Feed\FeedCommentRepository"
+ * )
  */
 class FeedComment
 {
