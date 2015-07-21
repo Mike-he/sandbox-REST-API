@@ -462,7 +462,7 @@ class Product
      */
     public function setVisible($visible)
     {
-        $this->renewable = $visible;
+        $this->visible = $visible;
 
         return $this;
     }

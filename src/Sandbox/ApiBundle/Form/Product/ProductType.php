@@ -22,6 +22,7 @@ class ProductType extends AbstractType
             ->add('unit_price')
             ->add('private')
             ->add('renewable')
+            ->add('visible')
             ->add('start_date', 'date', array(
                     'widget' => 'single_text',
                 )
