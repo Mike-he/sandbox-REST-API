@@ -114,7 +114,7 @@ class ClientMemberController extends MemberController
             $limit
         );
         if (is_null($users) || empty($users)) {
-            return new View();
+            return new View(array());
         }
 
         // members for response
@@ -243,7 +243,7 @@ class ClientMemberController extends MemberController
             $offset
         );
         if (is_null($users) || empty($users)) {
-            return new View();
+            return new View(array());
         }
 
         // members for response
@@ -301,6 +301,16 @@ class ClientMemberController extends MemberController
      *    description="Offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="last_id",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="the id to start after"
+     * )
+     *
      * @Route("/members/visitor")
      * @Method({"GET"})
      *
@@ -322,8 +332,10 @@ class ClientMemberController extends MemberController
 
         $userId = $this->getUserId();
 
+        // get params
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $lastId = $paramFetcher->get('last_id');
 
         // get globals
         $twig = $this->container->get('twig');
@@ -338,10 +350,11 @@ class ClientMemberController extends MemberController
         $visitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
             $userId,
             $limit,
-            $offset
+            $offset,
+            $lastId
         );
         if (is_null($visitors) || empty($visitors)) {
-            return new View();
+            return new View(array());
         }
 
         // members for response
@@ -355,7 +368,7 @@ class ClientMemberController extends MemberController
             // TODO set company info
 
             $member = array(
-                'id' => $visitorId,
+                'id' => $visitor->getId(),
                 'profile' => $profile,
                 'company' => '',
                 'visit_date' => $visitor->getCreationDate(),
