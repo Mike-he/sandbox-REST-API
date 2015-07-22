@@ -412,6 +412,19 @@ class UserProfile
     private $jid;
 
     /**
+     * @var int
+     *
+     * @Serializer\Groups(
+     *  {
+     *      "profile",
+     *      "profile_basic",
+     *      "buddy"
+     *  }
+     * )
+     */
+    private $buddyId;
+
+    /**
      * @return int
      */
     public function getId()
@@ -883,6 +896,30 @@ class UserProfile
     public function getJid()
     {
         return $this->jid;
+    }
+
+    /**
+     * Set buddyId.
+     *
+     * @param int $buddyId
+     *
+     * @return UserProfile
+     */
+    public function setBuddyId($buddyId)
+    {
+        $this->buddyId = $buddyId;
+
+        return $this;
+    }
+
+    /**
+     * Get buddyId.
+     *
+     * @return int
+     */
+    public function getBuddyId()
+    {
+        return $this->buddyId;
     }
 
     public function __construct()

@@ -28,7 +28,7 @@ class Product
     /**
      * @var int
      *
-     * @ORM\Column(name="roomId", type="integer", nullable=true)
+     * @ORM\Column(name="roomId", type="integer")
      *
      * @Serializer\Groups({"main", "admin_room"})
      */
@@ -151,7 +151,7 @@ class Product
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
-     * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */

@@ -109,7 +109,7 @@ class AdminAdminsController extends SandboxRestController
     /**
      * List definite id of admin.
      *
-     * @param Request $request the request object
+     * @param Request $request  the request object
      * @param int     $admin_id
      *
      * @ApiDoc(
@@ -134,7 +134,7 @@ class AdminAdminsController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
         // get all admins
-        $admins = $this->getRepo('Admin\Admin')->findOneBy(array("id"=>$admin_id));
+        $admins = $this->getRepo('Admin\Admin')->findOneBy(array('id' => $admin_id));
 
         // set view
         $view = new View($admins);
@@ -186,7 +186,7 @@ class AdminAdminsController extends SandboxRestController
      * Update Admin.
      *
      * @param Request $request the request object
-     * @param integer $id      the admin ID
+     * @param int     $id      the admin ID
      *
      * @ApiDoc(
      *   resource = true,
@@ -209,7 +209,7 @@ class AdminAdminsController extends SandboxRestController
     ) {
         // get admin
         $admin = $this->getRepo('Admin\Admin')->find($id);
-        $form = $this->createForm(new AdminPutType(), $admin , array("method"=>"PUT") );
+        $form = $this->createForm(new AdminPutType(), $admin, array('method' => 'PUT'));
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -262,9 +262,9 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
-     * @param Admin                 $admin
-     * @param Admin                 $id
-     * @param AdminPermissionMap    $permission_ids
+     * @param Admin              $admin
+     * @param Admin              $id
+     * @param AdminPermissionMap $permission_ids
      *
      * @return View
      */
@@ -279,36 +279,36 @@ class AdminAdminsController extends SandboxRestController
 
         //judge the id of permissions
         $permissions = $this->getRepo('Admin\AdminPermissionMap')
-                        ->findBy(array('adminId'=>$id));
+                        ->findBy(array('adminId' => $id));
 
-            $permissionOldId = array();
-            foreach ($permissions as $permissionOld) {
-                $permissionOldId[] = $permissionOld->getPermissionId();
-            }
+        $permissionOldId = array();
+        foreach ($permissions as $permissionOld) {
+            $permissionOldId[] = $permissionOld->getPermissionId();
+        }
 
-            $permissionSameId = array();
-            foreach ($permissionOldId as $pOldId){
-                foreach ($permission_ids as $pNewId) {
-                    if($pOldId == $pNewId){
-                        $permissionSameId[] = $pNewId;
-                    }
+        $permissionSameId = array();
+        foreach ($permissionOldId as $pOldId) {
+            foreach ($permission_ids as $pNewId) {
+                if ($pOldId == $pNewId) {
+                    $permissionSameId[] = $pNewId;
                 }
             }
+        }
 
             //remove the useless permissions
-            foreach ($permissionOldId as $pOldId){
+            foreach ($permissionOldId as $pOldId) {
                 $num = 0;
-                foreach ($permissionSameId as $pSameId){
-                    if($pOldId == $pSameId){
+                foreach ($permissionSameId as $pSameId) {
+                    if ($pOldId == $pSameId) {
                         $num = 1;
                     }
                 }
-                if($num == 0){
+                if ($num == 0) {
                     $pRemove = $this->getRepo('Admin\AdminPermissionMap')
                         ->findOneBy(
                                 array(
-                                    'adminId'       =>  $id,
-                                    'permissionId'  =>  $pOldId
+                                    'adminId' => $id,
+                                    'permissionId' => $pOldId,
                                     )
                         );
                     $em = $this->getDoctrine()->getManager();
@@ -318,40 +318,39 @@ class AdminAdminsController extends SandboxRestController
 
             //set the new permissions
             $now = new \DateTime('now');
-            foreach ($permission_ids as $pNewId){
-                $num = 0;
-                foreach($permissionSameId as $pSameId){
-                    if($pNewId == $pSameId){
-                        $num = 1;
-                    }
-                }
-                if($num == 0){
-                    // get permission
-                    $myPermission = $this->getRepo('Admin\AdminPermission')->find($pNewId);
-                    if (is_null($myPermission)
-                        || $myPermission->getTypeId() != $admin->getTypeId()
-                    ) {
-                        // if permission's type is different
-                        // don't add the permission
-                        continue;
-                    }
-                    $id=(int)$id;
-                    // save permission map
-                    $permissionMap = new AdminPermissionMap();
-                    $permissionMap->setAdminId($id);
-                    $permissionMap->setPermissionId($pNewId);
-                    $permissionMap->setCreationDate($now);
-                    $permissionMap->setAdmin($admin);
-                    $permissionMap->setPermission($myPermission);
-                    $em->persist($permissionMap);
+        foreach ($permission_ids as $pNewId) {
+            $num = 0;
+            foreach ($permissionSameId as $pSameId) {
+                if ($pNewId == $pSameId) {
+                    $num = 1;
                 }
             }
+            if ($num == 0) {
+                // get permission
+                    $myPermission = $this->getRepo('Admin\AdminPermission')->find($pNewId);
+                if (is_null($myPermission)
+                        || $myPermission->getTypeId() != $admin->getTypeId()
+                    ) {
+                    // if permission's type is different
+                        // don't add the permission
+                        continue;
+                }
+                $id = (int) $id;
+                    // save permission map
+                    $permissionMap = new AdminPermissionMap();
+                $permissionMap->setAdminId($id);
+                $permissionMap->setPermissionId($pNewId);
+                $permissionMap->setCreationDate($now);
+                $permissionMap->setAdmin($admin);
+                $permissionMap->setPermission($myPermission);
+                $em->persist($permissionMap);
+            }
+        }
         //save data
         $em->flush();
 
         return new View();
     }
-
 
     /**
      * @param Admin $admin

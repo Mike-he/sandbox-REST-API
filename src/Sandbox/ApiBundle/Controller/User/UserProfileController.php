@@ -60,6 +60,7 @@ class UserProfileController extends SandboxRestController
 
         if (!is_null($myBuddy)) {
             $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+            $profile->setBuddyId($myBuddy->getId());
 
             // if both user is buddy with each other
             // then show user jid
