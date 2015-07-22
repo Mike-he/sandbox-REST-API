@@ -111,8 +111,8 @@ class OrderRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('o')
             ->select('o')
-            ->innerJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->innerJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
         // filter by type
         if (!is_null($type)) {

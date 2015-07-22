@@ -36,7 +36,7 @@ class ProductOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer")
+     * @ORM\Column(name="userId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */
@@ -45,7 +45,7 @@ class ProductOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="productId", type="integer")
+     * @ORM\Column(name="productId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */
@@ -159,7 +159,7 @@ class ProductOrder
      * @var \Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
-     * @ORM\JoinColumn(name="productId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="productId", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */

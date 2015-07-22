@@ -117,7 +117,7 @@ class ProductRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('p')
             ->select('p')
-            ->innerJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
         // filter by type
         if (!is_null($type)) {
