@@ -9,6 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Admin.
+ *
  * @ORM\Table(
  *      name="Admin",
  *      uniqueConstraints={
