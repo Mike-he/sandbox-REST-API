@@ -10,16 +10,17 @@ class UserProfileVisitorRepository extends EntityRepository
      * @param int   $myUserId
      * @param int   $limit
      * @param float $offset
+     * @param int   $lastId
      *
      * @return array
      */
     public function findAllMyVisitors(
         $myUserId,
         $limit,
-        $offset
+        $offset,
+        $lastId
     ) {
-        $query = $this->getEntityManager()
-            ->createQuery(
+        $queryStr =
                 '
                   SELECT DISTINCT upv FROM SandboxApiBundle:User\UserProfileVisitor upv
                   WHERE upv.userId = :myUserId
@@ -28,10 +29,22 @@ class UserProfileVisitorRepository extends EntityRepository
                     SELECT MAX(v.id) FROM SandboxApiBundle:User\UserProfileVisitor v
                     GROUP BY v.userId, v.visitorId
                     )
-                    ORDER BY upv.creationDate DESC
-                '
-            )
-            ->setParameter('myUserId', $myUserId);
+                ';
+
+        if ($lastId > 0) {
+            $queryStr = $queryStr.' AND upv.id < :lastId';
+        }
+
+        $queryStr = $queryStr.' ORDER BY upv.creationDate DESC';
+
+        $query = $this->getEntityManager()
+            ->createQuery($queryStr);
+
+        $query->setParameter('myUserId', $myUserId);
+
+        if ($lastId > 0) {
+            $query->setParameter('lastId', $lastId);
+        }
 
         $query->setFirstResult($offset);
         $query->setMaxResults($limit);
