@@ -106,7 +106,6 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate
     ) {
-        $notFirst = false;
         $parameters = [];
 
         $query = $this->createQueryBuilder('o')
@@ -114,65 +113,41 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
+        $query->where('o.status != :unpaid');
+        $parameters['unpaid'] = 'unpaid';
+
         // filter by type
         if (!is_null($type)) {
-            $query->where('r.type = :type');
+            $query->andWhere('r.type = :type');
             $parameters['type'] = $type;
-            $notFirst = true;
         }
 
         // filter by city
         if (!is_null($city)) {
-            $where = 'r.city = :city';
-            if ($notFirst) {
-                $query->andWhere($where);
-            } else {
-                $query->where($where);
-            }
+            $query->andWhere('r.city = :city');
             $parameters['city'] = $city;
-            $notFirst = true;
         }
 
         // filter by building
         if (!is_null($building)) {
-            $where = 'r.building = :building';
-            if ($notFirst) {
-                $query->andWhere($where);
-            } else {
-                $query->where($where);
-            }
+            $query->andWhere('r.building = :building');
             $parameters['building'] = $building;
-            $notFirst = true;
         }
 
         //filter by start date
         if (!is_null($startDate)) {
-            $where = 'o.startDate >= :startDate';
-            if ($notFirst) {
-                $query->andWhere($where);
-            } else {
-                $query->where($where);
-            }
+            $query->andWhere('o.startDate >= :startDate');
             $parameters['startDate'] = $startDate;
-            $notFirst = true;
         }
 
         //filter by end date
         if (!is_null($endDate)) {
-            $where = 'o.endDate <= :endDate';
-            if ($notFirst) {
-                $query->andWhere($where);
-            } else {
-                $query->where($where);
-            }
+            $query->andWhere('o.endDate <= :endDate');
             $parameters['endDate'] = $endDate;
-            $notFirst = true;
         }
 
         //set all parameters
-        if ($notFirst) {
-            $query->setParameters($parameters);
-        }
+        $query->setParameters($parameters);
 
         $result = $query->getQuery()->getResult();
 

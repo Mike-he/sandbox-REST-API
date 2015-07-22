@@ -2,12 +2,10 @@
 
 namespace Sandbox\ApiBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
@@ -144,33 +142,74 @@ class SandboxRestController extends FOSRestController
         return $token->getUsername();
     }
 
+    //--------------------call remote api--------------------//
+
     /**
-     * Get user's vCard name.
+     * @param $auth
      *
-     * @param $userId
-     * @param $companyId
-     *
-     * @return string
+     * @return string|null
      */
-    protected function getUserVCardName(
-        $userId,
-        $companyId = null
+    protected function getCardNoIfUserAuthorized(
+        $auth
     ) {
-        $name = '';
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
 
-        $vCard = $this->getRepo('JtVCard')->findOneBy(array(
-            'userid' => $userId,
-            'companyid' => $companyId,
-        ));
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_client_user_account_authentication'];
 
-        if (!is_null($vCard)) {
-            $name = $vCard->getName();
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callAPI($ch, 'GET', $auth);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
         }
 
-        return $name;
+        $result = json_decode($response, true);
+        if ($result['status'] === 'unauthed') {
+            return;
+        }
+
+        return $result['card_no'];
     }
 
-    //--------------------call remote api--------------------//
+    /**
+     * @param $auth
+     *
+     * @return string|null
+     */
+    protected function getExpireDateIfUserVIP(
+        $auth
+    ) {
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_client_user_account_vip'];
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callAPI($ch, 'GET', $auth);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+        if (!$result['is_vip']) {
+            return;
+        }
+
+        return $result['expiration_time'];
+    }
+
     /**
      * Send sms.
      *
@@ -269,34 +308,6 @@ class SandboxRestController extends FOSRestController
         return true;
     }
 
-    /**
-     * @param $ch     curl
-     * @param $data   json data
-     * @param $auth   authorization
-     * @param $method http method
-     *
-     * @return mixed
-     */
-    protected function callAPI(
-        $ch,
-        $data,
-        $auth,
-        $method
-    ) {
-        if ($method === 'POST') {
-            curl_setopt($ch, CURLOPT_POST, 1);
-        } elseif ($method === 'PUT' || $method === 'DELETE') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        }
-
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization:'.$auth));
-
-        return curl_exec($ch);
-    }
-
     //--------------------for user default value--------------------//
     /**
      * @param $username
@@ -310,46 +321,6 @@ class SandboxRestController extends FOSRestController
         $globals = $twig->getGlobals();
 
         return $username.'@'.$globals['xmpp_domain'];
-    }
-
-    /**
-     * @param $countryCode
-     * @param $phone
-     *
-     * @return string
-     */
-    protected function constructVCardPhone(
-        $countryCode,
-        $phone
-    ) {
-        if (!is_null($countryCode)) {
-            return '(+'.$countryCode.')'.$phone;
-        }
-
-        return $phone;
-    }
-
-    /**
-     * @param $type
-     * @param $id
-     * @param $userID
-     */
-    protected function checkIsOwner(
-        $type,
-        $id,
-        $userID
-    ) {
-        $repo = $this->getRepo($type);
-
-        $item = $repo->findOneById($id);
-        $this->throwNotFoundIfNull($item, self::NOT_FOUND_MESSAGE);
-
-        $ownerID = $item->getOwnerid();
-        if ($userID != $ownerID) {
-            $this->throwAccessDeniedIfNull($item);
-        }
-
-        return $item;
     }
 
     //--------------------generate default verification code and token--------------------//
@@ -401,99 +372,6 @@ class SandboxRestController extends FOSRestController
         if ($isEmNull) {
             $em->flush();
         }
-    }
-
-    //--------------------generate default company member or vcard--------------------//
-    protected function generateCompanyMember(
-        $userId,
-        $companyId
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        //get user's real name from jtVcard
-        $vcard = $this->getRepo('JtVCard')->findOneBy(array(
-            'userid' => $userId,
-            'companyid' => null,
-        ));
-        $this->throwNotFoundIfNull($vcard, 'vcard '.self::NOT_FOUND_MESSAGE);
-
-        $fullName = $vcard->getName();
-        $gender = $vcard->getGender();
-
-        // get company member
-        $companyMember = $this->getRepo('Companymember')->findOneBy(array(
-            'userid' => $userId,
-            'companyid' => $companyId,
-        ));
-
-        if (is_null($companyMember)) {
-            // save to company member
-            $companyMember = $this->setCompanyMember(
-                $userId,
-                $companyId
-            );
-            $em->persist($companyMember);
-        } else {
-            $companyMember->setIsdelete(false);
-        }
-
-        // get vcard
-        $vcard = $this->getRepo('JtVCard')->findOneBy(array(
-            'userid' => $userId,
-            'companyid' => $companyId,
-        ));
-
-        if (is_null($vcard)) {
-            $jtVCard = $this->setDefaultVCard(
-                $userId,
-                $companyId,
-                $fullName,
-                $gender
-            );
-            $em->persist($jtVCard);
-        }
-        $em->flush();
-    }
-
-    /**
-     * @param $userId
-     * @param $companyId
-     * @param $fullName
-     * @param $gender
-     *
-     * @return JtVCard
-     */
-    protected function setDefaultVCard(
-        $userId,
-        $companyId,
-        $fullName,
-        $gender
-    ) {
-        $jtVCard = new JtVCard();
-        $jtVCard->setUserid($userId);
-        $jtVCard->setCompanyid($companyId);
-        $jtVCard->setName($fullName);
-        $jtVCard->setGender($gender);
-
-        return $jtVCard;
-    }
-
-    /**
-     * @param $userId
-     * @param $companyId
-     *
-     * @return Companymember
-     */
-    protected function setCompanyMember(
-        $userId,
-        $companyId
-    ) {
-        $companyMember = new Companymember();
-        $companyMember->setUserid($userId);
-        $companyMember->setCompanyid($companyId);
-        $companyMember->setIsdelete(false);
-
-        return $companyMember;
     }
 
     //--------------------throw customer http error --------------------//
@@ -593,97 +471,5 @@ class SandboxRestController extends FOSRestController
         );
 
         $this->throwAccessDeniedIfNull($company);
-    }
-
-    /**
-     * @param $companyID
-     * @param $userID
-     */
-    protected function throwAccessDeniedIfNotCompanyMember(
-        $companyID,
-        $userID
-    ) {
-        $member = $this->getRepo('CompanymemberView')->findOneBy(array(
-            'userid' => $userID,
-            'companyid' => $companyID,
-        ));
-
-        if (is_null($member)) {
-            $this->throwAccessDeniedIfNull($member);
-        }
-    }
-
-    /**
-     * @param $companyID
-     * @param $userID
-     */
-    protected function throwAccessDeniedIfIsCompanyMember(
-        $companyID,
-        $userID
-    ) {
-        $member = $this->getRepo('CompanymemberView')->findOneBy(array(
-            'userid' => $userID,
-            'companyid' => $companyID,
-        ));
-
-        if (!is_null($member)) {
-            $this->throwAccessDeniedIfNull($member);
-        }
-    }
-
-    /**
-     * @param $httpResponseCode
-     *
-     * @throws BadRequestHttpException
-     */
-    protected function throwBadRequestIfCallApiFailed(
-        $httpResponseCode
-    ) {
-        if ($httpResponseCode != self::HTTP_STATUS_OK) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-    }
-
-    /**
-     * @param Request $request
-     * @param int     $companyId
-     * @param array   $rooms
-     *
-     * @return mixed
-     */
-    protected function callApiDisableGroupChat(
-        Request $request,
-        $companyId,
-        $rooms
-    ) {
-        // get company admin
-        $admin = $this->getRepo('CompanyAdmin')->findOneByCompanyid($companyId);
-        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
-
-        $globals = $this->container->get('twig')->getGlobals();
-        $adminJID = $admin->getUsername().'@'.$globals['xmpp_domain'];
-
-        // the request auth from header
-        $auth = $request->headers->get(self::HTTP_HEADER_AUTH);
-
-        $apiUrl = $globals['openfire_innet_protocol'].
-            $globals['openfire_innet_address'].
-            $globals['openfire_innet_port'].
-            $globals['openfire_plugin_groupchat'].
-            $globals['openfire_plugin_groupchat_rooms'].
-            $globals['openfire_plugin_groupchat_rooms_action'].
-            $globals['openfire_plugin_groupchat_rooms_action_disable'];
-
-        // set json data
-        $jsonData = array(
-            'owner' => $adminJID,
-            'rooms' => $rooms,
-        );
-
-        // init curl
-        $ch = curl_init($apiUrl);
-        $this->get('curl_util')->callAPI($ch, json_encode($jsonData), $auth, 'DELETE');
-
-        return curl_getinfo($ch, CURLINFO_HTTP_CODE);
     }
 }

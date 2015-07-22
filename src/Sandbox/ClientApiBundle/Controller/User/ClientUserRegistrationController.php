@@ -340,9 +340,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $globals = $twig->getGlobals();
 
         // Openfire API URL
-        $apiUrl = $globals['openfire_innet_protocol'].
-            $globals['openfire_innet_address'].
-            $globals['openfire_innet_port'].
+        $apiUrl = $globals['openfire_innet_url'].
             $globals['openfire_plugin_bstuser'].
             $globals['openfire_plugin_bstuser_users'];
 
@@ -365,11 +363,12 @@ class ClientUserRegistrationController extends UserRegistrationController
         $ch = curl_init($apiUrl);
 
         // get then response when post OpenFire API
-        $response = $this->callAPI($ch, $jsonData, $basicAuth, 'POST');
+        $response = $this->get('curl_util')->callAPI($ch, 'POST', $basicAuth, $jsonData);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        $this->throwBadRequestIfCallApiFailed($httpCode);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
 
         return $response;
     }

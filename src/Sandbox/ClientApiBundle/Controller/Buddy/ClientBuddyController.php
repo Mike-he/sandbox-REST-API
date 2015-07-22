@@ -49,6 +49,16 @@ class ClientBuddyController extends BuddyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -61,64 +71,65 @@ class ClientBuddyController extends BuddyController
             $user = $this->getRepo('User\User')->findOneByPhone($query);
         }
 
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        $buddies = array();
-
-        if (!is_null($user) && $user != $myUser) {
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($user->getId());
-
-            if (!is_null($profile)) {
-                // set status
-                // if the search target is my buddy, then stauts = accepted
-                // else if the search target have a pending buddy request from me, then status = pending
-                $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                    'user' => $myUser,
-                    'buddy' => $user,
-                ));
-
-                if (!is_null($myBuddy)) {
-                    $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
-
-                    // if both user is buddy with each other
-                    // then show user jid
-                    $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                        'user' => $user,
-                        'buddy' => $myUser,
-                    ));
-
-                    if (!is_null($otherBuddy)) {
-                        $jid = $user->getXmppUsername().'@'.$globals['xmpp_domain'];
-                        $profile->setJid($jid);
-                    }
-                } else {
-                    $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                        'askUser' => $myUser,
-                        'recvUser' => $user,
-                        'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
-                    ));
-
-                    if (!is_null($myBuddyRequest)) {
-                        $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
-                    }
-                }
-            }
-
-            // TODO set user's company
-
-            $buddy = array(
-                'profile' => $profile,
-                'company' => '',
-                'match' => $query,
-            );
-
-            array_push($buddies, $buddy);
+        if (is_null($user) || $user === $myUser) {
+            return new View(array());
         }
 
+        // get profile
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($user->getId());
+        if (is_null($profile)) {
+            return new View(array());
+        }
+
+        // set status
+        // if the search target is my buddy, then stauts = accepted
+        // else if the search target have a pending buddy request from me, then status = pending
+        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+            'user' => $myUser,
+            'buddy' => $user,
+        ));
+
+        if (!is_null($myBuddy)) {
+            $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+            $profile->setBuddyId($myBuddy->getId());
+
+            // if both user is buddy with each other
+            // then show user jid
+            $otherBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                'user' => $user,
+                'buddy' => $myUser,
+            ));
+
+            if (!is_null($otherBuddy)) {
+                // get globals
+                $twig = $this->container->get('twig');
+                $globals = $twig->getGlobals();
+
+                $jid = $user->getXmppUsername().'@'.$globals['xmpp_domain'];
+                $profile->setJid($jid);
+            }
+        } else {
+            $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                'askUser' => $myUser,
+                'recvUser' => $user,
+                'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+            ));
+
+            if (!is_null($myBuddyRequest)) {
+                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+            }
+        }
+
+        // TODO set user's company
+
+        $buddy = array(
+            'profile' => $profile,
+            'company' => '',
+            'match' => $query,
+        );
+
         // set view
-        $view = new View($buddies);
+        $view = new View(array($buddy));
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('buddy')));
 
         return $view;
@@ -137,15 +148,25 @@ class ClientBuddyController extends BuddyController
     public function getBuddiesAction(
         Request $request
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // TODO check user is authorized
-
-
         // get buddies
         $buddies = $this->getRepo('Buddy\Buddy')->findByUser($myUser);
+        if (is_null($buddies) || empty($buddies)) {
+            return new View(array());
+        }
 
         // get globals
         $twig = $this->container->get('twig');

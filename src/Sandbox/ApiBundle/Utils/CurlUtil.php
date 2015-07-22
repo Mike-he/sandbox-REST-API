@@ -21,9 +21,9 @@ class CurlUtil
      */
     public function callAPI(
         $ch,
-        $data,
+        $method,
         $auth,
-        $method
+        $data = null
     ) {
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, 1);
@@ -31,10 +31,15 @@ class CurlUtil
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
 
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $headers = array('Accept: application/json');
+        $headers[] = 'Authorization: '.$auth;
+
+        if (!is_null($data)) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            $headers[] = 'Content-Type: application/json';
+        }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization:'.$auth));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         return curl_exec($ch);
     }
