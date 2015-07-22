@@ -86,16 +86,6 @@ class AdminPermission
     private $modificationDate;
 
     /**
-     * @var array
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="AdminPermissionMap",
-     *      mappedBy="permission"
-     * )
-     */
-    private $permissionMap;
-
-    /**
      * Get id.
      *
      * @return int
@@ -233,15 +223,5 @@ class AdminPermission
     public function getType()
     {
         return $this->type;
-    }
-
-    /**
-     * Get permissionMap.
-     *
-     * @return array
-     */
-    public function getPermissionMap()
-    {
-        return $this->permissionMap;
     }
 }

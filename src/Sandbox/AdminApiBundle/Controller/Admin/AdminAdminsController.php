@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Form\Admin\AdminPutType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -15,6 +16,9 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
+use Knp\Component\Pager\Paginator;
 
 /**
  * Admin controller.
@@ -52,6 +56,26 @@ class AdminAdminsController extends SandboxRestController
      *   }
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @Method({"GET"})
      * @Route("/admins")
      *
@@ -60,13 +84,57 @@ class AdminAdminsController extends SandboxRestController
      * @throws \Exception
      */
     public function getAdminsAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+
+        // get all admins id and username
+        $query = $this->getRepo('Admin\Admin')->findAll();
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $query,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * List definite id of admin.
+     *
+     * @param Request $request the request object
+     * @param int     $admin_id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/admins/{admin_id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminAction(
+        Request $request,
+        $admin_id
     ) {
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
         // get all admins
-        $admins = $this->getRepo('Admin\Admin')->findAll();
+        $admins = $this->getRepo('Admin\Admin')->findOneBy(array("id"=>$admin_id));
 
         // set view
         $view = new View($admins);
@@ -115,6 +183,49 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
+     * Update Admin.
+     *
+     * @param Request $request the request object
+     * @param integer $id      the admin ID
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     *
+     * @Route("/admins/{id}")
+     * @Method({"PUT"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function putAdminAction(
+        Request $request,
+        $id
+    ) {
+        // get admin
+        $admin = $this->getRepo('Admin\Admin')->find($id);
+        $form = $this->createForm(new AdminPutType(), $admin , array("method"=>"PUT") );
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $permission_ids = $form['permission_ids']->getData();
+
+        return $this->handleAdminPut(
+            $id,
+            $admin,
+            $permission_ids
+        );
+    }
+
+    /**
      * @param Request $request
      * @param int     $id
      *
@@ -149,6 +260,98 @@ class AdminAdminsController extends SandboxRestController
 
         return new View();
     }
+
+    /**
+     * @param Admin                 $admin
+     * @param Admin                 $id
+     * @param AdminPermissionMap    $permission_ids
+     *
+     * @return View
+     */
+    private function handleAdminPut(
+        $id,
+        $admin,
+        $permission_ids
+    ) {
+        //set admin
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($admin);
+
+        //judge the id of permissions
+        $permissions = $this->getRepo('Admin\AdminPermissionMap')
+                        ->findBy(array('adminId'=>$id));
+
+            $permissionOldId = array();
+            foreach ($permissions as $permissionOld) {
+                $permissionOldId[] = $permissionOld->getPermissionId();
+            }
+
+            $permissionSameId = array();
+            foreach ($permissionOldId as $pOldId){
+                foreach ($permission_ids as $pNewId) {
+                    if($pOldId == $pNewId){
+                        $permissionSameId[] = $pNewId;
+                    }
+                }
+            }
+
+            //remove the useless permissions
+            foreach ($permissionOldId as $pOldId){
+                $num = 0;
+                foreach ($permissionSameId as $pSameId){
+                    if($pOldId == $pSameId){
+                        $num = 1;
+                    }
+                }
+                if($num == 0){
+                    $pRemove = $this->getRepo('Admin\AdminPermissionMap')
+                        ->findOneBy(
+                                array(
+                                    'adminId'       =>  $id,
+                                    'permissionId'  =>  $pOldId
+                                    )
+                        );
+                    $em = $this->getDoctrine()->getManager();
+                    $em->remove($pRemove);
+                }
+            }
+
+            //set the new permissions
+            $now = new \DateTime('now');
+            foreach ($permission_ids as $pNewId){
+                $num = 0;
+                foreach($permissionSameId as $pSameId){
+                    if($pNewId == $pSameId){
+                        $num = 1;
+                    }
+                }
+                if($num == 0){
+                    // get permission
+                    $myPermission = $this->getRepo('Admin\AdminPermission')->find($pNewId);
+                    if (is_null($myPermission)
+                        || $myPermission->getTypeId() != $admin->getTypeId()
+                    ) {
+                        // if permission's type is different
+                        // don't add the permission
+                        continue;
+                    }
+                    $id=(int)$id;
+                    // save permission map
+                    $permissionMap = new AdminPermissionMap();
+                    $permissionMap->setAdminId($id);
+                    $permissionMap->setPermissionId($pNewId);
+                    $permissionMap->setCreationDate($now);
+                    $permissionMap->setAdmin($admin);
+                    $permissionMap->setPermission($myPermission);
+                    $em->persist($permissionMap);
+                }
+            }
+        //save data
+        $em->flush();
+
+        return new View();
+    }
+
 
     /**
      * @param Admin $admin
