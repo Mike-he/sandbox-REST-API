@@ -1,0 +1,10 @@
+register:
+  submit:
+    missing_email_phone: Missing phone number or email address
+    invalid_email: Invalid email address
+    used_email: Email address already used
+    invalid_phone: Invalid phone number
+    used_phone: Phone number already used
+  verify:
+    invalid_verification: Invalid verification
+    expired_verification: Expired verification
