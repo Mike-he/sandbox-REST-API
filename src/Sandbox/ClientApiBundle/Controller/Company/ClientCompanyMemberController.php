@@ -412,9 +412,7 @@ class ClientCompanyMemberController extends CompanyMemberController
     private function getOpenfireApiUrl($globals)
     {
         // Openfire API URL
-        return $apiUrl = $globals['openfire_innet_protocol'].
-            $globals['openfire_innet_address'].
-            $globals['openfire_innet_port'].
+        return $apiUrl = $globals['openfire_innet_url'].
             $globals['openfire_plugin_groupchat'].
             $globals['openfire_plugin_groupchat_rooms'].
             $globals['openfire_plugin_groupchat_rooms_action'].

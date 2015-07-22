@@ -18,3 +18,18 @@ parameters:
     load_more_limit: 20
     nearby_range_km: 100
     user_profile_default_name_prefix: 用户_
+    xmpp_domain: devxmpp.sandbox3.cn
+    openfire_innet_url: http://127.0.0.1:9090
+    openfire_plugin_bstuser: /plugins/bstuser
+    openfire_plugin_bstuser_users: /users
+    openfire_plugin_bstuser_property_name_ezuser: ezuser
+    openfire_plugin_bstuser_property_secret_ezuser: DB93819516EA9C8E73C0374595ED0F19
+    sms_api_base_url: http://utf8.sms.webchinese.cn/?
+    sms_api_uid: easylinks
+    sms_api_key: 9b9c8912a0efb8bb77e6
+    email_from_address: notification@ezlinx.cn
+    email_from_name: EasyLinks Notification
+    crm_api_url: http://devcrm.sandbox3.cn
+    crm_api_client_user_account_authentication: /client/user/account/authentication
+    crm_api_client_user_account_vip: /client/user/account/vip
+

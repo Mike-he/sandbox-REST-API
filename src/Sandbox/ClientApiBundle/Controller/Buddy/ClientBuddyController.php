@@ -137,12 +137,19 @@ class ClientBuddyController extends BuddyController
     public function getBuddiesAction(
         Request $request
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // TODO check user is authorized
-
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
 
         // get buddies
         $buddies = $this->getRepo('Buddy\Buddy')->findByUser($myUser);
