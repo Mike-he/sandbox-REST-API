@@ -151,6 +151,11 @@ services:
         class:        Sandbox\ApiBundle\Utils\StringUtil
     curl_util:
         class:        Sandbox\ApiBundle\Utils\CurlUtil
+    app.locale_listener:
+        class:        Sandbox\ApiBundle\EventListener\LocaleListener
+        arguments: ["%kernel.default_locale%"]
+        tags:
+            - { name: kernel.event_subscriber }
 
 sensio_framework_extra:
     view: { annotations: false }

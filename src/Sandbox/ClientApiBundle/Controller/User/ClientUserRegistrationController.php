@@ -35,34 +35,25 @@ class ClientUserRegistrationController extends UserRegistrationController
     use StringUtil;
 
     const ERROR_MISSING_PHONE_OR_EMAIL_CODE = 400001;
-    const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'Missing phone number or email address.-未填写手机号或邮箱';
+    const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'register.submit.missing_email_phone';
 
     const ERROR_INVALID_EMAIL_ADDRESS_CODE = 400002;
-    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'Invalid email address.-邮箱地址无效';
+    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'register.submit.invalid_email';
 
     const ERROR_EMAIL_ALREADY_USED_CODE = 400003;
-    const ERROR_EMAIL_ALREADY_USED_MESSAGE = 'Email address already used.-邮箱已被使用';
+    const ERROR_EMAIL_ALREADY_USED_MESSAGE = 'register.submit.used_email';
 
     const ERROR_INVALID_PHONE_CODE = 400004;
-    const ERROR_INVALID_PHONE_MESSAGE = 'Invalid phone number.-手机号无效';
+    const ERROR_INVALID_PHONE_MESSAGE = 'register.submit.invalid_phone';
 
     const ERROR_PHONE_ALREADY_USED_CODE = 400005;
-    const ERROR_PHONE_ALREADY_USED_CODE_MESSAGE = 'Phone number already used.-手机号已被使用';
+    const ERROR_PHONE_ALREADY_USED_CODE_MESSAGE = 'register.submit.used_phone';
 
-    const ERROR_INVALID_NAME_CODE = 400006;
-    const ERROR_INVALID_NAME_MESSAGE = 'Invalid name.-姓名无效';
+    const ERROR_INVALID_VERIFICATION_CODE = 400006;
+    const ERROR_INVALID_VERIFICATION_MESSAGE = 'register.verify.invalid_verification';
 
-    const ERROR_INVALID_PWD_CODE = 400007;
-    const ERROR_INVALID_PWD_MESSAGE = 'Invalid password.-密码无效';
-
-    const ERROR_INVALID_EMAIL_OR_PHONE_CODE = 400008;
-    const ERROR_INVALID_EMAIL_OR_PHONE_MESSAGE = 'Invalid email or phone.-邮箱或手机号无效';
-
-    const ERROR_INVALID_VERIFICATION_CODE = 400009;
-    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.-验证无效';
-
-    const ERROR_EXPIRED_VERIFICATION_CODE = 4000010;
-    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.-验证过期';
+    const ERROR_EXPIRED_VERIFICATION_CODE = 400007;
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'register.verify.expired_verification';
 
     const PLUS_ONE_DAY = '+1 day';
 
@@ -147,8 +138,11 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         if (is_null($email)) {
             if (is_null($phone)) {
-                return $this->customErrorView(400, self::ERROR_MISSING_PHONE_OR_EMAIL_CODE,
-                    self::ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE);
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_MISSING_PHONE_OR_EMAIL_CODE,
+                    self::ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE
+                );
             }
         } else {
             $phone = null;
@@ -157,29 +151,41 @@ class ClientUserRegistrationController extends UserRegistrationController
         if (!is_null($email)) {
             // check email valid
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return $this->customErrorView(400, self::ERROR_INVALID_EMAIL_ADDRESS_CODE,
-                    self::ERROR_INVALID_EMAIL_ADDRESS_MESSAGE);
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_EMAIL_ADDRESS_CODE,
+                    self::ERROR_INVALID_EMAIL_ADDRESS_MESSAGE
+                );
             }
 
             // check email already used
             $user = $this->getRepo('User\User')->findOneByEmail($email);
-            if (!is_null($user) && $user->getActivated()) {
-                return $this->customErrorView(400, self::ERROR_EMAIL_ALREADY_USED_CODE,
-                    self::ERROR_EMAIL_ALREADY_USED_MESSAGE);
+            if (!is_null($user)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_EMAIL_ALREADY_USED_CODE,
+                    self::ERROR_EMAIL_ALREADY_USED_MESSAGE
+                );
             }
         } else {
             // check  and phone number valid
             if (is_null($phone)
                 || !is_numeric($phone)) {
-                return $this->customErrorView(400, self::ERROR_INVALID_PHONE_CODE,
-                    self::ERROR_INVALID_PHONE_MESSAGE);
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_PHONE_CODE,
+                    self::ERROR_INVALID_PHONE_MESSAGE
+                );
             }
 
             // check phone number already used
             $user = $this->getRepo('User\User')->findOneByPhone($phone);
             if (!is_null($user)) {
-                return $this->customErrorView(400, self::ERROR_PHONE_ALREADY_USED_CODE,
-                    self::ERROR_PHONE_ALREADY_USED_CODE_MESSAGE);
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_PHONE_ALREADY_USED_CODE,
+                    self::ERROR_PHONE_ALREADY_USED_CODE_MESSAGE
+                );
             }
         }
 
@@ -219,7 +225,8 @@ class ClientUserRegistrationController extends UserRegistrationController
             return $this->customErrorView(
                 400,
                 self::ERROR_INVALID_VERIFICATION_CODE,
-                self::ERROR_INVALID_VERIFICATION_MESSAGE);
+                self::ERROR_INVALID_VERIFICATION_MESSAGE
+            );
         }
 
         // get registration entity
@@ -233,7 +240,8 @@ class ClientUserRegistrationController extends UserRegistrationController
             return $this->customErrorView(
                 400,
                 self::ERROR_INVALID_VERIFICATION_CODE,
-                self::ERROR_INVALID_VERIFICATION_MESSAGE);
+                self::ERROR_INVALID_VERIFICATION_MESSAGE
+            );
         }
 
         // check token validation time
@@ -241,7 +249,8 @@ class ClientUserRegistrationController extends UserRegistrationController
             return $this->customErrorView(
                 400,
                 self::ERROR_EXPIRED_VERIFICATION_CODE,
-                self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
+                self::ERROR_EXPIRED_VERIFICATION_MESSAGE
+            );
         }
 
         // generate user entity
