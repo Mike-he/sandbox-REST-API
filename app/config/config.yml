@@ -27,44 +27,26 @@ twig:
     exception_controller: 'FOS\RestBundle\Controller\ExceptionController::showAction'
 
     globals:
-        xmpp_domain: 'im01.ezlinx.cn'
-        xmpp_message_type_chat: 'chat'
-        openfire_protocol: 'https://'
-        openfire_port: ''
-        openfire_innet_protocol: 'http://'
-        openfire_innet_address: '127.0.0.1'
-        openfire_innet_port: ':9090'
-        openfire_plugin_groupchat: '/plugins/bstgroupchat'
-        openfire_plugin_groupchat_rooms: '/rooms'
-        openfire_plugin_groupchat_rooms_action: '?action='
-        openfire_plugin_groupchat_rooms_action_remove: 'remove'
-        openfire_plugin_groupchat_rooms_action_disable: 'disable'
-        openfire_plugin_groupchat_members: '/members'
-        openfire_plugin_bstuser: '/plugins/bstuser'
-        openfire_plugin_bstuser_users: '/users'
-        openfire_plugin_bstuser_property_name_ezuser: 'ezuser'
-        openfire_plugin_bstuser_property_secret_ezuser: 'DB93819516EA9C8E73C0374595ED0F19'
-        openfire_plugin_easylinks: '/plugins/easylinks'
-        openfire_plugin_easylinks_message: '/message'
-        openfire_plugin_easylinks_property_name_ezchat: 'ezchat'
-        openfire_plugin_easylinks_property_secret_ezchat: 'AED153658CD0F743FA5FED9012BD2C11'
-        web_client_protocol: 'https://'
-        web_client_domain: 'web01.ezlinx.cn'
-        web_client_bind_email_base_uri: '/#/bind_email/'
-        web_client_activate_account_base_uri: '/#/activate_account/'
-        web_client_reset_password_base_uri: '/#/reset_password/'
-        web_client_register_invite_base_uri: '/#/register/invite/'
-        sms_api_base_url: 'http://utf8.sms.webchinese.cn/?'
-        sms_api_uid: 'easylinks'
-        sms_api_key: '9b9c8912a0efb8bb77e6'
-        email_from_address: 'notification@ezlinx.cn'
-        email_from_name: 'EasyLinks Notification'
+        openfire_innet_url: "%openfire_innet_url%"
+        openfire_plugin_bstuser: "%openfire_plugin_bstuser%"
+        openfire_plugin_bstuser_users: "%openfire_plugin_bstuser_users%"
+        openfire_plugin_bstuser_property_name_ezuser: "%openfire_plugin_bstuser_property_name_ezuser%"
+        openfire_plugin_bstuser_property_secret_ezuser: "%openfire_plugin_bstuser_property_secret_ezuser%"
+        sms_api_base_url: "%sms_api_base_url%"
+        sms_api_uid: "%sms_api_uid%"
+        sms_api_key: "%sms_api_key%"
+        email_from_address: "%email_from_address%"
+        email_from_name: "%email_from_name%"
+        xmpp_domain: "%xmpp_domain%"
         pingpp_test_key: "%pingpp_test_key%"
         pingpp_live_key: "%pingpp_live_key%"
         pingpp_app_id: "%pingpp_app_id%"
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"
         user_profile_default_name_prefix: "%user_profile_default_name_prefix%"
+        crm_api_url: "%crm_api_url%"
+        crm_api_client_user_account_authentication: "%crm_api_client_user_account_authentication%"
+        crm_api_client_user_account_vip: "%crm_api_client_user_account_vip%"
 
 # Assetic Configuration
 assetic:

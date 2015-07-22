@@ -64,6 +64,16 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
         $userId = $this->getUserId();
 
         $limit = $paramFetcher->get('limit');
@@ -178,6 +188,16 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
         $userId = $this->getUserId();
 
         $limit = $paramFetcher->get('limit');
@@ -290,6 +310,16 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
         $userId = $this->getUserId();
 
         $limit = $paramFetcher->get('limit');

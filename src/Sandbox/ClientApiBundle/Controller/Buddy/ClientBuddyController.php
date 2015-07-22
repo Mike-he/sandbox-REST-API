@@ -49,6 +49,16 @@ class ClientBuddyController extends BuddyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -137,12 +147,19 @@ class ClientBuddyController extends BuddyController
     public function getBuddiesAction(
         Request $request
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
-
-        // TODO check user is authorized
-
 
         // get buddies
         $buddies = $this->getRepo('Buddy\Buddy')->findByUser($myUser);
@@ -211,6 +228,16 @@ class ClientBuddyController extends BuddyController
         Request $request,
         $id
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View();
+        }
+
         $userId = $this->getUserId();
 
         // get buddy

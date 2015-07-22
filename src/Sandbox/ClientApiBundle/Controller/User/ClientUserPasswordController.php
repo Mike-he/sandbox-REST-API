@@ -187,9 +187,7 @@ class ClientUserPasswordController extends UserPasswordController
         $globals = $twig->getGlobals();
 
         // Openfire API URL
-        $apiUrl = $globals['openfire_innet_protocol'].
-            $globals['openfire_innet_address'].
-            $globals['openfire_innet_port'].
+        $apiUrl = $globals['openfire_innet_url'].
             $globals['openfire_plugin_bstuser'].
             $globals['openfire_plugin_bstuser_users'];
 
@@ -200,7 +198,7 @@ class ClientUserPasswordController extends UserPasswordController
         $ch = curl_init($apiUrl);
 
         // get then response when post OpenFire API
-        $response = $this->callAPI($ch, $jsonData, $auth, 'PUT');
+        $response = $this->get('curl_util')->callAPI($ch, 'PUT', $auth, $jsonData);
         if (!$response) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
