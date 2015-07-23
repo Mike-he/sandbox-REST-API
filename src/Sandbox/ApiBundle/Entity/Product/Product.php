@@ -9,7 +9,12 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 /**
  * Product.
  *
- * @ORM\Table(name="Product")
+ * @ORM\Table(
+ *  name="Product",
+ *  uniqueConstraints={
+ *      @ORM\UniqueConstraint(name="roomId_UNIQUE", columns={"roomId"})
+ *  }
+ * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Product\ProductRepository")
  */
 class Product
@@ -150,7 +155,7 @@ class Product
     /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})

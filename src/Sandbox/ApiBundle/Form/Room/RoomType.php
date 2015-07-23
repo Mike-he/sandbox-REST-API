@@ -22,7 +22,6 @@ class RoomType extends AbstractType
             ->add('floor_id', 'integer')
             ->add('number')
             ->add('allowed_people', 'integer')
-            ->add('door_control_id')
             ->add('area')
             ->add('office_supplies',
                 null,
@@ -46,6 +45,13 @@ class RoomType extends AbstractType
             )
             ->add(
                 'room_meeting',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
+            ->add(
+                'doors_control',
                 null,
                 array(
                     'mapped' => false,

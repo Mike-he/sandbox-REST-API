@@ -141,13 +141,16 @@ class Room
     private $allowedPeople;
 
     /**
-     * @var int
+     * @var RoomDoors
      *
-     * @ORM\Column(name="doorControlId", type="string", nullable=false)
-     *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Room\RoomDoors",
+     *      mappedBy="room",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      */
-    private $doorControlId;
+    private $doorControl;
 
     /**
      * @var RoomSupplies
@@ -658,25 +661,21 @@ class Room
     }
 
     /**
-     * Get door control id.
-     *
-     * @return string
+     * @return RoomDoors
      */
-    public function getDoorControlId()
+    public function getDoorControl()
     {
-        return $this->doorControlId;
+        return $this->doorControl;
     }
 
     /**
-     * Set door control id.
-     *
-     * @param string $doorControlId
+     * @param RoomDoors $doorControl
      *
      * @return Room
      */
-    public function setDoorControlId($doorControlId)
+    public function setDoorControl($doorControl)
     {
-        $this->doorControlId = $doorControlId;
+        $this->doorControl = $doorControl;
 
         return $this;
     }
