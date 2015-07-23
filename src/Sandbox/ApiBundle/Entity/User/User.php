@@ -18,9 +18,7 @@ use JMS\Serializer\Annotation as Serializer;
  *          @ORM\UniqueConstraint(name="phone_UNIQUE", columns={"phone"})
  *      }
  * )
- * @ORM\Entity(
- *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserRepository"
- * )
+ * @ORM\Entity
  */
 class User implements UserInterface
 {
@@ -37,8 +35,24 @@ class User implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=true)
+     * @ORM\Column(name="name", type="string", length=128, nullable=false)
      * @Serializer\Groups({"main", "login"})
+     */
+    private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="gender", type="string", length=32, nullable=false)
+     * @Serializer\Groups({"main", "login"})
+     */
+    private $gender;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"login"})
      */
     private $xmppUsername;
 
@@ -77,7 +91,6 @@ class User implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -85,7 +98,6 @@ class User implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -97,6 +109,54 @@ class User implements UserInterface
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set name.
+     *
+     * @param string $name
+     *
+     * @return User
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set gender.
+     *
+     * @param string $gender
+     *
+     * @return User
+     */
+    public function setGender($gender)
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+    /**
+     * Get gender.
+     *
+     * @return string
+     */
+    public function getGender()
+    {
+        return $this->gender;
     }
 
     /**
