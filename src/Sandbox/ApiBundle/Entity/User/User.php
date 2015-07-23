@@ -18,6 +18,7 @@ use JMS\Serializer\Annotation as Serializer;
  *          @ORM\UniqueConstraint(name="phone_UNIQUE", columns={"phone"})
  *      }
  * )
+ *
  * @ORM\Entity(
  *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserRepository"
  * )
