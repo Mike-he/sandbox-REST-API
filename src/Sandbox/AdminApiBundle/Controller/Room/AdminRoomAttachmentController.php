@@ -54,6 +54,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="\d+",
      *    strict=true,
      *    description="Filter by building id"
      * )
