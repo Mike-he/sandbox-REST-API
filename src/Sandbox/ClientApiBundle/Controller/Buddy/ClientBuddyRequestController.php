@@ -53,7 +53,9 @@ class ClientBuddyRequestController extends BuddyRequestController
         $myRequests = array();
 
         foreach ($buddyRequests as $buddyRequest) {
-            $profile = $this->getRepo('User\UserProfile')->findOneByUser($myUser);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUser(
+                $buddyRequest->getAskUser()
+            );
 
             // TODO set user's company
 
