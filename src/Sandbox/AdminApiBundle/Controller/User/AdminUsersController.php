@@ -4,18 +4,13 @@ namespace Sandbox\AdminApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\User;
-use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
-use Sandbox\ApiBundle\Form\Admin\AdminPutType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -110,7 +105,7 @@ class AdminUsersController extends SandboxRestController
     /**
      * List definite id of admin.
      *
-     * @param Request $request  the request object
+     * @param Request $request the request object
      * @param int     $user_id
      *
      * @ApiDoc(
