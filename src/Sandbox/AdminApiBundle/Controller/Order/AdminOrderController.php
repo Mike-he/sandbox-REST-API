@@ -147,6 +147,25 @@ class AdminOrderController extends OrderController
     }
 
     /**
+     * Export orders to excel
+     *
+     * @param Request $request
+     *
+     * @Route("/orders/export")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getExcelOrders(
+        Request $request
+    ) {
+        die("it works");
+    }
+
+
+    /**
      * Get member order renter info.
      *
      * @param Request $request
