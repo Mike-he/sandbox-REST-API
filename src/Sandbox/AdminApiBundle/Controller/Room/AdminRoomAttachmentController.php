@@ -146,6 +146,9 @@ class AdminRoomAttachmentController extends RoomAttachmentController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($attachment->getBuildingId());
+        $this->throwNotFoundIfNull($roomBuilding, self::NOT_FOUND_MESSAGE);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($attachment);
         $em->flush();
