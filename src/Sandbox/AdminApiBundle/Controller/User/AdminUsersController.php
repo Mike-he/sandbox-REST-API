@@ -15,6 +15,7 @@ use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Form\User\UserType;
 use Rs\Json\Patch;
 
 /**
@@ -158,7 +159,8 @@ class AdminUsersController extends SandboxRestController
     /**
      * Edit user info.
      *
-     * @param int $id
+     * @param Request $request
+     * @param int     $id
      *
      * @Route("/users/{id}")
      * @Method({"PATCH"})
@@ -166,23 +168,23 @@ class AdminUsersController extends SandboxRestController
      * @return View
      */
     public function patchUserAction(
+        Request $request,
         $id
     ) {
         //get user Entity
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        // update user banned
-        $banned = $user->isBanned();
-        if ($banned) {
-            $user->setBanned(0);
-        } else {
-            $user->setBanned(1);
-        }
+        // bind data
+        $userJson = $this->container->get('serializer')->serialize($user, 'json');
+        $patch = new Patch($userJson, $request->getContent());
+        $userJson = $patch->apply();
+
+        $form = $this->createForm(new UserType(), $user);
+        $form->submit(json_decode($userJson, true));
 
         // update to db
         $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
         $em->flush();
 
         return new View();
