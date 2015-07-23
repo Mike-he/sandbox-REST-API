@@ -15,6 +15,7 @@ use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 
 /**
  * Admin controller.
@@ -145,7 +146,7 @@ class AdminUsersController extends SandboxRestController
             'gender' => $profile->getGender(),
             'phone' => $user->getPhone(),
             'email' => $user->getEmail(),
-            'banned' => $user->isBanned()
+            'banned' => $user->isBanned(),
         ));
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('main'))
@@ -154,52 +155,36 @@ class AdminUsersController extends SandboxRestController
         return $view;
     }
 
-    /*
-     * Edit user info
+    /**
+     * Edit user info.
      *
-     * @param Request $request
-     * @param int     $id
+     * @param int $id
      *
      * @Route("/users/{id}")
      * @Method({"PATCH"})
      *
      * @return View
      */
-    public function patchCompaniesAction(
-        Request $request,
+    public function patchUserAction(
         $id
     ) {
-        //TODO check user is vip
+        //get user Entity
+        $user = $this->getRepo('User\User')->find($id);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        //get company Entity
-        $company = $this->getRepo('Company\Company')->find($id);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
-
-        //TODO check user is allowed to modify
-//    if ($creatorId != $userId) {
-//        // if user is not the creator of this company
-//        // return error
-//        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-//    }
-
-        // bind data
-        $companyJson = $this->container
-            ->get('serializer')
-            ->serialize($company, 'json');
-        $patch = new Patch($companyJson, $request->getContent());
-        $companyPatchJson = $patch->apply();
-
-        $form = $this->createForm(new CompanyType(), $company);
-        $form->submit(json_decode($companyPatchJson, true));
-
-        // update company modification date
-        $company->setModificationDate(new \DateTime('now'));
+        // update user banned
+        $banned = $user->isBanned();
+        if ($banned) {
+            $user->setBanned(0);
+        } else {
+            $user->setBanned(1);
+        }
 
         // update to db
         $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
         $em->flush();
 
         return new View();
     }
 }
-

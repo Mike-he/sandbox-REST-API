@@ -162,8 +162,8 @@ class ClientCompanyController extends CompanyController
         throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
     }
 
-    /*
-     * Edit company info
+    /**
+     * Edit company info.
      *
      * @param Request $request
      * @param int     $id
