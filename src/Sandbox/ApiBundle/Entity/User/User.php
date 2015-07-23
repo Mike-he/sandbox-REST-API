@@ -18,7 +18,10 @@ use JMS\Serializer\Annotation as Serializer;
  *          @ORM\UniqueConstraint(name="phone_UNIQUE", columns={"phone"})
  *      }
  * )
- * @ORM\Entity
+ *
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserRepository"
+ * )
  */
 class User implements UserInterface
 {
@@ -31,22 +34,6 @@ class User implements UserInterface
      * @Serializer\Groups({"main", "login"})
      */
     private $id;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=128, nullable=false)
-     * @Serializer\Groups({"main", "login"})
-     */
-    private $name;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="gender", type="string", length=32, nullable=false)
-     * @Serializer\Groups({"main", "login"})
-     */
-    private $gender;
 
     /**
      * @var string
@@ -109,54 +96,6 @@ class User implements UserInterface
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set name.
-     *
-     * @param string $name
-     *
-     * @return User
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Set gender.
-     *
-     * @param string $gender
-     *
-     * @return User
-     */
-    public function setGender($gender)
-    {
-        $this->gender = $gender;
-
-        return $this;
-    }
-
-    /**
-     * Get gender.
-     *
-     * @return string
-     */
-    public function getGender()
-    {
-        return $this->gender;
     }
 
     /**
