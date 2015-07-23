@@ -46,9 +46,15 @@ sandbox_admin_api_doors:
     type:     annotation
     prefix:   /
 
-# Admins /admin/admis
+# Admins /admin/admins
 sandbox_admin_api_admins:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminAdminsController.php"
+    type:     annotation
+    prefix:   /
+
+# User /admin/users
+sandbox_admin_api_users:
+    resource: "@SandboxAdminApiBundle/Controller/User/AdminUsersController.php"
     type:     annotation
     prefix:   /
 
