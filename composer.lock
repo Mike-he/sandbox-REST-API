@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "890ba320b86c415f3bbbd6a845edd353",
+    "hash": "4e15fc94d04243f65177d401ea0fc91f",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
@@ -1757,6 +1757,70 @@
             "time": "2014-12-12 05:37:00"
         },
         {
+            "name": "liuggio/ExcelBundle",
+            "version": "v2.0.2",
+            "target-dir": "Liuggio/ExcelBundle",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/liuggio/ExcelBundle.git",
+                "reference": "33ce101e5fb76786ea05da350ab394b596d7ee52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/liuggio/ExcelBundle/zipball/33ce101e5fb76786ea05da350ab394b596d7ee52",
+                "reference": "33ce101e5fb76786ea05da350ab394b596d7ee52",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2",
+                "phpoffice/phpexcel": "~1.8.0",
+                "symfony/framework-bundle": "~2.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.6",
+                "sensio/framework-extra-bundle": "~2.3",
+                "symfony/browser-kit": "~2.6",
+                "symfony/class-loader": "~2.6",
+                "symfony/finder": "~2.6",
+                "symfony/form": "~2.6",
+                "symfony/validator": "~2.6"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Liuggio\\ExcelBundle": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "ExcelBundle Contributors",
+                    "homepage": "https://github.com/liuggio/ExcelBundle#contributors"
+                },
+                {
+                    "name": "Giulio De Donato",
+                    "email": "liuggio@gmail.com"
+                }
+            ],
+            "description": "This is a Symfony2 Bundle helps you to read and write Excel files (including pdf, xlsx, odt), thanks to the PHPExcel library",
+            "homepage": "http://www.welcometothebundle.com",
+            "keywords": [
+                "Symfony2",
+                "bundle",
+                "excel",
+                "xls"
+            ],
+            "time": "2015-05-15 09:50:11"
+        },
+        {
             "name": "michelf/php-markdown",
             "version": "1.5.0",
             "source": {
@@ -2022,12 +2086,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/raphaelstolt/php-jsonpatch.git",
-                "reference": "7933990bcfea21bb3f093bc3df9ae621540b40ca"
+                "reference": "f008d127008dc432ef3df9c1660d18539276fee4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/raphaelstolt/php-jsonpatch/zipball/7933990bcfea21bb3f093bc3df9ae621540b40ca",
-                "reference": "7933990bcfea21bb3f093bc3df9ae621540b40ca",
+                "url": "https://api.github.com/repos/raphaelstolt/php-jsonpatch/zipball/f008d127008dc432ef3df9c1660d18539276fee4",
+                "reference": "f008d127008dc432ef3df9c1660d18539276fee4",
                 "shasum": ""
             },
             "require": {
@@ -2066,7 +2130,7 @@
                 "json modification",
                 "json patch"
             ],
-            "time": "2015-06-05 08:56:54"
+            "time": "2015-07-22 08:36:21"
         },
         {
             "name": "php-jsonpointer/php-jsonpointer",
@@ -2074,12 +2138,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/raphaelstolt/php-jsonpointer.git",
-                "reference": "fc3999d9ab5bf8f59dc829742c6dab6ccd2e1b6e"
+                "reference": "064f65b05d1381d4999113f442af93949cc7c29a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/raphaelstolt/php-jsonpointer/zipball/fc3999d9ab5bf8f59dc829742c6dab6ccd2e1b6e",
-                "reference": "fc3999d9ab5bf8f59dc829742c6dab6ccd2e1b6e",
+                "url": "https://api.github.com/repos/raphaelstolt/php-jsonpointer/zipball/064f65b05d1381d4999113f442af93949cc7c29a",
+                "reference": "064f65b05d1381d4999113f442af93949cc7c29a",
                 "shasum": ""
             },
             "require": {
@@ -2117,7 +2181,7 @@
                 "json pointer",
                 "json traversal"
             ],
-            "time": "2015-06-05 08:59:31"
+            "time": "2015-07-22 08:39:53"
         },
         {
             "name": "phpcollection/phpcollection",
@@ -2168,6 +2232,63 @@
                 "set"
             ],
             "time": "2014-03-11 13:46:42"
+        },
+        {
+            "name": "phpoffice/phpexcel",
+            "version": "1.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPOffice/PHPExcel.git",
+                "reference": "372c7cbb695a6f6f1e62649381aeaa37e7e70b32"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/372c7cbb695a6f6f1e62649381aeaa37e7e70b32",
+                "reference": "372c7cbb695a6f6f1e62649381aeaa37e7e70b32",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xml": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=5.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "PHPExcel": "Classes/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Maarten Balliauw",
+                    "homepage": "http://blog.maartenballiauw.be"
+                },
+                {
+                    "name": "Mark Baker"
+                },
+                {
+                    "name": "Franck Lefevre",
+                    "homepage": "http://blog.rootslabs.net"
+                },
+                {
+                    "name": "Erik Tilt"
+                }
+            ],
+            "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
+            "homepage": "http://phpexcel.codeplex.com",
+            "keywords": [
+                "OpenXML",
+                "excel",
+                "php",
+                "spreadsheet",
+                "xls",
+                "xlsx"
+            ],
+            "time": "2015-05-01 07:00:55"
         },
         {
             "name": "phpoption/phpoption",
@@ -3257,7 +3378,7 @@
             ],
             "authors": [
                 {
-                    "name": "Dariusz Rumi��ski",
+                    "name": "Dariusz Rumiński",
                     "email": "dariusz.ruminski@gmail.com"
                 },
                 {

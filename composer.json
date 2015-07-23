@@ -32,9 +32,7 @@
         "php-jsonpatch/php-jsonpatch": "dev-master",
         "pingplusplus/pingpp-php": "dev-master",
         "knplabs/knp-paginator-bundle": "^2.4",
-        "doctrine/migrations": "1.0.*@dev",
-        "doctrine/doctrine-migrations-bundle": "1.0.*"
-
+        "liuggio/excelbundle": "^2.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "@stable",
