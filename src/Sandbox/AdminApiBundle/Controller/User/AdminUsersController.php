@@ -90,11 +90,11 @@ class AdminUsersController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
         // get all user id and name
-        $user = $this->getRepo('User\User')->findAllUsers();
+        $users = $this->getRepo('User\User')->findAllUsers();
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $user,
+            $users,
             $pageIndex,
             $pageLimit
         );
