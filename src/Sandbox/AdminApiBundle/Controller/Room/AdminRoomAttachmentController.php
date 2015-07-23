@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Room;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Room\RoomAttachmentController;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentType;
@@ -11,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 
 /**
@@ -37,6 +39,25 @@ class AdminRoomAttachmentController extends RoomAttachmentController
      *  }
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="(office|meeting|flexible|fixed)",
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @Route("/rooms/attachments")
      * @Method({"GET"})
      *
@@ -45,10 +66,22 @@ class AdminRoomAttachmentController extends RoomAttachmentController
      * @return View
      */
     public function getAttachmentsAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        $type = $paramFetcher->get('type');
+        $buildingId = $paramFetcher->get('building');
+
+        $filters = $this->getFilters(
+            $type,
+            $buildingId
+        );
+
         // get attachment
-        $attachments = $this->getRepo('Room\RoomAttachment')->findAll();
+        $attachments = $this->getRepo('Room\RoomAttachment')->findBy(
+            $filters,
+            ['creationDate' => 'DESC']
+        );
 
         return new View($attachments);
     }
@@ -153,5 +186,30 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         $em = $this->getDoctrine()->getManager();
         $em->remove($attachment);
         $em->flush();
+    }
+
+    /**
+     * Get filters.
+     *
+     * @param $type
+     * @param $buildingId
+     *
+     * @return array
+     */
+    private function getFilters(
+        $type,
+        $buildingId
+    ) {
+        $filters = [];
+
+        if (!is_null($type)) {
+            $filters['roomType'] = $type;
+        }
+
+        if (!is_null($buildingId)) {
+            $filters['buildingId'] = $buildingId;
+        }
+
+        return $filters;
     }
 }
