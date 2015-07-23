@@ -39,7 +39,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"login"})
+     * @Serializer\Groups({"main", "login"})
      */
     private $xmppUsername;
 
@@ -78,6 +78,7 @@ class User implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -85,6 +86,7 @@ class User implements UserInterface
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
