@@ -19,7 +19,16 @@ class RoomAttachmentType extends AbstractType
             ->add('attachment_type')
             ->add('filename')
             ->add('preview')
-            ->add('size')
+            ->add('size', 'integer')
+            ->add('room_type', 'choice', [
+                'choices' => [
+                    'office' => 'office',
+                    'meeting' => 'meeting',
+                    'flexible' => 'flexible',
+                    'fixed' => 'fixed',
+                ],
+            ])
+            ->add('building_id', 'integer')
         ;
     }
 

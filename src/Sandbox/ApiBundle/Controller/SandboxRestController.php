@@ -389,11 +389,13 @@ class SandboxRestController extends FOSRestController
         $errorCode,
         $errorMessage
     ) {
+        $translated = $this->get('translator')->trans($errorMessage);
+
         $view = new View();
         $view->setStatusCode($statusCode);
         $view->setData(array(
             'code' => $errorCode,
-            'message' => $errorMessage,
+            'message' => $translated,
         ));
 
         return $view;
