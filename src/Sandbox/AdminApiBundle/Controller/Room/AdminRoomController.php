@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Room;
 use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
+use Sandbox\ApiBundle\Entity\Room\RoomDoors;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
 use Sandbox\ApiBundle\Entity\Room\RoomSupplies;
@@ -226,13 +227,15 @@ class AdminRoomController extends RoomController
         $fixed = $form['room_fixed']->getData();
         $attachments_id = $form['attachment_id']->getData();
         $office_supplies = $form['office_supplies']->getData();
+        $doors_control = $form['doors_control']->getData();
 
         return $this->handleRoomPost(
             $room,
             $meeting,
             $fixed,
             $attachments_id,
-            $office_supplies
+            $office_supplies,
+            $doors_control
         );
     }
 
@@ -579,6 +582,7 @@ class AdminRoomController extends RoomController
      * @param RoomFixed             $roomsFixed
      * @param RoomAttachmentBinding $attachments_id
      * @param RoomSupplies          $office_supplies
+     * @param RoomDoors             $doors_controls
      *
      * @return View
      */
@@ -587,7 +591,8 @@ class AdminRoomController extends RoomController
         $meeting,
         $roomsFixed,
         $attachments_id,
-        $office_supplies
+        $office_supplies,
+        $doors_control
     ) {
         $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
         $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
@@ -625,6 +630,17 @@ class AdminRoomController extends RoomController
         $em = $this->getDoctrine()->getManager();
         $em->persist($room);
         $em->flush();
+
+        //add doors control
+        if (!is_null($doors_control)) {
+            foreach ($doors_control as $doors) {
+                $roomDoor = new RoomDoors();
+                $roomDoor->setRoom($room);
+                $roomDoor->setDoorControlId($doors['control_id']);
+                $em->persist($roomDoor);
+            }
+            $em->flush();
+        }
 
         //add attachments
         if (!is_null($attachments_id)) {
