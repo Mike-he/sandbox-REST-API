@@ -25,7 +25,7 @@ class FeedAttachment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "feed"})
      */
     private $id;
 
