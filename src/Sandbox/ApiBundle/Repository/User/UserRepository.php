@@ -123,4 +123,27 @@ class UserRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @return array
+     */
+    public function findAllUsers()
+    {
+        return $this->getEntityManager()
+            ->createQuery(
+                '
+                  SELECT
+                  u.id,
+                  u.email,
+                  u.phone,
+                  u.banned,
+                  up.name,
+                  up.gender
+                  FROM SandboxApiBundle:User\User u
+                  LEFT JOIN SandboxApiBundle:User\UserProfile up
+                  WITH u.id = up.userId
+                '
+            )
+            ->getResult();
+    }
 }
