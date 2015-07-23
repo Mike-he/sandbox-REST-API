@@ -72,6 +72,33 @@ class RoomAttachment
     private $size;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="roomType", type="string", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $roomType;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="buildingId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $buildingId;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $creationDate;
+
+    /**
      * Get id.
      *
      * @return int
@@ -199,5 +226,70 @@ class RoomAttachment
     public function getSize()
     {
         return $this->size;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoomType()
+    {
+        return $this->roomType;
+    }
+
+    /**
+     * @param string $roomType
+     *
+     * @return RoomAttachment
+     */
+    public function setRoomType($roomType)
+    {
+        $this->roomType = $roomType;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param int $buildingId
+     *
+     * @return RoomAttachment
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * @param \DateTime $creationDate
+     *
+     * @return RoomAttachment
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    public function __construct()
+    {
+        $this->setCreationDate(new \DateTime('now'));
     }
 }
