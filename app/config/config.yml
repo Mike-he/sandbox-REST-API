@@ -231,3 +231,27 @@ doctrine_migrations:
     namespace: Application\Migrations
     table_name: migration_versions
     name: Application Migrations
+
+fos_elastica:
+    clients:
+        default: { host: localhost, port: 9200 }
+    serializer:
+        callback_class: FOS\ElasticaBundle\Serializer\Callback
+        serializer: serializer
+    indexes:
+        search:
+            index_name: app_%kernel.environment%
+            client: default
+            types:
+                member:
+                    mappings:
+                        name: ~
+                    persistence:
+                        # the driver can be orm, mongodb or propel
+                        # listener and finder are not supported by
+                        # propel and should be removed
+                        driver: orm
+                        model: Sandbox\ApiBundle\Entity\User\UserProfile
+                        provider: ~
+                        listener: ~
+                        finder: ~
