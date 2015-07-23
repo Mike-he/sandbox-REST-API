@@ -130,14 +130,15 @@ class ClientMemberController extends MemberController
             $em->persist($randomRecord);
 
             // set profile
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
 
-            // TODO set company info
+            // get user's company
+            $company = $this->getCompanyIfMember($user);
 
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
-                'company' => '',
+                'company' => $company,
             );
 
             array_push($members, $member);
@@ -254,12 +255,13 @@ class ClientMemberController extends MemberController
 
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
 
-            // TODO set company info
+            // get user's company
+            $company = $this->getCompanyIfMember($user);
 
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
-                'company' => '',
+                'company' => $company,
                 'distance' => $user['distance'],
             );
 
@@ -347,31 +349,32 @@ class ClientMemberController extends MemberController
         }
 
         // find my visitors
-        $visitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
+        $profileVisitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
             $userId,
             $limit,
             $offset,
             $lastId
         );
-        if (is_null($visitors) || empty($visitors)) {
+        if (is_null($profileVisitors) || empty($profileVisitors)) {
             return new View(array());
         }
 
         // members for response
         $members = array();
 
-        foreach ($visitors as $visitor) {
-            $visitorId = $visitor->getVisitorId();
+        foreach ($profileVisitors as $profileVisitor) {
+            $visitor = $profileVisitor->getVisitor();
 
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($visitorId);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUser($visitor);
 
-            // TODO set company info
+            // get user's company
+            $company = $this->getCompanyIfMember($visitor);
 
             $member = array(
-                'id' => $visitor->getId(),
+                'id' => $profileVisitor->getId(),
                 'profile' => $profile,
-                'company' => '',
-                'visit_date' => $visitor->getCreationDate(),
+                'company' => $company,
+                'visit_date' => $profileVisitor->getCreationDate(),
             );
 
             array_push($members, $member);

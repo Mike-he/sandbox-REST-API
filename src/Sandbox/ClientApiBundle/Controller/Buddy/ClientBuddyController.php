@@ -120,11 +120,13 @@ class ClientBuddyController extends BuddyController
             }
         }
 
-        // TODO set user's company
+        // get user's company
+        $company = $this->getCompanyIfMember($user);
 
+        // response
         $buddy = array(
             'profile' => $profile,
-            'company' => '',
+            'company' => $company,
             'match' => $query,
         );
 
@@ -183,7 +185,7 @@ class ClientBuddyController extends BuddyController
                     continue;
                 }
 
-                $profile = $this->getRepo('User\UserProfile')->findOneByUserId($buddyId);
+                $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
                 if (!is_null($profile)) {
                     // if both user is buddy with each other
                     // then show user jid
@@ -198,12 +200,13 @@ class ClientBuddyController extends BuddyController
                     }
                 }
 
-                // TODO set user's company
+                // get user's company
+                $company = $this->getCompanyIfMember($user);
 
                 $myBuddy = array(
                     'id' => $buddy->getId(),
                     'profile' => $profile,
-                    'company' => '',
+                    'company' => $company,
                 );
 
                 array_push($myBuddies, $myBuddy);

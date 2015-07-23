@@ -130,6 +130,20 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param User $user
+     */
+    protected function getCompanyIfMember(
+        $user
+    ) {
+        $companyMember = $this->getRepo('Company\CompanyMember')->findOneByUser($user);
+        if (is_null($companyMember)) {
+            return;
+        }
+
+        return $companyMember->getCompanyId();
+    }
+
+    /**
      * Get the username of the guy who's making the API call.
      *
      * @return string

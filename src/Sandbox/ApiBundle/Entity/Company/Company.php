@@ -21,7 +21,7 @@ class Company
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "info", "info_basic", "buddy", "member"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=false)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "info", "info_basic", "buddy", "member"})
      */
     private $name;
 
