@@ -106,7 +106,7 @@ class AdminUsersController extends SandboxRestController
      * List definite id of admin.
      *
      * @param Request $request the request object
-     * @param int     $user_id
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -116,7 +116,7 @@ class AdminUsersController extends SandboxRestController
      * )
      *
      * @Method({"GET"})
-     * @Route("/users/{user_id}")
+     * @Route("/users/{id}")
      *
      * @return View
      *
@@ -124,20 +124,82 @@ class AdminUsersController extends SandboxRestController
      */
     public function getUserAction(
         Request $request,
-        $user_id
+        $id
     ) {
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
-        // get all users
-        $users = $this->getRepo('User\User')->findOneBy(array('id' => $user_id));
+        // get user
+        $user = $this->getRepo('User\User')->find($id);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // get profile
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         // set view
-        $view = new View($users);
+        $view = new View();
+        $view->setData(array(
+            'id' => $id,
+            'name' => $profile->getName(),
+            'gender' => $profile->getGender(),
+            'phone' => $user->getPhone(),
+            'email' => $user->getEmail(),
+            'banned' => $user->isBanned()
+        ));
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('main'))
         );
 
         return $view;
     }
+
+    /*
+     * Edit user info
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/users/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchCompaniesAction(
+        Request $request,
+        $id
+    ) {
+        //TODO check user is vip
+
+        //get company Entity
+        $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        //TODO check user is allowed to modify
+//    if ($creatorId != $userId) {
+//        // if user is not the creator of this company
+//        // return error
+//        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+//    }
+
+        // bind data
+        $companyJson = $this->container
+            ->get('serializer')
+            ->serialize($company, 'json');
+        $patch = new Patch($companyJson, $request->getContent());
+        $companyPatchJson = $patch->apply();
+
+        $form = $this->createForm(new CompanyType(), $company);
+        $form->submit(json_decode($companyPatchJson, true));
+
+        // update company modification date
+        $company->setModificationDate(new \DateTime('now'));
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
 }
+
