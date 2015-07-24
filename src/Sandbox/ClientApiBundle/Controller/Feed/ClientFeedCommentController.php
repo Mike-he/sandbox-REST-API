@@ -80,11 +80,10 @@ class ClientFeedCommentController extends FeedCommentController
         );
 
         foreach ($comments as $comment) {
-            $userId = $this->getUserId();
-
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-            $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-            $comment->setAuthor($profile);
+            $authorId = $comment->getAuthorId();
+            $authorProfile = $this->getRepo('User\UserProfile')->findOneByUserId($authorId);
+            $this->throwNotFoundIfNull($authorProfile, self::NOT_FOUND_MESSAGE);
+            $comment->setAuthor($authorProfile);
         }
 
         $view = new View($comments);
