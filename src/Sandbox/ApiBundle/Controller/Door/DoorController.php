@@ -183,58 +183,6 @@ class DoorController extends SandboxRestController
         }
     }
 
-//    public function getPermission(
-//        $userId,
-//        $name,
-//        $cardNumber,
-//        $doors,
-//        ProductOrder $order,
-//        $method
-//    ) {
-//        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-//
-////        $this->cardPermission(
-////            $userId,
-////            $name,
-////            $buildingId,
-////            $cardNumber,
-////            $doorId,
-////            $method
-////        );
-//    }
-
-//    /**
-//     * @param $userId
-//     * @param $cardNumber
-//     * @param $userName
-//     * @param $orders
-//     */
-//    public function cardPermissionByOrder(
-//        $userId,
-//        $cardNumber,
-//        $userName,
-//        $orders,
-//        $method
-//    ) {
-//        foreach ($orders as $order) {
-//            $startDate = (string) $order->getStartDate()->format('Y-m-d H:i:s');
-//            $endDate = (string) $order->getEndDate()->format('Y-m-d H:i:s');
-//            $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-//            $doorId = $order->getProduct()->getRoom()->getDoorControlId(); //TODO: Array of ID
-//
-//            $this->cardPermission(
-//                $userId,
-//                $userName,
-//                $buildingId,
-//                $cardNumber,
-//                $startDate,
-//                $endDate,
-//                $doorId,
-//                $method
-//            );
-//        }
-//    }
-
     /**
      * @param $order
      */

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\AdminApiBundle\Controller\Door;
+namespace Sandbox\ClientApiBundle\Controller\Door;
 
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use FOS\RestBundle\View\View;

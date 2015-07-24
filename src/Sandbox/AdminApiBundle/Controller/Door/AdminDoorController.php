@@ -49,11 +49,9 @@ class AdminDoorController extends DoorController
         $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
         foreach ($ids as $id) {
-            $doors = $this->getRepo('Door\DoorAccess')->findBy(
-                [
-                    'userId' => $userId,
-                    'buildingId' => $id['buildingId'],
-                ]
+            $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
+                $userId,
+                $id['buildingId']
             );
 
             $doorArray = [];

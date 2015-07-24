@@ -147,21 +147,32 @@ class PaymentController extends SandboxRestController
         $em->flush();
 
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-        $doorId = $order->getProduct()->getRoom()->getDoorControlId();
+        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
         $this->get('door_service')->setTimePeriod($order);
 
-        //TODO: foreach ($doorIds as $doorId){
-            $access = new DoorAccess();
-        $access->setBuildingId($buildingId);
-        $access->setDoorId($doorId);
-        $access->setUserId($order->getUserId());
-        $access->setTimeId($order->getId());
-        $access->setEndDate($order->getEndDate());
+        foreach ($roomDoors as $roomDoor) {
+            $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
+                [
+                    'userId' => $order->getUserId(),
+                    'timeId' => $order->getId(),
+                    'buildingId' => $buildingId,
+                    'doorId' => $roomDoor->getDoorControlId(),
+                ]
+            );
+            if (is_null($doorAccess)) {
+                $access = new DoorAccess();
+                $access->setBuildingId($buildingId);
+                $access->setDoorId($roomDoor->getDoorControlId());
+                $access->setUserId($order->getUserId());
+                $access->setTimeId($order->getId());
+                $access->setEndDate($order->getEndDate());
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($access);
-        $em->flush();
-        //}
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($access);
+                $em->flush();
+            }
+        }
 
         //TODO: $cardNo = $this->getCardNoIfUserAuthorized($auth);
         $cardNo = '9391756';
@@ -171,16 +182,11 @@ class PaymentController extends SandboxRestController
 
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
         $userName = $userProfile->getName();
-
-        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($order->getUserId());
-        foreach ($ids as $id) {
-            $doors = $this->getRepo('Door\DoorAccess')->findBy(
-                [
-                    'userId' => $order->getUserId(),
-                    'buildingId' => $id['buildingId'],
-                ]
-            );
-
+        $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
+            $order->getUserId(),
+            $buildingId
+        );
+        if (!is_null($doors) && !empty($doors)) {
             $doorArray = [];
             foreach ($doors as $door) {
                 $doorId = $door->getDoorId();
@@ -191,7 +197,7 @@ class PaymentController extends SandboxRestController
             }
 
             $this->get('door_service')->cardPermission(
-                $id['buildingId'],
+                $buildingId,
                 $order->getUserId(),
                 $userName,
                 $cardNo,
