@@ -69,27 +69,21 @@ class RoomAttachmentBinding
     }
 
     /**
-     * Set attachmentId.
-     *
-     * @param int $attachmentId
-     *
+     * @return RoomAttachment
+     */
+    public function getAttachmentId()
+    {
+        return $this->attachmentId;
+    }
+
+    /**
+     * @param RoomAttachment $attachmentId
      * @return RoomAttachmentBinding
      */
     public function setAttachmentId($attachmentId)
     {
         $this->attachmentId = $attachmentId;
-
         return $this;
-    }
-
-    /**
-     * Get attachmentId.
-     *
-     * @return int
-     */
-    public function getAttachmentId()
-    {
-        return $this->attachmentId;
     }
 
     /**
