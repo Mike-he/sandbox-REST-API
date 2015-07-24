@@ -4,7 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Company;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sandbox\ApiBundle\Entity\Company\Company;
+
 /**
  * CompanyIndustryMap.
  *
@@ -82,7 +82,7 @@ class CompanyIndustryMap
     }
 
     /**
-     * get company
+     * get company.
      *
      * @return Company
      */
@@ -151,7 +151,7 @@ class CompanyIndustryMap
     }
 
     /**
-     * get industry
+     * get industry.
      *
      * @return CompanyIndustry
      */
@@ -161,7 +161,7 @@ class CompanyIndustryMap
     }
 
     /**
-     * set industry
+     * set industry.
      *
      * @param $industry
      *
@@ -197,5 +197,4 @@ class CompanyIndustryMap
 
         return $this;
     }
-
 }

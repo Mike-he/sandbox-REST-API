@@ -40,7 +40,6 @@ class ClientCompanyPortfolioController extends CompanyPortfolioController
         Request $request,
         $id
     ) {
-
         $portfolios = $this->getRepo('Company\CompanyPortfolio')->findByCompanyId($id);
         $this->throwNotFoundIfNull($portfolios, self::NOT_FOUND_MESSAGE);
 

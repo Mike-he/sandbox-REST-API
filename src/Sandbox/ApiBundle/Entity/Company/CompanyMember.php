@@ -44,7 +44,6 @@ class CompanyMember
      */
     private $userId;
 
-
     /**
      * @var int
      *

@@ -558,5 +558,4 @@ class Company
 
         return $this;
     }
-
 }
