@@ -115,7 +115,6 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
-
         // filter by user id
         if (!is_null($userId)) {
             $query->where('o.userId = :userId');
