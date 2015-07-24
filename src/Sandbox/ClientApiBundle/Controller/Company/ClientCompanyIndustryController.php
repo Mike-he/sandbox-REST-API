@@ -40,11 +40,11 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         Request $request,
         $id
     ) {
-        $company = $this->getRepo('Company\Company')->find($id);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+        $industries = $this->getRepo('Company\CompanyIndustryMap')->findByCompanyId($id);
+        $this->throwNotFoundIfNull($industries, self::NOT_FOUND_MESSAGE);
 
-        $view = new View($company->getIndustries());
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('industry')));
+        $view = new View($industries);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('company_industry')));
 
         return $view;
     }

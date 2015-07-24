@@ -19,7 +19,7 @@ class CompanyIndustry
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "info", "industry"})
+     * @Serializer\Groups({"main", "company_industry"})
      */
     private $id;
 
@@ -27,7 +27,7 @@ class CompanyIndustry
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "info", "industry"})
+     * @Serializer\Groups({"main", "company_industry"})
      */
     private $name;
 
@@ -48,6 +48,26 @@ class CompanyIndustry
     private $modificationDate;
 
     /**
+     * Get id.
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
      * Set name.
      *
      * @param string $name
@@ -62,13 +82,13 @@ class CompanyIndustry
     }
 
     /**
-     * Get name.
+     * Get creationDate.
      *
-     * @return string
+     * @return \DateTime
      */
-    public function getName()
+    public function getCreationDate()
     {
-        return $this->name;
+        return $this->creationDate;
     }
 
     /**
@@ -86,13 +106,13 @@ class CompanyIndustry
     }
 
     /**
-     * Get creationDate.
+     * Get modificationDate.
      *
      * @return \DateTime
      */
-    public function getCreationDate()
+    public function getModificationDate()
     {
-        return $this->creationDate;
+        return $this->modificationDate;
     }
 
     /**
@@ -107,25 +127,5 @@ class CompanyIndustry
         $this->modificationDate = $modificationDate;
 
         return $this;
-    }
-
-    /**
-     * Get modificationDate.
-     *
-     * @return \DateTime
-     */
-    public function getModificationDate()
-    {
-        return $this->modificationDate;
-    }
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 }

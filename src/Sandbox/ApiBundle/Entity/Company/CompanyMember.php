@@ -3,6 +3,9 @@
 namespace Sandbox\ApiBundle\Entity\Company;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserProfile;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * CompanyMember.
@@ -15,6 +18,50 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CompanyMember
 {
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="userId", referencedColumnName="id")
+     * })
+     */
+    private $user;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="userId", type="integer", nullable=false)
+     */
+    private $userId;
+
+
+    /**
+     * @var int
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
+     * })
+     */
+    private $companyId;
+
+    /**
+     * @var UserProfile
+     *
+     * @Serializer\Groups({"main", "profile_basic"})
+     */
+    private $profile;
+
     /**
      * @var \DateTime
      *
@@ -30,40 +77,88 @@ class CompanyMember
     private $modificationDate;
 
     /**
-     * @var int
+     * Get id.
      *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @return int
      */
-    private $id;
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
-     * @var int
+     * Get userId.
      *
-     * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @return User
      */
-    private $userId;
+    public function getUserId()
+    {
+        return $this->userId;
+    }
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\User\User
+     * Set userId.
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="userId", referencedColumnName="id")
-     * })
+     * @param int $userId
+     *
+     * @return CompanyMember
      */
-    private $user;
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Company\Company
+     * Get companyId.
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
-     * })
+     * @return Company
      */
-    private $companyId;
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * Set companyId.
+     *
+     * @param int $companyId
+     *
+     * @return CompanyMember
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProfile()
+    {
+        return $this->profile;
+    }
+
+    /**
+     * @param mixed $profile
+     */
+    public function setProfile($profile)
+    {
+        $this->profile = $profile;
+    }
+
+    /**
+     * Get creationDate.
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
 
     /**
      * Set creationDate.
@@ -80,13 +175,13 @@ class CompanyMember
     }
 
     /**
-     * Get creationDate.
+     * Get modificationDate.
      *
      * @return \DateTime
      */
-    public function getCreationDate()
+    public function getModificationDate()
     {
-        return $this->creationDate;
+        return $this->modificationDate;
     }
 
     /**
@@ -101,73 +196,5 @@ class CompanyMember
         $this->modificationDate = $modificationDate;
 
         return $this;
-    }
-
-    /**
-     * Get modificationDate.
-     *
-     * @return \DateTime
-     */
-    public function getModificationDate()
-    {
-        return $this->modificationDate;
-    }
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set userId.
-     *
-     * @param \Sandbox\ApiBundle\Entity\User\User $userId
-     *
-     * @return CompanyMember
-     */
-    public function setUserId(\Sandbox\ApiBundle\Entity\User\User $userId = null)
-    {
-        $this->userId = $userId;
-
-        return $this;
-    }
-
-    /**
-     * Get userId.
-     *
-     * @return \Sandbox\ApiBundle\Entity\User\User
-     */
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
-    /**
-     * Set companyId.
-     *
-     * @param \Sandbox\ApiBundle\Entity\Company\Company $companyId
-     *
-     * @return CompanyMember
-     */
-    public function setCompanyId(\Sandbox\ApiBundle\Entity\Company\Company $companyId = null)
-    {
-        $this->companyId = $companyId;
-
-        return $this;
-    }
-
-    /**
-     * Get companyId.
-     *
-     * @return \Sandbox\ApiBundle\Entity\Company\Company
-     */
-    public function getCompanyId()
-    {
-        return $this->companyId;
     }
 }
