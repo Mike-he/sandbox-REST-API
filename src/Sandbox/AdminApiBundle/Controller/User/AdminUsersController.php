@@ -109,7 +109,8 @@ class AdminUsersController extends SandboxRestController
     /**
      * List definite id of admin.
      *
-     * @param int $id
+     * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -126,6 +127,7 @@ class AdminUsersController extends SandboxRestController
      * @throws \Exception
      */
     public function getUserAction(
+        $request,
         $id
     ) {
         // check user permission
@@ -139,9 +141,7 @@ class AdminUsersController extends SandboxRestController
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         // set view
-        $view = new View($user);
-
-        return $view;
+        return new View($user);
     }
 
     /**
@@ -159,6 +159,12 @@ class AdminUsersController extends SandboxRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
+        );
+
         //get user Entity
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
