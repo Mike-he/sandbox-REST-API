@@ -9,22 +9,17 @@ use JMS\Serializer\Annotation as Serializer;
  * User view.
  *
  * @ORM\Table(name="UserView")
- * @ORM\Entity(
- *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserRepository"
- * )
+ * @ORM\Entity
  */
 class UserView
 {
-    const DEFAULT_GENDER_OTHER = 'other';
-    const DEFAULT_GENDER_MALE = 'male';
-    const DEFAULT_GENDER_FEMALE = 'female';
     /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main")
      */
     private $id;
 
@@ -32,7 +27,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main")
      */
     private $email;
 
@@ -40,7 +35,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main")
      */
     private $phone;
 
@@ -50,12 +45,12 @@ class UserView
      * @ORM\Column(name="banned", type="boolean", nullable=false)
      * @Serializer\Groups({"main"})
      */
-    private $banned = false;
+    private $banned;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=64, nullable=false)
+     * @ORM\Column(name="name", type="string", length=64)
      * @Serializer\Groups({"main"})
      */
     private $name;
@@ -63,10 +58,10 @@ class UserView
     /**
      * @var string
      *
-     * @ORM\Column(name="gender", type="string", nullable=false)
+     * @ORM\Column(name="gender", type="string")
      * @Serializer\Groups({"main"})
      */
-    private $gender = self::DEFAULT_GENDER_OTHER;
+    private $gender;
 
     /**
      * Get id.
