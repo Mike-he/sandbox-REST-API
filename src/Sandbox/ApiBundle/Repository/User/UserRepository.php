@@ -92,31 +92,45 @@ class UserRepository extends EntityRepository
         $limit,
         $offset
     ) {
+        // find nearby buildings
         $query = $this->getEntityManager()
             ->createQuery(
                 '
-                  SELECT u.id,
+                  SELECT rb.id,
                   (
                     6371
                     * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
                     * cos(radians(rb.lng) - radians(:longitude))
                     + sin(radians(:latitude)) * sin(radians(rb.lat)))
-                    ) distance
-                    FROM SandboxApiBundle:User\User u
-                    LEFT JOIN SandboxApiBundle:User\UserProfile up
-                    WITH u.id = up.userId
-                    LEFT JOIN SandboxApiBundle:Room\RoomBuilding rb
-                    WITH up.buildingId = rb.id
-                    WHERE u.id != :myUserId
-                    AND u.banned = FALSE
+                    ) as HIDDEN distance
+                    FROM SandboxApiBundle:Room\RoomBuilding rb
                     HAVING distance < :range
                     ORDER BY distance
                 '
             )
-            ->setParameter('myUserId', $myUserId)
             ->setParameter('latitude', $latitude)
             ->setParameter('longitude', $longitude)
             ->setParameter('range', 100);
+
+        $buildingIds = $query->getResult();
+
+        // find members
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
+                  SELECT u,
+                  field(up.buildingId, :buildingIds) as HIDDEN field
+                  FROM SandboxApiBundle:User\User u
+                  LEFT JOIN SandboxApiBundle:User\UserProfile up
+                  WITH u.id = up.userId
+                  WHERE u.id != :myUserId
+                  AND u.banned = FALSE
+                  AND up.buildingId IN (:buildingIds)
+                  ORDER BY field
+                '
+            )
+            ->setParameter('myUserId', $myUserId)
+            ->setParameter('buildingIds', $buildingIds);
 
         $query->setFirstResult($offset);
         $query->setMaxResults($limit);
