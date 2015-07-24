@@ -89,10 +89,13 @@ class AdminUsersController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
+        );
 
         // get all user id and name
-        $users = $this->getRepo('User\User')->findAllUsers();
+        $users = $this->getRepo('User\UserView')->findAll();
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -107,7 +110,6 @@ class AdminUsersController extends SandboxRestController
     /**
      * List definite id of admin.
      *
-     * @param Request $request the request object
      * @param int     $id
      *
      * @ApiDoc(
@@ -125,33 +127,20 @@ class AdminUsersController extends SandboxRestController
      * @throws \Exception
      */
     public function getUserAction(
-        Request $request,
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
+        );
 
         // get user
-        $user = $this->getRepo('User\User')->find($id);
+        $user = $this->getRepo('User\UserView')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        // get profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
-        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-
         // set view
-        $view = new View();
-        $view->setData(array(
-            'id' => $id,
-            'name' => $profile->getName(),
-            'gender' => $profile->getGender(),
-            'phone' => $user->getPhone(),
-            'email' => $user->getEmail(),
-            'banned' => $user->isBanned(),
-        ));
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('main'))
-        );
+        $view = new View($user);
 
         return $view;
     }
