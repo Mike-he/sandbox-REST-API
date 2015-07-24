@@ -94,6 +94,7 @@ class OrderRepository extends EntityRepository
      * @param String       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
+     * @param int          $userId
      * @param DateTime     $startDate
      * @param DateTime     $endDate
      *
@@ -103,6 +104,7 @@ class OrderRepository extends EntityRepository
         $type,
         $city,
         $building,
+        $userId,
         $startDate,
         $endDate
     ) {
@@ -132,6 +134,12 @@ class OrderRepository extends EntityRepository
         if (!is_null($building)) {
             $query->andWhere('r.building = :building');
             $parameters['building'] = $building;
+        }
+
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId');
+            $parameters['userId'] = $userId;
         }
 
         //filter by start date
