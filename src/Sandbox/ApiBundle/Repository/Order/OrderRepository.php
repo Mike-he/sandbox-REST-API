@@ -94,6 +94,7 @@ class OrderRepository extends EntityRepository
      * @param String       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
+     * @param int          $userId
      * @param DateTime     $startDate
      * @param DateTime     $endDate
      *
@@ -103,6 +104,7 @@ class OrderRepository extends EntityRepository
         $type,
         $city,
         $building,
+        $userId,
         $startDate,
         $endDate
     ) {
@@ -113,8 +115,15 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
-        $query->where('o.status != :unpaid');
-        $parameters['unpaid'] = 'unpaid';
+
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->where('o.userId = :userId');
+            $parameters['userId'] = $userId;
+        } else {
+            $query->where('o.status != :unpaid');
+            $parameters['unpaid'] = 'unpaid';
+        }
 
         // filter by type
         if (!is_null($type)) {
