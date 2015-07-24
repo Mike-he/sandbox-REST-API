@@ -17,7 +17,7 @@ class UserExperienceRepository extends EntityRepository
         $query = $this->getEntityManager()
             ->createQuery(
                 '
-                    DELETE FROM SandboxApiBundle:User\UserExperiences ue
+                    DELETE FROM SandboxApiBundle:User\UserExperience ue
                     WHERE ue.userId = :userId
                     AND ue.id IN (:ids)
                 '
