@@ -150,8 +150,14 @@ class SandboxRestController extends FOSRestController
      * @return string|null
      */
     protected function getCardNoIfUserAuthorized(
-        $auth
+        $auth = null
     ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['Authorization'];
+        }
+
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
@@ -185,6 +191,12 @@ class SandboxRestController extends FOSRestController
     protected function getExpireDateIfUserVIP(
         $auth
     ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['Authorization'];
+        }
+
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
