@@ -107,7 +107,7 @@ class AdminUsersController extends SandboxRestController
     }
 
     /**
-     * List definite id of admin.
+     * List definite id of user.
      *
      * @param Request $request
      * @param int     $id
@@ -127,7 +127,7 @@ class AdminUsersController extends SandboxRestController
      * @throws \Exception
      */
     public function getUserAction(
-        $request,
+        Request $request,
         $id
     ) {
         // check user permission
@@ -154,6 +154,8 @@ class AdminUsersController extends SandboxRestController
      * @Method({"PATCH"})
      *
      * @return View
+     *
+     * @throws \Exception
      */
     public function patchUserAction(
         Request $request,
