@@ -230,7 +230,7 @@ class ClientMemberController extends MemberController
             );
         }
 
-        // get my profile)
+        // get my profile
         $myBuilding = $this->getRepo('Room\RoomBuilding')->findOneById($buildingId);
         $this->throwNotFoundIfNull($myBuilding, self::NOT_FOUND_MESSAGE);
 
@@ -250,7 +250,7 @@ class ClientMemberController extends MemberController
         $members = array();
 
         foreach ($users as $user) {
-            $memberId = $user['id'];
+            $memberId = $user->getId();
 
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
 
@@ -260,7 +260,6 @@ class ClientMemberController extends MemberController
                 'id' => $memberId,
                 'profile' => $profile,
                 'company' => '',
-                'distance' => $user['distance'],
             );
 
             array_push($members, $member);
