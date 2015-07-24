@@ -53,6 +53,7 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="\d+",
      *    strict=true,
      *    description="Filter by city id"
      * )
@@ -62,8 +63,19 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="\d+",
      *    strict=true,
      *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
      * )
      *
      * @Annotations\QueryParam(
@@ -122,6 +134,7 @@ class AdminOrderController extends OrderController
         $type = $paramFetcher->get('type');
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
+        $userId = $paramFetcher->get('user');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
 
@@ -132,6 +145,7 @@ class AdminOrderController extends OrderController
             $type,
             $city,
             $building,
+            $userId,
             $startDate,
             $endDate
         );
