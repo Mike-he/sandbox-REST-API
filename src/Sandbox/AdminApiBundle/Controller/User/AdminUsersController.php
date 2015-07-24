@@ -11,7 +11,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
@@ -110,7 +109,7 @@ class AdminUsersController extends SandboxRestController
     /**
      * List definite id of admin.
      *
-     * @param int     $id
+     * @param int $id
      *
      * @ApiDoc(
      *   resource = true,

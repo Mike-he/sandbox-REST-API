@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\Role\Role;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
