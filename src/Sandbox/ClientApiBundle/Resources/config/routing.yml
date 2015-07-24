@@ -166,3 +166,10 @@ sandbox_client_api_auth:
     resource: "@SandboxClientApiBundle/Controller/Auth/ClientAuthController.php"
     type:     annotation
     prefix:   /auth
+
+
+# Door /client/doors
+sandbox_client_api_doors:
+    resource: "@SandboxClientApiBundle/Controller/Door/ClientDoorController.php"
+    type:     annotation
+    prefix:   /

@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
+use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
@@ -145,13 +146,56 @@ class PaymentController extends SandboxRestController
         $em->persist($order);
         $em->flush();
 
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $doorId = $order->getProduct()->getRoom()->getDoorControlId();
+        $this->get('door_service')->setTimePeriod($order);
+
+        //TODO: foreach ($doorIds as $doorId){
+            $access = new DoorAccess();
+        $access->setBuildingId($buildingId);
+        $access->setDoorId($doorId);
+        $access->setUserId($order->getUserId());
+        $access->setTimeId($order->getId());
+        $access->setEndDate($order->getEndDate());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($access);
+        $em->flush();
+        //}
+
+        //TODO: $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        $cardNo = '9391756';
+        if (is_null($cardNo)) {
+            return;
+        }
+
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
         $userName = $userProfile->getName();
-        if ($order->getStatus() === 'paid') {
-            $this->get('door_service')->getPermission(
+
+        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($order->getUserId());
+        foreach ($ids as $id) {
+            $doors = $this->getRepo('Door\DoorAccess')->findBy(
+                [
+                    'userId' => $order->getUserId(),
+                    'buildingId' => $id['buildingId'],
+                ]
+            );
+
+            $doorArray = [];
+            foreach ($doors as $door) {
+                $doorId = $door->getDoorId();
+                $timeId = $door->getTimeId();
+                $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
+
+                array_push($doorArray, $door);
+            }
+
+            $this->get('door_service')->cardPermission(
+                $id['buildingId'],
                 $order->getUserId(),
                 $userName,
-                $order,
+                $cardNo,
+                $doorArray,
                 DoorController::METHOD_ADD
             );
         }
