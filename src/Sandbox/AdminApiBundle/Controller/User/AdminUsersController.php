@@ -15,6 +15,8 @@ use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Form\User\UserType;
+use Rs\Json\Patch;
 
 /**
  * Admin controller.
@@ -90,11 +92,11 @@ class AdminUsersController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
         // get all user id and name
-        $user = $this->getRepo('User\User')->findAllUsers();
+        $users = $this->getRepo('User\User')->findAllUsers();
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $user,
+            $users,
             $pageIndex,
             $pageLimit
         );
@@ -106,7 +108,7 @@ class AdminUsersController extends SandboxRestController
      * List definite id of admin.
      *
      * @param Request $request the request object
-     * @param int     $user_id
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -116,7 +118,7 @@ class AdminUsersController extends SandboxRestController
      * )
      *
      * @Method({"GET"})
-     * @Route("/users/{user_id}")
+     * @Route("/users/{id}")
      *
      * @return View
      *
@@ -124,20 +126,67 @@ class AdminUsersController extends SandboxRestController
      */
     public function getUserAction(
         Request $request,
-        $user_id
+        $id
     ) {
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
-        // get all users
-        $users = $this->getRepo('User\User')->findOneBy(array('id' => $user_id));
+        // get user
+        $user = $this->getRepo('User\User')->find($id);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // get profile
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         // set view
-        $view = new View($users);
+        $view = new View();
+        $view->setData(array(
+            'id' => $id,
+            'name' => $profile->getName(),
+            'gender' => $profile->getGender(),
+            'phone' => $user->getPhone(),
+            'email' => $user->getEmail(),
+            'banned' => $user->isBanned(),
+        ));
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('main'))
         );
 
         return $view;
+    }
+
+    /**
+     * Edit user info.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/users/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchUserAction(
+        Request $request,
+        $id
+    ) {
+        //get user Entity
+        $user = $this->getRepo('User\User')->find($id);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $userJson = $this->container->get('serializer')->serialize($user, 'json');
+        $patch = new Patch($userJson, $request->getContent());
+        $userJson = $patch->apply();
+
+        $form = $this->createForm(new UserType(), $user);
+        $form->submit(json_decode($userJson, true));
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 }
