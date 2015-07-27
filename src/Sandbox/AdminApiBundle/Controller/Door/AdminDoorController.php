@@ -227,7 +227,7 @@ class AdminDoorController extends DoorController
      * )
      *
      *  @Annotations\QueryParam(
-     *    name="page_limit",
+     *    name="pageLimit",
      *    array=false,
      *    default="20",
      *    nullable=true,
@@ -237,7 +237,7 @@ class AdminDoorController extends DoorController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="page_index",
+     *    name="pageIndex",
      *    array=false,
      *    default="1",
      *    nullable=true,
@@ -255,8 +255,8 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $pageLimit = $paramFetcher->get('page_limit');
-        $pageIndex = $paramFetcher->get('page_index');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
         $buildingId = $paramFetcher->get('building');
         $sessionId = $this->getSessionId($buildingId);
         try {
@@ -325,7 +325,7 @@ class AdminDoorController extends DoorController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="page_limit",
+     *    name="pageLimit",
      *    array=false,
      *    default="20",
      *    nullable=true,
@@ -335,7 +335,7 @@ class AdminDoorController extends DoorController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="page_index",
+     *    name="pageIndex",
      *    array=false,
      *    default="1",
      *    nullable=true,
@@ -353,8 +353,8 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $pageLimit = $paramFetcher->get('page_limit');
-        $pageIndex = $paramFetcher->get('page_index');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
         $buildingId = $paramFetcher->get('building');
         $sessionId = $this->getSessionId($buildingId);
         try {
