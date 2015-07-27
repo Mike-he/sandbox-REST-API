@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Knp\Component\Pager\Paginator;
 
 /**
  * Admin Door Controller.
@@ -225,6 +226,26 @@ class AdminDoorController extends DoorController
      *    "
      * )
      *
+     *  @Annotations\QueryParam(
+     *    name="page_limit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="page_index",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -234,6 +255,8 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $pageLimit = $paramFetcher->get('page_limit');
+        $pageIndex = $paramFetcher->get('page_index');
         $buildingId = $paramFetcher->get('building');
         $sessionId = $this->getSessionId($buildingId);
         try {
@@ -256,7 +279,14 @@ class AdminDoorController extends DoorController
                 );
             }
 
-            return new View($recordArray['ads_swipecard_records']);
+            $paginator = new Paginator();
+            $pagination = $paginator->paginate(
+                $recordArray['ads_swipecard_records'],
+                $pageIndex,
+                $pageLimit
+            );
+
+            return new View($pagination);
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $buildingId);
@@ -294,6 +324,26 @@ class AdminDoorController extends DoorController
      *    "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="page_limit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="page_index",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -303,6 +353,8 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $pageLimit = $paramFetcher->get('page_limit');
+        $pageIndex = $paramFetcher->get('page_index');
         $buildingId = $paramFetcher->get('building');
         $sessionId = $this->getSessionId($buildingId);
         try {
@@ -325,7 +377,14 @@ class AdminDoorController extends DoorController
                 );
             }
 
-            return new View($recordArray['ads_alarm_records']);
+            $paginator = new Paginator();
+            $pagination = $paginator->paginate(
+                $recordArray['ads_alarm_records'],
+                $pageIndex,
+                $pageLimit
+            );
+
+            return new View($pagination);
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $buildingId);
