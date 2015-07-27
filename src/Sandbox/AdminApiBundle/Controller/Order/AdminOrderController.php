@@ -162,20 +162,22 @@ class AdminOrderController extends OrderController
     public function getExcelOrders(
         Request $request
     ) {
-        // ask the service for a Excel5
-        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+        $phpExcelObject = new \PHPExcel();
 
-        $phpExcelObject->getProperties()->setCreator("liuggio")
-            ->setLastModifiedBy("Giulio De Donato")
-            ->setTitle("Office 2005 XLSX Test Document")
-            ->setSubject("Office 2005 XLSX Test Document")
-            ->setDescription("Test document for Office 2005 XLSX, generated using PHP classes.")
-            ->setKeywords("office 2005 openxml php")
-            ->setCategory("Test result file");
-        $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Hello')
-            ->setCellValue('B2', 'world!');
-        $phpExcelObject->getActiveSheet()->setTitle('Simple');
+        $phpExcelObject->getProperties()->setTitle("Sandbox Orders");
+
+        //get array of orders
+        $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport();
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($orders, ' ', 'A2');
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('o'); $col++) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('Orders');
+
         // Set active sheet index to the first sheet, so Excel opens this as the first sheet
         $phpExcelObject->setActiveSheetIndex(0);
 
