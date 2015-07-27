@@ -50,7 +50,7 @@ class ClientCompanyController extends CompanyController
         Request $request
     ) {
          $userId = $this->getUserId();
-
+        //TODO 改成所有companyMember都能获取公司
         //get companies
         $member = $this->getRepo('Company\CompanyMember')
                           ->findOneByUserId($userId);
@@ -68,31 +68,100 @@ class ClientCompanyController extends CompanyController
          return $view;
      }
 
-    /*
-     * Get nearby companies
+    /**
+     * Get nearby companies.
      *
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
      *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
      *
-     * */
+     * @return View
+     */
     public function getCompaniesNearbyAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set max limit
+        if ($limit > $globals['load_more_limit']) {
+            $limit = $globals['load_more_limit'];
+        }
+
+        // get my profile
+        $myProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $this->throwNotFoundIfNull($myProfile, self::NOT_FOUND_MESSAGE);
+
+        // get my building
+        $buildingId = $myProfile->getBuildingId();
+        if (is_null($buildingId)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_BUILDING_NOT_SET_CODE,
+                self::ERROR_BUILDING_NOT_SET_MESSAGE
+            );
+        }
+
+        // get my profile
+        $myBuilding = $this->getRepo('Room\RoomBuilding')->findOneById($buildingId);
+        $this->throwNotFoundIfNull($myBuilding, self::NOT_FOUND_MESSAGE);
+
+        // find nearby members
+        $companies = $this->getRepo('Company\Company')->findNearbyCompanies(
+            $myBuilding->getLat(),
+            $myBuilding->getLng(),
+            $limit,
+            $offset
+        );
+
+        // set view
+        $view = new View($companies);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('company_info'))
+        );
+
+        return $view;
     }
 
-    /*
-     * Get recommend companies
+    /**
+     * Get recommend companies.
      *
-     * */
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     */
     public function getCompaniesRecommendAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
     }
 
-    /*
-     * Search companies
-     *
-     * */
+    /**
+     * Search companies.
+     */
     public function SearchCompanies(
 
     ) {
