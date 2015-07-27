@@ -64,16 +64,18 @@ class AdminPermissionsController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
 
         if ($typeId == null) {
-            echo 1;
             // get all admin permissions
             $query = $this->getRepo('Admin\AdminPermission')->findAll();
         } else {
-            echo $typeId;
             // get admin permissions by typeId
-            $query = $this->getRepo('Admin\AdminPermission')->findBy(array('typeId' => $typeId));
+            $query = $this->getRepo('Admin\AdminPermission')->findBy(array(
+                'typeId' => $typeId,
+            ));
         }
+
         $view = new View($query);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['auth']));
+        $view->setSerializationContext(SerializationContext::create()
+            ->setGroups(array('main')));
 
         return $view;
     }
