@@ -977,10 +977,26 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+        $type = $order->getProduct()->getRoom()->getType();
+        $renewButton = false;
+        if ($type === 'office') {
+            $now = new \DateTime();
+            $startDate = $order->getStartDate();
+            $endDate = $order->getEndDate();
+            $days = $endDate->diff($now)->days;
+            if ($days > 7 && $now >= $startDate) {
+                $renewButton = true;
+            }
+        }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($order);
+        $view->setData(
+            [
+                'renewButton' => $renewButton,
+                'order' => $order,
+            ]
+        );
 
         return $view;
     }
