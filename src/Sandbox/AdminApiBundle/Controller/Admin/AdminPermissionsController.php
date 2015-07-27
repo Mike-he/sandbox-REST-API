@@ -68,7 +68,6 @@ class AdminPermissionsController extends SandboxRestController
             // get all admin permissions
             $query = $this->getRepo('Admin\AdminPermission')->findAll();
         } else {
-            echo $typeId;
             // get admin permissions by typeId
             $query = $this->getRepo('Admin\AdminPermission')->findBy(array('typeId' => $typeId));
         }
