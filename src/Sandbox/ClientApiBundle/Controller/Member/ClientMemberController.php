@@ -128,12 +128,13 @@ class ClientMemberController extends MemberController
             // set profile
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
 
-            // TODO set company info
+            // set company info
+            $company = $this->getCompanyIfMember($memberId);
 
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
-                'company' => '',
+                'company' => $company,
             );
 
             array_push($members, $member);
@@ -246,12 +247,13 @@ class ClientMemberController extends MemberController
 
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
 
-            // TODO set company info
+            // set company info
+            $company = $this->getCompanyIfMember($memberId);
 
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
-                'company' => '',
+                'company' => $company,
             );
 
             array_push($members, $member);
@@ -352,12 +354,13 @@ class ClientMemberController extends MemberController
 
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($visitorId);
 
-            // TODO set company info
+            // set company info
+            $company = $this->getCompanyIfMember($visitorId);
 
             $member = array(
                 'id' => $visitor->getId(),
                 'profile' => $profile,
-                'company' => '',
+                'company' => $company,
                 'visit_date' => $visitor->getCreationDate(),
             );
 
@@ -442,12 +445,15 @@ class ClientMemberController extends MemberController
         $members = array();
 
         foreach ($profiles as $profile) {
-            // TODO set company info
+            $userId = $profile->getUserId();
+
+            // set company info
+            $company = $this->getCompanyIfMember($userId);
 
             $member = array(
-                'id' => $profile->getUserId(),
+                'id' => $userId,
                 'profile' => $profile,
-                'company' => '',
+                'company' => $company,
             );
 
             array_push($members, $member);

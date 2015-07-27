@@ -21,7 +21,7 @@ class Company
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "member", "buddy"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=false)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "member", "buddy"})
      */
     private $name;
 
@@ -557,5 +557,12 @@ class Company
         $this->modificationDate = $modificationDate;
 
         return $this;
+    }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 }

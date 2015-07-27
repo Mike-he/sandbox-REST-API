@@ -30,12 +30,8 @@ class CompanyMemberController extends SandboxRestController
         $company = $this->getRepo('Company\Company')->find($companyId);
         $member = $this->getRepo('User\User')->find($memberId);
 
-        $now = new \DateTime('now');
-
         $companyMember = new CompanyMember();
 
-        $companyMember->setCreationDate($now);
-        $companyMember->setModificationDate($now);
         $companyMember->setUser($member);
         $companyMember->setCompany($company);
 
