@@ -26,6 +26,7 @@ class CompanyMember
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "profile_basic"})
      */
     private $id;
 
@@ -60,6 +61,7 @@ class CompanyMember
      * @var int
      *
      * @ORM\Column(name="companyId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "profile_basic"})
      */
     private $companyId;
 
