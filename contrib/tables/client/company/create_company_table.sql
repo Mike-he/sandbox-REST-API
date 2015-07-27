@@ -11,6 +11,7 @@ CREATE TABLE `Company` (
   `tencentWeibo` varchar(128) DEFAULT NULL,
   `facebook` varchar(128) DEFAULT NULL,
   `linkedin` varchar(128) DEFAULT NULL,
+  `buildingId` int(11) DEFAULT NULL,
   `creatorId` int(11) NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,

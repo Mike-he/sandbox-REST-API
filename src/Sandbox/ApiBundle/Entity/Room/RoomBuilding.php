@@ -36,7 +36,9 @@ class RoomBuilding
      *      "profile_basic_stranger",
      *      "buddy",
      *      "member",
-     *      "admin_detail"
+     *      "admin_detail",
+     *      "company_info",
+     *      "company_basic"
      *  }
      * )
      */
@@ -74,7 +76,9 @@ class RoomBuilding
      *      "profile_basic_stranger",
      *      "buddy",
      *      "member",
-     *      "admin_detail"
+     *      "admin_detail",
+     *      "company_info",
+     *      "company_basic"
      *  }
      * )
      */

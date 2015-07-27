@@ -16,14 +16,6 @@ use JMS\Serializer\Annotation as Serializer;
 class CompanyIndustryMap
 {
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
-     */
-    private $creationDate;
-
-    /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
@@ -34,25 +26,32 @@ class CompanyIndustryMap
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Company\CompanyIndustry
+     * @var Company
+     *
+     * @ORM\ManyToOne(targetEntity="Company")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main"})
+     */
+    private $company;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="companyId", type="integer",  nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $companyId;
+
+    /**
+     * @var CompanyIndustry
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\CompanyIndustry")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="industryId", referencedColumnName="id")
      * })
-     * @Serializer\Groups({"main", "info", "industry"})
+     * @Serializer\Groups({"main", "company_industry"})
      */
     private $industry;
-
-//    /**
-//     * @var \Sandbox\ApiBundle\Entity\Company\CompanyIndustry
-//     *
-//     *
-//     * @ORM\JoinColumns({
-//     *   @ORM\JoinColumn(name="industryId", referencedColumnName="id")
-//     * })
-//     * @Serializer\Groups({"main", "info", "industry"})
-//     */
 
     /**
      * @var int
@@ -62,33 +61,112 @@ class CompanyIndustryMap
     private $industryId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Company\Company
+     * @var \DateTime
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
-     * })
-     * @Serializer\Groups({"main", "info"})
-     */
-    private $companyId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Company", inversedBy="industries")
-     * @ORM\JoinColumn(name="companyId", referencedColumnName="id")
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      * @Serializer\Groups({"main"})
      */
-    private $company;
+    private $creationDate;
 
     /**
-     * Set creationDate.
+     * Get id.
      *
-     * @param \DateTime $creationDate
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * get company.
+     *
+     * @return Company
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
+     * @param $company
+     *
+     * @return $this
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
+
+        return $this;
+    }
+    /**
+     * Get companyId.
+     *
+     * @return Company
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * Set companyId.
+     *
+     * @param int $companyId
      *
      * @return CompanyIndustryMap
      */
-    public function setCreationDate($creationDate)
+    public function setCompanyId($companyId)
     {
-        $this->creationDate = $creationDate;
+        $this->companyId = $companyId;
+
+        return $this;
+    }
+
+    /**
+     * Get industryId.
+     *
+     * @return CompanyIndustry
+     */
+    public function getIndustryId()
+    {
+        return $this->industryId;
+    }
+
+    /**
+     * Set industryId.
+     *
+     * @param int $industryId
+     *
+     * @return CompanyIndustryMap
+     */
+    public function setIndustryId($industryId)
+    {
+        $this->industryId = $industryId;
+
+        return $this;
+    }
+
+    /**
+     * get industry.
+     *
+     * @return CompanyIndustry
+     */
+    public function getIndustry()
+    {
+        return $this->industry;
+    }
+
+    /**
+     * set industry.
+     *
+     * @param $industry
+     *
+     * @return $this
+     */
+    public function setIndustry($industry)
+    {
+        $this->industry = $industry;
 
         return $this;
     }
@@ -104,97 +182,15 @@ class CompanyIndustryMap
     }
 
     /**
-     * Get id.
+     * Set creationDate.
      *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set industryId.
-     *
-     * @param \Sandbox\ApiBundle\Entity\Company\CompanyIndustry $industryId
+     * @param \DateTime $creationDate
      *
      * @return CompanyIndustryMap
      */
-    public function setIndustryId(\Sandbox\ApiBundle\Entity\Company\CompanyIndustry $industryId = null)
+    public function setCreationDate($creationDate)
     {
-        $this->industryId = $industryId;
-
-        return $this;
-    }
-
-    /**
-     * Get industryId.
-     *
-     * @return \Sandbox\ApiBundle\Entity\Company\CompanyIndustry
-     */
-    public function getIndustryId()
-    {
-        return $this->industryId;
-    }
-
-    /**
-     * Set companyId.
-     *
-     * @param \Sandbox\ApiBundle\Entity\Company\Company $companyId
-     *
-     * @return CompanyIndustryMap
-     */
-    public function setCompanyId(\Sandbox\ApiBundle\Entity\Company\Company $companyId = null)
-    {
-        $this->companyId = $companyId;
-
-        return $this;
-    }
-
-    /**
-     * Get companyId.
-     *
-     * @return \Sandbox\ApiBundle\Entity\Company\Company
-     */
-    public function getCompanyId()
-    {
-        return $this->companyId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCompany()
-    {
-        return $this->company;
-    }
-
-    /**
-     * @return CompanyIndustry
-     */
-    public function getIndustry()
-    {
-        return $this->industry;
-    }
-
-    /**
-     * @param $industry
-     */
-    public function setIndustry($industry)
-    {
-        $this->industry = $industry;
-
-        return $this;
-    }
-
-    /**
-     * @param $company
-     *
-     * @return $this
-     */
-    public function setCompany($company)
-    {
-        $this->company = $company;
+        $this->creationDate = $creationDate;
 
         return $this;
     }
