@@ -558,4 +558,11 @@ class Company
 
         return $this;
     }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
+    }
 }

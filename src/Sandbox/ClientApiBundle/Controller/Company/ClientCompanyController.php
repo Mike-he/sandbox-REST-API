@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Company;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Company\CompanyController;
 use Sandbox\ApiBundle\Entity\Company\Company;
+use Sandbox\ApiBundle\Entity\Company\CompanyMember;
 use Sandbox\ApiBundle\Form\Company\CompanyType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
@@ -51,8 +52,13 @@ class ClientCompanyController extends CompanyController
          $userId = $this->getUserId();
 
         //get companies
-        $companies = $this->getRepo('Company\Company')
-                          ->findByCreatorId($userId);
+        $member = $this->getRepo('Company\CompanyMember')
+                          ->findOneByUserId($userId);
+
+         if (is_null($member)) {
+             return new View(array());
+         }
+         $companies = array($member->getCompany());
 
         //set view
         $view = new View($companies);
@@ -141,12 +147,16 @@ class ClientCompanyController extends CompanyController
         if ($form->isValid()) {
             $user = $this->getRepo('User\User')->find($userId);
             $company->setCreator($user);
-            $time = new \DateTime('now');
-            $company->setCreationDate($time);
-            $company->setModificationDate($time);
+
+            //add member
+            $member = new CompanyMember();
+
+            $member->setCompany($company);
+            $member->setUser($user);
 
             // save to db
             $em->persist($company);
+            $em->persist($member);
             $em->flush();
 
             // set view
