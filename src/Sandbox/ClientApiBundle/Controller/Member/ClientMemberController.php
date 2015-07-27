@@ -64,12 +64,8 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // get auth
-        $headers = apache_request_headers();
-        $auth = $headers['Authorization'];
-
         // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        $cardNo = $this->getCardNoIfUserAuthorized();
         if (is_null($cardNo)) {
             return new View(array());
         }
@@ -130,15 +126,14 @@ class ClientMemberController extends MemberController
             $em->persist($randomRecord);
 
             // set profile
-            $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
 
-            // get user's company
-            $company = $this->getCompanyIfMember($user);
+            // TODO set company info
 
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
-                'company' => $company,
+                'company' => '',
             );
 
             array_push($members, $member);
@@ -189,12 +184,8 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // get auth
-        $headers = apache_request_headers();
-        $auth = $headers['Authorization'];
-
         // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        $cardNo = $this->getCardNoIfUserAuthorized();
         if (is_null($cardNo)) {
             return new View(array());
         }
@@ -231,7 +222,7 @@ class ClientMemberController extends MemberController
             );
         }
 
-        // get my profile)
+        // get my profile
         $myBuilding = $this->getRepo('Room\RoomBuilding')->findOneById($buildingId);
         $this->throwNotFoundIfNull($myBuilding, self::NOT_FOUND_MESSAGE);
 
@@ -251,18 +242,16 @@ class ClientMemberController extends MemberController
         $members = array();
 
         foreach ($users as $user) {
-            $memberId = $user['id'];
+            $memberId = $user->getId();
 
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
 
-            // get user's company
-            $company = $this->getCompanyIfMember($user);
+            // TODO set company info
 
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
-                'company' => $company,
-                'distance' => $user['distance'],
+                'company' => '',
             );
 
             array_push($members, $member);
@@ -322,12 +311,8 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // get auth
-        $headers = apache_request_headers();
-        $auth = $headers['Authorization'];
-
         // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        $cardNo = $this->getCardNoIfUserAuthorized();
         if (is_null($cardNo)) {
             return new View(array());
         }
@@ -349,32 +334,31 @@ class ClientMemberController extends MemberController
         }
 
         // find my visitors
-        $profileVisitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
+        $visitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
             $userId,
             $limit,
             $offset,
             $lastId
         );
-        if (is_null($profileVisitors) || empty($profileVisitors)) {
+        if (is_null($visitors) || empty($visitors)) {
             return new View(array());
         }
 
         // members for response
         $members = array();
 
-        foreach ($profileVisitors as $profileVisitor) {
-            $visitor = $profileVisitor->getVisitor();
+        foreach ($visitors as $visitor) {
+            $visitorId = $visitor->getVisitorId();
 
-            $profile = $this->getRepo('User\UserProfile')->findOneByUser($visitor);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($visitorId);
 
-            // get user's company
-            $company = $this->getCompanyIfMember($visitor);
+            // TODO set company info
 
             $member = array(
-                'id' => $profileVisitor->getId(),
+                'id' => $visitor->getId(),
                 'profile' => $profile,
-                'company' => $company,
-                'visit_date' => $profileVisitor->getCreationDate(),
+                'company' => '',
+                'visit_date' => $visitor->getCreationDate(),
             );
 
             array_push($members, $member);
@@ -430,5 +414,51 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
+        $query = $paramFetcher->get('query');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $finder = $this->container->get('fos_elastica.finder.search.member');
+
+        // Option 1. Returns all users who have example.net in any of their mapped fields
+        $results = $finder->find($query);
+        if (is_null($results) || empty($results)) {
+            return new View(array());
+        }
+
+        $profiles = $output = array_slice($results, $offset, $limit);
+
+        // members for response
+        $members = array();
+
+        foreach ($profiles as $profile) {
+            // TODO set company info
+
+            $member = array(
+                'id' => $profile->getUserId(),
+                'profile' => $profile,
+                'company' => '',
+            );
+
+            array_push($members, $member);
+        }
+
+        // set view
+        $view = new View($members);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('member'))
+        );
+
+        return $view;
     }
 }

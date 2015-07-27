@@ -699,7 +699,7 @@ class AdminRoomController extends RoomController
 
             $roomAttachment = new RoomAttachmentBinding();
             $roomAttachment->setRoom($room);
-            $roomAttachment->setAttachmentId($attachment_id['id']);
+            $roomAttachment->setAttachmentId($attachment);
 
             $em->persist($roomAttachment);
             $em->flush();

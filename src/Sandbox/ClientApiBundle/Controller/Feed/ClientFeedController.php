@@ -130,6 +130,59 @@ class ClientFeedController extends FeedController
     }
 
     /**
+     * List all feed by my building.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many feeds to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="last_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="last id"
+     * )
+     *
+     * @Route("feeds/building")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getFeedsByBuildingAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $limit = $paramFetcher->get('limit');
+        $lastId = $paramFetcher->get('last_id');
+
+        $userId = $this->getUserId();
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $buildingId = $profile->getBuildingId();
+
+        $feeds = $this->getRepo('Feed\FeedView')->getFeedsByBuilding(
+            $limit,
+            $lastId,
+            $buildingId
+        );
+
+        return $this->handleGetFeeds($feeds);
+    }
+
+    /**
      * Get feed by id.
      *
      * @param Request $request

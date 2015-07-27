@@ -11,10 +11,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Form\User\UserType;
+use Rs\Json\Patch;
 
 /**
  * Admin controller.
@@ -87,14 +88,17 @@ class AdminUsersController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
+        );
 
         // get all user id and name
-        $user = $this->getRepo('User\User')->findAllUsers();
+        $users = $this->getRepo('User\UserView')->findAll();
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $user,
+            $users,
             $pageIndex,
             $pageLimit
         );
@@ -103,10 +107,10 @@ class AdminUsersController extends SandboxRestController
     }
 
     /**
-     * List definite id of admin.
+     * List definite id of user.
      *
-     * @param Request $request the request object
-     * @param int     $user_id
+     * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -116,7 +120,7 @@ class AdminUsersController extends SandboxRestController
      * )
      *
      * @Method({"GET"})
-     * @Route("/users/{user_id}")
+     * @Route("/users/{id}")
      *
      * @return View
      *
@@ -124,20 +128,61 @@ class AdminUsersController extends SandboxRestController
      */
     public function getUserAction(
         Request $request,
-        $user_id
+        $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
-
-        // get all users
-        $users = $this->getRepo('User\User')->findOneBy(array('id' => $user_id));
-
-        // set view
-        $view = new View($users);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('main'))
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
         );
 
-        return $view;
+        // get user
+        $user = $this->getRepo('User\UserView')->find($id);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // set view
+        return new View($user);
+    }
+
+    /**
+     * Edit user info.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/users/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchUserAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
+        );
+
+        //get user Entity
+        $user = $this->getRepo('User\User')->find($id);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $userJson = $this->container->get('serializer')->serialize($user, 'json');
+        $patch = new Patch($userJson, $request->getContent());
+        $userJson = $patch->apply();
+
+        $form = $this->createForm(new UserType(), $user);
+        $form->submit(json_decode($userJson, true));
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 }

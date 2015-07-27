@@ -21,19 +21,19 @@ class CompanyPortfolio
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "info", "portfolio"})
+     * @Serializer\Groups({"main", "company_portfolio"})
      */
     private $id;
 
-//    /**
-//     * @var \Sandbox\ApiBundle\Entity\Company\Company
-//     *
-//     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
-//     * @ORM\JoinColumns({
-//     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
-//     * })
-//     * @Serializer\Groups({"main", "info", "portfolio"})
-//     */
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Company\Company
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $company;
 
     /**
      * @var int
@@ -48,7 +48,7 @@ class CompanyPortfolio
      *
      * @ORM\Column(name="content", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "info", "portfolio"})
+     * @Serializer\Groups({"main", "company_portfolio"})
      */
     private $content;
 
@@ -56,7 +56,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "info", "portfolio"})
+     * @Serializer\Groups({"main", "company_portfolio"})
      */
     private $attachmentType;
 
@@ -64,7 +64,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="fileName", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "info", "portfolio"})
+     * @Serializer\Groups({"main", "company_portfolio"})
      */
     private $fileName;
 
@@ -72,7 +72,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="preview", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "info", "portfolio"})
+     * @Serializer\Groups({"main", "company_portfolio"})
      */
     private $preview;
 
@@ -80,7 +80,7 @@ class CompanyPortfolio
      * @var int
      *
      * @ORM\Column(name="size", type="integer", nullable=true)
-     * @Serializer\Groups({"main", "info", "portfolio"})
+     * @Serializer\Groups({"main", "company_portfolio"})
      */
     private $size;
 
@@ -101,180 +101,6 @@ class CompanyPortfolio
     private $modificationDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Company", inversedBy="portfolios")
-     * @ORM\JoinColumn(name="companyId", referencedColumnName="id")
-     */
-    private $company;
-
-    /**
-     * Set content.
-     *
-     * @param string $content
-     *
-     * @return CompanyPortfolio
-     */
-    public function setContent($content)
-    {
-        $this->content = $content;
-
-        return $this;
-    }
-
-    /**
-     * Get content.
-     *
-     * @return string
-     */
-    public function getContent()
-    {
-        return $this->content;
-    }
-
-    /**
-     * Set attachmentType.
-     *
-     * @param string $attachmentType
-     *
-     * @return CompanyPortfolio
-     */
-    public function setAttachmentType($attachmentType)
-    {
-        $this->attachmentType = $attachmentType;
-
-        return $this;
-    }
-
-    /**
-     * Get attachmentType.
-     *
-     * @return string
-     */
-    public function getAttachmentType()
-    {
-        return $this->attachmentType;
-    }
-
-    /**
-     * Set fileName.
-     *
-     * @param string $fileName
-     *
-     * @return CompanyPortfolio
-     */
-    public function setFileName($fileName)
-    {
-        $this->fileName = $fileName;
-
-        return $this;
-    }
-
-    /**
-     * Get fileName.
-     *
-     * @return string
-     */
-    public function getFileName()
-    {
-        return $this->fileName;
-    }
-
-    /**
-     * Set preview.
-     *
-     * @param string $preview
-     *
-     * @return CompanyPortfolio
-     */
-    public function setPreview($preview)
-    {
-        $this->preview = $preview;
-
-        return $this;
-    }
-
-    /**
-     * Get preview.
-     *
-     * @return string
-     */
-    public function getPreview()
-    {
-        return $this->preview;
-    }
-
-    /**
-     * Set size.
-     *
-     * @param int $size
-     *
-     * @return CompanyPortfolio
-     */
-    public function setSize($size)
-    {
-        $this->size = $size;
-
-        return $this;
-    }
-
-    /**
-     * Get size.
-     *
-     * @return int
-     */
-    public function getSize()
-    {
-        return $this->size;
-    }
-
-    /**
-     * Set creationDate.
-     *
-     * @param \DateTime $creationDate
-     *
-     * @return CompanyPortfolio
-     */
-    public function setCreationDate($creationDate)
-    {
-        $this->creationDate = $creationDate;
-
-        return $this;
-    }
-
-    /**
-     * Get creationDate.
-     *
-     * @return \DateTime
-     */
-    public function getCreationDate()
-    {
-        return $this->creationDate;
-    }
-
-    /**
-     * Set modificationDate.
-     *
-     * @param \DateTime $modificationDate
-     *
-     * @return CompanyPortfolio
-     */
-    public function setModificationDate($modificationDate)
-    {
-        $this->modificationDate = $modificationDate;
-
-        return $this;
-    }
-
-    /**
-     * Get modificationDate.
-     *
-     * @return \DateTime
-     */
-    public function getModificationDate()
-    {
-        return $this->modificationDate;
-    }
-
-    /**
      * Get id.
      *
      * @return int
@@ -282,6 +108,16 @@ class CompanyPortfolio
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get companyId.
+     *
+     * @return \Sandbox\ApiBundle\Entity\Company\Company
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
     }
 
     /**
@@ -299,20 +135,184 @@ class CompanyPortfolio
     }
 
     /**
-     * Get companyId.
+     * Get content.
      *
-     * @return \Sandbox\ApiBundle\Entity\Company\Company
+     * @return string
      */
-    public function getCompanyId()
+    public function getContent()
     {
-        return $this->companyId;
+        return $this->content;
     }
 
+    /**
+     * Set content.
+     *
+     * @param string $content
+     *
+     * @return CompanyPortfolio
+     */
+    public function setContent($content)
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * Get attachmentType.
+     *
+     * @return string
+     */
+    public function getAttachmentType()
+    {
+        return $this->attachmentType;
+    }
+
+    /**
+     * Set attachmentType.
+     *
+     * @param string $attachmentType
+     *
+     * @return CompanyPortfolio
+     */
+    public function setAttachmentType($attachmentType)
+    {
+        $this->attachmentType = $attachmentType;
+
+        return $this;
+    }
+
+    /**
+     * Get fileName.
+     *
+     * @return string
+     */
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+    /**
+     * Set fileName.
+     *
+     * @param string $fileName
+     *
+     * @return CompanyPortfolio
+     */
+    public function setFileName($fileName)
+    {
+        $this->fileName = $fileName;
+
+        return $this;
+    }
+
+    /**
+     * Get preview.
+     *
+     * @return string
+     */
+    public function getPreview()
+    {
+        return $this->preview;
+    }
+
+    /**
+     * Set preview.
+     *
+     * @param string $preview
+     *
+     * @return CompanyPortfolio
+     */
+    public function setPreview($preview)
+    {
+        $this->preview = $preview;
+
+        return $this;
+    }
+
+    /**
+     * Get size.
+     *
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * Set size.
+     *
+     * @param int $size
+     *
+     * @return CompanyPortfolio
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
+
+        return $this;
+    }
+
+    /**
+     * Get creationDate.
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * Set creationDate.
+     *
+     * @param \DateTime $creationDate
+     *
+     * @return CompanyPortfolio
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modificationDate.
+     *
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * Set modificationDate.
+     *
+     * @param \DateTime $modificationDate
+     *
+     * @return CompanyPortfolio
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getCompany()
     {
         return $this->company;
     }
 
+    /**
+     * @param $company
+     */
     public function setCompany($company)
     {
         $this->company = $company;

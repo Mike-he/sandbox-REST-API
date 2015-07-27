@@ -57,7 +57,7 @@ class ClientCompanyController extends CompanyController
         //set view
         $view = new View($companies);
          $view->setSerializationContext(SerializationContext::create()
-             ->setGroups(array('info')));
+             ->setGroups(array('company_basic')));
 
          return $view;
      }
@@ -110,7 +110,7 @@ class ClientCompanyController extends CompanyController
         //set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
-             ->setGroups(array('info')));
+             ->setGroups(array('company_info')));
 
         return   $view;
     }
@@ -140,8 +140,7 @@ class ClientCompanyController extends CompanyController
 
         if ($form->isValid()) {
             $user = $this->getRepo('User\User')->find($userId);
-
-            $company->setCreatorId($user);
+            $company->setCreator($user);
             $time = new \DateTime('now');
             $company->setCreationDate($time);
             $company->setModificationDate($time);
@@ -162,8 +161,8 @@ class ClientCompanyController extends CompanyController
         throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
     }
 
-    /*
-     * Edit company info
+    /**
+     * Edit company info.
      *
      * @param Request $request
      * @param int     $id

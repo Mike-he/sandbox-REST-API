@@ -40,11 +40,11 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         Request $request,
         $id
     ) {
-        $company = $this->getRepo('Company\Company')->find($id);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+        $industries = $this->getRepo('Company\CompanyIndustryMap')->findByCompanyId($id);
+        $this->throwNotFoundIfNull($industries, self::NOT_FOUND_MESSAGE);
 
-        $view = new View($company->getIndustries());
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('industry')));
+        $view = new View($industries);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('company_industry')));
 
         return $view;
     }
@@ -52,8 +52,8 @@ class ClientCompanyIndustryController extends CompanyIndustryController
     /**
      * add industries.
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
+     * @param Request $request
+     * @param int     $id
      *
      *
      * @POST("/companies/{id}/industries")
@@ -69,16 +69,17 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         $company = $this->getRepo('Company\Company')->find($id);
 
         $industryIds = json_decode($request->getContent(), true);
+
         foreach ($industryIds as $industryId) {
             $industry = $this->getRepo('Company\CompanyIndustry')->find($industryId);
             if (is_null($industry)) {
                 continue;
             }
-
             $industryMap = $this->getRepo('Company\CompanyIndustryMap')->findOneBy(array(
                 'company' => $company,
                 'industry' => $industry,
             ));
+
             if (!is_null($industryMap)) {
                 continue;
             }

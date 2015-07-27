@@ -21,7 +21,7 @@ class Company
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "info", "info_basic", "buddy", "member"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=false)
-     * @Serializer\Groups({"main", "info", "info_basic", "buddy", "member"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $name;
 
@@ -37,7 +37,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $description;
 
@@ -45,7 +45,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="address", type="string", length=1024, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $address;
 
@@ -53,7 +53,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $phone;
 
@@ -61,7 +61,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="fax", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $fax;
 
@@ -69,7 +69,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $email;
 
@@ -77,7 +77,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="website", type="string", length=256, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $website;
 
@@ -85,7 +85,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $sinaWeibo;
 
@@ -93,7 +93,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $tencentWeibo;
 
@@ -101,7 +101,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $facebook;
 
@@ -109,25 +109,28 @@ class Company
      * @var string
      *
      * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "info", "info_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
     private $linkedin;
 
     /**
-     * @var \DateTime
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
+     *
+     * @Serializer\Groups({"main", "company_info", "company_basic"})
      */
-    private $creationDate;
+    private $building;
 
     /**
-     * @var \DateTime
+     * @var int
      *
-     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @ORM\Column(name="buildingId", type="integer", nullable=true)
+     *
      * @Serializer\Groups({"main"})
      */
-    private $modificationDate;
+    private $buildingId;
 
     /**
      * @var \Sandbox\ApiBundle\Entity\User\User
@@ -136,38 +139,53 @@ class Company
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="creatorId", referencedColumnName="id")
      * })
+     * @Serializer\Groups({"main", "company_info"})
+     */
+    private $creator;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="creatorId", type="integer", nullable=true)
      * @Serializer\Groups({"main"})
      */
     private $creatorId;
 
     /**
-     * @var array
+     * @var \DateTime
      *
-     * @ORM\OneToMany(
-     *      targetEntity="CompanyPortfolio",
-     *      mappedBy="company",
-     *      cascade={"persist"}
-     * )
-     * @Serializer\Groups({"main", "info", "portfolio"})
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main", "company_info"})
      */
-    private $portfolios;
+    private $creationDate;
 
     /**
-     * @var array
+     * @var \DateTime
      *
-     * @ORM\OneToMany(
-     *      targetEntity="CompanyIndustryMap",
-     *      mappedBy="company",
-     *      cascade={"persist"}
-     * )
-     * @Serializer\Groups({"main", "info"})
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main", "company_info"})
      */
-    private $industries;
+    private $modificationDate;
 
     /**
-     * @var array();
+     * Get id.
+     *
+     * @return int
      */
-    private $industryIds;
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
     /**
      * Set name.
@@ -184,13 +202,13 @@ class Company
     }
 
     /**
-     * Get name.
+     * Get description.
      *
      * @return string
      */
-    public function getName()
+    public function getDescription()
     {
-        return $this->name;
+        return $this->description;
     }
 
     /**
@@ -208,13 +226,13 @@ class Company
     }
 
     /**
-     * Get description.
+     * Get address.
      *
      * @return string
      */
-    public function getDescription()
+    public function getAddress()
     {
-        return $this->description;
+        return $this->address;
     }
 
     /**
@@ -232,13 +250,13 @@ class Company
     }
 
     /**
-     * Get address.
+     * Get phone.
      *
      * @return string
      */
-    public function getAddress()
+    public function getPhone()
     {
-        return $this->address;
+        return $this->phone;
     }
 
     /**
@@ -256,13 +274,13 @@ class Company
     }
 
     /**
-     * Get phone.
+     * Get fax.
      *
      * @return string
      */
-    public function getPhone()
+    public function getFax()
     {
-        return $this->phone;
+        return $this->fax;
     }
 
     /**
@@ -280,13 +298,13 @@ class Company
     }
 
     /**
-     * Get fax.
+     * Get email.
      *
      * @return string
      */
-    public function getFax()
+    public function getEmail()
     {
-        return $this->fax;
+        return $this->email;
     }
 
     /**
@@ -304,13 +322,13 @@ class Company
     }
 
     /**
-     * Get email.
+     * Get website.
      *
      * @return string
      */
-    public function getEmail()
+    public function getWebsite()
     {
-        return $this->email;
+        return $this->website;
     }
 
     /**
@@ -328,13 +346,13 @@ class Company
     }
 
     /**
-     * Get website.
+     * Get sinaWeibo.
      *
      * @return string
      */
-    public function getWebsite()
+    public function getSinaWeibo()
     {
-        return $this->website;
+        return $this->sinaWeibo;
     }
 
     /**
@@ -352,13 +370,13 @@ class Company
     }
 
     /**
-     * Get sinaWeibo.
+     * Get tencentWeibo.
      *
      * @return string
      */
-    public function getSinaWeibo()
+    public function getTencentWeibo()
     {
-        return $this->sinaWeibo;
+        return $this->tencentWeibo;
     }
 
     /**
@@ -376,13 +394,13 @@ class Company
     }
 
     /**
-     * Get tencentWeibo.
+     * Get facebook.
      *
      * @return string
      */
-    public function getTencentWeibo()
+    public function getFacebook()
     {
-        return $this->tencentWeibo;
+        return $this->facebook;
     }
 
     /**
@@ -400,13 +418,13 @@ class Company
     }
 
     /**
-     * Get facebook.
+     * Get linkedin.
      *
      * @return string
      */
-    public function getFacebook()
+    public function getLinkedin()
     {
-        return $this->facebook;
+        return $this->linkedin;
     }
 
     /**
@@ -424,13 +442,83 @@ class Company
     }
 
     /**
-     * Get linkedin.
-     *
-     * @return string
+     * @return Company
      */
-    public function getLinkedin()
+    public function getBuilding()
     {
-        return $this->linkedin;
+        return $this->building;
+    }
+
+    /**
+     * @param object $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+    }
+
+    /**
+     * @return object
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param object $buildingId
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+    }
+
+    /**
+     * @return \Sandbox\ApiBundle\Entity\User\User
+     */
+    public function getCreator()
+    {
+        return $this->creator;
+    }
+
+    /**
+     * @param \Sandbox\ApiBundle\Entity\User\User $creator
+     */
+    public function setCreator($creator)
+    {
+        $this->creator = $creator;
+    }
+
+    /**
+     * Get creatorId.
+     *
+     * @return \Sandbox\ApiBundle\Entity\User\User
+     */
+    public function getCreatorId()
+    {
+        return $this->creatorId;
+    }
+
+    /**
+     * Set creatorId.
+     *
+     * @return Company
+     */
+    public function setCreatorId($creatorId)
+    {
+        $this->creatorId = $creatorId;
+
+        return $this;
+    }
+
+    /**
+     * Get creationDate.
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
     }
 
     /**
@@ -448,13 +536,13 @@ class Company
     }
 
     /**
-     * Get creationDate.
+     * Get modificationDate.
      *
      * @return \DateTime
      */
-    public function getCreationDate()
+    public function getModificationDate()
     {
-        return $this->creationDate;
+        return $this->modificationDate;
     }
 
     /**
@@ -469,111 +557,5 @@ class Company
         $this->modificationDate = $modificationDate;
 
         return $this;
-    }
-
-    /**
-     * Get modificationDate.
-     *
-     * @return \DateTime
-     */
-    public function getModificationDate()
-    {
-        return $this->modificationDate;
-    }
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set creatorId.
-     *
-     * @return Company
-     */
-    public function setCreatorId($creatorId)
-    {
-        $this->creatorId = $creatorId;
-
-        return $this;
-    }
-
-    /**
-     * Get creatorId.
-     *
-     * @return \Sandbox\ApiBundle\Entity\User\User
-     */
-    public function getCreatorId()
-    {
-        return $this->creatorId;
-    }
-
-    /**
-     * Get portfolios.
-     *
-     * @return array
-     */
-    public function getPortfolios()
-    {
-        return $this->portfolios;
-    }
-
-    /**
-     * set portfolios.
-     *
-     * @param $portfolios
-     */
-    public function setPortfolios($portfolios)
-    {
-        $this->portfolios = $portfolios;
-
-        return $this;
-    }
-
-    /**
-     * get industries.
-     *
-     * @return array
-     */
-    public function getIndustries()
-    {
-        return $this->industries;
-    }
-
-    /**
-     * set industries.
-     *
-     * @param $industries
-     *
-     * @return $this
-     */
-    public function setIndustries($industries)
-    {
-        $this->industries = $industries;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getIndustryIds()
-    {
-        return $this->industryIds;
-    }
-
-    /**
-     * @param $industryIds
-     *
-     * @return Company
-     */
-    public function setIndustryIds($industryIds)
-    {
-        $this->industryIds = $industryIds;
     }
 }

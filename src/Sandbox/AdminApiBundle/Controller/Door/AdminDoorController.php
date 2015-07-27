@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Knp\Component\Pager\Paginator;
 
 /**
  * Admin Door Controller.
@@ -23,324 +24,130 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 class AdminDoorController extends DoorController
 {
     /**
-     * @Post("/doors/time")
-     *
-     * @Annotations\QueryParam(
-     *    name="building",
-     *    default=1,
-     *    nullable=true,
-     *    description="
-     *        building id
-     *    "
-     * )
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     */
-    public function setTimePeriodAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $buildingId = $paramFetcher->get('building');
-        $sessionId = $this->getSessionId($buildingId);
-        try {
-            $data = [
-                'ads_timeperiod' => [
-                    'id' => '1',
-                    'name' => 'time1',
-                    'begindate' => '2000-07-01',
-                    'enddate' => '2099-07-01',
-                    'Mon' => '1',
-                    'Tues' => '1',
-                    'Weds' => '1',
-                    'Thurs' => '1',
-                    'Fri' => '1',
-                    'Sat' => '1',
-                    'Sun' => '1',
-                    'times' => [
-                            ['begin' => '00:00:00', 'end' => '23:59:59'],
-                        ],
-                ],
-            ];
-            $json = json_encode($data);
-            $data = self::SESSION_ID.$sessionId.self::TIME_PERIOD.$json;
-
-            $base = $this->getBaseURL($buildingId);
-            $periodArray = $this->postDoorApi($base.self::SET_TIME, $data);
-            $this->logOut($sessionId, $buildingId);
-            if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
-                return $this->customErrorView(
-                    400,
-                    self::RESPONSE_NOT_VALID_CODE,
-                    self::RESPONSE_NOT_VALID_MESSAGE
-                );
-            }
-        } catch (\Exception $e) {
-            if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $buildingId);
-            }
-        }
-    }
-
-    /**
      * @Post("/doors/permission/add")
      *
-     * @Annotations\QueryParam(
-     *    name="building",
-     *    default=1,
-     *    nullable=true,
-     *    description="
-     *        building id
-     *    "
-     * )
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
+     * @param Request $request
      *
      * @return View
      */
     public function setCardPermissionAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
+        Request $request
     ) {
-        $userId = 1;
+        $userId = $request->get('user_id');
+        $cardNo = $request->get('card_no');
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
-        $cardNumber = '9391756'; //from CRM using userId
-        $startDate = '2015-07-16 08:00:00'; //from Order
-        $endDate = '2015-09-01 18:00:00'; //from Order
-        $doorId = '{4B169885-76B7-4215-B3F3-318553AC0087}'; //from Room
-        $buildingId = $paramFetcher->get('building');
-        $this->cardPermission(
-            $userId,
-            $userName,
-            $buildingId,
-            $cardNumber,
-            $startDate,
-            $endDate,
-            $doorId,
-            self::METHOD_ADD
-        );
-    }
 
-    /**
-     * @Post("/doors/permission/remove")
-     *
-     * @Annotations\QueryParam(
-     *    name="building",
-     *    default=1,
-     *    nullable=true,
-     *    description="
-     *        building id
-     *    "
-     * )
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @return View
-     */
-    public function removeCardPermissionAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $userId = 1;
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $userName = $userProfile->getName();
-        $cardNumber = '1660672'; //from CRM using userId
-        $startDate = '2015-07-16 08:00:00'; //from Order
-        $endDate = '2015-09-01 18:00:00'; //from Order
-        $doorId = '{4B169885-76B7-4215-B3F3-318553AC0087}'; //from Room
-        $buildingId = $paramFetcher->get('building');
-        $this->cardPermission(
-            $userId,
-            $userName,
-            $buildingId,
-            $cardNumber,
-            $startDate,
-            $endDate,
-            $doorId,
-            self::METHOD_DELETE
-        );
-    }
+        $orders = $this->getRepo('Order\ProductOrder')->getOrdersByUser($userId);
+        if (empty($orders)) {
+            return $this->customErrorView(
+                400,
+                self::NO_ORDER_CODE,
+                self::NO_ORDER_MESSAGE
+            );
+        }
 
-    /**
-     * @Post("/doors/permission/lost")
-     *
-     * @Annotations\QueryParam(
-     *    name="building",
-     *    default=1,
-     *    nullable=true,
-     *    description="
-     *        building id
-     *    "
-     * )
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @return View
-     */
-    public function lostCardPermissionAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $buildingId = $paramFetcher->get('building');
-        $cardNumber = '1660672'; //POST JSON
-        $userId = '123456'; //POST JSON
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $userName = $userProfile->getName();
-        $sessionId = $this->getSessionId($buildingId);
-        try {
-            $data = [
-                'ads_card' => [
-                    'empid' => $userId, //from user account
-                    'empname' => $userName, //from user account
-                    'department' => 'BUILDING'."$buildingId",
-                    'cardno' => $cardNumber, //from user account 1660672
-                    'begindate' => '2015-07-16 08:00:00',
-                    'expiredate' => '2015-09-01 18:00:00',
-                    'operation' => self::METHOD_LOST,
-                ],
-            ];
-            $json = json_encode($data);
-            $data = self::SESSION_ID.$sessionId.self::CARD_PERMISSION.$json;
+        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
-            $base = $this->getBaseURL($buildingId);
-            $periodArray = $this->postDoorApi($base.self::SET_PERMISSION, $data);
-            $this->logOut($sessionId, $buildingId);
+        foreach ($ids as $id) {
+            $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
+                $userId,
+                $id['buildingId']
+            );
 
-            if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
-                return $this->customErrorView(
-                    400,
-                    self::RESPONSE_NOT_VALID_CODE,
-                    self::RESPONSE_NOT_VALID_MESSAGE
-                );
+            $doorArray = [];
+            foreach ($doors as $door) {
+                $doorId = $door->getDoorId();
+                $timeId = $door->getTimeId();
+                $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
+
+                array_push($doorArray, $door);
             }
-        } catch (\Exception $e) {
-            if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $buildingId);
-            }
+
+            $this->get('door_service')->cardPermission(
+                $id['buildingId'],
+                $userId,
+                $userName,
+                $cardNo,
+                $doorArray,
+                DoorController::METHOD_ADD
+            );
         }
     }
 
     /**
      * @Post("/doors/permission/unlost")
      *
-     * @Annotations\QueryParam(
-     *    name="building",
-     *    default=1,
-     *    nullable=true,
-     *    description="
-     *        building id
-     *    "
-     * )
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
+     * @param Request $request
      *
      * @return View
      */
     public function unlostCardPermissionAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
+        Request $request
     ) {
-        $buildingId = $paramFetcher->get('building');
-        $cardNumber = '1660672'; //POST JSON
-        $userId = '123456'; //POST JSON
+        $userId = $request->get('user_id');
+        $cardNo = $request->get('card_no');
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
-        $sessionId = $this->getSessionId($buildingId);
-        try {
-            $data = [
-                'ads_card' => [
-                    'empid' => $userId, //from user account
-                    'empname' => $userName, //from user account
-                    'department' => 'BUILDING'."$buildingId",
-                    'cardno' => $cardNumber, //from user account 1660672
-                    'begindate' => '2015-07-16 08:00:00',
-                    'expiredate' => '2015-09-01 18:00:00',
-                    'operation' => self::METHOD_UNLOST,
-                ],
-            ];
-            $json = json_encode($data);
-            $data = self::SESSION_ID.$sessionId.self::CARD_PERMISSION.$json;
 
-            $base = $this->getBaseURL($buildingId);
-            $periodArray = $this->postDoorApi($base.self::SET_PERMISSION, $data);
-            $this->logOut($sessionId, $buildingId);
+        $orders = $this->getRepo('Order\ProductOrder')->findBy(['userId' => $userId]);
+        if (empty($orders)) {
+            return $this->customErrorView(
+                400,
+                self::NO_ORDER_CODE,
+                self::NO_ORDER_MESSAGE
+            );
+        }
 
-            if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
-                return $this->customErrorView(
-                    400,
-                    self::RESPONSE_NOT_VALID_CODE,
-                    self::RESPONSE_NOT_VALID_MESSAGE
-                );
-            }
-        } catch (\Exception $e) {
-            if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $buildingId);
-            }
+        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
+
+        foreach ($ids as $id) {
+            $this->get('door_service')->cardPermission(
+                $id['buildingId'],
+                $userId,
+                $userName,
+                $cardNo,
+                $doorArray = [],
+                DoorController::METHOD_UNLOST
+            );
         }
     }
 
     /**
      * @Post("/doors/permission/replace")
      *
-     * @Annotations\QueryParam(
-     *    name="building",
-     *    default=1,
-     *    nullable=true,
-     *    description="
-     *        building id
-     *    "
-     * )
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
+     * @param Request $request
      *
      * @return View
      */
     public function replaceCardPermissionAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
+        Request $request
     ) {
-        $buildingId = $paramFetcher->get('building');
-        $cardNumber = '1660672'; //POST JSON
-        $userId = '123456'; //POST JSON
+        $userId = $request->get('user_id');
+        $cardNo = $request->get('card_no');
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
-        $sessionId = $this->getSessionId($buildingId);
-        try {
-            $data = [
-                'ads_card' => [
-                    'empid' => $userId, //from user account
-                    'empname' => $userName, //from user account
-                    'department' => 'BUILDING'."$buildingId",
-                    'cardno' => $cardNumber, //from user account 1660672
-                    'begindate' => '2015-07-16 08:00:00',
-                    'expiredate' => '2015-09-01 18:00:00',
-                    'operation' => self::METHOD_CHANGE_CARD,
-                ],
-            ];
-            $json = json_encode($data);
-            $data = self::SESSION_ID.$sessionId.self::CARD_PERMISSION.$json;
 
-            $base = $this->getBaseURL($buildingId);
-            $periodArray = $this->postDoorApi($base.self::SET_PERMISSION, $data);
-            $this->logOut($sessionId, $buildingId);
+        $orders = $this->getRepo('Order\ProductOrder')->findBy(['userId' => $userId]);
+        if (empty($orders)) {
+            return $this->customErrorView(
+                400,
+                self::NO_ORDER_CODE,
+                self::NO_ORDER_MESSAGE
+            );
+        }
 
-            if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
-                return $this->customErrorView(
-                    400,
-                    self::RESPONSE_NOT_VALID_CODE,
-                    self::RESPONSE_NOT_VALID_MESSAGE
-                );
-            }
-        } catch (\Exception $e) {
-            if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $buildingId);
-            }
+        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
+
+        foreach ($ids as $id) {
+            $this->get('door_service')->cardPermission(
+                $id['buildingId'],
+                $userId,
+                $userName,
+                $cardNo,
+                $doorArray = [],
+                DoorController::METHOD_CHANGE_CARD
+            );
         }
     }
 
@@ -419,6 +226,26 @@ class AdminDoorController extends DoorController
      *    "
      * )
      *
+     *  @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -428,6 +255,8 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
         $buildingId = $paramFetcher->get('building');
         $sessionId = $this->getSessionId($buildingId);
         try {
@@ -450,7 +279,14 @@ class AdminDoorController extends DoorController
                 );
             }
 
-            return new View($recordArray['ads_swipecard_records']);
+            $paginator = new Paginator();
+            $pagination = $paginator->paginate(
+                $recordArray['ads_swipecard_records'],
+                $pageIndex,
+                $pageLimit
+            );
+
+            return new View($pagination);
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $buildingId);
@@ -488,6 +324,26 @@ class AdminDoorController extends DoorController
      *    "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -497,6 +353,8 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
         $buildingId = $paramFetcher->get('building');
         $sessionId = $this->getSessionId($buildingId);
         try {
@@ -519,7 +377,14 @@ class AdminDoorController extends DoorController
                 );
             }
 
-            return new View($recordArray['ads_alarm_records']);
+            $paginator = new Paginator();
+            $pagination = $paginator->paginate(
+                $recordArray['ads_alarm_records'],
+                $pageIndex,
+                $pageLimit
+            );
+
+            return new View($pagination);
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $buildingId);

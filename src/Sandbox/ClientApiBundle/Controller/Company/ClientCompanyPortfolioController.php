@@ -40,11 +40,13 @@ class ClientCompanyPortfolioController extends CompanyPortfolioController
         Request $request,
         $id
     ) {
-        $company = $this->getRepo('Company\Company')->find($id);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+        $portfolios = $this->getRepo('Company\CompanyPortfolio')->findByCompanyId($id);
+        $this->throwNotFoundIfNull($portfolios, self::NOT_FOUND_MESSAGE);
 
-        $view = new View($company->getPortfolios());
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('portfolio')));
+        $view = new View($portfolios);
+        $view->setSerializationContext(
+                    SerializationContext::create()
+                        ->setGroups(array('company_portfolio')));
 
         return $view;
     }

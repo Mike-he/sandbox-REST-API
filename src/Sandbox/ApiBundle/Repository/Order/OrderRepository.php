@@ -9,6 +9,22 @@ use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {
+    public function getOrdersByUser(
+        $userId
+    ) {
+        $now = new \DateTime();
+        $query = $this->createQueryBuilder('o')
+            ->where('o.userId = :userId')
+            ->andWhere('o.status <> \'cancelled\'')
+            ->andWhere('o.endDate > :now')
+            ->orderBy('o.startDate', 'ASC')
+            ->setParameter('userId', $userId)
+            ->setParameter('now', $now)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
     /**
      * Check for Order Conflict.
      *
@@ -94,6 +110,7 @@ class OrderRepository extends EntityRepository
      * @param String       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
+     * @param int          $userId
      * @param DateTime     $startDate
      * @param DateTime     $endDate
      *
@@ -103,6 +120,7 @@ class OrderRepository extends EntityRepository
         $type,
         $city,
         $building,
+        $userId,
         $startDate,
         $endDate
     ) {
@@ -113,8 +131,14 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
-        $query->where('o.status != :unpaid');
-        $parameters['unpaid'] = 'unpaid';
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->where('o.userId = :userId');
+            $parameters['userId'] = $userId;
+        } else {
+            $query->where('o.status != :unpaid');
+            $parameters['unpaid'] = 'unpaid';
+        }
 
         // filter by type
         if (!is_null($type)) {
