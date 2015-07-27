@@ -105,7 +105,6 @@ class ClientMemberController extends MemberController
 
         // find random members
         $users = $this->getRepo('User\User')->findRandomMembers(
-            $userId,
             $recordMemberIds,
             $limit
         );
@@ -150,6 +149,7 @@ class ClientMemberController extends MemberController
 
         return $view;
     }
+
     /**
      * Get nearby members.
      *

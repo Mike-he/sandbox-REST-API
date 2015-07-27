@@ -53,18 +53,18 @@ class ClientCompanyController extends CompanyController
         Request $request
     ) {
          $userId = $this->getUserId();
-        //TODO 改成所有companyMember都能获取公司
-        //get companies
-        $member = $this->getRepo('Company\CompanyMember')
-                          ->findOneByUserId($userId);
+
+         //get companies
+         $member = $this->getRepo('Company\CompanyMember')
+                        ->findOneByUserId($userId);
 
          if (is_null($member)) {
              return new View(array());
          }
          $companies = array($member->getCompany());
 
-        //set view
-        $view = new View($companies);
+         //set view
+         $view = new View($companies);
          $view->setSerializationContext(SerializationContext::create()
              ->setGroups(array('company_basic')));
 
@@ -155,13 +155,69 @@ class ClientCompanyController extends CompanyController
     /**
      * Get recommend companies.
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Route("/members/recommend")
+     * @Method({"GET"})
+     *
+     * @return View
      */
     public function getCompaniesRecommendAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // TODO check user is VIP
+
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set max limit
+        if ($limit > $globals['load_more_limit']) {
+            $limit = $globals['load_more_limit'];
+        }
+
+        // find random members
+        $companies = $this->getRepo('Company\Company')->findRandomCompanies(
+            $limit
+        );
+        if (is_null($companies) || empty($companies)) {
+            return new View(array());
+        }
+
+        // set view
+        $view = new View($companies);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('company_basic'))
+        );
+
+        return $view;
     }
 
     /**
