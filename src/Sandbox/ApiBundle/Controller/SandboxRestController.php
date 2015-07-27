@@ -9,6 +9,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Company\Company;
 
 //TODO there's certainly a way to get the
 // current bundle name with a magic function
@@ -127,6 +128,22 @@ class SandboxRestController extends FOSRestController
                 throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
             }
         }
+    }
+
+    /**
+     * @param User $userId
+     *
+     * @return null|Company
+     */
+    protected function getCompanyIfMember(
+        $userId
+    ) {
+        $companyMember = $this->getRepo('Company\CompanyMember')->findOneByUserId($userId);
+        if (is_null($companyMember)) {
+            return;
+        }
+
+        return $companyMember->getCompany();
     }
 
     /**
