@@ -72,7 +72,7 @@ class ClientBuddyController extends BuddyController
         }
 
         // get profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($user->getId());
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
         if (is_null($profile)) {
             return new View(array());
         }
@@ -117,7 +117,7 @@ class ClientBuddyController extends BuddyController
         }
 
         // get user's company
-        $company = $this->getCompanyIfMember($user);
+        $company = $this->getCompanyIfMember($user->getId());
 
         // response
         $buddy = array(
@@ -193,7 +193,7 @@ class ClientBuddyController extends BuddyController
                 }
 
                 // get user's company
-                $company = $this->getCompanyIfMember($user);
+                $company = $this->getCompanyIfMember($buddyId);
 
                 $myBuddy = array(
                     'id' => $buddy->getId(),

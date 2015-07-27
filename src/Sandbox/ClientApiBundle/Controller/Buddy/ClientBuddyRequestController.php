@@ -58,7 +58,7 @@ class ClientBuddyRequestController extends BuddyRequestController
             );
 
             // get user's company
-            $company = $this->getCompanyIfMember($buddyRequest->getAskUser());
+            $company = $this->getCompanyIfMember($buddyRequest->getAskUserId());
 
             $myRequest = array(
                 'id' => $buddyRequest->getId(),
