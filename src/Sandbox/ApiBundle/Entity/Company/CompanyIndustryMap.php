@@ -28,8 +28,8 @@ class CompanyIndustryMap
     /**
      * @var Company
      *
-     * @ORM\ManyToOne(targetEntity="Company", inversedBy="industries")
-     * @ORM\JoinColumn(name="companyId", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="Company")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main"})
      */
     private $company;
@@ -37,10 +37,7 @@ class CompanyIndustryMap
     /**
      * @var int
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="companyId", type="integer",  nullable=false)
      * @Serializer\Groups({"main"})
      */
     private $companyId;

@@ -14,7 +14,9 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\UniqueConstraint(name="userId_companyId_UNIQUE", columns={"userId", "companyId"})}, indexes={
  * @ORM\Index(name="fk_CompanyMember_companyId_idx", columns={"companyId"}),
  * @ORM\Index(name="fk_CompanyMember_userId_idx", columns={"userId"})})
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="Sandbox\ApiBundle\Repository\Company\CompanyMemberRepository"
+ * )
  */
 class CompanyMember
 {
@@ -45,12 +47,19 @@ class CompanyMember
     private $userId;
 
     /**
-     * @var int
+     * @var \Sandbox\ApiBundle\Entity\Company\Company
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
      * })
+     */
+    private $company;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="companyId", type="integer", nullable=false)
      */
     private $companyId;
 
@@ -86,6 +95,22 @@ class CompanyMember
     }
 
     /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
      * Get userId.
      *
      * @return User
@@ -107,6 +132,22 @@ class CompanyMember
         $this->userId = $userId;
 
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
+     * @param int $company
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
     }
 
     /**

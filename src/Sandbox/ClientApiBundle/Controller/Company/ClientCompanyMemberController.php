@@ -58,8 +58,8 @@ class ClientCompanyMemberController extends CompanyMemberController
     /**
      * add members.
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
+     * @param Request $request
+     * @param int     $id
      *
      *
      * @POST("/companies/{id}/members")
@@ -76,6 +76,14 @@ class ClientCompanyMemberController extends CompanyMemberController
 
         $memberIds = json_decode($request->getContent(), true);
         foreach ($memberIds as $memberId) {
+            $companyMember = $this->getRepo('Company\CompanyMember')->findOneBy(array(
+                'company' => $company,
+                'userId' => $memberId,
+            ));
+            if (!is_null($companyMember)) {
+                continue;
+            }
+
             $companyMember = $this->generateCompanyMember($company, $memberId);
             $em->persist($companyMember);
         }

@@ -52,8 +52,8 @@ class ClientCompanyIndustryController extends CompanyIndustryController
     /**
      * add industries.
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
+     * @param Request $request
+     * @param int     $id
      *
      *
      * @POST("/companies/{id}/industries")
@@ -69,16 +69,17 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         $company = $this->getRepo('Company\Company')->find($id);
 
         $industryIds = json_decode($request->getContent(), true);
+
         foreach ($industryIds as $industryId) {
             $industry = $this->getRepo('Company\CompanyIndustry')->find($industryId);
             if (is_null($industry)) {
                 continue;
             }
-
             $industryMap = $this->getRepo('Company\CompanyIndustryMap')->findOneBy(array(
                 'company' => $company,
                 'industry' => $industry,
             ));
+
             if (!is_null($industryMap)) {
                 continue;
             }
