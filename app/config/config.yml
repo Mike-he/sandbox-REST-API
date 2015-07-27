@@ -255,3 +255,16 @@ fos_elastica:
                         provider: ~
                         listener: ~
                         finder: ~
+                company:
+                    mappings:
+                        name: ~
+                    persistence:
+                        # the driver can be orm, mongodb or propel
+                        # listener and finder are not supported by
+                        # propel and should be removed
+                        driver: orm
+                        model: Sandbox\ApiBundle\Entity\Company\Company
+                        provider: ~
+                        listener: ~
+                        finder: ~
+

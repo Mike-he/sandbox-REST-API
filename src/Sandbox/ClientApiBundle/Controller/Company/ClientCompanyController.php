@@ -30,7 +30,10 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class ClientCompanyController extends CompanyController
 {
-    /**
+    const ERROR_BUILDING_NOT_SET_CODE = 400001;
+    const ERROR_BUILDING_NOT_SET_MESSAGE = 'Building is not set - 未设置办公楼';
+
+     /**
       * Get companies.
       *
       * @param Request $request the request object
@@ -71,7 +74,9 @@ class ClientCompanyController extends CompanyController
     /**
      * Get nearby companies.
      *
+     * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
      * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
@@ -161,10 +166,65 @@ class ClientCompanyController extends CompanyController
 
     /**
      * Search companies.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
+     * @return View
      */
-    public function SearchCompanies(
-
+    public function getCompaniesSearchAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        // TODO check user is VIP
+
+        $query = $paramFetcher->get('query');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        // find all members who have the query in any of their mapped fields
+        $finder = $this->container->get('fos_elastica.finder.search.company');
+
+        $results = $finder->find($query);
+        if (is_null($results) || empty($results)) {
+            return new View(array());
+        }
+
+        $companies = $output = array_slice($results, $offset, $limit);
+
+        // set view
+        $view = new View($companies);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('company_basic'))
+        );
+
+        return $view;
     }
 
     /**
