@@ -9,6 +9,22 @@ use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {
+    public function getOrdersByUser(
+        $userId
+    ) {
+        $now = new \DateTime();
+        $query = $this->createQueryBuilder('o')
+            ->where('o.userId = :userId')
+            ->andWhere('o.status <> \'cancelled\'')
+            ->andWhere('o.endDate > :now')
+            ->orderBy('o.startDate', 'ASC')
+            ->setParameter('userId', $userId)
+            ->setParameter('now', $now)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
     /**
      * Check for Order Conflict.
      *

@@ -11,7 +11,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
@@ -89,10 +88,13 @@ class AdminUsersController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
+        );
 
         // get all user id and name
-        $users = $this->getRepo('User\User')->findAllUsers();
+        $users = $this->getRepo('User\UserView')->findAll();
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -105,9 +107,9 @@ class AdminUsersController extends SandboxRestController
     }
 
     /**
-     * List definite id of admin.
+     * List definite id of user.
      *
-     * @param Request $request the request object
+     * @param Request $request
      * @param int     $id
      *
      * @ApiDoc(
@@ -129,31 +131,17 @@ class AdminUsersController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
-
-        // get user
-        $user = $this->getRepo('User\User')->find($id);
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
-
-        // get profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
-        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-
-        // set view
-        $view = new View();
-        $view->setData(array(
-            'id' => $id,
-            'name' => $profile->getName(),
-            'gender' => $profile->getGender(),
-            'phone' => $user->getPhone(),
-            'email' => $user->getEmail(),
-            'banned' => $user->isBanned(),
-        ));
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('main'))
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
         );
 
-        return $view;
+        // get user
+        $user = $this->getRepo('User\UserView')->find($id);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // set view
+        return new View($user);
     }
 
     /**
@@ -166,11 +154,19 @@ class AdminUsersController extends SandboxRestController
      * @Method({"PATCH"})
      *
      * @return View
+     *
+     * @throws \Exception
      */
     public function patchUserAction(
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER
+        );
+
         //get user Entity
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
