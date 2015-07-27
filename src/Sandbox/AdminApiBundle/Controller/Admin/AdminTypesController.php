@@ -52,7 +52,8 @@ class AdminTypesController extends SandboxRestController
         $query = $this->getRepo('Admin\AdminType')->findAll();
 
         $view = new View($query);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['auth']));
+        $view->setSerializationContext(SerializationContext::create()
+            ->setGroups(array('get')));
 
         return $view;
     }
