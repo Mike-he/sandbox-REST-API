@@ -58,6 +58,18 @@ sandbox_admin_api_users:
     type:     annotation
     prefix:   /
 
+# User /admin/users
+sandbox_admin_api_types:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminTypesController.php"
+    type:     annotation
+    prefix:   /
+
+# User /admin/permissions
+sandbox_admin_api_permissions:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPermissionsController.php"
+    type:     annotation
+    prefix:   /
+
 # Adnub Token Auth /admin/auth/me
 sandbox_admin_api_auth:
     resource: "@SandboxAdminApiBundle/Controller/Auth/AdminAuthController.php"
