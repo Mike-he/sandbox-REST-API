@@ -75,7 +75,7 @@ class AdminPermissionsController extends SandboxRestController
 
         $view = new View($query);
         $view->setSerializationContext(SerializationContext::create()
-            ->setGroups(array('get')));
+            ->setGroups(array('main')));
 
         return $view;
     }
