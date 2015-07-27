@@ -414,5 +414,51 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        // if user is not authorized, respond empty list
+        $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        if (is_null($cardNo)) {
+            return new View(array());
+        }
+
+        $query = $paramFetcher->get('query');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $finder = $this->container->get('fos_elastica.finder.search.member');
+
+        // Option 1. Returns all users who have example.net in any of their mapped fields
+        $results = $finder->find($query);
+        if (is_null($results) || empty($results)) {
+            return new View(array());
+        }
+
+        $profiles = $output = array_slice($results, $offset, $limit);
+
+        // members for response
+        $members = array();
+
+        foreach ($profiles as $profile) {
+            // TODO set company info
+
+            $member = array(
+                'id' => $profile->getUserId(),
+                'profile' => $profile,
+                'company' => '',
+            );
+
+            array_push($members, $member);
+        }
+
+        // set view
+        $view = new View($members);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('member'))
+        );
+
+        return $view;
     }
 }
