@@ -141,7 +141,8 @@ class Company
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="creatorId", referencedColumnName="id")
      * })
-     * @Serializer\Groups({"main", "company_info"})
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creator;
 
@@ -149,7 +150,7 @@ class Company
      * @var int
      *
      * @ORM\Column(name="creatorId", type="integer", nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "company_info"})
      */
     private $creatorId;
 
