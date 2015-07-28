@@ -162,6 +162,8 @@ class ProductRepository extends EntityRepository
             $notFirst = true;
         }
 
+        $query->orderBy('p.creationDate', 'DESC');
+
         //set all parameters
         if ($notFirst) {
             $query->setParameters($parameters);

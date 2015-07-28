@@ -51,6 +51,10 @@ class PaymentController extends SandboxRestController
     const NO_PRICE_MESSAGE = 'Price can not be empty';
     const NO_APPOINTED_PERSON_CODE = 400012;
     const NO_APPOINTED_PERSON_CODE_MESSAGE = 'Need an appoint person ID';
+    const NOT_WITHIN_DATE_RANGE_CODE = 400013;
+    const NOT_WITHIN_DATE_RANGE_MESSAGE = 'Not Within 7 Days For Booking';
+    const CAN_NOT_RENEW_CODE = 400014;
+    const CAN_NOT_RENEW_MESSAGE = 'Have to renew 7 days before current order end date';
 
     /**
      * @param $order
@@ -149,43 +153,54 @@ class PaymentController extends SandboxRestController
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-        $this->get('door_service')->setTimePeriod($order);
+        $myDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
+            $order->getUserId(),
+            $buildingId,
+            $roomId
+        );
 
         foreach ($roomDoors as $roomDoor) {
-            $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
-                [
-                    'userId' => $order->getUserId(),
-                    'timeId' => $order->getId(),
-                    'buildingId' => $buildingId,
-                    'doorId' => $roomDoor->getDoorControlId(),
-                ]
-            );
-            if (is_null($doorAccess)) {
-                $access = new DoorAccess();
-                $access->setBuildingId($buildingId);
-                $access->setDoorId($roomDoor->getDoorControlId());
-                $access->setUserId($order->getUserId());
-                $access->setTimeId($order->getId());
-                $access->setEndDate($order->getEndDate());
-
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($access);
-                $em->flush();
+            $access = new DoorAccess();
+            $access->setBuildingId($buildingId);
+            $access->setDoorId($roomDoor->getDoorControlId());
+            $access->setUserId($order->getUserId());
+            $access->setRoomId($roomId);
+            $access->setOrderId($orderId);
+            $access->setStartDate($order->getStartDate());
+            $access->setEndDate($order->getEndDate());
+            if (empty($myDoors)) {
+                $timeId = $order->getId();
+            } else {
+                $timeId = $myDoors[0]->getTimeId();
             }
+            $access->setTimeId($timeId);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($access);
+            $em->flush();
         }
 
-        //TODO: $cardNo = $this->getCardNoIfUserAuthorized($auth);
+        $updatedDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
+            $order->getUserId(),
+            $buildingId,
+            $roomId
+        );
+        $this->get('door_service')->setTimePeriod($updatedDoors);
+
+        $cardNo = $this->getCardNoIfUserAuthorized();
         $cardNo = '9391756';
         if (is_null($cardNo)) {
             return;
         }
 
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
-        $userName = $userProfile->getName();
         $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
             $order->getUserId(),
             $buildingId
         );
+
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+        $userName = $userProfile->getName();
+
         if (!is_null($doors) && !empty($doors)) {
             $doorArray = [];
             foreach ($doors as $door) {

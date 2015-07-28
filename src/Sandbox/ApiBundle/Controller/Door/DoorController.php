@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\Controller\Door;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
 /**
  * Door Controller.
@@ -31,7 +30,8 @@ class DoorController extends SandboxRestController
     const TIME_NOT_VALID_MESSAGE = 'Times Are Not Valid';
     const NO_ORDER_CODE = 40007;
     const NO_ORDER_MESSAGE = 'Orders Not Found';
-    const BASE_URI = 'http://211.95.45.26:13390/ADSWebService.asmx';
+    const BASE_URI_BUILDING_2 = 'http://140.207.50.130:13543/ADSWebService.asmx';
+    const BASE_URI_BUILDING_1 = 'http://211.95.45.26:13390/ADSWebService.asmx';
     const LOGIN_URI = '/Login';
     const LOGOUT_URI = '/Logout';
     const GET_DOOR_URI = '/GetDoors';
@@ -46,13 +46,8 @@ class DoorController extends SandboxRestController
     const CARD_PERMISSION = '&CardPermission=';
 
     private static $serverIP = [
-        1 => self::BASE_URI,
-        2 => self::BASE_URI,
-        3 => self::BASE_URI,
-        4 => self::BASE_URI,
-        5 => self::BASE_URI,
-        6 => self::BASE_URI,
-        7 => self::BASE_URI,
+        1 => self::BASE_URI_BUILDING_1,
+        2 => self::BASE_URI_BUILDING_2,
     ];
 
     public static function getBuildingIdToBaseURL()
@@ -187,41 +182,42 @@ class DoorController extends SandboxRestController
      * @param $order
      */
     public function setTimePeriod(
-        ProductOrder $order
+        $updatedDoors
     ) {
-        $id = $order->getId();
-        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-        $type = $order->getProduct()->getRoom()->getType();
-        $start = $order->getStartDate();
-        $end = $order->getEndDate();
-        if ($type === 'meeting') {
+        $id = $updatedDoors[0]->getTimeId();
+        $buildingId = $updatedDoors[0]->getBuildingId();
+        $timeArray = [];
+        foreach ($updatedDoors as $updatedDoor) {
+            $start = $updatedDoor->getStartDate();
+            $end = $updatedDoor->getEndDate();
             $startHour = (string) $start->format('H:i:s');
             $endHour = (string) $end->format('H:i:s');
-        } else {
-            $startHour = '00:00:00';
-            $endHour = '23:59:59';
+            $startDate = (string) $start->format('Y-m-d');
+            $endDate = (string) $end->format('Y-m-d');
+            $timePeriod = [
+                'begindate' => $startDate,
+                'enddate' => $endDate,
+                'Mon' => '1',
+                'Tues' => '1',
+                'Weds' => '1',
+                'Thurs' => '1',
+                'Fri' => '1',
+                'Sat' => '1',
+                'Sun' => '1',
+                'times' => [
+                    ['begin' => $startHour, 'end' => $endHour],
+                ],
+            ];
+            array_push($timeArray, $timePeriod);
         }
-        $startDate = (string) $start->format('Y-m-d');
-        $endDate = (string) $end->format('Y-m-d');
 
         $sessionId = $this->getSessionId($buildingId);
         try {
             $data = [
                 'ads_timeperiod' => [
                     'id' => "$id",
-                    'name' => 'time1'."$id",
-                    'begindate' => $startDate,
-                    'enddate' => $endDate,
-                    'Mon' => '1',
-                    'Tues' => '1',
-                    'Weds' => '1',
-                    'Thurs' => '1',
-                    'Fri' => '1',
-                    'Sat' => '1',
-                    'Sun' => '1',
-                    'times' => [
-                        ['begin' => $startHour, 'end' => $endHour],
-                    ],
+                    'name' => 'time',
+                    'ads_timeperiods' => $timeArray,
                 ],
             ];
             $json = json_encode($data);
@@ -230,6 +226,7 @@ class DoorController extends SandboxRestController
             $base = $this->getBaseURL($buildingId);
             $periodArray = $this->postDoorApi($base.self::SET_TIME, $data);
             $this->logOut($sessionId, $buildingId);
+
             if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
                 return $this->customErrorView(
                     400,

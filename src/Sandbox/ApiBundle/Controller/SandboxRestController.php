@@ -239,6 +239,28 @@ class SandboxRestController extends FOSRestController
         return $result['expiration_time'];
     }
 
+    //--------------------common functions--------------------//
+
+    /**
+     * @param int $limit
+     *
+     * @return int
+     */
+    protected function getLoadMoreLimit(
+        $limit
+    ) {
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set max limit
+        if ($limit > $globals['load_more_limit']) {
+            $limit = $globals['load_more_limit'];
+        }
+
+        return $limit;
+    }
+
     /**
      * Send sms.
      *

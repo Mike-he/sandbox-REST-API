@@ -166,6 +166,39 @@ class ProductOrder
     private $product;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isRenew", type="boolean")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client"})
+     */
+    private $isRenew = false;
+
+    /**
+     * Set isRenew.
+     *
+     * @param bool $isRenew
+     *
+     * @return ProductOrder
+     */
+    public function setIsRenew($isRenew)
+    {
+        $this->isRenew = $isRenew;
+
+        return $this;
+    }
+
+    /**
+     * Get isRenew.
+     *
+     * @return bool
+     */
+    public function getIsRenew()
+    {
+        return $this->isRenew;
+    }
+
+    /**
      * Get id.
      *
      * @return int

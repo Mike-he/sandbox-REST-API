@@ -9,6 +9,29 @@ use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {
+    public function getRenewOrder(
+        $userId,
+        $productId,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.userId = :userId')
+            ->andWhere('o.status = \'completed\'')
+            ->andWhere('o.productId = :productId')
+            ->andWhere('o.endDate > :endDate')
+            ->setParameter('productId', $productId)
+            ->setParameter('userId', $userId)
+            ->setParameter('endDate', $endDate)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return array
+     */
     public function getOrdersByUser(
         $userId
     ) {
@@ -170,6 +193,8 @@ class OrderRepository extends EntityRepository
             $parameters['endDate'] = $endDate;
         }
 
+        $query->orderBy('o.creationDate', 'DESC');
+
         //set all parameters
         $query->setParameters($parameters);
 
@@ -194,6 +219,8 @@ class OrderRepository extends EntityRepository
                 ")
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+
+        $query->orderBy('o.creationDate', 'DESC');
 
         return $query->getQuery()->getArrayResult();
     }

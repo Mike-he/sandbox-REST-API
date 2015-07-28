@@ -7,56 +7,69 @@ use Doctrine\ORM\EntityRepository;
 class CompanyRepository extends EntityRepository
 {
     /**
+     * @param array $recordIds
      * @param array $industryIds
      * @param int   $limit
      *
      * @return array
      */
     public function findRandomCompanies(
+        $recordIds,
         $industryIds,
         $limit
     ) {
-
         // get company ids filter by industry if any
-        $query = 'SELECT c.id FROM SandboxApiBundle:Company\Company c';
+        $queryStr = 'SELECT c.id FROM SandboxApiBundle:Company\Company c';
 
         if (!is_null($industryIds) && !empty($industryIds)) {
-            $query = $query.
-                '
-                    JOIN SandboxApiBundle:Company\CompanyIndustryMap cip
-                    WITH c.id = cip.companyId
-                    WHERE cip.industryId IN (:industryIds)
-                ';
+            $queryStr = $queryStr.
+                'JOIN SandboxApiBundle:Company\CompanyIndustryMap cip
+                WITH c.id = cip.companyId';
         }
 
-        $query = $this->getEntityManager()->createQuery($query);
+        $queryStr = $queryStr.' WHERE c.id > 0';
+
+        if (!is_null($recordIds) && !empty($recordIds)) {
+            $queryStr = $queryStr.' AND c.id NOT IN (:ids)';
+        }
+
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $queryStr = $queryStr.' AND cip.industryId IN (:industryIds)';
+        }
+
+        // get available company ids
+        $query = $this->getEntityManager()->createQuery($queryStr);
+
+        if (!is_null($recordIds) && !empty($recordIds)) {
+            $query->setParameter('ids', $recordIds);
+        }
 
         if (!is_null($industryIds) && !empty($industryIds)) {
             $query->setParameter('industryIds', $industryIds);
         }
 
-        $availableUserIds = $query->getScalarResult();
-        if (empty($availableUserIds)) {
+        $availableIds = $query->getScalarResult();
+        if (empty($availableIds)) {
             // nothing is found
             return array();
         }
 
         // set total
         $total = $limit;
-        $idsCount = count($availableUserIds);
+        $idsCount = count($availableIds);
         if ($idsCount < $limit) {
             $total = $idsCount;
         }
 
         // get random ids
         $ids = array();
-        $randElements = array_rand($availableUserIds, $total);
+        $randElements = array_rand($availableIds, $total);
         if (is_array($randElements)) {
             foreach ($randElements as $randElement) {
-                array_push($ids, $availableUserIds[$randElement]);
+                array_push($ids, $availableIds[$randElement]);
             }
         } else {
-            array_push($ids, $availableUserIds[$randElements]);
+            array_push($ids, $availableIds[$randElements]);
         }
 
         if (empty($ids)) {
@@ -85,6 +98,7 @@ class CompanyRepository extends EntityRepository
      * @param float $longitude
      * @param int   $limit
      * @param int   $offset
+     * @param int   $range
      *
      * @return array
      */
@@ -92,7 +106,8 @@ class CompanyRepository extends EntityRepository
         $latitude,
         $longitude,
         $limit,
-        $offset
+        $offset,
+        $range = 50
     ) {
         // find nearby buildings
         $query = $this->getEntityManager()
@@ -112,7 +127,7 @@ class CompanyRepository extends EntityRepository
             )
             ->setParameter('latitude', $latitude)
             ->setParameter('longitude', $longitude)
-            ->setParameter('range', 100);
+            ->setParameter('range', $range);
 
         $buildingIds = $query->getResult();
 
@@ -123,9 +138,7 @@ class CompanyRepository extends EntityRepository
                   SELECT c,
                   field(c.buildingId, :buildingIds) as HIDDEN field
                   FROM SandboxApiBundle:Company\Company c
-
                   WHERE
-
                   c.buildingId IN (:buildingIds)
                   ORDER BY field
                 '

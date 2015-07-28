@@ -96,6 +96,8 @@ class RoomRepository extends EntityRepository
             $notFirst = true;
         }
 
+        $query->orderBy('r.creationDate', 'DESC');
+
         //set all parameters
         if ($notFirst) {
             $query->setParameters($parameters);

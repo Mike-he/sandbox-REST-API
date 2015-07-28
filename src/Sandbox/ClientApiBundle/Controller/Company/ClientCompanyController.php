@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Company;
 
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Company\CompanyController;
+use Sandbox\ApiBundle\Entity\Random\ClientRandomRecord;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Sandbox\ApiBundle\Entity\Company\CompanyMember;
 use Sandbox\ApiBundle\Form\Company\CompanyType;
@@ -118,10 +119,8 @@ class ClientCompanyController extends CompanyController
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
-        // set max limit
-        if ($limit > $globals['load_more_limit']) {
-            $limit = $globals['load_more_limit'];
-        }
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
 
         // get my profile
         $myProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
@@ -141,12 +140,13 @@ class ClientCompanyController extends CompanyController
         $myBuilding = $this->getRepo('Room\RoomBuilding')->findOneById($buildingId);
         $this->throwNotFoundIfNull($myBuilding, self::NOT_FOUND_MESSAGE);
 
-        // find nearby members
+        // find nearby companies
         $companies = $this->getRepo('Company\Company')->findNearbyCompanies(
             $myBuilding->getLat(),
             $myBuilding->getLng(),
             $limit,
-            $offset
+            $offset,
+            $globals['nearby_range_km']
         );
 
         // set view
@@ -191,9 +191,6 @@ class ClientCompanyController extends CompanyController
      *    description=""
      * )
      *
-     * @Route("/members/recommend")
-     * @Method({"GET"})
-     *
      * @return View
      */
     public function getCompaniesRecommendAction(
@@ -203,28 +200,62 @@ class ClientCompanyController extends CompanyController
         // TODO check user is VIP
 
         $userId = $this->getUserId();
+        $clientId = $this->getUser()->getClientId();
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
         $industryIds = $paramFetcher->get('industry_id');
 
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
 
-        // set max limit
-        if ($limit > $globals['load_more_limit']) {
-            $limit = $globals['load_more_limit'];
+        $em = $this->getDoctrine()->getManager();
+
+        // get user's retrieved company IDs if any
+        $myRecords = $this->getRepo('Random\ClientRandomRecord')
+            ->findBy(array(
+                'userId' => $userId,
+                'clientId' => $clientId,
+                'entityName' => 'company',
+            ));
+
+        $recordIds = array();
+
+        foreach ($myRecords as $myRecord) {
+            // if offset is not provided, means user is trying to reload the page
+            // then we should remove user's retrieval records
+            // otherwise, we should exclude these records for the next page
+            if (is_null($offset) || $offset <= 0) {
+                $em->remove($myRecord);
+            } else {
+                array_push($recordIds, $myRecord->getEntityId());
+            }
         }
 
-        // find random members
+        // find random companies
         $companies = $this->getRepo('Company\Company')->findRandomCompanies(
+            $recordIds,
             $industryIds,
             $limit
         );
         if (is_null($companies) || empty($companies)) {
             return new View(array());
         }
+
+        // save random records
+        foreach ($companies as $company) {
+            $companyId = $company->getId();
+
+            // add user's retrieval record
+            $randomRecord = new ClientRandomRecord();
+            $randomRecord->setUserId($userId);
+            $randomRecord->setClientId($clientId);
+            $randomRecord->setEntityId($companyId);
+            $randomRecord->setEntityName('company');
+            $em->persist($randomRecord);
+        }
+
+        $em->flush();
 
         // set view
         $view = new View($companies);
@@ -279,7 +310,10 @@ class ClientCompanyController extends CompanyController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        // find all members who have the query in any of their mapped fields
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
+
+        // find all companies who have the query in any of their mapped fields
         $finder = $this->container->get('fos_elastica.finder.search.company');
 
         $results = $finder->find($query);
