@@ -34,46 +34,48 @@ class ClientCompanyController extends CompanyController
     const ERROR_BUILDING_NOT_SET_CODE = 400001;
     const ERROR_BUILDING_NOT_SET_MESSAGE = 'Building is not set - 未设置办公楼';
 
-     /**
-      * Get companies.
-      *
-      * @param Request $request the request object
-      *
-      * @ApiDoc(
-      *   resource = true,
-      *   statusCodes = {
-      *     200 = "Returned when successful"
-      *   }
-      * )
-      *
-      * @Annotations\View()
-      *
-      * @return View
-      */
-     public function getCompaniesAction(
+    /**
+     * Get companies.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Annotations\View()
+     *
+     * @return View
+     */
+    public function getCompaniesAction(
         Request $request
     ) {
-         $userId = $this->getUserId();
+        $userId = $this->getUserId();
 
         //get companies
         $member = $this->getRepo('Company\CompanyMember')
                        ->findOneByUserId($userId);
-         if (is_null($member)) {
-             return new View(array());
-         }
+        if (is_null($member)) {
+            return new View(array());
+        }
 
-         $company = $member->getCompany();
+        $company = $member->getCompany();
 
         //set company all info
         $this->setCompanyAllInfo($company);
 
+        $company = array($company);
+
         //set view
         $view = new View($company);
-         $view->setSerializationContext(SerializationContext::create()
+        $view->setSerializationContext(SerializationContext::create()
              ->setGroups(array('company_info')));
 
-         return $view;
-     }
+        return $view;
+    }
 
     /**
      * Get nearby companies.
@@ -455,7 +457,6 @@ class ClientCompanyController extends CompanyController
     public function setCompanyAllInfo(
         $company
     ) {
-
         // set company industries
         $industries = $this->getRepo('Company\CompanyIndustryMap')
             ->findByCompany($company);

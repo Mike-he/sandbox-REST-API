@@ -30,7 +30,7 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "company_info"})
+     * @Serializer\Groups({"main", "login"})
      */
     private $id;
 
@@ -38,7 +38,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="xmppUsername", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "login", "company_info"})
+     * @Serializer\Groups({"main", "login"})
      */
     private $xmppUsername;
 
