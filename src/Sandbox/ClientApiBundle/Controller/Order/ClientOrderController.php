@@ -82,6 +82,24 @@ class ClientOrderController extends PaymentController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
+        $myOrders = $this->getRepo('Order\ProductOrder')->findBy(
+            [
+                'userId' => $userId,
+                'status' => 'paid',
+            ]
+        );
+
+        foreach ($myOrders as $myOrder) {
+            $now = new \DateTime();
+            $start = $myOrder->getStartDate();
+            if ($now >= $start) {
+                $myOrder->setStatus('completed');
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($myOrder);
+                $em->flush();
+            }
+        }
+
         if (!is_null($status)) {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
                 [
@@ -100,6 +118,7 @@ class ClientOrderController extends PaymentController
                 $offset
             );
         }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($orders);
@@ -132,6 +151,8 @@ class ClientOrderController extends PaymentController
                 self::INVALID_FORM_MESSAGE
             );
         }
+
+        //check if product exists
         $productId = $order->getProductId();
         $product = $this->getRepo('Product\Product')->find($productId);
         if (is_null($product)) {
@@ -141,43 +162,70 @@ class ClientOrderController extends PaymentController
                 self::PRODUCT_NOT_FOUND_MESSAGE
             );
         }
-
-        $period = $form['rent_period']->getData();
-        $timeUnit = $form['time_unit']->getData();
-        $datePeriod = $period;
-        if ($timeUnit === 'hour') {
-            $datePeriod = $period * 60;
-            $timeUnit = 'min';
-        }
-
-        $startDate = new \DateTime($order->getStartDate());
-        $endDate = clone $startDate;
-        $endDate->modify('+'.$datePeriod.$timeUnit);
-
-        $basePrice = $product->getBasePrice();
-
-        $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
-            $productId,
-            $startDate,
-            $endDate
-        );
-
-        if (!empty($checkOrder) && !is_null($checkOrder)) {
-            return $this->customErrorView(
-                400,
-                self::ORDER_CONFLICT_CODE,
-                self::ORDER_CONFLICT_MESSAGE
+        $now = new \DateTime();
+        $type = $product->getRoom()->getType();
+        if ($type === 'office' && $order->getIsRenew()) {
+            $myEnd = $now->modify('+ 7 days');
+            $myOrder = $this->getRepo('Order\ProductOrder')->getRenewOrder(
+                $userId,
+                $productId,
+                $myEnd
             );
-        }
+            if (empty($myOrder)) {
+                return $this->customErrorView(
+                    400,
+                    self::CAN_NOT_RENEW_CODE,
+                    self::CAN_NOT_RENEW_MESSAGE
+                );
+            }
+            $startDate = $myOrder[0]->getEndDate();
+            $endDate = clone $startDate;
+            $endDate->modify('+ 1 month');
+        } else {
+            $startDate = new \DateTime($order->getStartDate());
+            $diff = $startDate->diff($now)->days;
+            if ($diff > 7) {
+                return $this->customErrorView(
+                    400,
+                    self::NOT_WITHIN_DATE_RANGE_CODE,
+                    self::NOT_WITHIN_DATE_RANGE_MESSAGE
+                );
+            }
+            $period = $form['rent_period']->getData();
+            $timeUnit = $form['time_unit']->getData();
+            $datePeriod = $period;
+            if ($timeUnit === 'hour') {
+                $datePeriod = $period * 60;
+                $timeUnit = 'min';
+            }
 
-        $calculatedPrice = $basePrice * $period;
+            $endDate = clone $startDate;
+            $endDate->modify('+'.$datePeriod.$timeUnit);
+            $basePrice = $product->getBasePrice();
 
-        if ($order->getPrice() != $calculatedPrice) {
-            return $this->customErrorView(
-                400,
-                self::PRICE_MISMATCH_CODE,
-                self::PRICE_MISMATCH_MESSAGE
+            $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
+                $productId,
+                $startDate,
+                $endDate
             );
+
+            if (!empty($checkOrder) && !is_null($checkOrder)) {
+                return $this->customErrorView(
+                    400,
+                    self::ORDER_CONFLICT_CODE,
+                    self::ORDER_CONFLICT_MESSAGE
+                );
+            }
+
+            $calculatedPrice = $basePrice * $period;
+
+            if ($order->getPrice() != $calculatedPrice) {
+                return $this->customErrorView(
+                    400,
+                    self::PRICE_MISMATCH_CODE,
+                    self::PRICE_MISMATCH_MESSAGE
+                );
+            }
         }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
@@ -259,30 +307,39 @@ class ClientOrderController extends PaymentController
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-        $this->get('door_service')->setTimePeriod($order);
+        $myDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
+            $order->getUserId(),
+            $buildingId,
+            $roomId
+        );
 
         foreach ($roomDoors as $roomDoor) {
-            $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
-                [
-                    'userId' => $order->getUserId(),
-                    'timeId' => $order->getId(),
-                    'buildingId' => $buildingId,
-                    'doorId' => $roomDoor->getDoorControlId(),
-                ]
-            );
-            if (is_null($doorAccess)) {
-                $access = new DoorAccess();
-                $access->setBuildingId($buildingId);
-                $access->setDoorId($roomDoor->getDoorControlId());
-                $access->setUserId($order->getUserId());
-                $access->setTimeId($order->getId());
-                $access->setEndDate($order->getEndDate());
-
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($access);
-                $em->flush();
+            $access = new DoorAccess();
+            $access->setBuildingId($buildingId);
+            $access->setDoorId($roomDoor->getDoorControlId());
+            $access->setUserId($order->getUserId());
+            $access->setRoomId($roomId);
+            $access->setOrderId($order->getId());
+            $access->setStartDate($order->getStartDate());
+            $access->setEndDate($order->getEndDate());
+            if (empty($myDoors)) {
+                $timeId = $order->getId();
+            } else {
+                $timeId = $myDoors[0]->getTimeId();
             }
+            $access->setTimeId($timeId);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($access);
+            $em->flush();
         }
+
+        $updatedDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
+            $order->getUserId(),
+            $buildingId,
+            $roomId
+        );
+        $this->get('door_service')->setTimePeriod($updatedDoors);
 
         //TODO: $cardNo = $this->getCardNoIfUserAuthorized($auth);
         $cardNo = '9391756';
@@ -487,7 +544,7 @@ class ClientOrderController extends PaymentController
             $controls = $this->getRepo('Door\DoorAccess')->findBy(
                 [
                     'userId' => $user,
-                    'timeId' => $order->getId(),
+                    'orderId' => $order->getId(),
                 ]
             );
             foreach ($controls as $control) {
@@ -596,17 +653,24 @@ class ClientOrderController extends PaymentController
                 $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
                     [
                         'userId' => $user['user_id'],
-                        'timeId' => $order->getId(),
+                        'orderId' => $order->getId(),
                         'buildingId' => $buildingId,
                         'doorId' => $roomDoor->getDoorControlId(),
                     ]
                 );
                 if (is_null($doorAccess)) {
+                    $doorOfOrder = $this->getRepo('Door\DoorAccess')->findOneBy(
+                        ['orderId' => $order->getId()]
+                    );
+
                     $access = new DoorAccess();
                     $access->setBuildingId($buildingId);
                     $access->setDoorId($roomDoor->getDoorControlId());
                     $access->setUserId($user['user_id']);
-                    $access->setTimeId($order->getId());
+                    $access->setTimeId($doorOfOrder->getTimeId());
+                    $access->setRoomId($roomId);
+                    $access->setOrderId($order->getId());
+                    $access->setStartDate($order->getStartDate());
                     $access->setEndDate($order->getEndDate());
 
                     $em = $this->getDoctrine()->getManager();
@@ -720,7 +784,7 @@ class ClientOrderController extends PaymentController
             $controls = $this->getRepo('Door\DoorAccess')->findBy(
                 [
                     'userId' => $userId,
-                    'timeId' => $order->getId(),
+                    'orderId' => $order->getId(),
                 ]
             );
 
@@ -856,17 +920,24 @@ class ClientOrderController extends PaymentController
             $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
                 [
                     'userId' => $user,
-                    'timeId' => $order->getId(),
+                    'orderId' => $order->getId(),
                     'buildingId' => $buildingId,
                     'doorId' => $roomDoor->getDoorControlId(),
                 ]
             );
             if (is_null($doorAccess)) {
+                $doorOfOrder = $this->getRepo('Door\DoorAccess')->findOneBy(
+                    ['orderId' => $order->getId()]
+                );
+
                 $access = new DoorAccess();
                 $access->setBuildingId($buildingId);
                 $access->setDoorId($roomDoor->getDoorControlId());
                 $access->setUserId($user);
-                $access->setTimeId($order->getId());
+                $access->setTimeId($doorOfOrder->getTimeId());
+                $access->setRoomId($roomId);
+                $access->setOrderId($order->getId());
+                $access->setStartDate($order->getStartDate());
                 $access->setEndDate($order->getEndDate());
 
                 $em = $this->getDoctrine()->getManager();
@@ -878,7 +949,7 @@ class ClientOrderController extends PaymentController
         $controls = $this->getRepo('Door\DoorAccess')->findBy(
             [
                 'userId' => $order->getUserId(),
-                'timeId' => $order->getId(),
+                'orderId' => $order->getId(),
             ]
         );
 
@@ -976,6 +1047,14 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_CODE,
                 self::ORDER_NOT_FOUND_MESSAGE
             );
+        }
+        $now = new \DateTime();
+        $start = $order->getStartDate();
+        if ($now >= $start && $order->getStatus() === 'paid') {
+            $order->setStatus('completed');
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($order);
+            $em->flush();
         }
 
         $view = new View();

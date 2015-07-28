@@ -36,6 +36,13 @@ class DoorAccess
     private $buildingId;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="roomId", type="integer")
+     */
+    private $roomId;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="doorId", type="string", length=64)
@@ -48,6 +55,20 @@ class DoorAccess
      * @ORM\Column(name="timeId", type="integer")
      */
     private $timeId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="orderId", type="integer")
+     */
+    private $orderId;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="startDate", type="datetime")
+     */
+    private $startDate;
 
     /**
      * @var \DateTime
@@ -122,6 +143,30 @@ class DoorAccess
     }
 
     /**
+     * Set roomId.
+     *
+     * @param int $roomId
+     *
+     * @return DoorAccess
+     */
+    public function setRoomId($roomId)
+    {
+        $this->roomId = $roomId;
+
+        return $this;
+    }
+
+    /**
+     * Get roomId.
+     *
+     * @return int
+     */
+    public function getRoomId()
+    {
+        return $this->roomId;
+    }
+
+    /**
      * Set doorId.
      *
      * @param string $doorId
@@ -146,6 +191,30 @@ class DoorAccess
     }
 
     /**
+     * Set orderId.
+     *
+     * @param int $orderId
+     *
+     * @return DoorAccess
+     */
+    public function setOrderId($orderId)
+    {
+        $this->orderId = $orderId;
+
+        return $this;
+    }
+
+    /**
+     * Get orderId.
+     *
+     * @return int
+     */
+    public function getOrderId()
+    {
+        return $this->orderId;
+    }
+
+    /**
      * Set timeId.
      *
      * @param int $timeId
@@ -167,6 +236,30 @@ class DoorAccess
     public function getTimeId()
     {
         return $this->timeId;
+    }
+
+    /**
+     * Set startDate.
+     *
+     * @param \DateTime $startDate
+     *
+     * @return DoorAccess
+     */
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    /**
+     * Get startDate.
+     *
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
     }
 
     /**

@@ -9,6 +9,29 @@ use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {
+    public function getRenewOrder(
+        $userId,
+        $productId,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.userId = :userId')
+            ->andWhere('o.status = \'completed\'')
+            ->andWhere('o.productId = :productId')
+            ->andWhere('o.endDate > :endDate')
+            ->setParameter('productId', $productId)
+            ->setParameter('userId', $userId)
+            ->setParameter('endDate', $endDate)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return array
+     */
     public function getOrdersByUser(
         $userId
     ) {
