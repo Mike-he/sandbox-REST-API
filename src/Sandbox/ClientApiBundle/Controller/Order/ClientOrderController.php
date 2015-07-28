@@ -489,7 +489,8 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
-        if ($order->getStatus() !== 'paid') {
+        $now = new \DateTime();
+        if ($order->getStatus() !== 'paid' || $order->getStartDate() <= $now) {
             return $this->customErrorView(
                 400,
                 self::WRONG_PAYMENT_STATUS_CODE,
@@ -615,11 +616,11 @@ class ClientOrderController extends PaymentController
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' || $now > $endDate) {
+        if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
             return $this->customErrorView(
                 400,
-                self::WRONG_PAYMENT_STATUS_CODE,
-                self::WRONG_PAYMENT_STATUS_MESSAGE
+                self::WRONG_ORDER_STATUS_CODE,
+                self::WRONG_ORDER_STATUS_MESSAGE
             );
         }
         $users = json_decode($request->getContent(), true);
@@ -744,11 +745,11 @@ class ClientOrderController extends PaymentController
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' && $now > $endDate) {
+        if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
             return $this->customErrorView(
                 400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
+                self::WRONG_ORDER_STATUS_CODE,
+                self::WRONG_ORDER_STATUS_MESSAGE
             );
         }
         $userIds = $paramFetcher->get('id');
@@ -889,11 +890,11 @@ class ClientOrderController extends PaymentController
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' || $now > $endDate) {
+        if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
             return $this->customErrorView(
                 400,
-                self::WRONG_PAYMENT_STATUS_CODE,
-                self::WRONG_PAYMENT_STATUS_MESSAGE
+                self::WRONG_ORDER_STATUS_CODE,
+                self::WRONG_ORDER_STATUS_MESSAGE
             );
         }
         $user = $request->get('user_id');
