@@ -7,20 +7,33 @@ use Doctrine\ORM\EntityRepository;
 class CompanyRepository extends EntityRepository
 {
     /**
-     * @param int $limit
+     * @param array $industryIds
+     * @param int   $limit
      *
      * @return array
      */
     public function findRandomCompanies(
+        $industryIds,
         $limit
     ) {
-        // get company ids
-        $query = $this->getEntityManager()
-            ->createQuery(
+
+        // get company ids filter by industry if any
+        $query = 'SELECT c.id FROM SandboxApiBundle:Company\Company c';
+
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $query = $query.
                 '
-                  SELECT c.id FROM SandboxApiBundle:Company\Company c
-                '
-            );
+                    JOIN SandboxApiBundle:Company\CompanyIndustryMap cip
+                    WITH c.id = cip.companyId
+                    WHERE cip.industryId IN (:industryIds)
+                ';
+        }
+
+        $query = $this->getEntityManager()->createQuery($query);
+
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $query->setParameter('industryIds', $industryIds);
+        }
 
         $availableUserIds = $query->getScalarResult();
         if (empty($availableUserIds)) {

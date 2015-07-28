@@ -178,6 +178,13 @@ class ClientCompanyController extends CompanyController
      *    description="Offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="industry_id",
+     *    array=true,
+     *    strict=true,
+     *    description=""
+     * )
+     *
      * @Route("/members/recommend")
      * @Method({"GET"})
      *
@@ -193,6 +200,7 @@ class ClientCompanyController extends CompanyController
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $industryIds = $paramFetcher->get('industry_id');
 
         // get globals
         $twig = $this->container->get('twig');
@@ -205,6 +213,7 @@ class ClientCompanyController extends CompanyController
 
         // find random members
         $companies = $this->getRepo('Company\Company')->findRandomCompanies(
+            $industryIds,
             $limit
         );
         if (is_null($companies) || empty($companies)) {
