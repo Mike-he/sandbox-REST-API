@@ -177,4 +177,24 @@ class OrderRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * Get list of orders for admin.
+     *
+     * @return array
+     */
+    public function getOrdersToExport()
+    {
+        $query = $this->createQueryBuilder('o')
+            ->select("
+                    CONCAT(r.number, ', ', r.name) as product_name,
+                    r.type,
+                    p.unitPrice,
+                    o.price
+                ")
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+
+        return $query->getQuery()->getArrayResult();
+    }
 }
