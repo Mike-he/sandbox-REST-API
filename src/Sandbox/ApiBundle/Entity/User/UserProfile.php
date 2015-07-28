@@ -40,7 +40,8 @@ class UserProfile
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "admin_order",
-     *      "feed"
+     *      "feed",
+     *      "company_member_basic"
      *  }
      * )
      */
@@ -60,7 +61,8 @@ class UserProfile
      *      "buddy",
      *      "member",
      *      "admin_order",
-     *      "feed"
+     *      "feed",
+     *      "company_member_basic"
      *  }
      * )
      */
@@ -80,7 +82,8 @@ class UserProfile
      *      "buddy",
      *      "member",
      *      "admin_order",
-     *      "feed"
+     *      "feed",
+     *      "company_member_basic"
      *  }
      * )
      */
