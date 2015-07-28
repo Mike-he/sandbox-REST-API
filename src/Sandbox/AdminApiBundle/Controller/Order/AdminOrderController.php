@@ -12,6 +12,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * Admin order controller.
@@ -158,6 +159,67 @@ class AdminOrderController extends OrderController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * Export orders to excel.
+     *
+     * @param Request $request
+     *
+     * @Route("/orders/export")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getExcelOrders(
+        Request $request
+    ) {
+        //TODO: not finished, just for test
+
+        $phpExcelObject = new \PHPExcel();
+
+        $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
+
+        //get array of orders
+        $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport();
+
+        $headers = [
+            'Product name',
+            'Product type',
+            'Unit price',
+            'Price',
+        ];
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($orders, ' ', 'A2');
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('o'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('Orders');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'orders.xls'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
     }
 
     /**
