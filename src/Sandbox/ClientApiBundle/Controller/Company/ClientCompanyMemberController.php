@@ -50,7 +50,7 @@ class ClientCompanyMemberController extends CompanyMemberController
 
         $view = new View($members);
 
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('profile_basic')));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('company_member_basic')));
 
         return $view;
     }
