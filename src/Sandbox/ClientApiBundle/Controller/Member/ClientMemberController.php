@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Member;
 
 use Sandbox\ApiBundle\Controller\Member\MemberController;
-use Sandbox\ApiBundle\Entity\Member\ClientMemberRecommendRandomRecord;
+use Sandbox\ApiBundle\Entity\Random\ClientRandomRecord;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Symfony\Component\HttpFoundation\Request;
@@ -76,25 +76,20 @@ class ClientMemberController extends MemberController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        // set max limit
-        if ($limit > $globals['load_more_limit']) {
-            $limit = $globals['load_more_limit'];
-        }
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
 
         $em = $this->getDoctrine()->getManager();
 
         // get user's retrieved member IDs if any
-        $myRecords = $this->getRepo('Member\ClientMemberRecommendRandomRecord')
+        $myRecords = $this->getRepo('Random\ClientRandomRecord')
             ->findBy(array(
                 'userId' => $userId,
                 'clientId' => $clientId,
+                'entityName' => 'member',
             ));
 
-        $recordMemberIds = array();
+        $recordIds = array();
 
         foreach ($myRecords as $myRecord) {
             // if offset is not provided, means user is trying to reload the page
@@ -103,13 +98,13 @@ class ClientMemberController extends MemberController
             if (is_null($offset) || $offset <= 0) {
                 $em->remove($myRecord);
             } else {
-                array_push($recordMemberIds, $myRecord->getMemberId());
+                array_push($recordIds, $myRecord->getEntityId());
             }
         }
 
         // find random members
         $users = $this->getRepo('User\User')->findRandomMembers(
-            $recordMemberIds,
+            $recordIds,
             $limit
         );
         if (is_null($users) || empty($users)) {
@@ -123,10 +118,11 @@ class ClientMemberController extends MemberController
             $memberId = $user->getId();
 
             // add user's retrieval record
-            $randomRecord = new ClientMemberRecommendRandomRecord();
+            $randomRecord = new ClientRandomRecord();
             $randomRecord->setUserId($userId);
             $randomRecord->setClientId($clientId);
-            $randomRecord->setMemberId($memberId);
+            $randomRecord->setEntityId($memberId);
+            $randomRecord->setEntityName('member');
             $em->persist($randomRecord);
 
             // set profile
@@ -205,10 +201,8 @@ class ClientMemberController extends MemberController
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
-        // set max limit
-        if ($limit > $globals['load_more_limit']) {
-            $limit = $globals['load_more_limit'];
-        }
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
 
         // get my profile
         $myProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
@@ -238,7 +232,8 @@ class ClientMemberController extends MemberController
             $myBuilding->getLat(),
             $myBuilding->getLng(),
             $limit,
-            $offset
+            $offset,
+            $globals['nearby_range_km']
         );
         if (is_null($users) || empty($users)) {
             return new View(array());
@@ -331,14 +326,8 @@ class ClientMemberController extends MemberController
         $offset = $paramFetcher->get('offset');
         $lastId = $paramFetcher->get('last_id');
 
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        // set max limit
-        if ($limit > $globals['load_more_limit']) {
-            $limit = $globals['load_more_limit'];
-        }
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
 
         // find my visitors
         $visitors = $this->getRepo('User\UserProfileVisitor')->findAllMyVisitors(
@@ -431,6 +420,9 @@ class ClientMemberController extends MemberController
         $query = $paramFetcher->get('query');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
 
         // find all members who have the query in any of their mapped fields
         $finder = $this->container->get('fos_elastica.finder.search.member');

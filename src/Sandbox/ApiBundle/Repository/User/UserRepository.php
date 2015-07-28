@@ -7,52 +7,51 @@ use Doctrine\ORM\EntityRepository;
 class UserRepository extends EntityRepository
 {
     /**
-     * @param array $recordMemberIds
+     * @param array $recordIds
      * @param int   $limit
      *
      * @return array
      */
     public function findRandomMembers(
-        $recordMemberIds,
+        $recordIds,
         $limit
     ) {
         $queryStr = 'SELECT u.id FROM SandboxApiBundle:User\User u
                     WHERE u.banned = FALSE';
 
-        if (!is_null($recordMemberIds) && !empty($recordMemberIds)) {
+        if (!is_null($recordIds) && !empty($recordIds)) {
             $queryStr = $queryStr.' AND u.id NOT IN (:ids)';
         }
 
         // get available user ids
-        $query = $this->getEntityManager()
-            ->createQuery($queryStr);
+        $query = $this->getEntityManager()->createQuery($queryStr);
 
-        if (!is_null($recordMemberIds) && !empty($recordMemberIds)) {
-            $query->setParameter('ids', $recordMemberIds);
+        if (!is_null($recordIds) && !empty($recordIds)) {
+            $query->setParameter('ids', $recordIds);
         }
 
-        $availableUserIds = $query->getScalarResult();
-        if (empty($availableUserIds)) {
+        $availableIds = $query->getScalarResult();
+        if (empty($availableIds)) {
             // nothing is found
             return array();
         }
 
         // set total
         $total = $limit;
-        $idsCount = count($availableUserIds);
+        $idsCount = count($availableIds);
         if ($idsCount < $limit) {
             $total = $idsCount;
         }
 
         // get random ids
         $ids = array();
-        $randElements = array_rand($availableUserIds, $total);
+        $randElements = array_rand($availableIds, $total);
         if (is_array($randElements)) {
             foreach ($randElements as $randElement) {
-                array_push($ids, $availableUserIds[$randElement]);
+                array_push($ids, $availableIds[$randElement]);
             }
         } else {
-            array_push($ids, $availableUserIds[$randElements]);
+            array_push($ids, $availableIds[$randElements]);
         }
 
         if (empty($ids)) {
@@ -82,6 +81,7 @@ class UserRepository extends EntityRepository
      * @param float $longitude
      * @param int   $limit
      * @param int   $offset
+     * @param int   $range
      *
      * @return array
      */
@@ -90,7 +90,8 @@ class UserRepository extends EntityRepository
         $latitude,
         $longitude,
         $limit,
-        $offset
+        $offset,
+        $range = 50
     ) {
         // find nearby buildings
         $query = $this->getEntityManager()
@@ -110,7 +111,7 @@ class UserRepository extends EntityRepository
             )
             ->setParameter('latitude', $latitude)
             ->setParameter('longitude', $longitude)
-            ->setParameter('range', 100);
+            ->setParameter('range', $range);
 
         $buildingIds = $query->getResult();
 

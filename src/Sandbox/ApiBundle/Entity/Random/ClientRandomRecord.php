@@ -1,21 +1,21 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Member;
+namespace Sandbox\ApiBundle\Entity\Random;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Client Member Recommend Random Record.
+ * Client Random Record.
  *
- * @ORM\Table(name="ClientMemberRecommendRandomRecord")
+ * @ORM\Table(name="ClientRandomRecord")
  * @ORM\Entity
  */
-class ClientMemberRecommendRandomRecord
+class ClientRandomRecord
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer",  nullable=false)
+     * @ORM\Column(name="id", type="bigint", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
@@ -24,23 +24,30 @@ class ClientMemberRecommendRandomRecord
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer",  nullable=true)
+     * @ORM\Column(name="userId", type="integer", nullable=true)
      */
     private $userId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="clientId", type="integer",  nullable=true)
+     * @ORM\Column(name="clientId", type="integer", nullable=true)
      */
     private $clientId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="memberId", type="integer",  nullable=true)
+     * @ORM\Column(name="entityId", type="integer", nullable=true)
      */
-    private $memberId;
+    private $entityId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="entityName", type="string", length=16, nullable=true)
+     */
+    private $entityName;
 
     /**
      * @return int
@@ -65,7 +72,7 @@ class ClientMemberRecommendRandomRecord
      *
      * @param int $userId
      *
-     * @return ClientMemberRecommendRandomRecord
+     * @return ClientRandomRecord
      */
     public function setUserId($userId)
     {
@@ -87,7 +94,7 @@ class ClientMemberRecommendRandomRecord
      *
      * @param int $clientId
      *
-     * @return ClientMemberRecommendRandomRecord
+     * @return ClientRandomRecord
      */
     public function setClientId($clientId)
     {
@@ -95,24 +102,34 @@ class ClientMemberRecommendRandomRecord
     }
 
     /**
-     * Get memberId.
-     *
      * @return int
      */
-    public function getMemberId()
+    public function getEntityId()
     {
-        return $this->memberId;
+        return $this->entityId;
     }
 
     /**
-     * Set memberId.
-     *
-     * @param int $memberId
-     *
-     * @return ClientMemberRecommendRandomRecord
+     * @param int $entityId
      */
-    public function setMemberId($memberId)
+    public function setEntityId($entityId)
     {
-        $this->memberId = $memberId;
+        $this->entityId = $entityId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntityName()
+    {
+        return $this->entityName;
+    }
+
+    /**
+     * @param string $entityName
+     */
+    public function setEntityName($entityName)
+    {
+        $this->entityName = $entityName;
     }
 }
