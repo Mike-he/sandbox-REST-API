@@ -137,4 +137,48 @@ class FeedRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * Get list of feeds of people in my company.
+     *
+     * @param int $limit
+     * @param int $lastId
+     * @param int $companyId
+     *
+     * @return array
+     */
+    public function getFeedsByColleagues(
+        $limit,
+        $lastId,
+        $companyId
+    ) {
+        $parameters = [];
+
+        $query = $this->createQueryBuilder('f')
+            ->select('
+                f
+            ')
+            ->leftJoin('SandboxApiBundle:Company\CompanyMember', 'cm', 'WITH', 'cm.userId = f.ownerId');
+
+        // filter by my company
+        $query->where('cm.companyId = :companyId');
+        $parameters['companyId'] = $companyId;
+
+        // last id
+        if (!is_null($lastId)) {
+            $query->andWhere('f.id < :lastId');
+            $parameters['lastId'] = $lastId;
+        }
+
+        $query->orderBy('f.creationDate', 'DESC');
+
+        $query->setMaxResults($limit);
+
+        //set all parameters
+        $query->setParameters($parameters);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
