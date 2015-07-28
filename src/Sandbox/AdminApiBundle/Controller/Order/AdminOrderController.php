@@ -162,6 +162,8 @@ class AdminOrderController extends OrderController
     public function getExcelOrders(
         Request $request
     ) {
+        //TODO: not finished, just for test
+
         $phpExcelObject = new \PHPExcel();
 
         $phpExcelObject->getProperties()->setTitle("Sandbox Orders");
@@ -169,7 +171,15 @@ class AdminOrderController extends OrderController
         //get array of orders
         $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport();
 
+        $headers = [
+            'Product name',
+            'Product type',
+            'Unit price',
+            'Price'
+        ];
+
         //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($orders, ' ', 'A2');
 
         //set column dimension
@@ -188,7 +198,7 @@ class AdminOrderController extends OrderController
         // adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'stream-file.xls'
+            'orders.xls'
         );
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
