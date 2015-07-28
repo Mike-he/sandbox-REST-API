@@ -31,6 +31,13 @@ class ClientMemberRecommendRandomRecord
     /**
      * @var int
      *
+     * @ORM\Column(name="clientId", type="integer",  nullable=true)
+     */
+    private $clientId;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="memberId", type="integer",  nullable=true)
      */
     private $memberId;
@@ -63,6 +70,28 @@ class ClientMemberRecommendRandomRecord
     public function setUserId($userId)
     {
         $this->userId = $userId;
+    }
+
+    /**
+     * Get clientId.
+     *
+     * @return int
+     */
+    public function getClientId()
+    {
+        return $this->clientId;
+    }
+
+    /**
+     * Set clientId.
+     *
+     * @param int $clientId
+     *
+     * @return ClientMemberRecommendRandomRecord
+     */
+    public function setClientId($clientId)
+    {
+        $this->clientId = $clientId;
     }
 
     /**

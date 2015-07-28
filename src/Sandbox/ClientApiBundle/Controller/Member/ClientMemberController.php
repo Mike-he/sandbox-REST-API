@@ -71,6 +71,7 @@ class ClientMemberController extends MemberController
         }
 
         $userId = $this->getUserId();
+        $clientId = $this->getUser()->getClientId();
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -88,7 +89,10 @@ class ClientMemberController extends MemberController
 
         // get user's retrieved member IDs if any
         $myRecords = $this->getRepo('Member\ClientMemberRecommendRandomRecord')
-            ->findByUserId($userId);
+            ->findBy(array(
+                'userId' => $userId,
+                'clientId' => $clientId,
+            ));
 
         $recordMemberIds = array();
 
@@ -121,6 +125,7 @@ class ClientMemberController extends MemberController
             // add user's retrieval record
             $randomRecord = new ClientMemberRecommendRandomRecord();
             $randomRecord->setUserId($userId);
+            $randomRecord->setClientId($clientId);
             $randomRecord->setMemberId($memberId);
             $em->persist($randomRecord);
 
