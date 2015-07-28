@@ -49,7 +49,7 @@ class CompanyIndustryMap
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="industryId", referencedColumnName="id")
      * })
-     * @Serializer\Groups({"main", "company_industry"})
+     * @Serializer\Groups({"main", "company_info", "company_industry"})
      */
     private $industry;
 

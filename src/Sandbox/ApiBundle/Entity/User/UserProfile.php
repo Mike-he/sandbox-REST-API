@@ -62,7 +62,8 @@ class UserProfile
      *      "member",
      *      "admin_order",
      *      "feed",
-     *      "company_member_basic"
+     *      "company_member_basic",
+     *      "company_info"
      *  }
      * )
      */
@@ -83,7 +84,8 @@ class UserProfile
      *      "member",
      *      "admin_order",
      *      "feed",
-     *      "company_member_basic"
+     *      "company_member_basic",
+     *      "company_info"
      *  }
      * )
      */

@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Company\CompanyMember;
 use Sandbox\ApiBundle\Form\Company\CompanyType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
+use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -54,19 +55,22 @@ class ClientCompanyController extends CompanyController
     ) {
          $userId = $this->getUserId();
 
-         //get companies
-         $member = $this->getRepo('Company\CompanyMember')
-                        ->findOneByUserId($userId);
-
+        //get companies
+        $member = $this->getRepo('Company\CompanyMember')
+                       ->findOneByUserId($userId);
          if (is_null($member)) {
              return new View(array());
          }
-         $companies = array($member->getCompany());
 
-         //set view
-         $view = new View($companies);
+         $company = $member->getCompany();
+
+        //set company all info
+        $this->setCompanyAllInfo($company);
+
+        //set view
+        $view = new View($company);
          $view->setSerializationContext(SerializationContext::create()
-             ->setGroups(array('company_basic')));
+             ->setGroups(array('company_info')));
 
          return $view;
      }
@@ -293,7 +297,35 @@ class ClientCompanyController extends CompanyController
     }
 
     /**
-     * Get a given company.
+     * Get a given company all info.
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Get("/companies/{id}/all")
+     *
+     * @return View
+     */
+    public function getCompanyAllAction(
+        Request $request,
+        $id
+    ) {
+        //get a company
+        $company = $this->getRepo('Company\Company')->findOneById($id);
+
+        //set company all info
+        $this->setCompanyAllInfo($company);
+
+        //set view
+        $view = new View($company);
+        $view->setSerializationContext(SerializationContext::create()
+             ->setGroups(array('company_info')));
+
+        return   $view;
+    }
+
+    /**
+     * get a given company basic info.
      *
      * @param Request $request
      * @param $id
@@ -305,12 +337,12 @@ class ClientCompanyController extends CompanyController
         $id
     ) {
         //get a company
-        $company = $this->getRepo('Company\Company')->findById($id);
+        $company = $this->getRepo('Company\Company')->findOneById($id);
 
         //set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
-             ->setGroups(array('company_info')));
+            ->setGroups(array('company_info')));
 
         return   $view;
     }
@@ -411,5 +443,44 @@ class ClientCompanyController extends CompanyController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * set company all info.
+     *
+     * @param $company
+     *
+     * return $this
+     */
+    public function setCompanyAllInfo(
+        $company
+    ) {
+
+        // set company industries
+        $industries = $this->getRepo('Company\CompanyIndustryMap')
+            ->findByCompany($company);
+        if (!is_null($industries) && !empty($industries)) {
+            $company->setIndustries($industries);
+        }
+
+        // set company portfolios
+        $portfolios = $this->getRepo('Company\CompanyPortfolio')
+            ->findByCompany($company);
+        if (!is_null($portfolios) && !empty($portfolios)) {
+            $company->setPortfolios($portfolios);
+        }
+
+        // set company members
+        $members = $this->getRepo('Company\CompanyMember')
+            ->findByCompany($company);
+
+        foreach ($members as &$member) {
+            $profile = $this->getRepo('User\UserProfile')
+                ->findOneByUserId($member->getUserId());
+            $member->setProfile($profile);
+        }
+        if (!is_null($members) && !empty($members)) {
+            $company->setMembers($members);
+        }
     }
 }
