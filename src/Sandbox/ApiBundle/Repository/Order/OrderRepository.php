@@ -170,6 +170,8 @@ class OrderRepository extends EntityRepository
             $parameters['endDate'] = $endDate;
         }
 
+        $query->orderBy('o.creationDate', 'DESC');
+
         //set all parameters
         $query->setParameters($parameters);
 
@@ -194,6 +196,8 @@ class OrderRepository extends EntityRepository
                 ")
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+
+        $query->orderBy('o.creationDate', 'DESC');
 
         return $query->getQuery()->getArrayResult();
     }
