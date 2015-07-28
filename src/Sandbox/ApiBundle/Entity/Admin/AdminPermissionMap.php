@@ -60,6 +60,14 @@ class AdminPermissionMap
     private $permission;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="opLevel", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     */
+    private $opLevel;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Admin")
      * @ORM\JoinColumn(name="adminId", referencedColumnName="id", onDelete="CASCADE")
      **/
@@ -169,6 +177,30 @@ class AdminPermissionMap
     public function getPermission()
     {
         return $this->permission;
+    }
+
+    /**
+     * Set opLevel.
+     *
+     * @param int $opLevel
+     *
+     * @return AdminPermissionMap
+     */
+    public function setOpLevel($opLevel)
+    {
+        $this->opLevel = $opLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get opLevel.
+     *
+     * @return int
+     */
+    public function getOpLevel()
+    {
+        return $this->opLevel;
     }
 
     /**

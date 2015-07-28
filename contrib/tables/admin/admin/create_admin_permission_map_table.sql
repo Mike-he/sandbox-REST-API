@@ -2,6 +2,7 @@ CREATE TABLE `AdminPermissionMap` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `adminId` int(11) NOT NULL,
   `permissionId` int(11) NOT NULL,
+  `opLevel` tinyint(4) NOT NULL,
   `creationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `adminId_permissionId_UNIQUE` (`adminId`,`permissionId`),

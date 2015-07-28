@@ -431,7 +431,8 @@ class AdminAdminsController extends SandboxRestController
         if (!is_null($permissionIds) && !empty($permissionIds)) {
             foreach ($permissionIds as $permissionId) {
                 // get permission
-                $myPermission = $this->getRepo('Admin\AdminPermission')->find($permissionId);
+                $myPermission = $this->getRepo('Admin\AdminPermission')
+                                ->find($permissionId['id']);
                 if (is_null($myPermission)
                     || $myPermission->getTypeId() != $admin->getTypeId()
                 ) {
@@ -445,6 +446,7 @@ class AdminAdminsController extends SandboxRestController
                 $permissionMap->setAdmin($admin);
                 $permissionMap->setPermission($myPermission);
                 $permissionMap->setCreationDate($now);
+                $permissionMap->setOpLevel($permissionId['op_level']);
                 $em->persist($permissionMap);
             }
         }
