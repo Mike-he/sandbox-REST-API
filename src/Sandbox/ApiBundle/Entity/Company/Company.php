@@ -157,7 +157,7 @@ class Company
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -165,9 +165,30 @@ class Company
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "company_info"})
+     */
+    private $industries;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "company_info"})
+     */
+    private $portfolios;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "company_info"})
+     */
+    private $members;
 
     /**
      * Get id.
@@ -559,6 +580,54 @@ class Company
         $this->modificationDate = $modificationDate;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIndustries()
+    {
+        return $this->industries;
+    }
+
+    /**
+     * @param array $industries
+     */
+    public function setIndustries($industries)
+    {
+        $this->industries = $industries;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPortfolios()
+    {
+        return $this->portfolios;
+    }
+
+    /**
+     * @param array $portfolios
+     */
+    public function setPortfolios($portfolios)
+    {
+        $this->portfolios = $portfolios;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMembers()
+    {
+        return $this->members;
+    }
+
+    /**
+     * @param array $members
+     */
+    public function setMembers($members)
+    {
+        $this->members = $members;
     }
 
     public function __construct()
