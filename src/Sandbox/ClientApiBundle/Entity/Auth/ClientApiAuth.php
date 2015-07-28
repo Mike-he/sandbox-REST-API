@@ -49,7 +49,7 @@ class ClientApiAuth implements UserInterface
     private $userId;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\User\User
+     * @var \Sandbox\ApiBundle\Entity\User\User
      *
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User"))
      * @ORM\JoinColumn(name="userId", referencedColumnName="id")

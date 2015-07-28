@@ -295,29 +295,29 @@ class AdminAdminsController extends SandboxRestController
             }
         }
 
-            //remove the useless permissions
-            foreach ($permissionOldId as $pOldId) {
-                $num = 0;
-                foreach ($permissionSameId as $pSameId) {
-                    if ($pOldId == $pSameId) {
-                        $num = 1;
-                    }
-                }
-                if ($num == 0) {
-                    $pRemove = $this->getRepo('Admin\AdminPermissionMap')
-                        ->findOneBy(
-                                array(
-                                    'adminId' => $id,
-                                    'permissionId' => $pOldId,
-                                    )
-                        );
-                    $em = $this->getDoctrine()->getManager();
-                    $em->remove($pRemove);
+        //remove the useless permissions
+        foreach ($permissionOldId as $pOldId) {
+            $num = 0;
+            foreach ($permissionSameId as $pSameId) {
+                if ($pOldId == $pSameId) {
+                    $num = 1;
                 }
             }
+            if ($num == 0) {
+                $pRemove = $this->getRepo('Admin\AdminPermissionMap')
+                    ->findOneBy(
+                            array(
+                                'adminId' => $id,
+                                'permissionId' => $pOldId,
+                                )
+                    );
+                $em = $this->getDoctrine()->getManager();
+                $em->remove($pRemove);
+            }
+        }
 
-            //set the new permissions
-            $now = new \DateTime('now');
+        //set the new permissions
+        $now = new \DateTime('now');
         foreach ($permission_ids as $pNewId) {
             $num = 0;
             foreach ($permissionSameId as $pSameId) {
@@ -366,6 +366,15 @@ class AdminAdminsController extends SandboxRestController
                 400,
                 self::ERROR_USERNAME_INVALID_CODE,
                 self::ERROR_USERNAME_INVALID_MESSAGE);
+        }
+
+        // check username exist
+        $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
+        if (!is_null($adminExist)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_EXIST_CODE,
+                self::ERROR_USERNAME_EXIST_MESSAGE);
         }
 
         // check password

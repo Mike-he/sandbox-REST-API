@@ -1,34 +1,38 @@
 <?php
 
-namespace Sandbox\ApiBundle\Repository\User;
+namespace Sandbox\ApiBundle\Repository\Company;
 
 use Doctrine\ORM\EntityRepository;
 
-class UserRepository extends EntityRepository
+class CompanyRepository extends EntityRepository
 {
     /**
-     * @param array $recordMemberIds
+     * @param array $industryIds
      * @param int   $limit
      *
      * @return array
      */
-    public function findRandomMembers(
-        $recordMemberIds,
+    public function findRandomCompanies(
+        $industryIds,
         $limit
     ) {
-        $queryStr = 'SELECT u.id FROM SandboxApiBundle:User\User u
-                    WHERE u.banned = FALSE';
 
-        if (!is_null($recordMemberIds) && !empty($recordMemberIds)) {
-            $queryStr = $queryStr.' AND u.id NOT IN (:ids)';
+        // get company ids filter by industry if any
+        $query = 'SELECT c.id FROM SandboxApiBundle:Company\Company c';
+
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $query = $query.
+                '
+                    JOIN SandboxApiBundle:Company\CompanyIndustryMap cip
+                    WITH c.id = cip.companyId
+                    WHERE cip.industryId IN (:industryIds)
+                ';
         }
 
-        // get available user ids
-        $query = $this->getEntityManager()
-            ->createQuery($queryStr);
+        $query = $this->getEntityManager()->createQuery($query);
 
-        if (!is_null($recordMemberIds) && !empty($recordMemberIds)) {
-            $query->setParameter('ids', $recordMemberIds);
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $query->setParameter('industryIds', $industryIds);
         }
 
         $availableUserIds = $query->getScalarResult();
@@ -60,13 +64,13 @@ class UserRepository extends EntityRepository
             return array();
         }
 
-        // get users
+        // get companies
         $query = $this->getEntityManager()
             ->createQuery(
                 '
-                  SELECT u FROM SandboxApiBundle:User\User u
-                  WHERE u.id IN (:ids)
-                  ORDER BY u.modificationDate DESC
+                  SELECT c FROM SandboxApiBundle:Company\Company c
+                  WHERE c.id IN (:ids)
+                  ORDER BY c.modificationDate DESC
                 '
             )
             ->setParameter('ids', $ids);
@@ -77,7 +81,6 @@ class UserRepository extends EntityRepository
     }
 
     /**
-     * @param int   $myUserId
      * @param float $latitude
      * @param float $longitude
      * @param int   $limit
@@ -85,8 +88,7 @@ class UserRepository extends EntityRepository
      *
      * @return array
      */
-    public function findNearbyMembers(
-        $myUserId,
+    public function findNearbyCompanies(
         $latitude,
         $longitude,
         $limit,
@@ -114,22 +116,20 @@ class UserRepository extends EntityRepository
 
         $buildingIds = $query->getResult();
 
-        // find members
+        // find companies
         $query = $this->getEntityManager()
             ->createQuery(
                 '
-                  SELECT u,
-                  field(up.buildingId, :buildingIds) as HIDDEN field
-                  FROM SandboxApiBundle:User\User u
-                  LEFT JOIN SandboxApiBundle:User\UserProfile up
-                  WITH u.id = up.userId
-                  WHERE u.id != :myUserId
-                  AND u.banned = FALSE
-                  AND up.buildingId IN (:buildingIds)
+                  SELECT c,
+                  field(c.buildingId, :buildingIds) as HIDDEN field
+                  FROM SandboxApiBundle:Company\Company c
+
+                  WHERE
+
+                  c.buildingId IN (:buildingIds)
                   ORDER BY field
                 '
             )
-            ->setParameter('myUserId', $myUserId)
             ->setParameter('buildingIds', $buildingIds);
 
         $query->setFirstResult($offset);

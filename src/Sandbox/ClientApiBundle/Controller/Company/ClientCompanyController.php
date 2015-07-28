@@ -30,7 +30,10 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class ClientCompanyController extends CompanyController
 {
-    /**
+    const ERROR_BUILDING_NOT_SET_CODE = 400001;
+    const ERROR_BUILDING_NOT_SET_MESSAGE = 'Building is not set - 未设置办公楼';
+
+     /**
       * Get companies.
       *
       * @param Request $request the request object
@@ -51,51 +54,242 @@ class ClientCompanyController extends CompanyController
     ) {
          $userId = $this->getUserId();
 
-        //get companies
-        $member = $this->getRepo('Company\CompanyMember')
-                          ->findOneByUserId($userId);
+         //get companies
+         $member = $this->getRepo('Company\CompanyMember')
+                        ->findOneByUserId($userId);
 
          if (is_null($member)) {
              return new View(array());
          }
          $companies = array($member->getCompany());
 
-        //set view
-        $view = new View($companies);
+         //set view
+         $view = new View($companies);
          $view->setSerializationContext(SerializationContext::create()
              ->setGroups(array('company_basic')));
 
          return $view;
      }
 
-    /*
-     * Get nearby companies
+    /**
+     * Get nearby companies.
      *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
      *
-     * */
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @return View
+     */
     public function getCompaniesNearbyAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set max limit
+        if ($limit > $globals['load_more_limit']) {
+            $limit = $globals['load_more_limit'];
+        }
+
+        // get my profile
+        $myProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $this->throwNotFoundIfNull($myProfile, self::NOT_FOUND_MESSAGE);
+
+        // get my building
+        $buildingId = $myProfile->getBuildingId();
+        if (is_null($buildingId)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_BUILDING_NOT_SET_CODE,
+                self::ERROR_BUILDING_NOT_SET_MESSAGE
+            );
+        }
+
+        // get my profile
+        $myBuilding = $this->getRepo('Room\RoomBuilding')->findOneById($buildingId);
+        $this->throwNotFoundIfNull($myBuilding, self::NOT_FOUND_MESSAGE);
+
+        // find nearby members
+        $companies = $this->getRepo('Company\Company')->findNearbyCompanies(
+            $myBuilding->getLat(),
+            $myBuilding->getLng(),
+            $limit,
+            $offset
+        );
+
+        // set view
+        $view = new View($companies);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('company_info'))
+        );
+
+        return $view;
     }
 
-    /*
-     * Get recommend companies
+    /**
+     * Get recommend companies.
      *
-     * */
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="industry_id",
+     *    array=true,
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Route("/members/recommend")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
     public function getCompaniesRecommendAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // TODO check user is VIP
+
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $industryIds = $paramFetcher->get('industry_id');
+
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set max limit
+        if ($limit > $globals['load_more_limit']) {
+            $limit = $globals['load_more_limit'];
+        }
+
+        // find random members
+        $companies = $this->getRepo('Company\Company')->findRandomCompanies(
+            $industryIds,
+            $limit
+        );
+        if (is_null($companies) || empty($companies)) {
+            return new View(array());
+        }
+
+        // set view
+        $view = new View($companies);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('company_basic'))
+        );
+
+        return $view;
     }
 
-    /*
-     * Search companies
+    /**
+     * Search companies.
      *
-     * */
-    public function SearchCompanies(
-
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
+     * @return View
+     */
+    public function getCompaniesSearchAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        // TODO check user is VIP
+
+        $query = $paramFetcher->get('query');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        // find all members who have the query in any of their mapped fields
+        $finder = $this->container->get('fos_elastica.finder.search.company');
+
+        $results = $finder->find($query);
+        if (is_null($results) || empty($results)) {
+            return new View(array());
+        }
+
+        $companies = $output = array_slice($results, $offset, $limit);
+
+        // set view
+        $view = new View($companies);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('company_basic'))
+        );
+
+        return $view;
     }
 
     /**
