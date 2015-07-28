@@ -8,6 +8,7 @@ CREATE TABLE `ProductOrder` (
   `price` numeric(15,2),
   `status` enum('paid','unpaid','completed','cancelled') DEFAULT NULL,
   `location` text,
+  `isRenew` boolean DEFAULT FALSE NOT NULL,
   `paymentDate` datetime,
   `cancelledDate` datetime,
   `creationDate` datetime NOT NULL,

@@ -35,6 +35,7 @@ class OrderType extends AbstractType
                 )
             )
             ->add('price')
+            ->add('isRenew')
             ->add(
                 'channel',
                 'text',
