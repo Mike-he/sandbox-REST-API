@@ -27,3 +27,9 @@ sandbox_api_topup_order:
     resource: "@SandboxApiBundle/Controller/Order/TopUpOrderController.php"
     type:     annotation
     prefix:   /
+
+# Company Industry /company/industries
+sandbox_api_company_industries:
+    resource: "@SandboxApiBundle/Controller/Company/CompanyIndustryController.php"
+    type:     annotation
+    prefix:   /company
