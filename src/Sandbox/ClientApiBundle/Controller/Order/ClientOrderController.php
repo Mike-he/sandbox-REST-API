@@ -1048,6 +1048,14 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+        $now = new \DateTime();
+        $start = $order->getStartDate();
+        if ($now >= $start && $order->getStatus() === 'paid') {
+            $order->setStatus('completed');
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($order);
+            $em->flush();
+        }
 
         $now = new \DateTime();
         $type = $order->getProduct()->getRoom()->getType();
