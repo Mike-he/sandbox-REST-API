@@ -21,7 +21,7 @@ class CompanyPortfolio
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "company_portfolio"})
+     * @Serializer\Groups({"main", "company_info", "company_portfolio"})
      */
     private $id;
 
@@ -48,7 +48,7 @@ class CompanyPortfolio
      *
      * @ORM\Column(name="content", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "company_portfolio"})
+     * @Serializer\Groups({"main", "company_info", "company_portfolio"})
      */
     private $content;
 
@@ -56,7 +56,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "company_portfolio"})
+     * @Serializer\Groups({"main", "company_info", "company_portfolio"})
      */
     private $attachmentType;
 
@@ -64,7 +64,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="fileName", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "company_portfolio"})
+     * @Serializer\Groups({"main", "company_info", "company_portfolio"})
      */
     private $fileName;
 
@@ -72,7 +72,7 @@ class CompanyPortfolio
      * @var string
      *
      * @ORM\Column(name="preview", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "company_portfolio"})
+     * @Serializer\Groups({"main", "company_info", "company_portfolio"})
      */
     private $preview;
 
@@ -80,7 +80,7 @@ class CompanyPortfolio
      * @var int
      *
      * @ORM\Column(name="size", type="integer", nullable=true)
-     * @Serializer\Groups({"main", "company_portfolio"})
+     * @Serializer\Groups({"main", "company_info", "company_portfolio"})
      */
     private $size;
 
