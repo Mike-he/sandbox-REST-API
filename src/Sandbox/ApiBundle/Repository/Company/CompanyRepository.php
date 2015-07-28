@@ -7,6 +7,80 @@ use Doctrine\ORM\EntityRepository;
 class CompanyRepository extends EntityRepository
 {
     /**
+     * @param array $industryIds
+     * @param int   $limit
+     *
+     * @return array
+     */
+    public function findRandomCompanies(
+        $industryIds,
+        $limit
+    ) {
+
+        // get company ids filter by industry if any
+        $query = 'SELECT c.id FROM SandboxApiBundle:Company\Company c';
+
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $query = $query.
+                '
+                    JOIN SandboxApiBundle:Company\CompanyIndustryMap cip
+                    WITH c.id = cip.companyId
+                    WHERE cip.industryId IN (:industryIds)
+                ';
+        }
+
+        $query = $this->getEntityManager()->createQuery($query);
+
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $query->setParameter('industryIds', $industryIds);
+        }
+
+        $availableUserIds = $query->getScalarResult();
+        if (empty($availableUserIds)) {
+            // nothing is found
+            return array();
+        }
+
+        // set total
+        $total = $limit;
+        $idsCount = count($availableUserIds);
+        if ($idsCount < $limit) {
+            $total = $idsCount;
+        }
+
+        // get random ids
+        $ids = array();
+        $randElements = array_rand($availableUserIds, $total);
+        if (is_array($randElements)) {
+            foreach ($randElements as $randElement) {
+                array_push($ids, $availableUserIds[$randElement]);
+            }
+        } else {
+            array_push($ids, $availableUserIds[$randElements]);
+        }
+
+        if (empty($ids)) {
+            // nothing is found
+            return array();
+        }
+
+        // get companies
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
+                  SELECT c FROM SandboxApiBundle:Company\Company c
+                  WHERE c.id IN (:ids)
+                  ORDER BY c.modificationDate DESC
+                '
+            )
+            ->setParameter('ids', $ids);
+
+        $query->setMaxResults($limit);
+
+        return $query->getResult();
+    }
+
+    /**
      * @param float $latitude
      * @param float $longitude
      * @param int   $limit
