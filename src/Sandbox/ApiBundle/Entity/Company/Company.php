@@ -135,16 +135,22 @@ class Company
     private $buildingId;
 
     /**
-     * @var array
+     * @var \Sandbox\ApiBundle\Entity\User\User
      *
-     * @Serializer\Groups({"main", "company_info"})
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="creatorId", referencedColumnName="id")
+     * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creator;
+
     /**
      * @var int
      *
      * @ORM\Column(name="creatorId", type="integer", nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "company_info"})
      */
     private $creatorId;
 

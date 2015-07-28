@@ -457,11 +457,6 @@ class ClientCompanyController extends CompanyController
     public function setCompanyAllInfo(
         $company
     ) {
-        // set company creator
-        $creator = $this->getRepo('User\UserProfile')
-            ->findOneByUserId($this->getUserId());
-        $company->setCreator($creator);
-
         // set company industries
         $industries = $this->getRepo('Company\CompanyIndustryMap')
             ->findByCompany($company);
