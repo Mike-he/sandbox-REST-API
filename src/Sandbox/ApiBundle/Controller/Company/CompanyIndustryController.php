@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller\Company;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Company\CompanyIndustryMap;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -20,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @link     http://www.Sandbox.cn/
  */
-class CompanyIndustryController extends SandboxRestController
+class CompanyIndustryController extends CompanyController
 {
     /**
      * List all company industries.

@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller\Company;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Company\CompanyMember;
 
 /**
@@ -15,7 +14,7 @@ use Sandbox\ApiBundle\Entity\Company\CompanyMember;
  *
  * @link     http://www.Sandbox.cn/
  */
-class CompanyMemberController extends SandboxRestController
+class CompanyMemberController extends CompanyController
 {
     /**
      * @param $company

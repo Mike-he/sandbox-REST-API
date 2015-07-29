@@ -64,9 +64,15 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         Request $request,
         $id
     ) {
-        $em = $this->getDoctrine()->getManager();
-
         $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        // check user is allowed to modify
+        $userId = $this->getUserId();
+        $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
+
+        //add industries
+        $em = $this->getDoctrine()->getManager();
 
         $industryIds = json_decode($request->getContent(), true);
 
@@ -116,7 +122,13 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        //TODO check user‘s auth
+        // check user is allowed to modify
+        $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+        $userId = $this->getUserId();
+        $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
+
+        //delete industry
         $this->getRepo('Company\CompanyIndustryMap')->deleteCompanyIndustries(
             $paramFetcher->get('id'),
             $id
