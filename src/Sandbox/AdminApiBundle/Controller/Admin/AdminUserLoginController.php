@@ -92,6 +92,9 @@ class AdminUserLoginController extends AdminLoginController
                 SerializationContext::create()->setGroups(array('login'))
             );
 
+            // set admin cookie
+            setrawcookie('sandbox_admin_token', $adminToken->getToken(), null, '/', '.sandbox3.cn');
+
             return $view->setData(array(
                 'admin' => $admin,
                 'token' => $adminToken,
