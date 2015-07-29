@@ -30,7 +30,9 @@ use Rs\Json\Patch;
  */
 class ClientCompanyController extends CompanyController
 {
-    const ERROR_HAVE_COMPANY_SET_CODE = 400001;
+    const ERROR_NOT_VIP_SET_CODE = 400001;
+    const ERROR_NOT_VIP_SET_MESSAGE = 'You are not VIP!';
+    const ERROR_HAVE_COMPANY_SET_CODE = 400002;
     const ERROR_HAVE_COMPANY_SET_MESSAGE = 'You have create a company yet!';
 
     /**
@@ -52,6 +54,10 @@ class ClientCompanyController extends CompanyController
     public function getCompaniesAction(
         Request $request
     ) {
+        // check user is VIP
+        if (is_null($this->getExpireDateIfUserVIP())) {
+            return new View();
+        }
         $userId = $this->getUserId();
 
         //get companies
@@ -108,6 +114,11 @@ class ClientCompanyController extends CompanyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user is auth
+        if (is_null($this->getCardNoIfUserAuthorized())) {
+            return new View(array());
+        }
+
         $userId = $this->getUserId();
 
         $limit = $paramFetcher->get('limit');
@@ -199,7 +210,10 @@ class ClientCompanyController extends CompanyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // TODO check user is VIP
+        // check user is auth
+        if (is_null($this->getCardNoIfUserAuthorized())) {
+            return new View(array());
+        }
 
         $userId = $this->getUserId();
 
@@ -228,7 +242,7 @@ class ClientCompanyController extends CompanyController
         // set view
         $view = new View($companies);
         $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('company_basic'))
+            SerializationContext::create()->setGroups(array('company_limit'))
         );
 
         return $view;
@@ -272,7 +286,10 @@ class ClientCompanyController extends CompanyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // TODO check user is VIP
+        // check user is auth
+        if (is_null($this->getCardNoIfUserAuthorized())) {
+            return new View(array());
+        }
 
         $query = $paramFetcher->get('query');
         $limit = $paramFetcher->get('limit');
@@ -291,7 +308,7 @@ class ClientCompanyController extends CompanyController
         // set view
         $view = new View($companies);
         $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('company_basic'))
+            SerializationContext::create()->setGroups(array('company_limit'))
         );
 
         return $view;
@@ -311,16 +328,26 @@ class ClientCompanyController extends CompanyController
         Request $request,
         $id
     ) {
-        //get a company
+        // get a company
         $company = $this->getRepo('Company\Company')->findOneById($id);
 
-        //set company all info
+        // check user is VIP
+        $viewGroup = 'company_info';
+        if (is_null($this->getExpireDateIfUserVIP())) {
+            // check user is company member
+            $userId = $this->getUserId();
+            if ($this->isCompanyMember($userId, $id)) {
+                $viewGroup = 'company_limit';
+            }
+        };
+
+        // set company all info
         $this->setCompanyAllInfo($company);
 
-        //set view
+        // set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
-             ->setGroups(array('company_info')));
+             ->setGroups(array($viewGroup)));
 
         return   $view;
     }
@@ -337,13 +364,26 @@ class ClientCompanyController extends CompanyController
         Request $request,
         $id
     ) {
-        //get a company
-        $company = $this->getRepo('Company\Company')->findOneById($id);
 
-        //set view
+        // get a company
+        $company = $this->getRepo('Company\Company')->findOneById($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        $viewGroup = 'company_info';
+
+        // check user is VIP
+        if (is_null($this->getExpireDateIfUserVIP())) {
+            // check user is company member
+            $userId = $this->getUserId();
+            if ($this->isCompanyMember($userId, $id)) {
+                $viewGroup = 'company_limit';
+            }
+        };
+
+        // set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
-             ->setGroups(array('company_info')));
+             ->setGroups(array($viewGroup)));
 
         return   $view;
     }
@@ -363,16 +403,24 @@ class ClientCompanyController extends CompanyController
     public function postCompanyAction(
         Request $request
     ) {
+        //check user is VIP
+        if (is_null($this->getExpireDateIfUserVIP())) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_NOT_VIP_SET_CODE,
+                self::ERROR_NOT_VIP_SET_MESSAGE
+            );
+        }
 
-        // check the user has create a company
+        // check user has create a company
         $userId = $this->getUserId();
-        $companyMember = $this->getRepo('Company\CompanyMember')->findByUserId($userId);
 
-        if (!empty($companyMember)) {
+        if ($this->hasCompany($userId)) {
             return $this->customErrorView(
                 400,
                 self::ERROR_HAVE_COMPANY_SET_CODE,
-                self::ERROR_HAVE_COMPANY_SET_MESSAGE);
+                self::ERROR_HAVE_COMPANY_SET_MESSAGE
+            );
         }
 
         // create a company
@@ -425,7 +473,14 @@ class ClientCompanyController extends CompanyController
         Request $request,
         $id
     ) {
-        //TODO check user is vip
+        //check user is VIP
+        if (is_null($this->getExpireDateIfUserVIP())) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_NOT_VIP_SET_CODE,
+                self::ERROR_NOT_VIP_SET_MESSAGE
+            );
+        }
 
         //get company Entity
         $company = $this->getRepo('Company\Company')->find($id);
