@@ -93,7 +93,7 @@ class AdminUserLoginController extends AdminLoginController
             );
 
             // set admin cookie
-            setrawcookie('sandbox_admin_token', $adminToken->getToken(), null, '/', '.sandbox3.cn');
+            setrawcookie('sandbox_admin_token', $adminToken->getToken(), null, '/', $request->getHost());
 
             return $view->setData(array(
                 'admin' => $admin,
