@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller\Company;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Company\CompanyPortfolio;
 use Sandbox\ApiBundle\Form\Company\CompanyPortfolioType;
 
@@ -16,7 +15,7 @@ use Sandbox\ApiBundle\Form\Company\CompanyPortfolioType;
  *
  * @link     http://www.Sandbox.cn/
  */
-class CompanyPortfolioController extends SandboxRestController
+class CompanyPortfolioController extends CompanyController
 {
     /**
      * @param $company
