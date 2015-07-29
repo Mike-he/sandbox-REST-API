@@ -170,14 +170,9 @@ nelmio_cors:
         max_age: 0
         hosts: []
     paths:
-        '^/api/':
-            allow_origin: ['*']
-            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization']
-            allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'PATCH']
-            max_age: 3600
         '^/':
             allow_origin: ['*']
-            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization']
+            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization', 'Access-Control-Request-Headers']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'PATCH']
             max_age: 3600
 

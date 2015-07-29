@@ -55,6 +55,8 @@ class PaymentController extends SandboxRestController
     const NOT_WITHIN_DATE_RANGE_MESSAGE = 'Not Within 7 Days For Booking';
     const CAN_NOT_RENEW_CODE = 400014;
     const CAN_NOT_RENEW_MESSAGE = 'Have to renew 7 days before current order end date';
+    const WRONG_ORDER_STATUS_CODE = 400015;
+    const WRONG_ORDER_STATUS_MESSAGE = 'Wrong Order Status';
 
     /**
      * @param $order
