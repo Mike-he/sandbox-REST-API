@@ -49,13 +49,14 @@ class RoomSupplies
     private $room;
 
     /**
-     * @var int
+     * @var Supplies
      *
-     * @ORM\Column(name="suppliesId", type="integer", nullable=false)
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Supplies")
+     * @ORM\JoinColumn(name="suppliesId", referencedColumnName="id")
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
      */
-    private $suppliesId;
+    private $supply;
 
     /**
      * @var int
@@ -101,27 +102,27 @@ class RoomSupplies
     }
 
     /**
-     * Set suppliesId.
+     * Set Supplies.
      *
-     * @param int $suppliesId
+     * @param Supplies $supply
      *
      * @return RoomSupplies
      */
-    public function setSuppliesId($suppliesId)
+    public function setSupply($supply)
     {
-        $this->suppliesId = $suppliesId;
+        $this->supply = $supply;
 
         return $this;
     }
 
     /**
-     * Get suppliesId.
+     * Get Supplies.
      *
-     * @return int
+     * @return Supplies
      */
-    public function getSuppliesId()
+    public function getSupply()
     {
-        return $this->suppliesId;
+        return $this->supply;
     }
 
     /**

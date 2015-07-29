@@ -721,9 +721,11 @@ class AdminRoomController extends RoomController
         $office_supplies
     ) {
         foreach ($office_supplies as $supply) {
+            $supplyObject = $this->getRepo('Room\Supplies')->find($supply['id']);
+
             $roomSupply = new RoomSupplies();
             $roomSupply->setRoom($room);
-            $roomSupply->setSuppliesId($supply['id']);
+            $roomSupply->setSupply($supplyObject);
             $roomSupply->setQuantity($supply['quantity']);
 
             $em->persist($roomSupply);
