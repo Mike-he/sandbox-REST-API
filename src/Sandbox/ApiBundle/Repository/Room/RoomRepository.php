@@ -22,7 +22,9 @@ class RoomRepository extends EntityRepository
         $city,
         $building,
         $floor,
-        $status
+        $status,
+        $sortBy,
+        $direction
     ) {
         $notFirst = false;
         $parameters = [];
@@ -36,6 +38,7 @@ class RoomRepository extends EntityRepository
                 up.name as renter_name,
                 up.email as renter_email
             ')
+            ->innerJoin('SandboxApiBundle:Room\RoomFloor', 'rf', 'WITH', 'rf.id = r.floor')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
@@ -96,7 +99,11 @@ class RoomRepository extends EntityRepository
             $notFirst = true;
         }
 
-        $query->orderBy('r.creationDate', 'DESC');
+        if ($sortBy != 'floor') {
+            $query->orderBy('r.'.$sortBy, $direction);
+        } elseif ($sortBy == 'floor') {
+            $query->orderBy('rf.floorNumber', $direction);
+        }
 
         //set all parameters
         if ($notFirst) {

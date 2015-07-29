@@ -6,7 +6,6 @@
  * Date: 5/5/15
  * Time: 3:11 PM.
  */
-
 namespace Sandbox\ApiBundle\Utils;
 
 class StringUtil

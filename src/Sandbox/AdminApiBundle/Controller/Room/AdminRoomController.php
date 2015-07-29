@@ -117,6 +117,26 @@ class AdminRoomController extends RoomController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sortBy",
+     *    array=false,
+     *    default="creationDate",
+     *    nullable=true,
+     *    requirements="(number|floor)",
+     *    strict=true,
+     *    description="Sort by date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    array=false,
+     *    default="DESC",
+     *    nullable=true,
+     *    requirements="(ASC|DESC)",
+     *    strict=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/rooms")
      * @Method({"GET"})
      *
@@ -136,6 +156,9 @@ class AdminRoomController extends RoomController
         $buildingId = $paramFetcher->get('building');
         $floorId = $paramFetcher->get('floor');
 
+        $sortBy = $paramFetcher->get('sortBy');
+        $direction = $paramFetcher->get('direction');
+
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
         $floor = !is_null($floorId) ? $this->getRepo('Room\RoomFloor')->find($floorId) : null;
@@ -145,7 +168,9 @@ class AdminRoomController extends RoomController
             $city,
             $building,
             $floor,
-            $status
+            $status,
+            $sortBy,
+            $direction
         );
 
         $paginator = new Paginator();
