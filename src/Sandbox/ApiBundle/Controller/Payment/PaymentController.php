@@ -162,24 +162,34 @@ class PaymentController extends SandboxRestController
         );
 
         foreach ($roomDoors as $roomDoor) {
-            $access = new DoorAccess();
-            $access->setBuildingId($buildingId);
-            $access->setDoorId($roomDoor->getDoorControlId());
-            $access->setUserId($order->getUserId());
-            $access->setRoomId($roomId);
-            $access->setOrderId($orderId);
-            $access->setStartDate($order->getStartDate());
-            $access->setEndDate($order->getEndDate());
-            if (empty($myDoors)) {
-                $timeId = $order->getId();
-            } else {
-                $timeId = $myDoors[0]->getTimeId();
-            }
-            $access->setTimeId($timeId);
+            $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
+                [
+                    'userId' => $order->getUserId(),
+                    'orderId' => $order->getId(),
+                    'buildingId' => $buildingId,
+                    'doorId' => $roomDoor->getDoorControlId(),
+                ]
+            );
+            if (is_null($doorAccess)) {
+                $access = new DoorAccess();
+                $access->setBuildingId($buildingId);
+                $access->setDoorId($roomDoor->getDoorControlId());
+                $access->setUserId($order->getUserId());
+                $access->setRoomId($roomId);
+                $access->setOrderId($orderId);
+                $access->setStartDate($order->getStartDate());
+                $access->setEndDate($order->getEndDate());
+                if (empty($myDoors)) {
+                    $timeId = $order->getId();
+                } else {
+                    $timeId = $myDoors[0]->getTimeId();
+                }
+                $access->setTimeId($timeId);
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($access);
-            $em->flush();
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($access);
+                $em->flush();
+            }
         }
 
         $updatedDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
@@ -190,7 +200,6 @@ class PaymentController extends SandboxRestController
         $this->get('door_service')->setTimePeriod($updatedDoors);
 
         $cardNo = $this->getCardNoIfUserAuthorized();
-        $cardNo = '9391756';
         if (is_null($cardNo)) {
             return;
         }
