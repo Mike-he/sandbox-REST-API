@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "370d6e37e622c6c675327f921cee1628",
+    "hash": "9a0e6f03f96a8b7386e4e1f313bf0725",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
@@ -2167,12 +2167,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/raphaelstolt/php-jsonpatch.git",
-                "reference": "b1d0dbe9b59826511196793673ff54d59d2c0336"
+                "reference": "f008d127008dc432ef3df9c1660d18539276fee4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/raphaelstolt/php-jsonpatch/zipball/b1d0dbe9b59826511196793673ff54d59d2c0336",
-                "reference": "b1d0dbe9b59826511196793673ff54d59d2c0336",
+                "url": "https://api.github.com/repos/raphaelstolt/php-jsonpatch/zipball/f008d127008dc432ef3df9c1660d18539276fee4",
+                "reference": "f008d127008dc432ef3df9c1660d18539276fee4",
                 "shasum": ""
             },
             "require": {
@@ -2211,7 +2211,7 @@
                 "json modification",
                 "json patch"
             ],
-            "time": "2015-07-23 22:53:42"
+            "time": "2015-07-22 08:36:21"
         },
         {
             "name": "php-jsonpointer/php-jsonpointer",
@@ -2426,12 +2426,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PingPlusPlus/pingpp-php.git",
-                "reference": "8057d253f7c17321b0b6eb43e0b5aeb223c5b7a5"
+                "reference": "3a611fc9e560a9900c0a6bf5e695b0141a662613"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PingPlusPlus/pingpp-php/zipball/8057d253f7c17321b0b6eb43e0b5aeb223c5b7a5",
-                "reference": "8057d253f7c17321b0b6eb43e0b5aeb223c5b7a5",
+                "url": "https://api.github.com/repos/PingPlusPlus/pingpp-php/zipball/3a611fc9e560a9900c0a6bf5e695b0141a662613",
+                "reference": "3a611fc9e560a9900c0a6bf5e695b0141a662613",
                 "shasum": ""
             },
             "require": {
@@ -2466,7 +2466,7 @@
                 "mobile payment processing",
                 "pingpp"
             ],
-            "time": "2015-07-22 03:57:05"
+            "time": "2015-07-13 08:58:28"
         },
         {
             "name": "psr/log",
@@ -3477,16 +3477,16 @@
     "packages-dev": [
         {
             "name": "fabpot/php-cs-fixer",
-            "version": "v1.10",
+            "version": "v1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "8e21b4fb32c4618a425817d9f0daf3d57a9808d1"
+                "reference": "f2c2c5527113f346d77eb790e62395fe8de58c4f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/8e21b4fb32c4618a425817d9f0daf3d57a9808d1",
-                "reference": "8e21b4fb32c4618a425817d9f0daf3d57a9808d1",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/f2c2c5527113f346d77eb790e62395fe8de58c4f",
+                "reference": "f2c2c5527113f346d77eb790e62395fe8de58c4f",
                 "shasum": ""
             },
             "require": {
@@ -3527,7 +3527,7 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
-            "time": "2015-07-27 20:56:10"
+            "time": "2015-07-08 21:03:30"
         },
         {
             "name": "sebastian/diff",
