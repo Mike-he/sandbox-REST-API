@@ -22,6 +22,9 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class AdminPermissionMap
 {
+    const OP_LEVEL_VIEW = 1;
+    const OP_LEVEL_EDIT = 2;
+
     /**
      * @var int
      *

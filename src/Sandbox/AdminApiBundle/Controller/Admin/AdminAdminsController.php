@@ -91,7 +91,12 @@ class AdminAdminsController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER,
+            null,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // get all admins id and username
         $query = $this->getRepo('Admin\Admin')->findAll();
@@ -131,7 +136,12 @@ class AdminAdminsController extends SandboxRestController
         $admin_id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER,
+            null,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // get all admins
         $admins = $this->getRepo('Admin\Admin')->findOneBy(array('id' => $admin_id));
@@ -168,15 +178,25 @@ class AdminAdminsController extends SandboxRestController
         Request $request
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER,
+            null,
+            AdminPermissionMap::OP_LEVEL_EDIT
+            );
 
         // bind admin data
         $admin = new Admin();
         $form = $this->createForm(new AdminPostType(), $admin);
         $form->handleRequest($request);
 
+        $permission = $form['permission']->getData();
+
         if ($form->isValid()) {
-            return $this->handleAdminCreate($admin);
+            return $this->handleAdminCreate(
+                $admin,
+                $permission
+            );
         }
 
         throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -207,6 +227,14 @@ class AdminAdminsController extends SandboxRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER,
+            null,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
+
         // get admin
         $admin = $this->getRepo('Admin\Admin')->find($id);
         $form = $this->createForm(new AdminPutType(), $admin, array('method' => 'PUT'));
@@ -241,7 +269,12 @@ class AdminAdminsController extends SandboxRestController
         $myAdminId = $this->getAdminId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($myAdminId, AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER,
+            null,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
 
         // get admin
         $admin = $this->getRepo('Admin\Admin')->find($id);
@@ -353,12 +386,14 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
-     * @param Admin $admin
+     * @param Admin              $admin
+     * @param AdminPermissionMap $permission
      *
      * @return View
      */
     private function handleAdminCreate(
-        $admin
+        $admin,
+        $permission
     ) {
         // check username
         if (is_null($admin->getUsername())) {
@@ -403,7 +438,7 @@ class AdminAdminsController extends SandboxRestController
         }
 
         // save admin to db
-        $admin = $this->saveAdmin($admin);
+        $admin = $this->saveAdmin($admin, $permission);
 
         // set view
         $view = new View();
@@ -415,21 +450,22 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
-     * @param Admin $admin
+     * @param Admin              $admin
+     * @param AdminPermissionMap $permission
      *
      * @return Admin
      */
     private function saveAdmin(
-        $admin
+        $admin,
+        $permission
     ) {
         $em = $this->getDoctrine()->getManager();
 
         $now = new \DateTime('now');
 
         // set permissions
-        $permissionIds = $admin->getPermissionIds();
-        if (!is_null($permissionIds) && !empty($permissionIds)) {
-            foreach ($permissionIds as $permissionId) {
+        if (!is_null($permission) && !empty($permission)) {
+            foreach ($permission as $permissionId) {
                 // get permission
                 $myPermission = $this->getRepo('Admin\AdminPermission')
                                 ->find($permissionId['id']);
