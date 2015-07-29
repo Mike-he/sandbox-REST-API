@@ -18,7 +18,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Rs\Json\Patch;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Rest controller for Companies.
@@ -32,8 +31,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class ClientCompanyController extends CompanyController
 {
-    const ERROR_BUILDING_NOT_SET_CODE = 400001;
-    const ERROR_BUILDING_NOT_SET_MESSAGE = 'Building is not set - 未设置办公楼';
+    const ERROR_HAVE_COMPANY_SET_CODE = 400001;
+    const ERROR_HAVE_COMPANY_SET_MESSAGE = 'You have create a company yet!';
 
     /**
      * Get companies.
@@ -378,7 +377,7 @@ class ClientCompanyController extends CompanyController
         //set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
-            ->setGroups(array('company_info')));
+             ->setGroups(array('company_info')));
 
         return   $view;
     }
@@ -398,8 +397,20 @@ class ClientCompanyController extends CompanyController
     public function postCompanyAction(
         Request $request
     ) {
-        $em = $this->getDoctrine()->getManager();
+
+        // check the user has create a company
         $userId = $this->getUserId();
+        $companyMember = $this->getRepo('Company\CompanyMember')->findByUserId($userId);
+
+        if (!empty($companyMember)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_HAVE_COMPANY_SET_CODE,
+                self::ERROR_HAVE_COMPANY_SET_MESSAGE);
+        }
+
+        // create a company
+        $em = $this->getDoctrine()->getManager();
 
         $company = new Company();
 
@@ -454,12 +465,9 @@ class ClientCompanyController extends CompanyController
         $company = $this->getRepo('Company\Company')->find($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
-        //TODO check user is allowed to modify
-//    if ($creatorId != $userId) {
-//        // if user is not the creator of this company
-//        // return error
-//        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-//    }
+        // check the user is allowed to modify
+        $userId = $this->getUserId();
+        $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
 
         // bind data
         $companyJson = $this->container
@@ -479,43 +487,5 @@ class ClientCompanyController extends CompanyController
         $em->flush();
 
         return new View();
-    }
-
-    /**
-     * set company all info.
-     *
-     * @param $company
-     *
-     * return $this
-     */
-    public function setCompanyAllInfo(
-        $company
-    ) {
-        // set company industries
-        $industries = $this->getRepo('Company\CompanyIndustryMap')
-            ->findByCompany($company);
-        if (!is_null($industries) && !empty($industries)) {
-            $company->setIndustries($industries);
-        }
-
-        // set company portfolios
-        $portfolios = $this->getRepo('Company\CompanyPortfolio')
-            ->findByCompany($company);
-        if (!is_null($portfolios) && !empty($portfolios)) {
-            $company->setPortfolios($portfolios);
-        }
-
-        // set company members
-        $members = $this->getRepo('Company\CompanyMember')
-            ->findByCompany($company);
-
-        foreach ($members as &$member) {
-            $profile = $this->getRepo('User\UserProfile')
-                ->findOneByUserId($member->getUserId());
-            $member->setProfile($profile);
-        }
-        if (!is_null($members) && !empty($members)) {
-            $company->setMembers($members);
-        }
     }
 }

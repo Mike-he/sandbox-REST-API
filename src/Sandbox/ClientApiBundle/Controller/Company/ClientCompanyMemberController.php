@@ -41,7 +41,6 @@ class ClientCompanyMemberController extends CompanyMemberController
     ) {
         $members = $this->getRepo('Company\CompanyMember')->findByCompanyId($id);
         $this->throwNotFoundIfNull($members, self::NOT_FOUND_MESSAGE);
-//        $members = $company->getMembers();
 
         foreach ($members as &$member) {
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($member->getUserId());
@@ -70,12 +69,30 @@ class ClientCompanyMemberController extends CompanyMemberController
         Request $request,
         $id
     ) {
+        $userId = $this->getUserId();
+        $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        // check user is allowed to modify
+        $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
+
+        //add member
         $em = $this->getDoctrine()->getManager();
 
-        $company = $this->getRepo('Company\Company')->find($id);
-
         $memberIds = json_decode($request->getContent(), true);
+
         foreach ($memberIds as $memberId) {
+
+            //check member is buddy
+            $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                'userId' => $userId,
+                'buddyId' => $memberId,
+            ));
+            if (is_null($buddy)) {
+                continue;
+            }
+
+            //check member is added
             $companyMember = $this->getRepo('Company\CompanyMember')->findOneBy(array(
                 'company' => $company,
                 'userId' => $memberId,
@@ -116,7 +133,13 @@ class ClientCompanyMemberController extends CompanyMemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        //TODO check user‘s auth
+        // check user is allowed to modify
+        $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+        $userId = $this->getUserId();
+        $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
+
+        //delete member
         $this->getRepo('Company\CompanyMember')->deleteCompanyMembers(
             $paramFetcher->get('id'),
             $id

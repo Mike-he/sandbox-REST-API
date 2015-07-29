@@ -66,6 +66,13 @@ class ClientCompanyPortfolioController extends CompanyPortfolioController
         Request $request,
         $id
     ) {
+        // check user is allowed to modify
+        $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+        $userId = $this->getUserId();
+        $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
+
+        //add portfolios
         $em = $this->getDoctrine()->getManager();
 
         $company = $this->getRepo('Company\Company')->find($id);
@@ -104,7 +111,13 @@ class ClientCompanyPortfolioController extends CompanyPortfolioController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        //TODO check user‘s auth
+        // check user is allowed to modify
+        $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+        $userId = $this->getUserId();
+        $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
+
+        //delete portfolios
         $this->getRepo('Company\CompanyPortfolio')->deleteCompanyPortfolios(
             $paramFetcher->get('id'),
             $id
