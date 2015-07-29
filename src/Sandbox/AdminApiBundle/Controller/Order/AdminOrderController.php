@@ -13,6 +13,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Admin order controller.
@@ -177,6 +178,18 @@ class AdminOrderController extends OrderController
         Request $request
     ) {
         //TODO: not finished, just for test
+
+        // authenticate with web browser cookie
+        $cookie_name = 'sandbox_admin_token';
+        if (!isset($_COOKIE[$cookie_name])) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $token = $_COOKIE[$cookie_name];
+        $adminToken = $this->getRepo('Admin\AdminToken')->findOneByToken($token);
+        if (is_null($adminToken)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
 
         $phpExcelObject = new \PHPExcel();
 
