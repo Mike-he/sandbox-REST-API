@@ -242,9 +242,6 @@ fos_elastica:
                     mappings:
                         name: ~
                     persistence:
-                        # the driver can be orm, mongodb or propel
-                        # listener and finder are not supported by
-                        # propel and should be removed
                         driver: orm
                         model: Sandbox\ApiBundle\Entity\User\UserProfile
                         provider: ~
@@ -254,9 +251,6 @@ fos_elastica:
                     mappings:
                         name: ~
                     persistence:
-                        # the driver can be orm, mongodb or propel
-                        # listener and finder are not supported by
-                        # propel and should be removed
                         driver: orm
                         model: Sandbox\ApiBundle\Entity\Company\Company
                         provider: ~
@@ -272,15 +266,15 @@ fos_elastica:
                         provider: ~
                         listener: ~
                         finder: ~
-                user:
-                    mappings:
-                        id: ~
-                        name: ~
-                        email: ~
-                        phone: ~
-                    persistence:
-                        driver: orm
-                        model: Sandbox\ApiBundle\Entity\User\UserView
-                        provider: ~
-                        listener: ~
-                        finder: ~
+#                user:
+#                    mappings:
+#                        id: ~
+#                        name: ~
+#                        email: ~
+#                        phone: ~
+#                    persistence:
+#                        driver: orm
+#                        model: Sandbox\ApiBundle\Entity\User\User
+#                        provider: ~
+#                        listener: ~
+#                        finder: ~
