@@ -121,6 +121,13 @@ class RoomBuilding
     private $avatar;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="server", type="string", length=255, nullable=false)
+     */
+    private $server;
+
+    /**
      * Get id.
      *
      * @return int
@@ -282,5 +289,29 @@ class RoomBuilding
     public function getCity()
     {
         return $this->city;
+    }
+
+    /**
+     * Set server.
+     *
+     * @param string $server
+     *
+     * @return RoomBuilding
+     */
+    public function setServer($server)
+    {
+        $this->server = $server;
+
+        return $this;
+    }
+
+    /**
+     * Get server.
+     *
+     * @return string
+     */
+    public function getServer()
+    {
+        return $this->server;
     }
 }

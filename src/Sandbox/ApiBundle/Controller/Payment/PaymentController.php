@@ -152,7 +152,10 @@ class PaymentController extends SandboxRestController
         $em->persist($order);
         $em->flush();
 
+        $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
         $myDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
@@ -197,7 +200,7 @@ class PaymentController extends SandboxRestController
             $buildingId,
             $roomId
         );
-        $this->get('door_service')->setTimePeriod($updatedDoors);
+        $this->get('door_service')->setTimePeriod($updatedDoors, $base, $globals);
 
         $cardNo = $this->getCardNoIfUserAuthorized();
         if (is_null($cardNo)) {
@@ -223,12 +226,13 @@ class PaymentController extends SandboxRestController
             }
 
             $this->get('door_service')->cardPermission(
-                $buildingId,
+                $base,
                 $order->getUserId(),
                 $userName,
                 $cardNo,
                 $doorArray,
-                DoorController::METHOD_ADD
+                DoorController::METHOD_ADD,
+                $globals
             );
         }
     }

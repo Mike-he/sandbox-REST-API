@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Controller\Door;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Door Controller.
@@ -30,39 +29,8 @@ class DoorController extends SandboxRestController
     const TIME_NOT_VALID_MESSAGE = 'Times Are Not Valid';
     const NO_ORDER_CODE = 40007;
     const NO_ORDER_MESSAGE = 'Orders Not Found';
-    const BASE_URI_BUILDING_2 = 'http://140.207.50.130:13543/ADSWebService.asmx';
-    const BASE_URI_BUILDING_1 = 'http://211.95.45.26:13390/ADSWebService.asmx';
-    const LOGIN_URI = '/Login';
-    const LOGOUT_URI = '/Logout';
-    const GET_DOOR_URI = '/GetDoors';
-    const SET_TIME = '/SetTimePeriod';
-    const RECORD_URI = '/GetSwipeCardRecord';
-    const ALARM_URI = '/GetAlarmRecord';
-    const SET_PERMISSION = '/SetCardPermission';
-    const SESSION_ID = 'SessionId=';
-    const BEGIN_TIME = '&BeginTime=';
-    const END_TIME = '&EndTime=';
-    const TIME_PERIOD = '&TimePeriod=';
-    const CARD_PERMISSION = '&CardPermission=';
-
-    private static $serverIP = [
-        1 => self::BASE_URI_BUILDING_1,
-        2 => self::BASE_URI_BUILDING_2,
-    ];
-
-    public static function getBuildingIdToBaseURL()
-    {
-        return self::$serverIP;
-    }
-
-    public static function getBaseURL($buildingId)
-    {
-        if (array_key_exists($buildingId, self::getBuildingIdToBaseURL())) {
-            return self::getBuildingIdToBaseURL()[$buildingId];
-        }
-
-        throw new NotFoundHttpException('Building Does Not Exist!');
-    }
+    const BUILDING_NOT_FOUND_CODE = 400015;
+    const BUILDING_NOT_FOUND_MESSAGE = 'Building Not Found';
 
     public function callDoorApi(
         $ch,
@@ -115,11 +83,13 @@ class DoorController extends SandboxRestController
     /**
      * @return mixed
      */
-    public function getSessionId($buildingId)
+    public function getSessionId($base)
     {
-        $base = $this->getBaseURL($buildingId);
-        $data = 'Username=admin&Password=admin';
-        $sessionArray = $this->postDoorApi($base.self::LOGIN_URI, $data);
+        $globals = $this->getGlobals();
+
+        $data = 'Username='.$globals['door_api_username'].
+            '&Password='.$globals['door_api_password'];
+        $sessionArray = $this->postDoorApi($base.$globals['door_api_login'], $data);
         $sessionId = $sessionArray['login_session']['SeesionId']; //SeesionId typo in API
 
         return $sessionId;
@@ -128,28 +98,30 @@ class DoorController extends SandboxRestController
     /**
      * @param $sessionId
      */
-    public function logOut($sessionId, $buildingId)
+    public function logOut($sessionId, $base)
     {
-        $base = $this->getBaseURL($buildingId);
-        $data = self::SESSION_ID.$sessionId;
-        $this->postDoorApi($base.self::GET_DOOR_URI, $data);
+        $globals = $this->getGlobals();
+
+        $data = $globals['door_api_session_id'].$sessionId;
+        $this->postDoorApi($base.$globals['door_api_logout'], $data);
     }
 
     public function cardPermission(
-        $buildingId,
+        $base,
         $userId,
         $name,
         $cardNumber,
         $doorArray,
-        $method
+        $method,
+        $globals
     ) {
-        $sessionId = $this->getSessionId($buildingId);
+        $sessionId = $this->getSessionId($base);
         try {
             $data = [
                 'ads_card' => [
                     'empid' => "$userId", //from user account
                     'empname' => $name, //from user account
-                    'department' => 'BUILDING'."$buildingId",
+                    'department' => 'SANDBOX',
                     'cardno' => $cardNumber,
                     'begindate' => '2015-07-01 08:00:00',
                     'expiredate' => '2099-07-01 08:00:00',
@@ -158,11 +130,10 @@ class DoorController extends SandboxRestController
                 'ads_door_permissions' => $doorArray,
             ];
             $json = json_encode($data);
-            $data = self::SESSION_ID.$sessionId.self::CARD_PERMISSION.$json;
+            $data = $globals['door_api_session_id'].$sessionId.$globals['door_api_card_permission'].$json;
 
-            $base = $this->getBaseURL($buildingId);
-            $periodArray = $this->postDoorApi($base.self::SET_PERMISSION, $data);
-            $this->logOut($sessionId, $buildingId);
+            $periodArray = $this->postDoorApi($base.$globals['door_api_set_card_permission'], $data);
+            $this->logOut($sessionId, $base);
 
             if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
                 return $this->customErrorView(
@@ -173,7 +144,7 @@ class DoorController extends SandboxRestController
             }
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $buildingId);
+                $this->logOut($sessionId, $base);
             }
         }
     }
@@ -182,10 +153,12 @@ class DoorController extends SandboxRestController
      * @param $order
      */
     public function setTimePeriod(
-        $updatedDoors
+        $updatedDoors,
+        $base,
+        $globals
     ) {
         $id = $updatedDoors[0]->getTimeId();
-        $buildingId = $updatedDoors[0]->getBuildingId();
+
         $timeArray = [];
         foreach ($updatedDoors as $updatedDoor) {
             $start = $updatedDoor->getStartDate();
@@ -211,7 +184,7 @@ class DoorController extends SandboxRestController
             array_push($timeArray, $timePeriod);
         }
 
-        $sessionId = $this->getSessionId($buildingId);
+        $sessionId = $this->getSessionId($base);
         try {
             $data = [
                 'ads_timeperiod' => [
@@ -221,11 +194,10 @@ class DoorController extends SandboxRestController
                 ],
             ];
             $json = json_encode($data);
-            $data = self::SESSION_ID.$sessionId.self::TIME_PERIOD.$json;
+            $data = $globals['door_api_session_id'].$sessionId.$globals['door_api_time_period'].$json;
 
-            $base = $this->getBaseURL($buildingId);
-            $periodArray = $this->postDoorApi($base.self::SET_TIME, $data);
-            $this->logOut($sessionId, $buildingId);
+            $periodArray = $this->postDoorApi($base.$globals['door_api_set_time'], $data);
+            $this->logOut($sessionId, $base);
 
             if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
                 return $this->customErrorView(
@@ -236,7 +208,7 @@ class DoorController extends SandboxRestController
             }
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $buildingId);
+                $this->logOut($sessionId, $base);
             }
         }
     }
