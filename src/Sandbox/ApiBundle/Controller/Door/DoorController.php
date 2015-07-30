@@ -30,6 +30,8 @@ class DoorController extends SandboxRestController
     const TIME_NOT_VALID_MESSAGE = 'Times Are Not Valid';
     const NO_ORDER_CODE = 40007;
     const NO_ORDER_MESSAGE = 'Orders Not Found';
+    const CARDNO_NOT_FOUND_CODE = 40008;
+    const CARDNO_NOT_FOUND_MESSAGE = 'Cardno Not Found';
     const BASE_URI_BUILDING_2 = 'http://140.207.50.130:13543/ADSWebService.asmx';
     const BASE_URI_BUILDING_1 = 'http://211.95.45.26:13390/ADSWebService.asmx';
     const LOGIN_URI = '/Login';

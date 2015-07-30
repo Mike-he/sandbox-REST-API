@@ -47,6 +47,7 @@ twig:
         crm_api_url: "%crm_api_url%"
         crm_api_client_user_account_authentication: "%crm_api_client_user_account_authentication%"
         crm_api_client_user_account_vip: "%crm_api_client_user_account_vip%"
+        crm_api_admin_user_account_cardno: "%crm_api_admin_user_account_cardno%"
 
 # Assetic Configuration
 assetic:
