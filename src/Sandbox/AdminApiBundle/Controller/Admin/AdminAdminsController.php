@@ -93,9 +93,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER,
-            null,
-            AdminPermissionMap::OP_LEVEL_VIEW
+            AdminType::KEY_SUPER
         );
 
         // get all admins id and username
@@ -138,9 +136,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER,
-            null,
-            AdminPermissionMap::OP_LEVEL_VIEW
+            AdminType::KEY_SUPER
         );
 
         // get all admins
@@ -180,9 +176,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER,
-            null,
-            AdminPermissionMap::OP_LEVEL_EDIT
+            AdminType::KEY_SUPER
             );
 
         // bind admin data
@@ -230,9 +224,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER,
-            null,
-            AdminPermissionMap::OP_LEVEL_VIEW
+            AdminType::KEY_SUPER
         );
 
         // get admin
@@ -271,9 +263,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER,
-            null,
-            AdminPermissionMap::OP_LEVEL_EDIT
+            AdminType::KEY_SUPER
         );
 
         // get admin
