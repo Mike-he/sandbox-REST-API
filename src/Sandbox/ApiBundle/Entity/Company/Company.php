@@ -23,7 +23,14 @@ class Company
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "company_info", "company_basic", "member", "buddy"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "company_info",
+     *      "company_basic",
+     *      "member",
+     *      "buddy",
+     *      "company_limit"
+     * })
      */
     private $id;
 
@@ -31,7 +38,14 @@ class Company
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=false)
-     * @Serializer\Groups({"main", "company_info", "company_basic", "member", "buddy"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "company_info",
+     *      "company_basic",
+     *      "member",
+     *      "buddy",
+     *      "company_limit"
+     * })
      */
     private $name;
 
@@ -39,7 +53,12 @@ class Company
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "company_info",
+     *      "company_basic",
+     *      "company_limit"
+     * })
      */
     private $description;
 
@@ -47,7 +66,12 @@ class Company
      * @var string
      *
      * @ORM\Column(name="address", type="string", length=1024, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "company_info",
+     *      "company_basic",
+     *      "company_limit"
+     * })
      */
     private $address;
 

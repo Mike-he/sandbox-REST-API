@@ -68,4 +68,42 @@ class CompanyController extends SandboxRestController
             $company->setMembers($members);
         }
     }
+
+    /**
+     * @param int $userId
+     * @param int $companyId
+     *
+     * @return bool
+     */
+    public function isCompanyMember(
+        $userId,
+        $companyId
+    ) {
+        $member = $this->getRepo('Company\CompanyMember')
+            ->findOneBy(array(
+                'companyId' => $companyId,
+                'userId' => $userId,
+            ));
+        if (is_null($member)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @return bool
+     */
+    public function hasCompany($userId)
+    {
+        $member = $this->getRepo('Company\CompanyMember')
+            ->findOneByUserId($userId);
+        if (is_null($member)) {
+            return false;
+        }
+
+        return true;
+    }
 }

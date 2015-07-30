@@ -225,7 +225,7 @@ class SandboxRestController extends FOSRestController
      * @return string|null
      */
     protected function getExpireDateIfUserVIP(
-        $auth
+        $auth = null
     ) {
         if (is_null($auth)) {
             // get auth
