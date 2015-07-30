@@ -9,6 +9,50 @@ use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {
+    const COMPLETED = "'completed'";
+    const CANCELLED = "'cancelled'";
+
+    /**
+     * set status to completed when current time passes start time.
+     */
+    public function setStatusCompleted()
+    {
+        $now = new \DateTime();
+
+        $query = $this->createQueryBuilder('o')
+            ->update()
+            ->set('o.status', self::COMPLETED)
+            ->where('o.status = \'paid\'')
+            ->andWhere('o.startDate <= :now')
+            ->setParameter('now', $now)
+            ->getQuery();
+
+        $query->execute();
+    }
+
+    /**
+     * set status to cancelled after 15 minutes.
+     */
+    public function setStatusCancelled()
+    {
+        $now = new \DateTime();
+        $start = clone $now;
+        $start->modify('-15 minutes');
+        $nowString = (string) $now->format('Y-m-d H:i:s');
+        $nowString = "'$nowString'";
+
+        $query = $this->createQueryBuilder('o')
+            ->update()
+            ->set('o.status', self::CANCELLED)
+            ->set('o.cancelledDate', $nowString)
+            ->where('o.status = \'unpaid\'')
+            ->andWhere('o.creationDate <= :start')
+            ->setParameter('start', $start)
+            ->getQuery();
+
+        $query->execute();
+    }
+
     public function getRenewOrder(
         $userId,
         $productId,
