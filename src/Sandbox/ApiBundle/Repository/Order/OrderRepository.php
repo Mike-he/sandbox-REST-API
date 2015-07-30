@@ -252,19 +252,79 @@ class OrderRepository extends EntityRepository
      *
      * @return array
      */
-    public function getOrdersToExport()
-    {
+    public function getOrdersToExport(
+        $type,
+        $city,
+        $building,
+        $userId,
+        $startDate,
+        $endDate
+    ) {
         $query = $this->createQueryBuilder('o')
             ->select("
-                    CONCAT(r.number, ', ', r.name) as product_name,
+                    CONCAT(rc.name, ', ', rb.name, ', ', r.number, ', ', r.name) as product_name,
                     r.type,
+                    o.userId as employee_id,
                     p.unitPrice,
-                    o.price
+                    o.price as amount,
+                    CONCAT(p.startDate, ' - ', p.endDate) as leasing_time,
+                    o.creationDate as order_time,
+                    o.modificationDate as payment_time,
+                    o.status,
+                    up.name,
+                    up.phone,
+                    up.email
                 ")
+            ->innerJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
+            ->innerJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'rc.id = r.city')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'rb.id = r.building');
+
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->where('o.userId = :userId');
+            $parameters['userId'] = $userId;
+        } else {
+            $query->where('o.status != :unpaid');
+            $parameters['unpaid'] = 'unpaid';
+        }
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->andWhere('r.type = :type');
+            $parameters['type'] = $type;
+        }
+
+        // filter by city
+        if (!is_null($city)) {
+            $query->andWhere('r.city = :city');
+            $parameters['city'] = $city;
+        }
+
+        // filter by building
+        if (!is_null($building)) {
+            $query->andWhere('r.building = :building');
+            $parameters['building'] = $building;
+        }
+
+        //filter by start date
+        if (!is_null($startDate)) {
+            $query->andWhere('o.startDate >= :startDate');
+            $parameters['startDate'] = $startDate;
+        }
+
+        //filter by end date
+        if (!is_null($endDate)) {
+            $query->andWhere('o.endDate <= :endDate');
+            $parameters['endDate'] = $endDate;
+        }
 
         $query->orderBy('o.creationDate', 'DESC');
+
+        //set all parameters
+        $query->setParameters($parameters);
 
         return $query->getQuery()->getArrayResult();
     }

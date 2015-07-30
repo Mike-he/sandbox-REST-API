@@ -167,6 +167,66 @@ class AdminOrderController extends OrderController
      *
      * @param Request $request
      *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="(office|meeting|flexible|fixed)",
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders/export")
      * @Method({"GET"})
      *
@@ -175,36 +235,50 @@ class AdminOrderController extends OrderController
      * @return View
      */
     public function getExcelOrders(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
-        //TODO: not finished, just for test
+        $type = $paramFetcher->get('type');
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
+        $userId = $paramFetcher->get('user');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
+        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        // authenticate with web browser cookie
-        $cookie_name = 'sandbox_admin_token';
-        if (!isset($_COOKIE[$cookie_name])) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('Admin\AdminToken')->findOneByToken($token);
-        if (is_null($adminToken)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        //authenticate with web browser cookie
+        $this->authenticateAdminCookie();
 
         $phpExcelObject = new \PHPExcel();
-
         $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
 
         //get array of orders
-        $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport();
+        $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport(
+            $type,
+            $city,
+            $building,
+            $userId,
+            $startDate,
+            $endDate
+        );
 
         $headers = [
-            'Product name',
-            'Product type',
-            'Unit price',
-            'Price',
+            '商品名称', //Product name
+            '商品类型', //Product type
+            '工位号', //Employee ID
+            '单价', //Unit price
+//            '使用折扣', //Discount
+//            '税', //VAT
+            '总价', //Amount
+            '租赁时间', //Leasing time
+            '订单创建时间', //Order time
+            '订单付款时间', //Payment complete time
+            '订单状态', //Order status
+            '租赁人姓名', //User name
+            '租赁人手机', //User mobile
+            '租赁人邮箱', //User email
         ];
-
         //Fill data
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($orders, ' ', 'A2');
@@ -222,10 +296,14 @@ class AdminOrderController extends OrderController
         $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $date = new \DateTime('now');
+        $stringDate = $date->format('Y-m-d H:i:s');
+
         // adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'orders.xls'
+            'orders_'.$stringDate.'.xls'
         );
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -303,5 +381,22 @@ class AdminOrderController extends OrderController
         $view->setData($user);
 
         return $view;
+    }
+
+    /**
+     * authenticate with web browser cookie.
+     */
+    private function authenticateAdminCookie()
+    {
+        $cookie_name = 'sandbox_admin_token';
+        if (!isset($_COOKIE[$cookie_name])) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $token = $_COOKIE[$cookie_name];
+        $adminToken = $this->getRepo('Admin\AdminToken')->findOneByToken($token);
+        if (is_null($adminToken)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
     }
 }
