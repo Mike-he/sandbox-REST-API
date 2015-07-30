@@ -86,22 +86,22 @@ class AdminUsersController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        //        $pageLimit = $paramFetcher->get('pageLimit');
-//        $pageIndex = $paramFetcher->get('pageIndex');
-//        $query = $paramFetcher->get('query');
-//
-//        // find all users who have the query in any of their mapped fields
-//        $finder = $this->container->get('fos_elastica.finder.search.user');
-//        $results = $finder->createPaginatorAdapter($query.'*');
-//
-//        $paginator = $this->get('knp_paginator');
-//        $pagination = $paginator->paginate(
-//            $results,
-//            $pageIndex,
-//            $pageLimit
-//        );
-//
-//        return new View($pagination);
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $query = $paramFetcher->get('query');
+
+        // find all users who have the query in any of their mapped fields
+        $finder = $this->container->get('fos_elastica.finder.search.user');
+        $results = $finder->createPaginatorAdapter($query.'*');
+
+        $paginator = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $results,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
