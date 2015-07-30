@@ -266,15 +266,12 @@ fos_elastica:
                         provider: ~
                         listener: ~
                         finder: ~
-#                user:
-#                    mappings:
-#                        id: ~
-#                        name: ~
-#                        email: ~
-#                        phone: ~
-#                    persistence:
-#                        driver: orm
-#                        model: Sandbox\ApiBundle\Entity\User\User
-#                        provider: ~
-#                        listener: ~
-#                        finder: ~
+                user:
+                    mappings:
+                        email: ~
+                    persistence:
+                        driver: orm
+                        model: Sandbox\ApiBundle\Entity\User\User
+                        provider: ~
+                        listener: ~
+                        finder: ~
