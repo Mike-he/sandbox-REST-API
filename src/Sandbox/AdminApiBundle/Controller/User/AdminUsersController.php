@@ -56,6 +56,43 @@ class AdminUsersController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="banned",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by banned"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sortBy",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Sort by id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    array=false,
+     *    default="DESC",
+     *    nullable=true,
+     *    requirements="(ASC|DESC)",
+     *    strict=true,
+     *    description="sort direction"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -86,6 +123,11 @@ class AdminUsersController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $banned = $paramFetcher->get('banned');
+
+        $sortBy = $paramFetcher->get('sortBy');
+        $direction = $paramFetcher->get('direction');
+
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
@@ -103,8 +145,12 @@ class AdminUsersController extends SandboxRestController
             AdminType::KEY_SUPER
         );
 
-        // get all user id and name
-        $users = $this->getRepo('User\UserView')->findAll();
+        // get user id and name
+        $users = $this->getRepo('User\UserView')->getUsers(
+            $banned,
+            $sortBy,
+            $direction
+        );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
