@@ -19,7 +19,9 @@ use JMS\Serializer\Annotation as Serializer;
  *          @ORM\Index(name="fk_AdminToken_clientId_idx", columns={"clientId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="Sandbox\ApiBundle\Repository\Admin\AdminTokenRepository"
+ * )
  */
 class AdminToken
 {
