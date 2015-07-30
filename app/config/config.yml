@@ -262,4 +262,13 @@ fos_elastica:
                         provider: ~
                         listener: ~
                         finder: ~
-
+                room:
+                    mappings:
+                        name: {type: string}
+                        number: {type: string}
+                    persistence:
+                        driver: orm
+                        model: Sandbox\ApiBundle\Entity\Room\Room
+                        provider: ~
+                        listener: ~
+                        finder: ~

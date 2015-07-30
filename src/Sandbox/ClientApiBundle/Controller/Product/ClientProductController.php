@@ -232,9 +232,14 @@ class ClientProductController extends ProductController
 
         $response = [];
         foreach ($orders as $order) {
+            $startDate = $order->getStartDate();
+            $endDate = $order->getEndDate();
+            $start = $startDate->getTimeStamp();
+            $end = $endDate->getTimeStamp();
+
             $dates = array(
-                'start' => $order->getStartDate(),
-                'end' => $order->getEndDate(),
+                'start' => $start,
+                'end' => $end,
             );
             array_push($response, $dates);
         }
