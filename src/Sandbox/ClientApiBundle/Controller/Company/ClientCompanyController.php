@@ -332,7 +332,7 @@ class ClientCompanyController extends CompanyController
         // find all companies who have the query in any of their mapped fields
         $finder = $this->container->get('fos_elastica.finder.search.company');
 
-        $results = $finder->find($query);
+        $results = $finder->find($query.'*');
         if (is_null($results) || empty($results)) {
             return new View(array());
         }
