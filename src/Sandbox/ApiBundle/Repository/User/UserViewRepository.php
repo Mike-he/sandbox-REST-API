@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
 use JMS\Serializer\Tests\Serializer\Doctrine;
+use Sandbox\ApiBundle\Entity\User\UserView;
 
 class UserViewRepository extends EntityRepository
 {
@@ -32,5 +33,26 @@ class UserViewRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    public function getUsersByIds(
+        $ids
+    ){
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
+                    SELECT
+                    u.id,
+                    u.phone,
+                    u.email,
+                    u.banned,
+                    u.name,
+                    u.gender
+                    FROM SandboxApiBundle:User\UserView u
+                    WHERE u.id IN (:ids)
+                '
+            )
+            ->setParameter('ids', $ids);
+        return $query->getResult();
     }
 }

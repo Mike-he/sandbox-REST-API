@@ -56,6 +56,15 @@ class AdminUsersController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="banned",
      *    array=false,
      *    default=null,
@@ -114,43 +123,53 @@ class AdminUsersController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $banned = $paramFetcher->get('banned');
-
-        $sortBy = $paramFetcher->get('sortBy');
-        $direction = $paramFetcher->get('direction');
-
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER,
+            AdminType::KEY_PLATFORM,
             AdminPermission::KEY_PLATFORM_USER,
             AdminPermissionMap::OP_LEVEL_VIEW
         );
 
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
+        $notNull = false;
+        $ids = $paramFetcher->get('id');
+        foreach($ids as $id){
+            if(!EMPTY($id)){
+                $notNull = true;
+            }
+        }
+        if($notNull){
+            // get user
+            $user = $this->getRepo('User\UserView')->getUsersByIds($id);
 
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_SUPER
-        );
+            // set view
+            return new View($user);
+        }else{
+            $banned = $paramFetcher->get('banned');
 
-        // get user id and name
-        $users = $this->getRepo('User\UserView')->getUsers(
-            $banned,
-            $sortBy,
-            $direction
-        );
+            $sortBy = $paramFetcher->get('sortBy');
+            $direction = $paramFetcher->get('direction');
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $users,
-            $pageIndex,
-            $pageLimit
-        );
 
-        return new View($pagination);
+            $pageLimit = $paramFetcher->get('pageLimit');
+            $pageIndex = $paramFetcher->get('pageIndex');
+
+            // get user id and name
+            $users = $this->getRepo('User\UserView')->getUsers(
+                $banned,
+                $sortBy,
+                $direction
+            );
+
+            $paginator = new Paginator();
+            $pagination = $paginator->paginate(
+                $users,
+                $pageIndex,
+                $pageLimit
+            );
+
+            return new View($pagination);
+        }
     }
 
     /**
