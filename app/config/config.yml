@@ -272,3 +272,15 @@ fos_elastica:
                         provider: ~
                         listener: ~
                         finder: ~
+                user:
+                    mappings:
+                        id: {type: integer}
+                        name: {type: string}
+                        email: {type: string}
+                        phone: {type: string}
+                    persistence:
+                        driver: orm
+                        model: Sandbox\ApiBundle\Entity\User\UserView
+                        provider: ~
+                        listener: ~
+                        finder: ~
