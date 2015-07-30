@@ -92,16 +92,18 @@ class AdminUsersController extends SandboxRestController
 
         // find all users who have the query in any of their mapped fields
         $finder = $this->container->get('fos_elastica.finder.search.user');
-        $results = $finder->createPaginatorAdapter($query.'*');
+        $results = $finder->find($query.'*');
 
-        $paginator = $this->get('knp_paginator');
-        $pagination = $paginator->paginate(
-            $results,
-            $pageIndex,
-            $pageLimit
-        );
+//        $results = $finder->createPaginatorAdapter($query.'*');
+//
+//        $paginator = $this->get('knp_paginator');
+//        $pagination = $paginator->paginate(
+//            $results,
+//            $pageIndex,
+//            $pageLimit
+//        );
 
-        return new View($pagination);
+        return new View($results);
     }
 
     /**
