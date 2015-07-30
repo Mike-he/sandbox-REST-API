@@ -40,8 +40,7 @@ class UserProfile
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "admin_order",
-     *      "feed",
-     *      "company_member_basic"
+     *      "feed"
      *  }
      * )
      */

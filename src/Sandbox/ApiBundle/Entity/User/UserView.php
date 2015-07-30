@@ -9,7 +9,9 @@ use JMS\Serializer\Annotation as Serializer;
  * User view.
  *
  * @ORM\Table(name="UserView")
- * @ORM\Entity
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserViewRepository"
+ * )
  */
 class UserView
 {

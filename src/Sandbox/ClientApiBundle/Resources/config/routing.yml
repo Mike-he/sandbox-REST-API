@@ -83,6 +83,12 @@ sandbox_client_api_auth_login:
     type:     annotation
     prefix:   /auth
 
+# Client User Logout /client/auth/logout
+sandbox_client_api_auth_logout:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserLogoutController.php"
+    type:     annotation
+    prefix:   /auth
+
 # Bind email /email
 sandbox_client_api_user_email_binding:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserEmailBindingController.php"
