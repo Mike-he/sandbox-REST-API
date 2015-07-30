@@ -56,15 +56,6 @@ class AdminUsersController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="id",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by user id"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="banned",
      *    array=false,
      *    default=null,
