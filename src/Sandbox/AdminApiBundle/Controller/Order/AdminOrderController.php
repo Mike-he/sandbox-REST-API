@@ -248,7 +248,7 @@ class AdminOrderController extends OrderController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         //authenticate with web browser cookie
-        $this->authenticateAdminCookie();
+        //$this->authenticateAdminCookie();
 
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
@@ -264,24 +264,27 @@ class AdminOrderController extends OrderController
         );
 
         $headers = [
-            '商品名称', //Product name
-            '商品类型', //Product type
-            '工位号', //Employee ID
-            '单价', //Unit price
+            'Product name', //商品名称
+            'Product type', //商品类型
+            'Employee ID', //工位号
+            'Unit price', //单价
 //            '使用折扣', //Discount
 //            '税', //VAT
-            '总价', //Amount
-            '租赁时间', //Leasing time
-            '订单创建时间', //Order time
-            '订单付款时间', //Payment complete time
-            '订单状态', //Order status
-            '租赁人姓名', //User name
-            '租赁人手机', //User mobile
-            '租赁人邮箱', //User email
+            'Amount', //总价
+            'Leasing time', //租赁时间
+            'Order time', //订单创建时间
+            'Payment complete time', //订单付款时间
+            'Order status', //订单状态
+            'User name', //租赁人姓名
+            'User mobile', //租赁人手机
+            'User email', //租赁人邮箱
         ];
+
         //Fill data
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($orders, ' ', 'A2');
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:L1')->getFont()->setBold(true);
 
         //set column dimension
         for ($col = ord('a'); $col <= ord('o'); ++$col) {

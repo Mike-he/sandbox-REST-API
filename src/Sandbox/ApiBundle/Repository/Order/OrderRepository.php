@@ -282,14 +282,14 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'rc.id = r.city')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'rb.id = r.building');
 
-        // filter by user id
-        if (!is_null($userId)) {
-            $query->where('o.userId = :userId');
-            $parameters['userId'] = $userId;
-        } else {
-            $query->where('o.status != :unpaid');
-            $parameters['unpaid'] = 'unpaid';
-        }
+//        // filter by user id
+//        if (!is_null($userId)) {
+//            $query->where('o.userId = :userId');
+//            $parameters['userId'] = $userId;
+//        } else {
+//            $query->where('o.status != :unpaid');
+//            $parameters['unpaid'] = 'unpaid';
+//        }
 
         // filter by type
         if (!is_null($type)) {
@@ -324,7 +324,7 @@ class OrderRepository extends EntityRepository
         $query->orderBy('o.creationDate', 'DESC');
 
         //set all parameters
-        $query->setParameters($parameters);
+        //$query->setParameters($parameters);
 
         return $query->getQuery()->getArrayResult();
     }
