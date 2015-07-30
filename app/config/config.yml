@@ -238,6 +238,15 @@ fos_elastica:
             index_name: app_%kernel.environment%
             client: default
             types:
+                user:
+                    mappings:
+                        email: ~
+                    persistence:
+                        driver: orm
+                        model: Sandbox\ApiBundle\Entity\User\User
+                        provider: ~
+                        listener: ~
+                        finder: ~
                 member:
                     mappings:
                         name: ~
@@ -253,15 +262,6 @@ fos_elastica:
                     persistence:
                         driver: orm
                         model: Sandbox\ApiBundle\Entity\Company\Company
-                        provider: ~
-                        listener: ~
-                        finder: ~
-                user:
-                    mappings:
-                        email: ~
-                    persistence:
-                        driver: orm
-                        model: Sandbox\ApiBundle\Entity\User\User
                         provider: ~
                         listener: ~
                         finder: ~
