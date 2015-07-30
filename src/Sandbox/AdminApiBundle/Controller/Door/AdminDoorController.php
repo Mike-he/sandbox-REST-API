@@ -197,12 +197,12 @@ class AdminDoorController extends DoorController
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
 
-        $sessionId = $this->getSessionId($base);
+        $sessionId = $this->getSessionId($base, $globals);
         try {
             $data = $globals['door_api_session_id'].$sessionId;
 
             $doorArray = $this->postDoorApi($base.$globals['door_api_get_doors'], $data);
-            $this->logOut($sessionId, $base);
+            $this->logOut($sessionId, $base, $globals);
             if ($doorArray['ads_result']['result'] !== self::RESULT_OK) {
                 return $this->customErrorView(
                     400,
@@ -214,7 +214,7 @@ class AdminDoorController extends DoorController
             return new View($doorArray['ads_doors']);
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $base);
+                $this->logOut($sessionId, $base, $globals);
             }
         }
     }
@@ -292,7 +292,7 @@ class AdminDoorController extends DoorController
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
 
-        $sessionId = $this->getSessionId($base);
+        $sessionId = $this->getSessionId($base, $globals);
         try {
             $begin = $paramFetcher->get('begin_time');
             $end = $paramFetcher->get('end_time');
@@ -305,7 +305,7 @@ class AdminDoorController extends DoorController
                 $globals['door_api_end_time'].$end;
 
             $recordArray = $this->postDoorApi($base.$globals['door_api_get_card_record'], $data);
-            $this->logOut($sessionId, $base);
+            $this->logOut($sessionId, $base, $globals);
 
             if ($recordArray['ads_result']['result'] !== self::RESULT_OK) {
                 return $this->customErrorView(
@@ -325,7 +325,7 @@ class AdminDoorController extends DoorController
             return new View($pagination);
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $base);
+                $this->logOut($sessionId, $base, $globals);
             }
         }
     }
@@ -403,7 +403,7 @@ class AdminDoorController extends DoorController
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
 
-        $sessionId = $this->getSessionId($base);
+        $sessionId = $this->getSessionId($base, $globals);
         try {
             $begin = $paramFetcher->get('begin_time');
             $end = $paramFetcher->get('end_time');
@@ -417,7 +417,7 @@ class AdminDoorController extends DoorController
                 $globals['door_api_end_time'].$end;
 
             $recordArray = $this->postDoorApi($base.$globals['door_api_get_alarm_record'], $data);
-            $this->logOut($sessionId, $base);
+            $this->logOut($sessionId, $base, $globals);
             if ($recordArray['ads_result']['result'] !== self::RESULT_OK) {
                 return $this->customErrorView(
                     400,
@@ -436,7 +436,7 @@ class AdminDoorController extends DoorController
             return new View($pagination);
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $base);
+                $this->logOut($sessionId, $base, $globals);
             }
         }
     }

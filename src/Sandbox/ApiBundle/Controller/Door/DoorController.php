@@ -83,10 +83,8 @@ class DoorController extends SandboxRestController
     /**
      * @return mixed
      */
-    public function getSessionId($base)
+    public function getSessionId($base, $globals)
     {
-        $globals = $this->getGlobals();
-
         $data = 'Username='.$globals['door_api_username'].
             '&Password='.$globals['door_api_password'];
         $sessionArray = $this->postDoorApi($base.$globals['door_api_login'], $data);
@@ -98,10 +96,8 @@ class DoorController extends SandboxRestController
     /**
      * @param $sessionId
      */
-    public function logOut($sessionId, $base)
+    public function logOut($sessionId, $base, $globals)
     {
-        $globals = $this->getGlobals();
-
         $data = $globals['door_api_session_id'].$sessionId;
         $this->postDoorApi($base.$globals['door_api_logout'], $data);
     }
@@ -115,7 +111,7 @@ class DoorController extends SandboxRestController
         $method,
         $globals
     ) {
-        $sessionId = $this->getSessionId($base);
+        $sessionId = $this->getSessionId($base, $globals);
         try {
             $data = [
                 'ads_card' => [
@@ -130,10 +126,10 @@ class DoorController extends SandboxRestController
                 'ads_door_permissions' => $doorArray,
             ];
             $json = json_encode($data);
-            $data = $globals['door_api_session_id'].$sessionId.$globals['door_api_card_permission'].$json;
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_card_permission'].$json;
 
             $periodArray = $this->postDoorApi($base.$globals['door_api_set_card_permission'], $data);
-            $this->logOut($sessionId, $base);
+            $this->logOut($sessionId, $base, $globals);
 
             if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
                 return $this->customErrorView(
@@ -144,7 +140,7 @@ class DoorController extends SandboxRestController
             }
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $base);
+                $this->logOut($sessionId, $base, $globals);
             }
         }
     }
@@ -184,7 +180,7 @@ class DoorController extends SandboxRestController
             array_push($timeArray, $timePeriod);
         }
 
-        $sessionId = $this->getSessionId($base);
+        $sessionId = $this->getSessionId($base, $globals);
         try {
             $data = [
                 'ads_timeperiod' => [
@@ -194,10 +190,10 @@ class DoorController extends SandboxRestController
                 ],
             ];
             $json = json_encode($data);
-            $data = $globals['door_api_session_id'].$sessionId.$globals['door_api_time_period'].$json;
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_time_period'].$json;
 
             $periodArray = $this->postDoorApi($base.$globals['door_api_set_time'], $data);
-            $this->logOut($sessionId, $base);
+            $this->logOut($sessionId, $base, $globals);
 
             if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
                 return $this->customErrorView(
@@ -208,7 +204,7 @@ class DoorController extends SandboxRestController
             }
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $base);
+                $this->logOut($sessionId, $base, $globals);
             }
         }
     }
