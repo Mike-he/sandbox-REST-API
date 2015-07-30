@@ -177,7 +177,7 @@ class AdminOrderController extends OrderController
     public function getExcelOrders(
         Request $request
     ) {
-        //TODO: not finished, just for test
+        //TODO: not finished, add filters
 
         // authenticate with web browser cookie
         $cookie_name = 'sandbox_admin_token';
@@ -199,12 +199,21 @@ class AdminOrderController extends OrderController
         $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport();
 
         $headers = [
-            'Product name',
-            'Product type',
-            'Unit price',
-            'Price',
+            '商品名称', //Product name
+            '商品类型', //Product type
+            '工位号', //Employee ID
+            '单价', //Unit price
+//            '使用折扣', //Discount
+//            '税', //VAT
+            '总价', //Amount
+            '租赁时间', //Leasing time
+            '订单创建时间', //Order time
+            '订单付款时间', //Payment complete time
+            '订单状态', //Order status
+            '租赁人姓名', //User name
+            '租赁人手机', //User mobile
+            '租赁人邮箱', //User email
         ];
-
         //Fill data
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($orders, ' ', 'A2');
@@ -222,10 +231,14 @@ class AdminOrderController extends OrderController
         $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $date = new \DateTime('now');
+        $stringDate = $date->format('Y-m-d H:i:s');
+
         // adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'orders.xls'
+            'orders_' . $stringDate . '.xls'
         );
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');

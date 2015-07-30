@@ -212,15 +212,33 @@ class OrderRepository extends EntityRepository
     {
         $query = $this->createQueryBuilder('o')
             ->select("
-                    CONCAT(r.number, ', ', r.name) as product_name,
+                    CONCAT(rc.name, ', ', rb.name, ', ', r.number, ', ', r.name) as product_name,
                     r.type,
+                    o.userId as employee_id,
                     p.unitPrice,
-                    o.price
+                    o.price as amount,
+                    CONCAT(p.startDate, ' - ', p.endDate) as leasing_time,
+                    o.creationDate as order_time,
+                    o.modificationDate as payment_time,
+                    o.status,
+                    up.name,
+                    up.phone,
+                    up.email
                 ")
+            ->innerJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
+            ->innerJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'rc.id = r.city')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'rb.id = r.building');
+
+        $query->where('o.status != :unpaid');
+        $parameters['unpaid'] = 'unpaid';
 
         $query->orderBy('o.creationDate', 'DESC');
+
+        //set all parameters
+        $query->setParameters($parameters);
 
         return $query->getQuery()->getArrayResult();
     }
