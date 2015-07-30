@@ -235,7 +235,7 @@ class AdminRoomController extends RoomController
 
         $SearchQuery = new \Elastica\Query\QueryString();
 
-        $SearchQuery->setParam('query', $query);
+        $SearchQuery->setParam('query', $query.'*');
         $SearchQuery->setDefaultOperator('AND');
 
         $SearchQuery->setParam('fields', array(

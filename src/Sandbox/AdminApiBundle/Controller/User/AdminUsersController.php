@@ -103,6 +103,7 @@ class AdminUsersController extends SandboxRestController
 
         return new View($pagination);
     }
+
     /**
      * List all users.
      *
