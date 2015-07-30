@@ -103,30 +103,49 @@ class SandboxRestController extends FOSRestController
      * @param int    $adminId
      * @param string $typeKey
      * @param string $permissionKey
+     * @param int    $opLevel
      *
      * @throws AccessDeniedHttpException
      */
     protected function throwAccessDeniedIfAdminNotAllowed(
         $adminId,
         $typeKey,
-        $permissionKey = null
+        $permissionKey = null,
+        $opLevel = 0
     ) {
+        // get admin
         $admin = $this->getRepo('Admin\Admin')->find($adminId);
-
         $type = $admin->getType();
+
+        // if user is super admin, no need to check others
+        if (AdminType::KEY_SUPER === $type->getKey()) {
+            return;
+        }
+
+        // if admin type doesn't match, then throw exception
         if ($typeKey != $type->getKey()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        if ($typeKey != AdminType::KEY_SUPER && !is_null($permissionKey)) {
-            // not super admin
-            // check permission
-            $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
-            $permissions = $admin->getPermissions();
+        if (is_null($permissionKey)) {
+            return;
+        }
 
-            if (!in_array($permission, $permissions)) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-            }
+        $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
+
+        // check user's permission
+        $myPermission = $this->getRepo('Admin\AdminPermissionMap')
+            ->findOneBy(array(
+                'adminId' => $adminId,
+                'permissionId' => $permission->getId(),
+            ));
+        if (is_null($myPermission)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        // check user's operation level
+        if ($myPermission->getOpLevel() < $opLevel) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
     }
 
@@ -206,7 +225,7 @@ class SandboxRestController extends FOSRestController
      * @return string|null
      */
     protected function getExpireDateIfUserVIP(
-        $auth
+        $auth = null
     ) {
         if (is_null($auth)) {
             // get auth

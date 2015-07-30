@@ -19,7 +19,13 @@ class AdminPostType extends AbstractType
             ->add('password')
             ->add('name')
             ->add('type_id')
-            ->add('permission_ids')
+            ->add(
+                    'permission',
+                    null,
+                    array(
+                        'mapped' => false,
+                    )
+                )
         ;
     }
 

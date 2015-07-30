@@ -6,6 +6,8 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -84,6 +86,14 @@ class AdminUsersController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_SUPER,
+            AdminPermission::KEY_PLATFORM_USER,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
@@ -133,7 +143,9 @@ class AdminUsersController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_USER,
+            AdminPermissionMap::OP_LEVEL_VIEW
         );
 
         // get user
@@ -161,6 +173,14 @@ class AdminUsersController extends SandboxRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_USER,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),

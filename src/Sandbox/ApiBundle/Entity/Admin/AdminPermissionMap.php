@@ -22,6 +22,9 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class AdminPermissionMap
 {
+    const OP_LEVEL_VIEW = 1;
+    const OP_LEVEL_EDIT = 2;
+
     /**
      * @var int
      *
@@ -58,6 +61,14 @@ class AdminPermissionMap
      * @Serializer\Groups({"main", "login", "admin", "auth"})
      **/
     private $permission;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="opLevel", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     */
+    private $opLevel;
 
     /**
      * @ORM\ManyToOne(targetEntity="Admin")
@@ -169,6 +180,30 @@ class AdminPermissionMap
     public function getPermission()
     {
         return $this->permission;
+    }
+
+    /**
+     * Set opLevel.
+     *
+     * @param int $opLevel
+     *
+     * @return AdminPermissionMap
+     */
+    public function setOpLevel($opLevel)
+    {
+        $this->opLevel = $opLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get opLevel.
+     *
+     * @return int
+     */
+    public function getOpLevel()
+    {
+        return $this->opLevel;
     }
 
     /**
