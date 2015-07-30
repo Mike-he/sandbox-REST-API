@@ -256,6 +256,15 @@ fos_elastica:
                         provider: ~
                         listener: ~
                         finder: ~
+                user:
+                    mappings:
+                        email: ~
+                    persistence:
+                        driver: orm
+                        model: Sandbox\ApiBundle\Entity\User\User
+                        provider: ~
+                        listener: ~
+                        finder: ~
                 room:
                     mappings:
                         name: {type: string}
@@ -263,15 +272,6 @@ fos_elastica:
                     persistence:
                         driver: orm
                         model: Sandbox\ApiBundle\Entity\Room\Room
-                        provider: ~
-                        listener: ~
-                        finder: ~
-                user:
-                    mappings:
-                        email: ~
-                    persistence:
-                        driver: orm
-                        model: Sandbox\ApiBundle\Entity\User\User
                         provider: ~
                         listener: ~
                         finder: ~
