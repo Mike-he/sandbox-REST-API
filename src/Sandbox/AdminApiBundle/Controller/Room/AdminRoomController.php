@@ -184,6 +184,78 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * Room.
+     *
+     * @param Request $request the request object
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
+     * @Route("/rooms/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getRoomsSearchAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $query = $paramFetcher->get('query');
+
+        // find all rooms who have the query in any of their mapped fields
+        $index = $this->container->get('fos_elastica.finder.search.room');
+
+        $SearchQuery = new \Elastica\Query\QueryString();
+
+        $SearchQuery->setParam('query', $query);
+        $SearchQuery->setDefaultOperator('AND');
+
+        $SearchQuery->setParam('fields', array(
+            'name',
+            'number',
+        ));
+
+        $results = $index->createPaginatorAdapter($SearchQuery);
+
+        $paginator = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $results,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
      * Get room by id.
      *
      * @param Request $request
