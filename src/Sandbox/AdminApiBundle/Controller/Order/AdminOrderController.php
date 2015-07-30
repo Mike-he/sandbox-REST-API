@@ -248,7 +248,7 @@ class AdminOrderController extends OrderController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         //authenticate with web browser cookie
-        //$this->authenticateAdminCookie();
+        $this->authenticateAdminCookie();
 
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
