@@ -272,8 +272,8 @@ fos_elastica:
                         finder: ~
                 room:
                     mappings:
-                        name: {type: string}
-                        number: {type: string}
+                        name: ~
+                        number: ~
                     persistence:
                         driver: orm
                         model: Sandbox\ApiBundle\Entity\Room\Room
@@ -282,13 +282,12 @@ fos_elastica:
                         finder: ~
                 user:
                     mappings:
-                        id: {type: integer}
-                        name: {type: string}
-                        email: {type: string}
-                        phone: {type: string}
+                        id: ~
+                        email: ~
+                        phone: ~
                     persistence:
                         driver: orm
-                        model: Sandbox\ApiBundle\Entity\User\UserView
+                        model: Sandbox\ApiBundle\Entity\User\User
                         provider: ~
                         listener: ~
                         finder: ~
