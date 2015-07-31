@@ -131,20 +131,8 @@ class AdminUsersController extends SandboxRestController
             AdminPermissionMap::OP_LEVEL_VIEW
         );
 
-        $notNull = false;
         $ids = $paramFetcher->get('id');
-        foreach ($ids as $id) {
-            if (!empty($id)) {
-                $notNull = true;
-            }
-        }
-        if ($notNull) {
-            // get user
-            $user = $this->getRepo('User\UserView')->getUsersByIds($id);
-
-            // set view
-            return new View($user);
-        } else {
+        if (is_null($ids) || empty($ids)) {
             $banned = $paramFetcher->get('banned');
 
             $sortBy = $paramFetcher->get('sortBy');
@@ -168,6 +156,12 @@ class AdminUsersController extends SandboxRestController
             );
 
             return new View($pagination);
+        } else {
+            // get user
+            $user = $this->getRepo('User\UserView')->getUsersByIds($ids);
+
+            // set view
+            return new View($user);
         }
     }
 
