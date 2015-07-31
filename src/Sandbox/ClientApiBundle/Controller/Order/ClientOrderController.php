@@ -494,6 +494,7 @@ class ClientOrderController extends PaymentController
             );
         }
         $price = $order->getPrice();
+
         //TODO: CALL CRM API to get current balance $balance
         $balance = 500;
         //TODO: CALL CRM API to request add $price to balance

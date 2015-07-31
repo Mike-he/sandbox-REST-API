@@ -32,4 +32,26 @@ class UserViewRepository extends EntityRepository
 
         return $result;
     }
+
+    public function getUsersByIds(
+        $ids
+    ) {
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
+                    SELECT
+                    u.id,
+                    u.phone,
+                    u.email,
+                    u.banned,
+                    u.name,
+                    u.gender
+                    FROM SandboxApiBundle:User\UserView u
+                    WHERE u.id IN (:ids)
+                '
+            )
+            ->setParameter('ids', $ids);
+
+        return $query->getResult();
+    }
 }

@@ -99,16 +99,16 @@ class AdminUsersController extends SandboxRestController
         $multiMatchQuery->setType('phrase_prefix');
         $multiMatchQuery->setFields(array('email', 'phone'));
 
-//        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-//
-//        $paginator = $this->get('knp_paginator');
-//        $pagination = $paginator->paginate(
-//            $results,
-//            $pageIndex,
-//            $pageLimit
-//        );
+        $results = $finder->createPaginatorAdapter($multiMatchQuery);
 
-        return new View($finder->find($multiMatchQuery));
+        $paginator = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $results,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
@@ -122,6 +122,15 @@ class AdminUsersController extends SandboxRestController
      *   statusCodes = {
      *     200 = "Returned when successful"
      *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
      * )
      *
      * @Annotations\QueryParam(
@@ -183,43 +192,38 @@ class AdminUsersController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_USER,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
+
+        $ids = $paramFetcher->get('id');
+
         $banned = $paramFetcher->get('banned');
 
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
 
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_SUPER,
-            AdminPermission::KEY_PLATFORM_USER,
-            AdminPermissionMap::OP_LEVEL_VIEW
-        );
-
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_SUPER
-        );
-
-        // get user id and name
-        $users = $this->getRepo('User\UserView')->getUsers(
-            $banned,
-            $sortBy,
-            $direction
-        );
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $users,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
+        //return result according to ids
+        if (is_null($ids) || empty($ids)) {
+            //ids is null
+            return $this->getUsersNotByIds(
+                $banned,
+                $sortBy,
+                $direction,
+                $pageLimit,
+                $pageIndex
+            );
+        } else {
+            //ids is not null
+            return $this->getUsersByIds($ids);
+        }
     }
 
     /**
@@ -310,5 +314,52 @@ class AdminUsersController extends SandboxRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param $banned
+     * @param $sortBy
+     * @param $direction
+     * @param $pageLimit
+     * @param $pageIndex
+     *
+     * @return View
+     */
+    public function getUsersNotByIds(
+        $banned,
+        $sortBy,
+        $direction,
+        $pageLimit,
+        $pageIndex
+    ) {
+        // get user id and name
+        $users = $this->getRepo('User\UserView')->getUsers(
+            $banned,
+            $sortBy,
+            $direction
+        );
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $users,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * @param $ids
+     *
+     * @return View
+     */
+    public function getUsersByIds(
+        $ids
+    ) {
+        // get user
+        $user = $this->getRepo('User\UserView')->getUsersByIds($ids);
+
+        // set view
+        return new View($user);
     }
 }

@@ -48,6 +48,7 @@ twig:
         crm_api_client_user_account_authentication: "%crm_api_client_user_account_authentication%"
         crm_api_client_user_account_vip: "%crm_api_client_user_account_vip%"
         crm_api_admin_user_account_cardno: "%crm_api_admin_user_account_cardno%"
+        crm_api_client_own_account_balance: "%crm_api_client_own_account_balance%"
         door_api_username: "%door_api_username%"
         door_api_password: "%door_api_password%"
         door_api_login: "%door_api_login%"
