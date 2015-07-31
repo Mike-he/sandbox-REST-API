@@ -47,6 +47,7 @@ twig:
         crm_api_url: "%crm_api_url%"
         crm_api_client_user_account_authentication: "%crm_api_client_user_account_authentication%"
         crm_api_client_user_account_vip: "%crm_api_client_user_account_vip%"
+        crm_api_admin_user_account_cardno: "%crm_api_admin_user_account_cardno%"
         door_api_username: "%door_api_username%"
         door_api_password: "%door_api_password%"
         door_api_login: "%door_api_login%"
@@ -282,7 +283,6 @@ fos_elastica:
                         finder: ~
                 user:
                     mappings:
-                        id: ~
                         email: ~
                         phone: ~
                     persistence:
