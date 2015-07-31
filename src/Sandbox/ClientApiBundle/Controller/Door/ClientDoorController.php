@@ -30,8 +30,15 @@ class ClientDoorController extends DoorController
     public function lostCardPermissionAction(
         Request $request
     ) {
-        $userId = $request->get('user_id');
-        $cardNo = $request->get('card_no');
+        $userId = $this->getUserId();
+        $cardNo = $this->getCardNoIfUserAuthorized();
+        if (is_null($cardNo)) {
+            return $this->customErrorView(
+                400,
+                self::CARDNO_NOT_FOUND_CODE,
+                self::CARDNO_NOT_FOUND_MESSAGE
+            );
+        }
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 

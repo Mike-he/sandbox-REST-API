@@ -32,6 +32,7 @@ parameters:
     crm_api_url: http://devcrm.sandbox3.cn
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
+    crm_api_admin_user_account_cardno: /admin/useraccounts/{userId}/cardno
     door_api_username: admin
     door_api_password: admin
     door_api_login: /Login
