@@ -163,7 +163,7 @@ class AdminRoomController extends RoomController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
         $floor = !is_null($floorId) ? $this->getRepo('Room\RoomFloor')->find($floorId) : null;
 
-        $query = $this->getRepo('Room\Room')->getRooms(
+        $query = $this->getRepo('Room\RoomView')->getRooms(
             $type,
             $city,
             $building,
@@ -228,22 +228,18 @@ class AdminRoomController extends RoomController
     ) {
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+
+        //search by name and number
         $query = $paramFetcher->get('query');
 
         // find all rooms who have the query in any of their mapped fields
-        $finder = $this->container->get('fos_elastica.finder.search.room');
+        $rooms = $this->getRepo('Room\RoomView')->searchRooms(
+            $query
+        );
 
-        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-
-        $multiMatchQuery->setQuery($query);
-        $multiMatchQuery->setType('phrase_prefix');
-        $multiMatchQuery->setFields(array('name', 'number'));
-
-        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-
-        $paginator = $this->get('knp_paginator');
+        $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $results,
+            $rooms,
             $pageIndex,
             $pageLimit
         );
