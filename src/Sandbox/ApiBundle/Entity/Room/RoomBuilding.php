@@ -116,7 +116,7 @@ class RoomBuilding
      *
      * @ORM\Column(name="avatar", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"avatar"})
+     * @Serializer\Groups({"main", "avatar"})
      */
     private $avatar;
 
@@ -124,6 +124,8 @@ class RoomBuilding
      * @var string
      *
      * @ORM\Column(name="server", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"server"})
      */
     private $server;
 

@@ -13,6 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Location Controller.
@@ -70,7 +71,11 @@ class LocationController extends SandboxRestController
         }
         $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
 
-        return new View($buildings);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData($buildings);
+
+        return $view;
     }
 
     /**
@@ -86,6 +91,9 @@ class LocationController extends SandboxRestController
         $id
     ) {
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData($building);
 
         return new View($building);
     }
