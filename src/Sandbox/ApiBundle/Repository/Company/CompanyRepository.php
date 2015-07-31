@@ -23,8 +23,8 @@ class CompanyRepository extends EntityRepository
 
         if (!is_null($industryIds) && !empty($industryIds)) {
             $queryStr = $queryStr.
-                'JOIN SandboxApiBundle:Company\CompanyIndustryMap cip
-                WITH c.id = cip.companyId';
+                ' JOIN SandboxApiBundle:Company\CompanyIndustryMap cip
+                  WITH c.id = cip.companyId';
         }
 
         $queryStr = $queryStr.' WHERE c.id > 0';
