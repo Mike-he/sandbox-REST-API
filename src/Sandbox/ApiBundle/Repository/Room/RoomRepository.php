@@ -29,20 +29,7 @@ class RoomRepository extends EntityRepository
         $notFirst = false;
         $parameters = [];
 
-        $query = $this->createQueryBuilder('r')
-            ->select('
-                r as room,
-                o.status,
-                o.startDate as order_start_date,
-                o.endDate as order_end_date,
-                up.name as renter_name,
-                up.email as renter_email
-            ')
-            ->innerJoin('SandboxApiBundle:Room\RoomFloor', 'rf', 'WITH', 'rf.id = r.floor')
-            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
-            ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId');
+        $query = $this->createQueryBuilder('r');
 
         // filter by type
         if (!is_null($type)) {
@@ -110,8 +97,26 @@ class RoomRepository extends EntityRepository
             $query->setParameters($parameters);
         }
 
-        $result = $query->getQuery()->getResult();
+        $result = $query->getQuery();
 
         return $result;
+    }
+
+    /**
+     * Search rooms by name or number.
+     *
+     * @param String $search
+     *
+     * @return \Doctrine\ORM\Query
+     */
+    public function searchRooms(
+        $search
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->where('r.name LIKE :search')
+            ->orWhere('r.number LIKE :search')
+            ->setParameter('search', "%$search%");
+
+        return $result = $query->getQuery();
     }
 }
