@@ -47,6 +47,20 @@ twig:
         crm_api_url: "%crm_api_url%"
         crm_api_client_user_account_authentication: "%crm_api_client_user_account_authentication%"
         crm_api_client_user_account_vip: "%crm_api_client_user_account_vip%"
+        door_api_username: "%door_api_username%"
+        door_api_password: "%door_api_password%"
+        door_api_login: "%door_api_login%"
+        door_api_logout: "%door_api_logout%"
+        door_api_get_doors: "%door_api_get_doors%"
+        door_api_set_time: "%door_api_set_time%"
+        door_api_get_card_record: "%door_api_get_card_record%"
+        door_api_get_alarm_record: "%door_api_get_alarm_record%"
+        door_api_set_card_permission: "%door_api_set_card_permission%"
+        door_api_session_id: "%door_api_session_id%"
+        door_api_begin_time: "%door_api_begin_time%"
+        door_api_end_time: "%door_api_end_time%"
+        door_api_time_period: "%door_api_time_period%"
+        door_api_card_permission: "%door_api_card_permission%"
 
 # Assetic Configuration
 assetic:
@@ -258,8 +272,8 @@ fos_elastica:
                         finder: ~
                 room:
                     mappings:
-                        name: {type: string}
-                        number: {type: string}
+                        name: ~
+                        number: ~
                     persistence:
                         driver: orm
                         model: Sandbox\ApiBundle\Entity\Room\Room
@@ -268,13 +282,12 @@ fos_elastica:
                         finder: ~
                 user:
                     mappings:
-                        id: {type: integer}
-                        name: {type: string}
-                        email: {type: string}
-                        phone: {type: string}
+                        id: ~
+                        email: ~
+                        phone: ~
                     persistence:
                         driver: orm
-                        model: Sandbox\ApiBundle\Entity\User\UserView
+                        model: Sandbox\ApiBundle\Entity\User\User
                         provider: ~
                         listener: ~
                         finder: ~
