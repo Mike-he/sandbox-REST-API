@@ -258,6 +258,42 @@ class SandboxRestController extends FOSRestController
         return $result['expiration_time'];
     }
 
+    /**
+     * @param $auth
+     *
+     * @return string|null
+     */
+    protected function getOwnBalance(
+        $auth = null
+    ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['Authorization'];
+        }
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_client_own_account_balance'];
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callAPI($ch, 'GET', $auth);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result['balance'];
+    }
+
     //--------------------common functions--------------------//
 
     /**
