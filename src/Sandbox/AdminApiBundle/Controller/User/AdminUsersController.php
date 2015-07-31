@@ -90,18 +90,23 @@ class AdminUsersController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $query = $paramFetcher->get('query');
 
-        // find all users who have the query in any of their mapped fields
-        $finder = $this->container->get('fos_elastica.finder.search.user');
+        // Another better way to search the users by query, but it needs to find out the bug and fix it yet
+//        // find all users who have the query in any of their mapped fields
+//        $finder = $this->container->get('fos_elastica.finder.search.user');
+//
+//        $multiMatchQuery = new \Elastica\Query\MultiMatch();
+//
+//        $multiMatchQuery->setQuery($query);
+//        $multiMatchQuery->setType('phrase_prefix');
+//        $multiMatchQuery->setFields(array('email', 'phone'));
+//
+//        $results = $finder->createPaginatorAdapter($multiMatchQuery);
+//
+//        $paginator = $this->get('knp_paginator');
 
-        $multiMatchQuery = new \Elastica\Query\MultiMatch();
+        $results = $this->getRepo('User\UserView')->searchUser($query);
 
-        $multiMatchQuery->setQuery($query);
-        $multiMatchQuery->setType('phrase_prefix');
-        $multiMatchQuery->setFields(array('email', 'phone'));
-
-        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-
-        $paginator = $this->get('knp_paginator');
+        $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $results,
             $pageIndex,

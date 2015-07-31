@@ -54,4 +54,29 @@ class UserViewRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @param String $query
+     *
+     * @return array
+     */
+    public function searchUser(
+        $query
+    ) {
+        $queryResult = $this->getEntityManager()
+            ->createQuery(
+                '
+                    SELECT
+                    u
+                    FROM SandboxApiBundle:User\UserView u
+                    WHERE u.name LIKE :query
+                    OR u.id LIKE :query
+                    OR u.email LIKE :query
+                    OR u.phone LIKE :query
+                '
+            )
+            ->setParameter('query', $query.'%');
+
+        return $queryResult->getResult();
+    }
 }
