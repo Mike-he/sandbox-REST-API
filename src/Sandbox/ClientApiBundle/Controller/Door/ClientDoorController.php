@@ -43,16 +43,21 @@ class ClientDoorController extends DoorController
                 self::NO_ORDER_MESSAGE
             );
         }
+        $globals = $this->getGlobals();
         $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
         foreach ($ids as $id) {
+            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
+            $base = $building->getServer();
+
             $this->get('door_service')->cardPermission(
-                $id['buildingId'],
+                $base,
                 $userId,
                 $userName,
                 $cardNo,
                 $doorArray = [],
-                DoorController::METHOD_LOST
+                DoorController::METHOD_LOST,
+                $globals
             );
         }
     }

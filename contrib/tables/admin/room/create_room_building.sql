@@ -5,6 +5,7 @@ CREATE TABLE `RoomBuilding` (
   `lat` FLOAT(9,6) NOT NULL,
   `lng` FLOAT(9,6) NOT NULL,
   `cityId` int(11) NOT NULL,
+  `server` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_Building_cityId_idx` (`cityId`),
   CONSTRAINT `fk_Building_cityId` FOREIGN KEY (`cityId`) REFERENCES `RoomCity` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION

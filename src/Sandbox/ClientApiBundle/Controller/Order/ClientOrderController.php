@@ -82,24 +82,6 @@ class ClientOrderController extends PaymentController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $myOrders = $this->getRepo('Order\ProductOrder')->findBy(
-            [
-                'userId' => $userId,
-                'status' => 'paid',
-            ]
-        );
-
-        foreach ($myOrders as $myOrder) {
-            $now = new \DateTime();
-            $start = $myOrder->getStartDate();
-            if ($now >= $start) {
-                $myOrder->setStatus('completed');
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($myOrder);
-                $em->flush();
-            }
-        }
-
         if (!is_null($status)) {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
                 [
@@ -304,7 +286,10 @@ class ClientOrderController extends PaymentController
         $em->persist($order);
         $em->flush();
 
+        $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
         $myDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
@@ -349,7 +334,7 @@ class ClientOrderController extends PaymentController
             $buildingId,
             $roomId
         );
-        $this->get('door_service')->setTimePeriod($updatedDoors);
+        $this->get('door_service')->setTimePeriod($updatedDoors, $base, $globals);
 
         $cardNo = $this->getCardNoIfUserAuthorized();
 
@@ -374,12 +359,13 @@ class ClientOrderController extends PaymentController
             }
 
             $this->get('door_service')->cardPermission(
-                $buildingId,
+                $base,
                 $order->getUserId(),
                 $userName,
                 $cardNo,
                 $doorArray,
-                DoorController::METHOD_ADD
+                DoorController::METHOD_ADD,
+                $globals
             );
         }
 
@@ -549,8 +535,10 @@ class ClientOrderController extends PaymentController
                 array_push($peopleArray, $userId);
             }
         }
-
+        $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
         foreach ($peopleArray as $user) {
             $controls = $this->getRepo('Door\DoorAccess')->findBy(
                 [
@@ -584,21 +572,23 @@ class ClientOrderController extends PaymentController
                     }
 
                     $this->get('door_service')->cardPermission(
-                        $buildingId,
+                        $base,
                         $user,
                         $userName,
                         $cardNo,
                         $doorArray,
-                        DoorController::METHOD_ADD
+                        DoorController::METHOD_ADD,
+                        $globals
                     );
                 } else {
                     $this->get('door_service')->cardPermission(
-                        $buildingId,
+                        $base,
                         $user,
                         $userName,
                         $cardNo,
                         [],
-                        DoorController::METHOD_DELETE
+                        DoorController::METHOD_DELETE,
+                        $globals
                     );
                 }
             }
@@ -633,6 +623,12 @@ class ClientOrderController extends PaymentController
                 self::WRONG_ORDER_STATUS_MESSAGE
             );
         }
+        $globals = $this->getGlobals();
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
+        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
         $users = json_decode($request->getContent(), true);
         foreach ($users as $user) {
             $checkUser = $this->getRepo('Order\InvitedPeople')->findOneBy(
@@ -655,10 +651,6 @@ class ClientOrderController extends PaymentController
             $em = $this->getDoctrine()->getManager();
             $em->persist($people);
             $em->flush();
-
-            $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-            $roomId = $order->getProduct()->getRoom()->getId();
-            $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
 
             foreach ($roomDoors as $roomDoor) {
                 $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
@@ -711,12 +703,13 @@ class ClientOrderController extends PaymentController
                 }
 
                 $this->get('door_service')->cardPermission(
-                    $buildingId,
+                    $base,
                     $user['user_id'],
                     $userName,
                     $cardNo,
                     $doorArray,
-                    DoorController::METHOD_ADD
+                    DoorController::METHOD_ADD,
+                    $globals
                 );
             }
         }
@@ -771,8 +764,10 @@ class ClientOrderController extends PaymentController
                 self::USER_NOT_FOUND_MESSAGE
             );
         }
-
+        $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
         foreach ($userIds as $userId) {
             $checkUser = $this->getRepo('Order\InvitedPeople')->findOneBy(
                 [
@@ -826,21 +821,23 @@ class ClientOrderController extends PaymentController
                     }
 
                     $this->get('door_service')->cardPermission(
-                        $buildingId,
+                        $base,
                         $userId,
                         $userName,
                         $cardNo,
                         $doorArray,
-                        DoorController::METHOD_ADD
+                        DoorController::METHOD_ADD,
+                        $globals
                     );
                 } else {
                     $this->get('door_service')->cardPermission(
-                        $buildingId,
+                        $base,
                         $userId,
                         $userName,
                         $cardNo,
                         [],
-                        DoorController::METHOD_DELETE
+                        DoorController::METHOD_DELETE,
+                        $globals
                     );
                 }
             }
@@ -923,7 +920,10 @@ class ClientOrderController extends PaymentController
         $em->persist($order);
         $em->flush();
 
+        $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
 
@@ -989,12 +989,13 @@ class ClientOrderController extends PaymentController
                 }
 
                 $this->get('door_service')->cardPermission(
-                    $buildingId,
+                    $base,
                     $user,
                     $appointedName,
                     $appointedCardNo,
                     $doorArray,
-                    DoorController::METHOD_ADD
+                    DoorController::METHOD_ADD,
+                    $globals
                 );
             }
         }
@@ -1019,21 +1020,23 @@ class ClientOrderController extends PaymentController
                 }
 
                 $this->get('door_service')->cardPermission(
-                    $buildingId,
+                    $base,
                     $order->getUserId(),
                     $userName,
                     $userCardNo,
                     $doorArray,
-                    DoorController::METHOD_ADD
+                    DoorController::METHOD_ADD,
+                    $globals
                 );
             } else {
                 $this->get('door_service')->cardPermission(
-                    $buildingId,
+                    $base,
                     $order->getUserId(),
                     $userName,
                     $userCardNo,
                     [],
-                    DoorController::METHOD_DELETE
+                    DoorController::METHOD_DELETE,
+                    $globals
                 );
             }
         }
@@ -1059,14 +1062,6 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
-        $now = new \DateTime();
-        $start = $order->getStartDate();
-        if ($now >= $start && $order->getStatus() === 'paid') {
-            $order->setStatus('completed');
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($order);
-            $em->flush();
-        }
 
         $now = new \DateTime();
         $type = $order->getProduct()->getRoom()->getType();
@@ -1078,13 +1073,6 @@ class ClientOrderController extends PaymentController
             if ($days > 7 && $now >= $startDate) {
                 $renewButton = true;
             }
-        }
-
-        if ($now >= $startDate && $order->getStatus() === 'paid') {
-            $order->setStatus('completed');
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($order);
-            $em->flush();
         }
 
         $view = new View();

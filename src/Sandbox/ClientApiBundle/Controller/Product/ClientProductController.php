@@ -226,11 +226,11 @@ class ClientProductController extends ProductController
             $orders = $this->getRepo('Order\ProductOrder')->getBookedDates($id);
         }
 
+        $response = [];
         if (empty($orders)) {
-            return;
+            return new View($response);
         }
 
-        $response = [];
         foreach ($orders as $order) {
             $startDate = $order->getStartDate();
             $endDate = $order->getEndDate();

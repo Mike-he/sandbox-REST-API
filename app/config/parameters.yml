@@ -32,4 +32,17 @@ parameters:
     crm_api_url: http://devcrm.sandbox3.cn
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
-
+    door_api_username: admin
+    door_api_password: admin
+    door_api_login: /Login
+    door_api_logout: /Logout
+    door_api_get_doors: /GetDoors
+    door_api_set_time: /SetTimePeriod
+    door_api_get_card_record: /GetSwipeCardRecord
+    door_api_get_alarm_record: /GetAlarmRecord
+    door_api_set_card_permission: /SetCardPermission
+    door_api_session_id: SessionId=
+    door_api_begin_time: BeginTime=
+    door_api_end_time: EndTime=
+    door_api_time_period: TimePeriod=
+    door_api_card_permission: CardPermission=
