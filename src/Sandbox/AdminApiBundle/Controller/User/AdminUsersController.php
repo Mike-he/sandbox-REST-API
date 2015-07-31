@@ -133,23 +133,22 @@ class AdminUsersController extends SandboxRestController
 
         $notNull = false;
         $ids = $paramFetcher->get('id');
-        foreach($ids as $id){
-            if(!EMPTY($id)){
+        foreach ($ids as $id) {
+            if (!empty($id)) {
                 $notNull = true;
             }
         }
-        if($notNull){
+        if ($notNull) {
             // get user
             $user = $this->getRepo('User\UserView')->getUsersByIds($id);
 
             // set view
             return new View($user);
-        }else{
+        } else {
             $banned = $paramFetcher->get('banned');
 
             $sortBy = $paramFetcher->get('sortBy');
             $direction = $paramFetcher->get('direction');
-
 
             $pageLimit = $paramFetcher->get('pageLimit');
             $pageIndex = $paramFetcher->get('pageIndex');
