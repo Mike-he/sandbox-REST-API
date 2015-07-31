@@ -46,7 +46,8 @@ class AdminUsersController extends SandboxRestController
     /**
      * List all users.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @ApiDoc(
      *   resource = true,
@@ -132,36 +133,28 @@ class AdminUsersController extends SandboxRestController
         );
 
         $ids = $paramFetcher->get('id');
+
+        $banned = $paramFetcher->get('banned');
+
+        $sortBy = $paramFetcher->get('sortBy');
+        $direction = $paramFetcher->get('direction');
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        //return result according to ids
         if (is_null($ids) || empty($ids)) {
-            $banned = $paramFetcher->get('banned');
-
-            $sortBy = $paramFetcher->get('sortBy');
-            $direction = $paramFetcher->get('direction');
-
-            $pageLimit = $paramFetcher->get('pageLimit');
-            $pageIndex = $paramFetcher->get('pageIndex');
-
-            // get user id and name
-            $users = $this->getRepo('User\UserView')->getUsers(
+            //ids is null
+            return $this->getUsersNotByIds(
                 $banned,
                 $sortBy,
-                $direction
+                $direction,
+                $pageLimit,
+                $pageIndex
             );
-
-            $paginator = new Paginator();
-            $pagination = $paginator->paginate(
-                $users,
-                $pageIndex,
-                $pageLimit
-            );
-
-            return new View($pagination);
         } else {
-            // get user
-            $user = $this->getRepo('User\UserView')->getUsersByIds($ids);
-
-            // set view
-            return new View($user);
+            //ids is not null
+            return $this->getUsersByIds($ids);
         }
     }
 
@@ -253,5 +246,52 @@ class AdminUsersController extends SandboxRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param $banned
+     * @param $sortBy
+     * @param $direction
+     * @param $pageLimit
+     * @param $pageIndex
+     *
+     * @return View
+     */
+    public function getUsersNotByIds(
+        $banned,
+        $sortBy,
+        $direction,
+        $pageLimit,
+        $pageIndex
+    ) {
+        // get user id and name
+        $users = $this->getRepo('User\UserView')->getUsers(
+            $banned,
+            $sortBy,
+            $direction
+        );
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $users,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * @param $ids
+     *
+     * @return View
+     */
+    public function getUsersByIds(
+        $ids
+    ) {
+        // get user
+        $user = $this->getRepo('User\UserView')->getUsersByIds($ids);
+
+        // set view
+        return new View($user);
     }
 }

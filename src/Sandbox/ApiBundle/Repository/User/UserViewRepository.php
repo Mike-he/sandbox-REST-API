@@ -3,8 +3,6 @@
 namespace Sandbox\ApiBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
-use JMS\Serializer\Tests\Serializer\Doctrine;
-use Sandbox\ApiBundle\Entity\User\UserView;
 
 class UserViewRepository extends EntityRepository
 {
@@ -23,12 +21,12 @@ class UserViewRepository extends EntityRepository
             u.gender
             ');
         $query->where('u.id > \'0\'');
-        if(!is_null($banned)){
+        if (!is_null($banned)) {
             $query->andwhere('u.banned = :banned');
-            $query->setParameter('banned',$banned);
+            $query->setParameter('banned', $banned);
         }
-        if(!is_null($sortBy)){
-            $query->orderBy('u.'.$sortBy,$direction);
+        if (!is_null($sortBy)) {
+            $query->orderBy('u.'.$sortBy, $direction);
         }
         $result = $query->getQuery()->getResult();
 
@@ -37,7 +35,7 @@ class UserViewRepository extends EntityRepository
 
     public function getUsersByIds(
         $ids
-    ){
+    ) {
         $query = $this->getEntityManager()
             ->createQuery(
                 '
@@ -53,6 +51,7 @@ class UserViewRepository extends EntityRepository
                 '
             )
             ->setParameter('ids', $ids);
+
         return $query->getResult();
     }
 }
