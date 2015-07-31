@@ -23,16 +23,8 @@ use JMS\Serializer\SerializationContext;
 class ClientProductController extends ProductController
 {
     /**
-     * @Get("/products")
+     * @Get("/products/office")
      *
-     * @Annotations\QueryParam(
-     *    name="type",
-     *    default=null,
-     *    nullable=true,
-     *    description="
-     *        type of room
-     *    "
-     * )
      *
      * @Annotations\QueryParam(
      *    name="city",
@@ -53,31 +45,23 @@ class ClientProductController extends ProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="start_time",
+     *    name="start",
      *    default=null,
      *    nullable=true,
      *    description="
-     *        rent time
+     *        start time
      *    "
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="time_unit",
+     *  @Annotations\QueryParam(
+     *    name="end",
      *    default=null,
      *    nullable=true,
      *    description="
-     *        month|day|hour
+     *        end time
      *    "
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="rent_period",
-     *    default=null,
-     *    nullable=true,
-     *    description="
-     *        rent period
-     *    "
-     * )
      *
      * @Annotations\QueryParam(
      *    name="allowed_people",
@@ -113,42 +97,152 @@ class ClientProductController extends ProductController
      *
      * @return View
      */
-    public function getProductsAction(
+    public function getOfficeProductsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $roomType = $paramFetcher->get('type');
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
-        $timeUnit = $paramFetcher->get('time_unit');
-        $rentPeriod = $paramFetcher->get('rent_period');
+        $start = $paramFetcher->get('start');
+        $end = $paramFetcher->get('end');
         $allowedPeople = $paramFetcher->get('allowed_people');
-        $startTime = $paramFetcher->get('start_time');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
-        $endTime = null;
-        $startHour = null;
-        $endHour = null;
 
-        if (!is_null($startTime) && !empty($startTime)) {
-            $startTime = new \DateTime($startTime);
-            $endTime = clone $startTime;
-            $endTime->modify('+'.$rentPeriod.$timeUnit);
-            $startHour = $startTime->format('H:i:s');
-            $endHour = $endTime->format('H:i:s');
+        $startDate = null;
+        $endDate = null;
+        if (!is_null($start) && !is_null($end)) {
+            $startDate = new \DateTime($start);
+            $endDate = new \DateTime($end);
         }
         $userId = $this->getUserId();
 
-        $productIds = $this->getRepo('Product\Product')->getProductsForClient(
-            $roomType,
+        $productIds = $this->getRepo('Product\Product')->getOfficeProductsForClient(
+            $userId,
             $cityId,
             $buildingId,
-            $startTime,
-            $endTime,
             $allowedPeople,
+            $startDate,
+            $endDate,
+            $limit,
+            $offset
+        );
+
+        $products = [];
+        foreach ($productIds as $productId) {
+            $product = $this->getRepo('Product\Product')->find($productId);
+            array_push($products, $product);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($products);
+
+        return $view;
+    }
+
+    /**
+     * @Get("/products/workspace")
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        city id
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        building id
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        start time
+     *    "
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        end time
+     *    "
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="allowed_people",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        maximum allowed people
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getWorkspaceProductsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
+        $start = $paramFetcher->get('start');
+        $end = $paramFetcher->get('end');
+        $allowedPeople = $paramFetcher->get('allowed_people');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $startDate = null;
+        $endDate = null;
+        if (!is_null($start) && !is_null($end)) {
+            $startDate = new \DateTime($start);
+            $endDate = new \DateTime($end);
+        }
+        $userId = $this->getUserId();
+
+        $productIds = $this->getRepo('Product\Product')->getWorkspaceProductsForClient(
             $userId,
-            $startHour,
-            $endHour,
+            $cityId,
+            $buildingId,
+            $allowedPeople,
+            $startDate,
+            $endDate,
             $limit,
             $offset
         );
