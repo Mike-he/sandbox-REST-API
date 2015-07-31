@@ -99,16 +99,16 @@ class AdminUsersController extends SandboxRestController
         $multiMatchQuery->setType('phrase_prefix');
         $multiMatchQuery->setFields(array('email', 'phone'));
 
-//        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-//
-//        $paginator = $this->get('knp_paginator');
-//        $pagination = $paginator->paginate(
-//            $results,
-//            $pageIndex,
-//            $pageLimit
-//        );
+        $results = $finder->createPaginatorAdapter($multiMatchQuery);
 
-        return new View($finder->find($multiMatchQuery));
+        $paginator = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $results,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
