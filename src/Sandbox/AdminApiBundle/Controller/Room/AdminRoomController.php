@@ -186,8 +186,8 @@ class AdminRoomController extends RoomController
     /**
      * Room.
      *
-     * @param Request $request the request object
-     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
      * @Annotations\QueryParam(
      *    name="pageLimit",
@@ -231,19 +231,15 @@ class AdminRoomController extends RoomController
         $query = $paramFetcher->get('query');
 
         // find all rooms who have the query in any of their mapped fields
-        $index = $this->container->get('fos_elastica.finder.search.room');
+        $finder = $this->container->get('fos_elastica.finder.search.room');
 
-        $SearchQuery = new \Elastica\Query\QueryString();
+        $multiMatchQuery = new \Elastica\Query\MultiMatch();
 
-        $SearchQuery->setParam('query', $query.'*');
-        $SearchQuery->setDefaultOperator('AND');
+        $multiMatchQuery->setQuery($query);
+        $multiMatchQuery->setType('phrase_prefix');
+        $multiMatchQuery->setFields(array('name', 'number'));
 
-        $SearchQuery->setParam('fields', array(
-            'name',
-            'number',
-        ));
-
-        $results = $index->createPaginatorAdapter($SearchQuery);
+        $results = $finder->createPaginatorAdapter($multiMatchQuery);
 
         $paginator = $this->get('knp_paginator');
         $pagination = $paginator->paginate(

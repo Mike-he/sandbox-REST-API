@@ -427,12 +427,18 @@ class ClientMemberController extends MemberController
         // find all members who have the query in any of their mapped fields
         $finder = $this->container->get('fos_elastica.finder.search.member');
 
-        $results = $finder->find($query.'*');
+        $multiMatchQuery = new \Elastica\Query\MultiMatch();
+
+        $multiMatchQuery->setQuery($query);
+        $multiMatchQuery->setType('phrase_prefix');
+        $multiMatchQuery->setFields(array('name'));
+
+        $results = $finder->find($multiMatchQuery);
         if (is_null($results) || empty($results)) {
             return new View(array());
         }
 
-        $profiles = $output = array_slice($results, $offset, $limit);
+        $profiles = array_slice($results, $offset, $limit);
 
         // members for response
         $members = array();
