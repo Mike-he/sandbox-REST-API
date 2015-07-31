@@ -282,7 +282,6 @@ fos_elastica:
                         finder: ~
                 user:
                     mappings:
-                        id: ~
                         email: ~
                         phone: ~
                     persistence:
