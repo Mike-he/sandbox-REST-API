@@ -8,87 +8,128 @@ use Sandbox\ApiBundle\Entity\Room\RoomCity;
 
 class ProductRepository extends EntityRepository
 {
-    public function getProductsForClient(
-        $roomType,
+    /**
+     * @param $userId
+     * @param $cityId
+     * @param $buildingId
+     * @param $allowedPeople
+     * @param $startDate
+     * @param $endDate
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getOfficeProductsForClient(
+        $userId,
         $cityId,
         $buildingId,
-        $startTime,
-        $endTime,
         $allowedPeople,
-        $userId,
-        $startHour,
-        $endHour,
+        $startDate,
+        $endDate,
         $limit,
         $offset
     ) {
-        $typeCondition = 'r.type = \''.$roomType.'\'';
-        if ($roomType === 'workspace') {
-            $typeCondition = 'r.type = \'fixed\' OR r.type = \'flexible\'';
-        }
-
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id')
-            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
-
-        if ($roomType === 'meeting') {
-            $query = $query->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'm', 'WITH', 'r.id = m.room');
-        }
-
-        // condition
-        $query = $query->where('p.visibleUserId = :userId OR p.private = :private')
-            ->andWhere('p.visible = true');
-        if (!is_null($roomType)) {
-            $query = $query->andWhere($typeCondition);
-        }
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('p.visibleUserId = :userId OR p.private = :private')
+            ->andWhere('r.type = \'office\'')
+            ->setParameter('private', false)
+            ->setParameter('userId', $userId);
         if (!is_null($cityId)) {
-            $query = $query->andWhere('r.city = :cityId');
+            $query = $query->andWhere('r.city = :cityId')
+                ->setParameter('cityId', $cityId);
         }
         if (!is_null($buildingId)) {
-            $query = $query->andWhere('r.building = :buildingId');
+            $query = $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
         }
         if (!is_null($allowedPeople)) {
-            $query = $query->andWhere('r.allowedPeople >= :allowedPeople');
+            $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
+                ->setParameter('allowedPeople', $allowedPeople);
         }
-        if ($roomType === 'meeting' && !is_null($startTime)) {
-            $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour');
-        }
-        if (!is_null($startTime)) {
-            $query = $query->andWhere('p.startDate <= :startTime')
-                ->andWhere('p.endDate >= :endTime')
+        if (!is_null($startDate) && !is_null($endDate)) {
+            $query = $query->andWhere('p.startDate <= :startDate')
+                ->andWhere('p.endDate >= :endDate')
                 ->andWhere(
                     'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\' AND
                         (
-                            (po.startDate <= :startTime AND po.endDate > :startTime) OR
-                            (po.startDate < :endTime AND po.endDate >= :endTime)
+                            (po.startDate <= :startDate AND po.endDate > :startDate) OR
+                            (po.startDate < :endDate AND po.endDate >= :endDate)
                         )
                     )'
-                );
+                )
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
         }
+        $query = $query->orderBy('p.creationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $cityId
+     * @param $buildingId
+     * @param $allowedPeople
+     * @param $startDate
+     * @param $endDate
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getWorkspaceProductsForClient(
+        $userId,
+        $cityId,
+        $buildingId,
+        $allowedPeople,
+        $startDate,
+        $endDate,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('DISTINCT p.id')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('p.visibleUserId = :userId OR p.private = :private')
+            ->andWhere('r.type = \'fixed\' OR r.type = \'flexible\'')
+            ->setParameter('private', false)
+            ->setParameter('userId', $userId);
         if (!is_null($cityId)) {
-            $query = $query->setParameter('cityId', $cityId);
+            $query = $query->andWhere('r.city = :cityId')
+                ->setParameter('cityId', $cityId);
         }
         if (!is_null($buildingId)) {
-            $query = $query->setParameter('buildingId', $buildingId);
+            $query = $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
         }
         if (!is_null($allowedPeople)) {
-            $query = $query->setParameter('allowedPeople', $allowedPeople);
+            $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
+                ->setParameter('allowedPeople', $allowedPeople);
         }
-        if (!is_null($startTime)) {
-            $query = $query->setParameter('startTime', $startTime)
-                ->setParameter('endTime', $endTime);
+        if (!is_null($startDate) && !is_null($endDate)) {
+            $query = $query->andWhere('p.startDate <= :startDate')
+                ->andWhere('p.endDate >= :endDate')
+                ->andWhere(
+                    'p.id NOT IN (
+                        SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
+                        WHERE po.status <> \'cancelled\' AND
+                        (
+                            (po.startDate <= :startDate AND po.endDate > :startDate) OR
+                            (po.startDate < :endDate AND po.endDate >= :endDate)
+                        )
+                    )'
+                )
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
         }
-
-        $query = $query->setParameter('private', false)
-            ->setParameter('userId', $userId);
-
-        if ($roomType === 'meeting' && !is_null($startTime)) {
-            $query = $query->setParameter('startHour', $startHour)
-                ->setParameter('endHour', $endHour);
-        }
-
-        // paging
         $query = $query->orderBy('p.creationDate', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
