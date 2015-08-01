@@ -226,8 +226,14 @@ class SandboxRestController extends FOSRestController
      */
     protected function getCardNoByUser(
         $userId,
-        $auth
+        $auth = null
     ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['sandbox_auth_test'];
+        }
+
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
@@ -253,6 +259,122 @@ class SandboxRestController extends FOSRestController
         }
 
         return $result['card_no'];
+    }
+
+    /**
+     * @param $userId
+     * @param $data
+     *
+     * @return string|null
+     */
+    protected function postAddToBalance(
+        $userId,
+        $data,
+        $auth = null
+    ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['sandbox_auth_test'];
+        }
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_admin_user_charge'];
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callAPI($ch, 'POST', $auth, $data);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result['balance'];
+    }
+
+    /**
+     * @param $userId
+     * @param $data
+     *
+     * @return string|null
+     */
+    protected function postConsumeBalance(
+        $userId,
+        $data,
+        $auth = null
+    ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['sandbox_auth_test'];
+        }
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_client_user_consume'];
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callAPI($ch, 'POST', $auth, $data);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result['balance'];
+    }
+
+    /**
+     * @param $userId
+     * @param $data
+     *
+     * @return string|null
+     */
+    protected function postAccountUpgrade(
+        $userId,
+        $data,
+        $auth = null
+    ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['sandbox_auth_test'];
+        }
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_admin_user_account_upgrade'];
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callAPI($ch, 'POST', $auth, $data);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
     }
 
     /**
