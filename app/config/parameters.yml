@@ -34,6 +34,9 @@ parameters:
     crm_api_client_user_account_vip: /client/user/account/vip
     crm_api_admin_user_account_cardno: /admin/useraccounts/{userId}/cardno
     crm_api_client_own_account_balance: /client/user/account/balance
+    crm_api_admin_user_charge: /admin/useraccounts/{userId}/charge
+    crm_api_client_user_consume: /client/useraccounts/{userId}/consume
+    crm_api_admin_user_account_upgrade: /admin/useraccounts/{userId}/upgrade
     door_api_username: admin
     door_api_password: admin
     door_api_login: /Login
