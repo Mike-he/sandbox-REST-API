@@ -47,7 +47,7 @@ class CompanyIndustryMap
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\CompanyIndustry")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="industryId", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="industryId", referencedColumnName="id", onDelete="CASCADE")
      * })
      * @Serializer\Groups({"main", "company_info", "company_industry"})
      */

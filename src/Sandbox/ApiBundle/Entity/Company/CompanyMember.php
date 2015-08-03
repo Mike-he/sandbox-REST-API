@@ -52,7 +52,7 @@ class CompanyMember
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     private $company;

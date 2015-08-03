@@ -32,10 +32,9 @@
         "php-jsonpatch/php-jsonpatch": "dev-master",
         "pingplusplus/pingpp-php": "dev-master",
         "knplabs/knp-paginator-bundle": "^2.4",
-        "doctrine/migrations": "1.0.*@dev",
-        "doctrine/doctrine-migrations-bundle": "1.0.*",
         "friendsofsymfony/elastica-bundle": "^3.1",
-        "liuggio/excelbundle": "^2.0"
+        "liuggio/excelbundle": "^2.0",
+        "symfony/var-dumper": "^2.7"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "@stable",
@@ -69,5 +68,9 @@
         "branch-alias": {
             "dev-master": "2.3-dev"
         }
-    }
+    },
+    "repositories": [
+        {"type": "composer", "url": "http://packagist.phpcomposer.com"},
+        {"packagist": false}
+    ]
 }

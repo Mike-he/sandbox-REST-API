@@ -55,10 +55,6 @@ class ClientCompanyController extends CompanyController
     public function getCompaniesAction(
         Request $request
     ) {
-        // check user is VIP
-        if (is_null($this->getExpireDateIfUserVIP())) {
-            return new View();
-        }
         $userId = $this->getUserId();
 
         //get companies
@@ -545,6 +541,31 @@ class ClientCompanyController extends CompanyController
 
         // update to db
         $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * delete company.
+     *
+     * @param int $id
+     *
+     * @Route("/companies/{id}")
+     * @Method({"DELETE"})
+     */
+    public function deleteCompanyAction($id)
+    {
+        $userId = $this->getUserId();
+        // quit my company
+        $company = $this->getRepo('Company\Company')->findOneBy(array(
+            'creatorId' => $userId,
+            'id' => $id,
+        ));
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($company);
         $em->flush();
 
         return new View();
