@@ -115,6 +115,7 @@ class RoomRepository extends EntityRepository
         $query = $this->createQueryBuilder('r')
             ->where('r.name LIKE :search')
             ->orWhere('r.number LIKE :search')
+            ->orderBy('r.creationDate', 'DESC')
             ->setParameter('search', "%$search%");
 
         return $result = $query->getQuery();

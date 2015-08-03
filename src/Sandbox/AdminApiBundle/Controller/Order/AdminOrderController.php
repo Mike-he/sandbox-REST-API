@@ -317,6 +317,67 @@ class AdminOrderController extends OrderController
     }
 
     /**
+     * Order.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many orders to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
+     * @Route("/orders/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getOrdersSearchAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $query = $paramFetcher->get('query');
+
+        $orders = $this->getRepo('Order\ProductOrder')->getOrdersBySearch(
+            $query
+        );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $orders,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
      * Get member order renter info.
      *
      * @param Request $request
