@@ -58,32 +58,27 @@ class ProductRepository extends EntityRepository
                 ->setParameter('allowedPeople', $allowedPeople);
         }
         if (!is_null($startTime) && is_null($endTime)) {
+            $currentDateStart = clone $startTime;
+            $currentDateStart->setTime(00, 00, 00);
+            $currentDateEnd = clone $startTime;
+            $currentDateEnd->setTime(23, 59, 59);
+            //TODO: Filter out orders before startHour
             $query = $query
-                //->select('sum(hour(DATE_DIFF(o.startDate, o.endDate))) as sum')
-                ->select(
-                    '
-                        p.id,
-                        SUM(hour(DATE_DIFF(o.startDate, o.endDate))) as diff,
-                        hour(DATE_DIFF(m.startHour, m.endHour)) as total
-                    '
-                )
-                ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'o.productId = p.id')
-                ->andWhere('m.startHour <= :startHour AND m.endHour > :startHour')
                 ->andWhere('p.startDate <= :startTime AND p.endDate > :startTime')
-//                ->andWhere(
-//                    'p.id IN (
-//                        SELECT po.productId AND sum(hour(DATE_DIFF(po.startDate, po.endDate))) as diffSum
-//                        WHERE diffSum > 1
-//                        FROM SandboxApiBundle:Order\ProductOrder po
-//                        GROUP BY po.productId
-//                    )'
-//                )
-//                        ->orWhere('o.endDate <= :startTime')
-//                ->orWhere('o.startDate > :startTime')
-                ->groupBy('o.productId')
-                ->having('diff < total')
-                ->setParameter('startTime', $startTime)
-                ->setParameter('startHour', $startHour);
+                ->andWhere(
+                    'p.id NOT IN (
+                        SELECT po.productId
+                        FROM SandboxApiBundle:Order\ProductOrder po
+                        WHERE po.status <> \'cancelled\'
+                        AND po.startDate >= :currentDateStart
+                        AND po.endDate <= :currentDateEnd
+                        GROUP BY po.productId
+                        HAVING hour((sum(po.endDate) - sum(po.startDate))) >= ((m.endHour - m.startHour)/10000)
+                    )'
+                )
+                ->setParameter('currentDateStart', $currentDateStart)
+                ->setParameter('currentDateEnd', $currentDateEnd)
+                ->setParameter('startTime', $startTime);
         }
         if (!is_null($startTime) && !is_null($endTime)) {
             $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')
