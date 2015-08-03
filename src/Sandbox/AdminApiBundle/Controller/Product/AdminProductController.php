@@ -140,6 +140,67 @@ class AdminProductController extends ProductController
     }
 
     /**
+     * Product.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
+     * @Route("/products/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getProductsSearchAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $query = $paramFetcher->get('query');
+
+        $products = $this->getRepo('Product\Product')->searchProducts(
+            $query
+        );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $products,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
      * Get product by id.
      *
      * @param Request $request
