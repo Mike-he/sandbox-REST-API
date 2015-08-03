@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
+use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
@@ -57,6 +58,8 @@ class PaymentController extends SandboxRestController
     const CAN_NOT_RENEW_MESSAGE = 'Have to renew 7 days before current order end date';
     const WRONG_ORDER_STATUS_CODE = 400015;
     const WRONG_ORDER_STATUS_MESSAGE = 'Wrong Order Status';
+    const WRONG_CHARGE_ID_CODE = 400016;
+    const WRONG_CHARGE_ID__MESSAGE = 'Wrong Charge ID';
 
     /**
      * @param $order
@@ -236,6 +239,8 @@ class PaymentController extends SandboxRestController
                 $globals
             );
         }
+
+        return $order;
     }
 
     /**
@@ -245,6 +250,7 @@ class PaymentController extends SandboxRestController
      * @return MembershipOrder
      */
     public function setMembershipOrder(
+        $productId,
         $type,
         $price,
         $orderNumber
@@ -254,6 +260,7 @@ class PaymentController extends SandboxRestController
 
         $order = new MembershipOrder();
         $order->setUserId($userId);
+        $order->setProductId($productId);
         $order->setEndDate($endDate);
         $order->setPrice($price);
         $order->setType($type);
@@ -301,6 +308,24 @@ class PaymentController extends SandboxRestController
         $counter->setOrderDate($now);
         $em = $this->getDoctrine()->getManager();
         $em->persist($counter);
+        $em->flush();
+    }
+
+    /**
+     * @param $type
+     * @param $productId
+     * @param $chargeId
+     *
+     * @return OrderMap
+     */
+    public function createOrderMap($type, $id, $chargeId)
+    {
+        $map = new OrderMap();
+        $map->setType($type);
+        $map->setOrderId($id);
+        $map->setChargeId($chargeId);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($map);
         $em->flush();
     }
 
