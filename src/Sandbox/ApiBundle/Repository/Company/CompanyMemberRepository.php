@@ -7,8 +7,8 @@ use Doctrine\ORM\EntityRepository;
 class CompanyMemberRepository extends EntityRepository
 {
     /**
-     * @param $ids
-     * @param $companyId
+     * @param array $ids
+     * @param int   $companyId
      */
     public function deleteCompanyMembers(
         $ids,

@@ -29,7 +29,7 @@ class CompanyPortfolio
      * @var \Sandbox\ApiBundle\Entity\Company\Company
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
-     * @ORM\JoinColumn(name="companyId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
      *
      * @Serializer\Groups({"main"})
      */
