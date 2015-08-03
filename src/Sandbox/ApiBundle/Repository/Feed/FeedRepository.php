@@ -67,13 +67,11 @@ class FeedRepository extends EntityRepository
         $parameters = [];
 
         $query = $this->createQueryBuilder('f')
-            ->select('
-                f
-            ')
             ->leftJoin('SandboxApiBundle:Buddy\Buddy', 'b', 'WITH', 'b.buddyId = f.ownerId');
 
-        // filter by buddies
+        // filter by my buddies and my own posts
         $query->where('b.userId = :userId');
+        $query->orWhere('f.ownerId = :userId');
         $parameters['userId'] = $userId;
 
         // last id
