@@ -205,6 +205,8 @@ class OrderRepository extends EntityRepository
         } else {
             $query->where('o.status != :unpaid');
             $parameters['unpaid'] = 'unpaid';
+
+            $query->andWhere('o.paymentDate IS NOT NULL');
         }
 
         // filter by type
