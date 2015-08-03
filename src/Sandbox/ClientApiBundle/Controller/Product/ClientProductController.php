@@ -23,6 +23,134 @@ use JMS\Serializer\SerializationContext;
 class ClientProductController extends ProductController
 {
     /**
+     * @Get("/products/meeting")
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        city id
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        building id
+     *    "
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        start time
+     *    "
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        end time
+     *    "
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="allowed_people",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        maximum allowed people
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getMeetingProductsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
+        $start = $paramFetcher->get('start');
+        $end = $paramFetcher->get('end');
+        $allowedPeople = $paramFetcher->get('allowed_people');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $startTime = null;
+        $endTime = null;
+        $startHour = null;
+        $endHour = null;
+        if (!is_null($start)) {
+            $startTime = new \DateTime($start);
+            $startHour = $startTime->format('H:i:s');
+        }
+        if (!is_null($end)) {
+            $endTime = new \DateTime($end);
+            $endHour = $endTime->format('H:i:s');
+        }
+        $userId = $this->getUserId();
+
+        $productIds = $this->getRepo('Product\Product')->getMeetingProductsForClient(
+            $userId,
+            $cityId,
+            $buildingId,
+            $allowedPeople,
+            $startTime,
+            $endTime,
+            $startHour,
+            $endHour,
+            $limit,
+            $offset
+        );
+
+        $products = [];
+        foreach ($productIds as $productId) {
+            $product = $this->getRepo('Product\Product')->find($productId);
+            array_push($products, $product);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($products);
+
+        return $view;
+    }
+
+    /**
      * @Get("/products/office")
      *
      *

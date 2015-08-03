@@ -8,6 +8,105 @@ use Sandbox\ApiBundle\Entity\Room\RoomCity;
 
 class ProductRepository extends EntityRepository
 {
+    public function getMeetingProductsNotInOrder(
+
+    ) {
+    }
+
+    /**
+     * @param $userId
+     * @param $cityId
+     * @param $buildingId
+     * @param $allowedPeople
+     * @param $startDate
+     * @param $endDate
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getMeetingProductsForClient(
+        $userId,
+        $cityId,
+        $buildingId,
+        $allowedPeople,
+        $startTime,
+        $endTime,
+        $startHour,
+        $endHour,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('DISTINCT p.id')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'm', 'WITH', 'p.roomId = m.room')
+            ->where('p.visibleUserId = :userId OR p.private = :private')
+            ->andWhere('r.type = \'meeting\'')
+            ->setParameter('private', false)
+            ->setParameter('userId', $userId);
+        if (!is_null($cityId)) {
+            $query = $query->andWhere('r.city = :cityId')
+                ->setParameter('cityId', $cityId);
+        }
+        if (!is_null($buildingId)) {
+            $query = $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+        if (!is_null($allowedPeople)) {
+            $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
+                ->setParameter('allowedPeople', $allowedPeople);
+        }
+        if (!is_null($startTime) && is_null($endTime)) {
+            $currentDateStart = clone $startTime;
+            $currentDateStart->setTime(00, 00, 00);
+            $currentDateEnd = clone $startTime;
+            $currentDateEnd->setTime(23, 59, 59);
+            //TODO: Filter out orders before startHour
+            $query = $query
+                ->andWhere('p.startDate <= :startTime AND p.endDate > :startTime')
+                ->andWhere(
+                    'p.id NOT IN (
+                        SELECT po.productId
+                        FROM SandboxApiBundle:Order\ProductOrder po
+                        WHERE po.status <> \'cancelled\'
+                        AND po.startDate >= :currentDateStart
+                        AND po.endDate <= :currentDateEnd
+                        GROUP BY po.productId
+                        HAVING hour((sum(po.endDate) - sum(po.startDate))) >= ((m.endHour - m.startHour)/10000)
+                    )'
+                )
+                ->setParameter('currentDateStart', $currentDateStart)
+                ->setParameter('currentDateEnd', $currentDateEnd)
+                ->setParameter('startTime', $startTime);
+        }
+        if (!is_null($startTime) && !is_null($endTime)) {
+            $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')
+                ->andWhere('p.startDate <= :startTime')
+                ->andWhere('p.endDate >= :endTime')
+                ->andWhere(
+                    'p.id NOT IN (
+                        SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
+                        WHERE po.status <> \'cancelled\' AND
+                        (
+                            (po.startDate <= :startTime AND po.endDate > :startTime) OR
+                            (po.startDate < :endTime AND po.endDate >= :endTime)
+                        )
+                    )'
+                )
+                ->setParameter('startTime', $startTime)
+                ->setParameter('endTime', $endTime)
+                ->setParameter('startHour', $startHour)
+                ->setParameter('endHour', $endHour);
+        }
+        $query = $query->orderBy('p.creationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
     /**
      * @param $userId
      * @param $cityId
