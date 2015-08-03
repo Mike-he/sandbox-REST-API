@@ -25,6 +25,9 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientCompanyMemberController extends CompanyMemberController
 {
+    const ERROR_IS_CREATOR_SET_CODE = 400001;
+    const ERROR_IS_CREATOR_SET_MESSAGE = 'You are company creator, cannot quit!';
+
     /**
      * Get Company's members.
      *
@@ -39,17 +42,20 @@ class ClientCompanyMemberController extends CompanyMemberController
         Request $request,
         $id
     ) {
-        $members = $this->getRepo('Company\CompanyMember')->findByCompanyId($id);
+        $members = $this->getRepo('Company\CompanyMember')
+                        ->findByCompanyId($id);
         $this->throwNotFoundIfNull($members, self::NOT_FOUND_MESSAGE);
 
         foreach ($members as &$member) {
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($member->getUserId());
+            $profile = $this->getRepo('User\UserProfile')
+                            ->findOneByUserId($member->getUserId());
             $member->setProfile($profile);
         }
 
         $view = new View($members);
 
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('company_member_basic')));
+        $view->setSerializationContext(SerializationContext::create()
+             ->setGroups(array('company_member_basic')));
 
         return $view;
     }
@@ -82,6 +88,10 @@ class ClientCompanyMemberController extends CompanyMemberController
         $memberIds = json_decode($request->getContent(), true);
 
         foreach ($memberIds as $memberId) {
+            //check member has company
+            if ($this->hasCompany($memberId)) {
+                continue;
+            }
 
             //check member is buddy
             $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
@@ -89,15 +99,6 @@ class ClientCompanyMemberController extends CompanyMemberController
                 'buddyId' => $memberId,
             ));
             if (is_null($buddy)) {
-                continue;
-            }
-
-            //check member is added
-            $companyMember = $this->getRepo('Company\CompanyMember')->findOneBy(array(
-                'company' => $company,
-                'userId' => $memberId,
-            ));
-            if (!is_null($companyMember)) {
                 continue;
             }
 
@@ -133,16 +134,76 @@ class ClientCompanyMemberController extends CompanyMemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $memberIds = $paramFetcher->get('id');
+        // check param is empty
+        if (empty($memberIds)) {
+            // quit company
+            return $this->quitMyCompany($id);
+        } else {
+            // delete members
+           return $this->deleteMembers($memberIds, $id);
+        }
+    }
+
+    /**
+     * @param $companyId
+     *
+     * @return View
+     */
+    public function quitMyCompany($companyId)
+    {
+        $userId = $this->getUserId();
+        if ($this->isCompanyCreator($userId, $companyId)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_IS_CREATOR_SET_CODE,
+                self::ERROR_IS_CREATOR_SET_MESSAGE
+            );
+        }
+
+        // quit my company
+        $companyMember = $this->getRepo('Company\CompanyMember')->findOneBy(array(
+            'userId' => $userId,
+            'companyId' => $companyId,
+        ));
+        $this->throwNotFoundIfNull($companyMember, self::NOT_FOUND_MESSAGE);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($companyMember);
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param $memberIds
+     * @param $companyId
+     *
+     * @return View
+     */
+    public function deleteMembers(
+        $memberIds,
+        $companyId
+    ) {
         // check user is allowed to modify
-        $company = $this->getRepo('Company\Company')->find($id);
+        $company = $this->getRepo('Company\Company')->find($companyId);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
         $userId = $this->getUserId();
         $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
 
-        //delete member
+        // removed creator id
+        $memIds = array();
+        foreach ($memberIds as $memberId) {
+            if ($this->isCompanyCreator($companyId, $memberId)) {
+                continue;
+            }
+            $memIds[] = $memberId;
+        }
+
+        //delete members
         $this->getRepo('Company\CompanyMember')->deleteCompanyMembers(
-            $paramFetcher->get('id'),
-            $id
+            $memIds,
+            $companyId
         );
 
         return new View();
