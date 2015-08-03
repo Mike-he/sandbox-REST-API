@@ -38,7 +38,8 @@ class RoomBuilding
      *      "member",
      *      "admin_detail",
      *      "company_info",
-     *      "company_basic"
+     *      "company_basic",
+     *      "feed"
      *  }
      * )
      */
@@ -78,7 +79,8 @@ class RoomBuilding
      *      "member",
      *      "admin_detail",
      *      "company_info",
-     *      "company_basic"
+     *      "company_basic",
+     *      "feed"
      *  }
      * )
      */

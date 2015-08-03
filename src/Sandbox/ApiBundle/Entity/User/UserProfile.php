@@ -324,7 +324,8 @@ class UserProfile
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "buddy",
-     *      "member"
+     *      "member",
+     *      "feed"
      *  }
      * )
      **/
