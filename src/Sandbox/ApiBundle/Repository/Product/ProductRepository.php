@@ -313,4 +313,27 @@ class ProductRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * Search product by city, building, room name and room number.
+     *
+     * @param String $search
+     *
+     * @return \Doctrine\ORM\Query
+     */
+    public function searchProducts(
+        $search
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'r.city = rc.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.building = rb.id')
+            ->where('r.name LIKE :search')
+            ->orWhere('r.number LIKE :search')
+            ->orWhere('rc.name LIKE :search')
+            ->orWhere('rb.name LIKE :search')
+            ->setParameter('search', "%$search%");
+
+        return $result = $query->getQuery()->getResult();
+    }
 }
