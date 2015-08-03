@@ -86,6 +86,7 @@ class ClientMembershipOrderController extends PaymentController
         $type = $request->get('type');
         $price = $request->get('price');
         $channel = $request->get('channel');
+        $productId = $request->get('product_id');
 
         if (is_null($price) || empty($price)) {
             return $this->customErrorView(
@@ -103,7 +104,11 @@ class ClientMembershipOrderController extends PaymentController
         }
 
         if ($channel === 'account') {
-            $this->payMembershipByAccount($type, $price);
+            return $this->payMembershipByAccount(
+                $productId,
+                $type,
+                $price
+            );
         }
 
         $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
@@ -116,6 +121,8 @@ class ClientMembershipOrderController extends PaymentController
             self::PAYMENT_BODY
         );
         $charge = json_decode($charge, true);
+        $chargeId = $charge['id'];
+        $this->createOrderMap('upgrade', $productId, $chargeId);
 
         return new View($charge);
     }
@@ -159,41 +166,39 @@ class ClientMembershipOrderController extends PaymentController
      *
      * @return View
      */
-    private function payMembershipByAccount($type, $price)
+    private function payMembershipByAccount($productId, $type, $price)
     {
-        //TODO Call CRM API to get current balance
-        $balance = 500;
-        if ($price > $balance) {
-            return $this->customErrorView(
-                400,
-                self::INSUFFICIENT_FUNDS_CODE,
-                self::INSUFFICIENT_FUNDS_MESSAGE
-            );
-        }
-        //TODO Call CRM API to subtract price from current balance
-        $newBalance = $balance - $price;
-        //TODO Call CRM API to get current balance AGAIN
-        $updatedbalance = $newBalance;
-        if ($newBalance !== $updatedbalance) {
-            return $this->customErrorView(
-                500,
-                self::SYSTEM_ERROR_CODE,
-                self::SYSTEM_ERROR_MESSAGE
-            );
-        }
-
         $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
-        $order = $this->setMembershipOrder($type, $price, $orderNumber);
+
+        $userId = $this->getUserId();
+        $balance = $this->postConsumeBalance(
+            $userId,
+            $price,
+            $orderNumber,
+            false
+        );
+        if (!is_null($balance)) {
+            $order = $this->setMembershipOrder(
+                $productId,
+                $type,
+                $price,
+                $orderNumber
+            );
+            $this->postAccountUpgrade(
+                $userId,
+                $productId,
+                $orderNumber
+            );
+        }
 
         $view = new View();
-        $view->setData(
+
+        return $view->setData(
             array(
-                'id' => $order->getId(),
+                'balance' => $balance,
                 'channel' => 'account',
             )
         );
-
-        return $view;
     }
 
     /**

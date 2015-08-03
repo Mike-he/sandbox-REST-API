@@ -42,4 +42,37 @@ class CurlUtil
 
         return curl_exec($ch);
     }
+
+    /**
+     * @param $ch
+     * @param $data
+     * @param $auth
+     * @param $method
+     *
+     * @return mixed
+     */
+    public function callInternalAPI(
+        $ch,
+        $method,
+        $auth,
+        $data = null
+    ) {
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, 1);
+        } elseif ($method === 'PUT' || $method === 'DELETE') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        }
+
+        $headers = array('Accept: application/json');
+        $headers[] = 'Sandbox-Auth: '.$auth;
+
+        if (!is_null($data)) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            $headers[] = 'Content-Type: application/json';
+        }
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        return curl_exec($ch);
+    }
 }

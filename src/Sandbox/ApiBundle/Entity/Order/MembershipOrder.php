@@ -31,6 +31,13 @@ class MembershipOrder
     /**
      * @var int
      *
+     * @ORM\Column(name="productId", type="integer")
+     */
+    private $productId;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="userId", type="integer")
      */
     private $userId;
@@ -109,6 +116,30 @@ class MembershipOrder
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * Set productId.
+     *
+     * @param int $productId
+     *
+     * @return MembershipOrder
+     */
+    public function setProductId($productId)
+    {
+        $this->productId = $productId;
+
+        return $this;
+    }
+
+    /**
+     * Get productId.
+     *
+     * @return int
+     */
+    public function getProductId()
+    {
+        return $this->productId;
     }
 
     /**
