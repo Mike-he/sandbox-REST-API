@@ -236,7 +236,6 @@ class OrderRepository extends EntityRepository
             $query->andWhere('o.endDate <= :endDate');
             $parameters['endDate'] = $endDate;
         }
-
         $query->orderBy('o.creationDate', 'DESC');
 
         //set all parameters
@@ -245,6 +244,26 @@ class OrderRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * Search orders by order number and  order owner name.
+     *
+     * @param String $search
+     *
+     * @return array
+     */
+    public function getOrdersBySearch(
+        $search
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
+            ->where('o.orderNumber LIKE :search')
+            ->orWhere('up.name LIKE :search')
+            ->orderBy('o.creationDate', 'DESC')
+            ->setParameter('search', "%$search%");
+
+        return $query->getQuery()->getResult();
     }
 
     /**
