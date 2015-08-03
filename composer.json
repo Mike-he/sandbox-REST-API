@@ -33,8 +33,7 @@
         "pingplusplus/pingpp-php": "dev-master",
         "knplabs/knp-paginator-bundle": "^2.4",
         "friendsofsymfony/elastica-bundle": "^3.1",
-        "liuggio/excelbundle": "^2.0",
-        "symfony/var-dumper": "^2.7"
+        "liuggio/excelbundle": "^2.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "@stable",
