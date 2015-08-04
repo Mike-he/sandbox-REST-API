@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
+use Symfony\Component\HttpFoundation\Request;
 
 //TODO there's certainly a way to get the
 // current bundle name with a magic function
@@ -225,11 +226,14 @@ class SandboxRestController extends FOSRestController
      * @return string|null
      */
     protected function getCardNoByUser(
-        $userId,
-        $auth
+        $userId
     ) {
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
+
+        $key = $globals['sandbox_auth_key'];
+
+        $contentMd5 = md5($key);
 
         // CRM API URL
         $apiUrl = $globals['crm_api_url'].
@@ -239,8 +243,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        //TODO：set $auth to orderno
-        $response = $this->get('curl_util')->callAPI($ch, 'GET', $auth);
+        $response = $this->get('curl_util')->callInternalAPI($ch, 'GET', $contentMd5);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -253,6 +256,178 @@ class SandboxRestController extends FOSRestController
         }
 
         return $result['card_no'];
+    }
+
+    /**
+     * @param $userId
+     * @param $data
+     *
+     * @return string|null
+     */
+    protected function postAddToBalance(
+        $userId,
+        $amount,
+        $tradeId,
+        $channel
+    ) {
+        $json = $this->createJsonForCharge(
+            $tradeId,
+            $amount,
+            $channel
+        );
+        $auth = $this->authAuthMd5($json);
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_admin_user_charge'];
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callInternalAPI($ch, 'POST', $auth, $json);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result['balance'];
+    }
+
+    /**
+     * @param $userId
+     * @param $data
+     *
+     * @return string|null
+     */
+    protected function postConsumeBalance(
+        $userId,
+        $amount,
+        $tradeId,
+        $thirdParty
+    ) {
+        $json = $this->createJsonForConsume(
+            $tradeId,
+            $amount,
+            $thirdParty
+        );
+        $auth = $this->authAuthMd5($json);
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_admin_user_consume'];
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callInternalAPI($ch, 'POST', $auth, $json);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result['balance'];
+    }
+
+    /**
+     * @param $userId
+     * @param $data
+     *
+     * @return string|null
+     */
+    protected function postAccountUpgrade(
+        $userId,
+        $productId,
+        $tradeId
+    ) {
+        $content = [
+            'product_id' => $productId,
+            'trade_id' => $tradeId,
+        ];
+        $auth = $this->authAuthMd5(json_encode($content));
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_admin_user_account_upgrade'];
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callInternalAPI($ch, 'POST', $auth, json_encode($content));
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return mixed
+     */
+    protected function authAuthMd5(
+        $json
+    ) {
+        $globals = $this->container->get('twig')->getGlobals();
+
+        $key = $globals['sandbox_auth_key'];
+
+        $contentMd5 = md5($json.$key);
+        $contentMd5 = strtoupper($contentMd5);
+
+        return $contentMd5;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function createJsonForCharge(
+        $orderNumber,
+        $amount,
+        $payType
+    ) {
+        $content = [
+            'amount' => $amount,
+            'pay_type' => $payType,
+            'trade_id' => $orderNumber,
+        ];
+
+        return json_encode($content);
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function createJsonForConsume(
+        $orderNumber,
+        $amount,
+        $thirdParty
+    ) {
+        $content = [
+            'amount' => $amount,
+            'trade_id' => $orderNumber,
+            'third_pay' => $thirdParty,
+        ];
+
+        return json_encode($content);
     }
 
     /**
