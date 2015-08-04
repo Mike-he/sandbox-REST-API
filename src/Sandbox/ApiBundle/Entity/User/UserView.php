@@ -21,7 +21,7 @@ class UserView
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "account"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "account"})
      */
     private $email;
 
@@ -37,7 +37,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "account"})
      */
     private $phone;
 
@@ -53,7 +53,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "account"})
      */
     private $name;
 
