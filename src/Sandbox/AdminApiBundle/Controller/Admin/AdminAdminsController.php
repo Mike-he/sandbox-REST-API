@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Admin;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
@@ -93,7 +94,9 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ADMIN,
+            AdminPermissionMap::OP_LEVEL_EDIT
         );
 
         // get all admins id and username
@@ -136,7 +139,9 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ADMIN,
+            AdminPermissionMap::OP_LEVEL_EDIT
         );
 
         // get all admins
@@ -176,8 +181,10 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER
-            );
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ADMIN,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
 
         // bind admin data
         $admin = new Admin();
@@ -224,7 +231,9 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ADMIN,
+            AdminPermissionMap::OP_LEVEL_EDIT
         );
 
         // get admin
@@ -263,7 +272,9 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_SUPER
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ADMIN,
+            AdminPermissionMap::OP_LEVEL_EDIT
         );
 
         // get admin

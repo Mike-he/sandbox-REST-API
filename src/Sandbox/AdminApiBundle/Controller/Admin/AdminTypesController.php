@@ -10,6 +10,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 
 /**
  * Admin Types Controller.
@@ -46,7 +48,12 @@ class AdminTypesController extends SandboxRestController
         Request $request
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ADMIN,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
 
         // get all admin types
         $query = $this->getRepo('Admin\AdminType')->findAll();
