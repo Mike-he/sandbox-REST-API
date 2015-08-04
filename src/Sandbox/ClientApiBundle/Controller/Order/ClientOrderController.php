@@ -145,6 +145,14 @@ class ClientOrderController extends PaymentController
         }
         $now = new \DateTime();
         $type = $product->getRoom()->getType();
+        $startDate = new \DateTime($order->getStartDate());
+        if ($now > $startDate) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_BOOKING_DATE_CODE,
+                self::WRONG_BOOKING_DATE_MESSAGE
+            );
+        }
         if ($type === 'office' && $order->getIsRenew()) {
             $myEnd = $now->modify('+ 7 days');
             $myOrder = $this->getRepo('Order\ProductOrder')->getRenewOrder(
@@ -163,7 +171,6 @@ class ClientOrderController extends PaymentController
             $endDate = clone $startDate;
             $endDate->modify('+ 1 month');
         } else {
-            $startDate = new \DateTime($order->getStartDate());
             $diff = $startDate->diff($now)->days;
             if ($diff > 7) {
                 return $this->customErrorView(
