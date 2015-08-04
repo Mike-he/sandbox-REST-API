@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use JMS\Serializer\SerializationContext;
 
 /**
  * User Account controller.
@@ -46,15 +47,10 @@ class ClientUserAccountController extends SandboxRestController
     ) {
         $userId = $this->getUserId();
         $userView = $this->getRepo('User\UserView')->find($userId);
-        $view = new View();
-        $view->setData(
-            array(
-                'id' => $userId,
-                'name' => $userView->getName(),
-                'email' => $userView->getEmail(),
-                'phone' => $userView->getPhone(),
-            )
-        );
+
+        $view = new View($userView);
+        $view->setSerializationContext(SerializationContext::create()
+            ->setGroups(array('account')));
 
         return $view;
     }
