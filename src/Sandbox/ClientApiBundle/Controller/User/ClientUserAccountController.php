@@ -45,13 +45,14 @@ class ClientUserAccountController extends SandboxRestController
         Request $request
     ) {
         $userId = $this->getUserId();
-        $user = $this->getRepo('User\User')->find($userId);
+        $userView = $this->getRepo('User\UserView')->find($userId);
         $view = new View();
         $view->setData(
             array(
                 'id' => $userId,
-                'email' => $user->getEmail(),
-                'phone' => $user->getPhone(),
+                'name' => $userView->getName(),
+                'email' => $userView->getEmail(),
+                'phone' => $userView->getPhone(),
             )
         );
 
