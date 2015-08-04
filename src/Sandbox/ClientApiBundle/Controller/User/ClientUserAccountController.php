@@ -49,8 +49,9 @@ class ClientUserAccountController extends SandboxRestController
         $userView = $this->getRepo('User\UserView')->find($userId);
 
         $view = new View($userView);
-        $view->setSerializationContext(SerializationContext::create()
-            ->setGroups(array('account')));
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('account'))
+        );
 
         return $view;
     }
