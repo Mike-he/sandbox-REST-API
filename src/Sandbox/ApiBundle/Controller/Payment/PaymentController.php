@@ -246,26 +246,22 @@ class PaymentController extends SandboxRestController
     }
 
     /**
-     * @param $type
+     * @param $productId
      * @param $price
+     * @param $orderNumber
      *
      * @return MembershipOrder
      */
     public function setMembershipOrder(
         $productId,
-        $type,
         $price,
         $orderNumber
     ) {
         $userId = $this->getUserid();
-        $endDate = $this->calculateEndDate($type);
-
         $order = new MembershipOrder();
         $order->setUserId($userId);
         $order->setProductId($productId);
-        $order->setEndDate($endDate);
         $order->setPrice($price);
-        $order->setType($type);
         $order->setOrderNumber($orderNumber);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
