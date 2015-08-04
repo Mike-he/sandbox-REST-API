@@ -17,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Rest controller for UserProfile.
@@ -105,6 +106,11 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         // check user exist
         $recvUserId = $form['user_id']->getData();
+        if (is_null($recvUserId) || $recvUserId === $myUserId) {
+            // or user is trying to adding him/her self
+            throw new ConflictHttpException(self::CONFLICT_MESSAGE);
+        }
+
         $recvUser = $this->getRepo('User\User')->find($recvUserId);
         $this->throwNotFoundIfNull($recvUser, self::NOT_FOUND_MESSAGE);
 
@@ -180,6 +186,12 @@ class ClientBuddyRequestController extends BuddyRequestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
+        // check user is trying to add him/her self
+        $askUserId = $buddyRequest->getAskUserId();
+        if ($myUserId === $askUserId) {
+            throw new ConflictHttpException(self::CONFLICT_MESSAGE);
+        }
+
         // check status is pending
         if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_PENDING) {
             // bind data
@@ -190,14 +202,13 @@ class ClientBuddyRequestController extends BuddyRequestController
             $form = $this->createForm(new BuddyRequestPatchType(), $buddyRequest);
             $form->submit(json_decode($buddyRequestJson, true));
 
-            // set profile
+            // set modification date
             $buddyRequest->setModificationDate(new \DateTime('now'));
 
             // update to db
             $em = $this->getDoctrine()->getManager();
 
             if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED) {
-                $askUserId = $buddyRequest->getAskUserId();
                 $askUser = $this->getRepo('User\User')->find($askUserId);
 
                 // save my buddy
