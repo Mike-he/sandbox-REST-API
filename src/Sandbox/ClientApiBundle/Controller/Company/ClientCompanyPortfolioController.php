@@ -26,6 +26,9 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientCompanyPortfolioController extends CompanyPortfolioController
 {
+    const ERROR_AMOUNT_OVER_SET_CODE = 400001;
+    const ERROR_AMOUNT_OVER_SET_MESSAGE = 'Sorry, 8 portfolios allowed to add!';
+
     /**
      * Get Company's portfolios.
      *
@@ -72,18 +75,40 @@ class ClientCompanyPortfolioController extends CompanyPortfolioController
         $userId = $this->getUserId();
         $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
 
-        //add portfolios
-        $em = $this->getDoctrine()->getManager();
+        // check the amount of portfolios has added
+        $count = $this->getRepo('Company\CompanyPortfolio')
+                      ->countCompanyPortfolios($id);
 
-        $company = $this->getRepo('Company\Company')->find($id);
+        $amountPortfolios = 8;
+        if ($count >= $amountPortfolios) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_AMOUNT_OVER_SET_CODE,
+                self::ERROR_AMOUNT_OVER_SET_MESSAGE
+            );
+        } else {
 
-        $portfolios = json_decode($request->getContent(), true);
-        foreach ($portfolios as $portfolio) {
-            $companyPortfolio = $this->generateCompanyPortfolio($company, $portfolio);
-            $em->persist($companyPortfolio);
+            // add portfolios
+            $em = $this->getDoctrine()->getManager();
+
+            $company = $this->getRepo('Company\Company')->find($id);
+
+            $portfolios = json_decode($request->getContent(), true);
+            $countPort = sizeof($portfolios);
+            if ($countPort + $count >= 8) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_AMOUNT_OVER_SET_CODE,
+                    self::ERROR_AMOUNT_OVER_SET_MESSAGE
+                );
+            }
+            foreach ($portfolios as $portfolio) {
+                $companyPortfolio = $this->generateCompanyPortfolio($company, $portfolio);
+                $em->persist($companyPortfolio);
+            }
+
+            $em->flush();
         }
-
-        $em->flush();
 
         return new view();
     }
