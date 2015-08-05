@@ -386,7 +386,7 @@ class ClientUserPasswordController extends UserPasswordController
         if (!is_null($email)) {
 
             // send verification URL to email
-            $subject = '[SandBox Forget Password] '.$this->before('@', $email).', please reset your password';
+            $subject = '【展想创合】'.$this->before('@', $email).'，您正在重置账号密码。';
             $this->sendEmail($subject, $email, $this->before('@', $email),
                 'Emails/forget_password_email_verification.html.twig',
                 array(
@@ -395,7 +395,8 @@ class ClientUserPasswordController extends UserPasswordController
             );
         } else {
             // sms verification code to phone
-            $smsText = 'Verification code: '.$forgetPassword->getCode();
+            $smsText = '您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：'
+                .$forgetPassword->getCode();
             $this->sendSms($phone, urlencode($smsText));
         }
     }
