@@ -15,19 +15,18 @@ class OrderRepository extends EntityRepository
     /**
      * set status to completed when current time passes start time.
      */
-    public function setStatusCompleted()
+    public function getStatusPaid()
     {
         $now = new \DateTime();
 
         $query = $this->createQueryBuilder('o')
-            ->update()
-            ->set('o.status', self::COMPLETED)
+            ->select('o')
             ->where('o.status = \'paid\'')
             ->andWhere('o.startDate <= :now')
             ->setParameter('now', $now)
             ->getQuery();
 
-        $query->execute();
+        return $query->getResult();
     }
 
     /**

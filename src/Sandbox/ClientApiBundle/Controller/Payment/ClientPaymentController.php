@@ -5,7 +5,6 @@ namespace Sandbox\ClientApiBundle\Controller\Payment;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\View\View;
 
 /**
  * Rest controller for Client Orders.
@@ -49,12 +48,6 @@ class ClientPaymentController extends PaymentController
                         );
                     }
                     $order = $this->setProductOrder($data);
-                    $balance = $this->postConsumeBalance(
-                        $order->getUserId(),
-                        $price,
-                        $orderNumber,
-                        true
-                    );
 
                     break;
                 case 'VIP':
@@ -71,16 +64,11 @@ class ClientPaymentController extends PaymentController
                             self::WRONG_CHARGE_ID__MESSAGE
                         );
                     }
-                    $productId = $myCharge->getProductId();
+                    $productId = $myCharge->getOrderId();
                     $order = $this->setMembershipOrder($productId, $price, $orderNumber);
                     $userId = $order->getUserId();
-                    $balance = $this->postConsumeBalance(
-                        $userId,
-                        $price,
-                        $orderNumber,
-                        true
-                    );
                     $this->postAccountUpgrade($userId, $productId, $orderNumber);
+                    $amount = $this->postConsumeBalance($userId, $price, $orderNumber);
 
                     break;
                 case 'TOPUP':
@@ -99,18 +87,14 @@ class ClientPaymentController extends PaymentController
                     }
                     $order = $this->setTopUpOrder($price, $orderNumber);
                     $userId = $order->getUserId();
-                    $balance = $this->postAddToBalance(
+                    $balance = $this->postBalanceChange(
                         $userId,
                         $price,
                         $orderNumber,
                         $channel
                     );
-                    $view = new View();
-                    $view->setData(
-                        ['balance' => $balance]
-                    );
 
-                    return $view;
+                    break;
             }
             http_response_code(200);
         } else {
