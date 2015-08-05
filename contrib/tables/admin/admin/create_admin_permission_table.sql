@@ -12,11 +12,11 @@ CREATE TABLE `AdminPermission` (
 );
 
 INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.order','Platform Order Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.user','Platform User Management','2015-08-03 11:00:00','2015-08-3 11:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.room','Platform Room Management','2015-08-03 11:00:00','2015-08-3 11:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.product','Platform Product Management','2015-08-03 11:00:00','2015-08-3 11:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.price','Platform Price Management','2015-08-03 11:00:00','2015-08-3 11:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.access','Platform Access Management','2015-08-03 11:00:00','2015-08-3 11:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.admin','Platform Admin Management','2015-08-03 11:00:00','2015-08-3 11:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.announcement','Platform Announcement Management','2015-08-03 11:00:00','2015-08-3 11:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.dashboard','Platform Dashboard Management','2015-08-03 11:00:00','2015-08-3 11:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.user','Platform User Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.room','Platform Room Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.product','Platform Product Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.price','Platform Price Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.access','Platform Access Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.admin','Platform Admin Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.announcement','Platform Announcement Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(1,'platform.dashboard','Platform Dashboard Management','2015-08-03 11:00:00','2015-08-03 11:00:00');
