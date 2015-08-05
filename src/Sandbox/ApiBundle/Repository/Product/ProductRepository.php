@@ -232,7 +232,9 @@ class ProductRepository extends EntityRepository
                 ->andWhere(
                     'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
-                        WHERE po.status <> \'cancelled\' AND
+                        WHERE po.status <> \'cancelled\'
+                        AND po.productId <> \'null\'
+                        AND
                         (
                             (po.startDate <= :startDate AND po.endDate > :startDate) OR
                             (po.startDate < :endDate AND po.endDate >= :endDate)
