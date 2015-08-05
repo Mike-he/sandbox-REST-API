@@ -62,7 +62,6 @@ class ProductRepository extends EntityRepository
             $currentDateStart->setTime(00, 00, 00);
             $currentDateEnd = clone $startTime;
             $currentDateEnd->setTime(23, 59, 59);
-            //TODO: Filter out orders before startHour
             $query = $query
                 ->andWhere('p.startDate <= :startTime AND p.endDate > :startTime')
                 ->andWhere(
@@ -72,13 +71,22 @@ class ProductRepository extends EntityRepository
                         WHERE po.status <> \'cancelled\'
                         AND po.startDate >= :currentDateStart
                         AND po.endDate <= :currentDateEnd
+                        AND po.endDate > :startTime
                         GROUP BY po.productId
-                        HAVING hour((sum(po.endDate) - sum(po.startDate))) >= ((m.endHour - m.startHour)/10000)
+                        HAVING (
+                            (
+                                CASE WHEN MIN(po.startDate) >= :startTime
+                                THEN hour((m.endHour - time(:startHour)))
+                                ELSE hour((m.endHour - time(MIN(po.startDate))))
+                                END
+                            ) <= hour((sum(po.endDate) - sum(po.startDate)))
+                        )
                     )'
                 )
                 ->setParameter('currentDateStart', $currentDateStart)
                 ->setParameter('currentDateEnd', $currentDateEnd)
-                ->setParameter('startTime', $startTime);
+                ->setParameter('startTime', $startTime)
+                ->setParameter('startHour', $startHour);
         }
         if (!is_null($startTime) && !is_null($endTime)) {
             $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')

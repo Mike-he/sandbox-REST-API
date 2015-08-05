@@ -58,7 +58,6 @@ class ClientPaymentController extends PaymentController
 
                     break;
                 case 'VIP':
-                    $type = $data['data']['object']['body'];
                     $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
                         [
                             'type' => 'upgrade',
@@ -73,7 +72,7 @@ class ClientPaymentController extends PaymentController
                         );
                     }
                     $productId = $myCharge->getProductId();
-                    $order = $this->setMembershipOrder($productId, $type, $price, $orderNumber);
+                    $order = $this->setMembershipOrder($productId, $price, $orderNumber);
                     $userId = $order->getUserId();
                     $balance = $this->postConsumeBalance(
                         $userId,

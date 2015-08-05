@@ -43,32 +43,11 @@ class MembershipOrder
     private $userId;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="endDate", type="date")
-     */
-    private $endDate;
-
-    /**
      * @var float
      *
      * @ORM\Column(name="price", type="float")
      */
     private $price;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="type", type="string", length=255)
-     */
-    private $type;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="cancelledDate", type="datetime", nullable=true)
-     */
-    private $cancelledDate;
 
     /**
      * @var \DateTime
@@ -143,30 +122,6 @@ class MembershipOrder
     }
 
     /**
-     * Set endDate.
-     *
-     * @param \DateTime $endDate
-     *
-     * @return MembershipOrder
-     */
-    public function setEndDate($endDate)
-    {
-        $this->endDate = $endDate;
-
-        return $this;
-    }
-
-    /**
-     * Get endDate.
-     *
-     * @return \DateTime
-     */
-    public function getEndDate()
-    {
-        return $this->endDate;
-    }
-
-    /**
      * Set price.
      *
      * @param float $price
@@ -188,54 +143,6 @@ class MembershipOrder
     public function getPrice()
     {
         return $this->price;
-    }
-
-    /**
-     * Set type.
-     *
-     * @param string $type
-     *
-     * @return MembershipOrder
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get type.
-     *
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * Set cancelledDate.
-     *
-     * @param \DateTime $cancelledDate
-     *
-     * @return MembershipOrder
-     */
-    public function setCancelledDate($cancelledDate)
-    {
-        $this->cancelledDate = $cancelledDate;
-
-        return $this;
-    }
-
-    /**
-     * Get cancelledDate.
-     *
-     * @return \DateTime
-     */
-    public function getCancelledDate()
-    {
-        return $this->cancelledDate;
     }
 
     /**
