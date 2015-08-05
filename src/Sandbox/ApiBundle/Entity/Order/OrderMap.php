@@ -31,7 +31,7 @@ class OrderMap
     /**
      * @var int
      *
-     * @ORM\Column(name="orderId", type="integer")
+     * @ORM\Column(name="orderId", type="integer", nullable=true)
      */
     private $orderId;
 
