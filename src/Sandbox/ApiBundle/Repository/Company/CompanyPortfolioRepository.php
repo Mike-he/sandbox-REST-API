@@ -27,4 +27,22 @@ class CompanyPortfolioRepository extends EntityRepository
 
         $query->execute();
     }
+
+    /**
+     * @param int $companyId
+     *
+     * @return int
+     */
+    public function countCompanyPortfolios($companyId)
+    {
+        $query = $this->getEntityManager()
+                      ->createQueryBuilder()
+                      ->select('COUNT(cp.id)')
+                      ->from('SandboxApiBundle:Company\CompanyPortfolio', 'cp')
+                      ->where('cp.companyId = :companyId')
+                      ->setParameter('companyId', $companyId)
+                      ->getQuery();
+
+        return $query->getSingleScalarResult();
+    }
 }

@@ -36,11 +36,6 @@ sandbox_client_api_company_member:
     type:     rest
     parent:   sandbox_client_api_company
 
-# DIRECTORIES /directories
-sandbox_client_api_directory:
-    resource: "@SandboxClientApiBundle/Controller/Company/ClientDirectoryController.php"
-    type:     rest
-
 # Profile /profile
 sandbox_client_api_user_profile:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserProfileController.php"
