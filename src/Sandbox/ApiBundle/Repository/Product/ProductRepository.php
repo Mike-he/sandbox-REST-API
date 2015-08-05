@@ -45,19 +45,19 @@ class ProductRepository extends EntityRepository
             ->andWhere('r.type = \'meeting\'')
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
-        if (!is_null($cityId)) {
+        if (!is_null($cityId) && !empty($cityId)) {
             $query = $query->andWhere('r.city = :cityId')
                 ->setParameter('cityId', $cityId);
         }
-        if (!is_null($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $query = $query->andWhere('r.building = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
-        if (!is_null($allowedPeople)) {
+        if (!is_null($allowedPeople) && !empty($allowedPeople)) {
             $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
                 ->setParameter('allowedPeople', $allowedPeople);
         }
-        if (!is_null($startTime) && is_null($endTime)) {
+        if (!is_null($startTime) && !empty($startTime) && (is_null($endTime) || empty($endTime))) {
             $currentDateStart = clone $startTime;
             $currentDateStart->setTime(00, 00, 00);
             $currentDateEnd = clone $startTime;
@@ -88,7 +88,7 @@ class ProductRepository extends EntityRepository
                 ->setParameter('startTime', $startTime)
                 ->setParameter('startHour', $startHour);
         }
-        if (!is_null($startTime) && !is_null($endTime)) {
+        if (!is_null($startTime) && !is_null($endTime) && !empty($startTime) && !empty($endTime)) {
             $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')
                 ->andWhere('p.startDate <= :startTime')
                 ->andWhere('p.endDate >= :endTime')
@@ -144,19 +144,19 @@ class ProductRepository extends EntityRepository
             ->andWhere('r.type = \'office\'')
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
-        if (!is_null($cityId)) {
+        if (!is_null($cityId) && !empty($cityId)) {
             $query = $query->andWhere('r.city = :cityId')
                 ->setParameter('cityId', $cityId);
         }
-        if (!is_null($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $query = $query->andWhere('r.building = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
-        if (!is_null($allowedPeople)) {
+        if (!is_null($allowedPeople) && !empty($allowedPeople)) {
             $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
                 ->setParameter('allowedPeople', $allowedPeople);
         }
-        if (!is_null($startDate) && !is_null($endDate)) {
+        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
             $query = $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :endDate')
                 ->andWhere(
@@ -209,19 +209,19 @@ class ProductRepository extends EntityRepository
             ->andWhere('r.type = \'fixed\' OR r.type = \'flexible\'')
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
-        if (!is_null($cityId)) {
+        if (!is_null($cityId) && !empty($cityId)) {
             $query = $query->andWhere('r.city = :cityId')
                 ->setParameter('cityId', $cityId);
         }
-        if (!is_null($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $query = $query->andWhere('r.building = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
-        if (!is_null($allowedPeople)) {
+        if (!is_null($allowedPeople) && !empty($allowedPeople)) {
             $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
                 ->setParameter('allowedPeople', $allowedPeople);
         }
-        if (!is_null($startDate) && !is_null($endDate)) {
+        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
             $query = $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :endDate')
                 ->andWhere(
