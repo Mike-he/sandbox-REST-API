@@ -4,6 +4,9 @@ namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomDoors;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
@@ -148,6 +151,9 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -226,6 +232,9 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
@@ -270,6 +279,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -303,6 +315,9 @@ class AdminRoomController extends RoomController
     public function postRoomAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $room = new Room();
 
         $form = $this->createForm(new RoomType(), $room);
@@ -351,6 +366,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
@@ -394,6 +412,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         //get array with ids
         $attachments_id = json_decode($request->getContent(), true);
         if (!is_array($attachments_id)) {
@@ -448,6 +469,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $office_supplies = json_decode($request->getContent(), true);
         if (!is_array($office_supplies)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -500,6 +524,9 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
@@ -546,6 +573,9 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         //get room
         $room = $this->getRepo('Room\Room')->find($id);
 
@@ -583,6 +613,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
@@ -877,5 +910,21 @@ class AdminRoomController extends RoomController
                 /* Do nothing */
                 break;
         }
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param Integer $OpLevel
+     */
+    private function checkAdminRoomPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ROOM,
+            $OpLevel
+        );
     }
 }

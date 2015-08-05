@@ -4,6 +4,9 @@ namespace Sandbox\AdminApiBundle\Controller\Announcement;
 
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Announcement\AnnouncementController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Announcement\Announcement;
 use Sandbox\ApiBundle\Form\Announcement\AnnouncementType;
 use Symfony\Component\HttpFoundation\Request;
@@ -91,6 +94,9 @@ class AdminAnnouncementController extends AnnouncementController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminAnnouncementPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $direction = $paramFetcher->get('direction');
@@ -142,6 +148,9 @@ class AdminAnnouncementController extends AnnouncementController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminAnnouncementPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         // get announcement
         $announcement = $this->getRepo('Announcement\Announcement')->find($id);
 
@@ -170,6 +179,9 @@ class AdminAnnouncementController extends AnnouncementController
     public function postAnnouncementAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminAnnouncementPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $announcement = new Announcement();
 
         $form = $this->createForm(new AnnouncementType(), $announcement);
@@ -218,6 +230,9 @@ class AdminAnnouncementController extends AnnouncementController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminAnnouncementPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $announcement = $this->getRepo('Announcement\Announcement')->find($id);
 
         $form = $this->createForm(
@@ -271,11 +286,30 @@ class AdminAnnouncementController extends AnnouncementController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminAnnouncementPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         // get announcement
         $room = $this->getRepo('Announcement\Announcement')->find($id);
 
         $em = $this->getDoctrine()->getManager();
         $em->remove($room);
         $em->flush();
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param Integer $OpLevel
+     */
+    private function checkAdminAnnouncementPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ANNOUNCEMENT,
+            $OpLevel
+        );
     }
 }

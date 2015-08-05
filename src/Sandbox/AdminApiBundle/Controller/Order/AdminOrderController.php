@@ -5,6 +5,9 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -131,6 +134,9 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -238,6 +244,9 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $type = $paramFetcher->get('type');
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
@@ -359,6 +368,9 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $query = $paramFetcher->get('query');
@@ -400,6 +412,9 @@ class AdminOrderController extends OrderController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
@@ -435,6 +450,9 @@ class AdminOrderController extends OrderController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $user = $this->getRepo('User\UserProfile')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
@@ -462,5 +480,21 @@ class AdminOrderController extends OrderController
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param Integer $OpLevel
+     */
+    private function checkAdminOrderPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ORDER,
+            $OpLevel
+        );
     }
 }
