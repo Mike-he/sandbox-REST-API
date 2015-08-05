@@ -38,6 +38,8 @@ parameters:
     crm_api_admin_user_charge: /admin/useraccounts/{userId}/charge
     crm_api_admin_user_consume: /admin/useraccounts/{userId}/consume
     crm_api_admin_user_account_upgrade: /admin/useraccounts/{userId}/upgrade
+    crm_api_admin_price_rule_include: /admin/price/rule/include/{roomId}
+    crm_api_admin_price_rule_exclude: /admin/price/rule/exclude/{roomId}
     door_api_username: admin
     door_api_password: admin
     door_api_login: /Login

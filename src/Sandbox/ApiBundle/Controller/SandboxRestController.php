@@ -29,6 +29,7 @@ class SandboxRestController extends FOSRestController
     const CONFLICT_MESSAGE = 'This resource already exists';
 
     const HTTP_STATUS_OK = 200;
+    const HTTP_STATUS_OK_NO_CONTENT = 204;
 
     const VERIFICATION_CODE_LENGTH = 6;
 

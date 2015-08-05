@@ -317,6 +317,8 @@ class AdminRoomController extends RoomController
         $attachments_id = $form['attachment_id']->getData();
         $office_supplies = $form['office_supplies']->getData();
         $doors_control = $form['doors_control']->getData();
+        $rule_include = $form['price_rule_include_ids']->getData();
+        $rule_exclude = $form['price_rule_exclude_ids']->getData();
 
         return $this->handleRoomPost(
             $room,
@@ -324,7 +326,9 @@ class AdminRoomController extends RoomController
             $fixed,
             $attachments_id,
             $office_supplies,
-            $doors_control
+            $doors_control,
+            $rule_include,
+            $rule_exclude
         );
     }
 
@@ -671,7 +675,9 @@ class AdminRoomController extends RoomController
      * @param RoomFixed             $roomsFixed
      * @param RoomAttachmentBinding $attachments_id
      * @param RoomSupplies          $office_supplies
-     * @param RoomDoors             $doors_controls
+     * @param RoomDoors             $doors_control
+     * @param Array                 $rule_include
+     * @param Array                 $rule_exclude
      *
      * @return View
      */
@@ -681,7 +687,9 @@ class AdminRoomController extends RoomController
         $roomsFixed,
         $attachments_id,
         $office_supplies,
-        $doors_control
+        $doors_control,
+        $rule_include,
+        $rule_exclude
     ) {
         $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
         $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
@@ -719,6 +727,14 @@ class AdminRoomController extends RoomController
         $em = $this->getDoctrine()->getManager();
         $em->persist($room);
         $em->flush();
+
+        //add price rules
+        if (!is_null($rule_include)) {
+            self::postPriceRule($room->getId(), $rule_include, 'include');
+        }
+        if (!is_null($rule_exclude)) {
+            self::postPriceRule($room->getId(), $rule_exclude, 'exclude');
+        }
 
         //add doors control
         if (!is_null($doors_control)) {
