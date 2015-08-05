@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Form\Admin\AdminPutType;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -245,12 +246,12 @@ class AdminAdminsController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $permission_ids = $form['permission_ids']->getData();
+        $permission = $form['permission']->getData();
 
         return $this->handleAdminPut(
             $id,
             $admin,
-            $permission_ids
+            $permission
         );
     }
 
@@ -298,85 +299,91 @@ class AdminAdminsController extends SandboxRestController
     /**
      * @param Admin              $admin
      * @param Admin              $id
-     * @param AdminPermissionMap $permission_ids
+     * @param AdminPermissionMap $permissionPuts
      *
      * @return View
      */
     private function handleAdminPut(
         $id,
         $admin,
-        $permission_ids
+        $permissionPuts
     ) {
+        $this->checkAdminValid($admin);
+
         //set admin
         $em = $this->getDoctrine()->getManager();
         $em->persist($admin);
 
-        //judge the id of permissions
+        //judge the value of permissions
         $permissions = $this->getRepo('Admin\AdminPermissionMap')
                         ->findBy(array('adminId' => $id));
 
-        $permissionOldId = array();
-        foreach ($permissions as $permissionOld) {
-            $permissionOldId[] = $permissionOld->getPermissionId();
-        }
-
         $permissionSameId = array();
-        foreach ($permissionOldId as $pOldId) {
-            foreach ($permission_ids as $pNewId) {
-                if ($pOldId == $pNewId) {
-                    $permissionSameId[] = $pNewId;
+        foreach ($permissions as $pOld) {
+            foreach ($permissionPuts as $pNew) {
+                if ($pOld->getPermissionId() == $pNew['id']) {
+                    $permissionSameId[] = $pNew['id'];
+                    if ($pOld->getOpLevel() != $pNew['op_level']) {
+                        $permissionMap = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionMap')
+                            ->findOneBy(
+                                array(
+                                    'adminId' => $id,
+                                    'permissionId' => $pOld->getPermissionId(),
+                                )
+                        );
+                        $permissionMap->setOpLevel($pNew['op_level']);
+                    }
                 }
             }
         }
-
         //remove the useless permissions
-        foreach ($permissionOldId as $pOldId) {
+        foreach ($permissions as $permissionOld) {
             $num = 0;
             foreach ($permissionSameId as $pSameId) {
-                if ($pOldId == $pSameId) {
+                if ($permissionOld->getPermissionId() == $pSameId) {
                     $num = 1;
                 }
             }
             if ($num == 0) {
-                $pRemove = $this->getRepo('Admin\AdminPermissionMap')
+                $pRemove = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionMap')
                     ->findOneBy(
                             array(
                                 'adminId' => $id,
-                                'permissionId' => $pOldId,
+                                'permissionId' => $permissionOld->getPermissionId(),
                                 )
                     );
-                $em = $this->getDoctrine()->getManager();
                 $em->remove($pRemove);
             }
         }
 
         //set the new permissions
         $now = new \DateTime('now');
-        foreach ($permission_ids as $pNewId) {
+        foreach ($permissionPuts as $pNew) {
             $num = 0;
             foreach ($permissionSameId as $pSameId) {
-                if ($pNewId == $pSameId) {
+                if ($pNew['id'] == $pSameId) {
                     $num = 1;
                 }
             }
             if ($num == 0) {
                 // get permission
-                    $myPermission = $this->getRepo('Admin\AdminPermission')->find($pNewId);
+                $myPermission = $this->getRepo('Admin\AdminPermission')->find($pNew['id']);
                 if (is_null($myPermission)
-                        || $myPermission->getTypeId() != $admin->getTypeId()
+                    || $myPermission->getTypeId() != $admin->getTypeId()
                     ) {
                     // if permission's type is different
-                        // don't add the permission
-                        continue;
+                    // don't add the permission
+                    continue;
                 }
                 $id = (int) $id;
-                    // save permission map
-                    $permissionMap = new AdminPermissionMap();
+                // save permission map
+                $permissionMap = new AdminPermissionMap();
                 $permissionMap->setAdminId($id);
-                $permissionMap->setPermissionId($pNewId);
+                $permissionMap->setPermissionId($pNew['id']);
                 $permissionMap->setCreationDate($now);
                 $permissionMap->setAdmin($admin);
                 $permissionMap->setPermission($myPermission);
+                $permissionMap->setOpLevel($pNew['op_level']);
                 $em->persist($permissionMap);
             }
         }
@@ -396,47 +403,10 @@ class AdminAdminsController extends SandboxRestController
         $admin,
         $permission
     ) {
-        // check username
-        if (is_null($admin->getUsername())) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_USERNAME_INVALID_CODE,
-                self::ERROR_USERNAME_INVALID_MESSAGE);
-        }
+        $this->checkAdminValid($admin);
 
-        // check username exist
-        $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
-        if (!is_null($adminExist)) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_USERNAME_EXIST_CODE,
-                self::ERROR_USERNAME_EXIST_MESSAGE);
-        }
-
-        // check password
-        if (is_null($admin->getPassword())) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_PASSWORD_INVALID_CODE,
-                self::ERROR_PASSWORD_INVALID_MESSAGE);
-        }
-
-        // check admin type
-        if (is_null($admin->getTypeId())) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_ADMIN_TYPE_CODE,
-                self::ERROR_ADMIN_TYPE_MESSAGE);
-        } else {
-            $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
-            if (is_null($type)) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_ADMIN_TYPE_CODE,
-                    self::ERROR_ADMIN_TYPE_MESSAGE);
-            }
-            $admin->setType($type);
-        }
+        $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
+        $admin->setType($type);
 
         // save admin to db
         $admin = $this->saveAdmin($admin, $permission);
@@ -497,5 +467,53 @@ class AdminAdminsController extends SandboxRestController
         $em->flush();
 
         return $admin;
+    }
+
+    /**
+     * @param $admin
+     * @return View
+     */
+    private function checkAdminValid(
+        $admin
+    ){
+        // check username
+        if (is_null($admin->getUsername())) {
+            throw new BadRequestHttpException(
+                self::ERROR_USERNAME_INVALID_CODE,null,
+                self::ERROR_USERNAME_INVALID_CODE);
+        }
+
+        // check username exist
+        $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
+        if (!is_null($adminExist)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_EXIST_CODE,
+                self::ERROR_USERNAME_EXIST_MESSAGE);
+        }
+
+        // check password
+        if (is_null($admin->getPassword())) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_PASSWORD_INVALID_CODE,
+                self::ERROR_PASSWORD_INVALID_MESSAGE);
+        }
+
+        // check admin type
+        if (is_null($admin->getTypeId())) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_ADMIN_TYPE_CODE,
+                self::ERROR_ADMIN_TYPE_MESSAGE);
+        } else {
+            $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
+            if (is_null($type)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_ADMIN_TYPE_CODE,
+                    self::ERROR_ADMIN_TYPE_MESSAGE);
+            }
+        }
     }
 }
