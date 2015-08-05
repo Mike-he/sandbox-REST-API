@@ -60,6 +60,8 @@ class PaymentController extends SandboxRestController
     const WRONG_ORDER_STATUS_MESSAGE = 'Wrong Order Status';
     const WRONG_CHARGE_ID_CODE = 400016;
     const WRONG_CHARGE_ID__MESSAGE = 'Wrong Charge ID';
+    const WRONG_BOOKING_DATE_CODE = 400017;
+    const WRONG_BOOKING_DATE_MESSAGE = 'Wrong Booking Date';
 
     /**
      * @param $order
@@ -244,26 +246,22 @@ class PaymentController extends SandboxRestController
     }
 
     /**
-     * @param $type
+     * @param $productId
      * @param $price
+     * @param $orderNumber
      *
      * @return MembershipOrder
      */
     public function setMembershipOrder(
         $productId,
-        $type,
         $price,
         $orderNumber
     ) {
         $userId = $this->getUserid();
-        $endDate = $this->calculateEndDate($type);
-
         $order = new MembershipOrder();
         $order->setUserId($userId);
         $order->setProductId($productId);
-        $order->setEndDate($endDate);
         $order->setPrice($price);
-        $order->setType($type);
         $order->setOrderNumber($orderNumber);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);

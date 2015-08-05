@@ -9,7 +9,6 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Patch;
 
 /**
  * Rest controller for Client MembershipOrders.
@@ -24,7 +23,7 @@ use FOS\RestBundle\Controller\Annotations\Patch;
 class ClientMembershipOrderController extends PaymentController
 {
     const PAYMENT_SUBJECT = 'VIP';
-    const PAYMENT_BODY = 'month';
+    const PAYMENT_BODY = 'VIP ORDER';
     const VIP_ORDER_LETTER_HEAD = 'V';
 
     /**
@@ -83,7 +82,6 @@ class ClientMembershipOrderController extends PaymentController
     public function payMembershipAction(
         Request $request
     ) {
-        $type = $request->get('type');
         $price = $request->get('price');
         $channel = $request->get('channel');
         $productId = $request->get('product_id');
@@ -106,7 +104,6 @@ class ClientMembershipOrderController extends PaymentController
         if ($channel === 'account') {
             return $this->payMembershipByAccount(
                 $productId,
-                $type,
                 $price
             );
         }
@@ -128,45 +125,12 @@ class ClientMembershipOrderController extends PaymentController
     }
 
     /**
-     * @Patch("/membership/cancel")
-     *
-     * @param Request $request
-     *
-     * @return View
-     */
-    public function cancelMembershipAction(
-        Request $request
-    ) {
-        $orderArray = $this->getRepo('Order\MembershipOrder')->findBy(
-            ['userId' => $this->getUserid()],
-            ['id' => 'DESC'],
-            1
-        );
-        $order = $orderArray[0];
-        if (is_null($order)) {
-            return $this->customErrorView(
-                400,
-                self::ORDER_NOT_FOUND_CODE,
-                self::ORDER_NOT_FOUND_MESSAGE
-            );
-        }
-        $order->setCancelledDate(new \DateTime());
-        $order->setModificationDate(new \DateTime());
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($order);
-        $em->flush();
-
-        return new View($order);
-    }
-
-    /**
      * @param $type
      * @param $price
      *
      * @return View
      */
-    private function payMembershipByAccount($productId, $type, $price)
+    private function payMembershipByAccount($productId, $price)
     {
         $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
 
@@ -180,7 +144,6 @@ class ClientMembershipOrderController extends PaymentController
         if (!is_null($balance)) {
             $order = $this->setMembershipOrder(
                 $productId,
-                $type,
                 $price,
                 $orderNumber
             );
