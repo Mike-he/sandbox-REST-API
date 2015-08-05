@@ -411,7 +411,7 @@ class ClientUserRegistrationController extends UserRegistrationController
     ) {
         if (!is_null($email)) {
             // send verification URL to email
-            $subject = '[Sandbox Registration],'.$this->before('@', $email).' please confirm your email';
+            $subject = '【展想创合】'.$this->before('@', $email).'，欢迎注册展想创合！';
             $this->sendEmail($subject, $email, $this->before('@', $email),
                 'Emails/registration_email_verification.html.twig',
                 array(
@@ -419,7 +419,7 @@ class ClientUserRegistrationController extends UserRegistrationController
                 ));
         } else {
             // sms verification code to phone
-            $smsText = 'Verification code: '.$code;
+            $smsText = '欢迎注册展想创合！您的手机验证码为：'.$code.'，请输入后进行验证，谢谢！';
             $this->sendSms($phone, urlencode($smsText));
         }
     }

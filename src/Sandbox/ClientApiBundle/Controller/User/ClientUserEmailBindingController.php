@@ -234,7 +234,7 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         $email = $emailVerification->getEmail();
 
         // send verification URL to email
-        $subject = '[Sandbox Bind Email Verification] '.$this->before('@', $email).', please confirm your email';
+        $subject = '【展想创合】'.$this->before('@', $email).'，您正在申请绑定当前邮箱。';
         $this->sendEmail($subject, $email, $this->before('@', $email),
             'Emails/bind_email_verification.html.twig',
             array(
