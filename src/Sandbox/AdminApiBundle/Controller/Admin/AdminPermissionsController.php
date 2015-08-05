@@ -12,6 +12,8 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 
 /**
  * Admin Permissions Controller.
@@ -61,7 +63,12 @@ class AdminPermissionsController extends SandboxRestController
         $typeId = $paramFetcher->get('type_id');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed($this->getAdminId(), AdminType::KEY_SUPER);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ADMIN,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
 
         if ($typeId == null) {
             // get all admin permissions

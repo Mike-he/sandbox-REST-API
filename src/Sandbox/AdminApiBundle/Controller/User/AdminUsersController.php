@@ -296,12 +296,6 @@ class AdminUsersController extends SandboxRestController
             AdminPermissionMap::OP_LEVEL_EDIT
         );
 
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_SUPER
-        );
-
         //get user Entity
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);

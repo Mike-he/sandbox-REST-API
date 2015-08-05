@@ -23,8 +23,9 @@ class AdminPermission
     const KEY_PLATFORM_PRODUCT = 'platform.product';
     const KEY_PLATFORM_PRICE = 'platform.price';
     const KEY_PLATFORM_ACCESS = 'platform.access';
-    const KEY_BUILDING_ORDER = 'building.order';
-    const KEY_BUILDING_ACCESS = 'building.access';
+    const KEY_PLATFORM_ADMIN = 'platform.admin';
+    const KEY_PLATFORM_ANNOUNCEMENT = 'platform.announcement';
+    const KEY_PLATFORM_DASHBOARD = 'platform.dashboard';
 
     /**
      * @var int
