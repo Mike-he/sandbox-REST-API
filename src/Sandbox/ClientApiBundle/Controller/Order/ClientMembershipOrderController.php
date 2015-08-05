@@ -135,11 +135,11 @@ class ClientMembershipOrderController extends PaymentController
         $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
 
         $userId = $this->getUserId();
-        $balance = $this->postConsumeBalance(
+        $balance = $this->postBalanceChange(
             $userId,
-            $price,
+            (-1) * $price,
             $orderNumber,
-            false
+            'account'
         );
         if (!is_null($balance)) {
             $order = $this->setMembershipOrder(
@@ -150,6 +150,11 @@ class ClientMembershipOrderController extends PaymentController
             $this->postAccountUpgrade(
                 $userId,
                 $productId,
+                $orderNumber
+            );
+            $amount = $this->postConsumeBalance(
+                $userId,
+                $price,
                 $orderNumber
             );
         }

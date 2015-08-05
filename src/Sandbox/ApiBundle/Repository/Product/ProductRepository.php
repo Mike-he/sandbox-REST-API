@@ -45,19 +45,19 @@ class ProductRepository extends EntityRepository
             ->andWhere('r.type = \'meeting\'')
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
-        if (!is_null($cityId)) {
+        if (!is_null($cityId) && !empty($cityId)) {
             $query = $query->andWhere('r.city = :cityId')
                 ->setParameter('cityId', $cityId);
         }
-        if (!is_null($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $query = $query->andWhere('r.building = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
-        if (!is_null($allowedPeople)) {
+        if (!is_null($allowedPeople) && !empty($allowedPeople)) {
             $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
                 ->setParameter('allowedPeople', $allowedPeople);
         }
-        if (!is_null($startTime) && is_null($endTime)) {
+        if (!is_null($startTime) && !empty($startTime) && (is_null($endTime) || empty($endTime))) {
             $currentDateStart = clone $startTime;
             $currentDateStart->setTime(00, 00, 00);
             $currentDateEnd = clone $startTime;
@@ -69,6 +69,7 @@ class ProductRepository extends EntityRepository
                         SELECT po.productId
                         FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
+                        AND po.productId <> \'null\'
                         AND po.startDate >= :currentDateStart
                         AND po.endDate <= :currentDateEnd
                         AND po.endDate > :startTime
@@ -88,14 +89,16 @@ class ProductRepository extends EntityRepository
                 ->setParameter('startTime', $startTime)
                 ->setParameter('startHour', $startHour);
         }
-        if (!is_null($startTime) && !is_null($endTime)) {
+        if (!is_null($startTime) && !is_null($endTime) && !empty($startTime) && !empty($endTime)) {
             $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')
                 ->andWhere('p.startDate <= :startTime')
                 ->andWhere('p.endDate >= :endTime')
                 ->andWhere(
                     'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
-                        WHERE po.status <> \'cancelled\' AND
+                        WHERE po.status <> \'cancelled\'
+                        AND AND po.productId <> \'null\'
+                        AND
                         (
                             (po.startDate <= :startTime AND po.endDate > :startTime) OR
                             (po.startDate < :endTime AND po.endDate >= :endTime)
@@ -144,25 +147,27 @@ class ProductRepository extends EntityRepository
             ->andWhere('r.type = \'office\'')
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
-        if (!is_null($cityId)) {
+        if (!is_null($cityId) && !empty($cityId)) {
             $query = $query->andWhere('r.city = :cityId')
                 ->setParameter('cityId', $cityId);
         }
-        if (!is_null($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $query = $query->andWhere('r.building = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
-        if (!is_null($allowedPeople)) {
+        if (!is_null($allowedPeople) && !empty($allowedPeople)) {
             $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
                 ->setParameter('allowedPeople', $allowedPeople);
         }
-        if (!is_null($startDate) && !is_null($endDate)) {
+        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
             $query = $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :endDate')
                 ->andWhere(
                     'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
-                        WHERE po.status <> \'cancelled\' AND
+                        WHERE po.status <> \'cancelled\'
+                        AND po.productId <> \'null\'
+                        AND
                         (
                             (po.startDate <= :startDate AND po.endDate > :startDate) OR
                             (po.startDate < :endDate AND po.endDate >= :endDate)
@@ -209,19 +214,19 @@ class ProductRepository extends EntityRepository
             ->andWhere('r.type = \'fixed\' OR r.type = \'flexible\'')
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
-        if (!is_null($cityId)) {
+        if (!is_null($cityId) && !empty($cityId)) {
             $query = $query->andWhere('r.city = :cityId')
                 ->setParameter('cityId', $cityId);
         }
-        if (!is_null($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $query = $query->andWhere('r.building = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
-        if (!is_null($allowedPeople)) {
+        if (!is_null($allowedPeople) && !empty($allowedPeople)) {
             $query = $query->andWhere('r.allowedPeople >= :allowedPeople')
                 ->setParameter('allowedPeople', $allowedPeople);
         }
-        if (!is_null($startDate) && !is_null($endDate)) {
+        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
             $query = $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :endDate')
                 ->andWhere(

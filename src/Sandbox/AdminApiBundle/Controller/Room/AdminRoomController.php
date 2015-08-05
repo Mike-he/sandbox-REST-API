@@ -4,6 +4,9 @@ namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomDoors;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
@@ -148,6 +151,9 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -226,6 +232,9 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
@@ -270,6 +279,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -303,6 +315,9 @@ class AdminRoomController extends RoomController
     public function postRoomAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $room = new Room();
 
         $form = $this->createForm(new RoomType(), $room);
@@ -317,6 +332,8 @@ class AdminRoomController extends RoomController
         $attachments_id = $form['attachment_id']->getData();
         $office_supplies = $form['office_supplies']->getData();
         $doors_control = $form['doors_control']->getData();
+        $rule_include = $form['price_rule_include_ids']->getData();
+        $rule_exclude = $form['price_rule_exclude_ids']->getData();
 
         return $this->handleRoomPost(
             $room,
@@ -324,7 +341,9 @@ class AdminRoomController extends RoomController
             $fixed,
             $attachments_id,
             $office_supplies,
-            $doors_control
+            $doors_control,
+            $rule_include,
+            $rule_exclude
         );
     }
 
@@ -351,6 +370,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
@@ -394,6 +416,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         //get array with ids
         $attachments_id = json_decode($request->getContent(), true);
         if (!is_array($attachments_id)) {
@@ -448,6 +473,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $office_supplies = json_decode($request->getContent(), true);
         if (!is_array($office_supplies)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -500,6 +528,9 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
@@ -546,6 +577,9 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         //get room
         $room = $this->getRepo('Room\Room')->find($id);
 
@@ -583,6 +617,9 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
@@ -671,7 +708,9 @@ class AdminRoomController extends RoomController
      * @param RoomFixed             $roomsFixed
      * @param RoomAttachmentBinding $attachments_id
      * @param RoomSupplies          $office_supplies
-     * @param RoomDoors             $doors_controls
+     * @param RoomDoors             $doors_control
+     * @param Array                 $rule_include
+     * @param Array                 $rule_exclude
      *
      * @return View
      */
@@ -681,7 +720,9 @@ class AdminRoomController extends RoomController
         $roomsFixed,
         $attachments_id,
         $office_supplies,
-        $doors_control
+        $doors_control,
+        $rule_include,
+        $rule_exclude
     ) {
         $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
         $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
@@ -719,6 +760,14 @@ class AdminRoomController extends RoomController
         $em = $this->getDoctrine()->getManager();
         $em->persist($room);
         $em->flush();
+
+        //add price rules
+        if (!is_null($rule_include)) {
+            self::postPriceRule($room->getId(), $rule_include, 'include');
+        }
+        if (!is_null($rule_exclude)) {
+            self::postPriceRule($room->getId(), $rule_exclude, 'exclude');
+        }
 
         //add doors control
         if (!is_null($doors_control)) {
@@ -877,5 +926,21 @@ class AdminRoomController extends RoomController
                 /* Do nothing */
                 break;
         }
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param Integer $OpLevel
+     */
+    private function checkAdminRoomPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ROOM,
+            $OpLevel
+        );
     }
 }

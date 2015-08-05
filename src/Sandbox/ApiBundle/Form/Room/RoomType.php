@@ -57,6 +57,20 @@ class RoomType extends AbstractType
                     'mapped' => false,
                 )
             )
+            ->add(
+                'price_rule_include_ids',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
+            ->add(
+                'price_rule_exclude_ids',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
         ;
     }
 

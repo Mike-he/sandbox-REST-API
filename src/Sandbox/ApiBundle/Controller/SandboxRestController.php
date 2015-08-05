@@ -29,6 +29,7 @@ class SandboxRestController extends FOSRestController
     const CONFLICT_MESSAGE = 'This resource already exists';
 
     const HTTP_STATUS_OK = 200;
+    const HTTP_STATUS_OK_NO_CONTENT = 204;
 
     const VERIFICATION_CODE_LENGTH = 6;
 
@@ -264,7 +265,7 @@ class SandboxRestController extends FOSRestController
      *
      * @return string|null
      */
-    protected function postAddToBalance(
+    protected function postBalanceChange(
         $userId,
         $amount,
         $tradeId,
@@ -282,7 +283,7 @@ class SandboxRestController extends FOSRestController
 
         // CRM API URL
         $apiUrl = $globals['crm_api_url'].
-            $globals['crm_api_admin_user_charge'];
+            $globals['crm_api_admin_user_balance_change'];
         $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
 
         // init curl
@@ -309,13 +310,11 @@ class SandboxRestController extends FOSRestController
     protected function postConsumeBalance(
         $userId,
         $amount,
-        $tradeId,
-        $thirdParty
+        $tradeId
     ) {
         $json = $this->createJsonForConsume(
             $tradeId,
-            $amount,
-            $thirdParty
+            $amount
         );
         $auth = $this->authAuthMd5($json);
 
@@ -339,7 +338,7 @@ class SandboxRestController extends FOSRestController
 
         $result = json_decode($response, true);
 
-        return $result['balance'];
+        return $result['consume_amount'];
     }
 
     /**
@@ -418,13 +417,11 @@ class SandboxRestController extends FOSRestController
      */
     protected function createJsonForConsume(
         $orderNumber,
-        $amount,
-        $thirdParty
+        $amount
     ) {
         $content = [
             'amount' => $amount,
             'trade_id' => $orderNumber,
-            'third_pay' => $thirdParty,
         ];
 
         return json_encode($content);

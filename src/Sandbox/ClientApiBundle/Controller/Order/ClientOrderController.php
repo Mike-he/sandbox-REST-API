@@ -265,11 +265,11 @@ class ClientOrderController extends PaymentController
     {
         $price = $order->getPrice();
         $orderNumber = $order->getOrderNumber();
-        $balance = $this->postConsumeBalance(
+        $balance = $this->postBalanceChange(
             $order->getUserId(),
-            $price,
+            (-1) * $price,
             $orderNumber,
-            false
+            'account'
         );
         if (!is_null($balance)) {
             $order->setStatus(self::STATUS_PAID);
@@ -413,7 +413,7 @@ class ClientOrderController extends PaymentController
         }
 
         if ($channel === 'account') {
-            $this->payByAccount($order);
+            return $this->payByAccount($order);
         }
 
         $map = $this->getRepo('Order\OrderMap')->findOneBy(
@@ -455,13 +455,13 @@ class ClientOrderController extends PaymentController
                 self::WRONG_PAYMENT_STATUS_MESSAGE
             );
         }
-        $price = (-1) * $order->getPrice();
+        $price = $order->getPrice();
         $userId = $order->getUserId();
-        $balance = $this->postConsumeBalance(
+        $balance = $this->postBalanceChange(
             $userId,
             $price,
             $id,
-            false
+            'account'
         );
         if (!is_null($balance)) {
             $order->setStatus('cancelled');

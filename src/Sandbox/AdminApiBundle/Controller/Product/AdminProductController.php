@@ -5,6 +5,9 @@ namespace Sandbox\AdminApiBundle\Controller\Product;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Form\Product\ProductType;
 use Symfony\Component\HttpFoundation\Request;
@@ -112,6 +115,9 @@ class AdminProductController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -182,6 +188,9 @@ class AdminProductController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $query = $paramFetcher->get('query');
@@ -223,6 +232,9 @@ class AdminProductController extends ProductController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $product = $this->getRepo('Product\Product')->find($id);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
@@ -256,6 +268,9 @@ class AdminProductController extends ProductController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         // get product
         $product = $this->getRepo('Product\Product')->find($id);
 
@@ -286,6 +301,9 @@ class AdminProductController extends ProductController
     public function postProductAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $product = new Product();
 
         $form = $this->createForm(new ProductType(), $product);
@@ -338,6 +356,9 @@ class AdminProductController extends ProductController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $product = $this->getRepo('Product\Product')->find($id);
 
         $form = $this->createForm(
@@ -367,5 +388,21 @@ class AdminProductController extends ProductController
         );
 
         return new View($response);
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param Integer $OpLevel
+     */
+    private function checkAdminProductPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_PRODUCT,
+            $OpLevel
+        );
     }
 }

@@ -114,11 +114,11 @@ class ClientProductController extends ProductController
         $endTime = null;
         $startHour = null;
         $endHour = null;
-        if (!is_null($start)) {
+        if (!is_null($start) && !empty($start)) {
             $startTime = new \DateTime($start);
             $startHour = $startTime->format('H:i:s');
         }
-        if (!is_null($end)) {
+        if (!is_null($end) && !empty($end)) {
             $endTime = new \DateTime($end);
             $endHour = $endTime->format('H:i:s');
         }
@@ -239,7 +239,7 @@ class ClientProductController extends ProductController
 
         $startDate = null;
         $endDate = null;
-        if (!is_null($start) && !is_null($end)) {
+        if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
             $startDate = new \DateTime($start);
             $endDate = new \DateTime($end);
         }
@@ -358,7 +358,7 @@ class ClientProductController extends ProductController
 
         $startDate = null;
         $endDate = null;
-        if (!is_null($start) && !is_null($end)) {
+        if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
             $startDate = new \DateTime($start);
             $endDate = new \DateTime($end);
         }
