@@ -117,7 +117,7 @@ class ClientTopUpOrderController extends PaymentController
     }
 
     /**
-     * @Get("/topup/orders/{id}")
+     * @Get("/topup/orders/{orderNumber}")
      *
      * @param Request $request
      *
@@ -125,9 +125,11 @@ class ClientTopUpOrderController extends PaymentController
      */
     public function getOneTopUpOrderAction(
         Request $request,
-        $id
+        $orderNumber
     ) {
-        $order = $order = $this->getRepo('Order\TopUpOrder')->find($id);
+        $order = $order = $this->getRepo('Order\TopUpOrder')->findOneBy(
+            ['orderNumber' => $orderNumber]
+        );
         if (is_null($order)) {
             return $this->customErrorView(
                 400,
