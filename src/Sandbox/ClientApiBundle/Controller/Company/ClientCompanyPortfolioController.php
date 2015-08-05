@@ -27,7 +27,7 @@ use JMS\Serializer\SerializationContext;
 class ClientCompanyPortfolioController extends CompanyPortfolioController
 {
     const ERROR_AMOUNT_OVER_SET_CODE = 400001;
-    const ERROR_AMOUNT_OVER_SET_MESSAGE = 'Sorry, 8 portfolios allowed to add!';
+    const ERROR_AMOUNT_OVER_SET_MESSAGE = 'Sorry, only add 8 portfolios in total!';
 
     /**
      * Get Company's portfolios.
@@ -57,9 +57,8 @@ class ClientCompanyPortfolioController extends CompanyPortfolioController
     /**
      * add portfolios.
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
+     * @param Request $request
+     * @param int     $id
      *
      * @POST("/companies/{id}/portfolios")
      *
@@ -78,37 +77,27 @@ class ClientCompanyPortfolioController extends CompanyPortfolioController
         // check the amount of portfolios has added
         $count = $this->getRepo('Company\CompanyPortfolio')
                       ->countCompanyPortfolios($id);
-
+        $portfolios = json_decode($request->getContent(), true);
+        $countPort = sizeof($portfolios);
         $amountPortfolios = 8;
-        if ($count >= $amountPortfolios) {
+        if ($countPort + $count > $amountPortfolios) {
             return $this->customErrorView(
                 400,
                 self::ERROR_AMOUNT_OVER_SET_CODE,
                 self::ERROR_AMOUNT_OVER_SET_MESSAGE
             );
-        } else {
-
-            // add portfolios
-            $em = $this->getDoctrine()->getManager();
-
-            $company = $this->getRepo('Company\Company')->find($id);
-
-            $portfolios = json_decode($request->getContent(), true);
-            $countPort = sizeof($portfolios);
-            if ($countPort + $count >= 8) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_AMOUNT_OVER_SET_CODE,
-                    self::ERROR_AMOUNT_OVER_SET_MESSAGE
-                );
-            }
-            foreach ($portfolios as $portfolio) {
-                $companyPortfolio = $this->generateCompanyPortfolio($company, $portfolio);
-                $em->persist($companyPortfolio);
-            }
-
-            $em->flush();
         }
+
+        // add portfolios
+        $em = $this->getDoctrine()->getManager();
+        $company = $this->getRepo('Company\Company')->find($id);
+
+        foreach ($portfolios as $portfolio) {
+            $companyPortfolio = $this->generateCompanyPortfolio($company, $portfolio);
+            $em->persist($companyPortfolio);
+        }
+
+        $em->flush();
 
         return new view();
     }
