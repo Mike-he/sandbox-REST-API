@@ -224,7 +224,8 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     private function sendSMSNotification(
         $phoneVerification
     ) {
-        $smsText = 'Verification code: '.$phoneVerification->getCode();
+        $smsText = '您正在申请绑定当前手机，如确认是本人行为，请提交以下验证码完成操作：'
+            .$phoneVerification->getCode();
         $this->sendSms($phoneVerification->getPhone(), urlencode($smsText));
     }
 }

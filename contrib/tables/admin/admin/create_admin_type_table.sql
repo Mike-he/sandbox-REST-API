@@ -8,5 +8,5 @@ CREATE TABLE `AdminType` (
   UNIQUE KEY `key_UNIQUE` (`key`)
 );
 
-INSERT INTO AdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES('super','Super Admin','2015-08-03 11:00:00','2015-08-3 11:00:00');
-INSERT INTO AdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES('platform','Platform Admin','2015-08-03 11:00:00','2015-08-3 11:00:00');
+INSERT INTO AdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES('super','Super Admin','2015-08-03 11:00:00','2015-08-5 00:00:00');
+INSERT INTO AdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES('platform','Platform Admin','2015-08-03 11:00:00','2015-08-5 00:00:00');

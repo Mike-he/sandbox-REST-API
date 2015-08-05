@@ -232,8 +232,8 @@ fos_rest:
 swiftmailer:
     transport: 'smtp'
     host:      'smtp.mxhichina.com'
-    username:  'notification@easylinks.com.cn'
-    password:  'EZlinx2290'
+    username:  'notification@sandbox3.cn'
+    password:  'Sandhill2290'
 
 knp_paginator:
     page_range: 5                      # default page range used in pagination control
