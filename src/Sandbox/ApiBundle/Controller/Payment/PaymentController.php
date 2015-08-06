@@ -62,6 +62,8 @@ class PaymentController extends SandboxRestController
     const WRONG_CHARGE_ID__MESSAGE = 'Wrong Charge ID';
     const WRONG_BOOKING_DATE_CODE = 400017;
     const WRONG_BOOKING_DATE_MESSAGE = 'Wrong Booking Date';
+    const NO_VIP_PRODUCT_ID_CODE = 400018;
+    const NO_VIP_PRODUCT_ID_CODE_MESSAGE = 'No VIP Product ID';
 
     /**
      * @param $order

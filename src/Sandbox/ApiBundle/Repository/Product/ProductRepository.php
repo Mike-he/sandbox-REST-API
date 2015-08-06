@@ -43,6 +43,8 @@ class ProductRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'm', 'WITH', 'p.roomId = m.room')
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'meeting\'')
+            ->andWhere('p.visible = :visible')
+            ->setParameter('visible', true)
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
         if (!is_null($cityId) && !empty($cityId)) {
@@ -70,6 +72,7 @@ class ProductRepository extends EntityRepository
                         FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
                         AND po.productId <> \'null\'
+                        AND p.visible = \'true\'
                         AND po.startDate >= :currentDateStart
                         AND po.endDate <= :currentDateEnd
                         AND po.endDate > :startTime
@@ -98,6 +101,7 @@ class ProductRepository extends EntityRepository
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
                         AND AND po.productId <> \'null\'
+                        AND p.visible = \'true\'
                         AND
                         (
                             (po.startDate <= :startTime AND po.endDate > :startTime) OR
@@ -145,6 +149,8 @@ class ProductRepository extends EntityRepository
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'office\'')
+            ->andWhere('p.visible = :visible')
+            ->setParameter('visible', true)
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
         if (!is_null($cityId) && !empty($cityId)) {
@@ -167,6 +173,7 @@ class ProductRepository extends EntityRepository
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
                         AND po.productId <> \'null\'
+                        AND p.visible = \'true\'
                         AND
                         (
                             (po.startDate <= :startDate AND po.endDate > :startDate) OR
@@ -212,6 +219,8 @@ class ProductRepository extends EntityRepository
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'fixed\' OR r.type = \'flexible\'')
+            ->andWhere('p.visible = :visible')
+            ->setParameter('visible', true)
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
         if (!is_null($cityId) && !empty($cityId)) {
@@ -234,6 +243,7 @@ class ProductRepository extends EntityRepository
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
                         AND po.productId <> \'null\'
+                        AND p.visible = \'true\'
                         AND
                         (
                             (po.startDate <= :startDate AND po.endDate > :startDate) OR
