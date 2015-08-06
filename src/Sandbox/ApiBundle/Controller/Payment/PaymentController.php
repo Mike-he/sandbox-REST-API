@@ -148,10 +148,8 @@ class PaymentController extends SandboxRestController
      * @param $data
      */
     public function setProductOrder(
-        $data
+        $chargeId
     ) {
-        $chargeId = $data['data']['object']['id'];
-
         $map = $this->getRepo('Order\OrderMap')->findOneBy(['chargeId' => $chargeId]);
         $this->throwNotFoundIfNull($map, self::NOT_FOUND_MESSAGE);
 
@@ -173,6 +171,7 @@ class PaymentController extends SandboxRestController
         $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+
         if (empty($roomDoors)) {
             return $this->customErrorView(
                 400,

@@ -228,32 +228,6 @@ class ClientOrderController extends PaymentController
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
-
-        $channel = $form['channel']->getData();
-        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
-            );
-        }
-        if ($channel === 'account') {
-            return $this->payByAccount($order);
-        }
-
-        $charge = $this->payForOrder(
-            $orderNumber,
-            $order->getPrice(),
-            $channel,
-            self::PAYMENT_SUBJECT,
-            self::PAYMENT_BODY
-        );
-        $charge = json_decode($charge, true);
-        $chargeId = $charge['id'];
-
-        $this->createOrderMap('product', $order->getId(), $chargeId);
-
-        return new View($charge);
     }
 
     /**
@@ -424,20 +398,22 @@ class ClientOrderController extends PaymentController
                 self::WRONG_CHANNEL_MESSAGE
             );
         }
-
         if ($channel === 'account') {
             return $this->payByAccount($order);
         }
 
-        $map = $this->getRepo('Order\OrderMap')->findOneBy(
-            [
-                'type' => 'product',
-                'orderId' => $order->getId(),
-            ]
+        $orderNumber = $order->getOrderNumber();
+        $charge = $this->payForOrder(
+            $orderNumber,
+            $order->getPrice(),
+            $channel,
+            self::PAYMENT_SUBJECT,
+            self::PAYMENT_BODY
         );
-        $chargeId = $map->getChargeId();
-        $charge = $this->getChargeDetail($chargeId);
         $charge = json_decode($charge, true);
+        $chargeId = $charge['id'];
+
+        $this->createOrderMap('product', $order->getId(), $chargeId);
 
         return new View($charge);
     }
