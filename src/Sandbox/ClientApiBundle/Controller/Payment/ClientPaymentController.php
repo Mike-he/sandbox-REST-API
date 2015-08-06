@@ -26,7 +26,7 @@ class ClientPaymentController extends PaymentController
     public function getWebhooksAction(
         Request $request
     ) {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode(file_get_contents('php://input'), true);
         if ($data['type'] == 'charge.succeeded' && $data['data']['object']['paid'] == true) {
             $chargeId = $data['data']['object']['id'];
             $price = $data['data']['object']['amount'] / 100;
