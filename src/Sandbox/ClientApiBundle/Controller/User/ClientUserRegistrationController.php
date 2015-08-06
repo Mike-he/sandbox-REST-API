@@ -260,6 +260,9 @@ class ClientUserRegistrationController extends UserRegistrationController
         $em->persist($user);
         $em->flush();
 
+        //post user account to internal api
+        $this->postUserAccount($user->getId());
+
         // create default profile
         $profile = new UserProfile();
 
