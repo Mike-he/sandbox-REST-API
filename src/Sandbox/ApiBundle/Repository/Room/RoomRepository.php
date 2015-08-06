@@ -103,6 +103,35 @@ class RoomRepository extends EntityRepository
     }
 
     /**
+     * Seek all users that rented one room.
+     *
+     * @param $roomId
+     *
+     * @return array
+     */
+    public function getRoomUsersUsage(
+        $roomId
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->select('
+            	r.id,
+            	up.userId as user_id,
+                up.name as renter_name,
+                o.startDate as start_date,
+                o.endDate as end_date
+            ')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'o.userId = up.userId')
+
+            ->where('up.name IS NOT NULL')
+            ->andWhere('r.id = :roomId')
+            ->setParameter('roomId', $roomId);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * Search rooms by name or number.
      *
      * @param String $search

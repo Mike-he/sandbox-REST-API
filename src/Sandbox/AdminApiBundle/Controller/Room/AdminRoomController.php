@@ -190,6 +190,37 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * Get room by id.
+     *
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Route("/rooms/{id}/usage")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getRoomUsersUsageById(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $usage = $this->getRepo('Room\Room')->getRoomUsersUsage($id);
+
+        return new View($usage);
+    }
+
+    /**
      * Room.
      *
      * @param Request               $request      the request object
