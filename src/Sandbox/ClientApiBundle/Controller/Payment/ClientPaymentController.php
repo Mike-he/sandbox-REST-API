@@ -26,12 +26,6 @@ class ClientPaymentController extends PaymentController
     public function getWebhooksAction(
         Request $request
     ) {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if ($data['type'] == 'charge.succeeded') {
-            http_response_code(200);
-        } else {
-            //return failed payment
-            http_response_code(500);
-        }
+        http_response_code(200);
     }
 }
