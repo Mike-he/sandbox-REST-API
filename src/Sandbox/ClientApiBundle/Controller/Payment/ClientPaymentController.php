@@ -29,6 +29,8 @@ class ClientPaymentController extends PaymentController
     ) {
         $rawData = file_get_contents('php://input');
         $data = json_decode($rawData, true);
+        var_dump($data);
+        exit;
         if ($data['type'] == 'charge.succeeded' && $data['data']['object']['paid'] == true) {
             $chargeId = $data['data']['object']['id'];
             $price = $data['data']['object']['amount'] / 100;

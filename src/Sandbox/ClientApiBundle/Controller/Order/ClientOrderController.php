@@ -297,6 +297,13 @@ class ClientOrderController extends PaymentController
             $buildingId,
             $roomId
         );
+        if (empty($roomDoors)) {
+            return $this->customErrorView(
+                400,
+                self::NO_DOOR_CODE,
+                self::NO_DOOR_MESSAGE
+            );
+        }
 
         foreach ($roomDoors as $roomDoor) {
             $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(

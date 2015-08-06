@@ -64,6 +64,8 @@ class PaymentController extends SandboxRestController
     const WRONG_BOOKING_DATE_MESSAGE = 'Wrong Booking Date';
     const NO_VIP_PRODUCT_ID_CODE = 400018;
     const NO_VIP_PRODUCT_ID_CODE_MESSAGE = 'No VIP Product ID';
+    const NO_DOOR_CODE = 400019;
+    const NO_DOOR_MESSAGE = 'Room Has No Doors';
 
     /**
      * @param $order
@@ -149,9 +151,15 @@ class PaymentController extends SandboxRestController
         $data
     ) {
         $chargeId = $data['data']['object']['id'];
+
         $map = $this->getRepo('Order\OrderMap')->findOneBy(['chargeId' => $chargeId]);
+        $this->throwNotFoundIfNull($map, self::NOT_FOUND_MESSAGE);
+
         $orderId = $map->getOrderId();
+
         $order = $this->getRepo('Order\ProductOrder')->find($orderId);
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
         $order->setStatus(self::STATUS_PAID);
         $order->setPaymentDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
@@ -165,6 +173,14 @@ class PaymentController extends SandboxRestController
         $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+        if (empty($roomDoors)) {
+            return $this->customErrorView(
+                400,
+                self::NO_DOOR_CODE,
+                self::NO_DOOR_MESSAGE
+            );
+        }
+
         $myDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
             $order->getUserId(),
             $buildingId,
