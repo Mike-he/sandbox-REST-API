@@ -23,7 +23,7 @@ class AdminPutType extends AbstractType
                 'permission',
                 null,
                 array(
-                    'mapped' => false
+                    'mapped' => false,
                 )
             )
         ;

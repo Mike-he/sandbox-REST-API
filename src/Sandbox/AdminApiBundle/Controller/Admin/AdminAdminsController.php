@@ -9,7 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Form\Admin\AdminPutType;
-use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -308,7 +308,11 @@ class AdminAdminsController extends SandboxRestController
         $admin,
         $permissionPuts
     ) {
-        $this->checkAdminValid($admin);
+        // check the admin message is valid
+        $valid = $this->checkAdminValid($admin);
+        if (!is_null($valid)) {
+            return new JsonResponse($valid->getData());
+        }
 
         //set admin
         $em = $this->getDoctrine()->getManager();
@@ -471,16 +475,18 @@ class AdminAdminsController extends SandboxRestController
 
     /**
      * @param $admin
+     *
      * @return View
      */
     private function checkAdminValid(
         $admin
-    ){
+    ) {
         // check username
         if (is_null($admin->getUsername())) {
-            throw new BadRequestHttpException(
-                self::ERROR_USERNAME_INVALID_CODE,null,
-                self::ERROR_USERNAME_INVALID_CODE);
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_INVALID_CODE,
+                self::ERROR_PASSWORD_INVALID_MESSAGE);
         }
 
         // check username exist

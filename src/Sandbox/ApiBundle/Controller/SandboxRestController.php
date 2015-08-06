@@ -714,6 +714,7 @@ class SandboxRestController extends FOSRestController
             'code' => $errorCode,
             'message' => $translated,
         ));
+        $view->getData();
 
         return $view;
     }
