@@ -86,6 +86,13 @@ class ClientMembershipOrderController extends PaymentController
         $channel = $request->get('channel');
         $productId = $request->get('product_id');
 
+        if (is_null($productId) || empty($productId)) {
+            return $this->customErrorView(
+                400,
+                self::NO_VIP_PRODUCT_ID_CODE,
+                self::NO_VIP_PRODUCT_ID_CODE_MESSAGE
+            );
+        }
         if (is_null($price) || empty($price)) {
             return $this->customErrorView(
                 400,
@@ -100,7 +107,6 @@ class ClientMembershipOrderController extends PaymentController
                 self::WRONG_PAYMENT_STATUS_MESSAGE
             );
         }
-
         if ($channel === 'account') {
             return $this->payMembershipByAccount(
                 $productId,
@@ -141,24 +147,28 @@ class ClientMembershipOrderController extends PaymentController
             $orderNumber,
             'account'
         );
-        if (!is_null($balance)) {
-            $order = $this->setMembershipOrder(
-                $productId,
-                $price,
-                $orderNumber
-            );
-            $this->postAccountUpgrade(
-                $userId,
-                $productId,
-                $orderNumber
-            );
-            $amount = $this->postConsumeBalance(
-                $userId,
-                $price,
-                $orderNumber
+        if (is_null($balance) || empty($balance)) {
+            return $this->customErrorView(
+                400,
+                self::INSUFFICIENT_FUNDS_CODE,
+                self::INSUFFICIENT_FUNDS_MESSAGE
             );
         }
-
+        $order = $this->setMembershipOrder(
+            $productId,
+            $price,
+            $orderNumber
+        );
+        $this->postAccountUpgrade(
+            $userId,
+            $productId,
+            $orderNumber
+        );
+        $amount = $this->postConsumeBalance(
+            $userId,
+            $price,
+            $orderNumber
+        );
         $view = new View();
 
         return $view->setData(
