@@ -274,8 +274,9 @@ class AdminProductController extends ProductController
         // get product
         $product = $this->getRepo('Product\Product')->find($id);
 
+        $product->setVisible(false);
+
         $em = $this->getDoctrine()->getManager();
-        $em->remove($product);
         $em->flush();
     }
 
