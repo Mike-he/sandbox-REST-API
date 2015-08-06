@@ -43,6 +43,8 @@ class ProductRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'm', 'WITH', 'p.roomId = m.room')
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'meeting\'')
+            ->andWhere('p.visible = :visible')
+            ->setParameter('visible', true)
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
         if (!is_null($cityId) && !empty($cityId)) {
@@ -145,6 +147,8 @@ class ProductRepository extends EntityRepository
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'office\'')
+            ->andWhere('p.visible = :visible')
+            ->setParameter('visible', true)
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
         if (!is_null($cityId) && !empty($cityId)) {
@@ -212,6 +216,8 @@ class ProductRepository extends EntityRepository
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'fixed\' OR r.type = \'flexible\'')
+            ->andWhere('p.visible = :visible')
+            ->setParameter('visible', true)
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
         if (!is_null($cityId) && !empty($cityId)) {
