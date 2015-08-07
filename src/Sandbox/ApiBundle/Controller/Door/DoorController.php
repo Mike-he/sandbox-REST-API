@@ -183,6 +183,7 @@ class DoorController extends SandboxRestController
         }
 
         $sessionId = $this->getSessionId($base, $globals);
+
         try {
             $data = [
                 'ads_timeperiod' => [
