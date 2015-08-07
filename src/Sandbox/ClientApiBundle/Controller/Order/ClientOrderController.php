@@ -16,6 +16,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for Client Orders.
@@ -272,11 +273,7 @@ class ClientOrderController extends PaymentController
             $roomId
         );
         if (empty($roomDoors)) {
-            return $this->customErrorView(
-                400,
-                self::NO_DOOR_CODE,
-                self::NO_DOOR_MESSAGE
-            );
+            throw new BadRequestHttpException('no doors');
         }
 
         foreach ($roomDoors as $roomDoor) {

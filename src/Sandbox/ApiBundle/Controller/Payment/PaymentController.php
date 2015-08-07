@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Payment Controller.
@@ -173,11 +174,7 @@ class PaymentController extends SandboxRestController
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
 
         if (empty($roomDoors)) {
-            return $this->customErrorView(
-                400,
-                self::NO_DOOR_CODE,
-                self::NO_DOOR_MESSAGE
-            );
+            throw new BadRequestHttpException('no doors');
         }
 
         $myDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(

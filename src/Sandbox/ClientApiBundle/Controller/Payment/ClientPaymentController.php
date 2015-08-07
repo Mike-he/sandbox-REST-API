@@ -43,38 +43,27 @@ class ClientPaymentController extends PaymentController
         $orderNumber = $object['order_no'];
         $channel = $object['channel'];
 
+        $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
+            [
+                'chargeId' => $chargeId,
+            ]
+        );
+        if (is_null($myCharge) || empty($myCharge)) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_CHARGE_ID_CODE,
+                self::WRONG_CHARGE_ID__MESSAGE
+            );
+        }
+
         switch ($object['subject']) {
             case 'ROOM':
-                $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
-                    [
-                        'type' => 'product',
-                        'chargeId' => $chargeId,
-                    ]
-                );
-                if (is_null($myCharge) || empty($myCharge)) {
-                    return $this->customErrorView(
-                        400,
-                        self::WRONG_CHARGE_ID_CODE,
-                        self::WRONG_CHARGE_ID__MESSAGE
-                    );
-                }
+
                 $order = $this->setProductOrder($chargeId);
 
                 break;
             case 'VIP':
-                $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
-                    [
-                        'type' => 'upgrade',
-                        'chargeId' => $chargeId,
-                    ]
-                );
-                if (is_null($myCharge) || empty($myCharge)) {
-                    return $this->customErrorView(
-                        400,
-                        self::WRONG_CHARGE_ID_CODE,
-                        self::WRONG_CHARGE_ID__MESSAGE
-                    );
-                }
+
                 $productId = $myCharge->getOrderId();
                 $order = $this->setMembershipOrder($productId, $price, $orderNumber);
                 $userId = $order->getUserId();
@@ -83,19 +72,7 @@ class ClientPaymentController extends PaymentController
 
                 break;
             case 'TOPUP':
-                $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
-                    [
-                        'type' => 'topup',
-                        'chargeId' => $chargeId,
-                    ]
-                );
-                if (is_null($myCharge) || empty($myCharge)) {
-                    return $this->customErrorView(
-                        400,
-                        self::WRONG_CHARGE_ID_CODE,
-                        self::WRONG_CHARGE_ID__MESSAGE
-                    );
-                }
+
                 $order = $this->setTopUpOrder($price, $orderNumber);
                 $userId = $order->getUserId();
                 $balance = $this->postBalanceChange(
