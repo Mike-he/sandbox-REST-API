@@ -55,7 +55,7 @@ twig:
         crm_api_admin_user_account_upgrade: "%crm_api_admin_user_account_upgrade%"
         crm_api_admin_price_rule_include: "%crm_api_admin_price_rule_include%"
         crm_api_admin_price_rule_exclude: "%crm_api_admin_price_rule_exclude%"
-        crm_api_admin_useraccounts_create: "%crm_api_admin_useraccounts_create%"
+        crm_api_admin_user_create: "%crm_api_admin_user_create%"
         door_api_username: "%door_api_username%"
         door_api_password: "%door_api_password%"
         door_api_login: "%door_api_login%"

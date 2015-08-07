@@ -792,11 +792,12 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $userId
+     *
      * @return mixed|void
      */
     protected function postUserAccount(
         $userId
-    ){
+    ) {
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
@@ -806,7 +807,7 @@ class SandboxRestController extends FOSRestController
 
         // CRM API URL
         $apiUrl = $globals['crm_api_url'].
-            $globals['crm_api_admin_useraccounts_create'];
+            $globals['crm_api_admin_user_create'];
         $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
 
         // init curl
