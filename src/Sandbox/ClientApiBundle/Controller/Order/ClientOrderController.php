@@ -229,6 +229,13 @@ class ClientOrderController extends PaymentController
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
+
+        $view = new View();
+        $view->setData(
+            ['order_id' => $order->getId()]
+        );
+
+        return $view;
     }
 
     /**
