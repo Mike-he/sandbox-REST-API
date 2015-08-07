@@ -789,4 +789,39 @@ class SandboxRestController extends FOSRestController
 
         $this->throwAccessDeniedIfNull($company);
     }
+
+    /**
+     * @param $userId
+     *
+     * @return mixed|void
+     */
+    protected function postUserAccount(
+        $userId
+    ) {
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $key = $globals['sandbox_auth_key'];
+
+        $contentMd5 = md5($key);
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_admin_user_create'];
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callInternalAPI($ch, 'POST', $contentMd5);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result;
+    }
 }
