@@ -203,7 +203,7 @@ class AdminDoorController extends DoorController
 
             $doorArray = $this->postDoorApi($base.$globals['door_api_get_doors'], $data);
             $this->logOut($sessionId, $base, $globals);
-            if ($doorArray['ads_result']['result'] !== self::RESULT_OK) {
+            if ($doorArray['ads_result']['result'] != self::RESULT_OK) {
                 return $this->customErrorView(
                     400,
                     self::RESPONSE_NOT_VALID_CODE,
@@ -307,7 +307,7 @@ class AdminDoorController extends DoorController
             $recordArray = $this->postDoorApi($base.$globals['door_api_get_card_record'], $data);
             $this->logOut($sessionId, $base, $globals);
 
-            if ($recordArray['ads_result']['result'] !== self::RESULT_OK) {
+            if ($recordArray['ads_result']['result'] != self::RESULT_OK) {
                 return $this->customErrorView(
                     400,
                     self::RESPONSE_NOT_VALID_CODE,
@@ -418,7 +418,7 @@ class AdminDoorController extends DoorController
 
             $recordArray = $this->postDoorApi($base.$globals['door_api_get_alarm_record'], $data);
             $this->logOut($sessionId, $base, $globals);
-            if ($recordArray['ads_result']['result'] !== self::RESULT_OK) {
+            if ($recordArray['ads_result']['result'] != self::RESULT_OK) {
                 return $this->customErrorView(
                     400,
                     self::RESPONSE_NOT_VALID_CODE,

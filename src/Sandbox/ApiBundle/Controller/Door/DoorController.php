@@ -133,7 +133,7 @@ class DoorController extends SandboxRestController
             $periodArray = $this->postDoorApi($base.$globals['door_api_set_card_permission'], $data);
             $this->logOut($sessionId, $base, $globals);
 
-            if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
+            if ($periodArray['result'] != self::RESULT_OK) {
                 return $this->customErrorView(
                     400,
                     self::RESPONSE_NOT_VALID_CODE,
@@ -198,7 +198,7 @@ class DoorController extends SandboxRestController
             $periodArray = $this->postDoorApi($base.$globals['door_api_set_time'], $data);
             $this->logOut($sessionId, $base, $globals);
 
-            if ($periodArray['ads_result']['result'] !== self::RESULT_OK) {
+            if ($periodArray['result'] != self::RESULT_OK) {
                 return $this->customErrorView(
                     400,
                     self::RESPONSE_NOT_VALID_CODE,
