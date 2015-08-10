@@ -319,6 +319,7 @@ class ClientOrderController extends PaymentController
             $buildingId,
             $roomId
         );
+
         $this->get('door_service')->setTimePeriod(
             $updatedDoors,
             $base,
