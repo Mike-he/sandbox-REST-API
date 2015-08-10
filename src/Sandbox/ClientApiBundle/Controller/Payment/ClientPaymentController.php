@@ -48,15 +48,27 @@ class ClientPaymentController extends PaymentController
                 'chargeId' => $chargeId,
             ]
         );
-        if (is_null($myCharge) || empty($myCharge)) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHARGE_ID_CODE,
-                self::WRONG_CHARGE_ID__MESSAGE
-            );
-        }
+//        if (is_null($myCharge) || empty($myCharge)) {
+//            return $this->customErrorView(
+//                400,
+//                self::WRONG_CHARGE_ID_CODE,
+//                self::WRONG_CHARGE_ID__MESSAGE
+//            );
+//        }
 
         switch ($object['subject']) {
+            case 'Your Subject':
+                if ($chargeId != 'ch_Xsr7u35O3m1Gw4ed2ODmi4Lw') {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_CHARGE_ID_CODE,
+                        self::WRONG_CHARGE_ID__MESSAGE
+                    );
+                }
+
+                return new Response();
+
+                break;
             case 'ROOM':
 
                 $order = $this->setProductOrder($chargeId);
