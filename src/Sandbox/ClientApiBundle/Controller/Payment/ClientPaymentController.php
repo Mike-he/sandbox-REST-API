@@ -59,14 +59,10 @@ class ClientPaymentController extends PaymentController
         switch ($object['subject']) {
             case 'Your Subject':
                 if ($chargeId != 'ch_Xsr7u35O3m1Gw4ed2ODmi4Lw') {
-                    return $this->customErrorView(
-                        400,
-                        self::WRONG_CHARGE_ID_CODE,
-                        self::WRONG_CHARGE_ID__MESSAGE
-                    );
+                    die('Your Subject Works with Wrong ChargeId');
                 }
 
-                return new Response();
+                die('Your Subject Works');
 
                 break;
             case 'ROOM':
