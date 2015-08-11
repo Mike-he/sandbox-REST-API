@@ -12,9 +12,9 @@ parameters:
     locale: en
     secret: ae4f49befc969ff5feada55bcc88e3c0
     database_path: null
-    pingpp_test_key: sk_test_ifjLO8GWnzn9n9abXDqDeTqH
-    pingpp_live_key: sk_live_ic1rw45I839Q5jCJs56Fpm28
-    pingpp_app_id: app_OCqnLKmXfD0OH80a
+    pingpp_test_key: sk_test_yHufjLubPOePTW54y5iDeHa5
+    pingpp_live_key: sk_live_j2rM2ESCjctUTaWZ7frzjNFE
+    pingpp_app_id: app_TSu14S5GKGeTfDWD
     load_more_limit: 20
     nearby_range_km: 100
     user_profile_default_name_prefix: 用户_
