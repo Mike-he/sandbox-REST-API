@@ -154,6 +154,19 @@ class ClientOrderController extends PaymentController
                 self::WRONG_BOOKING_DATE_MESSAGE
             );
         }
+        $period = $form['rent_period']->getData();
+        $timeUnit = $form['time_unit']->getData();
+        $basePrice = $product->getBasePrice();
+        $calculatedPrice = $basePrice * $period;
+
+        if ($order->getPrice() != $calculatedPrice) {
+            return $this->customErrorView(
+                400,
+                self::PRICE_MISMATCH_CODE,
+                self::PRICE_MISMATCH_MESSAGE
+            );
+        }
+
         if ($type === 'office' && $order->getIsRenew()) {
             $myEnd = $now->modify('+ 7 days');
             $myOrder = $this->getRepo('Order\ProductOrder')->getRenewOrder(
@@ -180,45 +193,31 @@ class ClientOrderController extends PaymentController
                     self::NOT_WITHIN_DATE_RANGE_MESSAGE
                 );
             }
-            $period = $form['rent_period']->getData();
-            $timeUnit = $form['time_unit']->getData();
             $datePeriod = $period;
             if ($timeUnit === 'hour') {
                 $datePeriod = $period * 60;
                 $timeUnit = 'min';
             }
-
             $endDate = clone $startDate;
             $endDate->modify('+'.$datePeriod.$timeUnit);
-            $basePrice = $product->getBasePrice();
-
-            $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            if (!empty($checkOrder) && !is_null($checkOrder)) {
-                return $this->customErrorView(
-                    400,
-                    self::ORDER_CONFLICT_CODE,
-                    self::ORDER_CONFLICT_MESSAGE
-                );
-            }
-
-            $calculatedPrice = $basePrice * $period;
-
-            if ($order->getPrice() != $calculatedPrice) {
-                return $this->customErrorView(
-                    400,
-                    self::PRICE_MISMATCH_CODE,
-                    self::PRICE_MISMATCH_MESSAGE
-                );
-            }
         }
         if ($type == 'office' || $type == 'fixed' || $type == 'flexible') {
             $endDate->modify('- 1 day');
             $endDate->setTime(23, 59, 59);
+        }
+
+        $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
+            $productId,
+            $startDate,
+            $endDate
+        );
+
+        if (!empty($checkOrder) && !is_null($checkOrder)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_CONFLICT_CODE,
+                self::ORDER_CONFLICT_MESSAGE
+            );
         }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
@@ -249,7 +248,7 @@ class ClientOrderController extends PaymentController
      */
     private function payByAccount($order)
     {
-        $price = $order->getPrice();
+        $price = $order->getDiscountPrice();
         $orderNumber = $order->getOrderNumber();
         $balance = $this->postBalanceChange(
             $order->getUserId(),
@@ -414,7 +413,7 @@ class ClientOrderController extends PaymentController
         $orderNumber = $order->getOrderNumber();
         $charge = $this->payForOrder(
             $orderNumber,
-            $order->getPrice(),
+            $order->getDiscountPrice(),
             $channel,
             self::PAYMENT_SUBJECT,
             self::PAYMENT_BODY
@@ -453,7 +452,7 @@ class ClientOrderController extends PaymentController
                 self::WRONG_PAYMENT_STATUS_MESSAGE
             );
         }
-        $price = $order->getPrice();
+        $price = $order->getDiscountPrice();
         $userId = $order->getUserId();
         $balance = $this->postBalanceChange(
             $userId,

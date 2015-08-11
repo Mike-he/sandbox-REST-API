@@ -63,6 +63,15 @@ class ProductOrder
     /**
      * @var string
      *
+     * @ORM\Column(name="discountPrice", type="decimal")
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $discountPrice;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="status", type="string", length=64)
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
@@ -350,6 +359,30 @@ class ProductOrder
     public function getPrice()
     {
         return $this->price;
+    }
+
+    /**
+     * Set discountPrice.
+     *
+     * @param string $discountPrice
+     *
+     * @return ProductOrder
+     */
+    public function setDiscountPrice($discountPrice)
+    {
+        $this->discountPrice = $discountPrice;
+
+        return $this;
+    }
+
+    /**
+     * Get discountPrice.
+     *
+     * @return string
+     */
+    public function getDiscountPrice()
+    {
+        return $this->discountPrice;
     }
 
     /**
