@@ -327,7 +327,7 @@ class AdminProductController extends ProductController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
-//        $em->flush();
+        $em->flush();
 
         $roomId = $product->getRoomId();
         $this->handleProductPost(
