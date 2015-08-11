@@ -502,6 +502,57 @@ class SandboxRestController extends FOSRestController
         return $result['balance'];
     }
 
+    /**
+     * @param $auth
+     *
+     * @return string|null
+     */
+    protected function getDiscountPriceForOrder(
+        $ruleId,
+        $productId,
+        $period,
+        $startDate,
+        $endDate,
+        $isRenew,
+        $auth = null
+    ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['Authorization'];
+        }
+
+        $dataArray = [
+            'product_id' => $productId,
+            'rent_amount' => $period,
+            'start_time' => $startDate,
+            'end_time' => $endDate,
+            'is_renew' => $isRenew,
+        ];
+        $data = json_encode($dataArray);
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_client_user_price_calculate'];
+        $apiUrl = preg_replace('/{rule_id}.*?/', "$ruleId", $apiUrl);
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callAPI($ch, 'POST', $auth, $data);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result['discount_price'];
+    }
+
     //--------------------common functions--------------------//
 
     /**
