@@ -309,10 +309,12 @@ class AdminProductController extends ProductController
 
         $form = $this->createForm(new ProductType(), $product);
         $form->handleRequest($request);
-
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $rule_include = $request->request->get('price_rule_include_ids');
+        $rule_exclude = $request->request->get('price_rule_exclude_ids');
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -326,6 +328,13 @@ class AdminProductController extends ProductController
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
         $em->flush();
+
+        $roomId = $product->getRoomId();
+        $this->handleProductPost(
+            $roomId,
+            $rule_include,
+            $rule_exclude
+        );
 
         $response = array(
             'id' => $product->getId(),
@@ -405,5 +414,24 @@ class AdminProductController extends ProductController
             AdminPermission::KEY_PLATFORM_PRODUCT,
             $OpLevel
         );
+    }
+
+    /**
+     * @param Integer $roomId
+     * @param Array   $rule_include
+     * @param Array   $rule_exclude
+     */
+    private function handleProductPost(
+        $roomId,
+        $rule_include,
+        $rule_exclude
+    ) {
+        //add price rules
+        if (!is_null($rule_include) || !empty($rule_include)) {
+            self::postPriceRule($roomId, $rule_include, 'include');
+        }
+        if (!is_null($rule_exclude) || !empty($rule_include)) {
+            self::postPriceRule($roomId, $rule_exclude, 'exclude');
+        }
     }
 }
