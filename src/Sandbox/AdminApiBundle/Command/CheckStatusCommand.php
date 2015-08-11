@@ -38,7 +38,7 @@ class CheckStatusCommand extends ContainerAwareCommand
         if (!empty($orders)) {
             foreach ($orders as $order) {
                 $userId = $order->getUserId();
-                $price = $order->getPrice();
+                $price = $order->getDiscountPrice();
                 $orderNumber = $order->getOrderNumber();
                 $order->setStatus('completed');
                 $em = $this->getContainer()->get('doctrine')->getManager();
