@@ -76,20 +76,6 @@ class Product
     private $unitPrice;
 
     /**
-     * @var PriceRuleBinding
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Product\PriceRuleBinding",
-     *      mappedBy="product",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="productId", nullable=true)
-     *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
-     */
-    private $priceRule;
-
-    /**
      * @var bool
      *
      * @ORM\Column(name="private", type="boolean")
@@ -480,29 +466,5 @@ class Product
     public function getVisible()
     {
         return $this->visible;
-    }
-
-    /**
-     * get PriceRuleBinding.
-     *
-     * @return PriceRuleBinding
-     */
-    public function getPriceRuleBinding()
-    {
-        return $this->priceRule;
-    }
-
-    /**
-     * set PriceRuleBinding.
-     *
-     * @param PriceRuleBinding $priceRule
-     *
-     * @return Product
-     */
-    public function setPriceRuleBinding($priceRule)
-    {
-        $this->priceRule = $priceRule;
-
-        return $this;
     }
 }

@@ -216,6 +216,10 @@ class ClientOrderController extends PaymentController
                 );
             }
         }
+        if ($type == 'office' || $type == 'fixed' || $type == 'flexible') {
+            $endDate->modify('- 1 day');
+            $endDate->setTime(23, 59, 59);
+        }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
 
