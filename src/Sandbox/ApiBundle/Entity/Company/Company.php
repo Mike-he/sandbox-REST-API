@@ -58,8 +58,7 @@ class Company
      *      "main",
      *      "company_info",
      *      "company_basic",
-     *      "company_limit",
-     *      "profile"
+     *      "company_limit"
      * })
      */
     private $description;
