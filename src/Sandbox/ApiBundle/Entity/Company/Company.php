@@ -44,7 +44,8 @@ class Company
      *      "company_basic",
      *      "member",
      *      "buddy",
-     *      "company_limit"
+     *      "company_limit",
+     *      "profile"
      * })
      */
     private $name;
@@ -57,7 +58,8 @@ class Company
      *      "main",
      *      "company_info",
      *      "company_basic",
-     *      "company_limit"
+     *      "company_limit",
+     *      "profile"
      * })
      */
     private $description;

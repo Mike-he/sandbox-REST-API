@@ -389,6 +389,19 @@ class UserProfile
     private $portfolios;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups(
+     *  {
+     *      "profile",
+     *      "profile_stranger",
+     *      "profile_basic_stranger"
+     *  }
+     * )
+     */
+    private $company;
+
+    /**
      * @var string
      *
      * @Serializer\Groups(
@@ -853,6 +866,24 @@ class UserProfile
     public function setPortfolios($portfolios)
     {
         $this->portfolios = $portfolios;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
+     * @param array $company
+     *
+     * @return UserProfile
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
     }
 
     /**

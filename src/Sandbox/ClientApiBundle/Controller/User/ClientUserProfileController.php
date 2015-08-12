@@ -43,7 +43,7 @@ class ClientUserProfileController extends UserProfileController
      * @Route("/profile")
      * @Method({"GET"})
      *
-     * @return array
+     * @return View
      */
     public function getProfileAction(
         Request $request,
@@ -53,7 +53,7 @@ class ClientUserProfileController extends UserProfileController
         $myUser = $this->getRepo('User\User')->find($this->getUserId());
 
         // request user
-        $userId = $paramFetcher->get('user_id');
+        $userId = (int) $paramFetcher->get('user_id');
         if (is_null($userId)) {
             $userId = $this->getUserId();
         }
@@ -67,7 +67,6 @@ class ClientUserProfileController extends UserProfileController
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         $viewGroup = 'profile';
-
         // set profile with view group
         if ($this->getUserId() != $userId) {
             $viewGroup = $this->setProfileWithViewGroup(
@@ -102,6 +101,12 @@ class ClientUserProfileController extends UserProfileController
             $profile->setPortfolios($portfolios);
         }
 
+        //set user companies
+        $companyMember = $this->getRepo('Company\CompanyMember')->findOneByUser($user);
+        $company = $this->getRepo('Company\Company')->find($companyMember->getCompanyId());
+        if (!is_null($company) && !empty($company)) {
+            $profile->setCompany(array('name' => $company->getName()));
+        }
         // set view
         $view = new View($profile);
         $view->setSerializationContext(
