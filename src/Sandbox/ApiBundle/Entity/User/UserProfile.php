@@ -877,7 +877,7 @@ class UserProfile
     }
 
     /**
-     * @param array $company
+     * @param mixed $company
      *
      * @return UserProfile
      */

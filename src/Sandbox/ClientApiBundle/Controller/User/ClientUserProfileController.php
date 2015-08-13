@@ -53,7 +53,7 @@ class ClientUserProfileController extends UserProfileController
         $myUser = $this->getRepo('User\User')->find($this->getUserId());
 
         // request user
-        $userId = (int) $paramFetcher->get('user_id');
+        $userId = $paramFetcher->get('user_id');
         if (is_null($userId)) {
             $userId = $this->getUserId();
         }
@@ -103,8 +103,8 @@ class ClientUserProfileController extends UserProfileController
 
         //set user companies
         $companyMember = $this->getRepo('Company\CompanyMember')->findOneByUser($user);
-        $company = $this->getRepo('Company\Company')->find($companyMember->getCompanyId());
-        if (!is_null($company) && !empty($company)) {
+        if (!is_null($companyMember) && !empty($companyMember)) {
+            $company = $this->getRepo('Company\Company')->find($companyMember->getCompanyId());
             $profile->setCompany(array('name' => $company->getName()));
         }
         // set view
