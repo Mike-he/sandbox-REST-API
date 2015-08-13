@@ -44,7 +44,8 @@ class Company
      *      "company_basic",
      *      "member",
      *      "buddy",
-     *      "company_limit"
+     *      "company_limit",
+     *      "profile"
      * })
      */
     private $name;
