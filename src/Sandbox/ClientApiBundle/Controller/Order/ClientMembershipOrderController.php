@@ -121,7 +121,7 @@ class ClientMembershipOrderController extends PaymentController
             $price,
             $channel,
             self::PAYMENT_SUBJECT,
-            self::PAYMENT_BODY
+            $this->getUserId()
         );
         $charge = json_decode($charge, true);
         $chargeId = $charge['id'];
