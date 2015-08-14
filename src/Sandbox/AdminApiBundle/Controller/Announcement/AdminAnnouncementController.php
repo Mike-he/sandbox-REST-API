@@ -56,7 +56,7 @@ class AdminAnnouncementController extends AnnouncementController
      * @Annotations\QueryParam(
      *    name="sortBy",
      *    array=false,
-     *    default="id",
+     *    default="creation_date",
      *    nullable=true,
      *    requirements="(creation_date|modification_date)",
      *    strict=true,
@@ -76,7 +76,7 @@ class AdminAnnouncementController extends AnnouncementController
      * @Annotations\QueryParam(
      *    name="direction",
      *    array=false,
-     *    default="ASC",
+     *    default="DESC",
      *    nullable=true,
      *    requirements="(ASC|DESC)",
      *    strict=true,
