@@ -60,7 +60,7 @@ class ClientMembershipOrderController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
