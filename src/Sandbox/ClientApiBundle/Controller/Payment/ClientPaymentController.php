@@ -42,6 +42,7 @@ class ClientPaymentController extends PaymentController
         $price = $object['amount'] / 100;
         $orderNumber = $object['order_no'];
         $channel = $object['channel'];
+        $userId = (int) $object['body'];
 
         $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
             [
@@ -73,16 +74,14 @@ class ClientPaymentController extends PaymentController
             case 'VIP':
 
                 $productId = $myCharge->getOrderId();
-                $order = $this->setMembershipOrder($productId, $price, $orderNumber);
-                $userId = $order->getUserId();
+                $order = $this->setMembershipOrder($userId, $productId, $price, $orderNumber);
                 $this->postAccountUpgrade($userId, $productId, $orderNumber);
                 $amount = $this->postConsumeBalance($userId, $price, $orderNumber);
 
                 break;
             case 'TOPUP':
 
-                $order = $this->setTopUpOrder($price, $orderNumber);
-                $userId = $order->getUserId();
+                $order = $this->setTopUpOrder($userId, $price, $orderNumber);
                 $balance = $this->postBalanceChange(
                     $userId,
                     $price,

@@ -269,11 +269,11 @@ class PaymentController extends SandboxRestController
      * @return MembershipOrder
      */
     public function setMembershipOrder(
+        $userId,
         $productId,
         $price,
         $orderNumber
     ) {
-        $userId = $this->getUserId();
         $order = new MembershipOrder();
         $order->setUserId($userId);
         $order->setProductId($productId);
@@ -293,11 +293,10 @@ class PaymentController extends SandboxRestController
      * @return TopUpOrder
      */
     public function setTopUpOrder(
+        $userId,
         $price,
         $orderNumber
     ) {
-        $userId = $this->getUserId();
-
         $order = new TopUpOrder();
         $order->setUserId($userId);
         $order->setOrderNumber($orderNumber);
