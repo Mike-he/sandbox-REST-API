@@ -67,6 +67,8 @@ class PaymentController extends SandboxRestController
     const NO_VIP_PRODUCT_ID_CODE_MESSAGE = 'No VIP Product ID';
     const NO_DOOR_CODE = 400019;
     const NO_DOOR_MESSAGE = 'Room Has No Doors';
+    const DISCOUNT_PRICE_MISMATCH_CODE = 400020;
+    const DISCOUNT_PRICE_MISMATCH_MESSAGE = 'Discount Price Does Not Match';
 
     /**
      * @param $order
