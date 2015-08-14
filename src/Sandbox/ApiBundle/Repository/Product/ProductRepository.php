@@ -100,7 +100,7 @@ class ProductRepository extends EntityRepository
                     'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
-                        AND AND po.productId <> \'null\'
+                        AND po.productId <> \'null\'
                         AND p.visible = \'true\'
                         AND
                         (

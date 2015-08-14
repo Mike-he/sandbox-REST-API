@@ -155,6 +155,7 @@ class ClientMembershipOrderController extends PaymentController
             );
         }
         $order = $this->setMembershipOrder(
+            $userId,
             $productId,
             $price,
             $orderNumber
