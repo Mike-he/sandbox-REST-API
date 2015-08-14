@@ -35,6 +35,13 @@ class OrderType extends AbstractType
                 )
             )
             ->add('price')
+            ->add(
+                'rule_id',
+                'integer',
+                array(
+                    'mapped' => false,
+                )
+            )
             ->add('discount_price')
             ->add('isRenew')
             ->add(
