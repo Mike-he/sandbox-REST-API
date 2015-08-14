@@ -48,13 +48,13 @@ class ClientPaymentController extends PaymentController
                 'chargeId' => $chargeId,
             ]
         );
-//        if (is_null($myCharge) || empty($myCharge)) {
-//            return $this->customErrorView(
-//                400,
-//                self::WRONG_CHARGE_ID_CODE,
-//                self::WRONG_CHARGE_ID__MESSAGE
-//            );
-//        }
+        if (is_null($myCharge) || empty($myCharge)) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_CHARGE_ID_CODE,
+                self::WRONG_CHARGE_ID__MESSAGE
+            );
+        }
 
         switch ($object['subject']) {
             case 'Your Subject':

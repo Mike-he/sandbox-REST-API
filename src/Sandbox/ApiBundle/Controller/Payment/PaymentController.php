@@ -271,7 +271,7 @@ class PaymentController extends SandboxRestController
         $price,
         $orderNumber
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
         $order = new MembershipOrder();
         $order->setUserId($userId);
         $order->setProductId($productId);
@@ -294,7 +294,7 @@ class PaymentController extends SandboxRestController
         $price,
         $orderNumber
     ) {
-        $userId = $this->getUserid();
+        $userId = $this->getUserId();
 
         $order = new TopUpOrder();
         $order->setUserId($userId);
@@ -378,7 +378,7 @@ class PaymentController extends SandboxRestController
         $type
     ) {
         $orderArray = $this->getRepo('Order\MembershipOrder')->findBy(
-            ['userId' => $this->getUserid()],
+            ['userId' => $this->getUserId()],
             ['id' => 'DESC'],
             1
         );
