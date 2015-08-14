@@ -1084,6 +1084,11 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+        $appointed = $order->getAppointed();
+        $appointedPerson = [];
+        if (!is_null($appointed) && !empty($appointed)) {
+            $appointedPerson = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $appointed]);
+        }
 
         $now = new \DateTime();
         $type = $order->getProduct()->getRoom()->getType();
@@ -1103,6 +1108,7 @@ class ClientOrderController extends PaymentController
             [
                 'renewButton' => $renewButton,
                 'order' => $order,
+                'appointedPerson' => $appointedPerson,
             ]
         );
 
