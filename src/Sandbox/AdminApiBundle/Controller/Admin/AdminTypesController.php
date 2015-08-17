@@ -52,7 +52,7 @@ class AdminTypesController extends SandboxRestController
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
             AdminPermission::KEY_PLATFORM_ADMIN,
-            AdminPermissionMap::OP_LEVEL_EDIT
+            AdminPermissionMap::OP_LEVEL_VIEW
         );
 
         // get all admin types
