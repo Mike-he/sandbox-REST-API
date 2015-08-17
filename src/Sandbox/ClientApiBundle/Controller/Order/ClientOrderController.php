@@ -1039,16 +1039,41 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+        $appointed = $order->getAppointed();
+        $appointedPerson = [];
+        if (!is_null($appointed) && !empty($appointed)) {
+            $appointedPerson = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $appointed]);
+        }
 
         $now = new \DateTime();
         $type = $order->getProduct()->getRoom()->getType();
+        $status = $order->getStatus();
         $startDate = $order->getStartDate();
         $renewButton = false;
+        $minutes = 0;
+        $seconds = 0;
         if ($type === 'office') {
             $endDate = $order->getEndDate();
             $days = $endDate->diff($now)->days;
             if ($days > 7 && $now >= $startDate) {
                 $renewButton = true;
+            }
+        }
+
+        if ($status == 'unpaid') {
+            $creationDate = $order->getCreationDate();
+            $remainingTime = $now->diff($creationDate);
+            $minutes = $remainingTime->i;
+            $seconds = $remainingTime->s;
+            $minutes = 14 - $minutes;
+            $seconds = 60 - $seconds;
+            if ($minutes < 0) {
+                $minutes = 0;
+                $seconds = 0;
+                $order->setStatus('cancelled');
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($order);
+                $em->flush();
             }
         }
 
@@ -1058,6 +1083,9 @@ class ClientOrderController extends PaymentController
             [
                 'renewButton' => $renewButton,
                 'order' => $order,
+                'appointedPerson' => $appointedPerson,
+                'remainingMinutes' => $minutes,
+                'remainingSeconds' => $seconds,
             ]
         );
 
@@ -1092,13 +1120,33 @@ class ClientOrderController extends PaymentController
 
         $now = new \DateTime();
         $type = $order->getProduct()->getRoom()->getType();
+        $status = $order->getStatus();
         $startDate = $order->getStartDate();
         $renewButton = false;
+        $minutes = 0;
+        $seconds = 0;
         if ($type === 'office') {
             $endDate = $order->getEndDate();
             $days = $endDate->diff($now)->days;
             if ($days > 7 && $now >= $startDate) {
                 $renewButton = true;
+            }
+        }
+
+        if ($status == 'unpaid') {
+            $creationDate = $order->getCreationDate();
+            $remainingTime = $now->diff($creationDate);
+            $minutes = $remainingTime->i;
+            $seconds = $remainingTime->s;
+            $minutes = 14 - $minutes;
+            $seconds = 60 - $seconds;
+            if ($minutes < 0) {
+                $minutes = 0;
+                $seconds = 0;
+                $order->setStatus('cancelled');
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($order);
+                $em->flush();
             }
         }
 
@@ -1109,6 +1157,8 @@ class ClientOrderController extends PaymentController
                 'renewButton' => $renewButton,
                 'order' => $order,
                 'appointedPerson' => $appointedPerson,
+                'remainingMinutes' => $minutes,
+                'remainingSeconds' => $seconds,
             ]
         );
 
