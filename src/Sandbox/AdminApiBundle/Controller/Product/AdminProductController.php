@@ -372,7 +372,11 @@ class AdminProductController extends ProductController
 
         $product = $this->getRepo('Product\Product')->find($id);
 
-        $form = $this->createForm( new ProductPutType(), $product, array('method' => 'PUT'));
+        $form = $this->createForm(
+            new ProductPutType(),
+            $product,
+            array('method' => 'PUT')
+        );
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
