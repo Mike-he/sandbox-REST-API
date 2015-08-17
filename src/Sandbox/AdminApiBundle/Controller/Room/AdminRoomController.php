@@ -190,6 +190,63 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="(office|meeting|flexible|fixed)",
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="floor",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by floor id"
+     * )
+     *
+     * @Route("/rooms/product")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getValidProductRoomsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $type = $paramFetcher->get('type');
+        $floorId = $paramFetcher->get('floor');
+
+        $floor = !is_null($floorId) ? $this->getRepo('Room\RoomFloor')->find($floorId) : null;
+
+        $query = $this->getRepo('Room\Room')->getValidProductRooms(
+            $floor,
+            $type
+        );
+
+        return new View($query);
+    }
+
+    /**
      * Get room by id.
      *
      * @param Request $request

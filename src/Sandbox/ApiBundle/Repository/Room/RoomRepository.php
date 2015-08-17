@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Repository\Room;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 
 class RoomRepository extends EntityRepository
 {
@@ -148,5 +149,33 @@ class RoomRepository extends EntityRepository
             ->setParameter('search', "%$search%");
 
         return $result = $query->getQuery();
+    }
+
+    /**
+     * @param RoomFloor $floor
+     * @param String    $type
+     *
+     * @return array
+     */
+    public function getValidProductRooms(
+        $floor,
+        $type
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->where('r.floor = :floor')
+            ->andWhere('
+                r.id NOT IN (
+                    SELECT p.roomId
+                    FROM SandboxApiBundle:Product\Product p
+                    WHERE p.roomId = r.id
+                )
+            ')
+            ->setParameter('floor', $floor);
+        if (!is_null($type)) {
+            $query = $query->andWhere('r.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        return $query->getQuery()->getResult();
     }
 }
