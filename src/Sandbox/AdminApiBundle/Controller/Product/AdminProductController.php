@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Form\Product\ProductType;
+use Sandbox\ApiBundle\Form\Product\ProductPutType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -376,12 +377,14 @@ class AdminProductController extends ProductController
             $product,
             array('method' => 'PUT')
         );
-
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $rule_include = $request->request->get('price_rule_include_ids');
+        $rule_exclude = $request->request->get('price_rule_exclude_ids');
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -392,6 +395,13 @@ class AdminProductController extends ProductController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $roomId = $product->getRoomId();
+        $this->handleProductPost(
+            $roomId,
+            $rule_include,
+            $rule_exclude
+        );
 
         $response = array(
             'id' => $product->getId(),

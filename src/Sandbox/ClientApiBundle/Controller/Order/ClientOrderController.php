@@ -11,7 +11,6 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Delete;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Form\Order\OrderType;
@@ -601,27 +600,28 @@ class ClientOrderController extends PaymentController
                 self::WRONG_ORDER_STATUS_MESSAGE
             );
         }
+        $people = $this->getRepo('Order\InvitedPeople')->findBy(
+            ['orderId' => $id]
+        );
+        if (!is_null($people) && !empty($people)) {
+            $this->deletePeople($order, $people);
+        }
+
         $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+        if (empty($roomDoors)) {
+            return $this->customErrorView(
+                400,
+                self::NO_DOOR_CODE,
+                self::NO_DOOR_MESSAGE
+            );
+        }
         $users = json_decode($request->getContent(), true);
         foreach ($users as $user) {
-            $checkUser = $this->getRepo('Order\InvitedPeople')->findOneBy(
-                [
-                    'orderId' => $id,
-                    'userId' => $user['user_id'],
-                ]
-            );
-            if (!is_null($checkUser)) {
-                return $this->customErrorView(
-                    400,
-                    self::USER_EXIST_CODE,
-                    self::USER_EXIST_MESSAGE
-                );
-            }
             $people = new InvitedPeople();
             $people->setOrderId($order);
             $people->setUserId($user['user_id']);
@@ -693,75 +693,23 @@ class ClientOrderController extends PaymentController
     }
 
     /**
-     * @Delete("/orders/{id}/people")
-     *
-     * @Annotations\QueryParam(
-     *    name="id",
-     *    array=true,
-     *    default="",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Offset of page"
-     * )
-     *
      * @param Request $request
      * @param $id
      * @param ParamFetcherInterface $paramFetcher
      */
-    public function deletePeopleAction(
-        Request $request,
-        $id,
-        ParamFetcherInterface $paramFetcher
+    private function deletePeople(
+        $order,
+        $people
     ) {
-        $order = $this->getRepo('Order\ProductOrder')->find($id);
-        if (is_null($order)) {
-            return $this->customErrorView(
-                400,
-                self::ORDER_NOT_FOUND_CODE,
-                self::ORDER_NOT_FOUND_MESSAGE
-            );
-        }
-        $status = $order->getStatus();
-        $endDate = $order->getEndDate();
-        $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_ORDER_STATUS_CODE,
-                self::WRONG_ORDER_STATUS_MESSAGE
-            );
-        }
-        $userIds = $paramFetcher->get('id');
-
-        if (empty($userIds)) {
-            return $this->customErrorView(
-                400,
-                self::USER_NOT_FOUND_CODE,
-                self::USER_NOT_FOUND_MESSAGE
-            );
-        }
         $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
-        foreach ($userIds as $userId) {
-            $checkUser = $this->getRepo('Order\InvitedPeople')->findOneBy(
-                [
-                    'orderId' => $id,
-                    'userId' => $userId,
-                ]
-            );
-            if (is_null($checkUser)) {
-                return $this->customErrorView(
-                    400,
-                    self::USER_NOT_FOUND_CODE,
-                    self::USER_NOT_FOUND_MESSAGE
-                );
-            }
+        foreach ($people as $person) {
+            $userId = $person->getUserId();
 
             $em = $this->getDoctrine()->getManager();
-            $em->remove($checkUser);
+            $em->remove($person);
             $em->flush();
 
             $controls = $this->getRepo('Door\DoorAccess')->findBy(
@@ -902,7 +850,13 @@ class ClientOrderController extends PaymentController
         $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-
+        if (empty($roomDoors)) {
+            return $this->customErrorView(
+                400,
+                self::NO_DOOR_CODE,
+                self::NO_DOOR_MESSAGE
+            );
+        }
         foreach ($roomDoors as $roomDoor) {
             $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
                 [
@@ -1039,16 +993,41 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+        $appointed = $order->getAppointed();
+        $appointedPerson = [];
+        if (!is_null($appointed) && !empty($appointed)) {
+            $appointedPerson = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $appointed]);
+        }
 
         $now = new \DateTime();
         $type = $order->getProduct()->getRoom()->getType();
+        $status = $order->getStatus();
         $startDate = $order->getStartDate();
         $renewButton = false;
+        $minutes = 0;
+        $seconds = 0;
         if ($type === 'office') {
             $endDate = $order->getEndDate();
             $days = $endDate->diff($now)->days;
             if ($days > 7 && $now >= $startDate) {
                 $renewButton = true;
+            }
+        }
+
+        if ($status == 'unpaid') {
+            $creationDate = $order->getCreationDate();
+            $remainingTime = $now->diff($creationDate);
+            $minutes = $remainingTime->i;
+            $seconds = $remainingTime->s;
+            $minutes = 14 - $minutes;
+            $seconds = 60 - $seconds;
+            if ($minutes < 0) {
+                $minutes = 0;
+                $seconds = 0;
+                $order->setStatus('cancelled');
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($order);
+                $em->flush();
             }
         }
 
@@ -1058,6 +1037,9 @@ class ClientOrderController extends PaymentController
             [
                 'renewButton' => $renewButton,
                 'order' => $order,
+                'appointedPerson' => $appointedPerson,
+                'remainingMinutes' => $minutes,
+                'remainingSeconds' => $seconds,
             ]
         );
 
@@ -1092,13 +1074,33 @@ class ClientOrderController extends PaymentController
 
         $now = new \DateTime();
         $type = $order->getProduct()->getRoom()->getType();
+        $status = $order->getStatus();
         $startDate = $order->getStartDate();
         $renewButton = false;
+        $minutes = 0;
+        $seconds = 0;
         if ($type === 'office') {
             $endDate = $order->getEndDate();
             $days = $endDate->diff($now)->days;
             if ($days > 7 && $now >= $startDate) {
                 $renewButton = true;
+            }
+        }
+
+        if ($status == 'unpaid') {
+            $creationDate = $order->getCreationDate();
+            $remainingTime = $now->diff($creationDate);
+            $minutes = $remainingTime->i;
+            $seconds = $remainingTime->s;
+            $minutes = 14 - $minutes;
+            $seconds = 60 - $seconds;
+            if ($minutes < 0) {
+                $minutes = 0;
+                $seconds = 0;
+                $order->setStatus('cancelled');
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($order);
+                $em->flush();
             }
         }
 
@@ -1109,6 +1111,8 @@ class ClientOrderController extends PaymentController
                 'renewButton' => $renewButton,
                 'order' => $order,
                 'appointedPerson' => $appointedPerson,
+                'remainingMinutes' => $minutes,
+                'remainingSeconds' => $seconds,
             ]
         );
 
