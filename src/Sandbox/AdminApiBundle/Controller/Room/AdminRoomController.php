@@ -176,7 +176,8 @@ class AdminRoomController extends RoomController
             $floor,
             $status,
             $sortBy,
-            $direction
+            $direction,
+            false
         );
 
         $paginator = new Paginator();
@@ -219,14 +220,14 @@ class AdminRoomController extends RoomController
      *    description="Filter by floor id"
      * )
      *
-     * @Route("/rooms/product")
+     * @Route("/rooms/notproducted")
      * @Method({"GET"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function getValidProductRoomsAction(
+    public function getNotProductedRoomsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -241,6 +242,75 @@ class AdminRoomController extends RoomController
         $query = $this->getRepo('Room\Room')->getValidProductRooms(
             $floor,
             $type
+        );
+
+        return new View($query);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="(office|meeting|flexible|fixed)",
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Route("/rooms/producted")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getProductedRoomsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
+        $type = $paramFetcher->get('type');
+
+        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
+        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
+
+        $query = $this->getRepo('Room\RoomView')->getRooms(
+            $type,
+            $city,
+            $building,
+            null,
+            null,
+            'creationDate',
+            'DESC',
+            true
         );
 
         return new View($query);
