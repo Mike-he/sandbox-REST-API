@@ -480,8 +480,8 @@ class ClientOrderController extends PaymentController
         );
         if (!is_null($balance)) {
             $order->setStatus('cancelled');
-            $order->setCancelledDate(new \DateTime());
-            $order->setModificationDate(new \DateTime());
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
             $em = $this->getDoctrine()->getManager();
             $em->persist($order);
             $em->flush();
@@ -993,55 +993,7 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
-        $appointed = $order->getAppointed();
-        $appointedPerson = [];
-        if (!is_null($appointed) && !empty($appointed)) {
-            $appointedPerson = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $appointed]);
-        }
-
-        $now = new \DateTime();
-        $type = $order->getProduct()->getRoom()->getType();
-        $status = $order->getStatus();
-        $startDate = $order->getStartDate();
-        $renewButton = false;
-        $minutes = 0;
-        $seconds = 0;
-        if ($type === 'office') {
-            $endDate = $order->getEndDate();
-            $days = $endDate->diff($now)->days;
-            if ($days > 7 && $now >= $startDate) {
-                $renewButton = true;
-            }
-        }
-
-        if ($status == 'unpaid') {
-            $creationDate = $order->getCreationDate();
-            $remainingTime = $now->diff($creationDate);
-            $minutes = $remainingTime->i;
-            $seconds = $remainingTime->s;
-            $minutes = 14 - $minutes;
-            $seconds = 60 - $seconds;
-            if ($minutes < 0) {
-                $minutes = 0;
-                $seconds = 0;
-                $order->setStatus('cancelled');
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($order);
-                $em->flush();
-            }
-        }
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData(
-            [
-                'renewButton' => $renewButton,
-                'order' => $order,
-                'appointedPerson' => $appointedPerson,
-                'remainingMinutes' => $minutes,
-                'remainingSeconds' => $seconds,
-            ]
-        );
+        $view = $this->getOrderDetail($order);
 
         return $view;
     }
@@ -1066,6 +1018,19 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+        $view = $this->getOrderDetail($order);
+
+        return $view;
+    }
+
+    /**
+     * @param $order
+     *
+     * @return View
+     */
+    private function getOrderDetail(
+        $order
+    ) {
         $appointed = $order->getAppointed();
         $appointedPerson = [];
         if (!is_null($appointed) && !empty($appointed)) {
@@ -1098,6 +1063,8 @@ class ClientOrderController extends PaymentController
                 $minutes = 0;
                 $seconds = 0;
                 $order->setStatus('cancelled');
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($order);
                 $em->flush();
