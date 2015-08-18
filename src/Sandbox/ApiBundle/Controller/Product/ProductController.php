@@ -64,6 +64,7 @@ class ProductController extends SandboxRestController
 
     /**
      * @param Integer $roomId
+     * @param Integer $buildingId
      * @param Array   $ids
      * @param String  $type
      *
@@ -71,6 +72,7 @@ class ProductController extends SandboxRestController
      */
     protected function postPriceRule(
         $roomId,
+        $buildingId,
         $ids,
         $type
     ) {
@@ -85,16 +87,18 @@ class ProductController extends SandboxRestController
         switch ($type) {
             case 'include':
                 $typeUrl = $globals['crm_api_admin_price_rule_include'];
+                $apiUrl = $globals['crm_api_url'].$typeUrl;
                 break;
             case 'exclude':
                 $typeUrl = $globals['crm_api_admin_price_rule_exclude'];
+                $apiUrl = $globals['crm_api_url'].$typeUrl;
+                $apiUrl = preg_replace('/{buildingId}.*?/', "$buildingId", $apiUrl);
                 break;
             default:
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // CRM API URL
-        $apiUrl = $globals['crm_api_url'].$typeUrl;
         $apiUrl = preg_replace('/{roomId}.*?/', "$roomId", $apiUrl);
 
         // init curl
