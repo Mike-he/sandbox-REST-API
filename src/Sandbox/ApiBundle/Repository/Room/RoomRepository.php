@@ -15,6 +15,10 @@ class RoomRepository extends EntityRepository
      * @param String       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
+     * @param RoomFloor    $floor
+     * @param String       $status
+     * @param String       $sortBy
+     * @param String       $direction
      *
      * @return array
      */
@@ -25,7 +29,8 @@ class RoomRepository extends EntityRepository
         $floor,
         $status,
         $sortBy,
-        $direction
+        $direction,
+        $results
     ) {
         $notFirst = false;
         $parameters = [];
@@ -98,7 +103,7 @@ class RoomRepository extends EntityRepository
             $query->setParameters($parameters);
         }
 
-        $result = $query->getQuery();
+        $result = $results ? $query->getQuery()->getResult() : $query->getQuery();
 
         return $result;
     }

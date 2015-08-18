@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Form\Product\ProductType;
-use Sandbox\ApiBundle\Form\Product\ProductPutType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
