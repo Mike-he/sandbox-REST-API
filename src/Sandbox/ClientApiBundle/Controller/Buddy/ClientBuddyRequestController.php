@@ -106,7 +106,7 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         // check user exist
         $recvUserId = $form['user_id']->getData();
-        if (is_null($recvUserId) || $recvUserId === $myUserId) {
+        if (is_null($recvUserId) || $recvUserId == $myUserId) {
             // or user is trying to adding him/her self
             throw new ConflictHttpException(self::CONFLICT_MESSAGE);
         }
