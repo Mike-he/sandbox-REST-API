@@ -100,7 +100,6 @@ class ProductController extends SandboxRestController
 
         // CRM API URL
         $apiUrl = preg_replace('/{roomNo}.*?/', "$roomNumber", $apiUrl);
-        var_dump($apiUrl);exit;
         // init curl
         $ch = curl_init($apiUrl);
 
