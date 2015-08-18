@@ -453,7 +453,10 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
-        $user = $this->getRepo('User\UserProfile')->find($id);
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $user = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
