@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Order;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * ProductOrder.
@@ -41,6 +42,16 @@ class ProductOrder
      * @Serializer\Groups({"main"})
      */
     private $userId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\User\User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserProfile")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="userId")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $user;
 
     /**
      * @var int
@@ -587,6 +598,26 @@ class ProductOrder
     public function setOrderNumber($orderNumber)
     {
         $this->orderNumber = $orderNumber;
+
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return ProductOrder
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
 
         return $this;
     }
