@@ -39,7 +39,7 @@ parameters:
     crm_api_admin_user_consume: /admin/useraccounts/{userId}/consume
     crm_api_admin_user_account_upgrade: /admin/useraccounts/{userId}/upgrade
     crm_api_admin_price_rule_include: /admin/price/rule/include/{roomId}
-    crm_api_admin_price_rule_exclude: /admin/price/rule/exclude/{roomId}
+    crm_api_admin_price_rule_exclude: /admin/price/rule/exclude/{buildingId}/{roomId}
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
     door_api_username: admin
