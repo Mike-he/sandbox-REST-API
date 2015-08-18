@@ -71,7 +71,7 @@ class ProductController extends SandboxRestController
      * @throws BadRequestHttpException
      */
     protected function postPriceRule(
-        $roomId,
+        $roomNumber,
         $buildingId,
         $ids,
         $type
@@ -99,8 +99,7 @@ class ProductController extends SandboxRestController
         }
 
         // CRM API URL
-        $apiUrl = preg_replace('/{roomId}.*?/', "$roomId", $apiUrl);
-
+        $apiUrl = preg_replace('/{roomNo}.*?/', "$roomNumber", $apiUrl);
         // init curl
         $ch = curl_init($apiUrl);
 

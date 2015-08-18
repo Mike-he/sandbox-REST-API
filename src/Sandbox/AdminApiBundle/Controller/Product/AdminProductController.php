@@ -330,10 +330,11 @@ class AdminProductController extends ProductController
         $em->flush();
 
         $roomId = $product->getRoomId();
-        $building = $this->getRepo('Room\Room')->findOneById($roomId);
-        $buildingId = $building->getBuilding()->getId();
+        $roomEm = $this->getRepo('Room\Room')->findOneById($roomId);
+        $roomNumber = $roomEm->getNumber();
+        $buildingId = $roomEm->getBuilding()->getId();
         $this->handleProductPost(
-            $roomId,
+            $roomNumber,
             $buildingId,
             $rule_include,
             $rule_exclude
@@ -399,10 +400,11 @@ class AdminProductController extends ProductController
         $em->flush();
 
         $roomId = $product->getRoomId();
-        $building = $this->getRepo('Room\Room')->findOneById($roomId);
-        $buildingId = $building->getBuilding()->getId();
+        $roomEm = $this->getRepo('Room\Room')->findOneById($roomId);
+        $roomNumber = $roomEm->getNumber();
+        $buildingId = $roomEm->getBuilding()->getId();
         $this->handleProductPost(
-            $roomId,
+            $roomNumber,
             $buildingId,
             $rule_include,
             $rule_exclude
@@ -432,23 +434,23 @@ class AdminProductController extends ProductController
     }
 
     /**
-     * @param Integer $roomId
+     * @param Integer $roomNumber
      * @param Integer $buildingId
      * @param Array   $rule_include
      * @param Array   $rule_exclude
      */
     private function handleProductPost(
-        $roomId,
+        $roomNumber,
         $buildingId,
         $rule_include,
         $rule_exclude
     ) {
         //add price rules
         if (!is_null($rule_include) || !empty($rule_include)) {
-            self::postPriceRule($roomId, $buildingId, $rule_include, 'include');
+            self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
         }
         if (!is_null($rule_exclude) || !empty($rule_include)) {
-            self::postPriceRule($roomId, $buildingId, $rule_exclude, 'exclude');
+            self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
         }
     }
 }
