@@ -43,15 +43,15 @@ class ProductOrder
      */
     private $userId;
 
-    /**
-     * @var \Sandbox\ApiBundle\Entity\User\User
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserProfile")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="userId")
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $user;
+//    /**
+//     * @var \Sandbox\ApiBundle\Entity\User\User
+//     *
+//     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserProfile")
+//     * @ORM\JoinColumn(name="userId", referencedColumnName="userId")
+//     *
+//     * @Serializer\Groups({"main"})
+//     */
+//    private $user;
 
     /**
      * @var int
@@ -602,25 +602,25 @@ class ProductOrder
         return $this;
     }
 
-    /**
-     * @return User
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param User $user
-     *
-     * @return ProductOrder
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-
-        return $this;
-    }
+//    /**
+//     * @return User
+//     */
+//    public function getUser()
+//    {
+//        return $this->user;
+//    }
+//
+//    /**
+//     * @param User $user
+//     *
+//     * @return ProductOrder
+//     */
+//    public function setUser($user)
+//    {
+//        $this->user = $user;
+//
+//        return $this;
+//    }
 
     /**
      * Get orderNumber.
