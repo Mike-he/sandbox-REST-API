@@ -309,7 +309,7 @@ class AdminAdminsController extends SandboxRestController
         $permissionPuts
     ) {
         // check the admin message is valid
-        $valid = $this->checkAdminValid($admin);
+        $valid = $this->checkAdminValid($admin, false);
         if (!is_null($valid)) {
             return new JsonResponse($valid->getData());
         }
@@ -407,7 +407,7 @@ class AdminAdminsController extends SandboxRestController
         $admin,
         $permission
     ) {
-        $this->checkAdminValid($admin);
+        $this->checkAdminValid($admin, true);
 
         $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
         $admin->setType($type);
@@ -475,11 +475,13 @@ class AdminAdminsController extends SandboxRestController
 
     /**
      * @param $admin
+     * @param $usernameExist
      *
      * @return View
      */
     private function checkAdminValid(
-        $admin
+        $admin,
+        $usernameExist
     ) {
         // check username
         if (is_null($admin->getUsername())) {
@@ -490,12 +492,14 @@ class AdminAdminsController extends SandboxRestController
         }
 
         // check username exist
-        $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
-        if (!is_null($adminExist)) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_USERNAME_EXIST_CODE,
-                self::ERROR_USERNAME_EXIST_MESSAGE);
+        if ($usernameExist) {
+            $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
+            if (!is_null($adminExist)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_USERNAME_EXIST_CODE,
+                    self::ERROR_USERNAME_EXIST_MESSAGE);
+            }
         }
 
         // check password
