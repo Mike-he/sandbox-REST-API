@@ -2,6 +2,7 @@ CREATE TABLE `RoomDoors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `roomId` int(11) NOT NULL,
   `doorControlId` varchar(255) NOT NULL,
+  `name` varchar(64) NOT NULL,
   `creationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `roomId_doorControlId` (`roomId`,`doorControlId`),

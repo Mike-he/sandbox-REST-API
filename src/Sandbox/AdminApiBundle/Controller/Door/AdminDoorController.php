@@ -196,6 +196,7 @@ class AdminDoorController extends DoorController
         }
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
+        $name = $building->getName();
 
         $sessionId = $this->getSessionId($base, $globals);
         try {
@@ -210,8 +211,21 @@ class AdminDoorController extends DoorController
                     self::RESPONSE_NOT_VALID_MESSAGE
                 );
             }
+            $updateDoors = [];
+            $doors = $doorArray['ads_doors'];
+            foreach ($doors as $door) {
+                $doorId = $door['id'];
+                $doorName = $door['name'];
+                $doorName = strstr($doorName, '-');
+                $doorName = $name.$doorName;
+                $temp = [
+                    'id' => $doorId,
+                    'name' => $doorName,
+                ];
+                array_push($updateDoors, $temp);
+            }
 
-            return new View($doorArray['ads_doors']);
+            return new View($updateDoors);
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $base, $globals);
