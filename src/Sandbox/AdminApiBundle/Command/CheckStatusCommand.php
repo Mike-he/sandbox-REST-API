@@ -41,6 +41,7 @@ class CheckStatusCommand extends ContainerAwareCommand
                 $price = $order->getDiscountPrice();
                 $orderNumber = $order->getOrderNumber();
                 $order->setStatus('completed');
+                $order->setModificationDate(new \DateTime('now'));
                 $em = $this->getContainer()->get('doctrine')->getManager();
                 $em->persist($order);
                 $em->flush();
