@@ -29,13 +29,13 @@ class RoomRepository extends EntityRepository
         $floor,
         $status,
         $sortBy,
-        $direction,
-        $results
+        $direction
     ) {
         $notFirst = false;
         $parameters = [];
 
-        $query = $this->createQueryBuilder('r');
+        $query = $this->createQueryBuilder('r')
+            ->join('SandboxApiBundle:Room\RoomFloor', 'rf', 'WITH', 'rf.id = r.floor');
 
         // filter by type
         if (!is_null($type)) {
@@ -92,10 +92,13 @@ class RoomRepository extends EntityRepository
             $notFirst = true;
         }
 
-        if ($sortBy != 'floor') {
-            $query->orderBy('r.'.$sortBy, $direction);
-        } elseif ($sortBy == 'floor') {
-            $query->orderBy('rf.floorNumber', $direction);
+        switch ($sortBy) {
+            case 'floor':
+                $query->orderBy('rf.floorNumber', $direction);
+                break;
+            default:
+                $query->orderBy('r.'.$sortBy, $direction);
+                break;
         }
 
         //set all parameters
@@ -103,9 +106,7 @@ class RoomRepository extends EntityRepository
             $query->setParameters($parameters);
         }
 
-        $result = $results ? $query->getQuery()->getResult() : $query->getQuery();
-
-        return $result;
+        return $query->getQuery()->getResult();
     }
 
     /**
