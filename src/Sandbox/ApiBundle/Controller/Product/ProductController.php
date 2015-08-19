@@ -63,7 +63,7 @@ class ProductController extends SandboxRestController
     }
 
     /**
-     * @param Integer $roomId
+     * @param Integer $roomNumber
      * @param Integer $buildingId
      * @param Array   $ids
      * @param String  $type

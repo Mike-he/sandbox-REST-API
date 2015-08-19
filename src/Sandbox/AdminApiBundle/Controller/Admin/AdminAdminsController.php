@@ -9,7 +9,6 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Form\Admin\AdminPutType;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -21,6 +20,7 @@ use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 
 /**
  * Admin controller.
@@ -219,13 +219,13 @@ class AdminAdminsController extends SandboxRestController
      *
      *
      * @Route("/admins/{id}")
-     * @Method({"PUT"})
+     * @Method({"PATCH"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function putAdminAction(
+    public function patchAdminAction(
         Request $request,
         $id
     ) {
@@ -237,18 +237,19 @@ class AdminAdminsController extends SandboxRestController
             AdminPermissionMap::OP_LEVEL_EDIT
         );
 
-        // get admin
         $admin = $this->getRepo('Admin\Admin')->find($id);
-        $form = $this->createForm(new AdminPutType(), $admin, array('method' => 'PUT'));
-        $form->handleRequest($request);
 
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
+        // bind data
+        $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
+        $patch = new Patch($adminJson, $request->getContent());
+        $adminJson = $patch->apply();
+
+        $form = $this->createForm(new AdminPutType(), $admin);
+        $form->submit(json_decode($adminJson, true));
 
         $permission = $form['permission']->getData();
 
-        return $this->handleAdminPut(
+        return $this->handleAdminPatch(
             $id,
             $admin,
             $permission
@@ -303,92 +304,86 @@ class AdminAdminsController extends SandboxRestController
      *
      * @return View
      */
-    private function handleAdminPut(
+    private function handleAdminPatch(
         $id,
         $admin,
         $permissionPuts
     ) {
-        // check the admin message is valid
-        $valid = $this->checkAdminValid($admin, false);
-        if (!is_null($valid)) {
-            return new JsonResponse($valid->getData());
-        }
-
-        //set admin
         $em = $this->getDoctrine()->getManager();
         $em->persist($admin);
 
-        //judge the value of permissions
-        $permissions = $this->getRepo('Admin\AdminPermissionMap')
-                        ->findBy(array('adminId' => $id));
+        if(!is_null($permissionPuts)) {
+            //judge the value of permissions
+            $permissions = $this->getRepo('Admin\AdminPermissionMap')
+                ->findBy(array('adminId' => $id));
 
-        $permissionSameId = array();
-        foreach ($permissions as $pOld) {
-            foreach ($permissionPuts as $pNew) {
-                if ($pOld->getPermissionId() == $pNew['id']) {
-                    $permissionSameId[] = $pNew['id'];
-                    if ($pOld->getOpLevel() != $pNew['op_level']) {
-                        $permissionMap = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionMap')
-                            ->findOneBy(
-                                array(
-                                    'adminId' => $id,
-                                    'permissionId' => $pOld->getPermissionId(),
-                                )
-                        );
-                        $permissionMap->setOpLevel($pNew['op_level']);
+            $permissionSameId = array();
+            foreach ($permissions as $pOld) {
+                foreach ($permissionPuts as $pNew) {
+                    if ($pOld->getPermissionId() == $pNew['id']) {
+                        $permissionSameId[] = $pNew['id'];
+                        if ($pOld->getOpLevel() != $pNew['op_level']) {
+                            $permissionMap = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionMap')
+                                ->findOneBy(
+                                    array(
+                                        'adminId' => $id,
+                                        'permissionId' => $pOld->getPermissionId(),
+                                    )
+                                );
+                            $permissionMap->setOpLevel($pNew['op_level']);
+                        }
                     }
                 }
             }
-        }
-        //remove the useless permissions
-        foreach ($permissions as $permissionOld) {
-            $num = 0;
-            foreach ($permissionSameId as $pSameId) {
-                if ($permissionOld->getPermissionId() == $pSameId) {
-                    $num = 1;
+            //remove the useless permissions
+            foreach ($permissions as $permissionOld) {
+                $num = 0;
+                foreach ($permissionSameId as $pSameId) {
+                    if ($permissionOld->getPermissionId() == $pSameId) {
+                        $num = 1;
+                    }
                 }
-            }
-            if ($num == 0) {
-                $pRemove = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionMap')
-                    ->findOneBy(
+                if ($num == 0) {
+                    $pRemove = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionMap')
+                        ->findOneBy(
                             array(
                                 'adminId' => $id,
                                 'permissionId' => $permissionOld->getPermissionId(),
-                                )
-                    );
-                $em->remove($pRemove);
+                            )
+                        );
+                    $em->remove($pRemove);
+                }
             }
-        }
 
-        //set the new permissions
-        $now = new \DateTime('now');
-        foreach ($permissionPuts as $pNew) {
-            $num = 0;
-            foreach ($permissionSameId as $pSameId) {
-                if ($pNew['id'] == $pSameId) {
-                    $num = 1;
+            //set the new permissions
+            $now = new \DateTime('now');
+            foreach ($permissionPuts as $pNew) {
+                $num = 0;
+                foreach ($permissionSameId as $pSameId) {
+                    if ($pNew['id'] == $pSameId) {
+                        $num = 1;
+                    }
                 }
-            }
-            if ($num == 0) {
-                // get permission
-                $myPermission = $this->getRepo('Admin\AdminPermission')->find($pNew['id']);
-                if (is_null($myPermission)
-                    || $myPermission->getTypeId() != $admin->getTypeId()
+                if ($num == 0) {
+                    // get permission
+                    $myPermission = $this->getRepo('Admin\AdminPermission')->find($pNew['id']);
+                    if (is_null($myPermission)
+                        || $myPermission->getTypeId() != $admin->getTypeId()
                     ) {
-                    // if permission's type is different
-                    // don't add the permission
-                    continue;
+                        // if permission's type is different
+                        // don't add the permission
+                        continue;
+                    }
+                    // save permission map
+                    $permissionMap = new AdminPermissionMap();
+                    $permissionMap->setAdminId($id);
+                    $permissionMap->setPermissionId($pNew['id']);
+                    $permissionMap->setCreationDate($now);
+                    $permissionMap->setAdmin($admin);
+                    $permissionMap->setPermission($myPermission);
+                    $permissionMap->setOpLevel($pNew['op_level']);
+                    $em->persist($permissionMap);
                 }
-                $id = (int) $id;
-                // save permission map
-                $permissionMap = new AdminPermissionMap();
-                $permissionMap->setAdminId($id);
-                $permissionMap->setPermissionId($pNew['id']);
-                $permissionMap->setCreationDate($now);
-                $permissionMap->setAdmin($admin);
-                $permissionMap->setPermission($myPermission);
-                $permissionMap->setOpLevel($pNew['op_level']);
-                $em->persist($permissionMap);
             }
         }
         //save data
@@ -407,7 +402,7 @@ class AdminAdminsController extends SandboxRestController
         $admin,
         $permission
     ) {
-        $this->checkAdminValid($admin, true);
+        $this->checkAdminValid($admin);
 
         $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
         $admin->setType($type);
@@ -475,13 +470,11 @@ class AdminAdminsController extends SandboxRestController
 
     /**
      * @param $admin
-     * @param $usernameExist
      *
      * @return View
      */
     private function checkAdminValid(
-        $admin,
-        $usernameExist
+        $admin
     ) {
         // check username
         if (is_null($admin->getUsername())) {
@@ -492,14 +485,12 @@ class AdminAdminsController extends SandboxRestController
         }
 
         // check username exist
-        if ($usernameExist) {
             $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
-            if (!is_null($adminExist)) {
-                return $this->customErrorView(
+        if (!is_null($adminExist)) {
+            return $this->customErrorView(
                     400,
                     self::ERROR_USERNAME_EXIST_CODE,
                     self::ERROR_USERNAME_EXIST_MESSAGE);
-            }
         }
 
         // check password
