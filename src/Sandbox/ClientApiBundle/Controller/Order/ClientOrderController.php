@@ -248,23 +248,25 @@ class ClientOrderController extends PaymentController
             );
         }
         $ruleId = $form['rule_id']->getData();
-        $discountPrice = $order->getDiscountPrice();
-        $isRenew = $order->getIsRenew();
-        $calculatedDiscountPrice = $this->getDiscountPriceForOrder(
-            $ruleId,
-            $productId,
-            $period,
-            $startDate,
-            $endDate,
-            $isRenew
-        );
-
-        if ($discountPrice != $calculatedDiscountPrice) {
-            return $this->customErrorView(
-                400,
-                self::DISCOUNT_PRICE_MISMATCH_CODE,
-                self::DISCOUNT_PRICE_MISMATCH_MESSAGE
+        if (!is_null($ruleId) && !empty($ruleId)) {
+            $discountPrice = $order->getDiscountPrice();
+            $isRenew = $order->getIsRenew();
+            $calculatedDiscountPrice = $this->getDiscountPriceForOrder(
+                $ruleId,
+                $productId,
+                $period,
+                $startDate,
+                $endDate,
+                $isRenew
             );
+
+            if ($discountPrice != $calculatedDiscountPrice) {
+                return $this->customErrorView(
+                    400,
+                    self::DISCOUNT_PRICE_MISMATCH_CODE,
+                    self::DISCOUNT_PRICE_MISMATCH_MESSAGE
+                );
+            }
         }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
