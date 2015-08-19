@@ -87,14 +87,14 @@ class ClientOrderController extends PaymentController
                     'userId' => $userId,
                     'status' => $status,
                 ],
-                ['creationDate' => 'DESC'],
+                ['modificationDate' => 'DESC'],
                 $limit,
                 $offset
             );
         } else {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
                 ['userId' => $userId],
-                ['creationDate' => 'DESC'],
+                ['modificationDate' => 'DESC'],
                 $limit,
                 $offset
             );
@@ -146,13 +146,7 @@ class ClientOrderController extends PaymentController
         $now = new \DateTime();
         $type = $product->getRoom()->getType();
         $startDate = new \DateTime($order->getStartDate());
-        if ($now > $startDate) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_BOOKING_DATE_CODE,
-                self::WRONG_BOOKING_DATE_MESSAGE
-            );
-        }
+
         $period = $form['rent_period']->getData();
         $timeUnit = $form['time_unit']->getData();
         $basePrice = $product->getBasePrice();
@@ -200,9 +194,44 @@ class ClientOrderController extends PaymentController
             $endDate = clone $startDate;
             $endDate->modify('+'.$datePeriod.$timeUnit);
         }
+
         if ($type == 'office' || $type == 'fixed' || $type == 'flexible') {
+            $nowDate = $now->format('Y-m-d');
+            $startPeriod = $startDate->format('Y-m-d');
+            if ($nowDate > $startPeriod) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_BOOKING_DATE_CODE,
+                    self::WRONG_BOOKING_DATE_MESSAGE
+                );
+            }
             $endDate->modify('- 1 day');
             $endDate->setTime(23, 59, 59);
+        } else {
+            if ($now > $startDate) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_BOOKING_DATE_CODE,
+                    self::WRONG_BOOKING_DATE_MESSAGE
+                );
+            }
+            $startHour = $startDate->format('H:i:s');
+            $endHour = $endDate->format('H:i:s');
+            $roomId = $product->getRoomId();
+            $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $roomId]);
+            if (!is_null($meeting)) {
+                $allowedStart = $meeting->getStartHour();
+                $allowedStart = $allowedStart->format('H:i:s');
+                $allowedEnd = $meeting->getEndHour();
+                $allowedEnd = $allowedEnd->format('H:i:s');
+                if ($startHour < $allowedStart || $endHour > $allowedEnd) {
+                    return $this->customErrorView(
+                        400,
+                        self::ROOM_NOT_OPEN_CODE,
+                        self::ROOM_NOT_OPEN_MESSAGE
+                    );
+                }
+            }
         }
 
         $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
