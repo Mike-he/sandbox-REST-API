@@ -242,6 +242,7 @@ class ClientProductController extends ProductController
         if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
             $startDate = new \DateTime($start);
             $endDate = new \DateTime($end);
+            $endDate->setTime(23, 59, 59);
         }
         $userId = $this->getUserId();
 
@@ -361,6 +362,7 @@ class ClientProductController extends ProductController
         if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
             $startDate = new \DateTime($start);
             $endDate = new \DateTime($end);
+            $endDate->setTime(23, 59, 59);
         }
         $userId = $this->getUserId();
 
