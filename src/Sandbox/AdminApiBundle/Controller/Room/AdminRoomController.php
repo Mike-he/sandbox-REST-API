@@ -125,7 +125,7 @@ class AdminRoomController extends RoomController
      *    array=false,
      *    default="creationDate",
      *    nullable=true,
-     *    requirements="(number|floor)",
+     *    requirements="(number|floor|area|allowedPeople)",
      *    strict=true,
      *    description="Sort by date"
      * )
@@ -176,8 +176,7 @@ class AdminRoomController extends RoomController
             $floor,
             $status,
             $sortBy,
-            $direction,
-            false
+            $direction
         );
 
         $paginator = new Paginator();
@@ -309,8 +308,7 @@ class AdminRoomController extends RoomController
             null,
             null,
             'creationDate',
-            'DESC',
-            true
+            'DESC'
         );
 
         return new View($query);
