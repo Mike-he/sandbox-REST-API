@@ -915,6 +915,7 @@ class AdminRoomController extends RoomController
                 $roomDoor = new RoomDoors();
                 $roomDoor->setRoom($room);
                 $roomDoor->setDoorControlId($doors['control_id']);
+                $roomDoor->setName($doors['control_name']);
                 $em->persist($roomDoor);
             }
             $em->flush();
