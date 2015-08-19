@@ -44,6 +44,7 @@ class OrderRepository extends EntityRepository
             ->update()
             ->set('o.status', self::CANCELLED)
             ->set('o.cancelledDate', $nowString)
+            ->set('o.modificationDate', $nowString)
             ->where('o.status = \'unpaid\'')
             ->andWhere('o.creationDate <= :start')
             ->setParameter('start', $start)
