@@ -146,13 +146,6 @@ class ClientOrderController extends PaymentController
         $now = new \DateTime();
         $type = $product->getRoom()->getType();
         $startDate = new \DateTime($order->getStartDate());
-        if ($now > $startDate) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_BOOKING_DATE_CODE,
-                self::WRONG_BOOKING_DATE_MESSAGE
-            );
-        }
 
         $period = $form['rent_period']->getData();
         $timeUnit = $form['time_unit']->getData();
@@ -203,9 +196,25 @@ class ClientOrderController extends PaymentController
         }
 
         if ($type == 'office' || $type == 'fixed' || $type == 'flexible') {
+            $nowDate = $now->format('Y-m-d');
+            $startPeriod = $startDate->format('Y-m-d');
+            if ($nowDate > $startPeriod) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_BOOKING_DATE_CODE,
+                    self::WRONG_BOOKING_DATE_MESSAGE
+                );
+            }
             $endDate->modify('- 1 day');
             $endDate->setTime(23, 59, 59);
         } else {
+            if ($now > $startDate) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_BOOKING_DATE_CODE,
+                    self::WRONG_BOOKING_DATE_MESSAGE
+                );
+            }
             $startHour = $startDate->format('H:i:s');
             $endHour = $endDate->format('H:i:s');
             $roomId = $product->getRoomId();
