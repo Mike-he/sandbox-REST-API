@@ -105,7 +105,7 @@ class Product
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="startDate", type="date", nullable=true)
+     * @ORM\Column(name="startDate", type="datetime", nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room"})
      */
@@ -114,7 +114,7 @@ class Product
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="endDate", type="date", nullable=true)
+     * @ORM\Column(name="endDate", type="datetime", nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room"})
      */
