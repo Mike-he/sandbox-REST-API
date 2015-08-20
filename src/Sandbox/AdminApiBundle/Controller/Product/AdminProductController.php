@@ -293,11 +293,10 @@ class AdminProductController extends ProductController
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
-        $start = $form['start_date']->getData();
-        $startDate = new \DateTime($start);
+
+        $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
-        $end = $form['end_date']->getData();
-        $endDate = new \DateTime($end);
+        $endDate = $form['end_date']->getData();
         $endDate->setTime(23, 59, 59);
 
         $product->setRoom($room);
@@ -375,11 +374,9 @@ class AdminProductController extends ProductController
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
-        $start = $form['start_date']->getData();
-        $startDate = new \DateTime($start);
+        $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
-        $end = $form['end_date']->getData();
-        $endDate = new \DateTime($end);
+        $endDate = $form['end_date']->getData();
         $endDate->setTime(23, 59, 59);
 
         $product->setRoom($room);
