@@ -180,6 +180,7 @@ class OrderRepository extends EntityRepository
      * @param int          $userId
      * @param DateTime     $startDate
      * @param DateTime     $endDate
+     * @param String       $search
      *
      * @return array
      */
@@ -189,14 +190,19 @@ class OrderRepository extends EntityRepository
         $building,
         $userId,
         $startDate,
-        $endDate
+        $endDate,
+        $search
     ) {
         $parameters = [];
 
         $query = $this->createQueryBuilder('o')
-            ->select('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+
+        //only needed when searching orders
+        if (!is_null($search)) {
+            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId');
+        }
 
         // filter by user id
         if (!is_null($userId)) {
@@ -205,7 +211,6 @@ class OrderRepository extends EntityRepository
         } else {
             $query->where('o.status != :unpaid');
             $parameters['unpaid'] = 'unpaid';
-
             $query->andWhere('o.paymentDate IS NOT NULL');
         }
 
@@ -238,6 +243,14 @@ class OrderRepository extends EntityRepository
             $query->andWhere('o.endDate <= :endDate');
             $parameters['endDate'] = $endDate;
         }
+
+        //Search orders by order number and order owner name.
+        if (!is_null($search)) {
+            $query->andWhere('o.orderNumber LIKE :search OR up.name LIKE :search');
+            $parameters['search'] = "%$search%";
+        }
+
+        //order by
         $query->orderBy('o.creationDate', 'DESC');
 
         //set all parameters
@@ -246,26 +259,6 @@ class OrderRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
-    }
-
-    /**
-     * Search orders by order number and  order owner name.
-     *
-     * @param String $search
-     *
-     * @return array
-     */
-    public function getOrdersBySearch(
-        $search
-    ) {
-        $query = $this->createQueryBuilder('o')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
-            ->where('o.orderNumber LIKE :search')
-            ->orWhere('up.name LIKE :search')
-            ->orderBy('o.creationDate', 'DESC')
-            ->setParameter('search', "%$search%");
-
-        return $query->getQuery()->getResult();
     }
 
     /**
