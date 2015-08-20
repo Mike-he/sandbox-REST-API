@@ -104,6 +104,27 @@ class AdminProductController extends ProductController
      *    description="page number "
      * )
      *
+     *
+     * @Annotations\QueryParam(
+     *    name="sortBy",
+     *    array=false,
+     *    default="creationDate",
+     *    nullable=true,
+     *    requirements="(area|basePrice)",
+     *    strict=true,
+     *    description="Sort by date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    array=false,
+     *    default="DESC",
+     *    nullable=true,
+     *    requirements="(ASC|DESC)",
+     *    strict=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -125,6 +146,9 @@ class AdminProductController extends ProductController
         $buildingId = $paramFetcher->get('building');
         $visible = $paramFetcher->get('visible');
 
+        $sortBy = $paramFetcher->get('sortBy');
+        $direction = $paramFetcher->get('direction');
+
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
@@ -132,7 +156,9 @@ class AdminProductController extends ProductController
             $type,
             $city,
             $building,
-            $visible
+            $visible,
+            $sortBy,
+            $direction
         );
 
         $paginator = new Paginator();

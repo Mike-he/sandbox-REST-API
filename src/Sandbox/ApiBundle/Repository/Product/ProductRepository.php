@@ -268,6 +268,8 @@ class ProductRepository extends EntityRepository
      * @param String       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
+     * @param String       $sortBy
+     * @param String       $direction
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
@@ -275,13 +277,14 @@ class ProductRepository extends EntityRepository
         $type,
         $city,
         $building,
-        $visible
+        $visible,
+        $sortBy,
+        $direction
     ) {
         $notFirst = false;
         $parameters = [];
 
         $query = $this->createQueryBuilder('p')
-            ->select('p')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
         // filter by type
@@ -327,7 +330,17 @@ class ProductRepository extends EntityRepository
             $notFirst = true;
         }
 
-        $query->orderBy('p.creationDate', 'DESC');
+        switch ($sortBy) {
+            case 'area':
+                $query->orderBy('r.'.$sortBy, $direction);
+                break;
+            case 'basePrice':
+                $query->orderBy('p.'.$sortBy, $direction);
+                break;
+            default:
+                $query->orderBy('p.'.$sortBy, $direction);
+                break;
+        }
 
         //set all parameters
         if ($notFirst) {
