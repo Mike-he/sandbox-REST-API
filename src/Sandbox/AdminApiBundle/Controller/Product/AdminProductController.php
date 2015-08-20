@@ -125,6 +125,13 @@ class AdminProductController extends ProductController
      *    description="sort direction"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -139,6 +146,7 @@ class AdminProductController extends ProductController
         // check user permission
         $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
+        //filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -146,8 +154,12 @@ class AdminProductController extends ProductController
         $buildingId = $paramFetcher->get('building');
         $visible = $paramFetcher->get('visible');
 
+        //sort by
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
+
+        //search by name and number
+        $search = $paramFetcher->get('query');
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
@@ -158,76 +170,13 @@ class AdminProductController extends ProductController
             $building,
             $visible,
             $sortBy,
-            $direction
+            $direction,
+            $search
         );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $query,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
-    }
-
-    /**
-     * Product.
-     *
-     * @param Request               $request      the request object
-     * @param ParamFetcherInterface $paramFetcher param fetcher service
-     *
-     * @Annotations\QueryParam(
-     *    name="pageLimit",
-     *    array=false,
-     *    default="20",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="How many products to return "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="pageIndex",
-     *    array=false,
-     *    default="1",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="page number "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="query",
-     *    default=null,
-     *    description="search query"
-     * )
-     *
-     * @Route("/products/search")
-     * @Method({"GET"})
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function getProductsSearchAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
-
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $query = $paramFetcher->get('query');
-
-        $products = $this->getRepo('Product\Product')->searchProducts(
-            $query
-        );
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $products,
             $pageIndex,
             $pageLimit
         );
