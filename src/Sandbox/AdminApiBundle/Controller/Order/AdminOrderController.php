@@ -123,6 +123,13 @@ class AdminOrderController extends OrderController
      *    description="end date. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -137,6 +144,7 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
+        //filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -145,6 +153,9 @@ class AdminOrderController extends OrderController
         $userId = $paramFetcher->get('user');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
+
+        //search by name and number
+        $search = $paramFetcher->get('query');
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
@@ -155,7 +166,8 @@ class AdminOrderController extends OrderController
             $building,
             $userId,
             $startDate,
-            $endDate
+            $endDate,
+            $search
         );
 
         $paginator = new Paginator();
@@ -273,20 +285,20 @@ class AdminOrderController extends OrderController
         );
 
         $headers = [
-            'Product name', //ÉÌÆ·Ãû³Æ
-            'Product type', //ÉÌÆ·ÀàĞÍ
-            'Employee ID', //¹¤Î»ºÅ
-            'Unit price', //µ¥¼Û
-//            'Ê¹ÓÃÕÛ¿Û', //Discount
-//            'Ë°', //VAT
-            'Amount', //×Ü¼Û
-            'Leasing time', //×âÁŞÊ±¼ä
-            'Order time', //¶©µ¥´´½¨Ê±¼ä
-            'Payment complete time', //¶©µ¥¸¶¿îÊ±¼ä
-            'Order status', //¶©µ¥×´Ì¬
-            'User name', //×âÁŞÈËĞÕÃû
-            'User mobile', //×âÁŞÈËÊÖ»ú
-            'User email', //×âÁŞÈËÓÊÏä
+            'Product name', //Ã‰ÃŒÃ†Â·ÃƒÃ»Â³Ã†
+            'Product type', //Ã‰ÃŒÃ†Â·Ã€Ã ÃÃ
+            'Employee ID', //Â¹Â¤ÃÂ»ÂºÃ…
+            'Unit price', //ÂµÂ¥Â¼Ã›
+//            'ÃŠÂ¹Ã“ÃƒÃ•Ã›Â¿Ã›', //Discount
+//            'Ã‹Â°', //VAT
+            'Amount', //Ã—ÃœÂ¼Ã›
+            'Leasing time', //Ã—Ã¢ÃÃÃŠÂ±Â¼Ã¤
+            'Order time', //Â¶Â©ÂµÂ¥Â´Â´Â½Â¨ÃŠÂ±Â¼Ã¤
+            'Payment complete time', //Â¶Â©ÂµÂ¥Â¸Â¶Â¿Ã®ÃŠÂ±Â¼Ã¤
+            'Order status', //Â¶Â©ÂµÂ¥Ã—Â´ÃŒÂ¬
+            'User name', //Ã—Ã¢ÃÃÃˆÃ‹ÃÃ•ÃƒÃ»
+            'User mobile', //Ã—Ã¢ÃÃÃˆÃ‹ÃŠÃ–Â»Ãº
+            'User email', //Ã—Ã¢ÃÃÃˆÃ‹Ã“ÃŠÃÃ¤
         ];
 
         //Fill data
@@ -323,70 +335,6 @@ class AdminOrderController extends OrderController
         $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response;
-    }
-
-    /**
-     * Order.
-     *
-     * @param Request               $request      the request object
-     * @param ParamFetcherInterface $paramFetcher param fetcher service
-     *
-     * @Annotations\QueryParam(
-     *    name="pageLimit",
-     *    array=false,
-     *    default="20",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="How many orders to return "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="pageIndex",
-     *    array=false,
-     *    default="1",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="page number "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="query",
-     *    default=null,
-     *    description="search query"
-     * )
-     *
-     * @Route("/orders/search")
-     * @Method({"GET"})
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function getOrdersSearchAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        // check user permission
-        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
-
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $query = $paramFetcher->get('query');
-
-        $orders = $this->getRepo('Order\ProductOrder')->getOrdersBySearch(
-            $query
-        );
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $orders,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
     }
 
     /**
