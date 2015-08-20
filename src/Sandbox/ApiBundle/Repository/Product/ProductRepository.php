@@ -66,7 +66,7 @@ class ProductRepository extends EntityRepository
             $currentDateEnd = clone $startTime;
             $currentDateEnd->setTime(23, 59, 59);
             $query = $query
-                ->andWhere('p.startDate <= :startTime AND p.endDate > :startTime')
+                ->andWhere('p.startDate <= :startTime AND p.endDate >= :startTime')
                 ->andWhere(
                     'p.id NOT IN (
                         SELECT po.productId
@@ -95,7 +95,7 @@ class ProductRepository extends EntityRepository
         if (!is_null($startTime) && !is_null($endTime) && !empty($startTime) && !empty($endTime)) {
             $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')
                 ->andWhere('p.startDate <= :startTime')
-                ->andWhere('p.endDate >= :endTime')
+                ->andWhere('p.endDate >= :startTime')
                 ->andWhere(
                     'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
@@ -166,7 +166,7 @@ class ProductRepository extends EntityRepository
         }
         if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
             $query = $query->andWhere('p.startDate <= :startDate')
-                ->andWhere('p.endDate >= :endDate')
+                ->andWhere('p.endDate >= :startDate')
                 ->andWhere(
                     'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
@@ -235,7 +235,7 @@ class ProductRepository extends EntityRepository
         }
         if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
             $query = $query->andWhere('p.startDate <= :startDate')
-                ->andWhere('p.endDate >= :endDate')
+                ->andWhere('p.endDate >= :startDate')
                 ->andWhere(
                     'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po

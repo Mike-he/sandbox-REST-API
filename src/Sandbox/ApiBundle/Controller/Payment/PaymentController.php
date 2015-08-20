@@ -71,6 +71,8 @@ class PaymentController extends SandboxRestController
     const DISCOUNT_PRICE_MISMATCH_MESSAGE = 'Discount Price Does Not Match';
     const ROOM_NOT_OPEN_CODE = 400021;
     const ROOM_NOT_OPEN_MESSAGE = 'Meeting Room Is Not Opening During This Hour';
+    const PRODUCT_NOT_AVAILABLE_CODE = 400022;
+    const PRODUCT_NOT_AVAILABLE_MESSAGE = 'Product Is Not Available';
 
     /**
      * @param $order
