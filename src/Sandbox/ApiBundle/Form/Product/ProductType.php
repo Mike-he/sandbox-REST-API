@@ -25,10 +25,12 @@ class ProductType extends AbstractType
             ->add('visible')
             ->add('start_date', 'date', array(
                     'widget' => 'single_text',
+                    'mapped' => false,
                 )
             )
             ->add('end_date', 'date', array(
                     'widget' => 'single_text',
+                    'mapped' => false,
                 )
             )
             ->add(

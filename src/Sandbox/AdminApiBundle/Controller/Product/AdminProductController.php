@@ -344,10 +344,18 @@ class AdminProductController extends ProductController
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+        $start = $form['start_date']->getData();
+        $startDate = new \DateTime($start);
+        $startDate->setTime(00, 00, 00);
+        $end = $form['end_date']->getData();
+        $endDate = new \DateTime($end);
+        $endDate->setTime(23, 59, 59);
 
         $product->setRoom($room);
 
         $now = new \DateTime('now');
+        $product->setStartDate($startDate);
+        $product->setEndDate($endDate);
         $product->setCreationDate($now);
         $product->setModificationDate($now);
 
@@ -418,8 +426,16 @@ class AdminProductController extends ProductController
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
-        $product->setRoom($room);
+        $start = $form['start_date']->getData();
+        $startDate = new \DateTime($start);
+        $startDate->setTime(00, 00, 00);
+        $end = $form['end_date']->getData();
+        $endDate = new \DateTime($end);
+        $endDate->setTime(23, 59, 59);
 
+        $product->setRoom($room);
+        $product->setStartDate($startDate);
+        $product->setEndDate($endDate);
         $product->setModificationDate(new \DateTime('now'));
 
         $em = $this->getDoctrine()->getManager();
