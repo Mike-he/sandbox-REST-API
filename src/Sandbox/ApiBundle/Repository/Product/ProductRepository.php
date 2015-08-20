@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Product;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 
@@ -270,6 +271,7 @@ class ProductRepository extends EntityRepository
      * @param RoomBuilding $building
      * @param String       $sortBy
      * @param String       $direction
+     * @param String       $search
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
@@ -279,13 +281,20 @@ class ProductRepository extends EntityRepository
         $building,
         $visible,
         $sortBy,
-        $direction
+        $direction,
+        $search
     ) {
         $notFirst = false;
         $parameters = [];
 
         $query = $this->createQueryBuilder('p')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+
+        //only needed when searching products
+        if (!is_null($search)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'r.city = rc.id');
+            $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.building = rb.id');
+        }
 
         // filter by type
         if (!is_null($type)) {
@@ -296,40 +305,42 @@ class ProductRepository extends EntityRepository
 
         // filter by visible
         if (!is_null($visible)) {
-            $visibleWhere = 'p.visible = :visible';
-            if ($notFirst) {
-                $query->andWhere($visibleWhere);
-            } else {
-                $query->where($visibleWhere);
-            }
+            $where = 'p.visible = :visible';
+            $this->addWhereQuery($query, $notFirst, $where);
             $parameters['visible'] = $visible;
             $notFirst = true;
         }
 
         // filter by city
         if (!is_null($city)) {
-            $cityWhere = 'r.city = :city';
-            if ($notFirst) {
-                $query->andWhere($cityWhere);
-            } else {
-                $query->where($cityWhere);
-            }
+            $where = 'r.city = :city';
+            $this->addWhereQuery($query, $notFirst, $where);
             $parameters['city'] = $city;
             $notFirst = true;
         }
 
         // filter by building
         if (!is_null($building)) {
-            $buildingWhere = 'r.building = :building';
-            if ($notFirst) {
-                $query->andWhere($buildingWhere);
-            } else {
-                $query->where($buildingWhere);
-            }
+            $where = 'r.building = :building';
+            $this->addWhereQuery($query, $notFirst, $where);
             $parameters['building'] = $building;
             $notFirst = true;
         }
 
+        //Search product by city, building, room name and room number.
+        if (!is_null($search)) {
+            $where = '
+                r.name LIKE :search OR
+                r.number LIKE :search OR
+                rc.name LIKE :search OR
+                rb.name LIKE :search
+            ';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['search'] = "%$search%";
+            $notFirst = true;
+        }
+
+        //sort by by method
         switch ($sortBy) {
             case 'area':
                 $query->orderBy('r.'.$sortBy, $direction);
@@ -353,25 +364,19 @@ class ProductRepository extends EntityRepository
     }
 
     /**
-     * Search product by city, building, room name and room number.
-     *
-     * @param String $search
-     *
-     * @return \Doctrine\ORM\Query
+     * @param QueryBuilder $query
+     * @param bool         $notFirst
+     * @param String       $where
      */
-    public function searchProducts(
-        $search
+    private function addWhereQuery(
+        $query,
+        $notFirst,
+        $where
     ) {
-        $query = $this->createQueryBuilder('p')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
-            ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'r.city = rc.id')
-            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.building = rb.id')
-            ->where('r.name LIKE :search')
-            ->orWhere('r.number LIKE :search')
-            ->orWhere('rc.name LIKE :search')
-            ->orWhere('rb.name LIKE :search')
-            ->setParameter('search', "%$search%");
-
-        return $result = $query->getQuery()->getResult();
+        if ($notFirst) {
+            $query->andWhere($where);
+        } else {
+            $query->where($where);
+        }
     }
 }
