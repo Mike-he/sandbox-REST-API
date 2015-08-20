@@ -140,6 +140,13 @@ class AdminRoomController extends RoomController
      *    description="sort direction"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
      * @Route("/rooms")
      * @Method({"GET"})
      *
@@ -154,6 +161,7 @@ class AdminRoomController extends RoomController
         // check user permission
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
+        //filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -162,8 +170,12 @@ class AdminRoomController extends RoomController
         $buildingId = $paramFetcher->get('building');
         $floorId = $paramFetcher->get('floor');
 
+        //sort by
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
+
+        //search by name and number
+        $query = $paramFetcher->get('query');
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
@@ -176,7 +188,8 @@ class AdminRoomController extends RoomController
             $floor,
             $status,
             $sortBy,
-            $direction
+            $direction,
+            $query
         );
 
         $paginator = new Paginator();
@@ -343,73 +356,6 @@ class AdminRoomController extends RoomController
         $usage = $this->getRepo('Room\Room')->getRoomUsersUsage($id);
 
         return new View($usage);
-    }
-
-    /**
-     * Room.
-     *
-     * @param Request               $request      the request object
-     * @param ParamFetcherInterface $paramFetcher param fetcher service
-     *
-     * @Annotations\QueryParam(
-     *    name="pageLimit",
-     *    array=false,
-     *    default="20",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="How many rooms to return "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="pageIndex",
-     *    array=false,
-     *    default="1",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="page number "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="query",
-     *    default=null,
-     *    description="search query"
-     * )
-     *
-     * @Route("/rooms/search")
-     * @Method({"GET"})
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function getRoomsSearchAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
-
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-
-        //search by name and number
-        $query = $paramFetcher->get('query');
-
-        // find all rooms who have the query in any of their mapped fields
-        $rooms = $this->getRepo('Room\RoomView')->searchRooms(
-            $query
-        );
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $rooms,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
     }
 
     /**

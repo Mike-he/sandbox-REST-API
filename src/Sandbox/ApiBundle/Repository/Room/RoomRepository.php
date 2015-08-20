@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Repository\Room;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
@@ -19,6 +20,7 @@ class RoomRepository extends EntityRepository
      * @param String       $status
      * @param String       $sortBy
      * @param String       $direction
+     * @param String       $search
      *
      * @return array
      */
@@ -29,7 +31,8 @@ class RoomRepository extends EntityRepository
         $floor,
         $status,
         $sortBy,
-        $direction
+        $direction,
+        $search
     ) {
         $notFirst = false;
         $parameters = [];
@@ -47,11 +50,7 @@ class RoomRepository extends EntityRepository
         // filter by order status
         if (!is_null($status)) {
             $where = 'o.status = :status';
-            if ($notFirst) {
-                $query->andWhere($where);
-            } else {
-                $query->where($where);
-            }
+            $this->addWhereQuery($query, $notFirst, $where);
             $parameters['status'] = $status;
             $notFirst = true;
         }
@@ -59,11 +58,7 @@ class RoomRepository extends EntityRepository
         // filter by city
         if (!is_null($city)) {
             $where = 'r.city = :city';
-            if ($notFirst) {
-                $query->andWhere($where);
-            } else {
-                $query->where($where);
-            }
+            $this->addWhereQuery($query, $notFirst, $where);
             $parameters['city'] = $city;
             $notFirst = true;
         }
@@ -71,11 +66,7 @@ class RoomRepository extends EntityRepository
         // filter by building
         if (!is_null($building)) {
             $where = 'r.building = :building';
-            if ($notFirst) {
-                $query->andWhere($where);
-            } else {
-                $query->where($where);
-            }
+            $this->addWhereQuery($query, $notFirst, $where);
             $parameters['building'] = $building;
             $notFirst = true;
         }
@@ -83,15 +74,20 @@ class RoomRepository extends EntityRepository
         // filter by building
         if (!is_null($floor)) {
             $where = 'r.floor = :floor';
-            if ($notFirst) {
-                $query->andWhere($where);
-            } else {
-                $query->where($where);
-            }
+            $this->addWhereQuery($query, $notFirst, $where);
             $parameters['floor'] = $floor;
             $notFirst = true;
         }
 
+        //search by
+        if (!is_null($search)) {
+            $where = 'r.name LIKE :search or r.number LIKE :search';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['search'] = "%$search%";
+            $notFirst = true;
+        }
+
+        //sort method
         switch ($sortBy) {
             case 'floor':
                 $query->orderBy('rf.floorNumber', $direction);
@@ -139,25 +135,6 @@ class RoomRepository extends EntityRepository
     }
 
     /**
-     * Search rooms by name or number.
-     *
-     * @param String $search
-     *
-     * @return \Doctrine\ORM\Query
-     */
-    public function searchRooms(
-        $search
-    ) {
-        $query = $this->createQueryBuilder('r')
-            ->where('r.name LIKE :search')
-            ->orWhere('r.number LIKE :search')
-            ->orderBy('r.creationDate', 'DESC')
-            ->setParameter('search', "%$search%");
-
-        return $result = $query->getQuery();
-    }
-
-    /**
      * @param RoomFloor $floor
      * @param String    $type
      *
@@ -183,5 +160,22 @@ class RoomRepository extends EntityRepository
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param QueryBuilder $query
+     * @param bool         $notFirst
+     * @param String       $where
+     */
+    private function addWhereQuery(
+        $query,
+        $notFirst,
+        $where
+    ) {
+        if ($notFirst) {
+            $query->andWhere($where);
+        } else {
+            $query->where($where);
+        }
     }
 }
