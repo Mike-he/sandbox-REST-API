@@ -120,6 +120,7 @@ class ClientOrderController extends PaymentController
         Request $request
     ) {
         $userId = $this->getUserId();
+        $userName = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $userId])->getName();
         $order = new ProductOrder();
 
         $form = $this->createForm(new OrderType(), $order);
@@ -143,9 +144,18 @@ class ClientOrderController extends PaymentController
                 self::PRODUCT_NOT_FOUND_MESSAGE
             );
         }
+        $productStart = $product->getStartDate();
+        $productEnd = $product->getEndDate();
         $now = new \DateTime();
         $type = $product->getRoom()->getType();
         $startDate = new \DateTime($order->getStartDate());
+        if ($startDate < $productStart || $startDate > $productEnd) {
+            return $this->customErrorView(
+                400,
+                self::PRODUCT_NOT_AVAILABLE_CODE,
+                self::PRODUCT_NOT_AVAILABLE_MESSAGE
+            );
+        }
 
         $period = $form['rent_period']->getData();
         $timeUnit = $form['time_unit']->getData();
@@ -271,6 +281,7 @@ class ClientOrderController extends PaymentController
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
 
+        $order->setUserName($userName);
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
         $order->setStartDate($startDate);
