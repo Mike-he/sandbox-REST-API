@@ -72,7 +72,6 @@ class ProductRepository extends EntityRepository
                         FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
                         AND po.productId <> \'null\'
-                        AND p.visible = \'true\'
                         AND po.startDate >= :currentDateStart
                         AND po.endDate <= :currentDateEnd
                         AND po.endDate > :startTime
@@ -101,7 +100,6 @@ class ProductRepository extends EntityRepository
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
                         AND po.productId <> \'null\'
-                        AND p.visible = \'true\'
                         AND
                         (
                             (po.startDate <= :startTime AND po.endDate > :startTime) OR
@@ -173,7 +171,6 @@ class ProductRepository extends EntityRepository
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
                         AND po.productId <> \'null\'
-                        AND p.visible = \'true\'
                         AND
                         (
                             (po.startDate <= :startDate AND po.endDate > :startDate) OR
@@ -243,7 +240,6 @@ class ProductRepository extends EntityRepository
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status <> \'cancelled\'
                         AND po.productId <> \'null\'
-                        AND p.visible = \'true\'
                         AND
                         (
                             (po.startDate <= :startDate AND po.endDate > :startDate) OR
