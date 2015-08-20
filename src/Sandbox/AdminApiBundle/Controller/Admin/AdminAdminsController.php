@@ -312,7 +312,7 @@ class AdminAdminsController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
         $em->persist($admin);
 
-        if(!is_null($permissionPuts)) {
+        if (!is_null($permissionPuts)) {
             //judge the value of permissions
             $permissions = $this->getRepo('Admin\AdminPermissionMap')
                 ->findBy(array('adminId' => $id));

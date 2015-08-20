@@ -1100,6 +1100,14 @@ class ClientOrderController extends PaymentController
                 $em->persist($order);
                 $em->flush();
             }
+        } elseif ($status == 'paid') {
+            if ($now >= $startDate) {
+                $order->setStatus('completed');
+                $order->setModificationDate($now);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($order);
+                $em->flush();
+            }
         }
 
         $view = new View();
