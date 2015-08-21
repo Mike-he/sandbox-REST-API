@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomDoors;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
 use Sandbox\ApiBundle\Entity\Room\RoomSupplies;
+use Sandbox\ApiBundle\Form\Room\RoomPatchType;
 use Sandbox\ApiBundle\Form\Room\RoomType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -480,17 +481,21 @@ class AdminRoomController extends RoomController
         $patch = new Patch($roomJson, $request->getContent());
         $roomJson = $patch->apply();
 
-        $form = $this->createForm(new RoomType(), $room);
+        $form = $this->createForm(new RoomPatchType(), $room);
         $form->submit(json_decode($roomJson, true));
 
-//        $meeting = $form['room_meeting']->getData();
-//        $fixed = $form['room_fixed']->getData();
-//        $attachments_id = $form['attachment_id']->getData();
-//        $office_supplies = $form['office_supplies']->getData();
+        $meeting = $form['room_meeting']->getData();
+        $fixed = $form['room_fixed']->getData();
+        $attachments = $form['attachments']->getData();
+        $office_supplies = $form['office_supplies']->getData();
 
         return $this->handleRoomPatch(
             $id,
-            $room
+            $room,
+            $meeting,
+            $fixed,
+            $attachments,
+            $office_supplies
         );
     }
 
@@ -737,13 +742,71 @@ class AdminRoomController extends RoomController
      */
     private function handleRoomPatch(
         $id,
-        $room
+        $room,
+        $meeting,
+        $fixed,
+        $attachments,
+        $office_supplies
     ) {
         $room->setModificationDate(new \DateTime('now'));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($room);
         $em->flush();
+
+        // handle meeting rooms
+        if (!is_null($meeting) && $room->getType() == 'meeting') {
+            $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneByRoom($room);
+            // remove the old data
+            if (!is_null($roomMeeting)) {
+                $em->remove($roomMeeting);
+                $em->flush();
+            }
+            // add the new one
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                $meeting,
+                null
+            );
+        }
+
+        // handle fixed rooms
+        if (!is_null($fixed) && $room->getType() == 'fixed') {
+            $roomsFixed = $this->getRepo('Room\RoomFixed')->findByRoom($room);
+            array_map($this->removeFixedSeatNumbers($em), $roomsFixed);
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                null,
+                $fixed
+            );
+        }
+
+        // handle room attachments
+        if (!is_null($attachments)) {
+            $attachmentsBind = $this->getRepo('Room\RoomAttachmentBinding')->findByRoom($room);
+            array_map($this->removeAttachments($em), $attachmentsBind);
+            $this->addRoomAttachment($em, $room, $attachments);
+        }
+
+        // handle office supplies
+        if (!is_null($office_supplies)) {
+            $supplyOk = true;
+
+            //check if provided supplies id exists
+            foreach ($office_supplies as $office_Supply) {
+                $supplyObject = $this->getRepo('Room\Supplies')->find($office_Supply['id']);
+                if (is_null($supplyObject)) {
+                    $supplyOk = false;
+                }
+            }
+            if ($supplyOk) {
+                $roomSupplies = $this->getRepo('Room\RoomSupplies')->findByRoom($room);
+                array_map($this->removeOfficeSupplies($em), $roomSupplies);
+                $this->addOfficeSupplies($em, $room, $office_supplies);
+            }
+        }
 
         $response = array(
             'id' => $room->getId(),
@@ -981,5 +1044,56 @@ class AdminRoomController extends RoomController
             AdminPermission::KEY_PLATFORM_ROOM,
             $OpLevel
         );
+    }
+
+    /**
+     * Callback function to remove attachments from a room.
+     *
+     * @param EntityManager $em
+     *
+     * @return \Closure
+     */
+    private function removeAttachments(
+        $em
+    ) {
+        return function ($attachmentBind) use ($em) {
+            $attachBind = $this->getRepo('Room\RoomAttachmentBinding')->find($attachmentBind->getId());
+            $em->remove($attachBind);
+            $em->flush();
+        };
+    }
+
+    /**
+     * Callback function to remove office supplies from a room.
+     *
+     * @param EntityManager $em
+     *
+     * @return \Closure
+     */
+    private function removeOfficeSupplies(
+        $em
+    ) {
+        return function ($roomSupply) use ($em) {
+            $roomSupply = $this->getRepo('Room\RoomSupplies')->find($roomSupply->getId());
+            $em->remove($roomSupply);
+            $em->flush();
+        };
+    }
+
+    /**
+     * Callback function to remove seat numbers from a room.
+     *
+     * @param EntityManager $em
+     *
+     * @return \Closure
+     */
+    private function removeFixedSeatNumbers(
+        $em
+    ) {
+        return function ($roomFixed) use ($em) {
+            $fixed = $this->getRepo('Room\RoomFixed')->find($roomFixed->getId());
+            $em->remove($fixed);
+            $em->flush();
+        };
     }
 }
