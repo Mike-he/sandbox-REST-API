@@ -44,7 +44,7 @@ class ProductOrder
     private $userId;
 
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="userName", type="string", length=64, nullable=true)
      *

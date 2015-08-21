@@ -80,18 +80,12 @@ class ProductRepository extends EntityRepository
                         HAVING (
                             (
                                 (
-                                    CASE WHEN MIN(po.startDate) >= :startTime
-                                    THEN hour((m.endHour - time(:startHour)))
-                                    ELSE hour((m.endHour - time(MIN(po.startDate))))
-                                    END
-                                ) <= hour((sum(po.endDate) - sum(po.startDate)))
-                            )
-                            AND
-                            (
-                                (
-                                    CASE WHEN time(:startHour) < m.startHour
-                                    THEN hour((m.endHour - m.startHour))
-                                    ELSE hour((m.endHour - time(:startHour)))
+                                    CASE
+                                        WHEN time(:startHour) < m.startHour
+                                        THEN hour((m.endHour - m.startHour))
+                                        WHEN MIN(po.startDate) >= :startTime
+                                        THEN hour((m.endHour - time(:startHour)))
+                                        ELSE hour((m.endHour - time(MIN(po.startDate))))
                                     END
                                 ) <= hour((sum(po.endDate) - sum(po.startDate)))
                             )
