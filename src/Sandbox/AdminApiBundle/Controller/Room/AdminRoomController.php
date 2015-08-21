@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Room;
 
 use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
@@ -458,13 +459,13 @@ class AdminRoomController extends RoomController
      * )
      *
      * @Route("/rooms/{id}")
-     * @Method({"PUT"})
+     * @Method({"PATCH"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function putRoomAction(
+    public function patchRoomAction(
         Request $request,
         $id
     ) {
@@ -474,20 +475,22 @@ class AdminRoomController extends RoomController
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
 
+        // bind data
+        $roomJson = $this->container->get('serializer')->serialize($room, 'json');
+        $patch = new Patch($roomJson, $request->getContent());
+        $roomJson = $patch->apply();
+
         $form = $this->createForm(new RoomType(), $room);
-        $form->handleRequest($request);
+        $form->submit(json_decode($roomJson, true));
 
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $meeting = $form['room_meeting']->getData();
-        $fixed = $form['room_fixed']->getData();
+//        $meeting = $form['room_meeting']->getData();
+//        $fixed = $form['room_fixed']->getData();
+//        $attachments_id = $form['attachment_id']->getData();
+//        $office_supplies = $form['office_supplies']->getData();
 
         return $this->handleRoomPatch(
-            $room,
-            $meeting,
-            $fixed
+            $id,
+            $room
         );
     }
 
@@ -727,71 +730,20 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * @param Room        $room
-     * @param RoomMeeting $meeting
-     * @param RoomFixed   $roomsFixed
+     * @param int  $id
+     * @param Room $room
      *
      * @return View
      */
     private function handleRoomPatch(
-        $room,
-        $meeting,
-        $roomsFixed
+        $id,
+        $room
     ) {
-        $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
-        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
-        $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
-
-        if (is_null($roomCity) ||
-            is_null($roomBuilding) ||
-            is_null($roomFloor)
-        ) {
-            throw new BadRequestHttpException(self::LOCATION_CANNOT_NULL);
-        }
-
         $room->setModificationDate(new \DateTime('now'));
-        $room->setCity($roomCity);
-        $room->setBuilding($roomBuilding);
-        $room->setFloor($roomFloor);
 
         $em = $this->getDoctrine()->getManager();
+        $em->persist($room);
         $em->flush();
-
-        //remove meeting from the current room if type is not meeting
-        if ($room->getType() !== 'meeting') {
-            // get room meeting
-            $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneBy(array(
-                    'room' => $room,
-            ));
-
-            if (!is_null($roomMeeting)) {
-                $em->remove($roomMeeting);
-                $em->flush();
-            }
-        }
-
-        //remove fixed from the current room if type is not fixed
-        if ($room->getType() !== 'fixed') {
-            // get room meeting
-            $roomFixed = $this->getRepo('Room\RoomFixed')->findBy(array(
-                'room' => $room,
-            ));
-
-            foreach ($roomFixed as $fixed) {
-                $em->remove($fixed);
-            }
-            $em->flush();
-        }
-
-        //manage room types
-        if (!is_null($meeting) || !is_null($roomsFixed)) {
-            $this->addRoomTypeData(
-                $em,
-                $room,
-                $meeting,
-                $roomsFixed
-            );
-        }
 
         $response = array(
             'id' => $room->getId(),
