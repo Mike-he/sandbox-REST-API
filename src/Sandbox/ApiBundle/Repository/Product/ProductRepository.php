@@ -65,7 +65,7 @@ class ProductRepository extends EntityRepository
             $currentDateStart->setTime(00, 00, 00);
             $currentDateEnd = clone $startTime;
             $currentDateEnd->setTime(23, 59, 59);
-            $query = $query
+            $query = $query->andWhere('m.endHour > :startHour')
                 ->andWhere('p.startDate <= :startTime AND p.endDate >= :startTime')
                 ->andWhere(
                     'p.id NOT IN (
@@ -79,11 +79,22 @@ class ProductRepository extends EntityRepository
                         GROUP BY po.productId
                         HAVING (
                             (
-                                CASE WHEN MIN(po.startDate) >= :startTime
-                                THEN hour((m.endHour - time(:startHour)))
-                                ELSE hour((m.endHour - time(MIN(po.startDate))))
-                                END
-                            ) <= hour((sum(po.endDate) - sum(po.startDate)))
+                                (
+                                    CASE WHEN MIN(po.startDate) >= :startTime
+                                    THEN hour((m.endHour - time(:startHour)))
+                                    ELSE hour((m.endHour - time(MIN(po.startDate))))
+                                    END
+                                ) <= hour((sum(po.endDate) - sum(po.startDate)))
+                            )
+                            AND
+                            (
+                                (
+                                    CASE WHEN time(:startHour) < m.startHour
+                                    THEN hour((m.endHour - m.startHour))
+                                    ELSE hour((m.endHour - time(:startHour)))
+                                    END
+                                ) <= hour((sum(po.endDate) - sum(po.startDate)))
+                            )
                         )
                     )'
                 )
