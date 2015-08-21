@@ -210,10 +210,11 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         if (is_null($phoneVerification)) {
             $phoneVerification = new UserPhoneVerification();
             $phoneVerification->setUserid($userId);
-            $phoneVerification->setPhone($phone);
         }
 
+        $phoneVerification->setPhone($phone);
         $phoneVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
+        $phoneVerification->setCreationDate(new \DateTime('now'));
 
         return $phoneVerification;
     }
