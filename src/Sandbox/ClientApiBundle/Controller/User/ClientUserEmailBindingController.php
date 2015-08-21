@@ -217,10 +217,11 @@ class ClientUserEmailBindingController extends UserEmailBindingController
         if (is_null($emailVerification)) {
             $emailVerification = new UserEmailVerification();
             $emailVerification->setUserId($userId);
-            $emailVerification->setEmail($email);
         }
 
+        $emailVerification->setEmail($email);
         $emailVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
+        $emailVerification->setCreationDate(new \DateTime('now'));
 
         return $emailVerification;
     }
