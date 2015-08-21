@@ -4,6 +4,7 @@ SELECT
 	o.status,
 	o.startDate as orderStartDate,
 	o.endDate as orderEndDate,
+	up.userId as renterId,
 	up.name as renterName,
 	up.email as renterEmail
 FROM Room r

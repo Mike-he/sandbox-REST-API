@@ -247,6 +247,15 @@ class RoomView
     private $orderEndDate;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="renterId", type="integer", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $renterId;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="renterName", type="string", length=64, nullable=false)
@@ -774,6 +783,26 @@ class RoomView
     public function setOrderEndDate($orderEndDate)
     {
         $this->orderEndDate = $orderEndDate;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRenterId()
+    {
+        return $this->renterId;
+    }
+
+    /**
+     * @param string $renterId
+     *
+     * @return RoomView
+     */
+    public function setRenterId($renterId)
+    {
+        $this->renterId = $renterId;
 
         return $this;
     }
