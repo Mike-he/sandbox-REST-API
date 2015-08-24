@@ -241,6 +241,15 @@ class ClientBuddyController extends BuddyController
             // remove from db
             $em = $this->getDoctrine()->getManager();
             $em->remove($buddy);
+
+            $buddyOther = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                'userId' => $buddy->getBuddyId(),
+                'buddyId' => $userId,
+            ));
+            if (!is_null($buddyOther) || !empty($buddyOther)) {
+                $em->remove($buddyOther);
+            }
+
             $em->flush();
         }
 
