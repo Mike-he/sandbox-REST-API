@@ -109,7 +109,8 @@ class ProductRepository extends EntityRepository
                         AND
                         (
                             (po.startDate <= :startTime AND po.endDate > :startTime) OR
-                            (po.startDate < :endTime AND po.endDate >= :endTime)
+                            (po.startDate < :endTime AND po.endDate >= :endTime) OR
+                            (po.startDate >= :startTime AND po.endDate <= :endTime)
                         )
                     )'
                 )
@@ -180,7 +181,8 @@ class ProductRepository extends EntityRepository
                         AND
                         (
                             (po.startDate <= :startDate AND po.endDate > :startDate) OR
-                            (po.startDate < :endDate AND po.endDate >= :endDate)
+                            (po.startDate < :endDate AND po.endDate >= :endDate) OR
+                            (po.startDate >= :startDate AND po.endDate <= :endDate)
                         )
                     )'
                 )
@@ -249,7 +251,8 @@ class ProductRepository extends EntityRepository
                         AND
                         (
                             (po.startDate <= :startDate AND po.endDate > :startDate) OR
-                            (po.startDate < :endDate AND po.endDate >= :endDate)
+                            (po.startDate < :endDate AND po.endDate >= :endDate) OR
+                            (po.startDate >= :startDate AND po.endDate <= :endDate)
                         )
                     )'
                 )
