@@ -186,7 +186,7 @@ class ClientOrderController extends PaymentController
             }
             $startDate = $myOrder[0]->getEndDate();
             $endDate = clone $startDate;
-            $endDate->modify('+ 1 month');
+            $endDate->modify('+ 30 days');
         } else {
             $diff = $startDate->diff($now)->days;
             if ($diff > 7) {
@@ -200,6 +200,9 @@ class ClientOrderController extends PaymentController
             if ($timeUnit === 'hour') {
                 $datePeriod = $period * 60;
                 $timeUnit = 'min';
+            } elseif ($timeUnit === 'month') {
+                $datePeriod = $period * 30;
+                $timeUnit = 'days';
             }
             $endDate = clone $startDate;
             $endDate->modify('+'.$datePeriod.$timeUnit);
@@ -1080,17 +1083,22 @@ class ClientOrderController extends PaymentController
         }
 
         $now = new \DateTime();
+        $userId = $order->getUserId();
         $type = $order->getProduct()->getRoom()->getType();
+        $productId = $order->getProductId();
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
         $renewButton = false;
         $minutes = 0;
         $seconds = 0;
-        if ($type === 'office') {
-            $endDate = $order->getEndDate();
-            $days = $endDate->diff($now)->days;
-            if ($days > 7 && $now >= $startDate) {
-                $renewButton = true;
+        if ($type == 'office' && $status == 'completed') {
+            $renewOrder = $this->getRepo('Order\ProductOrder')->getAlreadyRenewedOrder($userId, $productId);
+            if (is_null($renewOrder) || empty($renewOrder)) {
+                $endDate = $order->getEndDate();
+                $days = $endDate->diff($now)->days;
+                if ($days > 7 && $now >= $startDate) {
+                    $renewButton = true;
+                }
             }
         }
 

@@ -192,11 +192,13 @@ class AdminAdminsController extends SandboxRestController
         $form = $this->createForm(new AdminPostType(), $admin);
         $form->handleRequest($request);
 
+        $type_key = $form['type_key']->getData();
         $permission = $form['permission']->getData();
 
         if ($form->isValid()) {
             return $this->handleAdminCreate(
                 $admin,
+                $type_key,
                 $permission
             );
         }
@@ -247,11 +249,13 @@ class AdminAdminsController extends SandboxRestController
         $form = $this->createForm(new AdminPutType(), $admin);
         $form->submit(json_decode($adminJson, true));
 
+        $type_key = $form['type_key']->getData();
         $permission = $form['permission']->getData();
 
         return $this->handleAdminPatch(
             $id,
             $admin,
+            $type_key,
             $permission
         );
     }
@@ -300,6 +304,7 @@ class AdminAdminsController extends SandboxRestController
     /**
      * @param Admin              $admin
      * @param Admin              $id
+     * @param AdminType          $type_key
      * @param AdminPermissionMap $permissionPuts
      *
      * @return View
@@ -307,9 +312,14 @@ class AdminAdminsController extends SandboxRestController
     private function handleAdminPatch(
         $id,
         $admin,
+        $type_key,
         $permissionPuts
     ) {
         $em = $this->getDoctrine()->getManager();
+        if (!is_null($type_key)) {
+            $type = $this->getRepo('Admin\AdminType')->findOneByKey($type_key);
+            $admin->setTypeId($type->getId());
+        }
         $em->persist($admin);
 
         if (!is_null($permissionPuts)) {
@@ -394,17 +404,19 @@ class AdminAdminsController extends SandboxRestController
 
     /**
      * @param Admin              $admin
+     * @param AdminType          $type_key
      * @param AdminPermissionMap $permission
      *
      * @return View
      */
     private function handleAdminCreate(
         $admin,
+        $type_key,
         $permission
     ) {
         $this->checkAdminValid($admin);
 
-        $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
+        $type = $this->getRepo('Admin\AdminType')->findOneByKey($type_key);
         $admin->setType($type);
 
         // save admin to db
