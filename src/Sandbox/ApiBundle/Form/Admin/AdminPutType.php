@@ -18,7 +18,13 @@ class AdminPutType extends AbstractType
             ->add('username')
             ->add('password')
             ->add('name')
-            ->add('type_id')
+            ->add(
+                'type_key',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
             ->add(
                 'permission',
                 null,
