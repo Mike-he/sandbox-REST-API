@@ -12,4 +12,4 @@ CREATE TABLE `Admin` (
   CONSTRAINT `fk_Admin_typeId` FOREIGN KEY (`typeId`) REFERENCES `AdminType` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
-INSERT INTO `Admin`(`username`,`password`,`name`,`typeId`,`creationDate`,`modificationDate`) VALUES('superadmin','BA6271742C479CDF95CB7B1FFE2CB3B7','超级管理员',2,'2015-08-06 18:51:12','2015-08-06 18:51:18');
+INSERT INTO `Admin`(`username`,`password`,`name`,`typeId`,`creationDate`,`modificationDate`) VALUES('superadmin','BA6271742C479CDF95CB7B1FFE2CB3B7','超级管理员',1,'2015-08-24 00:00:00','2015-08-24 00:00:00');

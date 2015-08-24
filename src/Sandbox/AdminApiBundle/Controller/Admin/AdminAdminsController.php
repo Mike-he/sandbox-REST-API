@@ -452,7 +452,7 @@ class AdminAdminsController extends SandboxRestController
                 $myPermission = $this->getRepo('Admin\AdminPermission')
                                 ->find($permissionId['id']);
                 if (is_null($myPermission)
-                    || $myPermission->getTypeId() != $admin->getTypeId()
+                    || $myPermission->getTypeId() != $admin->getType()->getId()
                 ) {
                     // if permission's type is different
                     // don't add the permission

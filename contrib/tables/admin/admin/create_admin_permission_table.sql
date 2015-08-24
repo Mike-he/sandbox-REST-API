@@ -11,12 +11,12 @@ CREATE TABLE `AdminPermission` (
   CONSTRAINT `fk_AdminPermission_typeId` FOREIGN KEY (`typeId`) REFERENCES `AdminType` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.order','Platform Order Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.user','Platform User Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.room','Platform Room Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.product','Platform Product Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.price','Platform Price Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.access','Platform Access Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.admin','Platform Admin Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.announcement','Platform Announcement Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
-INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(3,'platform.dashboard','Platform Dashboard Management','2015-08-05 00:00:00','2015-08-05 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.order','订单管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.user','用户管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.room','房间管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.product','产品管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.price','价格体系管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.access','门禁系统管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.admin','管理员管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.announcement','通知管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.dashboard','控制台管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
