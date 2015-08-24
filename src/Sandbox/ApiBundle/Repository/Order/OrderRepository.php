@@ -71,6 +71,23 @@ class OrderRepository extends EntityRepository
         return $query->getResult();
     }
 
+    public function getAlreadyRenewedOrder(
+        $userId,
+        $productId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.userId = :userId')
+            ->andWhere('o.status = \'unpaid\'')
+            ->orWhere('o.status = \'paid\'')
+            ->andWhere('o.productId = :productId')
+            ->andWhere('o.isRenew = \'true\'')
+            ->setParameter('productId', $productId)
+            ->setParameter('userId', $userId)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
     /**
      * @param $userId
      *
