@@ -103,7 +103,7 @@ class PaymentController extends SandboxRestController
         }
 
         $keyGlobal = $this->get('twig')->getGlobals();
-        $key = $keyGlobal['pingpp_test_key'];
+        $key = $keyGlobal['pingpp_live_key'];
         $appGlobal = $this->get('twig')->getGlobals();
         $appId = $appGlobal['pingpp_app_id'];
 
@@ -139,7 +139,7 @@ class PaymentController extends SandboxRestController
         $chargeId
     ) {
         $keyGlobal = $this->get('twig')->getGlobals();
-        $key = $keyGlobal['pingpp_test_key'];
+        $key = $keyGlobal['pingpp_live_key'];
         Pingpp::setApiKey($key);
         try {
             $ch = Charge::retrieve($chargeId);
