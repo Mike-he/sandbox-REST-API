@@ -7,14 +7,14 @@ use Doctrine\ORM\EntityRepository;
 class UserRepository extends EntityRepository
 {
     /**
-     * @param int   $userId
+     * @param int   $myUserId
      * @param array $recordIds
      * @param int   $limit
      *
      * @return array
      */
     public function findRandomMembers(
-        $userId,
+        $myUserId,
         $recordIds,
         $limit
     ) {
@@ -31,7 +31,7 @@ class UserRepository extends EntityRepository
         if (!is_null($recordIds) && !empty($recordIds)) {
             $query->setParameter('ids', $recordIds);
         }
-        $query->setParameter('userId', $userId);
+        $query->setParameter('userId', $myUserId);
 
         $availableIds = $query->getScalarResult();
         if (empty($availableIds)) {
