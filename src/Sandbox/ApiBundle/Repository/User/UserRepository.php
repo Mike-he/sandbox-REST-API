@@ -19,7 +19,7 @@ class UserRepository extends EntityRepository
         $limit
     ) {
         $queryStr = 'SELECT u.id FROM SandboxApiBundle:User\User u
-                    WHERE u.banned = FALSE AND u.id != :userId';
+                    WHERE u.banned = FALSE AND u.id != :myUserId';
 
         if (!is_null($recordIds) && !empty($recordIds)) {
             $queryStr = $queryStr.' AND u.id NOT IN (:ids)';
@@ -28,10 +28,10 @@ class UserRepository extends EntityRepository
         // get available user ids
         $query = $this->getEntityManager()->createQuery($queryStr);
 
+        $query->setParameter('myUserId', $myUserId);
         if (!is_null($recordIds) && !empty($recordIds)) {
             $query->setParameter('ids', $recordIds);
         }
-        $query->setParameter('userId', $myUserId);
 
         $availableIds = $query->getScalarResult();
         if (empty($availableIds)) {
