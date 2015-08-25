@@ -42,7 +42,7 @@ class RoomRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->where('r.type = :type');
+            $query->where('r.type IN (:type)');
             $parameters['type'] = $type;
             $notFirst = true;
         }
@@ -151,6 +151,7 @@ class RoomRepository extends EntityRepository
                     SELECT p.roomId
                     FROM SandboxApiBundle:Product\Product p
                     WHERE p.roomId = r.id
+                    AND p.visible = true
                 )
             ')
             ->setParameter('floor', $floor);

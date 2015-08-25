@@ -287,10 +287,9 @@ class AdminRoomController extends RoomController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -323,7 +322,8 @@ class AdminRoomController extends RoomController
             null,
             null,
             'creationDate',
-            'DESC'
+            'DESC',
+            null
         );
 
         return new View($query);
