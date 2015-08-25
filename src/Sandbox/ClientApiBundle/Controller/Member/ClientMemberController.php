@@ -102,10 +102,9 @@ class ClientMemberController extends MemberController
             }
         }
 
-        $myUserId = $userId;
         // find random members
         $users = $this->getRepo('User\User')->findRandomMembers(
-            $myUserId,
+            $userId,
             $recordIds,
             $limit
         );
