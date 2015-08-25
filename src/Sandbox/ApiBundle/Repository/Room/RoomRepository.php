@@ -13,7 +13,7 @@ class RoomRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
-     * @param String       $type
+     * @param String       $types
      * @param RoomCity     $city
      * @param RoomBuilding $building
      * @param RoomFloor    $floor
@@ -25,7 +25,7 @@ class RoomRepository extends EntityRepository
      * @return array
      */
     public function getRooms(
-        $type,
+        $types,
         $city,
         $building,
         $floor,
@@ -42,8 +42,8 @@ class RoomRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->where('r.type IN (:type)');
-            $parameters['type'] = $type;
+            $query->where('r.type IN (:types)');
+            $parameters['types'] = $types;
             $notFirst = true;
         }
 
