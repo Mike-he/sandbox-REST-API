@@ -753,7 +753,7 @@ class AdminRoomController extends RoomController
         $em->flush();
 
         // handle meeting rooms
-        if (!is_null($meeting) && $room->getType() == 'meeting') {
+        if (!is_null($meeting) && $room->getType() == Room::TYPE_MEETING) {
             $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneByRoom($room);
             // remove the old data
             if (!is_null($roomMeeting)) {
@@ -770,7 +770,7 @@ class AdminRoomController extends RoomController
         }
 
         // handle fixed rooms
-        if (!is_null($fixed) && $room->getType() == 'fixed') {
+        if (!is_null($fixed) && $room->getType() == Room::TYPE_FIXED) {
             $roomsFixed = $this->getRepo('Room\RoomFixed')->findByRoom($room);
             array_map($this->removeFixedSeatNumbers($em), $roomsFixed);
             $this->addRoomTypeData(
@@ -991,7 +991,7 @@ class AdminRoomController extends RoomController
         $roomsFixed
     ) {
         switch ($room->getType()) {
-            case 'meeting':
+            case Room::TYPE_MEETING:
                 $format = 'H:i:s';
 
                 $start = \DateTime::createFromFormat(
@@ -1012,7 +1012,7 @@ class AdminRoomController extends RoomController
                 $em->persist($roomMeeting);
                 $em->flush();
                 break;
-            case 'fixed':
+            case Room::TYPE_FIXED:
                 foreach ($roomsFixed as $fixed) {
                     $roomFixed = new RoomFixed();
                     $roomFixed->setRoom($room);

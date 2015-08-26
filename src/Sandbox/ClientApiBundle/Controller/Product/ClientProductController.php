@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Product;
 
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -437,7 +438,7 @@ class ClientProductController extends ProductController
 
         $type = $product->getRoom()->getType();
         $rentDate = $paramFetcher->get('rent_date');
-        if ($type === 'meeting' && !is_null($rentDate) && !empty($rentDate)) {
+        if ($type == Room::TYPE_MEETING && !is_null($rentDate) && !empty($rentDate)) {
             $startDate = new \DateTime($rentDate);
             $endDate = clone $startDate;
             $endDate->setTime(23, 59, 59);

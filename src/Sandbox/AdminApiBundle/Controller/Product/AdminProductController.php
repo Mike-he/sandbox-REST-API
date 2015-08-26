@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Form\Product\ProductType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -18,6 +19,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Admin product controller.
@@ -33,6 +35,7 @@ class AdminProductController extends ProductController
 {
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
     const ROOM_DO_NOT_EXISTS = 'Room do not exists';
+    const NEED_SEAT_NUMBER = 'Fixed Room Needs A Seat Number';
 
     /**
      * Product.
@@ -249,6 +252,20 @@ class AdminProductController extends ProductController
         // get product
         $product = $this->getRepo('Product\Product')->find($id);
 
+        $roomId = $product->getRoomId();
+        $room = $this->getRepo('Room\Room')->find($roomId);
+        $type = $room->getType();
+        if ($type == Room::TYPE_FIXED) {
+            $seatNumber = $product->getSeatNumber();
+            $fixed = $this->getRepo('Room\RoomFixed')->findOneBy(
+                [
+                    'seatNumber' => $seatNumber,
+                    'room' => $roomId,
+                ]
+            );
+            $fixed->setAvailable(true);
+        }
+
         $product->setVisible(false);
 
         $em = $this->getDoctrine()->getManager();
@@ -298,6 +315,14 @@ class AdminProductController extends ProductController
         $startDate->setTime(00, 00, 00);
         $endDate = $form['end_date']->getData();
         $endDate->setTime(23, 59, 59);
+        $seatNumber = $request->request->get('seat_number');
+        $type = $room->getType();
+
+        if (!is_null($seatNumber) && !empty($seatNumber) && $type == Room::TYPE_FIXED) {
+            $product->setSeatNumber($seatNumber);
+        } elseif ($type == Room::TYPE_FIXED) {
+            throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
+        }
 
         $product->setRoom($room);
 

@@ -10,10 +10,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
  * Product.
  *
  * @ORM\Table(
- *  name="Product",
- *  uniqueConstraints={
- *      @ORM\UniqueConstraint(name="roomId_UNIQUE", columns={"roomId"})
- *  }
+ *  name="Product"
  * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Product\ProductRepository")
  */
@@ -47,6 +44,15 @@ class Product
      * @Serializer\Groups({"main", "client", "admin_room"})
      */
     private $description;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="seatNumber", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
+     */
+    private $seatNumber;
 
     /**
      * @var int
@@ -226,6 +232,30 @@ class Product
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Set seatNumber.
+     *
+     * @param string $seatNumber
+     *
+     * @return Product
+     */
+    public function setSeatNumber($seatNumber)
+    {
+        $this->seatNumber = $seatNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get seatNumber.
+     *
+     * @return string
+     */
+    public function getSeatNumber()
+    {
+        return $this->seatNumber;
     }
 
     /**

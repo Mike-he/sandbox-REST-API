@@ -24,6 +24,11 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class Room
 {
+    const TYPE_FLEXIBLE = 'flexible';
+    const TYPE_FIXED = 'fixed';
+    const TYPE_OFFICE = 'office';
+    const TYPE_MEETING = 'meeting';
+
     /**
      * @var int
      *
