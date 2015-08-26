@@ -253,7 +253,7 @@ class AdminRoomController extends RoomController
 
         $floor = !is_null($floorId) ? $this->getRepo('Room\RoomFloor')->find($floorId) : null;
 
-        $query = $this->getRepo('Room\Room')->getValidProductRooms(
+        $query = $this->getRepo('Room\Room')->getNotProductedRooms(
             $floor,
             $type
         );
@@ -311,20 +311,17 @@ class AdminRoomController extends RoomController
 
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
-        $type = $paramFetcher->get('type');
+        $types = $paramFetcher->get('type');
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getRepo('Room\RoomView')->getRooms(
-            $type,
+        $query = $this->getRepo('Room\RoomView')->getProductedRooms(
+            $types,
             $city,
             $building,
-            null,
-            null,
             'creationDate',
-            'DESC',
-            null
+            'DESC'
         );
 
         return new View($query);
