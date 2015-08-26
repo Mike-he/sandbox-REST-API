@@ -33,8 +33,9 @@ class AdminDoorController extends DoorController
     public function setCardPermissionAction(
         Request $request
     ) {
-        $userId = $request->get('user_id');
-        $cardNo = $request->get('card_no');
+        $requestContent = json_decode($request->getContent(), true);
+        $userId = $requestContent['user_id'];
+        $cardNo = $requestContent['card_no'];
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
@@ -89,8 +90,9 @@ class AdminDoorController extends DoorController
     public function unlostCardPermissionAction(
         Request $request
     ) {
-        $userId = $request->get('user_id');
-        $cardNo = $request->get('card_no');
+        $requestContent = json_decode($request->getContent(), true);
+        $userId = $requestContent['user_id'];
+        $cardNo = $requestContent['card_no'];
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
@@ -132,8 +134,9 @@ class AdminDoorController extends DoorController
     public function replaceCardPermissionAction(
         Request $request
     ) {
-        $userId = $request->get('user_id');
-        $cardNo = $request->get('card_no');
+        $requestContent = json_decode($request->getContent(), true);
+        $userId = $requestContent['user_id'];
+        $cardNo = $requestContent['card_no'];
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 

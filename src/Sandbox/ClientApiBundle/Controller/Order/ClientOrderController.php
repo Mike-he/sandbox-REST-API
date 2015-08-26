@@ -461,8 +461,9 @@ class ClientOrderController extends PaymentController
                 self::WRONG_PAYMENT_STATUS_MESSAGE
             );
         }
+        $requestContent = json_decode($request->getContent(), true);
+        $channel = $requestContent['channel'];
 
-        $channel = $request->get('channel');
         if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
             return $this->customErrorView(
                 400,
@@ -874,7 +875,9 @@ class ClientOrderController extends PaymentController
                 self::WRONG_ORDER_STATUS_MESSAGE
             );
         }
-        $user = $request->get('user_id');
+        $requestContent = json_decode($request->getContent(), true);
+        $user = $requestContent['user_id'];
+
         $appointedProfile = $this->getRepo('User\UserProfile')->findOneByUserId($user);
         if (is_null($user) || empty($user) || is_null($appointedProfile)) {
             return $this->customErrorView(
