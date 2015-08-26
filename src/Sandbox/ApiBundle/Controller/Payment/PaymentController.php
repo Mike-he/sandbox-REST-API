@@ -73,6 +73,8 @@ class PaymentController extends SandboxRestController
     const ROOM_NOT_OPEN_MESSAGE = 'Meeting Room Is Not Opening During This Hour';
     const PRODUCT_NOT_AVAILABLE_CODE = 400022;
     const PRODUCT_NOT_AVAILABLE_MESSAGE = 'Product Is Not Available';
+    const FLEXIBLE_ROOM_FULL_CODE = 400023;
+    const FLEXIBLE_ROOM_FULL_MESSAGE = 'This Room Is Full';
 
     /**
      * @param $order

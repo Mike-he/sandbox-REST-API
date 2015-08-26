@@ -148,7 +148,7 @@ class ClientMembershipOrderController extends PaymentController
             $orderNumber,
             'account'
         );
-        if (is_null($balance) || empty($balance)) {
+        if (is_null($balance)) {
             return $this->customErrorView(
                 400,
                 self::INSUFFICIENT_FUNDS_CODE,
