@@ -13,7 +13,7 @@ class RoomRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
-     * @param String       $type
+     * @param Array        $types
      * @param RoomCity     $city
      * @param RoomBuilding $building
      * @param RoomFloor    $floor
@@ -25,7 +25,7 @@ class RoomRepository extends EntityRepository
      * @return array
      */
     public function getRooms(
-        $type,
+        $types,
         $city,
         $building,
         $floor,
@@ -41,9 +41,9 @@ class RoomRepository extends EntityRepository
             ->join('SandboxApiBundle:Room\RoomFloor', 'rf', 'WITH', 'rf.id = r.floor');
 
         // filter by type
-        if (!is_null($type)) {
-            $query->where('r.type = :type');
-            $parameters['type'] = $type;
+        if (!is_null($types) && !empty($types)) {
+            $query->where('r.type IN (:types)');
+            $parameters['types'] = $types;
             $notFirst = true;
         }
 
@@ -71,7 +71,7 @@ class RoomRepository extends EntityRepository
             $notFirst = true;
         }
 
-        // filter by building
+        // filter by floor
         if (!is_null($floor)) {
             $where = 'r.floor = :floor';
             $this->addWhereQuery($query, $notFirst, $where);
@@ -140,7 +140,7 @@ class RoomRepository extends EntityRepository
      *
      * @return array
      */
-    public function getValidProductRooms(
+    public function getNotProductedRooms(
         $floor,
         $type
     ) {
@@ -151,12 +151,78 @@ class RoomRepository extends EntityRepository
                     SELECT p.roomId
                     FROM SandboxApiBundle:Product\Product p
                     WHERE p.roomId = r.id
+                    AND p.visible = true
                 )
             ')
             ->setParameter('floor', $floor);
         if (!is_null($type)) {
             $query = $query->andWhere('r.type = :type')
                 ->setParameter('type', $type);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param Array        $types
+     * @param RoomCity     $city
+     * @param RoomBuilding $building
+     * @param String       $sortBy
+     * @param String       $direction
+     *
+     * @return array
+     */
+    public function getProductedRooms(
+        $types,
+        $city,
+        $building,
+        $sortBy,
+        $direction
+    ) {
+        $notFirst = false;
+        $parameters = [];
+
+        $query = $this->createQueryBuilder('r')
+            ->Where('
+                r.id IN (
+                    SELECT p.roomId
+                    FROM SandboxApiBundle:Product\Product p
+                    WHERE p.roomId = r.id
+                    AND p.visible = true
+                )
+            ');
+
+        // filter by types
+        if (!is_null($types) && !empty($types)) {
+            $query->andwhere('r.type IN (:types)');
+            $parameters['types'] = $types;
+            $notFirst = true;
+        }
+
+        // filter by city
+        if (!is_null($city)) {
+            $where = 'r.city = :city';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['city'] = $city;
+            $notFirst = true;
+        }
+
+        // filter by building
+        if (!is_null($building)) {
+            $where = 'r.building = :building';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['building'] = $building;
+            $notFirst = true;
+        }
+
+        //sort method
+        if (!is_null($sortBy)) {
+            $query->orderBy('r.'.$sortBy, $direction);
+        }
+
+        //set all parameters
+        if ($notFirst) {
+            $query->setParameters($parameters);
         }
 
         return $query->getQuery()->getResult();

@@ -104,6 +104,7 @@ class ClientMemberController extends MemberController
 
         // find random members
         $users = $this->getRepo('User\User')->findRandomMembers(
+            $userId,
             $recordIds,
             $limit
         );
