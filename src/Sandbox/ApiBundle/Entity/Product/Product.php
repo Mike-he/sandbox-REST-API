@@ -10,10 +10,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
  * Product.
  *
  * @ORM\Table(
- *  name="Product",
- *  uniqueConstraints={
- *      @ORM\UniqueConstraint(name="roomId_UNIQUE", columns={"roomId"})
- *  }
+ *  name="Product"
  * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Product\ProductRepository")
  */

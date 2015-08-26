@@ -18,6 +18,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Admin product controller.
@@ -33,6 +34,7 @@ class AdminProductController extends ProductController
 {
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
     const ROOM_DO_NOT_EXISTS = 'Room do not exists';
+    const NEED_SEAT_NUMBER = 'Fixed Room Needs A Seat Number';
 
     /**
      * Product.
@@ -249,6 +251,20 @@ class AdminProductController extends ProductController
         // get product
         $product = $this->getRepo('Product\Product')->find($id);
 
+        $roomId = $product->getRoomId();
+        $room = $this->getRepo('Room\Room')->find($roomId);
+        $type = $room->getType();
+        if ($type == 'fixed') {
+            $seatNumber = $product->getSeatNumber();
+            $fixed = $this->getRepo('Room\RoomFixed')->findOneBy(
+                [
+                    'seatNumber' => $seatNumber,
+                    'room' => $roomId,
+                ]
+            );
+            $fixed->setAvailable(true);
+        }
+
         $product->setVisible(false);
 
         $em = $this->getDoctrine()->getManager();
@@ -298,7 +314,14 @@ class AdminProductController extends ProductController
         $startDate->setTime(00, 00, 00);
         $endDate = $form['end_date']->getData();
         $endDate->setTime(23, 59, 59);
-        $seatNumber = $form['seat_number']->getData();
+        $seatNumber = $request->request->get('seat_number');
+        $type = $room->getType();
+
+        if (!is_null($seatNumber) && !empty($seatNumber) && $type == 'fixed') {
+            $product->setSeatNumber($seatNumber);
+        } elseif ($type == 'fixed') {
+            throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
+        }
 
         $product->setRoom($room);
 
@@ -307,7 +330,6 @@ class AdminProductController extends ProductController
         $product->setEndDate($endDate);
         $product->setCreationDate($now);
         $product->setModificationDate($now);
-        $product->setSeatNumber($seatNumber);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);

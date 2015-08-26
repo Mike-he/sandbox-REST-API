@@ -52,6 +52,7 @@ class ProductType extends AbstractType
                 'text',
                 array(
                     'mapped' => false,
+                    'required' => false,
                 )
             )
         ;
