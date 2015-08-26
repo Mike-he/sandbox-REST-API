@@ -7,17 +7,19 @@ use Doctrine\ORM\EntityRepository;
 class UserRepository extends EntityRepository
 {
     /**
+     * @param int   $myUserId
      * @param array $recordIds
      * @param int   $limit
      *
      * @return array
      */
     public function findRandomMembers(
+        $myUserId,
         $recordIds,
         $limit
     ) {
         $queryStr = 'SELECT u.id FROM SandboxApiBundle:User\User u
-                    WHERE u.banned = FALSE';
+                    WHERE u.banned = FALSE AND u.id != :myUserId';
 
         if (!is_null($recordIds) && !empty($recordIds)) {
             $queryStr = $queryStr.' AND u.id NOT IN (:ids)';
@@ -26,6 +28,7 @@ class UserRepository extends EntityRepository
         // get available user ids
         $query = $this->getEntityManager()->createQuery($queryStr);
 
+        $query->setParameter('myUserId', $myUserId);
         if (!is_null($recordIds) && !empty($recordIds)) {
             $query->setParameter('ids', $recordIds);
         }
