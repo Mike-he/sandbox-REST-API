@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -170,7 +171,7 @@ class ClientOrderController extends PaymentController
             );
         }
 
-        if ($type === 'office' && $order->getIsRenew()) {
+        if ($type === Room::TYPE_OFFICE && $order->getIsRenew()) {
             $myEnd = $now->modify('+ 7 days');
             $myOrder = $this->getRepo('Order\ProductOrder')->getRenewOrder(
                 $userId,
@@ -208,7 +209,7 @@ class ClientOrderController extends PaymentController
             $endDate->modify('+'.$datePeriod.$timeUnit);
         }
 
-        if ($type == 'office' || $type == 'fixed' || $type == 'flexible') {
+        if ($type == Room::TYPE_OFFICE || $type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
             $nowDate = $now->format('Y-m-d');
             $startPeriod = $startDate->format('Y-m-d');
             if ($nowDate > $startPeriod) {
@@ -1091,7 +1092,7 @@ class ClientOrderController extends PaymentController
         $renewButton = false;
         $minutes = 0;
         $seconds = 0;
-        if ($type == 'office' && $status == 'completed') {
+        if ($type == Room::TYPE_OFFICE && $status == 'completed') {
             $renewOrder = $this->getRepo('Order\ProductOrder')->getAlreadyRenewedOrder($userId, $productId);
             if (is_null($renewOrder) || empty($renewOrder)) {
                 $endDate = $order->getEndDate();

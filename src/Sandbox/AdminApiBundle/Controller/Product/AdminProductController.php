@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Form\Product\ProductType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -254,7 +255,7 @@ class AdminProductController extends ProductController
         $roomId = $product->getRoomId();
         $room = $this->getRepo('Room\Room')->find($roomId);
         $type = $room->getType();
-        if ($type == 'fixed') {
+        if ($type == Room::TYPE_FIXED) {
             $seatNumber = $product->getSeatNumber();
             $fixed = $this->getRepo('Room\RoomFixed')->findOneBy(
                 [
@@ -317,9 +318,9 @@ class AdminProductController extends ProductController
         $seatNumber = $request->request->get('seat_number');
         $type = $room->getType();
 
-        if (!is_null($seatNumber) && !empty($seatNumber) && $type == 'fixed') {
+        if (!is_null($seatNumber) && !empty($seatNumber) && $type == Room::TYPE_FIXED) {
             $product->setSeatNumber($seatNumber);
-        } elseif ($type == 'fixed') {
+        } elseif ($type == Room::TYPE_FIXED) {
             throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
         }
 
