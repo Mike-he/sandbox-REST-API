@@ -305,8 +305,8 @@ class AdminProductController extends ProductController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $rule_include = $request->request->get('price_rule_include_ids');
-        $rule_exclude = $request->request->get('price_rule_exclude_ids');
+        $rule_include = $form['price_rule_include_ids']->getData();
+        $rule_exclude = $form['price_rule_exclude_ids']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -315,7 +315,7 @@ class AdminProductController extends ProductController
         $startDate->setTime(00, 00, 00);
         $endDate = $form['end_date']->getData();
         $endDate->setTime(23, 59, 59);
-        $seatNumber = $request->request->get('seat_number');
+        $seatNumber = $form['seat_number']->getData();
         $type = $room->getType();
 
         if (!is_null($seatNumber) && !empty($seatNumber) && $type == Room::TYPE_FIXED) {
@@ -393,8 +393,8 @@ class AdminProductController extends ProductController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $rule_include = $request->request->get('price_rule_include_ids');
-        $rule_exclude = $request->request->get('price_rule_exclude_ids');
+        $rule_include = $form['price_rule_include_ids']->getData();
+        $rule_exclude = $form['price_rule_exclude_ids']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);

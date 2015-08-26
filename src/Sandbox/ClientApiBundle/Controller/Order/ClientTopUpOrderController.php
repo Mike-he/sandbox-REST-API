@@ -82,8 +82,9 @@ class ClientTopUpOrderController extends PaymentController
     public function payTopUpAction(
         Request $request
     ) {
-        $price = $request->get('price');
-        $channel = $request->get('channel');
+        $requestContent = json_decode($request->getContent(), true);
+        $price = $requestContent['price'];
+        $channel = $requestContent['channel'];
 
         if (is_null($price) || empty($price)) {
             return $this->customErrorView(

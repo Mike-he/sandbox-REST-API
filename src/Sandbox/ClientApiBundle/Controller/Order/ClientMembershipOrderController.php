@@ -82,9 +82,10 @@ class ClientMembershipOrderController extends PaymentController
     public function payMembershipAction(
         Request $request
     ) {
-        $price = $request->get('price');
-        $channel = $request->get('channel');
-        $productId = $request->get('product_id');
+        $requestContent = json_decode($request->getContent(), true);
+        $price = $requestContent['price'];
+        $channel = $requestContent['channel'];
+        $productId = $requestContent['product_id'];
 
         if (is_null($productId) || empty($productId)) {
             return $this->customErrorView(
