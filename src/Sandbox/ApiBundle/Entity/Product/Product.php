@@ -49,6 +49,15 @@ class Product
     private $description;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="seatNumber", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
+     */
+    private $seatNumber;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="visibleUserId", type="integer", nullable=true)
@@ -226,6 +235,30 @@ class Product
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Set seatNumber.
+     *
+     * @param string $seatNumber
+     *
+     * @return Product
+     */
+    public function setSeatNumber($seatNumber)
+    {
+        $this->seatNumber = $seatNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get seatNumber.
+     *
+     * @return string
+     */
+    public function getSeatNumber()
+    {
+        return $this->seatNumber;
     }
 
     /**

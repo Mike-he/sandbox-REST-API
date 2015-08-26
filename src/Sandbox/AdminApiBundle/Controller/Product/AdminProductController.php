@@ -298,6 +298,7 @@ class AdminProductController extends ProductController
         $startDate->setTime(00, 00, 00);
         $endDate = $form['end_date']->getData();
         $endDate->setTime(23, 59, 59);
+        $seatNumber = $form['seat_number']->getData();
 
         $product->setRoom($room);
 
@@ -306,6 +307,7 @@ class AdminProductController extends ProductController
         $product->setEndDate($endDate);
         $product->setCreationDate($now);
         $product->setModificationDate($now);
+        $product->setSeatNumber($seatNumber);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);

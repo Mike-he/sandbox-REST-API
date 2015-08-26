@@ -2,6 +2,7 @@ CREATE TABLE `Product` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `roomId` int(11) NOT NULL,
   `description` text,
+  `seatNumber` varchar(64),
   `visibleUserId` int(11),
   `basePrice` numeric(15,2),
   `unitPrice` enum('hour', 'day', 'month'),
