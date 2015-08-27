@@ -121,7 +121,6 @@ class ClientOrderController extends PaymentController
         Request $request
     ) {
         $userId = $this->getUserId();
-        $userName = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $userId])->getName();
         $order = new ProductOrder();
 
         $form = $this->createForm(new OrderType(), $order);
@@ -303,7 +302,6 @@ class ClientOrderController extends PaymentController
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
 
-        $order->setUserName($userName);
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
         $order->setStartDate($startDate);
