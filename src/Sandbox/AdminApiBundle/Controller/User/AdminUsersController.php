@@ -338,19 +338,17 @@ class AdminUsersController extends SandboxRestController
             AdminPermissionMap::OP_LEVEL_EDIT
         );
 
-        //get user Entity
+        // get user Entity
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        //authorized user
+        // authorized user
         $user->setAuthorized(true);
 
-        $now = new \DateTime('now');
-        $user->setModificationDate($now);
+        $user->setModificationDate(new \DateTime('now'));
 
         // update to db
         $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
         $em->flush();
 
         return new View();
