@@ -33,6 +33,13 @@ class RoomFixed
     private $id;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="roomId", type="integer")
+     */
+    private $roomId;
+
+    /**
      * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="fixed")
@@ -70,6 +77,30 @@ class RoomFixed
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set RoomS.
+     *
+     * @param Room $roomId
+     *
+     * @return RoomFixed
+     */
+    public function setRoomId($roomId)
+    {
+        $this->roomId = $roomId;
+
+        return $this;
+    }
+
+    /**
+     * Get Room.
+     *
+     * @return Room
+     */
+    public function getRoomId()
+    {
+        return $this->roomId;
     }
 
     /**
