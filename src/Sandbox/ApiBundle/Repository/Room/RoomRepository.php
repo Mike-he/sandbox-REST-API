@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class RoomRepository extends EntityRepository
 {
@@ -139,26 +140,46 @@ class RoomRepository extends EntityRepository
      * @param String    $type
      *
      * @return array
+     *
+     * @throws \Exception
      */
     public function getNotProductedRooms(
         $floor,
         $type
     ) {
-        $query = $this->createQueryBuilder('r')
-            ->where('r.floor = :floor')
-            ->andWhere('
-                r.id NOT IN (
-                    SELECT p.roomId
-                    FROM SandboxApiBundle:Product\Product p
-                    WHERE p.roomId = r.id
-                    AND p.visible = true
-                )
-            ')
-            ->setParameter('floor', $floor);
-        if (!is_null($type)) {
-            $query = $query->andWhere('r.type = :type')
-                ->setParameter('type', $type);
+        if (is_null($type)) {
+            throw new BadRequestHttpException();
         }
+
+        if ($type != 'fixed') {
+            $query = $this->createQueryBuilder('r')
+                ->where('r.floor = :floor')
+                ->andWhere('
+                    r.id NOT IN (
+                        SELECT p.roomId
+                        FROM SandboxApiBundle:Product\Product p
+                        WHERE p.roomId = r.id
+                        AND p.visible = true
+                    )
+                ')
+                ->setParameter('floor', $floor);
+        } else {
+            $query = $this->createQueryBuilder('r')
+                ->where('r.floor = :floor')
+                ->andWhere('
+                    r.id IN (
+                        SELECT f.roomId
+                        FROM SandboxApiBundle:Room\RoomFixed f
+                        WHERE f.roomId = r.id
+                        AND f.available = true
+                    )
+                ')
+                ->setParameter('floor', $floor);
+        }
+        $query = $query->andWhere('r.type = :type')
+            ->setParameter('type', $type);
+
+        $query = $query->orderBy('r.id', 'ASC');
 
         return $query->getQuery()->getResult();
     }
