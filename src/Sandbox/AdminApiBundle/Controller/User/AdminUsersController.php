@@ -316,6 +316,47 @@ class AdminUsersController extends SandboxRestController
     }
 
     /**
+     * Authorized a user.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/users/{id}/authorized")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function authorizedUserAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_USER,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        //get user Entity
+        $user = $this->getRepo('User\User')->find($id);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        //authorized user
+        $user->setAuthorized(true);
+
+        $now = new \DateTime('now');
+        $user->setModificationDate($now);
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @param $banned
      * @param $sortBy
      * @param $direction

@@ -74,6 +74,14 @@ class User implements UserInterface
     private $banned = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="authorized", type="boolean", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $authorized = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -217,6 +225,30 @@ class User implements UserInterface
     public function isBanned()
     {
         return $this->banned;
+    }
+
+    /**
+     * Set authorized.
+     *
+     * @param bool $authorized
+     *
+     * @return User
+     */
+    public function setAuthorized($authorized)
+    {
+        $this->authorized = $authorized;
+
+        return $this;
+    }
+
+    /**
+     * Is authorized.
+     *
+     * @return bool
+     */
+    public function isAuthorized()
+    {
+        return $this->authorized;
     }
 
     /**
