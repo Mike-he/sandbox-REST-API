@@ -255,15 +255,15 @@ class AdminProductController extends ProductController
         $roomId = $product->getRoomId();
         $room = $this->getRepo('Room\Room')->find($roomId);
         $type = $room->getType();
-        if ($type == Room::TYPE_FIXED) {
-            $seatNumber = $product->getSeatNumber();
+        $seatNumber = $product->getSeatNumber();
+        if ($type == Room::TYPE_FIXED && !is_null($seatNumber)) {
             $fixed = $this->getRepo('Room\RoomFixed')->findOneBy(
                 [
                     'seatNumber' => $seatNumber,
                     'room' => $roomId,
                 ]
             );
-            $fixed->setAvailable(true);
+            !is_null($fixed) ? $fixed->setAvailable(true) : null;
         }
 
         $product->setVisible(false);
