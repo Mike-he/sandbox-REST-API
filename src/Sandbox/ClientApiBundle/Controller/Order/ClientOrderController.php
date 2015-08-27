@@ -248,19 +248,37 @@ class ClientOrderController extends PaymentController
             }
         }
 
-        $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
-            $productId,
-            $startDate,
-            $endDate
-        );
-
-        if (!empty($checkOrder) && !is_null($checkOrder)) {
-            return $this->customErrorView(
-                400,
-                self::ORDER_CONFLICT_CODE,
-                self::ORDER_CONFLICT_MESSAGE
+        //check if flexible room is full
+        if ($type == Room::TYPE_FLEXIBLE) {
+            $allowedPeople = $product->getRoom()->getAllowedPeople();
+            $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
+                $productId,
+                $startDate,
+                $endDate
             );
+
+            if ($allowedPeople <= (int) $orderCount) {
+                return $this->customErrorView(
+                    400,
+                    self::FLEXIBLE_ROOM_FULL_CODE,
+                    self::FLEXIBLE_ROOM_FULL_MESSAGE
+                );
+            }
+        } else {
+            $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
+                $productId,
+                $startDate,
+                $endDate
+            );
+            if (!empty($checkOrder) && !is_null($checkOrder)) {
+                return $this->customErrorView(
+                    400,
+                    self::ORDER_CONFLICT_CODE,
+                    self::ORDER_CONFLICT_MESSAGE
+                );
+            }
         }
+
         $ruleId = $form['rule_id']->getData();
         if (!is_null($ruleId) && !empty($ruleId)) {
             $discountPrice = $order->getDiscountPrice();
@@ -320,7 +338,7 @@ class ClientOrderController extends PaymentController
             $orderNumber,
             'account'
         );
-        if (is_null($balance) || empty($balance)) {
+        if (is_null($balance)) {
             return $this->customErrorView(
                 400,
                 self::INSUFFICIENT_FUNDS_CODE,
