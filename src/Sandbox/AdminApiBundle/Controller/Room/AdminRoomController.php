@@ -844,8 +844,8 @@ class AdminRoomController extends RoomController
         if (!is_null($myRoom)) {
             //304 Not Modified
             return $this->customErrorView(
-                304,
-                304,
+                400,
+                400001,
                 self::ALREADY_EXISTS_MESSAGE
             );
         }
