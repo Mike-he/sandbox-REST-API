@@ -43,15 +43,6 @@ class ProductOrder
      */
     private $userId;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="userName", type="string", length=64, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $userName;
-
 //    /**
 //     * @var \Sandbox\ApiBundle\Entity\User\User
 //     *
@@ -259,30 +250,6 @@ class ProductOrder
     public function getUserId()
     {
         return $this->userId;
-    }
-
-    /**
-     * Set userName.
-     *
-     * @param string $userName
-     *
-     * @return ProductOrder
-     */
-    public function setUserName($userName)
-    {
-        $this->userName = $userName;
-
-        return $this;
-    }
-
-    /**
-     * Get userName.
-     *
-     * @return string
-     */
-    public function getUserName()
-    {
-        return $this->userName;
     }
 
     /**
