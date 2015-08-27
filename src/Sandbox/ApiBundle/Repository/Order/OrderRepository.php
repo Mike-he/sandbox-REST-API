@@ -129,7 +129,8 @@ class OrderRepository extends EntityRepository
             ->andWhere(
                 '(
                     (o.startDate <= :startDate AND o.endDate > :startDate) OR
-                    (o.startDate < :endDate AND o.endDate >= :endDate)
+                    (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                    (o.startDate >= :startDate AND o.endDate <= :endDate)
                 )'
             )
             ->setParameter('productId', $productId)
@@ -138,6 +139,39 @@ class OrderRepository extends EntityRepository
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    /**
+     * Check for Order Conflict for flexible room.
+     *
+     * @param $productId
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function checkFlexibleForClient(
+        $productId,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->where('o.productId = :productId')
+            ->andWhere('o.status <> \'cancelled\'')
+            ->andWhere(
+                '(
+                    (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                    (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                    (o.startDate >= :startDate AND o.endDate <= :endDate)
+                )'
+            )
+            ->setParameter('productId', $productId)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery();
+
+        return $query->getSingleScalarResult();
     }
 
     /**

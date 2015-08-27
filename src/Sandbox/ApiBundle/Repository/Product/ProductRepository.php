@@ -256,6 +256,22 @@ class ProductRepository extends EntityRepository
                         )
                     )'
                 )
+                ->orWhere(
+                    'p.id IN (
+                        SELECT o.productId FROM SandboxApiBundle:Order\ProductOrder o
+                        WHERE o.status <> \'cancelled\'
+                        AND r.type = \'flexible\'
+                        AND o.productId <> \'null\'
+                        AND
+                        (
+                            (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                            (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                            (o.startDate >= :startDate AND o.endDate <= :endDate)
+                        )
+                        GROUP BY o.productId
+                        HAVING COUNT(o.productId) < r.allowedPeople
+                    )'
+                )
                 ->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
