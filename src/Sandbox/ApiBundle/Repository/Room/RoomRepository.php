@@ -14,7 +14,7 @@ class RoomRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
-     * @param Array        $types
+     * @param String       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
      * @param RoomFloor    $floor
@@ -26,7 +26,7 @@ class RoomRepository extends EntityRepository
      * @return array
      */
     public function getRooms(
-        $types,
+        $type,
         $city,
         $building,
         $floor,
@@ -42,9 +42,9 @@ class RoomRepository extends EntityRepository
             ->join('SandboxApiBundle:Room\RoomFloor', 'rf', 'WITH', 'rf.id = r.floor');
 
         // filter by type
-        if (!is_null($types) && !empty($types)) {
-            $query->where('r.type IN (:types)');
-            $parameters['types'] = $types;
+        if (!is_null($type) && !empty($type)) {
+            $query->where('r.type = :type');
+            $parameters['type'] = $type;
             $notFirst = true;
         }
 
