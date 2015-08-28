@@ -57,7 +57,7 @@ class AdminRoomController extends RoomController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    array=true,
+     *    array=false,
      *    default=null,
      *    nullable=true,
      *    requirements="(office|meeting|flexible|fixed)",
