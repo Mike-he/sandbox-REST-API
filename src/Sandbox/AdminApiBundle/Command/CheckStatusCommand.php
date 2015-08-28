@@ -25,6 +25,11 @@ class CheckStatusCommand extends ContainerAwareCommand
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->setStatusCancelled();
 
+        $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->setVisibleFalse();
+
         $orders = $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')

@@ -36,6 +36,8 @@ class AdminProductController extends ProductController
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
     const ROOM_DO_NOT_EXISTS = 'Room do not exists';
     const NEED_SEAT_NUMBER = 'Fixed Room Needs A Seat Number';
+    const PRODUCT_EXISTS = 'Product with this Room already exists';
+    const ROOM_IS_FULL = 'This Room is Full';
 
     /**
      * Product.
@@ -301,6 +303,7 @@ class AdminProductController extends ProductController
 
         $form = $this->createForm(new ProductType(), $product);
         $form->handleRequest($request);
+
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
@@ -310,16 +313,48 @@ class AdminProductController extends ProductController
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+        $type = $room->getType();
+        $allowedPeople = $room->getAllowedPeople();
+        if ($type == Room::TYPE_FIXED) {
+            $count = $this->getRepo('Product\Product')->checkFixedRoomInProduct($product->getRoomId());
+            if ((int) $count >= $allowedPeople) {
+                return $this->customErrorView(
+                    400,
+                    400003,
+                    self::ROOM_IS_FULL
+                );
+            }
+        } else {
+            $roomInProduct = $this->getRepo('Product\Product')->findOneBy(
+                [
+                    'roomId' => $product->getRoomId(),
+                    'visible' => true,
+                ]
+            );
+            if (!is_null($roomInProduct)) {
+                return $this->customErrorView(
+                    400,
+                    400002,
+                    self::PRODUCT_EXISTS
+                );
+            }
+        }
 
         $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
         $endDate = $form['end_date']->getData();
         $endDate->setTime(23, 59, 59);
         $seatNumber = $form['seat_number']->getData();
-        $type = $room->getType();
 
         if (!is_null($seatNumber) && !empty($seatNumber) && $type == Room::TYPE_FIXED) {
             $product->setSeatNumber($seatNumber);
+            $fixed = $this->getRepo('Room\RoomFixed')->findOneBy(
+                [
+                    'seatNumber' => $seatNumber,
+                    'room' => $product->getRoomId(),
+                ]
+            );
+            !is_null($fixed) ? $fixed->setAvailable(false) : null;
         } elseif ($type == Room::TYPE_FIXED) {
             throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
         }
@@ -459,10 +494,10 @@ class AdminProductController extends ProductController
         $rule_exclude
     ) {
         //add price rules
-        if (!is_null($rule_include) || !empty($rule_include)) {
+        if (!is_null($rule_include) && !empty($rule_include)) {
             self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
         }
-        if (!is_null($rule_exclude) || !empty($rule_include)) {
+        if (!is_null($rule_exclude) && !empty($rule_include)) {
             self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
         }
     }
