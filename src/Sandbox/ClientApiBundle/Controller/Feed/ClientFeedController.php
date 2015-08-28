@@ -224,13 +224,13 @@ class ClientFeedController extends FeedController
 
         $userId = $this->getUserId();
 
-        $myCompany = $this->getRepo('Company\Company')->findOneByCreatorId($userId);
+        $myCompany = $this->getRepo('Company\CompanyMember')->findOneByUserId($userId);
         $this->throwNotFoundIfNull($myCompany, self::NOT_FOUND_MESSAGE);
 
         $feeds = $this->getRepo('Feed\FeedView')->getFeedsByColleagues(
             $limit,
             $lastId,
-            $myCompany->getId()
+            $myCompany->getCompanyId()
         );
 
         return $this->handleGetFeeds($feeds);
