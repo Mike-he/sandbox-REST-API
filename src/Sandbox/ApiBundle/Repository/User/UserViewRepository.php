@@ -56,27 +56,34 @@ class UserViewRepository extends EntityRepository
     }
 
     /**
-     * @param String $query
+     * @param $banned
+     * @param $authorized
+     * @param $query
      *
      * @return array
      */
     public function searchUser(
+        $banned,
+        $authorized,
         $query
     ) {
-        $queryResult = $this->getEntityManager()
-            ->createQuery(
-                '
-                    SELECT
-                    u
-                    FROM SandboxApiBundle:User\UserView u
-                    WHERE u.name LIKE :query
-                    OR u.id LIKE :query
-                    OR u.email LIKE :query
-                    OR u.phone LIKE :query
-                '
-            )
+        $queryResults = $this->createQueryBuilder('u')
+            ->where('u.name LIKE :query')
+            ->orWhere('u.id LIKE :query')
+            ->orWhere('u.email LIKE :query')
+            ->orWhere('u.phone LIKE :query')
             ->setParameter('query', $query.'%');
 
-        return $queryResult->getResult();
+        if (!is_null($banned)) {
+            $queryResults->andWhere('u.banned = :banned')
+                ->setParameter('banned', $banned);
+        }
+
+        if (!is_null($authorized)) {
+            $queryResults->andWhere('u.authorized = :authorized')
+                ->setParameter('authorized', $authorized);
+        }
+
+        return $queryResults->getQuery()->getResult();
     }
 }
