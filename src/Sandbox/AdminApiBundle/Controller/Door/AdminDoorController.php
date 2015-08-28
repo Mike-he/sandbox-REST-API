@@ -10,6 +10,9 @@ use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 
 /**
  * Admin Door Controller.
@@ -33,6 +36,9 @@ class AdminDoorController extends DoorController
     public function setCardPermissionAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
@@ -90,6 +96,9 @@ class AdminDoorController extends DoorController
     public function unlostCardPermissionAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
@@ -134,6 +143,9 @@ class AdminDoorController extends DoorController
     public function replaceCardPermissionAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
@@ -188,6 +200,9 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $globals = $this->getGlobals();
         $buildingId = $paramFetcher->get('building');
         if (is_null($buildingId)) {
@@ -295,6 +310,9 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $globals = $this->getGlobals();
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -406,6 +424,9 @@ class AdminDoorController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $globals = $this->getGlobals();
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -456,5 +477,21 @@ class AdminDoorController extends DoorController
                 $this->logOut($sessionId, $base, $globals);
             }
         }
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param Integer $OpLevel
+     */
+    private function checkAdminDoorPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ACCESS,
+            $OpLevel
+        );
     }
 }

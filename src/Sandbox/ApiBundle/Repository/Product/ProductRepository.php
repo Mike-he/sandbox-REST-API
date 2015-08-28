@@ -399,4 +399,39 @@ class ProductRepository extends EntityRepository
             $query->where($where);
         }
     }
+
+    public function checkFixedRoomInProduct(
+        $roomId
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.roomId = :roomId')
+            ->andWhere('p.visible = :visible')
+            ->setParameter('visible', true)
+            ->setParameter('roomId', $roomId)
+            ->getQuery();
+
+        return $query->getSingleScalarResult();
+    }
+
+    /**
+     *
+     */
+    public function setVisibleFalse()
+    {
+        $now = new \DateTime();
+        $nowString = (string) $now->format('Y-m-d H:i:s');
+        $nowString = "'$nowString'";
+
+        $query = $this->createQueryBuilder('p')
+            ->update()
+            ->set('p.visible', false)
+            ->set('p.modificationDate', $nowString)
+            ->where('p.visible = \'true\'')
+            ->andWhere('p.endDate <= :now')
+            ->setParameter('now', $now)
+            ->getQuery();
+
+        $query->execute();
+    }
 }
