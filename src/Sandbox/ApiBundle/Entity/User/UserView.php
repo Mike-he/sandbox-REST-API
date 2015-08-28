@@ -50,6 +50,14 @@ class UserView
     private $banned;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="authorized", type="boolean", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $authorized;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
@@ -103,6 +111,16 @@ class UserView
     public function isBanned()
     {
         return $this->banned;
+    }
+
+    /**
+     * Is authorized.
+     *
+     * @return bool
+     */
+    public function isAuthorized()
+    {
+        return $this->authorized;
     }
 
     /**
