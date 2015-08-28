@@ -70,6 +70,25 @@ class AdminUsersController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="banned",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="user banned"
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="authorized",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="user authorized"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="query",
      *    default=null,
      *    description="search query"
@@ -88,6 +107,8 @@ class AdminUsersController extends SandboxRestController
     ) {
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $banned = $paramFetcher->get('banned');
+        $authorized = $paramFetcher->get('authorized');
         $query = $paramFetcher->get('query');
 
         // Another better way to search the users by query, but it needs to find out the bug and fix it yet
@@ -104,7 +125,11 @@ class AdminUsersController extends SandboxRestController
 //
 //        $paginator = $this->get('knp_paginator');
 
-        $results = $this->getRepo('User\UserView')->searchUser($query);
+        $results = $this->getRepo('User\UserView')->searchUser(
+            $banned,
+            $authorized,
+            $query
+        );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(

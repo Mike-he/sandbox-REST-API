@@ -4,6 +4,7 @@ SELECT
        u.phone,
        u.email,
        u.banned,
+       u.authorized,
        up.name,
 	     up.gender
 FROM User u
