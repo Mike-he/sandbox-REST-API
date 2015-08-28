@@ -9,6 +9,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 
 /**
  * Admin Room supplies controller.
@@ -44,6 +47,9 @@ class AdminRoomSuppliesController extends RoomSuppliesController
     public function getOfficeSuppliesAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminRoomSuppliesPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         // get supplies
         $supplies = $this->getRepo('Room\Supplies')->findAll();
 
@@ -73,9 +79,28 @@ class AdminRoomSuppliesController extends RoomSuppliesController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomSuppliesPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         // get attachment
         $supplies = $this->getRepo('Room\Supplies')->find($id);
 
         return new View($supplies);
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param Integer $OpLevel
+     */
+    private function checkAdminRoomSuppliesPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ROOM,
+            $OpLevel
+        );
     }
 }
