@@ -15,6 +15,8 @@ CREATE TABLE `ProductOrder` (
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   `appointedPerson` int(11),
+  `ruleId` int(11),
+  `membershipBindId` int(11),
   PRIMARY KEY (`id`),
   KEY `fk_ProductOrder_userId_idx` (`userId`),
   KEY `fk_ProductOrder_productId_idx` (`productId`),
