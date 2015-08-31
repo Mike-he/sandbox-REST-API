@@ -94,6 +94,25 @@ class AdminUsersController extends SandboxRestController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sortBy",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Sort by id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    array=false,
+     *    default="DESC",
+     *    nullable=true,
+     *    requirements="(ASC|DESC)",
+     *    strict=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/users/search")
      * @Method({"GET"})
      *
@@ -118,6 +137,8 @@ class AdminUsersController extends SandboxRestController
         $banned = $paramFetcher->get('banned');
         $authorized = $paramFetcher->get('authorized');
         $query = $paramFetcher->get('query');
+        $sortBy = $paramFetcher->get('sortBy');
+        $direction = $paramFetcher->get('direction');
 
         // Another better way to search the users by query, but it needs to find out the bug and fix it yet
 //        // find all users who have the query in any of their mapped fields
@@ -136,7 +157,9 @@ class AdminUsersController extends SandboxRestController
         $results = $this->getRepo('User\UserView')->searchUser(
             $banned,
             $authorized,
-            $query
+            $query,
+            $sortBy,
+            $direction
         );
 
         $paginator = new Paginator();

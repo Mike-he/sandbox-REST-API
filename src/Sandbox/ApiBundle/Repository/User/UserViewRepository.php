@@ -59,13 +59,17 @@ class UserViewRepository extends EntityRepository
      * @param $banned
      * @param $authorized
      * @param $query
+     * @param $sortBy
+     * @param $direction
      *
      * @return array
      */
     public function searchUser(
         $banned,
         $authorized,
-        $query
+        $query,
+        $sortBy,
+        $direction
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->where('u.name LIKE :query')
@@ -82,6 +86,10 @@ class UserViewRepository extends EntityRepository
         if (!is_null($authorized)) {
             $queryResults->andWhere('u.authorized = :authorized')
                 ->setParameter('authorized', $authorized);
+        }
+
+        if (!is_null($sortBy)) {
+            $queryResults->orderBy('u.'.$sortBy, $direction);
         }
 
         return $queryResults->getQuery()->getResult();
