@@ -418,6 +418,24 @@ class ClientProductController extends ProductController
      *    "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="month_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        start date
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="month_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        end date
+     *    "
+     * )
+     *
      * @param Request $request
      * @param $id
      * @param ParamFetcherInterface $paramFetcher
@@ -436,6 +454,7 @@ class ClientProductController extends ProductController
             );
         }
 
+        $response = [];
         $type = $product->getRoom()->getType();
         $rentDate = $paramFetcher->get('rent_date');
         if ($type == Room::TYPE_MEETING && !is_null($rentDate) && !empty($rentDate)) {
@@ -447,11 +466,24 @@ class ClientProductController extends ProductController
                 $startDate,
                 $endDate
             );
+        } elseif ($type == Room::TYPE_FLEXIBLE) {
+            $monthStart = $paramFetcher->get('month_start');
+            $monthEnd = $paramFetcher->get('month_end');
+            $allowedPeople = $product->getRoom()->getAllowedPeople();
+            if (!is_null($monthStart) && !empty($monthStart) && !is_null($monthEnd) && !empty($monthEnd)) {
+                $response = $this->getDatesForFlexibleRoom(
+                    $id,
+                    $monthStart,
+                    $monthEnd,
+                    $allowedPeople
+                );
+            }
+
+            return new View($response);
         } else {
             $orders = $this->getRepo('Order\ProductOrder')->getBookedDates($id);
         }
 
-        $response = [];
         if (empty($orders)) {
             return new View($response);
         }
@@ -470,5 +502,58 @@ class ClientProductController extends ProductController
         }
 
         return new View($response);
+    }
+
+    /**
+     * @param $id
+     * @param $monthStart
+     * @param $monthEnd
+     * @param $allowedPeople
+     *
+     * @return array
+     */
+    private function getDatesForFlexibleRoom(
+        $id,
+        $monthStart,
+        $monthEnd,
+        $allowedPeople
+    ) {
+        $response = [];
+        $monthStart = new \DateTime($monthStart);
+        $monthEnd = new \DateTime($monthEnd);
+        $monthEnd->setTime(23, 59, 59);
+        $flexibleOrders = $this->getRepo('Order\ProductOrder')->getFlexibleBookedDates(
+            $id,
+            $monthStart,
+            $monthEnd
+        );
+        if (sizeof($flexibleOrders) >= $allowedPeople) {
+            $daysArray = [];
+            foreach ($flexibleOrders as $order) {
+                $start = $order->getStartDate();
+                $end = $order->getEndDate();
+                $days = new \DatePeriod(
+                    $start,
+                    new \DateInterval('P1D'),
+                    $end
+                );
+                foreach ($days as $day) {
+                    array_push($daysArray, $day->format('Y-m-d'));
+                }
+            }
+            $values = array_count_values($daysArray);
+            foreach ($values as $key => $value) {
+                if ($value >= $allowedPeople) {
+                    $date = new \DateTime($key);
+                    $dateArray = [
+                        'start' => $date->getTimeStamp(),
+                        'end' => $date->getTimeStamp(),
+                    ];
+                    array_push($response, $dateArray);
+                }
+            }
+        }
+
+        return $response;
     }
 }

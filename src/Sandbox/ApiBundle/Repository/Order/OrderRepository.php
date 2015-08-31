@@ -223,6 +223,31 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * Get Booked Times for flexible.
+     *
+     * @param $id
+     *
+     * @return array
+     */
+    public function getFlexibleBookedDates(
+        $id,
+        $monthStart,
+        $monthEnd
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.productId = :productId')
+            ->andWhere('o.status <> \'cancelled\'')
+            ->andWhere('o.startDate >= :monthStart AND o.startDate <= :monthEnd')
+            ->orWhere('o.endDate >= :monthStart AND o.endDate <= :monthEnd')
+            ->setParameter('productId', $id)
+            ->setParameter('monthStart', $monthStart)
+            ->setParameter('monthEnd', $monthEnd)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
      * Get list of orders for admin.
      *
      * @param String       $type
