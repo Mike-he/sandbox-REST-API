@@ -364,6 +364,8 @@ class ClientCompanyController extends CompanyController
         Request $request,
         $id
     ) {
+        $userId = $this->getUserId();
+
         // get a company
         $company = $this->getRepo('Company\Company')->findOneById($id);
 
@@ -371,8 +373,7 @@ class ClientCompanyController extends CompanyController
         $viewGroup = 'company_info';
         if (is_null($this->getExpireDateIfUserVIP())) {
             // check user is company member
-            $userId = $this->getUserId();
-            if ($this->isCompanyMember($userId, $id)) {
+            if (!$this->isCompanyMember($userId, $id)) {
                 $viewGroup = 'company_limit';
             }
         };
@@ -400,6 +401,7 @@ class ClientCompanyController extends CompanyController
         Request $request,
         $id
     ) {
+        $userId = $this->getUserId();
 
         // get a company
         $company = $this->getRepo('Company\Company')->findOneById($id);
@@ -410,12 +412,11 @@ class ClientCompanyController extends CompanyController
         // check user is VIP
         if (is_null($this->getExpireDateIfUserVIP())) {
             // check user is company member
-            $userId = $this->getUserId();
-            if ($this->isCompanyMember($userId, $id)) {
+            if (!$this->isCompanyMember($userId, $id)) {
                 $viewGroup = 'company_limit';
             }
         };
-
+        
         // set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
