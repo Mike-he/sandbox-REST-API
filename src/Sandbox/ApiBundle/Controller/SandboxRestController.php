@@ -550,7 +550,7 @@ class SandboxRestController extends FOSRestController
 
         $result = json_decode($response, true);
 
-        return $result['discount_price'];
+        return $result;
     }
 
     //--------------------common functions--------------------//
