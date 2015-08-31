@@ -545,7 +545,11 @@ class ClientProductController extends ProductController
             foreach ($values as $key => $value) {
                 if ($value >= $allowedPeople) {
                     $date = new \DateTime($key);
-                    array_push($response, $date->getTimeStamp());
+                    $dateArray = [
+                        'start' => $date->getTimeStamp(),
+                        'end' => $date->getTimeStamp(),
+                    ];
+                    array_push($response, $dateArray);
                 }
             }
         }
