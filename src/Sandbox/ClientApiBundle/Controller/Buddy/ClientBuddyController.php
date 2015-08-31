@@ -62,9 +62,15 @@ class ClientBuddyController extends BuddyController
         // get user
         $query = $paramFetcher->get('query');
         if (filter_var($query, FILTER_VALIDATE_EMAIL)) {
-            $user = $this->getRepo('User\User')->findOneByEmail($query);
+            $user = $this->getRepo('User\User')->findOneBy(array(
+                'email' => $query,
+                'authorized' => true,
+                ));
         } else {
-            $user = $this->getRepo('User\User')->findOneByPhone($query);
+            $user = $this->getRepo('User\User')->findOneBy(array(
+                'phone' => $query,
+                'authorized' => true,
+                ));
         }
 
         if (is_null($user) || $user === $myUser) {
