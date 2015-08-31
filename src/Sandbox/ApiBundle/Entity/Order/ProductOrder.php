@@ -63,6 +63,24 @@ class ProductOrder
     private $productId;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="ruleId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $ruleId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="membershipBindId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $membershipBindId;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="price", type="decimal")
@@ -274,6 +292,54 @@ class ProductOrder
     public function getProductId()
     {
         return $this->productId;
+    }
+
+    /**
+     * Set ruleId.
+     *
+     * @param int $ruleId
+     *
+     * @return ProductOrder
+     */
+    public function setRuleId($ruleId)
+    {
+        $this->ruleId = $ruleId;
+
+        return $this;
+    }
+
+    /**
+     * Get ruleId.
+     *
+     * @return int
+     */
+    public function getRuleId()
+    {
+        return $this->ruleId;
+    }
+
+    /**
+     * Set membershipBindId.
+     *
+     * @param int $membershipBindId
+     *
+     * @return ProductOrder
+     */
+    public function setMembershipBindId($membershipBindId)
+    {
+        $this->membershipBindId = $membershipBindId;
+
+        return $this;
+    }
+
+    /**
+     * Get membershipBindId.
+     *
+     * @return int
+     */
+    public function getMembershipBindId()
+    {
+        return $this->membershipBindId;
     }
 
     /**

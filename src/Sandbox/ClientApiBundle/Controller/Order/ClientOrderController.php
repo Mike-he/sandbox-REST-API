@@ -280,9 +280,10 @@ class ClientOrderController extends PaymentController
 
         $ruleId = $form['rule_id']->getData();
         if (!is_null($ruleId) && !empty($ruleId)) {
+            $order->setRuleId($ruleId);
             $discountPrice = $order->getDiscountPrice();
             $isRenew = $order->getIsRenew();
-            $calculatedDiscountPrice = $this->getDiscountPriceForOrder(
+            $result = $this->getDiscountPriceForOrder(
                 $ruleId,
                 $productId,
                 $period,
@@ -291,7 +292,11 @@ class ClientOrderController extends PaymentController
                 $isRenew
             );
 
-            if ($discountPrice != $calculatedDiscountPrice) {
+            if (array_key_exists('bind_product_id', $result['rule'])) {
+                $order->setMembershipBindId($result['rule']['bind_product_id']);
+            }
+
+            if ($discountPrice != $result['discount_price']) {
                 return $this->customErrorView(
                     400,
                     self::DISCOUNT_PRICE_MISMATCH_CODE,
@@ -1146,6 +1151,14 @@ class ClientOrderController extends PaymentController
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($order);
                 $em->flush();
+
+                if (!is_null($order->getMembershipBindId())) {
+                    $this->postAccountUpgrade(
+                        $userId,
+                        $order->getMembershipBindId(),
+                        $order->getOrderNumber()
+                    );
+                }
             }
         }
 

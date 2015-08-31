@@ -422,10 +422,11 @@ class ProductRepository extends EntityRepository
         $now = new \DateTime();
         $nowString = (string) $now->format('Y-m-d H:i:s');
         $nowString = "'$nowString'";
+        $valueFalse = '\'false\'';
 
         $query = $this->createQueryBuilder('p')
             ->update()
-            ->set('p.visible', false)
+            ->set('p.visible', $valueFalse)
             ->set('p.modificationDate', $nowString)
             ->where('p.visible = \'true\'')
             ->andWhere('p.endDate <= :now')
