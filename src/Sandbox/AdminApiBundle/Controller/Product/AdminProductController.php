@@ -497,7 +497,7 @@ class AdminProductController extends ProductController
         if (!is_null($rule_include) && !empty($rule_include)) {
             self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
         }
-        if (!is_null($rule_exclude) && !empty($rule_include)) {
+        if (!is_null($rule_exclude) && !empty($rule_exclude)) {
             self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
         }
     }
