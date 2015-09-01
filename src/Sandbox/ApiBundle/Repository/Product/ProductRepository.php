@@ -327,7 +327,23 @@ class ProductRepository extends EntityRepository
         if (!is_null($visible)) {
             $where = 'p.visible = :visible';
             $this->addWhereQuery($query, $notFirst, $where);
-            $parameters['visible'] = $visible;
+
+            $now = new \DateTime('now');
+
+            if ($visible == '0') {
+                $parameters['visible'] = $visible;
+            } elseif ($visible == '1') {
+                $parameters['visible'] = true;
+                $query->andWhere(':now > p.startDate');
+                $query->andWhere(':now < p.endDate');
+                $parameters['now'] = $now;
+            } elseif ($visible == '2') {
+                $parameters['visible'] = true;
+                $query->andWhere(':now < p.startDate');
+                $query->andWhere(':now < p.endDate');
+                $parameters['now'] = $now;
+            }
+
             $notFirst = true;
         }
 
