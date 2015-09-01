@@ -304,11 +304,11 @@ class ClientOrderController extends PaymentController
                 );
             }
 
-            if (
-                array_key_exists('rule_name', $result['rule']) &&
-                array_key_exists('rule_description', $result['rule'])
-            ) {
+            if (array_key_exists('rule_name', $result['rule'])) {
                 $order->setRuleName($result['rule']['rule_name']);
+            }
+
+            if (array_key_exists('rule_description', $result['rule'])) {
                 $order->setRuleDescription($result['rule']['rule_description']);
             }
         }

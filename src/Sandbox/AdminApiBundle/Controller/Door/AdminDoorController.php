@@ -45,44 +45,37 @@ class AdminDoorController extends DoorController
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
-        $orders = $this->getRepo('Order\ProductOrder')->getOrdersByUser($userId);
-        if (empty($orders)) {
-            return $this->customErrorView(
-                400,
-                self::NO_ORDER_CODE,
-                self::NO_ORDER_MESSAGE
-            );
-        }
-
         $globals = $this->getGlobals();
         $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
-        foreach ($ids as $id) {
-            $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
-                $userId,
-                $id['buildingId']
-            );
-            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
-            $base = $building->getServer();
+        if (!is_null($ids) && !empty($ids)) {
+            foreach ($ids as $id) {
+                $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
+                    $userId,
+                    $id['buildingId']
+                );
+                $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
+                $base = $building->getServer();
 
-            $doorArray = [];
-            foreach ($doors as $door) {
-                $doorId = $door->getDoorId();
-                $timeId = $door->getTimeId();
-                $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
+                $doorArray = [];
+                foreach ($doors as $door) {
+                    $doorId = $door->getDoorId();
+                    $timeId = $door->getTimeId();
+                    $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
 
-                array_push($doorArray, $door);
+                    array_push($doorArray, $door);
+                }
+
+                $this->get('door_service')->cardPermission(
+                    $base,
+                    $userId,
+                    $userName,
+                    $cardNo,
+                    $doorArray,
+                    DoorController::METHOD_ADD,
+                    $globals
+                );
             }
-
-            $this->get('door_service')->cardPermission(
-                $base,
-                $userId,
-                $userName,
-                $cardNo,
-                $doorArray,
-                DoorController::METHOD_ADD,
-                $globals
-            );
         }
     }
 
