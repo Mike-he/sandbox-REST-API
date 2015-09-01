@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Product\Product;
 
 class ProductRepository extends EntityRepository
 {
@@ -327,7 +328,26 @@ class ProductRepository extends EntityRepository
         if (!is_null($visible)) {
             $where = 'p.visible = :visible';
             $this->addWhereQuery($query, $notFirst, $where);
-            $parameters['visible'] = $visible;
+
+            $now = new \DateTime('now');
+
+            // product off sale
+            if ($visible == Product::OFF_SALE) {
+                $parameters['visible'] = false;
+            }
+            // product on sale and in the rent time
+            elseif ($visible == Product::ON_SALE) {
+                $parameters['visible'] = true;
+                $query->andWhere(':now BETWEEN p.startDate AND p.endDate');
+                $parameters['now'] = $now;
+            }
+            // product ready sale and before the rent time
+            elseif ($visible == Product::READY_SALE) {
+                $parameters['visible'] = true;
+                $query->andWhere(':now < p.startDate');
+                $parameters['now'] = $now;
+            }
+
             $notFirst = true;
         }
 

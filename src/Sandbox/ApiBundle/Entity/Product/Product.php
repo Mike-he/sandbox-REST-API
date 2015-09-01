@@ -16,6 +16,10 @@ use Sandbox\ApiBundle\Entity\Room\Room;
  */
 class Product
 {
+    const OFF_SALE = '0';
+    const ON_SALE = '1';
+    const READY_SALE = '2';
+
     /**
      * @var int
      *
