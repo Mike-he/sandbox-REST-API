@@ -18,8 +18,11 @@ class UserRepository extends EntityRepository
         $recordIds,
         $limit
     ) {
-        $queryStr = 'SELECT u.id FROM SandboxApiBundle:User\User u
-                    WHERE u.banned = FALSE AND u.id != :myUserId';
+        $queryStr = 'SELECT u.id
+                     FROM SandboxApiBundle:User\User u
+                     WHERE u.banned = FALSE
+                     AND u.id != :myUserId
+                     AND u.authorized = TRUE';
 
         if (!is_null($recordIds) && !empty($recordIds)) {
             $queryStr = $queryStr.' AND u.id NOT IN (:ids)';
