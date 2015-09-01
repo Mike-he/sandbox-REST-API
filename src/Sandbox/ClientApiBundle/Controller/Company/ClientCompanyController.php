@@ -416,7 +416,7 @@ class ClientCompanyController extends CompanyController
                 $viewGroup = 'company_limit';
             }
         };
-        
+
         // set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
