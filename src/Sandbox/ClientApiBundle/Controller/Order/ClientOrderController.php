@@ -303,6 +303,14 @@ class ClientOrderController extends PaymentController
                     self::DISCOUNT_PRICE_MISMATCH_MESSAGE
                 );
             }
+
+            if (
+                array_key_exists('rule_name', $result['rule']) &&
+                array_key_exists('rule_description', $result['rule'])
+            ) {
+                $order->setRuleName($result['rule']['rule_name']);
+                $order->setRuleDescription($result['rule']['rule_description']);
+            }
         }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);

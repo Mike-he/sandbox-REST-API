@@ -140,6 +140,24 @@ class ProductOrder
     private $location;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="ruleName", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $ruleName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="ruleDescription", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $ruleDescription;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="startDate", type="datetime")
@@ -652,6 +670,54 @@ class ProductOrder
     public function getLocation()
     {
         return $this->location;
+    }
+
+    /**
+     * Set ruleName.
+     *
+     * @param string $ruleName
+     *
+     * @return ProductOrder
+     */
+    public function setRuleName($ruleName)
+    {
+        $this->ruleName = $ruleName;
+
+        return $this;
+    }
+
+    /**
+     * Get ruleName.
+     *
+     * @return string
+     */
+    public function getRuleName()
+    {
+        return $this->ruleName;
+    }
+
+    /**
+     * Set ruleDescription.
+     *
+     * @param string $ruleDescription
+     *
+     * @return ProductOrder
+     */
+    public function setRuleDescription($ruleDescription)
+    {
+        $this->ruleDescription = $ruleDescription;
+
+        return $this;
+    }
+
+    /**
+     * Get ruleDescription.
+     *
+     * @return string
+     */
+    public function getRuleDescription()
+    {
+        return $this->ruleDescription;
     }
 
     /**
