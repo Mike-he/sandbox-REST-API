@@ -310,6 +310,7 @@ class AdminProductController extends ProductController
 
         $rule_include = $form['price_rule_include_ids']->getData();
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
+        $seatNumber = $form['seat_number']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -322,6 +323,20 @@ class AdminProductController extends ProductController
                     400,
                     400003,
                     self::ROOM_IS_FULL
+                );
+            }
+            $roomInProduct = $this->getRepo('Product\Product')->findOneBy(
+                [
+                    'roomId' => $product->getRoomId(),
+                    'visible' => true,
+                    'seatNumber' => $seatNumber,
+                ]
+            );
+            if (!is_null($roomInProduct)) {
+                return $this->customErrorView(
+                    400,
+                    400002,
+                    self::PRODUCT_EXISTS
                 );
             }
         } else {
@@ -344,7 +359,6 @@ class AdminProductController extends ProductController
         $startDate->setTime(00, 00, 00);
         $endDate = $form['end_date']->getData();
         $endDate->setTime(23, 59, 59);
-        $seatNumber = $form['seat_number']->getData();
 
         if (!is_null($seatNumber) && !empty($seatNumber) && $type == Room::TYPE_FIXED) {
             $product->setSeatNumber($seatNumber);
@@ -451,7 +465,7 @@ class AdminProductController extends ProductController
         $roomEm = $this->getRepo('Room\Room')->findOneById($roomId);
         $roomNumber = $roomEm->getNumber();
         $buildingId = $roomEm->getBuilding()->getId();
-        $this->handleProductPost(
+        $this->handleProductPut(
             $roomNumber,
             $buildingId,
             $rule_include,
@@ -500,5 +514,22 @@ class AdminProductController extends ProductController
         if (!is_null($rule_exclude) && !empty($rule_exclude)) {
             self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
         }
+    }
+
+    /**
+     * @param Integer $roomNumber
+     * @param Integer $buildingId
+     * @param Array   $rule_include
+     * @param Array   $rule_exclude
+     */
+    private function handleProductPut(
+        $roomNumber,
+        $buildingId,
+        $rule_include,
+        $rule_exclude
+    ) {
+        //edit price rules
+        self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
+        self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
     }
 }
