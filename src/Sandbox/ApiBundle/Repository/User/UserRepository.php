@@ -133,6 +133,7 @@ class UserRepository extends EntityRepository
                   WHERE u.id != :myUserId
                   AND u.banned = FALSE
                   AND up.buildingId IN (:buildingIds)
+                  AND u.authorized = TRUE
                   ORDER BY field
                 '
             )
