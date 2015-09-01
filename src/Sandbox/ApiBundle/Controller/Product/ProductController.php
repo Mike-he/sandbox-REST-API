@@ -88,6 +88,7 @@ class ProductController extends SandboxRestController
             case 'include':
                 $typeUrl = $globals['crm_api_admin_price_rule_include'];
                 $apiUrl = $globals['crm_api_url'].$typeUrl;
+                $apiUrl = preg_replace('/{buildingId}.*?/', "$buildingId", $apiUrl);
                 break;
             case 'exclude':
                 $typeUrl = $globals['crm_api_admin_price_rule_exclude'];

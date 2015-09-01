@@ -37,7 +37,7 @@ parameters:
     crm_api_admin_user_balance_change: /admin/useraccounts/{userId}/balance/change
     crm_api_admin_user_consume: /admin/useraccounts/{userId}/consume
     crm_api_admin_user_account_upgrade: /admin/useraccounts/{userId}/upgrade
-    crm_api_admin_price_rule_include: /admin/price/rule/include/{roomNo}
+    crm_api_admin_price_rule_include: /admin/price/rule/include/{buildingId}/{roomNo}
     crm_api_admin_price_rule_exclude: /admin/price/rule/exclude/{buildingId}/{roomNo}
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
