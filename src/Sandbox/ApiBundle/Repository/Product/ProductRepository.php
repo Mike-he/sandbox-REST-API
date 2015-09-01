@@ -332,18 +332,20 @@ class ProductRepository extends EntityRepository
             $now = new \DateTime('now');
 
             //product off sale
-            if ($visible == Product::PRODUCT_OFF_SALE) {
-                $parameters['visible'] = $visible;
+            if ($visible == Product::OFF_SALE) {
+                $parameters['visible'] = false;
             }
+
             //product on sale and in the rent time
-            elseif ($visible == Product::PRODUCT_ON_SALE) {
+            elseif ($visible == Product::ON_SALE) {
                 $parameters['visible'] = true;
-                $query->andWhere(':now > p.startDate');
-                $query->andWhere(':now < p.endDate');
+                $query->andWhere(':now >= p.startDate');
+                $query->andWhere(':now <= p.endDate');
                 $parameters['now'] = $now;
             }
+
             //product ready sale and before the rent time
-            elseif ($visible == Product::PRODUCT_READY_SALE) {
+            elseif ($visible == Product::READY_SALE) {
                 $parameters['visible'] = true;
                 $query->andWhere(':now < p.startDate');
                 $query->andWhere(':now < p.endDate');

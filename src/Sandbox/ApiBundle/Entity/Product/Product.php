@@ -16,9 +16,9 @@ use Sandbox\ApiBundle\Entity\Room\Room;
  */
 class Product
 {
-    const PRODUCT_OFF_SALE = '0';
-    const PRODUCT_ON_SALE = '1';
-    const PRODUCT_READY_SALE = '2';
+    const OFF_SALE = '0';
+    const ON_SALE = '1';
+    const READY_SALE = '2';
 
     /**
      * @var int
