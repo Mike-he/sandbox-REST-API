@@ -87,19 +87,17 @@ class ProductController extends SandboxRestController
         switch ($type) {
             case 'include':
                 $typeUrl = $globals['crm_api_admin_price_rule_include'];
-                $apiUrl = $globals['crm_api_url'].$typeUrl;
-                $apiUrl = preg_replace('/{buildingId}.*?/', "$buildingId", $apiUrl);
                 break;
             case 'exclude':
                 $typeUrl = $globals['crm_api_admin_price_rule_exclude'];
-                $apiUrl = $globals['crm_api_url'].$typeUrl;
-                $apiUrl = preg_replace('/{buildingId}.*?/', "$buildingId", $apiUrl);
                 break;
             default:
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // CRM API URL
+        $apiUrl = $globals['crm_api_url'].$typeUrl;
+        $apiUrl = preg_replace('/{buildingId}.*?/', "$buildingId", $apiUrl);
         $apiUrl = preg_replace('/{roomNo}.*?/', "$roomNumber", $apiUrl);
         // init curl
         $ch = curl_init($apiUrl);
