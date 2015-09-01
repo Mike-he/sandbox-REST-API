@@ -237,8 +237,12 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
             ->andWhere('o.status <> \'cancelled\'')
-            ->andWhere('o.startDate >= :monthStart AND o.startDate <= :monthEnd')
-            ->orWhere('o.endDate >= :monthStart AND o.endDate <= :monthEnd')
+            ->andWhere(
+                '(o.startDate >= :monthStart AND o.startDate <= :monthEnd)
+                 OR
+                 (o.endDate >= :monthStart AND o.endDate <= :monthEnd)
+                 '
+            )
             ->setParameter('productId', $id)
             ->setParameter('monthStart', $monthStart)
             ->setParameter('monthEnd', $monthEnd)
