@@ -451,7 +451,7 @@ class AdminProductController extends ProductController
         $roomEm = $this->getRepo('Room\Room')->findOneById($roomId);
         $roomNumber = $roomEm->getNumber();
         $buildingId = $roomEm->getBuilding()->getId();
-        $this->handleProductPost(
+        $this->handleProductPut(
             $roomNumber,
             $buildingId,
             $rule_include,
@@ -500,5 +500,22 @@ class AdminProductController extends ProductController
         if (!is_null($rule_exclude) && !empty($rule_exclude)) {
             self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
         }
+    }
+
+    /**
+     * @param Integer $roomNumber
+     * @param Integer $buildingId
+     * @param Array   $rule_include
+     * @param Array   $rule_exclude
+     */
+    private function handleProductPut(
+        $roomNumber,
+        $buildingId,
+        $rule_include,
+        $rule_exclude
+    ) {
+        //edit price rules
+        self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
+        self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
     }
 }

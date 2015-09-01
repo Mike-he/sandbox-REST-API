@@ -142,7 +142,7 @@ class ProductOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="ruleName", type="text", nullable=true)
+     * @ORM\Column(name="ruleName", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"main", "client"})
      */
@@ -151,7 +151,7 @@ class ProductOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="ruleDescription", type="text", nullable=true)
+     * @ORM\Column(name="ruleDescription", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"main", "client"})
      */
