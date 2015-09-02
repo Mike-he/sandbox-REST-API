@@ -93,7 +93,11 @@ class ClientTopUpOrderController extends PaymentController
                 self::NO_PRICE_MESSAGE
             );
         }
-        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap') {
+        if (
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_CHANNEL_CODE,
@@ -110,6 +114,7 @@ class ClientTopUpOrderController extends PaymentController
             self::PAYMENT_SUBJECT,
             $this->getUserId()
         );
+
         $charge = json_decode($charge, true);
         $chargeId = $charge['id'];
         $this->createOrderMap('topup', null, $chargeId);

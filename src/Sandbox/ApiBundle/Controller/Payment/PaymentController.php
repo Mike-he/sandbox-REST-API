@@ -75,6 +75,10 @@ class PaymentController extends SandboxRestController
     const PRODUCT_NOT_AVAILABLE_MESSAGE = 'Product Is Not Available';
     const FLEXIBLE_ROOM_FULL_CODE = 400023;
     const FLEXIBLE_ROOM_FULL_MESSAGE = 'This Room Is Full';
+    const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
+    const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
+    const PAYMENT_CHANNEL_ACCOUNT = 'account';
+    const PAYMENT_CHANNEL_ALIPAY = 'alipay';
 
     /**
      * @param $order
@@ -91,13 +95,13 @@ class PaymentController extends SandboxRestController
     ) {
         $extra = [];
         switch ($channel) {
-            case 'alipay_wap':
+            case self::PAYMENT_CHANNEL_ALIPAY_WAP:
                 $extra = array(
                     'success_url' => 'http://www.yourdomain.com/success',
                     'cancel_url' => 'http://www.yourdomain.com/cancel',
                 );
                 break;
-            case 'upacp_wap':
+            case self::PAYMENT_CHANNEL_UPACP_WAP:
                 $extra = array(
                     'result_url' => 'http://www.yourdomain.com/result?code=',
                 );
