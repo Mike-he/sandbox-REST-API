@@ -94,9 +94,9 @@ class ClientTopUpOrderController extends PaymentController
             );
         }
         if (
-            $channel !== 'alipay_wap' &&
-            $channel !== 'upacp_wap' &&
-            $channel !== 'alipay'
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY
         ) {
             return $this->customErrorView(
                 400,

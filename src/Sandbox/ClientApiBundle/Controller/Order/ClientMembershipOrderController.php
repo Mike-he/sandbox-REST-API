@@ -102,10 +102,10 @@ class ClientMembershipOrderController extends PaymentController
             );
         }
         if (
-            $channel !== 'alipay_wap' &&
-            $channel !== 'upacp_wap' &&
-            $channel !== 'account' &&
-            $channel !== 'alipay'
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY
         ) {
             return $this->customErrorView(
                 400,
@@ -113,7 +113,7 @@ class ClientMembershipOrderController extends PaymentController
                 self::WRONG_PAYMENT_STATUS_MESSAGE
             );
         }
-        if ($channel === 'account') {
+        if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payMembershipByAccount(
                 $productId,
                 $price
@@ -151,7 +151,7 @@ class ClientMembershipOrderController extends PaymentController
             $userId,
             (-1) * $price,
             $orderNumber,
-            'account'
+            self::PAYMENT_CHANNEL_ACCOUNT
         );
         if (is_null($balance)) {
             return $this->customErrorView(
@@ -181,7 +181,7 @@ class ClientMembershipOrderController extends PaymentController
         return $view->setData(
             array(
                 'balance' => $balance,
-                'channel' => 'account',
+                'channel' => self::PAYMENT_CHANNEL_ACCOUNT,
             )
         );
     }
