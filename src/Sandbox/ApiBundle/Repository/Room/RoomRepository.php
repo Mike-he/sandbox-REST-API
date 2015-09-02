@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Repository\Room;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Room\RoomView;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -50,22 +51,23 @@ class RoomRepository extends EntityRepository
 
         // filter by order status
         if (!is_null($status)) {
-            if ($status == 'completed') {
+            if ($status == RoomView::STATUS_COMPLETED) {
                 $where = '
-                    (r.status = \'completed\')
+                    (r.status = :status)
                     AND
                     (:now < r.orderEndDate)
                 ';
             } else {
                 $where = '
-                    (r.status <> \'completed\')
+                    (r.status <> :status)
                     OR
-                    (r.status = \'completed\' AND :now >= r.orderEndDate)
+                    (r.status = :status AND :now >= r.orderEndDate)
                 ';
             }
             $this->addWhereQuery($query, $notFirst, $where);
             $now = new \DateTime();
             $parameters['now'] = $now;
+            $parameters['status'] = RoomView::STATUS_COMPLETED;
             $notFirst = true;
         }
 
