@@ -369,9 +369,13 @@ class ClientCompanyController extends CompanyController
         // get a company
         $company = $this->getRepo('Company\Company')->findOneById($id);
 
-        // check user is VIP
         $viewGroup = 'company_info';
-        if (is_null($this->getExpireDateIfUserVIP())) {
+
+        $creatorId = $company->getCreatorId();
+        $creatorVip = $this->getVipStatusByUserId($creatorId);
+
+        // check user is VIP
+        if (is_null($creatorVip)) {
             // check user is company member
             if (!$this->isCompanyMember($userId, $id)) {
                 $viewGroup = 'company_limit';
@@ -409,8 +413,11 @@ class ClientCompanyController extends CompanyController
 
         $viewGroup = 'company_info';
 
+        $creatorId = $company->getCreatorId();
+        $creatorVip = $this->getVipStatusByUserId($creatorId);
+
         // check user is VIP
-        if (is_null($this->getExpireDateIfUserVIP())) {
+        if (is_null($creatorVip)) {
             // check user is company member
             if (!$this->isCompanyMember($userId, $id)) {
                 $viewGroup = 'company_limit';
@@ -425,8 +432,8 @@ class ClientCompanyController extends CompanyController
         return   $view;
     }
 
-    /*
-     * Create a company
+    /**
+     * Create a company.
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
