@@ -347,7 +347,7 @@ class ClientOrderController extends PaymentController
             $order->getUserId(),
             (-1) * $price,
             $orderNumber,
-            'account'
+            self::PAYMENT_CHANNEL_ACCOUNT
         );
         if (is_null($balance)) {
             return $this->customErrorView(
@@ -460,7 +460,7 @@ class ClientOrderController extends PaymentController
         return $view->setData(
             array(
                 'balance' => $balance,
-                'channel' => 'account',
+                'channel' => self::PAYMENT_CHANNEL_ACCOUNT,
             )
         );
     }
@@ -493,14 +493,19 @@ class ClientOrderController extends PaymentController
         $requestContent = json_decode($request->getContent(), true);
         $channel = $requestContent['channel'];
 
-        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
+        if (
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_CHANNEL_CODE,
                 self::WRONG_CHANNEL_MESSAGE
             );
         }
-        if ($channel === 'account') {
+        if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount($order);
         }
 
@@ -552,7 +557,7 @@ class ClientOrderController extends PaymentController
             $userId,
             $price,
             $id,
-            'account'
+            self::PAYMENT_CHANNEL_ACCOUNT
         );
         if (!is_null($balance)) {
             $order->setStatus('cancelled');
@@ -643,7 +648,7 @@ class ClientOrderController extends PaymentController
         return $view->setData(
             array(
                 'balance' => $balance,
-                'channel' => 'account',
+                'channel' => self::PAYMENT_CHANNEL_ACCOUNT,
             )
         );
     }
