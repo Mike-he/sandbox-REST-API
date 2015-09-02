@@ -493,7 +493,12 @@ class ClientOrderController extends PaymentController
         $requestContent = json_decode($request->getContent(), true);
         $channel = $requestContent['channel'];
 
-        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
+        if (
+            $channel !== 'alipay_wap' &&
+            $channel !== 'upacp_wap' &&
+            $channel !== 'account' &&
+            $channel !== 'alipay'
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_CHANNEL_CODE,

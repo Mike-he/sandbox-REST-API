@@ -101,7 +101,12 @@ class ClientMembershipOrderController extends PaymentController
                 self::NO_PRICE_MESSAGE
             );
         }
-        if ($channel !== 'alipay_wap' && $channel !== 'upacp_wap' && $channel !== 'account') {
+        if (
+            $channel !== 'alipay_wap' &&
+            $channel !== 'upacp_wap' &&
+            $channel !== 'account' &&
+            $channel !== 'alipay'
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_PAYMENT_STATUS_CODE,
