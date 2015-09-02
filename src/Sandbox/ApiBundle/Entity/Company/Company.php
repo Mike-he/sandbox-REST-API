@@ -57,8 +57,7 @@ class Company
      * @Serializer\Groups({
      *      "main",
      *      "company_info",
-     *      "company_basic",
-     *      "company_limit"
+     *      "company_basic"
      * })
      */
     private $description;
@@ -70,8 +69,7 @@ class Company
      * @Serializer\Groups({
      *      "main",
      *      "company_info",
-     *      "company_basic",
-     *      "company_limit"
+     *      "company_basic"
      * })
      */
     private $address;
