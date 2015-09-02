@@ -372,7 +372,7 @@ class ClientCompanyController extends CompanyController
         $viewGroup = 'company_info';
 
         $creatorId = $company->getCreatorId();
-        $creatorVip = $this->getCompanyCreatorVipStatus($creatorId);
+        $creatorVip = $this->getVipStatusByUserId($creatorId);
 
         // check user is VIP
         if (is_null($creatorVip)) {
@@ -414,7 +414,7 @@ class ClientCompanyController extends CompanyController
         $viewGroup = 'company_info';
 
         $creatorId = $company->getCreatorId();
-        $creatorVip = $this->getCompanyCreatorVipStatus($creatorId);
+        $creatorVip = $this->getVipStatusByUserId($creatorId);
 
         // check user is VIP
         if (is_null($creatorVip)) {

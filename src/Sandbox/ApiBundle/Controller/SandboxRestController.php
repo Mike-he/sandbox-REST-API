@@ -881,7 +881,7 @@ class SandboxRestController extends FOSRestController
      *
      * @return mixed|void
      */
-    protected function getCompanyCreatorVipStatus(
+    protected function getVipStatusByUserId(
         $userId
     ) {
         $twig = $this->container->get('twig');
