@@ -544,10 +544,12 @@ class ClientProductController extends ProductController
             $values = array_count_values($daysArray);
             foreach ($values as $key => $value) {
                 if ($value >= $allowedPeople) {
-                    $date = new \DateTime($key);
+                    $start = new \DateTime($key);
+                    $end = clone $start;
+                    $end->setTime(23, 59, 59);
                     $dateArray = [
-                        'start' => $date->getTimeStamp(),
-                        'end' => $date->getTimeStamp(),
+                        'start' => $start->getTimeStamp(),
+                        'end' => $end->getTimeStamp(),
                     ];
                     array_push($response, $dateArray);
                 }

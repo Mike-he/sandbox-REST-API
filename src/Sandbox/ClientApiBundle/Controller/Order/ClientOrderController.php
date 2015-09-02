@@ -1167,6 +1167,12 @@ class ClientOrderController extends PaymentController
                         $order->getOrderNumber()
                     );
                 }
+
+                $amount = $this->postConsumeBalance(
+                    $userId,
+                    $order->getDiscountPrice(),
+                    $order->getOrderNumber()
+                );
             }
         }
 
