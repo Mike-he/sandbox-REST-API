@@ -15,6 +15,8 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class RoomView
 {
+    const STATUS_COMPLETED = 'completed';
+
     /**
      * @var int
      *
