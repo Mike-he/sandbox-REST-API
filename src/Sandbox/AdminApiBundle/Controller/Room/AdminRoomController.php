@@ -70,9 +70,9 @@ class AdminRoomController extends RoomController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(paid|unpaid|completed|cancelled)",
+     *    requirements="(completed|uncompleted)",
      *    strict=true,
-     *    description="Filter by order status"
+     *    description="Filter by room usage"
      * )
      *
      * @Annotations\QueryParam(

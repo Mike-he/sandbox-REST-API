@@ -50,9 +50,22 @@ class RoomRepository extends EntityRepository
 
         // filter by order status
         if (!is_null($status)) {
-            $where = 'o.status = :status';
+            if ($status == 'completed') {
+                $where = '
+                    (r.status = \'completed\')
+                    AND
+                    (:now < r.orderEndDate)
+                ';
+            } else {
+                $where = '
+                    (r.status <> \'completed\')
+                    OR
+                    (r.status = \'completed\' AND :now >= r.orderEndDate)
+                ';
+            }
             $this->addWhereQuery($query, $notFirst, $where);
-            $parameters['status'] = $status;
+            $now = new \DateTime();
+            $parameters['now'] = $now;
             $notFirst = true;
         }
 
