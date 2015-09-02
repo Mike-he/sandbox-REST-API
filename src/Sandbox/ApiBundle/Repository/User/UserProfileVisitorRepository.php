@@ -24,7 +24,7 @@ class UserProfileVisitorRepository extends EntityRepository
                 '
                   SELECT DISTINCT upv FROM SandboxApiBundle:User\UserProfileVisitor upv
                   LEFT JOIN SandboxApiBundle:User\User u
-                  WITH u.id = upv.userId AND u.id = upv.visitorId AND u.authorized = TRUE
+                  WITH u.id = upv.visitorId AND u.authorized = TRUE
                   WHERE upv.userId = :myUserId
                   AND upv.id IN
                   (
