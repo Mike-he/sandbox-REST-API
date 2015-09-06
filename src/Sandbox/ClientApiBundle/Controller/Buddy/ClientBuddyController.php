@@ -178,7 +178,7 @@ class ClientBuddyController extends BuddyController
             try {
                 $buddyId = $buddy->getBuddyId();
 
-                $user = $this->getRepo('User\User')->find($buddyId);
+                $user = $this->getRepo('User\User')->findOneById($buddyId);
                 if (is_null($user)) {
                     continue;
                 }
@@ -203,6 +203,7 @@ class ClientBuddyController extends BuddyController
 
                 $myBuddy = array(
                     'id' => $buddy->getId(),
+                    'user' => $user,
                     'profile' => $profile,
                     'company' => $company,
                 );
