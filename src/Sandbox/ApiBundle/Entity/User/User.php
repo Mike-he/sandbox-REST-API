@@ -30,7 +30,7 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "buddy"})
      */
     private $id;
 
@@ -53,7 +53,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "buddy"})
      */
     private $email;
 
@@ -61,7 +61,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "login"})
+     * @Serializer\Groups({"main", "login", "buddy"})
      */
     private $phone;
 
