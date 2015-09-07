@@ -39,6 +39,7 @@ class ProductRepository extends EntityRepository
         $limit,
         $offset
     ) {
+        $now = new \DateTime();
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
@@ -46,8 +47,10 @@ class ProductRepository extends EntityRepository
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'meeting\'')
             ->andWhere('p.visible = :visible')
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('visible', true)
             ->setParameter('private', false)
+            ->setParameter('now', $now)
             ->setParameter('userId', $userId);
         if (!is_null($cityId) && !empty($cityId)) {
             $query = $query->andWhere('r.city = :cityId')
@@ -150,12 +153,15 @@ class ProductRepository extends EntityRepository
         $limit,
         $offset
     ) {
+        $now = new \DateTime();
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'office\'')
             ->andWhere('p.visible = :visible')
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('now', $now)
             ->setParameter('visible', true)
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
@@ -220,12 +226,15 @@ class ProductRepository extends EntityRepository
         $limit,
         $offset
     ) {
+        $now = new \DateTime();
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visibleUserId = :userId OR p.private = :private')
             ->andWhere('r.type = \'fixed\' OR r.type = \'flexible\'')
             ->andWhere('p.visible = :visible')
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('now', $now)
             ->setParameter('visible', true)
             ->setParameter('private', false)
             ->setParameter('userId', $userId);
