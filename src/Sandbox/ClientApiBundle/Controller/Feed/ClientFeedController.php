@@ -270,7 +270,7 @@ class ClientFeedController extends FeedController
 
         $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
             'feedId' => $feed->getId(),
-            'authorId' => $feedOwnerId,
+            'authorId' => $this->getUserId(),
         ));
 
         if (!is_null($like)) {
@@ -420,7 +420,7 @@ class ClientFeedController extends FeedController
 
             $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
                 'feedId' => $feed->getId(),
-                'authorId' => $feedOwnerId,
+                'authorId' => $this->getUserId(),
             ));
 
             if (!is_null($like)) {
