@@ -138,8 +138,11 @@ class CompanyRepository extends EntityRepository
                   SELECT c,
                   field(c.buildingId, :buildingIds) as HIDDEN field
                   FROM SandboxApiBundle:Company\Company c
+                  LEFT JOIN SandboxApiBundle:User\User u
+                  WITH c.creatorId = u.id
                   WHERE
                   c.buildingId IN (:buildingIds)
+                  AND u.authorized = TRUE
                   ORDER BY field
                 '
             )
