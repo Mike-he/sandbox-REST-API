@@ -149,7 +149,14 @@ class ClientOrderController extends PaymentController
         $now = new \DateTime();
         $type = $product->getRoom()->getType();
         $startDate = new \DateTime($order->getStartDate());
-        if ($startDate < $productStart || $startDate > $productEnd || $product->getVisible() == false) {
+
+        if (
+            $now < $productStart ||
+            $now > $productEnd ||
+            $startDate < $productStart ||
+            $startDate > $productEnd ||
+            $product->getVisible() == false
+        ) {
             return $this->customErrorView(
                 400,
                 self::PRODUCT_NOT_AVAILABLE_CODE,
