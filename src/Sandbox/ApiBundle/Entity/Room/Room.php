@@ -226,6 +226,7 @@ class Room
      *      cascade={"persist"}
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     * @ORM\OrderBy({"id" = "ASC"})
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
      */
