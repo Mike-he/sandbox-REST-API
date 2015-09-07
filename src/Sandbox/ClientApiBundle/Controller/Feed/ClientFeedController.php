@@ -67,11 +67,6 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($this->getUserId())) {
-            return new View(array());
-        }
-
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
@@ -120,11 +115,6 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($this->getUserId())) {
-            return new View(array());
-        }
-
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
@@ -176,11 +166,6 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($this->getUserId())) {
-            return new View(array());
-        }
-
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
@@ -234,11 +219,6 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($this->getUserId())) {
-            return new View(array());
-        }
-
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
@@ -279,22 +259,18 @@ class ClientFeedController extends FeedController
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
-
         $feed = $this->getRepo('Feed\FeedView')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
-        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feed->getOwnerId());
+        $feedOwnerId = $feed->getOwnerId();
+
+        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feedOwnerId);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
         $feed->setOwner($profile);
 
         $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
             'feedId' => $feed->getId(),
-            'authorId' => $userId,
+            'authorId' => $this->getUserId(),
         ));
 
         if (!is_null($like)) {
@@ -329,11 +305,6 @@ class ClientFeedController extends FeedController
     public function postFeedAction(
         Request $request
     ) {
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
-
         $feed = new Feed();
 
         $form = $this->createForm(new FeedType(), $feed);
