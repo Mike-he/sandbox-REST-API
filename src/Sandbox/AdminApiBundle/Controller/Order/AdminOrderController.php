@@ -141,8 +141,10 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $adminId = $this->getAdminId();
+
         // check user permission
-        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
 
         //filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -256,8 +258,12 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+
         // check user permission
-        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
 
         $type = $paramFetcher->get('type');
         $cityId = $paramFetcher->get('city');
@@ -267,9 +273,6 @@ class AdminOrderController extends OrderController
         $endDate = $paramFetcher->get('endDate');
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
-
-        //authenticate with web browser cookie
-        $this->authenticateAdminCookie();
 
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
@@ -360,8 +363,10 @@ class AdminOrderController extends OrderController
         Request $request,
         $id
     ) {
+        $adminId = $this->getAdminId();
+
         // check user permission
-        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
 
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -398,8 +403,10 @@ class AdminOrderController extends OrderController
         Request $request,
         $id
     ) {
+        $adminId = $this->getAdminId();
+
         // check user permission
-        $this->checkAdminOrderPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
 
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -431,21 +438,25 @@ class AdminOrderController extends OrderController
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
+
+        return $adminToken->getAdmin();
     }
 
     /**
      * Check user permission.
      *
-     * @param Integer $OpLevel
+     * @param Integer $opLevel
+     * @param Integer $adminId
      */
     private function checkAdminOrderPermission(
-        $OpLevel
+        $adminId,
+        $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
+            $adminId,
             AdminType::KEY_PLATFORM,
             AdminPermission::KEY_PLATFORM_ORDER,
-            $OpLevel
+            $opLevel
         );
     }
 }
