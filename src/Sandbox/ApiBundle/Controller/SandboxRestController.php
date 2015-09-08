@@ -224,6 +224,22 @@ class SandboxRestController extends FOSRestController
     /**
      * @param $userId
      *
+     * @return bool
+     */
+    protected function checkUserAuthorized(
+        $userId
+    ) {
+        $user = $this->getRepo('User\User')->find($userId);
+        if (is_null($user)) {
+            return false;
+        }
+
+        return $user->isAuthorized();
+    }
+
+    /**
+     * @param $userId
+     *
      * @return string|null
      */
     protected function getCardNoByUser(
