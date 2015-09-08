@@ -918,22 +918,42 @@ class ClientOrderController extends PaymentController
         }
         $requestContent = json_decode($request->getContent(), true);
         $user = $requestContent['user_id'];
-
-        $appointedProfile = $this->getRepo('User\UserProfile')->findOneByUserId($user);
-        if (is_null($user) || empty($user) || is_null($appointedProfile)) {
+        $currentUser = $order->getAppointed();
+        $orderUser = $order->getUserId();
+        if (is_null($user) || empty($user) && is_null($currentUser)) {
             return $this->customErrorView(
                 400,
                 self::NO_APPOINTED_PERSON_CODE,
                 self::NO_APPOINTED_PERSON_CODE_MESSAGE
             );
         }
-        $appointedName = $appointedProfile->getName();
         $order->setAppointed($user);
         $order->setModificationDate(new \DateTime());
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
 
+        if (is_null($user) || empty($user)) {
+            $this->setUserDoorAccess($order, $orderUser, $currentUser);
+        } elseif (is_null($currentUser)) {
+            $this->setUserDoorAccess($order, $user, $orderUser);
+        } else {
+            $this->setUserDoorAccess($order, $user, $currentUser);
+        }
+    }
+
+    /**
+     * @param $order
+     * @param $user
+     * @param $orderUser
+     *
+     * @return View
+     */
+    public function setUserDoorAccess(
+        $order,
+        $user,
+        $orderUser
+    ) {
         $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
@@ -947,6 +967,10 @@ class ClientOrderController extends PaymentController
                 self::NO_DOOR_MESSAGE
             );
         }
+
+        $appointedProfile = $this->getRepo('User\UserProfile')->findOneByUserId($user);
+        $appointedName = $appointedProfile->getName();
+
         foreach ($roomDoors as $roomDoor) {
             $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
                 [
@@ -979,7 +1003,7 @@ class ClientOrderController extends PaymentController
 
         $controls = $this->getRepo('Door\DoorAccess')->findBy(
             [
-                'userId' => $order->getUserId(),
+                'userId' => $orderUser,
                 'orderId' => $order->getId(),
             ]
         );
@@ -1022,10 +1046,10 @@ class ClientOrderController extends PaymentController
         $userCardNo = $this->getCardNoIfUserAuthorized();
 
         if (!is_null($userCardNo)) {
-            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($orderUser);
             $userName = $userProfile->getName();
             $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
-                $order->getUserId(),
+                $orderUser,
                 $buildingId
             );
             if (!is_null($doors) && !empty($doors)) {
@@ -1040,7 +1064,7 @@ class ClientOrderController extends PaymentController
 
                 $this->get('door_service')->cardPermission(
                     $base,
-                    $order->getUserId(),
+                    $orderUser,
                     $userName,
                     $userCardNo,
                     $doorArray,
@@ -1050,7 +1074,7 @@ class ClientOrderController extends PaymentController
             } else {
                 $this->get('door_service')->cardPermission(
                     $base,
-                    $order->getUserId(),
+                    $orderUser,
                     $userName,
                     $userCardNo,
                     [],
