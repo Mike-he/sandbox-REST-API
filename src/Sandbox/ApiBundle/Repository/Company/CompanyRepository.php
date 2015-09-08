@@ -82,7 +82,10 @@ class CompanyRepository extends EntityRepository
             ->createQuery(
                 '
                   SELECT c FROM SandboxApiBundle:Company\Company c
+                  LEFT JOIN SandboxApiBundle:User\User u
+                  WITH c.creatorId = u.id
                   WHERE c.id IN (:ids)
+                  AND u.authorized = TRUE
                   ORDER BY c.modificationDate DESC
                 '
             )
