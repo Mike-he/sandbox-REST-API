@@ -154,6 +154,8 @@ class Room
      *      cascade={"persist"}
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $doorControl;
 
