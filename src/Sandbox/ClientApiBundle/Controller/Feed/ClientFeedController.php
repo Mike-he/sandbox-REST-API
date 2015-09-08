@@ -67,8 +67,10 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($this->getUserId())) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
 
@@ -80,7 +82,7 @@ class ClientFeedController extends FeedController
             $lastId
         );
 
-        return $this->handleGetFeeds($feeds);
+        return $this->handleGetFeeds($feeds, $userId);
     }
 
     /**
@@ -120,15 +122,15 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($this->getUserId())) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
 
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
-
-        $userId = $this->getUserId();
 
         $feeds = $this->getRepo('Feed\FeedView')->getFeedsByBuddies(
             $limit,
@@ -136,7 +138,7 @@ class ClientFeedController extends FeedController
             $userId
         );
 
-        return $this->handleGetFeeds($feeds);
+        return $this->handleGetFeeds($feeds, $userId);
     }
 
     /**
@@ -176,15 +178,16 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($this->getUserId())) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
 
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
-        $userId = $this->getUserId();
         $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $buildingId = $profile->getBuildingId();
 
@@ -194,7 +197,7 @@ class ClientFeedController extends FeedController
             $buildingId
         );
 
-        return $this->handleGetFeeds($feeds);
+        return $this->handleGetFeeds($feeds, $userId);
     }
 
     /**
@@ -234,15 +237,15 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($this->getUserId())) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
 
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
-
-        $userId = $this->getUserId();
 
         $myCompany = $this->getRepo('Company\CompanyMember')->findOneByUserId($userId);
         $this->throwNotFoundIfNull($myCompany, self::NOT_FOUND_MESSAGE);
@@ -253,7 +256,7 @@ class ClientFeedController extends FeedController
             $myCompany->getCompanyId()
         );
 
-        return $this->handleGetFeeds($feeds);
+        return $this->handleGetFeeds($feeds, $userId);
     }
 
     /**
@@ -434,11 +437,13 @@ class ClientFeedController extends FeedController
 
     /**
      * @param ArrayCollection $feeds
+     * @param Integer         $userId
      *
      * @return View
      */
     private function handleGetFeeds(
-        $feeds
+        $feeds,
+        $userId
     ) {
         foreach ($feeds as $feed) {
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feed->getOwnerId());
@@ -447,7 +452,7 @@ class ClientFeedController extends FeedController
 
             $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
                 'feedId' => $feed->getId(),
-                'authorId' => $this->getUserId(),
+                'authorId' => $userId,
             ));
 
             if (!is_null($like)) {
