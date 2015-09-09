@@ -16,6 +16,7 @@ parameters:
     pingpp_app_id: app_TSu14S5GKGeTfDWD
     load_more_limit: 20
     nearby_range_km: 100
+    expired_verification_time: +10 minutes
     user_profile_default_name_prefix: 用户_
     xmpp_domain: devxmpp.sandbox3.cn
     openfire_innet_url: http://127.0.0.1:9090
