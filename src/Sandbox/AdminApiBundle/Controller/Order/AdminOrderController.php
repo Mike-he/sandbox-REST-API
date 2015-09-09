@@ -381,57 +381,6 @@ class AdminOrderController extends OrderController
     }
 
     /**
-     * Get order by id.
-     *
-     * @param Request $request
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
-     * @Route("/orders/{id}/renter")
-     * @Method({"GET"})
-     *
-     * @throws \Exception
-     *
-     * @return View
-     */
-    public function getOrderMemberRenterInfoAction(
-        Request $request,
-        $id
-    ) {
-        $adminId = $this->getAdminId();
-
-        // check user permission
-        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
-
-        $order = $this->getRepo('Order\ProductOrder')->find($id);
-        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
-
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
-        $this->throwNotFoundIfNull($userProfile, self::NOT_FOUND_MESSAGE);
-        $name = $userProfile->getName();
-
-        $user = $this->getRepo('User\User')->find($order->getUserId());
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
-        $email = $user->getEmail();
-        $phone = $user->getPhone();
-
-        $view = new View();
-        $view->setData([
-            'user_id' => $order->getUserId(),
-            'name' => $name,
-            'email' => $email,
-            'phone' => $phone,
-        ]);
-
-        return $view;
-    }
-
-    /**
      * authenticate with web browser cookie.
      */
     private function authenticateAdminCookie()

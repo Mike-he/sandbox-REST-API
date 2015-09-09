@@ -39,7 +39,7 @@ class ProductOrder
      *
      * @ORM\Column(name="userId", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $userId;
 
