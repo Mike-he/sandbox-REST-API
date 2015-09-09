@@ -161,15 +161,6 @@ class AdminDoorController extends DoorController
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
-        $orders = $this->getRepo('Order\ProductOrder')->findBy(['userId' => $userId]);
-        if (empty($orders)) {
-            return $this->customErrorView(
-                400,
-                self::NO_ORDER_CODE,
-                self::NO_ORDER_MESSAGE
-            );
-        }
-
         $globals = $this->getGlobals();
         $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
@@ -207,15 +198,6 @@ class AdminDoorController extends DoorController
         $cardNo = $requestContent['card_no'];
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
-
-        $orders = $this->getRepo('Order\ProductOrder')->findBy(['userId' => $userId]);
-        if (empty($orders)) {
-            return $this->customErrorView(
-                400,
-                self::NO_ORDER_CODE,
-                self::NO_ORDER_MESSAGE
-            );
-        }
 
         $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
         $globals = $this->getGlobals();
