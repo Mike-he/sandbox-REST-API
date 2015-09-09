@@ -227,7 +227,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $phoneVerification
     ) {
         $smsText = '您正在申请绑定当前手机，如确认是本人行为，请提交以下验证码完成操作：'
-            .$phoneVerification->getCode();
+            .$phoneVerification->getCode().'。验证码在10分钟内有效。';
         $this->sendSms($phoneVerification->getPhone(), urlencode($smsText));
     }
 }
