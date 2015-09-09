@@ -144,7 +144,7 @@ class ProductOrder
      *
      * @ORM\Column(name="ruleName", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $ruleName;
 
