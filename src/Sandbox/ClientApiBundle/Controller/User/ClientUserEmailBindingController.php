@@ -183,7 +183,8 @@ class ClientUserEmailBindingController extends UserEmailBindingController
             return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        if (new \DateTime('now') >  $emailVerification->getCreationDate()->modify('+0.5 hour')) {
+        $globals = $this->container->get('twig')->getGlobals();
+        if (new \DateTime('now') >  $emailVerification->getCreationDate()->modify($globals['expired_verification_time'])) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 

@@ -245,7 +245,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         }
 
         // check token validation time
-        if (new \DateTime('now') > $registration->getCreationDate()->modify('+1 day')) {
+        $globals = $this->container->get('twig')->getGlobals();
+        if (new \DateTime('now') > $registration->getCreationDate()->modify($globals['expired_verification_time'])) {
             return $this->customErrorView(
                 400,
                 self::ERROR_EXPIRED_VERIFICATION_CODE,
@@ -422,7 +423,7 @@ class ClientUserRegistrationController extends UserRegistrationController
                 ));
         } else {
             // sms verification code to phone
-            $smsText = '欢迎注册展想创合！您的手机验证码为：'.$code.'，请输入后进行验证，谢谢！';
+            $smsText = '欢迎注册展想创合！您的手机验证码为：'.$code.'，请输入后进行验证，谢谢！验证码在10分钟内有效。';
             $this->sendSms($phone, urlencode($smsText));
         }
     }

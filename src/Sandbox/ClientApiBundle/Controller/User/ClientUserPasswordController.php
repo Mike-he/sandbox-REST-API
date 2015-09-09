@@ -396,7 +396,7 @@ class ClientUserPasswordController extends UserPasswordController
         } else {
             // sms verification code to phone
             $smsText = '您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：'
-                .$forgetPassword->getCode();
+                .$forgetPassword->getCode().'。验证码在10分钟内有效。';
             $this->sendSms($phone, urlencode($smsText));
         }
     }
@@ -429,7 +429,8 @@ class ClientUserPasswordController extends UserPasswordController
             return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        if (new \DateTime('now') > $forgetPassword->getCreationDate()->modify('+0.5 hour')) {
+        $globals = $this->container->get('twig')->getGlobals();
+        if (new \DateTime('now') > $forgetPassword->getCreationDate()->modify($globals['expired_verification_time'])) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
@@ -470,7 +471,8 @@ class ClientUserPasswordController extends UserPasswordController
         ));
         $this->throwNotFoundIfNull($forgetPassword, self::NOT_FOUND_MESSAGE);
 
-        if (new \DateTime('now') > $forgetPassword->getCreationDate()->modify('+0.5 hour')) {
+        $globals = $this->container->get('twig')->getGlobals();
+        if (new \DateTime('now') > $forgetPassword->getCreationDate()->modify($globals['expired_verification_time'])) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 

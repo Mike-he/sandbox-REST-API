@@ -134,11 +134,7 @@ class DoorController extends SandboxRestController
             $this->logOut($sessionId, $base, $globals);
 
             if ($periodArray['result'] != self::RESULT_OK) {
-                return $this->customErrorView(
-                    400,
-                    self::RESPONSE_NOT_VALID_CODE,
-                    self::RESPONSE_NOT_VALID_MESSAGE
-                );
+                error_log('Door Access Error');
             }
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {
@@ -199,11 +195,7 @@ class DoorController extends SandboxRestController
             $this->logOut($sessionId, $base, $globals);
 
             if ($periodArray['result'] != self::RESULT_OK) {
-                return $this->customErrorView(
-                    400,
-                    self::RESPONSE_NOT_VALID_CODE,
-                    self::RESPONSE_NOT_VALID_MESSAGE
-                );
+                error_log('Door Access Error');
             }
         } catch (\Exception $e) {
             if (!is_null($sessionId) && !empty($sessionId)) {

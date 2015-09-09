@@ -178,7 +178,8 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
             return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        if (new \DateTime('now') >  $phoneVerification->getCreationDate()->modify('+0.5 hour')) {
+        $globals = $this->container->get('twig')->getGlobals();
+        if (new \DateTime('now') >  $phoneVerification->getCreationDate()->modify($globals['expired_verification_time'])) {
             return $this->customErrorView(400, self::ERROR_EXPIRED_VERIFICATION_CODE, self::ERROR_EXPIRED_VERIFICATION_MESSAGE);
         }
 
@@ -226,7 +227,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $phoneVerification
     ) {
         $smsText = '您正在申请绑定当前手机，如确认是本人行为，请提交以下验证码完成操作：'
-            .$phoneVerification->getCode();
+            .$phoneVerification->getCode().'。验证码在10分钟内有效。';
         $this->sendSms($phoneVerification->getPhone(), urlencode($smsText));
     }
 }
