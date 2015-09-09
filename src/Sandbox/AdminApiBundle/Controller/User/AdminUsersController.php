@@ -253,15 +253,17 @@ class AdminUsersController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_USER,
-            AdminPermissionMap::OP_LEVEL_VIEW
-        );
-
         $ids = $paramFetcher->get('id');
+
+        if (is_null($ids) || empty($ids)) {
+            // check user permission
+            $this->throwAccessDeniedIfAdminNotAllowed(
+                $this->getAdminId(),
+                AdminType::KEY_PLATFORM,
+                AdminPermission::KEY_PLATFORM_USER,
+                AdminPermissionMap::OP_LEVEL_VIEW
+            );
+        }
 
         $banned = $paramFetcher->get('banned');
 

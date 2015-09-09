@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomDoors.
@@ -50,6 +51,8 @@ class RoomDoors
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room"})
      */
     private $name;
 
