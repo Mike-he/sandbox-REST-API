@@ -1148,7 +1148,17 @@ class ClientOrderController extends PaymentController
         $appointed = $order->getAppointed();
         $appointedPerson = [];
         if (!is_null($appointed) && !empty($appointed)) {
-            $appointedPerson = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $appointed]);
+            $appointedPersonProfile = $this->getRepo('User\UserProfile')->findOneBy(['userId' => $appointed]);
+            $name = $appointedPersonProfile->getName();
+            $appointedUser = $this->getRepo('User\User')->find($appointed);
+            $email = $appointedUser->getEmail();
+            $phone = $appointedUser->getPhone();
+            $appointedPerson = [
+                'user_id' => $appointed,
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+            ];
         }
 
         $now = new \DateTime();
