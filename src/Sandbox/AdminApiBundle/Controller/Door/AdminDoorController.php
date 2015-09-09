@@ -7,6 +7,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
@@ -26,6 +27,9 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
  */
 class AdminDoorController extends DoorController
 {
+    const SHANGHAI_SANDBOX = '上海Sandbox';
+    const SHANGHAI_SANDBOX_DOOR = '{4F768196-2A07-4E50-B716-B725BF877C42}';
+
     /**
      * @Post("/doors/permission/add")
      *
@@ -42,10 +46,17 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
+        $globals = $this->getGlobals();
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
-        $globals = $this->getGlobals();
+        $this->setFrontDoorAccess(
+            $userId,
+            $userName,
+            $cardNo,
+            $globals
+        );
+
         $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
         if (!is_null($ids) && !empty($ids)) {
@@ -77,6 +88,58 @@ class AdminDoorController extends DoorController
                 );
             }
         }
+    }
+
+    /**
+     * @param $userId
+     * @param $userName
+     * @param $cardNo
+     * @param $globals
+     */
+    public function setFrontDoorAccess(
+        $userId,
+        $userName,
+        $cardNo,
+        $globals
+    ) {
+        $sandboxBuilding = $this->getRepo('Room\RoomBuilding')->findOneBy(['name' => self::SHANGHAI_SANDBOX]);
+        $sandboxBuildingId = $sandboxBuilding->getId();
+        $sandboxBase = $sandboxBuilding->getServer();
+
+        $now = new \DateTime();
+        $start = new \DateTime('2015-07-01');
+        $end = new \DateTime('2099-01-01');
+
+        $door = new DoorAccess();
+        $door->setUserId($userId);
+        $door->setStartDate($start);
+        $door->setEndDate($end);
+        $door->setBuildingId($sandboxBuildingId);
+        $door->setCreationDate($now);
+        $door->setDoorId(self::SHANGHAI_SANDBOX_DOOR);
+        $door->setOrderId(0);
+        $door->setRoomId(0);
+        $door->setTimeId(1);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($door);
+        $em->flush();
+
+        $sandboxArray = [];
+        array_push($sandboxArray, $door);
+        $this->setTimePeriod($sandboxArray, $sandboxBase, $globals);
+        $timeArray = [];
+        $time = ['doorid' => self::SHANGHAI_SANDBOX_DOOR, 'timeperiodid' => '1'];
+        array_push($timeArray, $time);
+
+        $this->get('door_service')->cardPermission(
+            $sandboxBase,
+            $userId,
+            $userName,
+            $cardNo,
+            $timeArray,
+            DoorController::METHOD_ADD,
+            $globals
+        );
     }
 
     /**
