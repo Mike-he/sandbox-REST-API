@@ -245,7 +245,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         }
 
         // check token validation time
-        if (new \DateTime('now') > $registration->getCreationDate()->modify('+1 day')) {
+        $globals = $this->container->get('twig')->getGlobals();
+        if (new \DateTime('now') > $registration->getCreationDate()->modify($globals['expired_verification_time'])) {
             return $this->customErrorView(
                 400,
                 self::ERROR_EXPIRED_VERIFICATION_CODE,

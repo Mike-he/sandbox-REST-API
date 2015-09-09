@@ -42,6 +42,7 @@ twig:
         pingpp_app_id: "%pingpp_app_id%"
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"
+        expired_verification_time: "%expired_verification_time%"
         user_profile_default_name_prefix: "%user_profile_default_name_prefix%"
         sandbox_auth_key: "%sandbox_auth_key%"
         crm_api_url: "%crm_api_url%"
