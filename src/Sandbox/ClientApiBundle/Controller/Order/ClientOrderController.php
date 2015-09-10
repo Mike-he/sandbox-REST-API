@@ -137,6 +137,7 @@ class ClientOrderController extends PaymentController
         //check if product exists
         $productId = $order->getProductId();
         $product = $this->getRepo('Product\Product')->find($productId);
+
         if (is_null($product)) {
             return $this->customErrorView(
                 400,
@@ -321,6 +322,7 @@ class ClientOrderController extends PaymentController
         }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
+        $productInfo = $this->storeRoomInfo($product);
 
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
@@ -329,6 +331,7 @@ class ClientOrderController extends PaymentController
         $order->setUserId($userId);
         $order->setLocation('location');
         $order->setStatus('unpaid');
+        $order->setProductInfo($productInfo);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
@@ -339,6 +342,101 @@ class ClientOrderController extends PaymentController
         );
 
         return $view;
+    }
+
+    /**
+     * @param $product
+     *
+     * @return string
+     */
+    public function storeRoomInfo(
+        $product
+    ) {
+        $room = $this->getRepo('Room\Room')->find($product->getRoomId());
+        $city = $this->getRepo('Room\RoomCity')->find($room->getCityId());
+        $building = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
+        $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
+        $supplies = $this->getRepo('Room\RoomSupplies')->findBy(['room' => $room->getId()]);
+        $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $room->getId()]);
+        $bindings = $this->getRepo('Room\RoomAttachmentBinding')->findBy(['room' => $room->getId()]);
+
+        $supplyArray = [];
+        $meetingArray = [];
+        $attachmentArray = [];
+        if (!is_null($supplies) && !empty($supplies)) {
+            foreach ($supplies as $supply) {
+                $eachSupply = [
+                    'supply' => [
+                        'id' => $supply->getSupply()->getId(),
+                        'name' => $supply->getSupply()->getName(),
+                    ],
+                    'quantity' => $supply->getQuantity(),
+                ];
+                array_push($supplyArray, $eachSupply);
+            }
+        }
+        if (!is_null($meeting)) {
+            $meetingArray = [
+                'id' => $meeting->getId(),
+                'start_hour' => $meeting->getStartHour(),
+                'end_hour' => $meeting->getEndHour(),
+            ];
+        }
+        if (!is_null($bindings) && !empty($bindings)) {
+            foreach ($bindings as $binding) {
+                $attachment = $binding->getAttachmentId();
+                $eachAttachment = [
+                    'attachment_id' => [
+                        'id' => $attachment->getId(),
+                        'content' => $attachment->getContent(),
+                        'attachment_type' => $attachment->getAttachmentType(),
+                        'filename' => $attachment->getFilename(),
+                        'preview' => $attachment->getPreview(),
+                        'size' => $attachment->getSize(),
+                    ],
+                ];
+                array_push($attachmentArray, $eachAttachment);
+            }
+        }
+
+        $productInfo = [
+            'id' => $product->getId(),
+            'description' => $product->getDescription(),
+            'base_price' => $product->getBasePrice(),
+            'unit_price' => $product->getUnitPrice(),
+            'renewable' => $product->getRenewable(),
+            'start_date' => $product->getStartDate(),
+            'end_date' => $product->getEndDate(),
+            'room' => [
+                'id' => $room->getId(),
+                'name' => $room->getName(),
+                'city' => [
+                    'id' => $city->getId(),
+                    'name' => $city->getName(),
+                ],
+                'building' => [
+                    'id' => $building->getId(),
+                    'name' => $building->getName(),
+                    'address' => $building->getAddress(),
+                    'lat' => $building->getLat(),
+                    'lng' => $building->getLng(),
+                ],
+                'floor' => [
+                    'id' => $floor->getId(),
+                    'floor_number' => $floor->getFloorNumber(),
+                ],
+                'number' => $room->getNumber(),
+                'area' => $room->getArea(),
+                'type' => $room->getType(),
+                'allowed_people' => $room->getAllowedPeople(),
+                'office_supplies' => $supplyArray,
+                'meeting' => $meetingArray,
+                'attachment' => $attachmentArray,
+            ],
+            'seat_number' => $product->getSeatNumber(),
+        ];
+
+        return json_encode($productInfo);
     }
 
     /**
