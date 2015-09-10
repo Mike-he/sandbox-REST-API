@@ -322,7 +322,7 @@ class ClientOrderController extends PaymentController
         }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
-        $roomInfo = $this->storeRoomInfo($product);
+        $productInfo = $this->storeRoomInfo($product);
 
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
@@ -331,7 +331,7 @@ class ClientOrderController extends PaymentController
         $order->setUserId($userId);
         $order->setLocation('location');
         $order->setStatus('unpaid');
-        $order->setRoomInfo($roomInfo);
+        $order->setProductInfo($productInfo);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
@@ -399,7 +399,7 @@ class ClientOrderController extends PaymentController
             }
         }
 
-        $roomInfo = [
+        $productInfo = [
             'id' => $product->getId(),
             'description' => $product->getDescription(),
             'base_price' => $product->getBasePrice(),
@@ -436,7 +436,7 @@ class ClientOrderController extends PaymentController
             'seat_number' => $product->getSeatNumber(),
         ];
 
-        return json_encode($roomInfo);
+        return json_encode($productInfo);
     }
 
     /**

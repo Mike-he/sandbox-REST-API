@@ -233,11 +233,11 @@ class ProductOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="roomInfo", type="text", nullable=true)
+     * @ORM\Column(name="productInfo", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
      */
-    private $roomInfo;
+    private $productInfo;
 
     /**
      * Set isRenew.
@@ -744,27 +744,27 @@ class ProductOrder
     }
 
     /**
-     * Set roomInfo.
+     * Set productInfo.
      *
-     * @param string $roomInfo
+     * @param string $productInfo
      *
      * @return ProductOrder
      */
-    public function setRoomInfo($roomInfo)
+    public function setProductInfo($productInfo)
     {
-        $this->roomInfo = $roomInfo;
+        $this->productInfo = $productInfo;
 
         return $this;
     }
 
     /**
-     * Get roomInfo.
+     * Get productInfo.
      *
      * @return string
      */
-    public function getRoomInfo()
+    public function getProductInfo()
     {
-        return $this->roomInfo;
+        return $this->productInfo;
     }
 
 //    /**
