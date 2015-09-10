@@ -1336,7 +1336,7 @@ class ClientOrderController extends PaymentController
             $minutes = $remainingTime->i;
             $seconds = $remainingTime->s;
             $minutes = 14 - $minutes;
-            $seconds = 60 - $seconds;
+            $seconds = 59 - $seconds;
             if ($minutes < 0) {
                 $minutes = 0;
                 $seconds = 0;
