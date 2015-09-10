@@ -83,7 +83,7 @@ class ProductOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="price", type="decimal")
+     * @ORM\Column(name="price", type="decimal", precision=10, scale=2)
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */
@@ -92,7 +92,7 @@ class ProductOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="discountPrice", type="decimal")
+     * @ORM\Column(name="discountPrice", type="decimal", precision=10, scale=2)
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */

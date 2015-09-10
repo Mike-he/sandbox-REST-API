@@ -1158,8 +1158,7 @@ class ClientOrderController extends PaymentController
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
         $renewButton = false;
-        $minutes = 0;
-        $seconds = 0;
+
         if ($type == Room::TYPE_OFFICE && $status == 'completed') {
             $renewOrder = $this->getRepo('Order\ProductOrder')->getAlreadyRenewedOrder($userId, $productId);
             if (is_null($renewOrder) || empty($renewOrder)) {
@@ -1171,24 +1170,7 @@ class ClientOrderController extends PaymentController
             }
         }
 
-        if ($status == 'unpaid') {
-            $creationDate = $order->getCreationDate();
-            $remainingTime = $now->diff($creationDate);
-            $minutes = $remainingTime->i;
-            $seconds = $remainingTime->s;
-            $minutes = 14 - $minutes;
-            $seconds = 60 - $seconds;
-            if ($minutes < 0) {
-                $minutes = 0;
-                $seconds = 0;
-                $order->setStatus('cancelled');
-                $order->setCancelledDate($now);
-                $order->setModificationDate($now);
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($order);
-                $em->flush();
-            }
-        } elseif ($status == 'paid') {
+        if ($status == 'paid') {
             if ($now >= $startDate) {
                 $order->setStatus('completed');
                 $order->setModificationDate($now);
@@ -1219,6 +1201,59 @@ class ClientOrderController extends PaymentController
                 'renewButton' => $renewButton,
                 'order' => $order,
                 'appointedPerson' => $appointedPerson,
+            ]
+        );
+
+        return $view;
+    }
+
+    /**
+     * @Get("/orders/{id}/remaining")
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getOrderRemainingTimeAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+        $status = $order->getStatus();
+        $now = new \DateTime();
+        $minutes = 0;
+        $seconds = 0;
+
+        if ($status == 'unpaid') {
+            $creationDate = $order->getCreationDate();
+            $remainingTime = $now->diff($creationDate);
+            $minutes = $remainingTime->i;
+            $seconds = $remainingTime->s;
+            $minutes = 14 - $minutes;
+            $seconds = 60 - $seconds;
+            if ($minutes < 0) {
+                $minutes = 0;
+                $seconds = 0;
+                $order->setStatus('cancelled');
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($order);
+                $em->flush();
+            }
+        }
+
+        $view = new View();
+        $view->setData(
+            [
                 'remainingMinutes' => $minutes,
                 'remainingSeconds' => $seconds,
             ]

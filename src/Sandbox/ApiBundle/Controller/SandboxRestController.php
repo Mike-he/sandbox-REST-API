@@ -537,6 +537,8 @@ class SandboxRestController extends FOSRestController
             $headers = apache_request_headers();
             $auth = $headers['Authorization'];
         }
+        $startDate = $startDate->format('Y-m-d H:i:s');
+        $endDate = $endDate->format('Y-m-d H:i:s');
 
         $dataArray = [
             'product_id' => $productId,
