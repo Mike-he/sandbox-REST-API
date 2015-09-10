@@ -231,6 +231,15 @@ class ProductOrder
     private $isRenew = false;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="roomInfo", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
+     */
+    private $roomInfo;
+
+    /**
      * Set isRenew.
      *
      * @param bool $isRenew
@@ -732,6 +741,30 @@ class ProductOrder
         $this->orderNumber = $orderNumber;
 
         return $this;
+    }
+
+    /**
+     * Set roomInfo.
+     *
+     * @param string $roomInfo
+     *
+     * @return ProductOrder
+     */
+    public function setRoomInfo($roomInfo)
+    {
+        $this->roomInfo = $roomInfo;
+
+        return $this;
+    }
+
+    /**
+     * Get roomInfo.
+     *
+     * @return string
+     */
+    public function getRoomInfo()
+    {
+        return $this->roomInfo;
     }
 
 //    /**
