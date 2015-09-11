@@ -83,6 +83,7 @@ class UserToken
      * @var bool
      *
      * @ORM\Column(name="online", type="boolean", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $online = false;
 
