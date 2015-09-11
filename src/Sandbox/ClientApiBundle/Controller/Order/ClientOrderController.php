@@ -137,6 +137,7 @@ class ClientOrderController extends PaymentController
         //check if product exists
         $productId = $order->getProductId();
         $product = $this->getRepo('Product\Product')->find($productId);
+
         if (is_null($product)) {
             return $this->customErrorView(
                 400,
@@ -321,6 +322,7 @@ class ClientOrderController extends PaymentController
         }
 
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
+        $productInfo = $this->storeRoomInfo($product);
 
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
@@ -329,6 +331,7 @@ class ClientOrderController extends PaymentController
         $order->setUserId($userId);
         $order->setLocation('location');
         $order->setStatus('unpaid');
+        $order->setProductInfo($productInfo);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
@@ -339,6 +342,101 @@ class ClientOrderController extends PaymentController
         );
 
         return $view;
+    }
+
+    /**
+     * @param $product
+     *
+     * @return string
+     */
+    public function storeRoomInfo(
+        $product
+    ) {
+        $room = $this->getRepo('Room\Room')->find($product->getRoomId());
+        $city = $this->getRepo('Room\RoomCity')->find($room->getCityId());
+        $building = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
+        $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
+        $supplies = $this->getRepo('Room\RoomSupplies')->findBy(['room' => $room->getId()]);
+        $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $room->getId()]);
+        $bindings = $this->getRepo('Room\RoomAttachmentBinding')->findBy(['room' => $room->getId()]);
+
+        $supplyArray = [];
+        $meetingArray = [];
+        $attachmentArray = [];
+        if (!is_null($supplies) && !empty($supplies)) {
+            foreach ($supplies as $supply) {
+                $eachSupply = [
+                    'supply' => [
+                        'id' => $supply->getSupply()->getId(),
+                        'name' => $supply->getSupply()->getName(),
+                    ],
+                    'quantity' => $supply->getQuantity(),
+                ];
+                array_push($supplyArray, $eachSupply);
+            }
+        }
+        if (!is_null($meeting)) {
+            $meetingArray = [
+                'id' => $meeting->getId(),
+                'start_hour' => $meeting->getStartHour(),
+                'end_hour' => $meeting->getEndHour(),
+            ];
+        }
+        if (!is_null($bindings) && !empty($bindings)) {
+            foreach ($bindings as $binding) {
+                $attachment = $binding->getAttachmentId();
+                $eachAttachment = [
+                    'attachment_id' => [
+                        'id' => $attachment->getId(),
+                        'content' => $attachment->getContent(),
+                        'attachment_type' => $attachment->getAttachmentType(),
+                        'filename' => $attachment->getFilename(),
+                        'preview' => $attachment->getPreview(),
+                        'size' => $attachment->getSize(),
+                    ],
+                ];
+                array_push($attachmentArray, $eachAttachment);
+            }
+        }
+
+        $productInfo = [
+            'id' => $product->getId(),
+            'description' => $product->getDescription(),
+            'base_price' => $product->getBasePrice(),
+            'unit_price' => $product->getUnitPrice(),
+            'renewable' => $product->getRenewable(),
+            'start_date' => $product->getStartDate(),
+            'end_date' => $product->getEndDate(),
+            'room' => [
+                'id' => $room->getId(),
+                'name' => $room->getName(),
+                'city' => [
+                    'id' => $city->getId(),
+                    'name' => $city->getName(),
+                ],
+                'building' => [
+                    'id' => $building->getId(),
+                    'name' => $building->getName(),
+                    'address' => $building->getAddress(),
+                    'lat' => $building->getLat(),
+                    'lng' => $building->getLng(),
+                ],
+                'floor' => [
+                    'id' => $floor->getId(),
+                    'floor_number' => $floor->getFloorNumber(),
+                ],
+                'number' => $room->getNumber(),
+                'area' => $room->getArea(),
+                'type' => $room->getType(),
+                'allowed_people' => $room->getAllowedPeople(),
+                'office_supplies' => $supplyArray,
+                'meeting' => $meetingArray,
+                'attachment' => $attachmentArray,
+            ],
+            'seat_number' => $product->getSeatNumber(),
+        ];
+
+        return json_encode($productInfo);
     }
 
     /**
@@ -1158,8 +1256,7 @@ class ClientOrderController extends PaymentController
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
         $renewButton = false;
-        $minutes = 0;
-        $seconds = 0;
+
         if ($type == Room::TYPE_OFFICE && $status == 'completed') {
             $renewOrder = $this->getRepo('Order\ProductOrder')->getAlreadyRenewedOrder($userId, $productId);
             if (is_null($renewOrder) || empty($renewOrder)) {
@@ -1171,24 +1268,7 @@ class ClientOrderController extends PaymentController
             }
         }
 
-        if ($status == 'unpaid') {
-            $creationDate = $order->getCreationDate();
-            $remainingTime = $now->diff($creationDate);
-            $minutes = $remainingTime->i;
-            $seconds = $remainingTime->s;
-            $minutes = 14 - $minutes;
-            $seconds = 60 - $seconds;
-            if ($minutes < 0) {
-                $minutes = 0;
-                $seconds = 0;
-                $order->setStatus('cancelled');
-                $order->setCancelledDate($now);
-                $order->setModificationDate($now);
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($order);
-                $em->flush();
-            }
-        } elseif ($status == 'paid') {
+        if ($status == 'paid') {
             if ($now >= $startDate) {
                 $order->setStatus('completed');
                 $order->setModificationDate($now);
@@ -1219,6 +1299,59 @@ class ClientOrderController extends PaymentController
                 'renewButton' => $renewButton,
                 'order' => $order,
                 'appointedPerson' => $appointedPerson,
+            ]
+        );
+
+        return $view;
+    }
+
+    /**
+     * @Get("/orders/{id}/remaining")
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getOrderRemainingTimeAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+        $status = $order->getStatus();
+        $now = new \DateTime();
+        $minutes = 0;
+        $seconds = 0;
+
+        if ($status == 'unpaid') {
+            $creationDate = $order->getCreationDate();
+            $remainingTime = $now->diff($creationDate);
+            $minutes = $remainingTime->i;
+            $seconds = $remainingTime->s;
+            $minutes = 14 - $minutes;
+            $seconds = 59 - $seconds;
+            if ($minutes < 0) {
+                $minutes = 0;
+                $seconds = 0;
+                $order->setStatus('cancelled');
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($order);
+                $em->flush();
+            }
+        }
+
+        $view = new View();
+        $view->setData(
+            [
                 'remainingMinutes' => $minutes,
                 'remainingSeconds' => $seconds,
             ]

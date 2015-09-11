@@ -83,7 +83,7 @@ class ProductOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="price", type="decimal")
+     * @ORM\Column(name="price", type="decimal", precision=10, scale=2)
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */
@@ -92,7 +92,7 @@ class ProductOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="discountPrice", type="decimal")
+     * @ORM\Column(name="discountPrice", type="decimal", precision=10, scale=2)
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */
@@ -229,6 +229,15 @@ class ProductOrder
      * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $isRenew = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="productInfo", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
+     */
+    private $productInfo;
 
     /**
      * Set isRenew.
@@ -732,6 +741,30 @@ class ProductOrder
         $this->orderNumber = $orderNumber;
 
         return $this;
+    }
+
+    /**
+     * Set productInfo.
+     *
+     * @param string $productInfo
+     *
+     * @return ProductOrder
+     */
+    public function setProductInfo($productInfo)
+    {
+        $this->productInfo = $productInfo;
+
+        return $this;
+    }
+
+    /**
+     * Get productInfo.
+     *
+     * @return string
+     */
+    public function getProductInfo()
+    {
+        return $this->productInfo;
     }
 
 //    /**
