@@ -87,10 +87,11 @@ class ClientUserLoginController extends UserLoginController
             }
 
             // force other client offline
-            $userTokenOtherClients = $this->getRepo('User\UserToken')->findByUserId($user->getId());
-            foreach ($userTokenOtherClients as $userTokenOtherClient) {
-                $userTokenOtherClient->setOnline(false);
+            $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
+            foreach ($userTokenAll as $token) {
+                $token->setOnline(false);
             }
+
             // save or refresh user token
             $userToken = $this->saveUserToken($user, $userClient);
             if (is_null($userToken->getId())) {
