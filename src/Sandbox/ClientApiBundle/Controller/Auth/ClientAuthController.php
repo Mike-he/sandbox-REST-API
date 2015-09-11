@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Client Auth controller.
@@ -56,6 +57,38 @@ class ClientAuthController extends AuthController
         $view->setData(array(
             'id' => $myUserId,
         ));
+
+        return $view;
+    }
+
+    /**
+     * Get auth token.
+     *
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Route("/token")
+     * @Method({"POST"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getClientAuthToken(
+        Request $request
+    ) {
+        $myUserToken = $request->request->get('token');
+        $userToken = $this->getRepo('User\UserToken')->findOneByToken($myUserToken);
+        $this->throwNotFoundIfNull($userToken, self::NOT_FOUND_MESSAGE);
+
+        $view = new View($userToken);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('main')));
 
         return $view;
     }
