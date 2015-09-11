@@ -4,6 +4,7 @@ CREATE TABLE `UserToken` (
   `clientId` int(11) NOT NULL,
   `token` varchar(64) NOT NULL,
   `creationDate` datetime NOT NULL,
+  `online` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `token_UNIQUE` (`token`),
   UNIQUE KEY `userId_clientId_UNIQUE` (`userId`,`clientId`),
