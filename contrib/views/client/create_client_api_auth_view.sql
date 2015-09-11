@@ -10,4 +10,6 @@ WHERE
     t.creationDate > DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 30 DAY)
     AND
     u.banned != 1
+    AND
+    t.online = 1
 ;

@@ -86,6 +86,12 @@ class ClientUserLoginController extends UserLoginController
                 $em->flush();
             }
 
+            // force other client offline
+            $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
+            foreach ($userTokenAll as $token) {
+                $token->setOnline(false);
+            }
+
             // save or refresh user token
             $userToken = $this->saveUserToken($user, $userClient);
             if (is_null($userToken->getId())) {
@@ -202,6 +208,7 @@ class ClientUserLoginController extends UserLoginController
 
         // refresh creation date
         $userToken->setCreationDate(new \DateTime('now'));
+        $userToken->setOnline(true);
 
         return $userToken;
     }
