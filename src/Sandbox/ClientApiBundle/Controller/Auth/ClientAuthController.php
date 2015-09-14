@@ -62,7 +62,7 @@ class ClientAuthController extends AuthController
     }
 
     /**
-     * Get auth token.
+     * Get user token info.
      *
      * @param Request $request
      *
@@ -80,10 +80,11 @@ class ClientAuthController extends AuthController
      *
      * @throws \Exception
      */
-    public function getClientAuthToken(
+    public function postClientAuthToken(
         Request $request
     ) {
-        $myUserToken = $request->request->get('token');
+        $requestContent = json_decode($request->getContent(), true);
+        $myUserToken = $requestContent['token'];
         $userToken = $this->getRepo('User\UserToken')->findOneByToken($myUserToken);
         $this->throwNotFoundIfNull($userToken, self::NOT_FOUND_MESSAGE);
 
