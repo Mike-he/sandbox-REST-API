@@ -80,6 +80,14 @@ class UserToken
     private $creationDate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="online", type="boolean", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $online = false;
+
+    /**
      * Get id.
      *
      * @return int
@@ -219,5 +227,29 @@ class UserToken
     public function setClient($client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Set online.
+     *
+     * @param bool $online
+     *
+     * @return UserToken
+     */
+    public function setOnline($online)
+    {
+        $this->online = $online;
+
+        return $this;
+    }
+
+    /**
+     * Get online.
+     *
+     * @return bool
+     */
+    public function getOnline()
+    {
+        return $this->online;
     }
 }

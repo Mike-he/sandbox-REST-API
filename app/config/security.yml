@@ -55,6 +55,7 @@ security:
         - { path: ^/client/user/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/payment/webhooks$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client/auth/token$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/auth/login$, role: ROLE_USER }
         - { path: ^/client, role: ROLE_CLIENT_API }
         - { path: ^/admin/auth/login$, role: ROLE_ADMIN }

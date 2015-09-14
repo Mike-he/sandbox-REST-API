@@ -14,6 +14,11 @@ use Sandbox\ApiBundle\Entity\User\User;
  */
 class ProductOrder
 {
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_PAID = 'paid';
+    const STATUS_UNPAID = 'unpaid';
+    const STATUS_COMPLETED = 'completed';
+
     /**
      * @var int
      *

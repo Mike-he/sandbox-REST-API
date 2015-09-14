@@ -13,6 +13,31 @@ class OrderRepository extends EntityRepository
     const CANCELLED = "'cancelled'";
 
     /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserCancelledOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = \'cancelled\'')
+            ->andWhere('o.paymentDate <> \'null\'')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
      * set status to completed when current time passes start time.
      */
     public function getStatusPaid()
@@ -421,5 +446,41 @@ class OrderRepository extends EntityRepository
         $query->setParameters($parameters);
 
         return $query->getQuery()->getArrayResult();
+    }
+
+    /**
+     * Seek all users that rented room.
+     *
+     * @param $roomId
+     *
+     * @return array
+     */
+    public function getRoomUsersUsage(
+        $productId,
+        $start,
+        $end
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('
+                o.startDate,
+                o.endDate,
+                o.userId,
+                v.name,
+                v.email,
+                v.phone
+            ')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'v', 'WITH', 'o.userId = v.id')
+            ->where('o.productId = :productId')
+            ->andWhere('o.status = \'paid\' OR o.status = \'completed\'')
+            ->andWhere('
+                (o.startDate <= :start AND o.endDate > :start) OR
+                (o.startDate < :end AND o.endDate >= :end) OR
+                (o.startDate >= :start AND o.endDate <= :end)
+            ')
+            ->setParameter('productId', $productId)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        return $query->getQuery()->getResult();
     }
 }
