@@ -1094,4 +1094,230 @@ class AdminRoomController extends RoomController
             $em->flush();
         };
     }
+
+    /**
+     * @Route("/rooms/office/{id}/usage")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="year",
+     *    nullable=false,
+     *    description="
+     *
+     *    "
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     */
+    public function getOfficeRoomUsageAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
+        $yearString = $paramFetcher->get('year');
+        $results = [];
+        if (!is_null($product) && !is_null($yearString) && !empty($yearString)) {
+            $productId = $product->getId();
+            $yearStart = new \DateTime($yearString);
+            $yearStart = $yearStart->modify('first day of January'.$yearString);
+            $yearStart->setTime(0, 0, 0);
+            $yearEnd = new \DateTime($yearString);
+            $yearEnd = $yearEnd->modify('last day of December'.$yearString);
+            $yearEnd->setTime(23, 59, 59);
+            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+                $productId,
+                $yearStart,
+                $yearEnd
+            );
+        }
+
+        return new View($results);
+    }
+
+    /**
+     * @Route("/rooms/fixed/{id}/usage")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="seat",
+     *    nullable=false,
+     *    description="
+     *
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    nullable=false,
+     *    description="
+     *
+     *    "
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end",
+     *    nullable=false,
+     *    description="
+     *
+     *    "
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     */
+    public function getFixedRoomUsageAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $seat = $paramFetcher->get('seat');
+        $results = [];
+        if (!is_null($seat) && !empty($seat)) {
+            $product = $this->getRepo('Product\Product')->findOneBy(
+                [
+                    'roomId' => $id,
+                    'seatNumber' => $seat,
+                ]
+            );
+            $startString = $paramFetcher->get('start');
+            $endString = $paramFetcher->get('end');
+            if (
+                !is_null($product) &&
+                !empty($product) &&
+                !is_null($startString) &&
+                !empty($startString) &&
+                !is_null($endString) &&
+                !empty($endString)
+            ) {
+                $productId = $product->getId();
+                $start = new \DateTime($startString);
+                $start->setTime(0, 0, 0);
+                $end = new \DateTime($endString);
+                $end->setTime(23, 59, 59);
+                $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+                    $productId,
+                    $start,
+                    $end
+                );
+            }
+        }
+
+        return new View($results);
+    }
+
+    /**
+     * @Route("/rooms/flexible/{id}/usage")
+     * @Method({"GET"})
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    nullable=false,
+     *    description="
+     *
+     *    "
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end",
+     *    nullable=false,
+     *    description="
+     *
+     *    "
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     */
+    public function getFlexibleRoomUsageAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $product = $this->getRepo('Product\Product')->findOneBy(
+            ['roomId' => $id]
+        );
+        $startString = $paramFetcher->get('start');
+        $endString = $paramFetcher->get('end');
+        $results = [];
+        if (
+            !is_null($product) &&
+            !empty($product) &&
+            !is_null($startString) &&
+            !empty($startString) &&
+            !is_null($endString) &&
+            !empty($endString)
+        ) {
+            $productId = $product->getId();
+            $start = new \DateTime($startString);
+            $start->setTime(0, 0, 0);
+            $end = new \DateTime($endString);
+            $end->setTime(23, 59, 59);
+            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+                $productId,
+                $start,
+                $end
+            );
+            //TODO: Split Results into Per Day
+        }
+
+        return new View($results);
+    }
+
+    /**
+     * @Route("/rooms/meeting/{id}/usage")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="day",
+     *    nullable=false,
+     *    description="
+     *
+     *    "
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     */
+    public function getMeetingRoomUsageAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
+        $dayString = $paramFetcher->get('day');
+        $results = [];
+        if (!is_null($product) && !is_null($dayString) && !empty($dayString)) {
+            $productId = $product->getId();
+            $start = new \DateTime($dayString);
+            $start->setTime(0, 0, 0);
+            $end = new \DateTime($dayString);
+            $end->setTime(23, 59, 59);
+
+            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+                $productId,
+                $start,
+                $end
+            );
+        }
+
+        return new View($results);
+    }
 }

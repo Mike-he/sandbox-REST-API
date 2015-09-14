@@ -82,16 +82,24 @@ class ClientOrderController extends PaymentController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        if (!is_null($status)) {
-            $orders = $this->getRepo('Order\ProductOrder')->findBy(
-                [
-                    'userId' => $userId,
-                    'status' => $status,
-                ],
-                ['modificationDate' => 'DESC'],
-                $limit,
-                $offset
-            );
+        if (!is_null($status) && !empty($status)) {
+            if ($status == ProductOrder::STATUS_CANCELLED) {
+                $orders = $this->getRepo('Order\ProductOrder')->getUserCancelledOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+            } else {
+                $orders = $this->getRepo('Order\ProductOrder')->findBy(
+                    [
+                        'userId' => $userId,
+                        'status' => $status,
+                    ],
+                    ['modificationDate' => 'DESC'],
+                    $limit,
+                    $offset
+                );
+            }
         } else {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
                 ['userId' => $userId],
@@ -358,7 +366,10 @@ class ClientOrderController extends PaymentController
         $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
         $supplies = $this->getRepo('Room\RoomSupplies')->findBy(['room' => $room->getId()]);
         $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $room->getId()]);
-        $bindings = $this->getRepo('Room\RoomAttachmentBinding')->findBy(['room' => $room->getId()]);
+        $bindings = $this->getRepo('Room\RoomAttachmentBinding')->findBy(
+            ['room' => $room->getId()],
+            ['id' => 'ASC']
+        );
 
         $supplyArray = [];
         $meetingArray = [];
