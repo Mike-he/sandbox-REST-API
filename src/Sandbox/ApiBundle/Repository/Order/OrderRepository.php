@@ -461,15 +461,6 @@ class OrderRepository extends EntityRepository
         $end
     ) {
         $query = $this->createQueryBuilder('o')
-            ->select('
-                o.startDate,
-                o.endDate,
-                o.userId,
-                v.name,
-                v.email,
-                v.phone
-            ')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'v', 'WITH', 'o.userId = v.id')
             ->where('o.productId = :productId')
             ->andWhere('o.status = \'paid\' OR o.status = \'completed\'')
             ->andWhere('
