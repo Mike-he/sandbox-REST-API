@@ -389,12 +389,14 @@ class OrderRepository extends EntityRepository
                         WHEN 'office' THEN '独立办公室'
                         ELSE '其他' END,
                     o.userId as employee_id,
+                    p.basePrice,
                     CASE p.unitPrice
                         WHEN 'hour' THEN '小时'
                         WHEN 'day' THEN '天'
                         WHEN 'month' THEN '月'
                         ELSE '其他' END,
                     o.price as amount,
+                    o.discountPrice,
                     CONCAT(p.startDate, ' - ', p.endDate) as leasing_time,
                     o.creationDate as order_time,
                     o.modificationDate as payment_time,

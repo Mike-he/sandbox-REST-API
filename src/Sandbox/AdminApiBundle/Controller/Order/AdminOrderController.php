@@ -289,10 +289,12 @@ class AdminOrderController extends OrderController
 
         $headers = [
             '商品', //Product name
-            '类型', //Product type
+            '房间类型', //Product type
             '租赁人ID', //Employee ID
+            '单价', //Base price
             '单位', //Unit price
             '订单原价', //Amount
+            '实收款', //Discount price
             '租赁时间', //Leasing time
             '创建时间', //Order time
             '付款时间', //Payment complete time
