@@ -288,20 +288,18 @@ class AdminOrderController extends OrderController
         );
 
         $headers = [
-            'Product name', //ÉÌÆ·Ãû³Æ
-            'Product type', //ÉÌÆ·ÀàÐÍ
-            'Employee ID', //¹¤Î»ºÅ
-            'Unit price', //µ¥¼Û
-//            'Ê¹ÓÃÕÛ¿Û', //Discount
-//            'Ë°', //VAT
-            'Amount', //×Ü¼Û
-            'Leasing time', //×âÁÞÊ±¼ä
-            'Order time', //¶©µ¥´´½¨Ê±¼ä
-            'Payment complete time', //¶©µ¥¸¶¿îÊ±¼ä
-            'Order status', //¶©µ¥×´Ì¬
-            'User name', //×âÁÞÈËÐÕÃû
-            'User mobile', //×âÁÞÈËÊÖ»ú
-            'User email', //×âÁÞÈËÓÊÏä
+            '商品', //Product name
+            '类型', //Product type
+            '租赁人ID', //Employee ID
+            '单位', //Unit price
+            '订单原价', //Amount
+            '租赁时间', //Leasing time
+            '创建时间', //Order time
+            '付款时间', //Payment complete time
+            '订单状态', //Order status
+            '租赁人', //User name
+            '租赁人手机', //User mobile
+            '租赁人邮箱', //User email
         ];
 
         //Fill data

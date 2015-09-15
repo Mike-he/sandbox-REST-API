@@ -382,14 +382,27 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->select("
                     CONCAT(rc.name, ', ', rb.name, ', ', r.number, ', ', r.name) as product_name,
-                    r.type,
+                    CASE r.type
+                        WHEN 'fixed' THEN '可选工位'
+                        WHEN 'meeting' THEN '会议室'
+                        WHEN 'flexible' THEN '不可选工位'
+                        WHEN 'office' THEN '独立办公室'
+                        ELSE '其他' END,
                     o.userId as employee_id,
-                    p.unitPrice,
+                    CASE p.unitPrice
+                        WHEN 'hour' THEN '小时'
+                        WHEN 'day' THEN '天'
+                        WHEN 'month' THEN '月'
+                        ELSE '其他' END,
                     o.price as amount,
                     CONCAT(p.startDate, ' - ', p.endDate) as leasing_time,
                     o.creationDate as order_time,
                     o.modificationDate as payment_time,
-                    o.status,
+                    CASE o.status
+                        WHEN 'paid' THEN '已付款'
+                        WHEN 'completed' THEN '已完成'
+                        WHEN 'cancelled' THEN '已取消'
+                        ELSE '其他' END,
                     up.name,
                     up.phone,
                     up.email
