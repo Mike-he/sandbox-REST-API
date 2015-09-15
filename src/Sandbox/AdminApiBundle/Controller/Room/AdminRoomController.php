@@ -1130,7 +1130,7 @@ class AdminRoomController extends RoomController
             $yearEnd = new \DateTime($yearString);
             $yearEnd = $yearEnd->modify('last day of December'.$yearString);
             $yearEnd->setTime(23, 59, 59);
-            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                 $productId,
                 $yearStart,
                 $yearEnd
@@ -1207,7 +1207,7 @@ class AdminRoomController extends RoomController
                 $start->setTime(0, 0, 0);
                 $end = new \DateTime($endString);
                 $end->setTime(23, 59, 59);
-                $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+                $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                     $productId,
                     $start,
                     $end
@@ -1274,7 +1274,7 @@ class AdminRoomController extends RoomController
             $start->setTime(0, 0, 0);
             $end = new \DateTime($endString);
             $end->setTime(23, 59, 59);
-            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                 $productId,
                 $start,
                 $end
@@ -1323,7 +1323,7 @@ class AdminRoomController extends RoomController
             $end = new \DateTime($dayString);
             $end->setTime(23, 59, 59);
 
-            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                 $productId,
                 $start,
                 $end

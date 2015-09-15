@@ -447,31 +447,4 @@ class OrderRepository extends EntityRepository
 
         return $query->getQuery()->getArrayResult();
     }
-
-    /**
-     * Seek all users that rented room.
-     *
-     * @param $roomId
-     *
-     * @return array
-     */
-    public function getRoomUsersUsage(
-        $productId,
-        $start,
-        $end
-    ) {
-        $query = $this->createQueryBuilder('o')
-            ->where('o.productId = :productId')
-            ->andWhere('o.status = \'paid\' OR o.status = \'completed\'')
-            ->andWhere('
-                (o.startDate <= :start AND o.endDate > :start) OR
-                (o.startDate < :end AND o.endDate >= :end) OR
-                (o.startDate >= :start AND o.endDate <= :end)
-            ')
-            ->setParameter('productId', $productId)
-            ->setParameter('start', $start)
-            ->setParameter('end', $end);
-
-        return $query->getQuery()->getResult();
-    }
 }

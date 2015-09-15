@@ -42,20 +42,16 @@ class ProductOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer", nullable=true)
+     * @ORM\Column(name="userId", type="integer")
      *
      * @Serializer\Groups({"main", "admin_detail"})
      */
     private $userId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\User\UserView
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserView")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="id")
-     *
-     * @Serializer\Groups({"main", "room_usage"})
-     */
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     **/
     private $user;
 
     /**
@@ -136,16 +132,6 @@ class ProductOrder
     private $appointed;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\User\UserView
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserView")
-     * @ORM\JoinColumn(name="appointedPerson", referencedColumnName="id")
-     *
-     * @Serializer\Groups({"main", "room_usage"})
-     */
-    private $appointedUser;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="location", type="text", nullable=true)
@@ -177,7 +163,7 @@ class ProductOrder
      *
      * @ORM\Column(name="startDate", type="datetime")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "room_usage"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $startDate;
 
@@ -186,7 +172,7 @@ class ProductOrder
      *
      * @ORM\Column(name="endDate", type="datetime")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "room_usage"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $endDate;
 
@@ -313,22 +299,6 @@ class ProductOrder
     }
 
     /**
-     * @return \Sandbox\ApiBundle\Entity\User\UserView
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @return \Sandbox\ApiBundle\Entity\User\UserView
-     */
-    public function getAppointedUser()
-    {
-        return $this->appointedUser;
-    }
-
-    /**
      * Set productId.
      *
      * @param int $productId
@@ -340,6 +310,28 @@ class ProductOrder
         $this->productId = $productId;
 
         return $this;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return ProductOrder
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     /**
