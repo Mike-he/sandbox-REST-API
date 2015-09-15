@@ -1137,7 +1137,11 @@ class AdminRoomController extends RoomController
             );
         }
 
-        return new View($results);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
     }
 
     /**
@@ -1211,7 +1215,11 @@ class AdminRoomController extends RoomController
             }
         }
 
-        return new View($results);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
     }
 
     /**
@@ -1274,7 +1282,11 @@ class AdminRoomController extends RoomController
             //TODO: Split Results into Per Day
         }
 
-        return new View($results);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
     }
 
     /**
@@ -1318,6 +1330,10 @@ class AdminRoomController extends RoomController
             );
         }
 
-        return new View($results);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
     }
 }
