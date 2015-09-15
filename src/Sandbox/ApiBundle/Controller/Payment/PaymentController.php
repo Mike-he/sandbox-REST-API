@@ -79,6 +79,7 @@ class PaymentController extends SandboxRestController
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';
     const PAYMENT_CHANNEL_ALIPAY = 'alipay';
+    const PAYMENT_CHANNEL_UPACP = 'upacp';
 
     /**
      * @param $order
