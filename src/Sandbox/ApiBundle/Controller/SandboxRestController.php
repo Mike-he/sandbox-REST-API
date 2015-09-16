@@ -994,7 +994,7 @@ class SandboxRestController extends FOSRestController
             $globals['openfire_plugin_sandbox'].
             $globals['openfire_plugin_sandbox_notification'];
 
-        $domainURL = $globals['openfire_domain_extension'];
+        $domainURL = $globals['xmpp_domxmpp_domainain'];
 
         // request json
         $jsonDataArray = array(

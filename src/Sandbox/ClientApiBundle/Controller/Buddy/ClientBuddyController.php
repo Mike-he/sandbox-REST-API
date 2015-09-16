@@ -237,46 +237,46 @@ class ClientBuddyController extends BuddyController
         Request $request,
         $id
     ) {
-        try {
-            $userId = $this->getUserId();
+        $userId = $this->getUserId();
 
-            // get buddy
-            $buddy = $this->getRepo('Buddy\Buddy')->find($id);
+        // get buddy
+        $buddy = $this->getRepo('Buddy\Buddy')->find($id);
 
-            if (!is_null($buddy)) {
-                // check user is allowed to delete
-                if ($userId != $buddy->getUserId()) {
-                    throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-                }
-
-                // remove from db
-                $em = $this->getDoctrine()->getManager();
-                $em->remove($buddy);
-
-                $buddyOther = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                    'userId' => $buddy->getBuddyId(),
-                    'buddyId' => $userId,
-                ));
-                if (!is_null($buddyOther) || !empty($buddyOther)) {
-                    $em->remove($buddyOther);
-                }
-
-                $em->flush();
+        if (!is_null($buddy)) {
+            // check user is allowed to delete
+            if ($userId != $buddy->getUserId()) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
             }
 
-            $fromUser = $this->getRepo('User\User')->find($userId);
-            $recvUser = $this->getRepo('User\User')->find($id);
+            // remove from db
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($buddy);
 
+            $buddyOther = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                'userId' => $buddy->getBuddyId(),
+                'buddyId' => $userId,
+            ));
+            if (!is_null($buddyOther) || !empty($buddyOther)) {
+                $em->remove($buddyOther);
+            }
+
+            $em->flush();
+        }
+
+        $fromUser = $this->getRepo('User\User')->find($userId);
+        $recvUser = $this->getRepo('User\User')->find($id);
+
+        try {
             // send buddy notification by xmpp
             $this->sendXmppBuddyNotification(
                 $fromUser,
                 $recvUser,
                 'remove'
             );
-
-            return new View();
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
         }
+
+        return new View();
     }
 }

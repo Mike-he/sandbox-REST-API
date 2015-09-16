@@ -94,84 +94,84 @@ class ClientBuddyRequestController extends BuddyRequestController
     public function postBuddyRequestAction(
         Request $request
     ) {
+        // get my user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // get incoming data
+        $buddyRequestData = new BuddyRequest();
+        $form = $this->createForm(new BuddyRequestPostType(), $buddyRequestData);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // check user exist
+        $recvUserId = $form['user_id']->getData();
+        if (is_null($recvUserId) || $recvUserId == $myUserId) {
+            // or user is trying to adding him/her self
+            throw new ConflictHttpException(self::CONFLICT_MESSAGE);
+        }
+
+        $recvUser = $this->getRepo('User\User')->find($recvUserId);
+        $this->throwNotFoundIfNull($recvUser, self::NOT_FOUND_MESSAGE);
+
+        // if the user is already my buddy, don't proceed
+        $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+            'user' => $myUser,
+            'buddy' => $recvUser,
+        ));
+        if (!is_null($buddy)) {
+            return new View();
+        }
+
+        // if buddy request exist, then change status back to pending
+        $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+            'askUser' => $myUser,
+            'recvUser' => $recvUser,
+        ));
+
+        $em = $this->getDoctrine()->getManager();
+
+        if (is_null($buddyRequest)) {
+            // save new buddy request
+            $buddyRequest = new BuddyRequest();
+            $buddyRequest->setAskUser($myUser);
+            $buddyRequest->setRecvUser($recvUser);
+
+            $em->persist($buddyRequest);
+        } else {
+            // update buddy request
+            $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+            $buddyRequest->setModificationDate(new \DateTime('now'));
+        }
+
+        $message = $buddyRequestData->getMessage();
+        if (!is_null($message)) {
+            $buddyRequest->setMessage($message);
+        }
+
+        $em->flush();
+
         try {
-            // get my user
-            $myUserId = $this->getUserId();
-            $myUser = $this->getRepo('User\User')->find($myUserId);
-
-            // get incoming data
-            $buddyRequestData = new BuddyRequest();
-            $form = $this->createForm(new BuddyRequestPostType(), $buddyRequestData);
-            $form->handleRequest($request);
-
-            if (!$form->isValid()) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-
-            // check user exist
-            $recvUserId = $form['user_id']->getData();
-            if (is_null($recvUserId) || $recvUserId == $myUserId) {
-                // or user is trying to adding him/her self
-                throw new ConflictHttpException(self::CONFLICT_MESSAGE);
-            }
-
-            $recvUser = $this->getRepo('User\User')->find($recvUserId);
-            $this->throwNotFoundIfNull($recvUser, self::NOT_FOUND_MESSAGE);
-
-            // if the user is already my buddy, don't proceed
-            $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                'user' => $myUser,
-                'buddy' => $recvUser,
-            ));
-            if (!is_null($buddy)) {
-                return new View();
-            }
-
-            // if buddy request exist, then change status back to pending
-            $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                'askUser' => $myUser,
-                'recvUser' => $recvUser,
-            ));
-
-            $em = $this->getDoctrine()->getManager();
-
-            if (is_null($buddyRequest)) {
-                // save new buddy request
-                $buddyRequest = new BuddyRequest();
-                $buddyRequest->setAskUser($myUser);
-                $buddyRequest->setRecvUser($recvUser);
-
-                $em->persist($buddyRequest);
-            } else {
-                // update buddy request
-                $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
-                $buddyRequest->setModificationDate(new \DateTime('now'));
-            }
-
-            $message = $buddyRequestData->getMessage();
-            if (!is_null($message)) {
-                $buddyRequest->setMessage($message);
-            }
-
-            $em->flush();
-
             // send buddy notification by xmpp
             $this->sendXmppBuddyNotification(
                 $myUser,
                 $recvUser,
                 'request'
             );
-
-            // set view
-            $view = new View();
-            $view->setData(
-                array('id' => $buddyRequest->getId())
-            );
-
-            return $view;
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
         }
+
+        // set view
+        $view = new View();
+        $view->setData(
+            array('id' => $buddyRequest->getId())
+        );
+
+        return $view;
     }
 
     /**
@@ -189,77 +189,77 @@ class ClientBuddyRequestController extends BuddyRequestController
         Request $request,
         $id
     ) {
-        try {
-            // get my user
-            $myUserId = $this->getUserId();
-            $myUser = $this->getRepo('User\User')->find($myUserId);
+        // get my user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
 
-            // get buddy request
-            $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->find($id);
-            $this->throwNotFoundIfNull($buddyRequest, self::NOT_FOUND_MESSAGE);
+        // get buddy request
+        $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->find($id);
+        $this->throwNotFoundIfNull($buddyRequest, self::NOT_FOUND_MESSAGE);
 
-            // check user is allowed to modify
-            if ($myUserId != $buddyRequest->getRecvUserId()) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-            }
+        // check user is allowed to modify
+        if ($myUserId != $buddyRequest->getRecvUserId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
 
-            // check user is trying to add him/her self
-            $askUserId = $buddyRequest->getAskUserId();
-            if ($myUserId === $askUserId) {
-                throw new ConflictHttpException(self::CONFLICT_MESSAGE);
-            }
+        // check user is trying to add him/her self
+        $askUserId = $buddyRequest->getAskUserId();
+        if ($myUserId === $askUserId) {
+            throw new ConflictHttpException(self::CONFLICT_MESSAGE);
+        }
 
-            // check status is pending
-            if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_PENDING) {
-                // bind data
-                $buddyRequestJson = $this->container->get('serializer')->serialize($buddyRequest, 'json');
-                $patch = new Patch($buddyRequestJson, $request->getContent());
-                $buddyRequestJson = $patch->apply();
+        // check status is pending
+        if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_PENDING) {
+            // bind data
+            $buddyRequestJson = $this->container->get('serializer')->serialize($buddyRequest, 'json');
+            $patch = new Patch($buddyRequestJson, $request->getContent());
+            $buddyRequestJson = $patch->apply();
 
-                $form = $this->createForm(new BuddyRequestPatchType(), $buddyRequest);
-                $form->submit(json_decode($buddyRequestJson, true));
+            $form = $this->createForm(new BuddyRequestPatchType(), $buddyRequest);
+            $form->submit(json_decode($buddyRequestJson, true));
 
-                // set modification date
-                $buddyRequest->setModificationDate(new \DateTime('now'));
+            // set modification date
+            $buddyRequest->setModificationDate(new \DateTime('now'));
 
-                // update to db
-                $em = $this->getDoctrine()->getManager();
+            // update to db
+            $em = $this->getDoctrine()->getManager();
 
-                if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED) {
-                    $askUser = $this->getRepo('User\User')->find($askUserId);
+            if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED) {
+                $askUser = $this->getRepo('User\User')->find($askUserId);
 
-                    // save my buddy
-                    $this->saveBuddy($em, $myUser, $askUser);
+                // save my buddy
+                $this->saveBuddy($em, $myUser, $askUser);
 
-                    // save others' buddy
-                    $this->saveBuddy($em, $askUser, $myUser);
+                // save others' buddy
+                $this->saveBuddy($em, $askUser, $myUser);
 
-                    // find my pending buddy request to the other user
-                    // update the status to accepted
-                    $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                        'askUser' => $myUser,
-                        'recvUser' => $askUser,
-                        'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
-                    ));
-                    if (!is_null($buddyRequest)) {
-                        $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
-                    }
+                // find my pending buddy request to the other user
+                // update the status to accepted
+                $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                    'askUser' => $myUser,
+                    'recvUser' => $askUser,
+                    'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                ));
+                if (!is_null($buddyRequest)) {
+                    $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
                 }
-
-                $em->flush();
             }
 
+            $em->flush();
+        }
+
+        try {
             // send buddy notification by xmpp
             $this->sendXmppBuddyNotification(
                 $myUser,
                 $askUser,
                 'add'
             );
-
-            return new View();
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
         }
+
+        return new View();
     }
 
     /**
