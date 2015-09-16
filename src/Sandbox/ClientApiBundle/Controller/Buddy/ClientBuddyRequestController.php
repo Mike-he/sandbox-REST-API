@@ -18,7 +18,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use Symfony\Component\Security\Acl\Exception\Exception;
 
 /**
  * Rest controller for UserProfile.
@@ -88,8 +87,6 @@ class ClientBuddyRequestController extends BuddyRequestController
      * @Method({"POST"})
      *
      * @return View
-     *
-     * @throws \Exception
      */
     public function postBuddyRequestAction(
         Request $request
@@ -154,16 +151,12 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         $em->flush();
 
-        try {
-            // send buddy notification by xmpp
-            $this->sendXmppBuddyNotification(
-                $myUser,
-                $recvUser,
-                'request'
-            );
-        } catch (Exception $e) {
-            throw new \Exception('Something went wrong!');
-        }
+        // send buddy notification by xmpp
+        $this->sendXmppBuddyNotification(
+            $myUser,
+            $recvUser,
+            'request'
+        );
 
         // set view
         $view = new View();
@@ -182,8 +175,6 @@ class ClientBuddyRequestController extends BuddyRequestController
      * @Method({"PATCH"})
      *
      * @return View
-     *
-     * @throws \Exception
      */
     public function patchBuddyRequestAction(
         Request $request,
@@ -243,20 +234,16 @@ class ClientBuddyRequestController extends BuddyRequestController
                 if (!is_null($buddyRequest)) {
                     $buddyRequest->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
                 }
+
+                // send buddy notification by xmpp
+                $this->sendXmppBuddyNotification(
+                    $myUser,
+                    $askUser,
+                    'add'
+                );
             }
 
             $em->flush();
-        }
-
-        try {
-            // send buddy notification by xmpp
-            $this->sendXmppBuddyNotification(
-                $myUser,
-                $askUser,
-                'add'
-            );
-        } catch (Exception $e) {
-            throw new \Exception('Something went wrong!');
         }
 
         return new View();

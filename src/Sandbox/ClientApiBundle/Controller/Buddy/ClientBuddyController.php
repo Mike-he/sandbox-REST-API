@@ -15,7 +15,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Symfony\Component\Security\Acl\Exception\Exception;
 
 /**
  * Rest controller for UserProfile.
@@ -230,8 +229,6 @@ class ClientBuddyController extends BuddyController
      * @Method({"DELETE"})
      *
      * @return View
-     *
-     * @throws \Exception
      */
     public function deleteBuddyAction(
         Request $request,
@@ -266,16 +263,12 @@ class ClientBuddyController extends BuddyController
         $fromUser = $this->getRepo('User\User')->find($userId);
         $recvUser = $this->getRepo('User\User')->find($id);
 
-        try {
-            // send buddy notification by xmpp
-            $this->sendXmppBuddyNotification(
-                $fromUser,
-                $recvUser,
-                'remove'
-            );
-        } catch (Exception $e) {
-            throw new \Exception('Something went wrong!');
-        }
+        // send buddy notification by xmpp
+        $this->sendXmppBuddyNotification(
+            $fromUser,
+            $recvUser,
+            'remove'
+        );
 
         return new View();
     }
