@@ -255,12 +255,22 @@ class AdminUsersController extends SandboxRestController
     ) {
         $ids = $paramFetcher->get('id');
 
-        if (is_null($ids) || empty($ids)) {
-            // check user permission
+        // check user permission
+        if (!is_null($ids) || !empty($ids)) {
             $this->throwAccessDeniedIfAdminNotAllowed(
                 $this->getAdminId(),
                 AdminType::KEY_PLATFORM,
-                AdminPermission::KEY_PLATFORM_USER,
+                array(
+                    AdminPermission::KEY_PLATFORM_USER,
+                    AdminPermission::KEY_PLATFORM_ORDER,
+                ),
+                AdminPermissionMap::OP_LEVEL_VIEW
+            );
+        } else {
+            $this->throwAccessDeniedIfAdminNotAllowed(
+                $this->getAdminId(),
+                AdminType::KEY_PLATFORM,
+                AdminPermission::KEY_PLATFORM_ORDER,
                 AdminPermissionMap::OP_LEVEL_VIEW
             );
         }

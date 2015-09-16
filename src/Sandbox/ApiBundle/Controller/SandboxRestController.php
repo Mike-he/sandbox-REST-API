@@ -102,17 +102,17 @@ class SandboxRestController extends FOSRestController
     /**
      * Check admin's permission, is allowed to operate.
      *
-     * @param int    $adminId
-     * @param string $typeKey
-     * @param string $permissionKey
-     * @param int    $opLevel
+     * @param int          $adminId
+     * @param string       $typeKey
+     * @param string|array $permissionKeys
+     * @param int          $opLevel
      *
      * @throws AccessDeniedHttpException
      */
     protected function throwAccessDeniedIfAdminNotAllowed(
         $adminId,
         $typeKey,
-        $permissionKey = null,
+        $permissionKeys = null,
         $opLevel = 0
     ) {
         // get admin
@@ -129,20 +129,48 @@ class SandboxRestController extends FOSRestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        if (is_null($permissionKey)) {
+        if (is_null($permissionKeys) || empty($permissionKeys)) {
             return;
         }
 
-        $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
+        // if permission key is string
+        if (is_string($permissionKeys)) {
+            $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKeys);
 
-        // check user's permission
-        $myPermission = $this->getRepo('Admin\AdminPermissionMap')
-            ->findOneBy(array(
-                'adminId' => $adminId,
-                'permissionId' => $permission->getId(),
-            ));
-        if (is_null($myPermission)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            // check user's permission
+            $myPermission = $this->getRepo('Admin\AdminPermissionMap')
+                ->findOneBy(array(
+                    'adminId' => $adminId,
+                    'permissionId' => $permission->getId(),
+                ));
+            if (is_null($myPermission)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            return;
+        }
+
+        // if permission key is array
+        if (is_array($permissionKeys)) {
+            $flag = false;
+            foreach ($permissionKeys as $permissionKey) {
+                $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
+
+                // check user's permission
+                $myPermission = $this->getRepo('Admin\AdminPermissionMap')
+                    ->findOneBy(array(
+                        'adminId' => $adminId,
+                        'permissionId' => $permission->getId(),
+                    ));
+                if (!is_null($myPermission)) {
+                    $flag = true;
+                    break;
+                }
+            }
+
+            if (!$flag) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
         }
 
         // check user's operation level
