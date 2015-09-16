@@ -83,23 +83,15 @@ class ClientOrderController extends PaymentController
         $offset = $paramFetcher->get('offset');
 
         if (!is_null($status) && !empty($status)) {
-            if ($status == ProductOrder::STATUS_CANCELLED) {
-                $orders = $this->getRepo('Order\ProductOrder')->getUserCancelledOrders(
-                    $userId,
-                    $limit,
-                    $offset
-                );
-            } else {
-                $orders = $this->getRepo('Order\ProductOrder')->findBy(
-                    [
-                        'userId' => $userId,
-                        'status' => $status,
-                    ],
-                    ['modificationDate' => 'DESC'],
-                    $limit,
-                    $offset
-                );
-            }
+            $orders = $this->getRepo('Order\ProductOrder')->findBy(
+                [
+                    'userId' => $userId,
+                    'status' => $status,
+                ],
+                ['modificationDate' => 'DESC'],
+                $limit,
+                $offset
+            );
         } else {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
                 ['userId' => $userId],
