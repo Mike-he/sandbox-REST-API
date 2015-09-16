@@ -142,9 +142,22 @@ class AdminOrderController extends OrderController
         ParamFetcherInterface $paramFetcher
     ) {
         $adminId = $this->getAdminId();
+        $userId = $paramFetcher->get('user');
 
         // check user permission
-        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
+        if (!is_null($userId) || !empty($userId)) {
+            $this->throwAccessDeniedIfAdminNotAllowed(
+                $adminId,
+                AdminType::KEY_PLATFORM,
+                array(
+                    AdminPermission::KEY_PLATFORM_ORDER,
+                    AdminPermission::KEY_PLATFORM_USER,
+                ),
+                AdminPermissionMap::OP_LEVEL_VIEW
+            );
+        } else {
+            $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
+        }
 
         //filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -152,7 +165,6 @@ class AdminOrderController extends OrderController
         $type = $paramFetcher->get('type');
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
-        $userId = $paramFetcher->get('user');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
 

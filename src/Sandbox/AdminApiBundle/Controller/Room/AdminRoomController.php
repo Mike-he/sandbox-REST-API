@@ -246,7 +246,12 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_PRODUCT,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $type = $paramFetcher->get('type');
         $floorId = $paramFetcher->get('floor');
@@ -307,7 +312,12 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_PRICE,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
