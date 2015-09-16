@@ -32,6 +32,8 @@ twig:
         openfire_plugin_bstuser_users: "%openfire_plugin_bstuser_users%"
         openfire_plugin_bstuser_property_name_ezuser: "%openfire_plugin_bstuser_property_name_ezuser%"
         openfire_plugin_bstuser_property_secret_ezuser: "%openfire_plugin_bstuser_property_secret_ezuser%"
+        openfire_plugin_sandbox: "%openfire_plugin_sandbox%"
+        openfire_plugin_sandbox_notification: "%openfire_plugin_sandbox_notification%"
         sms_api_base_url: "%sms_api_base_url%"
         sms_api_uid: "%sms_api_uid%"
         sms_api_key: "%sms_api_key%"

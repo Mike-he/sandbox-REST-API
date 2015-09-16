@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Acl\Exception\Exception;
 
 //TODO there's certainly a way to get the
 // current bundle name with a magic function
@@ -999,5 +1000,66 @@ class SandboxRestController extends FOSRestController
         }
 
         return $result['expiration_time'];
+    }
+
+    /**
+     * @param $fromUser
+     * @param $recvUser
+     * @param $action
+     *
+     * @return mixed|void
+     */
+    protected function sendXmppBuddyNotification(
+        $fromUser,
+        $recvUser,
+        $action
+    ) {
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            // openfire API URL
+            $apiURL = $globals['openfire_innet_url'] .
+                $globals['openfire_plugin_sandbox'] .
+                $globals['openfire_plugin_sandbox_notification'];
+
+            $domainURL = $globals['xmpp_domxmpp_domainain'];
+
+            // request json
+            $jsonDataArray = array(
+                'receivers' => array(
+                    array('jid' => $recvUser->getXmppUsername() . '@' . $domainURL),
+                ),
+                'content' => array(
+                    'type' => 'buddy',
+                    'action' => $action,
+                    'from' => array(
+                        'id' => $fromUser->getId(),
+                        'xmpp_username' => $fromUser->getXmppUsername(),
+                    ),
+                ),
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // init curl
+            $ch = curl_init($apiURL);
+
+            // get then response when post OpenFire API
+            $response = $this->get('curl_util')->callAPI(
+                $ch,
+                'POST',
+                null,
+                $jsonData);
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode != self::HTTP_STATUS_OK) {
+                return;
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            error_log('Send buddy notification went wrong!');
+        }
     }
 }
