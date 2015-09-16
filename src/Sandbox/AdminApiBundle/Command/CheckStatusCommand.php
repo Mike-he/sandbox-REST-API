@@ -77,7 +77,11 @@ class CheckStatusCommand extends ContainerAwareCommand
         $contentMd5 = strtoupper($contentMd5);
 
         $ch = curl_init($apiUrl);
-        $response = $this->getContainer()->get('curl_util')->callInternalAPI($ch, 'POST', $contentMd5, $content);
+        $response = $this->getContainer()->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Sandbox-Auth: '.$contentMd5),
+            $content);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -111,7 +115,11 @@ class CheckStatusCommand extends ContainerAwareCommand
 
         // init curl
         $ch = curl_init($apiUrl);
-        $response = $this->getContainer()->get('curl_util')->callInternalAPI($ch, 'POST', $contentMd5, $content);
+        $response = $this->getContainer()->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Sandbox-Auth: '.$contentMd5),
+            $content);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {

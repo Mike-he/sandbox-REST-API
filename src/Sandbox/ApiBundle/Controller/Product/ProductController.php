@@ -105,7 +105,7 @@ class ProductController extends SandboxRestController
         $this->get('curl_util')->callAPI(
             $ch,
             'POST',
-            $auth,
+            array('Authorization: '.$auth),
             json_encode($ids)
         );
 
