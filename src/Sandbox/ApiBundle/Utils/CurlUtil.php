@@ -12,9 +12,9 @@ class CurlUtil
 {
     /**
      * @param $ch
-     * @param $data
-     * @param $headers
      * @param $method
+     * @param $headers
+     * @param $data
      *
      * @return mixed
      */

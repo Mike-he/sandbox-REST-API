@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Symfony\Component\Security\Acl\Exception\Exception;
 
 /**
  * Rest controller for UserProfile.
@@ -229,37 +230,53 @@ class ClientBuddyController extends BuddyController
      * @Method({"DELETE"})
      *
      * @return View
+     *
+     * @throws \Exception
      */
     public function deleteBuddyAction(
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
+        try {
+            $userId = $this->getUserId();
 
-        // get buddy
-        $buddy = $this->getRepo('Buddy\Buddy')->find($id);
+            // get buddy
+            $buddy = $this->getRepo('Buddy\Buddy')->find($id);
 
-        if (!is_null($buddy)) {
-            // check user is allowed to delete
-            if ($userId != $buddy->getUserId()) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            if (!is_null($buddy)) {
+                // check user is allowed to delete
+                if ($userId != $buddy->getUserId()) {
+                    throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+                }
+
+                // remove from db
+                $em = $this->getDoctrine()->getManager();
+                $em->remove($buddy);
+
+                $buddyOther = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                    'userId' => $buddy->getBuddyId(),
+                    'buddyId' => $userId,
+                ));
+                if (!is_null($buddyOther) || !empty($buddyOther)) {
+                    $em->remove($buddyOther);
+                }
+
+                $em->flush();
             }
 
-            // remove from db
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($buddy);
+            $fromUser = $this->getRepo('User\User')->find($userId);
+            $recvUser = $this->getRepo('User\User')->find($id);
 
-            $buddyOther = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                'userId' => $buddy->getBuddyId(),
-                'buddyId' => $userId,
-            ));
-            if (!is_null($buddyOther) || !empty($buddyOther)) {
-                $em->remove($buddyOther);
-            }
+            // send buddy notification by xmpp
+            $this->sendXmppBuddyNotification(
+                $fromUser,
+                $recvUser,
+                'remove'
+            );
 
-            $em->flush();
+            return new View();
+        } catch (Exception $e) {
+            throw new \Exception('Something went wrong!');
         }
-
-        return new View();
     }
 }

@@ -972,4 +972,61 @@ class SandboxRestController extends FOSRestController
 
         return $result['expiration_time'];
     }
+
+    /**
+     * @param $fromUser
+     * @param $recvUser
+     * @param $action
+     *
+     * @return mixed|void
+     */
+    protected function sendXmppBuddyNotification(
+        $fromUser,
+        $recvUser,
+        $action
+    ) {
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // openfire API URL
+        $apiURL = $globals['openfire_innet_url'].
+            $globals['openfire_plugin_sandbox'].
+            $globals['openfire_plugin_sandbox_notification'];
+
+        $domainURL = $globals['openfire_domain_extension'];
+
+        // request json
+        $jsonDataArray = array(
+            'receivers' => array(
+                array('jid' => $recvUser->getXmppUsername().'@'.$domainURL),
+            ),
+            'content' => array(
+                    'type' => 'buddy',
+                    'action' => $action,
+                    'from' => array(
+                        'id' => $fromUser->getId(),
+                        'xmpp_username' => $fromUser->getXmppUsername(),
+                    ),
+                ),
+        );
+        $jsonData = json_encode($jsonDataArray);
+
+        // init curl
+        $ch = curl_init($apiURL);
+
+        // get then response when post OpenFire API
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            null,
+            $jsonData);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        return $response;
+    }
 }
