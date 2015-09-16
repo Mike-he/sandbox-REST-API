@@ -382,14 +382,29 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->select("
                     CONCAT(rc.name, ', ', rb.name, ', ', r.number, ', ', r.name) as product_name,
-                    r.type,
+                    CASE r.type
+                        WHEN 'fixed' THEN '可选工位'
+                        WHEN 'meeting' THEN '会议室'
+                        WHEN 'flexible' THEN '不可选工位'
+                        WHEN 'office' THEN '独立办公室'
+                        ELSE '其他' END,
                     o.userId as employee_id,
-                    p.unitPrice,
+                    p.basePrice,
+                    CASE p.unitPrice
+                        WHEN 'hour' THEN '小时'
+                        WHEN 'day' THEN '天'
+                        WHEN 'month' THEN '月'
+                        ELSE '其他' END,
                     o.price as amount,
+                    o.discountPrice,
                     CONCAT(p.startDate, ' - ', p.endDate) as leasing_time,
                     o.creationDate as order_time,
                     o.modificationDate as payment_time,
-                    o.status,
+                    CASE o.status
+                        WHEN 'paid' THEN '已付款'
+                        WHEN 'completed' THEN '已完成'
+                        WHEN 'cancelled' THEN '已取消'
+                        ELSE '其他' END,
                     up.name,
                     up.phone,
                     up.email
@@ -446,41 +461,5 @@ class OrderRepository extends EntityRepository
         $query->setParameters($parameters);
 
         return $query->getQuery()->getArrayResult();
-    }
-
-    /**
-     * Seek all users that rented room.
-     *
-     * @param $roomId
-     *
-     * @return array
-     */
-    public function getRoomUsersUsage(
-        $productId,
-        $start,
-        $end
-    ) {
-        $query = $this->createQueryBuilder('o')
-            ->select('
-                o.startDate,
-                o.endDate,
-                o.userId,
-                v.name,
-                v.email,
-                v.phone
-            ')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'v', 'WITH', 'o.userId = v.id')
-            ->where('o.productId = :productId')
-            ->andWhere('o.status = \'paid\' OR o.status = \'completed\'')
-            ->andWhere('
-                (o.startDate <= :start AND o.endDate > :start) OR
-                (o.startDate < :end AND o.endDate >= :end) OR
-                (o.startDate >= :start AND o.endDate <= :end)
-            ')
-            ->setParameter('productId', $productId)
-            ->setParameter('start', $start)
-            ->setParameter('end', $end);
-
-        return $query->getQuery()->getResult();
     }
 }

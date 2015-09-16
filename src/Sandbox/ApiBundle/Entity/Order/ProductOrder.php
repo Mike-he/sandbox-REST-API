@@ -42,21 +42,17 @@ class ProductOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer", nullable=true)
+     * @ORM\Column(name="userId", type="integer")
      *
      * @Serializer\Groups({"main", "admin_detail"})
      */
     private $userId;
 
-//    /**
-//     * @var \Sandbox\ApiBundle\Entity\User\User
-//     *
-//     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserProfile")
-//     * @ORM\JoinColumn(name="userId", referencedColumnName="userId")
-//     *
-//     * @Serializer\Groups({"main"})
-//     */
-//    private $user;
+    /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     **/
+    private $user;
 
     /**
      * @var int
@@ -314,6 +310,28 @@ class ProductOrder
         $this->productId = $productId;
 
         return $this;
+    }
+
+    /**
+     * Get user.
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param User $user
+     *
+     * @return ProductOrder
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     /**

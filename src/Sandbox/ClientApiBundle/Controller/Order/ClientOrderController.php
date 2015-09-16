@@ -129,6 +129,7 @@ class ClientOrderController extends PaymentController
         Request $request
     ) {
         $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($userId);
         $order = new ProductOrder();
 
         $form = $this->createForm(new OrderType(), $order);
@@ -336,7 +337,7 @@ class ClientOrderController extends PaymentController
         $order->setProduct($product);
         $order->setStartDate($startDate);
         $order->setEndDate($endDate);
-        $order->setUserId($userId);
+        $order->setUser($user);
         $order->setLocation('location');
         $order->setStatus('unpaid');
         $order->setProductInfo($productInfo);
@@ -611,6 +612,7 @@ class ClientOrderController extends PaymentController
 
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP &&
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
             $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
             $channel !== self::PAYMENT_CHANNEL_ALIPAY

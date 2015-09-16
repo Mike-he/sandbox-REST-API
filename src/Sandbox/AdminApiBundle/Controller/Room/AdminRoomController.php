@@ -246,7 +246,12 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_PRODUCT,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $type = $paramFetcher->get('type');
         $floorId = $paramFetcher->get('floor');
@@ -307,7 +312,12 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_PRICE,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
@@ -1130,14 +1140,18 @@ class AdminRoomController extends RoomController
             $yearEnd = new \DateTime($yearString);
             $yearEnd = $yearEnd->modify('last day of December'.$yearString);
             $yearEnd->setTime(23, 59, 59);
-            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                 $productId,
                 $yearStart,
                 $yearEnd
             );
         }
 
-        return new View($results);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
     }
 
     /**
@@ -1203,7 +1217,7 @@ class AdminRoomController extends RoomController
                 $start->setTime(0, 0, 0);
                 $end = new \DateTime($endString);
                 $end->setTime(23, 59, 59);
-                $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+                $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                     $productId,
                     $start,
                     $end
@@ -1211,7 +1225,11 @@ class AdminRoomController extends RoomController
             }
         }
 
-        return new View($results);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
     }
 
     /**
@@ -1266,7 +1284,7 @@ class AdminRoomController extends RoomController
             $start->setTime(0, 0, 0);
             $end = new \DateTime($endString);
             $end->setTime(23, 59, 59);
-            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                 $productId,
                 $start,
                 $end
@@ -1274,7 +1292,11 @@ class AdminRoomController extends RoomController
             //TODO: Split Results into Per Day
         }
 
-        return new View($results);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
     }
 
     /**
@@ -1311,13 +1333,17 @@ class AdminRoomController extends RoomController
             $end = new \DateTime($dayString);
             $end->setTime(23, 59, 59);
 
-            $results = $this->getRepo('Order\ProductOrder')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                 $productId,
                 $start,
                 $end
             );
         }
 
-        return new View($results);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
     }
 }
