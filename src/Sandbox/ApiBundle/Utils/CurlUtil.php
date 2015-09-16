@@ -13,7 +13,7 @@ class CurlUtil
     /**
      * @param $ch
      * @param $data
-     * @param $auth
+     * @param $headers
      * @param $method
      *
      * @return mixed
@@ -21,7 +21,7 @@ class CurlUtil
     public function callAPI(
         $ch,
         $method,
-        $auth,
+        $headers = null,
         $data = null
     ) {
         if ($method === 'POST') {
@@ -30,41 +30,10 @@ class CurlUtil
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
 
-        $headers = array('Accept: application/json');
-        $headers[] = 'Authorization: '.$auth;
-
-        if (!is_null($data)) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            $headers[] = 'Content-Type: application/json';
+        if (is_null($headers)) {
+            $headers = array();
         }
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        return curl_exec($ch);
-    }
-
-    /**
-     * @param $ch
-     * @param $data
-     * @param $auth
-     * @param $method
-     *
-     * @return mixed
-     */
-    public function callInternalAPI(
-        $ch,
-        $method,
-        $auth,
-        $data = null
-    ) {
-        if ($method === 'POST') {
-            curl_setopt($ch, CURLOPT_POST, 1);
-        } elseif ($method === 'PUT' || $method === 'DELETE') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        }
-
-        $headers = array('Accept: application/json');
-        $headers[] = 'Sandbox-Auth: '.$auth;
+        $headers[] = 'Accept: application/json';
 
         if (!is_null($data)) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);

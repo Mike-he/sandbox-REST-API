@@ -206,7 +206,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI($ch, 'GET', $auth);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: '.$auth)
+        );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -260,7 +264,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callInternalAPI($ch, 'GET', $contentMd5);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'GET',
+            array('Sandbox-Auth: '.$contentMd5)
+        );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -305,7 +313,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callInternalAPI($ch, 'POST', $auth, $json);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Sandbox-Auth: '.$auth),
+            $json);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -345,7 +357,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callInternalAPI($ch, 'POST', $auth, $json);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Sandbox-Auth: '.$auth),
+            $json);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -385,7 +401,12 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callInternalAPI($ch, 'POST', $auth, json_encode($content));
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Sandbox-Auth: '.$auth),
+            json_encode($content)
+        );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -467,7 +488,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI($ch, 'GET', $auth);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: '.$auth)
+        );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -506,7 +531,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI($ch, 'GET', $auth);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: '.$auth)
+        );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -559,7 +588,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI($ch, 'POST', $auth, $data);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Authorization: '.$auth),
+            $data);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -882,7 +915,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callInternalAPI($ch, 'POST', $contentMd5);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Sandbox-Auth: '.$contentMd5)
+        );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -917,7 +954,11 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callInternalAPI($ch, 'GET', $contentMd5);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'GET',
+            array('Sandbox-Auth: '.$contentMd5)
+        );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
