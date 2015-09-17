@@ -14,6 +14,7 @@ CREATE TABLE `UserProfile` (
   `facebook` varchar(128) DEFAULT NULL,
   `linkedin` varchar(128) DEFAULT NULL,
   `buildingId` int(11) DEFAULT NULL,
+  `companyId` int(11) DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

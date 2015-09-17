@@ -29,7 +29,11 @@ class Company
      *      "company_basic",
      *      "member",
      *      "buddy",
-     *      "company_limit"
+     *      "company_limit",
+     *      "profile",
+     *      "profile_stranger",
+     *      "profile_basic",
+     *      "profile_basic_stranger"
      * })
      */
     private $id;
@@ -45,7 +49,10 @@ class Company
      *      "member",
      *      "buddy",
      *      "company_limit",
-     *      "profile"
+     *      "profile",
+     *      "profile_stranger",
+     *      "profile_basic",
+     *      "profile_basic_stranger"
      * })
      */
     private $name;

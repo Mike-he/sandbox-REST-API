@@ -101,12 +101,6 @@ class ClientUserProfileController extends UserProfileController
             $profile->setPortfolios($portfolios);
         }
 
-        //set user companies
-        $companyMember = $this->getRepo('Company\CompanyMember')->findOneByUser($user);
-        if (!is_null($companyMember) && !empty($companyMember)) {
-            $company = $this->getRepo('Company\Company')->find($companyMember->getCompanyId());
-            $profile->setCompany(array('name' => $company->getName()));
-        }
         // set view
         $view = new View($profile);
         $view->setSerializationContext(
