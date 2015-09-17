@@ -261,7 +261,7 @@ class ClientBuddyController extends BuddyController
         }
 
         $fromUser = $this->getRepo('User\User')->find($userId);
-        $recvUser = $this->getRepo('User\User')->find($id);
+        $recvUser = $this->getRepo('User\User')->find($buddy->getBuddyId());
 
         // send buddy notification by xmpp
         $this->sendXmppBuddyNotification(

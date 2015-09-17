@@ -986,22 +986,28 @@ class SandboxRestController extends FOSRestController
         $recvUser,
         $action
     ) {
+        if (is_null($fromUser)
+        || is_null($recvUser)) {
+            return;
+        }
+
         try {
             // get globals
             $twig = $this->container->get('twig');
             $globals = $twig->getGlobals();
 
             // openfire API URL
-            $apiURL = $globals['openfire_innet_url'] .
-                $globals['openfire_plugin_sandbox'] .
+            $apiURL = $globals['openfire_innet_url'].
+                $globals['openfire_plugin_sandbox'].
                 $globals['openfire_plugin_sandbox_notification'];
 
-            $domainURL = $globals['xmpp_domxmpp_domainain'];
+            $domainURL = $globals['xmpp_domain'];
+            $jid = $recvUser->getXmppUsername().'@'.$domainURL;
 
             // request json
             $jsonDataArray = array(
                 'receivers' => array(
-                    array('jid' => $recvUser->getXmppUsername() . '@' . $domainURL),
+                    array('jid' => $jid),
                 ),
                 'content' => array(
                     'type' => 'buddy',
