@@ -399,7 +399,7 @@ class OrderRepository extends EntityRepository
                         ELSE '其他' END,
                     o.price as amount,
                     o.discountPrice,
-                    CONCAT(p.startDate, ' - ', p.endDate) as leasing_time,
+                    CONCAT(o.startDate, ' - ', o.endDate) as leasing_time,
                     o.creationDate as order_time,
                     o.modificationDate as payment_time,
                     CASE o.status
@@ -427,6 +427,9 @@ class OrderRepository extends EntityRepository
             $parameters['unpaid'] = 'unpaid';
         }
 
+        // only export order that is paid
+        $query->andWhere('o.paymentDate IS NOT NULL');
+
         // filter by type
         if (!is_null($type)) {
             $query->andWhere('r.type = :type');
@@ -445,13 +448,13 @@ class OrderRepository extends EntityRepository
             $parameters['building'] = $building;
         }
 
-        //filter by start date
+        // filter by start date
         if (!is_null($startDate)) {
             $query->andWhere('o.startDate >= :startDate');
             $parameters['startDate'] = $startDate;
         }
 
-        //filter by end date
+        // filter by end date
         if (!is_null($endDate)) {
             $query->andWhere('o.endDate <= :endDate');
             $parameters['endDate'] = $endDate;
