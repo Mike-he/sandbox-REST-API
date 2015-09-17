@@ -167,6 +167,9 @@ class AdminOrderController extends OrderController
         $buildingId = $paramFetcher->get('building');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
+        $startDate = new \DateTime($startDate);
+        $endDate = new \DateTime($endDate);
+        $endDate->setTime(23, 59, 59);
 
         //search by name and number
         $search = $paramFetcher->get('query');
