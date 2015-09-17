@@ -338,12 +338,15 @@ class OrderRepository extends EntityRepository
 
         //filter by start date
         if (!is_null($startDate)) {
+            $startDate = new \DateTime($startDate);
             $query->andWhere('o.startDate >= :startDate');
             $parameters['startDate'] = $startDate;
         }
 
         //filter by end date
         if (!is_null($endDate)) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
             $query->andWhere('o.endDate <= :endDate');
             $parameters['endDate'] = $endDate;
         }
