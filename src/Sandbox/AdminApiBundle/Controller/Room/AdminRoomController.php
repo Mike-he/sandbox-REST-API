@@ -1270,7 +1270,8 @@ class AdminRoomController extends RoomController
         );
         $startString = $paramFetcher->get('start');
         $endString = $paramFetcher->get('end');
-        $results = [];
+
+        $resultArray = [];
         if (
             !is_null($product) &&
             !empty($product) &&
@@ -1289,12 +1290,35 @@ class AdminRoomController extends RoomController
                 $start,
                 $end
             );
-            //TODO: Split Results into Per Day
+            if (!empty($results)) {
+                foreach ($results as $result) {
+                    $startDate = $result->getStartDate();
+                    $endDate = $result->getEndDate();
+                    $user = $result->getUser();
+                    $appointed = $result->getAppointedUser();
+                    $days = new \DatePeriod(
+                        $startDate,
+                        new \DateInterval('P1D'),
+                        $endDate
+                    );
+
+                    foreach ($days as $day) {
+                        $dayArray = [
+                            'date' => $day->format('Y-m-d'),
+                            'user' => $user,
+                            'appointed_user' => $appointed,
+
+                        ];
+
+                        array_push($resultArray, $dayArray);
+                    }
+                }
+            }
         }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
-        $view->setData($results);
+        $view->setData($resultArray);
 
         return $view;
     }

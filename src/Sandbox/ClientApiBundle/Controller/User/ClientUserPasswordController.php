@@ -198,7 +198,11 @@ class ClientUserPasswordController extends UserPasswordController
         $ch = curl_init($apiUrl);
 
         // get then response when post OpenFire API
-        $response = $this->get('curl_util')->callAPI($ch, 'PUT', $auth, $jsonData);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'PUT',
+            array('Authorization: '.$auth),
+            $jsonData);
         if (!$response) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }

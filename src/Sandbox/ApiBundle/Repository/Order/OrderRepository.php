@@ -302,7 +302,10 @@ class OrderRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('o.status != :unpaid')
+            ->andWhere('o.paymentDate IS NOT NULL');
+        $parameters['unpaid'] = 'unpaid';
 
         //only needed when searching orders
         if (!is_null($search)) {
@@ -311,12 +314,8 @@ class OrderRepository extends EntityRepository
 
         // filter by user id
         if (!is_null($userId)) {
-            $query->where('o.userId = :userId');
+            $query->andWhere('o.userId = :userId');
             $parameters['userId'] = $userId;
-        } else {
-            $query->where('o.status != :unpaid');
-            $parameters['unpaid'] = 'unpaid';
-            $query->andWhere('o.paymentDate IS NOT NULL');
         }
 
         // filter by type
@@ -339,12 +338,15 @@ class OrderRepository extends EntityRepository
 
         //filter by start date
         if (!is_null($startDate)) {
+            $startDate = new \DateTime($startDate);
             $query->andWhere('o.startDate >= :startDate');
             $parameters['startDate'] = $startDate;
         }
 
         //filter by end date
         if (!is_null($endDate)) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
             $query->andWhere('o.endDate <= :endDate');
             $parameters['endDate'] = $endDate;
         }

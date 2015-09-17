@@ -24,6 +24,8 @@ parameters:
     openfire_plugin_bstuser_users: /users
     openfire_plugin_bstuser_property_name_ezuser: ezuser
     openfire_plugin_bstuser_property_secret_ezuser: DB93819516EA9C8E73C0374595ED0F19
+    openfire_plugin_sandbox: /plugins/sandbox
+    openfire_plugin_sandbox_notification: /notification
     sms_api_base_url: http://utf8.sms.webchinese.cn/?
     sms_api_uid: account@sandbox3.cn
     sms_api_key: 807574a49cc90043531c

@@ -376,7 +376,11 @@ class ClientUserRegistrationController extends UserRegistrationController
         $ch = curl_init($apiUrl);
 
         // get then response when post OpenFire API
-        $response = $this->get('curl_util')->callAPI($ch, 'POST', $basicAuth, $jsonData);
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Authorization: '.$basicAuth),
+            $jsonData);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
