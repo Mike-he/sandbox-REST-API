@@ -31,8 +31,8 @@ use Rs\Json\Patch;
  */
 class ClientCompanyController extends CompanyController
 {
-    const ERROR_NOT_VIP_SET_CODE = 400001;
-    const ERROR_NOT_VIP_SET_MESSAGE = 'You are not VIP!';
+    //const ERROR_NOT_VIP_SET_CODE = 400001;
+    //const ERROR_NOT_VIP_SET_MESSAGE = 'You are not VIP!';
     const ERROR_HAVE_COMPANY_SET_CODE = 400002;
     const ERROR_HAVE_COMPANY_SET_MESSAGE = 'You have create a company yet!';
 
@@ -58,21 +58,22 @@ class ClientCompanyController extends CompanyController
         $userId = $this->getUserId();
 
         //get companies
-        $member = $this->getRepo('Company\CompanyMember')
-                       ->findOneByUserId($userId);
-        if (is_null($member)) {
+        $members = $this->getRepo('Company\CompanyMember')
+                       ->findByUserId($userId);
+        if (is_null($members)) {
             return new View(array());
         }
 
-        $company = $member->getCompany();
-
-        //set company all info
-        $this->setCompanyAllInfo($company);
-
-        $company = array($company);
+        $companies = array();
+        foreach ($members as $member) {
+            $company = $member->getCompany();
+            //set company all info
+            $this->setCompanyAllInfo($company);
+            $companies[] = $company;
+        }
 
         //set view
-        $view = new View($company);
+        $view = new View($companies);
         $view->setSerializationContext(SerializationContext::create()
              ->setGroups(array('company_info')));
 
@@ -364,23 +365,23 @@ class ClientCompanyController extends CompanyController
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
-
         // get a company
         $company = $this->getRepo('Company\Company')->findOneById($id);
 
         $viewGroup = 'company_info';
 
-        $creatorId = $company->getCreatorId();
-        $creatorVip = $this->getVipStatusByUserId($creatorId);
-
-        // check user is VIP
-        if (is_null($creatorVip)) {
-            // check user is company member
-            if (!$this->isCompanyMember($userId, $id)) {
-                $viewGroup = 'company_limit';
-            }
-        };
+//        <--------for the future
+//        $userId = $this->getUserId();
+//        $creatorId = $company->getCreatorId();
+//        $creatorVip = $this->getVipStatusByUserId($creatorId);
+//        // check user is VIP
+//        if (is_null($creatorVip)) {
+//            // check user is company member
+//            if (!$this->isCompanyMember($userId, $id)) {
+//                $viewGroup = 'company_limit';
+//            }
+//        };
+//        --------------------------->
 
         // set company all info
         $this->setCompanyAllInfo($company);
@@ -405,24 +406,25 @@ class ClientCompanyController extends CompanyController
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
-
         // get a company
         $company = $this->getRepo('Company\Company')->findOneById($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
         $viewGroup = 'company_info';
 
-        $creatorId = $company->getCreatorId();
-        $creatorVip = $this->getVipStatusByUserId($creatorId);
-
-        // check user is VIP
-        if (is_null($creatorVip)) {
-            // check user is company member
-            if (!$this->isCompanyMember($userId, $id)) {
-                $viewGroup = 'company_limit';
-            }
-        };
+//        <--------for the future
+//        $userId = $this->getUserId();
+//        $creatorId = $company->getCreatorId();
+//        $creatorVip = $this->getVipStatusByUserId($creatorId);
+//
+//        // check user is VIP
+//        if (is_null($creatorVip)) {
+//            // check user is company member
+//            if (!$this->isCompanyMember($userId, $id)) {
+//                $viewGroup = 'company_limit';
+//            }
+//        };
+//        --------------------------->
 
         // set view
         $view = new View($company);
@@ -435,9 +437,7 @@ class ClientCompanyController extends CompanyController
     /**
      * Create a company.
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
+     * @param Request $request
      *
      * @Route("/companies/")
      * @Method({"POST"})
@@ -447,19 +447,21 @@ class ClientCompanyController extends CompanyController
     public function postCompanyAction(
         Request $request
     ) {
-        //check user is VIP
-        if (is_null($this->getExpireDateIfUserVIP())) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_NOT_VIP_SET_CODE,
-                self::ERROR_NOT_VIP_SET_MESSAGE
-            );
-        }
+        //<--------for the future
+//          //check user is VIP
+//        if (is_null($this->getExpireDateIfUserVIP())) {
+//            return $this->customErrorView(
+//                400,
+//                self::ERROR_NOT_VIP_SET_CODE,
+//                self::ERROR_NOT_VIP_SET_MESSAGE
+//            );
+//        }
+//        --------------------------->
 
-        // check user has create a company
+        // check user has created a company
         $userId = $this->getUserId();
 
-        if ($this->hasCompany($userId)) {
+        if ($this->hasCreatedCompany($userId)) {
             return $this->customErrorView(
                 400,
                 self::ERROR_HAVE_COMPANY_SET_CODE,
@@ -484,6 +486,9 @@ class ClientCompanyController extends CompanyController
 
             $member->setCompany($company);
             $member->setUser($user);
+
+            // update user profile's company
+            $this->setUserProfileCompany($userId, $company);
 
             // save to db
             $em->persist($company);
@@ -517,14 +522,16 @@ class ClientCompanyController extends CompanyController
         Request $request,
         $id
     ) {
-        //check user is VIP
-        if (is_null($this->getExpireDateIfUserVIP())) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_NOT_VIP_SET_CODE,
-                self::ERROR_NOT_VIP_SET_MESSAGE
-            );
-        }
+        //<--------for the future
+//          //check user is VIP
+//        if (is_null($this->getExpireDateIfUserVIP())) {
+//            return $this->customErrorView(
+//                400,
+//                self::ERROR_NOT_VIP_SET_CODE,
+//                self::ERROR_NOT_VIP_SET_MESSAGE
+//            );
+//        }
+//        --------------------------->
 
         //get company Entity
         $company = $this->getRepo('Company\Company')->find($id);

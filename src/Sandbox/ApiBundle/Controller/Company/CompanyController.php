@@ -107,6 +107,28 @@ class CompanyController extends SandboxRestController
         return true;
     }
 
+    /**
+     * @param int $creatorId
+     *
+     * @return bool
+     */
+    public function hasCreatedCompany($creatorId)
+    {
+        $company = $this->getRepo('Company\Company')
+            ->findOneByCreatorId($creatorId);
+        if (is_null($company)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $userId
+     * @param $companyId
+     *
+     * @return bool
+     */
     public function isCompanyCreator($userId, $companyId)
     {
         $company = $this->getRepo('Company\Company')->findOneBy(array(
@@ -118,5 +140,22 @@ class CompanyController extends SandboxRestController
         }
 
         return true;
+    }
+
+    /**
+     * @param $userId
+     * @param $company
+     */
+    public function setUserProfileCompany($userId, $company)
+    {
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        if (is_null($userProfile)) {
+            return;
+        }
+
+        $userCompany = $userProfile->getCompany();
+        if (is_null($userCompany)) {
+            $userProfile->setCompany($company);
+        }
     }
 }
