@@ -58,24 +58,12 @@ class ClientCompanyController extends CompanyController
         $userId = $this->getUserId();
 
         //get companies
-        $members = $this->getRepo('Company\CompanyMember')
-                       ->findByUserId($userId);
-        if (is_null($members)) {
-            return new View(array());
-        }
-
-        $companies = array();
-        foreach ($members as $member) {
-            $company = $member->getCompany();
-            //set company all info
-            $this->setCompanyAllInfo($company);
-            $companies[] = $company;
-        }
+        $companies = $this->getRepo('Company\Company')->findMyCompanies($userId);
 
         //set view
         $view = new View($companies);
         $view->setSerializationContext(SerializationContext::create()
-             ->setGroups(array('company_info')));
+             ->setGroups(array('company_limit')));
 
         return $view;
     }

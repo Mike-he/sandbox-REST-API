@@ -156,4 +156,26 @@ class CompanyRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @param $userId
+     * @return array
+     */
+    public function findMyCompanies($userId)
+    {
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
+                  SELECT c
+                  FROM SandboxApiBundle:Company\Company c
+                  LEFT JOIN SandboxApiBundle:Company\CompanyMember cm
+                  WITH c.id = cm.companyId
+                  WHERE
+                  cm.userId = :userId
+                '
+            )
+            ->setParameter('userId', $userId);
+
+        return $query->getResult();
+    }
 }
