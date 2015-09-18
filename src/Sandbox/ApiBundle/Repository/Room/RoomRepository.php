@@ -168,9 +168,17 @@ class RoomRepository extends EntityRepository
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('r')
-            ->select('r.id')
+            ->select('
+                o.userId,
+                v.name,
+                v.email,
+                v.phone,
+                o.startDate,
+                o.endDate
+            ')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'v', 'WITH', 'o.userId = v.id')
             ->where('o.startDate <= :now AND o.endDate >= :now')
             ->andWhere('r.id = :roomId')
             ->setParameter('now', $now)

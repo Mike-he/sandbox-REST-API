@@ -243,8 +243,9 @@ class AdminRoomController extends RoomController
         $statusArray = [];
         if (!is_null($roomIds) && !empty($roomIds)) {
             foreach ($roomIds as $roomId) {
-                $id = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
-                if (!is_null($id) && !empty($id)) {
+                $usage = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
+
+                if (!is_null($usage) && !empty($usage)) {
                     $status = true;
                 } else {
                     $status = false;
@@ -252,6 +253,7 @@ class AdminRoomController extends RoomController
                 $status = [
                     'room_id' => $roomId,
                     'usage' => $status,
+                    'user' => $usage,
                 ];
                 array_push($statusArray, $status);
             }
