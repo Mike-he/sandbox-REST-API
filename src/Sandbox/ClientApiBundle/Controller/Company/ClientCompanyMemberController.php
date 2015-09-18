@@ -42,8 +42,10 @@ class ClientCompanyMemberController extends CompanyMemberController
         Request $request,
         $id
     ) {
+        // get not banned and authorized members
+        $company = $this->getRepo('Company\Company')->findOneById($id);
         $members = $this->getRepo('Company\CompanyMember')
-                        ->findByCompanyId($id);
+                        ->getCompanyMembers($company);
         $this->throwNotFoundIfNull($members, self::NOT_FOUND_MESSAGE);
 
         foreach ($members as &$member) {
