@@ -15,7 +15,9 @@ use Sandbox\ApiBundle\Entity\User\User;
  *          @ORM\Index(name="fk_Buddy_buddyId_idx", columns={"buddyId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="Sandbox\ApiBundle\Repository\Buddy\BuddyRepository"
+ * )
  */
 class Buddy
 {

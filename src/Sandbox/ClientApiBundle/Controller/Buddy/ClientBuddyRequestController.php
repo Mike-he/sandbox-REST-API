@@ -49,7 +49,7 @@ class ClientBuddyRequestController extends BuddyRequestController
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get my buddy requests
-        $buddyRequests = $this->getRepo('Buddy\BuddyRequest')->findByRecvUser($myUser);
+        $buddyRequests = $this->getRepo('Buddy\BuddyRequest')->getRequestBuddies($myUser);
 
         $myRequests = array();
 
@@ -58,16 +58,12 @@ class ClientBuddyRequestController extends BuddyRequestController
                 $buddyRequest->getAskUser()
             );
 
-            // get user's company
-            $company = $this->getCompanyIfMember($buddyRequest->getAskUserId());
-
             $myRequest = array(
                 'id' => $buddyRequest->getId(),
                 'ask_user_id' => $buddyRequest->getAskUserId(),
                 'message' => $buddyRequest->getMessage(),
                 'status' => $buddyRequest->getStatus(),
                 'profile' => $profile,
-                'company' => $company,
             );
 
             array_push($myRequests, $myRequest);
