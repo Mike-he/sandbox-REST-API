@@ -86,6 +86,7 @@ class CompanyRepository extends EntityRepository
                   WITH c.creatorId = u.id
                   WHERE c.id IN (:ids)
                   AND u.authorized = TRUE
+                  AND u.banned =FALSE
                   ORDER BY c.modificationDate DESC
                 '
             )
@@ -146,6 +147,7 @@ class CompanyRepository extends EntityRepository
                   WHERE
                   c.buildingId IN (:buildingIds)
                   AND u.authorized = TRUE
+                  AND u.banned =FALSE
                   ORDER BY field
                 '
             )
@@ -159,6 +161,7 @@ class CompanyRepository extends EntityRepository
 
     /**
      * @param $userId
+     *
      * @return array
      */
     public function findMyCompanies($userId)
@@ -170,8 +173,12 @@ class CompanyRepository extends EntityRepository
                   FROM SandboxApiBundle:Company\Company c
                   LEFT JOIN SandboxApiBundle:Company\CompanyMember cm
                   WITH c.id = cm.companyId
+                  LEFT JOIN SandboxApiBundle:User\User u
+                  WITH c.creatorId = u.id
                   WHERE
-                  cm.userId = :userId
+                    cm.userId = :userId
+                    AND u.banned = FALSE
+                    AND u.authorized = TRUE
                 '
             )
             ->setParameter('userId', $userId);

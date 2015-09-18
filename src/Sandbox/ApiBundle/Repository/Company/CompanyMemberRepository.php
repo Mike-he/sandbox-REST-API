@@ -27,4 +27,30 @@ class CompanyMemberRepository extends EntityRepository
 
         $query->execute();
     }
+
+    /**
+     * @param $company
+     *
+     * @return array
+     */
+    public function getCompanyMembers(
+        $company
+    ) {
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
+                    SELECT cm
+                    FROM SandboxApiBundle:Company\CompanyMember cm
+                    LEFT JOIN SandboxApiBundle:User\User u
+                    WITH cm.userId = u.id
+                    WHERE
+                      cm.company = :company
+                      AND u.banned = FALSE
+                      AND u.authorized = TRUE
+                '
+            )
+            ->setParameter('company', $company);
+
+        return $query->getResult();
+    }
 }

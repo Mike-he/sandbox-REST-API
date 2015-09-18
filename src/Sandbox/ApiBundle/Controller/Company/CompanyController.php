@@ -57,7 +57,7 @@ class CompanyController extends SandboxRestController
 
         // set company members
         $members = $this->getRepo('Company\CompanyMember')
-            ->findByCompany($company);
+            ->getCompanyMembers($company);
 
         foreach ($members as &$member) {
             $profile = $this->getRepo('User\UserProfile')
