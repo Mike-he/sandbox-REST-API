@@ -18,16 +18,24 @@ class CompanyRepository extends EntityRepository
         $industryIds,
         $limit
     ) {
-        // get company ids filter by industry if any
         $queryStr = 'SELECT c.id FROM SandboxApiBundle:Company\Company c';
 
+        // get company filter by user banned and authorized
+        $queryStr = $queryStr.
+            ' LEFT JOIN SandboxApiBundle:User\User u
+              WITH c.creatorId = u.id';
+
+        // get company ids filter by industry if any
         if (!is_null($industryIds) && !empty($industryIds)) {
             $queryStr = $queryStr.
                 ' JOIN SandboxApiBundle:Company\CompanyIndustryMap cip
                   WITH c.id = cip.companyId';
         }
 
-        $queryStr = $queryStr.' WHERE c.id > 0';
+        $queryStr = $queryStr.'
+                  WHERE u.authorized = TRUE
+                  AND u.banned = FALSE';
+        $queryStr = $queryStr.' AND c.id > 0';
 
         if (!is_null($recordIds) && !empty($recordIds)) {
             $queryStr = $queryStr.' AND c.id NOT IN (:ids)';
@@ -82,11 +90,7 @@ class CompanyRepository extends EntityRepository
             ->createQuery(
                 '
                   SELECT c FROM SandboxApiBundle:Company\Company c
-                  LEFT JOIN SandboxApiBundle:User\User u
-                  WITH c.creatorId = u.id
                   WHERE c.id IN (:ids)
-                  AND u.authorized = TRUE
-                  AND u.banned =FALSE
                   ORDER BY c.modificationDate DESC
                 '
             )
@@ -147,7 +151,7 @@ class CompanyRepository extends EntityRepository
                   WHERE
                   c.buildingId IN (:buildingIds)
                   AND u.authorized = TRUE
-                  AND u.banned =FALSE
+                  AND u.banned = FALSE
                   ORDER BY field
                 '
             )

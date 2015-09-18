@@ -24,8 +24,10 @@ class UserProfileVisitorRepository extends EntityRepository
                 '
                   SELECT DISTINCT upv FROM SandboxApiBundle:User\UserProfileVisitor upv
                   LEFT JOIN SandboxApiBundle:User\User u
-                  WITH u.id = upv.visitorId AND u.authorized = TRUE
+                  WITH u.id = upv.visitorId
                   WHERE upv.userId = :myUserId
+                  AND u.authorized = TRUE
+                  AND u.banned = FALSE
                   AND upv.id IN
                   (
                     SELECT MAX(v.id) FROM SandboxApiBundle:User\UserProfileVisitor v
