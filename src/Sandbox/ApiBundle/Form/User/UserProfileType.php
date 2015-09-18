@@ -28,6 +28,7 @@ class UserProfileType extends AbstractType
             ->add('experiences')
             ->add('educations')
             ->add('portfolios')
+            ->add('company_id')
         ;
     }
 

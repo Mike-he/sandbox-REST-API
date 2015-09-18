@@ -88,11 +88,6 @@ class ClientCompanyMemberController extends CompanyMemberController
         $memberIds = json_decode($request->getContent(), true);
 
         foreach ($memberIds as $memberId) {
-            //check member has company
-            if ($this->hasCompany($memberId)) {
-                continue;
-            }
-
             //check member is buddy
             $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
                 'userId' => $userId,
@@ -101,6 +96,14 @@ class ClientCompanyMemberController extends CompanyMemberController
             if (is_null($buddy)) {
                 continue;
             }
+
+            // check user is member
+            if ($this->isCompanyMember($memberId, $id)) {
+                continue;
+            }
+
+            // update user profile's company
+            $this->setUserProfileCompany($memberId, $company);
 
             $companyMember = $this->generateCompanyMember($company, $memberId);
             $em->persist($companyMember);

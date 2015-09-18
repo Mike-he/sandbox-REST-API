@@ -135,7 +135,6 @@ class ClientMemberController extends MemberController
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
-                'company' => $company,
             );
 
             array_push($members, $member);
@@ -254,7 +253,6 @@ class ClientMemberController extends MemberController
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
-                'company' => $company,
             );
 
             array_push($members, $member);
@@ -355,7 +353,6 @@ class ClientMemberController extends MemberController
             $member = array(
                 'id' => $visitor->getId(),
                 'profile' => $profile,
-                'company' => $company,
                 'visit_date' => $visitor->getCreationDate(),
             );
 
@@ -453,7 +450,6 @@ class ClientMemberController extends MemberController
             $member = array(
                 'id' => $userId,
                 'profile' => $profile,
-                'company' => $company,
             );
 
             array_push($members, $member);

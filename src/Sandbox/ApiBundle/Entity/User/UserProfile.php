@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\Company\Company;
 
 /**
  * User Profile.
@@ -291,6 +292,14 @@ class UserProfile
     private $buildingId;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="companyId", type="integer", nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $companyId;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -392,13 +401,17 @@ class UserProfile
     private $portfolios;
 
     /**
-     * @var array
+     * @var Company
      *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id")
      * @Serializer\Groups(
      *  {
      *      "profile",
      *      "profile_stranger",
-     *      "profile_basic_stranger"
+     *      "profile_basic",
+     *      "profile_basic_stranger",
+     *      "member"
      *  }
      * )
      */
@@ -959,6 +972,30 @@ class UserProfile
     public function getBuddyId()
     {
         return $this->buddyId;
+    }
+
+    /**
+     * Set companyId.
+     *
+     * @param int $companyId
+     *
+     * @return UserProfile
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+
+        return $this;
+    }
+
+    /**
+     * Get companyId.
+     *
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
     }
 
     public function __construct()
