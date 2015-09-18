@@ -65,11 +65,13 @@ class ClientBuddyController extends BuddyController
             $user = $this->getRepo('User\User')->findOneBy(array(
                 'email' => $query,
                 'authorized' => true,
+                'banned' => false,
                 ));
         } else {
             $user = $this->getRepo('User\User')->findOneBy(array(
                 'phone' => $query,
                 'authorized' => true,
+                'banned' => false,
                 ));
         }
 
@@ -122,13 +124,9 @@ class ClientBuddyController extends BuddyController
             }
         }
 
-        // get user's company
-        $company = $this->getCompanyIfMember($user->getId());
-
         // response
         $buddy = array(
             'profile' => $profile,
-            'company' => $company,
             'match' => $query,
         );
 
@@ -178,7 +176,10 @@ class ClientBuddyController extends BuddyController
             try {
                 $buddyId = $buddy->getBuddyId();
 
-                $user = $this->getRepo('User\User')->findOneById($buddyId);
+                $user = $this->getRepo('User\User')->findOneBy(array(
+                    'id' => $buddyId,
+                    'banned' => false,
+                ));
                 if (is_null($user)) {
                     continue;
                 }
@@ -198,14 +199,10 @@ class ClientBuddyController extends BuddyController
                     }
                 }
 
-                // get user's company
-                $company = $this->getCompanyIfMember($buddyId);
-
                 $myBuddy = array(
                     'id' => $buddy->getId(),
                     'user' => $user,
                     'profile' => $profile,
-                    'company' => $company,
                 );
 
                 array_push($myBuddies, $myBuddy);
