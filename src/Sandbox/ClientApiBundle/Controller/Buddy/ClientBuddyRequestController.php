@@ -195,6 +195,12 @@ class ClientBuddyRequestController extends BuddyRequestController
             throw new ConflictHttpException(self::CONFLICT_MESSAGE);
         }
 
+        // check user that request me is not banned
+        $user = $this->getRepo('User\User')->findOneById($askUserId);
+        if (!$user->isBanned() || !$user->isAuthorized()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
         // check status is pending
         if ($buddyRequest->getStatus() === BuddyRequest::BUDDY_REQUEST_STATUS_PENDING) {
             // bind data
