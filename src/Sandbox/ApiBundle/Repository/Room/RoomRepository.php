@@ -5,13 +5,14 @@ namespace Sandbox\ApiBundle\Repository\Room;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\Room\RoomView;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class RoomRepository extends EntityRepository
 {
+    const ROOM_STATUS_USE = 'use';
+
     /**
      * Get list of orders for admin.
      *
@@ -51,23 +52,28 @@ class RoomRepository extends EntityRepository
 
         // filter by order status
         if (!is_null($status)) {
-            if ($status == RoomView::STATUS_COMPLETED) {
+            if ($status == self::ROOM_STATUS_USE) {
                 $where = '
-                    (r.status = :status)
-                    AND
-                    (:now < r.orderEndDate)
+                    (
+                        r.orderStartDate <= :now
+                        AND
+                        r.orderEndDate > :now
+                    )
                 ';
             } else {
                 $where = '
-                    (r.status <> :status)
-                    OR
-                    (r.status = :status AND :now >= r.orderEndDate)
+                    r.id NOT IN (
+                        SELECT rv.id FROM SandboxApiBundle:Room\RoomView rv
+                        WHERE
+                        rv.orderStartDate <= :now
+                        AND
+                        rv.orderEndDate > :now
+                    )
                 ';
             }
             $this->addWhereQuery($query, $notFirst, $where);
             $now = new \DateTime();
             $parameters['now'] = $now;
-            $parameters['status'] = RoomView::STATUS_COMPLETED;
             $notFirst = true;
         }
 
@@ -145,6 +151,29 @@ class RoomRepository extends EntityRepository
 
             ->where('up.name IS NOT NULL')
             ->andWhere('r.id = :roomId')
+            ->setParameter('roomId', $roomId);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * check room usage status.
+     *
+     * @param $roomId
+     *
+     * @return array
+     */
+    public function getRoomUsageStatus(
+        $roomId
+    ) {
+        $now = new \DateTime();
+        $query = $this->createQueryBuilder('r')
+            ->select('r.id')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
+            ->where('o.startDate <= :now AND o.endDate >= :now')
+            ->andWhere('r.id = :roomId')
+            ->setParameter('now', $now)
             ->setParameter('roomId', $roomId);
 
         return $query->getQuery()->getResult();

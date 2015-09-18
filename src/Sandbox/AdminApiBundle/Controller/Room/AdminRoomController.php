@@ -70,7 +70,7 @@ class AdminRoomController extends RoomController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(completed|uncompleted)",
+     *    requirements="(use|unuse)",
      *    strict=true,
      *    description="Filter by room usage"
      * )
@@ -202,6 +202,62 @@ class AdminRoomController extends RoomController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * Room.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="room_id",
+     *    default=null,
+     *    array=true,
+     *    nullable=true,
+     *    description="room status"
+     * )
+     *
+     * @Route("/rooms/status")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getRoomsUsageStatusAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $roomIds = $paramFetcher->get('room_id');
+        $statusArray = [];
+        if (!is_null($roomIds) && !empty($roomIds)) {
+            foreach ($roomIds as $roomId) {
+                $id = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
+                if (!is_null($id) && !empty($id)) {
+                    $status = true;
+                } else {
+                    $status = false;
+                }
+                $status = [
+                    'room_id' => $roomId,
+                    'usage' => $status,
+                ];
+                array_push($statusArray, $status);
+            }
+        }
+
+        return new View($statusArray);
     }
 
     /**
