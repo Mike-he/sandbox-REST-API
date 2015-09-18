@@ -32,10 +32,9 @@ class CompanyRepository extends EntityRepository
                   WITH c.id = cip.companyId';
         }
 
-        $queryStr = $queryStr.'
-                  WHERE u.authorized = TRUE
+        $queryStr = $queryStr.
+                  ' WHERE u.authorized = TRUE
                   AND u.banned = FALSE';
-        $queryStr = $queryStr.' AND c.id > 0';
 
         if (!is_null($recordIds) && !empty($recordIds)) {
             $queryStr = $queryStr.' AND c.id NOT IN (:ids)';
