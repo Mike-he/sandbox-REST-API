@@ -129,9 +129,6 @@ class ClientMemberController extends MemberController
             // set profile
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
 
-            // set company info
-            $company = $this->getCompanyIfMember($memberId);
-
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
@@ -247,9 +244,6 @@ class ClientMemberController extends MemberController
 
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
 
-            // set company info
-            $company = $this->getCompanyIfMember($memberId);
-
             $member = array(
                 'id' => $memberId,
                 'profile' => $profile,
@@ -347,9 +341,6 @@ class ClientMemberController extends MemberController
 
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($visitorId);
 
-            // set company info
-            $company = $this->getCompanyIfMember($visitorId);
-
             $member = array(
                 'id' => $visitor->getId(),
                 'profile' => $profile,
@@ -436,16 +427,23 @@ class ClientMemberController extends MemberController
             return new View(array());
         }
 
-        $profiles = array_slice($results, $offset, $limit);
-
         // members for response
         $members = array();
 
-        foreach ($profiles as $profile) {
+        for ($i = $offset; $i < count($results); ++$i) {
+            if (count($members) >= $limit) {
+                break;
+            }
+
+            $profile = $results[$i];
             $userId = $profile->getUserId();
 
-            // set company info
-            $company = $this->getCompanyIfMember($userId);
+            $user = $this->getRepo('User\User')->find($userId);
+            if (is_null($user)
+                || $user->isBanned()
+                || !$user->isAuthorized()) {
+                continue;
+            }
 
             $member = array(
                 'id' => $userId,
