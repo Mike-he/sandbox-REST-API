@@ -6,9 +6,14 @@ use Doctrine\ORM\EntityRepository;
 
 class BuddyRequestRepository extends EntityRepository
 {
+    /**
+     * @param $myUser
+     *
+     * @return array
+     */
     public function getRequestBuddies(
         $myUser
-    ){
+    ) {
         $query = $this->getEntityManager()
             ->createQuery(
                 '

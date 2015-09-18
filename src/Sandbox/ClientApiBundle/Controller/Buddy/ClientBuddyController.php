@@ -161,7 +161,7 @@ class ClientBuddyController extends BuddyController
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get buddies
-        $buddies = $this->getRepo('Buddy\Buddy')->findByUser($myUser);
+        $buddies = $this->getRepo('Buddy\Buddy')->getBuddies($myUser);
         if (is_null($buddies) || empty($buddies)) {
             return new View(array());
         }
@@ -176,10 +176,7 @@ class ClientBuddyController extends BuddyController
             try {
                 $buddyId = $buddy->getBuddyId();
 
-                $user = $this->getRepo('User\User')->findOneBy(array(
-                    'id' => $buddyId,
-                    'banned' => false,
-                ));
+                $user = $this->getRepo('User\User')->findOneById($buddyId);
                 if (is_null($user)) {
                     continue;
                 }
