@@ -159,6 +159,7 @@ class CompanyRepository extends EntityRepository
 
     /**
      * @param $userId
+     *
      * @return array
      */
     public function findMyCompanies($userId)
