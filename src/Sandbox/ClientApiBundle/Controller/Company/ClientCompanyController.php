@@ -32,8 +32,8 @@ use Rs\Json\Patch;
  */
 class ClientCompanyController extends CompanyController
 {
-    const ERROR_NOT_AUTHORIZED_SET_CODE = 400001;
-    const ERROR_NOT_AUTHORIZED_SET_MESSAGE = '您还未认证!';
+    const ERROR_NOT_AUTHORIZE_SET_CODE = 400001;
+    const ERROR_NOT_AUTHORIZE_SET_MESSAGE = '您还未认证!';
     const ERROR_HAVE_COMPANY_SET_CODE = 400002;
     const ERROR_HAVE_COMPANY_SET_MESSAGE = '您已经创建了一个公司!';
 
@@ -453,8 +453,8 @@ class ClientCompanyController extends CompanyController
         if (!$user->isAuthorized()) {
             return $this->customErrorView(
                 400,
-                self::ERROR_NOT_AUTHORIZED_SET_CODE,
-                self::ERROR_NOT_AUTHORIZED_SET_MESSAGE
+                self::ERROR_NOT_AUTHORIZE_SET_CODE,
+                self::ERROR_NOT_AUTHORIZE_SET_MESSAGE
             );
         };
 
