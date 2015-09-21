@@ -31,11 +31,15 @@ class FeedRepository extends EntityRepository
         $query = $this->createQueryBuilder('f')
             ->select('
                 f
-            ');
+            ')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
+
+        // filter by user banned
+        $query->where('u.banned = FALSE');
 
         // filter by type
         if (!is_null($lastId)) {
-            $query->where('f.id < :lastId');
+            $query->andWhere('f.id < :lastId');
             $parameters['lastId'] = $lastId;
             $notFirst = true;
         }
@@ -67,10 +71,14 @@ class FeedRepository extends EntityRepository
         $parameters = [];
 
         $query = $this->createQueryBuilder('f')
-            ->leftJoin('SandboxApiBundle:Buddy\Buddy', 'b', 'WITH', 'b.buddyId = f.ownerId');
+            ->leftJoin('SandboxApiBundle:Buddy\Buddy', 'b', 'WITH', 'b.buddyId = f.ownerId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
+
+        // filter by user banned
+        $query->where('u.banned = FALSE');
 
         // filter by my buddies and my own posts
-        $query->where('b.userId = :userId');
+        $query->andwhere('b.userId = :userId');
         $query->orWhere('f.ownerId = :userId');
         $parameters['userId'] = $userId;
 
@@ -112,10 +120,14 @@ class FeedRepository extends EntityRepository
             ->select('
                 f
             ')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = f.ownerId');
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = f.ownerId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
+
+        // filter by user banned
+        $query->where('u.banned = FALSE');
 
         // filter by my building
-        $query->where('up.buildingId = :buildingId');
+        $query->andwhere('up.buildingId = :buildingId');
         $parameters['buildingId'] = $buildingId;
 
         // last id
@@ -156,10 +168,14 @@ class FeedRepository extends EntityRepository
             ->select('
                 f
             ')
-            ->leftJoin('SandboxApiBundle:Company\CompanyMember', 'cm', 'WITH', 'cm.userId = f.ownerId');
+            ->leftJoin('SandboxApiBundle:Company\CompanyMember', 'cm', 'WITH', 'cm.userId = f.ownerId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
+
+        // filter by user banned
+        $query->where('u.banned = FALSE');
 
         // filter by my company
-        $query->where('cm.companyId = :companyId');
+        $query->andwhere('cm.companyId = :companyId');
         $parameters['companyId'] = $companyId;
 
         // last id
