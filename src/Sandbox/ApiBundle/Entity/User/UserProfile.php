@@ -324,7 +324,7 @@ class UserProfile
      * @var RoomBuilding
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
-     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups(
      *  {
      *      "main",
@@ -344,7 +344,7 @@ class UserProfile
      * @var Company
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
-     * @ORM\JoinColumn(name="companyId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups(
      *  {
      *      "main",
