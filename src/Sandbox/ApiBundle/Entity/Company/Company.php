@@ -181,7 +181,7 @@ class Company
     /**
      * @var int
      *
-     * @ORM\Column(name="creatorId", type="integer", nullable=true)
+     * @ORM\Column(name="creatorId", type="integer", nullable=false)
      * @Serializer\Groups({"main", "company_info","company_limit"})
      */
     private $creatorId;

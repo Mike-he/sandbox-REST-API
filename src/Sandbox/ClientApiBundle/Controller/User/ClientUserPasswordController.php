@@ -274,7 +274,11 @@ class ClientUserPasswordController extends UserPasswordController
         }
 
         if ($user->isBanned()) {
-            return $this->customErrorView(400, self::ERROR_ACCOUNT_NOT_ACTIVATED_CODE, self::ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE);
+            return $this->customErrorView(
+                401,
+                ClientUserLoginController::ERROR_ACCOUNT_BANNED_CODE,
+                ClientUserLoginController::ERROR_ACCOUNT_BANNED_MESSAGE
+            );
         }
 
         // save or update forget password
@@ -431,6 +435,16 @@ class ClientUserPasswordController extends UserPasswordController
 
         if (is_null($forgetPassword)) {
             return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
+        }
+
+        // filter by user is banned
+        $user = $this->getRepo('User\User')->findOneById($forgetPassword->getUserId());
+        if ($user->isBanned()) {
+            return $this->customErrorView(
+                401,
+                ClientUserLoginController::ERROR_ACCOUNT_BANNED_CODE,
+                ClientUserLoginController::ERROR_ACCOUNT_BANNED_MESSAGE
+            );
         }
 
         $globals = $this->container->get('twig')->getGlobals();

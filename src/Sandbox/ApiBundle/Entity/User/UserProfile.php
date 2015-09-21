@@ -14,18 +14,15 @@ use Sandbox\ApiBundle\Entity\Company\Company;
  *      name="UserProfile",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="userId_UNIQUE", columns={"userId"})
- *      },
- *      indexes={
- *          @ORM\Index(name="fk_UserProfile_buildingId_idx", columns={"buildingId"})
  *      }
  * )
  * @ORM\Entity
  */
 class UserProfile
 {
-    const DEFAULT_GENDER_OTHER = 'other';
-    const DEFAULT_GENDER_MALE = 'male';
-    const DEFAULT_GENDER_FEMALE = 'female';
+    const GENDER_OTHER = 'other';
+    const GENDER_MALE = 'male';
+    const GENDER_FEMALE = 'female';
 
     /**
      * @var int
@@ -128,7 +125,7 @@ class UserProfile
      *  }
      * )
      */
-    private $gender = self::DEFAULT_GENDER_OTHER;
+    private $gender = self::GENDER_OTHER;
 
     /**
      * @var string
@@ -327,7 +324,7 @@ class UserProfile
      * @var RoomBuilding
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
-     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups(
      *  {
      *      "main",
@@ -342,6 +339,24 @@ class UserProfile
      * )
      **/
     private $building;
+
+    /**
+     * @var Company
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "profile",
+     *      "profile_stranger",
+     *      "profile_basic",
+     *      "profile_basic_stranger",
+     *      "member"
+     *  }
+     * )
+     */
+    private $company;
 
     /**
      * @var array
@@ -399,24 +414,6 @@ class UserProfile
      * )
      */
     private $portfolios;
-
-    /**
-     * @var Company
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Company\Company")
-     * @ORM\JoinColumn(name="companyId", referencedColumnName="id")
-     * @Serializer\Groups(
-     *  {
-     *      "profile",
-     *      "profile_stranger",
-     *      "profile_basic",
-     *      "profile_basic_stranger",
-     *      "member",
-     *      "buddy"
-     *  }
-     * )
-     */
-    private $company;
 
     /**
      * @var string
@@ -720,6 +717,30 @@ class UserProfile
     }
 
     /**
+     * Get companyId.
+     *
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * Set companyId.
+     *
+     * @param int $companyId
+     *
+     * @return UserProfile
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+
+        return $this;
+    }
+
+    /**
      * @return \DateTime
      */
     public function getCreationDate()
@@ -793,6 +814,24 @@ class UserProfile
     public function setBuilding($building)
     {
         $this->building = $building;
+    }
+
+    /**
+     * @return Company
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
+     * @param Company $company
+     *
+     * @return UserProfile
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
     }
 
     /**
@@ -886,24 +925,6 @@ class UserProfile
     }
 
     /**
-     * @return mixed
-     */
-    public function getCompany()
-    {
-        return $this->company;
-    }
-
-    /**
-     * @param mixed $company
-     *
-     * @return UserProfile
-     */
-    public function setCompany($company)
-    {
-        $this->company = $company;
-    }
-
-    /**
      * Set status.
      *
      * @param string $status
@@ -973,30 +994,6 @@ class UserProfile
     public function getBuddyId()
     {
         return $this->buddyId;
-    }
-
-    /**
-     * Set companyId.
-     *
-     * @param int $companyId
-     *
-     * @return UserProfile
-     */
-    public function setCompanyId($companyId)
-    {
-        $this->companyId = $companyId;
-
-        return $this;
-    }
-
-    /**
-     * Get companyId.
-     *
-     * @return int
-     */
-    public function getCompanyId()
-    {
-        return $this->companyId;
     }
 
     public function __construct()
