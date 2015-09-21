@@ -31,6 +31,9 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  */
 class ClientBuddyRequestController extends BuddyRequestController
 {
+    const ERROR_ACCOUNT_BANNED_CODE = 401001;
+    const ERROR_ACCOUNT_BANNED_MESSAGE = '该请求的账户已经被冻结或未认证，暂时无法添加此账户!';
+
     /**
      * Get my buddy request.
      *
@@ -197,8 +200,12 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         // check user that request me is not banned
         $user = $this->getRepo('User\User')->findOneById($askUserId);
-        if (!$user->isBanned() || !$user->isAuthorized()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        if ($user->isBanned() || !$user->isAuthorized()) {
+            // user of the request is banned or unauthorized
+            return $this->customErrorView(
+                401,
+                self::ERROR_ACCOUNT_BANNED_CODE,
+                self::ERROR_ACCOUNT_BANNED_MESSAGE);
         }
 
         // check status is pending
