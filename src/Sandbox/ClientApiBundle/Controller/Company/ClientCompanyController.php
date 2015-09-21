@@ -328,7 +328,25 @@ class ClientCompanyController extends CompanyController
             return new View(array());
         }
 
-        $companies = array_slice($results, $offset, $limit);
+        // companies for response
+        $companies = array();
+
+        for ($i = $offset; $i < count($results); ++$i) {
+            if (count($companies) >= $limit) {
+                break;
+            }
+
+            $company = $results[$i];
+
+            $user = $this->getRepo('User\User')->find($company->getCreatorId());
+            if (is_null($user)
+                || $user->isBanned()
+                || !$user->isAuthorized()) {
+                continue;
+            }
+
+            array_push($companies, $company);
+        }
 
         // set view
         $view = new View($companies);
