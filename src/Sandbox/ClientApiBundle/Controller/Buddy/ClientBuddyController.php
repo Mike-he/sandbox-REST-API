@@ -49,15 +49,14 @@ class ClientBuddyController extends BuddyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized();
-        if (is_null($cardNo)) {
-            return new View(array());
-        }
-
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // if user is not authorized, respond empty list
+        if (!$this->checkUserAuthorized($myUserId)) {
+            return new View(array());
+        }
 
         // get user
         $query = $paramFetcher->get('query');
@@ -150,15 +149,14 @@ class ClientBuddyController extends BuddyController
     public function getBuddiesAction(
         Request $request
     ) {
-        // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized();
-        if (is_null($cardNo)) {
-            return new View(array());
-        }
-
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // if user is not authorized, respond empty list
+        if (!$this->checkUserAuthorized($myUserId)) {
+            return new View(array());
+        }
 
         // get buddies
         $buddies = $this->getRepo('Buddy\Buddy')->getBuddies($myUser);

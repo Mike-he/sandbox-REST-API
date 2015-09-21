@@ -101,12 +101,12 @@ class ClientCompanyController extends CompanyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // check user is auth
-        if (is_null($this->getCardNoIfUserAuthorized())) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
-
-        $userId = $this->getUserId();
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -193,12 +193,13 @@ class ClientCompanyController extends CompanyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // check user is auth
-        if (is_null($this->getCardNoIfUserAuthorized())) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
 
-        $userId = $this->getUserId();
         $clientId = $this->getUser()->getClientId();
 
         $limit = $paramFetcher->get('limit');
@@ -303,8 +304,10 @@ class ClientCompanyController extends CompanyController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // check user is auth
-        if (is_null($this->getCardNoIfUserAuthorized())) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
 
