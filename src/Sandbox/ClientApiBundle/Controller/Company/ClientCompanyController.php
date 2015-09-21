@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Company\CompanyController;
 use Sandbox\ApiBundle\Entity\Random\ClientRandomRecord;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Sandbox\ApiBundle\Entity\Company\CompanyMember;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Company\CompanyType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
@@ -31,10 +32,10 @@ use Rs\Json\Patch;
  */
 class ClientCompanyController extends CompanyController
 {
-    //const ERROR_NOT_VIP_SET_CODE = 400001;
-    //const ERROR_NOT_VIP_SET_MESSAGE = 'You are not VIP!';
+    const ERROR_NOT_AUTHORIZE_SET_CODE = 400001;
+    const ERROR_NOT_AUTHORIZE_SET_MESSAGE = '您还未认证!';
     const ERROR_HAVE_COMPANY_SET_CODE = 400002;
-    const ERROR_HAVE_COMPANY_SET_MESSAGE = 'You have create a company yet!';
+    const ERROR_HAVE_COMPANY_SET_MESSAGE = '您已经创建了一个公司!';
 
     /**
      * Get companies.
@@ -463,10 +464,19 @@ class ClientCompanyController extends CompanyController
 //            );
 //        }
 //        --------------------------->
-
-        // check user has created a company
         $userId = $this->getUserId();
 
+        // check user is authorized
+        $user = $this->getRepo('User\User')->findOneById($userId);
+        if (!$user->isAuthorized()) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_NOT_AUTHORIZE_SET_CODE,
+                self::ERROR_NOT_AUTHORIZE_SET_MESSAGE
+            );
+        };
+
+        // check user has created a company
         if ($this->hasCreatedCompany($userId)) {
             return $this->customErrorView(
                 400,
