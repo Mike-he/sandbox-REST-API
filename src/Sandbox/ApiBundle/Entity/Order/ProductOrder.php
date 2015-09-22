@@ -57,7 +57,7 @@ class ProductOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="productId", type="integer", nullable=false)
+     * @ORM\Column(name="productId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */

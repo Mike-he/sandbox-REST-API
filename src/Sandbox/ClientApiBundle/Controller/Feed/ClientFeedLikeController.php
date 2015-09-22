@@ -54,7 +54,7 @@ class ClientFeedLikeController extends FeedLikeController
 
         if (is_null($like)) {
             // create like
-            $like = $this->createLike($id, $myUserId);
+            $like = $this->createLike($feed, $myUserId);
         }
 
         $result = array(
@@ -100,18 +100,19 @@ class ClientFeedLikeController extends FeedLikeController
     }
 
     /**
-     * @param int    $feedId
+     * @param int    $feed
      * @param string $myUserId
      *
      * @return FeedLike
      */
     private function createLike(
-        $feedId,
+        $feed,
         $myUserId
     ) {
         // set new like
         $like = new FeedLike();
-        $like->setFeedId($feedId);
+        $like->setFeed($feed);
+        $like->setFeedId($feed->getId());
         $like->setAuthorId($myUserId);
         $like->setCreationDate(new \DateTime('now'));
 

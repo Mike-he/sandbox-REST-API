@@ -130,6 +130,7 @@ class ClientFeedCommentController extends FeedCommentController
         }
 
         // set comment
+        $comment->setFeed($feed);
         $comment->setFeedId($id);
         $comment->setAuthorId($this->getUserId());
         $comment->setPayload($payload);
