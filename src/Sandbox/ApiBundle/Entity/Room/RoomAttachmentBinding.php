@@ -41,7 +41,7 @@ class RoomAttachmentBinding
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="fixed")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
+     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      *
      * @Serializer\Groups({"main"})
@@ -52,7 +52,7 @@ class RoomAttachmentBinding
      * @var RoomAttachment
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomAttachment")
-     * @ORM\JoinColumn(name="attachmentId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="attachmentId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
      */

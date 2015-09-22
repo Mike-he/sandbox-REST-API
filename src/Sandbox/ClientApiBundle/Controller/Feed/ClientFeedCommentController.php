@@ -130,7 +130,7 @@ class ClientFeedCommentController extends FeedCommentController
         }
 
         // set comment
-        $comment->setFeedId($id);
+        $comment->setFeed($feed);
         $comment->setAuthorId($this->getUserId());
         $comment->setPayload($payload);
         $comment->setCreationdate(new \DateTime('now'));

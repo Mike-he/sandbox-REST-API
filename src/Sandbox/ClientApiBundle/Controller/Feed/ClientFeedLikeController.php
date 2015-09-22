@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Entity\Feed\Feed;
 
 /**
  * Manipulate the likes of a feed.
@@ -54,7 +55,7 @@ class ClientFeedLikeController extends FeedLikeController
 
         if (is_null($like)) {
             // create like
-            $like = $this->createLike($id, $myUserId);
+            $like = $this->createLike($feed, $myUserId);
         }
 
         $result = array(
@@ -100,18 +101,18 @@ class ClientFeedLikeController extends FeedLikeController
     }
 
     /**
-     * @param int    $feedId
+     * @param Feed   $feed
      * @param string $myUserId
      *
      * @return FeedLike
      */
     private function createLike(
-        $feedId,
+        $feed,
         $myUserId
     ) {
         // set new like
         $like = new FeedLike();
-        $like->setFeedId($feedId);
+        $like->setFeed($feed);
         $like->setAuthorId($myUserId);
         $like->setCreationDate(new \DateTime('now'));
 
@@ -124,7 +125,7 @@ class ClientFeedLikeController extends FeedLikeController
     }
 
     /**
-     * @param string   $username
+     * @param int      $myUserId
      * @param FeedLike $like
      */
     private function removeLike(

@@ -34,7 +34,7 @@ class RoomMeeting
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="meeting")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
+     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      *
      * @Serializer\Groups({"main"})

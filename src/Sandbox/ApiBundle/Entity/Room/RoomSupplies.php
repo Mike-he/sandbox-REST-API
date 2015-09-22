@@ -41,7 +41,7 @@ class RoomSupplies
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room", inversedBy="officeSupplies")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
+     *   @ORM\JoinColumn(name="roomId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      *
      * @Serializer\Groups({"main"})
@@ -52,7 +52,7 @@ class RoomSupplies
      * @var Supplies
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Supplies")
-     * @ORM\JoinColumn(name="suppliesId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="suppliesId", referencedColumnName="id", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room", "client"})
      */

@@ -79,7 +79,7 @@ class CompanyPortfolio
     /**
      * @var int
      *
-     * @ORM\Column(name="size", type="integer", nullable=true)
+     * @ORM\Column(name="size", type="integer", nullable=false)
      * @Serializer\Groups({"main", "company_info", "company_portfolio"})
      */
     private $size;
