@@ -41,7 +41,7 @@ class FeedLike
     /**
      * @var string
      *
-     * @ORM\Column(name="authorId", type="string", length=64, nullable=false)
+     * @ORM\Column(name="authorId", type="integer", nullable=false)
      */
     private $authorId;
 
