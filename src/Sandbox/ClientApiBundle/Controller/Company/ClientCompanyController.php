@@ -36,6 +36,8 @@ class ClientCompanyController extends CompanyController
     const ERROR_NOT_AUTHORIZE_SET_MESSAGE = '您还未认证!';
     const ERROR_HAVE_COMPANY_SET_CODE = 400002;
     const ERROR_HAVE_COMPANY_SET_MESSAGE = '您已经创建了一个公司!';
+    const ERROR_BUILDING_NOT_SET_CODE = 400003;
+    const ERROR_BUILDING_NOT_SET_MESSAGE = '您还未设置办公楼！';
 
     /**
      * Get companies.
