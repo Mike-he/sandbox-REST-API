@@ -34,7 +34,7 @@ class FeedAttachment
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Feed\Feed", inversedBy="attachments")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="feedId", referencedColumnName="id", onDelete="CASCADE")
+     *   @ORM\JoinColumn(name="feedId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      *
      * @Serializer\Groups({"main"})

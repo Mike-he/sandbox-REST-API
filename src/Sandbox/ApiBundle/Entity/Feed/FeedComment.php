@@ -33,6 +33,16 @@ class FeedComment
     private $id;
 
     /**
+     * @var \Sandbox\ApiBundle\Entity\Feed\Feed
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Feed\Feed")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="feedId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * })
+     */
+    private $feed;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="feedId", type="integer", nullable=false)
@@ -44,7 +54,7 @@ class FeedComment
     /**
      * @var string
      *
-     * @ORM\Column(name="authorID", type="string", length=64, nullable=false)
+     * @ORM\Column(name="authorId", type="integer", nullable=false)
      */
     private $authorId;
 
@@ -197,5 +207,29 @@ class FeedComment
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * Set feed.
+     *
+     * @param $feed
+     *
+     * @return FeedComment
+     */
+    public function setFeed($feed)
+    {
+        $this->feed = $feed;
+
+        return $this;
+    }
+
+    /**
+     * Get feed.
+     *
+     * @return Feed
+     */
+    public function getFeed()
+    {
+        return $this->feed;
     }
 }

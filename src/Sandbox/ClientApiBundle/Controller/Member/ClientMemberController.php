@@ -27,7 +27,7 @@ use JMS\Serializer\SerializationContext;
 class ClientMemberController extends MemberController
 {
     const ERROR_BUILDING_NOT_SET_CODE = 400001;
-    const ERROR_BUILDING_NOT_SET_MESSAGE = 'Building is not set - 未设置办公楼';
+    const ERROR_BUILDING_NOT_SET_MESSAGE = '您还未设置办公楼！';
 
     /**
      * Get recommend members.

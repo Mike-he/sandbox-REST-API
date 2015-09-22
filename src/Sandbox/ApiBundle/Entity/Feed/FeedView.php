@@ -40,7 +40,7 @@ class FeedView
     /**
      * @var string
      *
-     * @ORM\Column(name="ownerID", type="string", length=64, nullable=false)
+     * @ORM\Column(name="ownerId", type="integer", nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
