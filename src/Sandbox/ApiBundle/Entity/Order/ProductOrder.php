@@ -42,7 +42,7 @@ class ProductOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer")
+     * @ORM\Column(name="userId", type="integer", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_detail"})
      */
@@ -57,7 +57,7 @@ class ProductOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="productId", type="integer", nullable=true)
+     * @ORM\Column(name="productId", type="integer", nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
