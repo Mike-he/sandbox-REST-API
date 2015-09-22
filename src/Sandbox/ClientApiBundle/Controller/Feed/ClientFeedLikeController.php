@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Entity\Feed\Feed;
 
 /**
  * Manipulate the likes of a feed.
@@ -100,7 +101,7 @@ class ClientFeedLikeController extends FeedLikeController
     }
 
     /**
-     * @param int    $feed
+     * @param Feed   $feed
      * @param string $myUserId
      *
      * @return FeedLike
@@ -124,7 +125,7 @@ class ClientFeedLikeController extends FeedLikeController
     }
 
     /**
-     * @param string   $username
+     * @param int      $myUserId
      * @param FeedLike $like
      */
     private function removeLike(
