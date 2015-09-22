@@ -64,13 +64,13 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized();
-        if (is_null($cardNo)) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
 
-        $userId = $this->getUserId();
         $clientId = $this->getUser()->getClientId();
 
         $limit = $paramFetcher->get('limit');
@@ -183,13 +183,12 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized();
-        if (is_null($cardNo)) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
-
-        $userId = $this->getUserId();
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -306,13 +305,12 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized();
-        if (is_null($cardNo)) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
-
-        $userId = $this->getUserId();
 
         // get params
         $limit = $paramFetcher->get('limit');
@@ -400,9 +398,10 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
-        $cardNo = $this->getCardNoIfUserAuthorized();
-        if (is_null($cardNo)) {
+        if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
         }
 
