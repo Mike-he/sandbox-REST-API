@@ -19,6 +19,9 @@ class FeedRepository extends EntityRepository
     /**
      * Get list of feeds.
      *
+     * @param int $limit
+     * @param int $lastId
+     *
      * @return array
      */
     public function getFeeds(
@@ -60,6 +63,10 @@ class FeedRepository extends EntityRepository
 
     /**
      * Get list of feeds of my buddies.
+     *
+     * @param int $limit
+     * @param int $lastId
+     * @param int $userId
      *
      * @return array
      */
@@ -151,16 +158,16 @@ class FeedRepository extends EntityRepository
     /**
      * Get list of feeds of people in my company.
      *
-     * @param int $limit
-     * @param int $lastId
-     * @param int $companyId
+     * @param int   $limit
+     * @param int   $lastId
+     * @param array $companyIds
      *
      * @return array
      */
     public function getFeedsByColleagues(
         $limit,
         $lastId,
-        $companyId
+        $companyIds
     ) {
         $parameters = [];
 
@@ -175,8 +182,8 @@ class FeedRepository extends EntityRepository
         $query->where('u.banned = FALSE');
 
         // filter by my company
-        $query->andwhere('cm.companyId = :companyId');
-        $parameters['companyId'] = $companyId;
+        $query->andwhere('cm.companyId IN(:companyIds)');
+        $parameters['companyIds'] = $companyIds;
 
         // last id
         if (!is_null($lastId)) {
