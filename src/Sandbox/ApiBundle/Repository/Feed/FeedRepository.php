@@ -158,18 +158,28 @@ class FeedRepository extends EntityRepository
     /**
      * Get list of feeds of people in my company.
      *
-     * @param int   $limit
-     * @param int   $lastId
-     * @param array $companyIds
+     * @param int $limit
+     * @param int $lastId
+     * @param int $userId
      *
      * @return array
      */
     public function getFeedsByColleagues(
         $limit,
         $lastId,
-        $companyIds
+        $userId
     ) {
         $parameters = [];
+
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('
+                cm.companyId
+            ')
+            ->from('SandboxApiBundle:Company\CompanyMember', 'cm')
+            ->where('cm.userId = :userId')
+            ->setParameter('userId', $userId);
+        $companyIds = $query->getQuery()->getResult();
 
         $query = $this->createQueryBuilder('f')
             ->select('
@@ -182,7 +192,7 @@ class FeedRepository extends EntityRepository
         $query->where('u.banned = FALSE');
 
         // filter by my company
-        $query->andwhere('cm.companyId IN(:companyIds)');
+        $query->andwhere('cm.companyId IN (:companyIds)');
         $parameters['companyIds'] = $companyIds;
 
         // last id

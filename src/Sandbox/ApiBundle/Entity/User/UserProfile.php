@@ -120,8 +120,7 @@ class UserProfile
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "buddy",
-     *      "member",
-     *      "feed"
+     *      "member"
      *  }
      * )
      */
@@ -135,8 +134,7 @@ class UserProfile
      *  {
      *      "main",
      *      "profile",
-     *      "profile_basic",
-     *      "feed"
+     *      "profile_basic"
      *  }
      * )
      */
@@ -152,7 +150,6 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "admin_order",
-     *      "feed",
      *      "client"
      *  }
      * )
@@ -169,7 +166,6 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "admin_order",
-     *      "feed",
      *      "client"
      *  }
      * )
@@ -187,8 +183,7 @@ class UserProfile
      *      "profile_basic",
      *      "profile_stranger",
      *      "profile_basic_stranger",
-     *      "member",
-     *      "feed"
+     *      "member"
      *  }
      * )
      */
@@ -205,8 +200,7 @@ class UserProfile
      *      "profile_basic",
      *      "profile_stranger",
      *      "profile_basic_stranger",
-     *      "member",
-     *      "feed"
+     *      "member"
      *  }
      * )
      */
@@ -222,8 +216,7 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "profile_stranger",
-     *      "profile_basic_stranger",
-     *      "feed"
+     *      "profile_basic_stranger"
      *  }
      * )
      */
@@ -239,8 +232,7 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "profile_stranger",
-     *      "profile_basic_stranger",
-     *      "feed"
+     *      "profile_basic_stranger"
      *  }
      * )
      */
@@ -256,8 +248,7 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "profile_stranger",
-     *      "profile_basic_stranger",
-     *      "feed"
+     *      "profile_basic_stranger"
      *  }
      * )
      */
@@ -273,8 +264,7 @@ class UserProfile
      *      "profile",
      *      "profile_basic",
      *      "profile_stranger",
-     *      "profile_basic_stranger",
-     *      "feed"
+     *      "profile_basic_stranger"
      *  }
      * )
      */

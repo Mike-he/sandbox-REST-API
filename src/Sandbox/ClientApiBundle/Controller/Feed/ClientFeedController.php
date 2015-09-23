@@ -247,18 +247,11 @@ class ClientFeedController extends FeedController
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
-        $myCompany = $this->getRepo('Company\CompanyMember')->findByUserId($userId);
-        $this->throwNotFoundIfNull($myCompany, self::NOT_FOUND_MESSAGE);
-
-        foreach ($myCompany as $company) {
-            $companyIds[] = $company->getCompanyId();
-        }
-
         // get all my company members' feeds
         $feeds = $this->getRepo('Feed\FeedView')->getFeedsByColleagues(
             $limit,
             $lastId,
-            $companyIds
+            $userId
         );
 
         return $this->handleGetFeeds($feeds, $userId);
