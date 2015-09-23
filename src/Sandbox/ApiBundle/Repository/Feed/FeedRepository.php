@@ -28,13 +28,10 @@ class FeedRepository extends EntityRepository
         $limit,
         $lastId
     ) {
-        $notFirst = false;
         $parameters = [];
 
         $query = $this->createQueryBuilder('f')
-            ->select('
-                f
-            ')
+            ->select('f')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
 
         // filter by user banned
@@ -44,15 +41,14 @@ class FeedRepository extends EntityRepository
         if (!is_null($lastId)) {
             $query->andWhere('f.id < :lastId');
             $parameters['lastId'] = $lastId;
-            $notFirst = true;
         }
 
         $query->orderBy('f.creationDate', 'DESC');
 
         $query->setMaxResults($limit);
 
-        //set all parameters
-        if ($notFirst) {
+        // set all parameters
+        if (!empty($parameters)) {
             $query->setParameters($parameters);
         }
 
@@ -78,6 +74,7 @@ class FeedRepository extends EntityRepository
         $parameters = [];
 
         $query = $this->createQueryBuilder('f')
+            ->select('f')
             ->leftJoin('SandboxApiBundle:Buddy\Buddy', 'b', 'WITH', 'b.buddyId = f.ownerId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
 
@@ -99,7 +96,7 @@ class FeedRepository extends EntityRepository
 
         $query->setMaxResults($limit);
 
-        //set all parameters
+        // set all parameters
         $query->setParameters($parameters);
 
         $result = $query->getQuery()->getResult();
@@ -124,9 +121,7 @@ class FeedRepository extends EntityRepository
         $parameters = [];
 
         $query = $this->createQueryBuilder('f')
-            ->select('
-                f
-            ')
+            ->select('f')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = f.ownerId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
 
@@ -147,7 +142,7 @@ class FeedRepository extends EntityRepository
 
         $query->setMaxResults($limit);
 
-        //set all parameters
+        // set all parameters
         $query->setParameters($parameters);
 
         $result = $query->getQuery()->getResult();
@@ -171,6 +166,7 @@ class FeedRepository extends EntityRepository
     ) {
         $parameters = [];
 
+        // get my company ids
         $query = $this->getEntityManager()
             ->createQueryBuilder()
             ->select('
@@ -181,17 +177,20 @@ class FeedRepository extends EntityRepository
             ->setParameter('userId', $userId);
         $companyIds = $query->getQuery()->getResult();
 
+        if (is_null($companyIds) || empty($companyIds)) {
+            return array();
+        }
+
+        // get feeds post by company members
         $query = $this->createQueryBuilder('f')
-            ->select('
-                f
-            ')
+            ->select('f')
             ->leftJoin('SandboxApiBundle:Company\CompanyMember', 'cm', 'WITH', 'cm.userId = f.ownerId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
 
         // filter by user banned
         $query->where('u.banned = FALSE');
 
-        // filter by my company
+        // filter by my companies
         $query->andwhere('cm.companyId IN (:companyIds)');
         $parameters['companyIds'] = $companyIds;
 
@@ -205,7 +204,7 @@ class FeedRepository extends EntityRepository
 
         $query->setMaxResults($limit);
 
-        //set all parameters
+        // set all parameters
         $query->setParameters($parameters);
 
         $result = $query->getQuery()->getResult();
