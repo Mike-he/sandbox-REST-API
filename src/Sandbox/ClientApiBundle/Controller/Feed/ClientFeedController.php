@@ -254,6 +254,7 @@ class ClientFeedController extends FeedController
             $companyIds[] = $company->getCompanyId();
         }
 
+        // get all my company members' feeds
         $feeds = $this->getRepo('Feed\FeedView')->getFeedsByColleagues(
             $limit,
             $lastId,
