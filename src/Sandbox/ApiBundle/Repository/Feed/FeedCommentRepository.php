@@ -31,11 +31,16 @@ class FeedCommentRepository extends EntityRepository
         $query = $this->createQueryBuilder('c')
             ->select('
                 c
-            ');
+            ')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'c.authorId = u.id');
 
         // filter by feed id
         $query->where('c.feedId = :feedId');
         $parameters['feedId'] = $id;
+
+        // filter by user banned and authorized
+        $query->andWhere('u.banned = FALSE');
+        $query->andWhere('u.authorized = TRUE');
 
         // filter by type
         if (!is_null($lastId)) {
