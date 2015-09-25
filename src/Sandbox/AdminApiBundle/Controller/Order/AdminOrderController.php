@@ -17,6 +17,9 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Product\Product;
 
 /**
  * Admin order controller.
@@ -299,6 +302,83 @@ class AdminOrderController extends OrderController
             $endDate
         );
 
+        $excelBody = array();
+
+        // set excel body
+        foreach ($orders as $order) {
+            $productInfo = json_decode($order['productInfo'], true);
+
+            // set product name
+            $productName = $productInfo['room']['city']['name'].
+                $productInfo['room']['building']['name'].
+                $productInfo['room']['number'];
+
+            // set product type
+            $productTypeKey = $productInfo['room']['type'];
+            $productType = null;
+            if ($productTypeKey == Room::TYPE_FIXED) {
+                $productType = '可选工位';
+            } elseif ($productTypeKey == Room::TYPE_MEETING) {
+                $productType = '会议室';
+            } elseif ($productTypeKey == Room::TYPE_FLEXIBLE) {
+                $productType = '不可选工位';
+            } elseif ($productTypeKey == Room::TYPE_OFFICE) {
+                $productType = '独立办公室';
+            }
+
+            // set unit price
+            $unitPriceKey = $productInfo['unit_price'];
+            $unitPrice = null;
+            if ($unitPriceKey == Product::UNIT_HOUR) {
+                $unitPrice = '小时';
+            } elseif ($unitPriceKey == Product::UNIT_DAY) {
+                $unitPrice = '天';
+            } elseif ($unitPriceKey == Product::Unit_MONTH) {
+                $unitPrice = '月';
+            }
+
+            // set status
+            $statusKey = $order['status'];
+            $status = null;
+            if ($statusKey == ProductOrder::STATUS_PAID) {
+                $status = '已付款';
+            } elseif ($statusKey == ProductOrder::STATUS_COMPLETED) {
+                $status = '已完成';
+            } elseif ($statusKey == ProductOrder::STATUS_CANCELLED) {
+                $status = '已取消';
+            }
+
+            // set leasing name
+            $leasingTime = date('Y-m-d H:i:s', $order['startDate']->getTimestamp()).' - '.
+                date('Y-m-d H:i:s', $order['endDate']->getTimestamp());
+
+            // set user profile
+            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order['userId']);
+
+            // get user
+            $user = $this->getRepo('User\User')->findOneById($order['userId']);
+
+            // set excel body
+            $body = array(
+                'product_name' => $productName,
+                'type' => $productType,
+                'employee_id' => $order['userId'],
+                'base_price' => $productInfo['base_price'],
+                'unit_price' => $unitPrice,
+                'amount' => $order['price'],
+                'discount_price' => $order['discountPrice'],
+                'leasing_time' => $leasingTime,
+                'order_time' => date('Y-m-d H:i:s', $order['creationDate']->getTimestamp()),
+                'payment_time' => date('Y-m-d H:i:s', $order['modificationDate']->getTimestamp()),
+                'status' => $status,
+                'name' => $userProfile->getName(),
+                'phone' => $user->getPhone(),
+                'email' => $user->getEmail(),
+            );
+
+            $excelBody[] = $body;
+        }
+
         $headers = [
             '商品', //Product name
             '房间类型', //Product type
@@ -318,7 +398,7 @@ class AdminOrderController extends OrderController
 
         //Fill data
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
-        $phpExcelObject->setActiveSheetIndex(0)->fromArray($orders, ' ', 'A2');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
 
         $phpExcelObject->getActiveSheet()->getStyle('A1:L1')->getFont()->setBold(true);
 

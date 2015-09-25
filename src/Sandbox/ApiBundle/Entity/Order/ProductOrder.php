@@ -234,7 +234,7 @@ class ProductOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="productInfo", type="text", nullable=true)
+     * @ORM\Column(name="productInfo", type="text", nullable=false)
      *
      * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
      */
