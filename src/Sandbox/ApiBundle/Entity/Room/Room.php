@@ -29,6 +29,10 @@ class Room
     const TYPE_OFFICE = 'office';
     const TYPE_MEETING = 'meeting';
 
+    const UNIT_HOUR = 'hour';
+    const UNIT_DAY = 'day';
+    const Unit_MONTH = 'month';
+
     /**
      * @var int
      *

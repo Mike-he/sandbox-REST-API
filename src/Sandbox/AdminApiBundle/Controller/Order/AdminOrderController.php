@@ -17,6 +17,8 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
 /**
  * Admin order controller.
@@ -313,35 +315,35 @@ class AdminOrderController extends OrderController
             // set product type
             $productTypeKey = $productInfo['room']['type'];
             $productType = null;
-            if ($productTypeKey == 'fixed') {
+            if ($productTypeKey == Room::TYPE_FIXED) {
                 $productType = '可选工位';
-            } elseif ($productTypeKey == 'meeting') {
+            } elseif ($productTypeKey == Room::TYPE_MEETING) {
                 $productType = '会议室';
-            } elseif ($productTypeKey == 'flexible') {
+            } elseif ($productTypeKey == Room::TYPE_FLEXIBLE) {
                 $productType = '不可选工位';
-            } elseif ($productTypeKey == 'office') {
+            } elseif ($productTypeKey == Room::TYPE_OFFICE) {
                 $productType = '独立办公室';
             }
 
             // set unit price
             $unitPriceKey = $productInfo['unit_price'];
             $unitPrice = null;
-            if ($unitPriceKey == 'hour') {
+            if ($unitPriceKey == Room::UNIT_HOUR) {
                 $unitPrice = '小时';
-            } elseif ($unitPriceKey == 'day') {
+            } elseif ($unitPriceKey == Room::UNIT_DAY) {
                 $unitPrice = '天';
-            } elseif ($unitPriceKey == 'office') {
-                $unitPrice = '独立办公室';
+            } elseif ($unitPriceKey == Room::Unit_MONTH) {
+                $unitPrice = '月';
             }
 
             // set status
             $statusKey = $order['status'];
             $status = null;
-            if ($statusKey == 'paid') {
+            if ($statusKey == ProductOrder::STATUS_PAID) {
                 $status = '已付款';
-            } elseif ($statusKey == 'completed') {
+            } elseif ($statusKey == ProductOrder::STATUS_COMPLETED) {
                 $status = '已完成';
-            } elseif ($statusKey == 'cancelled') {
+            } elseif ($statusKey == ProductOrder::STATUS_CANCELLED) {
                 $status = '已取消';
             }
 
