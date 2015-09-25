@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Product\Product;
 
 /**
  * Admin order controller.
@@ -328,11 +329,11 @@ class AdminOrderController extends OrderController
             // set unit price
             $unitPriceKey = $productInfo['unit_price'];
             $unitPrice = null;
-            if ($unitPriceKey == Room::UNIT_HOUR) {
+            if ($unitPriceKey == Product::UNIT_HOUR) {
                 $unitPrice = '小时';
-            } elseif ($unitPriceKey == Room::UNIT_DAY) {
+            } elseif ($unitPriceKey == Product::UNIT_DAY) {
                 $unitPrice = '天';
-            } elseif ($unitPriceKey == Room::Unit_MONTH) {
+            } elseif ($unitPriceKey == Product::Unit_MONTH) {
                 $unitPrice = '月';
             }
 
