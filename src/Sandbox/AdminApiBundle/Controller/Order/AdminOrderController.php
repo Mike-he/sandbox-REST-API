@@ -299,6 +299,83 @@ class AdminOrderController extends OrderController
             $endDate
         );
 
+        $excelBody = array();
+
+        // set excel body
+        foreach ($orders as $order) {
+            $productInfo = json_decode($order['productInfo'], true);
+
+            // set product name
+            $productName = $productInfo['room']['city']['name'].
+                $productInfo['room']['building']['name'].
+                $productInfo['room']['number'];
+
+            // set product type
+            $productTypeKey = $productInfo['room']['type'];
+            $productType = null;
+            if ($productTypeKey == 'fixed') {
+                $productType = '可选工位';
+            } elseif ($productTypeKey == 'meeting') {
+                $productType = '会议室';
+            } elseif ($productTypeKey == 'flexible') {
+                $productType = '不可选工位';
+            } elseif ($productTypeKey == 'office') {
+                $productType = '独立办公室';
+            }
+
+            // set unit price
+            $unitPriceKey = $productInfo['unit_price'];
+            $unitPrice = null;
+            if ($unitPriceKey == 'hour') {
+                $unitPrice = '小时';
+            } elseif ($unitPriceKey == 'day') {
+                $unitPrice = '天';
+            } elseif ($unitPriceKey == 'office') {
+                $unitPrice = '独立办公室';
+            }
+
+            // set status
+            $statusKey = $order['status'];
+            $status = null;
+            if ($statusKey == 'paid') {
+                $status = '已付款';
+            } elseif ($statusKey == 'completed') {
+                $status = '已完成';
+            } elseif ($statusKey == 'cancelled') {
+                $status = '已取消';
+            }
+
+            // set leasing name
+            $leasingTime = date('Y-m-d H:i:s', $order['startDate']->getTimestamp()).' - '.
+                date('Y-m-d H:i:s', $order['endDate']->getTimestamp());
+
+            // set user profile
+            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order['userId']);
+
+            // get user
+            $user = $this->getRepo('User\User')->findOneById($order['userId']);
+
+            // set excel body
+            $body = array(
+                'product_name' => $productName,
+                'type' => $productType,
+                'employee_id' => $order['userId'],
+                'base_price' => $productInfo['base_price'],
+                'unit_price' => $unitPrice,
+                'amount' => $order['price'],
+                'discount_price' => $order['discountPrice'],
+                'leasing_time' => $leasingTime,
+                'order_time' => date('Y-m-d H:i:s', $order['creationDate']->getTimestamp()),
+                'payment_time' => date('Y-m-d H:i:s', $order['modificationDate']->getTimestamp()),
+                'status' => $status,
+                'name' => $userProfile->getName(),
+                'phone' => $user->getPhone(),
+                'email' => $user->getEmail(),
+            );
+
+            $excelBody[] = $body;
+        }
+
         $headers = [
             '商品', //Product name
             '房间类型', //Product type
@@ -318,7 +395,7 @@ class AdminOrderController extends OrderController
 
         //Fill data
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
-        $phpExcelObject->setActiveSheetIndex(0)->fromArray($orders, ' ', 'A2');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
 
         $phpExcelObject->getActiveSheet()->getStyle('A1:L1')->getFont()->setBold(true);
 
