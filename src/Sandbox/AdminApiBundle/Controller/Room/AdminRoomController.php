@@ -243,19 +243,22 @@ class AdminRoomController extends RoomController
         $statusArray = [];
         if (!is_null($roomIds) && !empty($roomIds)) {
             foreach ($roomIds as $roomId) {
-                $usage = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
+                $room = $this->getRepo('Room\Room')->findOneById($roomId);
+                if (!$room->getIsDeleted()) {
+                    $usage = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
 
-                if (!is_null($usage) && !empty($usage)) {
-                    $status = true;
-                } else {
-                    $status = false;
+                    if (!is_null($usage) && !empty($usage)) {
+                        $status = true;
+                    } else {
+                        $status = false;
+                    }
+                    $status = [
+                        'room_id' => $roomId,
+                        'usage' => $status,
+                        'user' => $usage,
+                    ];
+                    array_push($statusArray, $status);
                 }
-                $status = [
-                    'room_id' => $roomId,
-                    'usage' => $status,
-                    'user' => $usage,
-                ];
-                array_push($statusArray, $status);
             }
         }
 
@@ -456,6 +459,15 @@ class AdminRoomController extends RoomController
         $room = $this->getRepo('Room\Room')->find($id);
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
+        // filter by isDeleted
+        if ($room->getIsDeleted() == true) {
+            return $this->customErrorView(
+                400,
+                400002,
+                self::NOT_FOUND_MESSAGE
+            );
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($room);
@@ -541,6 +553,15 @@ class AdminRoomController extends RoomController
 
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
+
+        // check room is deleted
+        if ($room->getIsDeleted()) {
+            return $this->customErrorView(
+                400,
+                400002,
+                self::NOT_FOUND_MESSAGE
+            );
+        }
 
         // bind data
         $roomJson = $this->container->get('serializer')->serialize($room, 'json');
@@ -794,10 +815,18 @@ class AdminRoomController extends RoomController
 
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
+        $room->setIsDeleted(true);
+
+        // get product
+        $product = $this->getRepo('Product\Product')->findOneByRoomId($id);
+        if (!is_null($product) || !empty($product)) {
+            $product->setVisible(false);
+        }
 
         $em = $this->getDoctrine()->getManager();
-        $em->remove($room);
         $em->flush();
+
+        return new View();
     }
 
     /**

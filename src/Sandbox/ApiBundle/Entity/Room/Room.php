@@ -207,6 +207,13 @@ class Room
     private $fixed;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
+     */
+    private $isDeleted = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -689,6 +696,26 @@ class Room
     public function setDoorControl($doorControl)
     {
         $this->doorControl = $doorControl;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     *
+     * @return Room
+     */
+    public function setIsDeleted($isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }
