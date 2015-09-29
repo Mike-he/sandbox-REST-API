@@ -859,7 +859,7 @@ class RoomView
     /**
      * @return bool
      */
-    public function getIsDeleted()
+    public function isDeleted()
     {
         return $this->isDeleted;
     }
