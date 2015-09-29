@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
+use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -325,6 +326,7 @@ class ClientOrderController extends PaymentController
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
         $productInfo = $this->storeRoomInfo($product);
 
+        // set product order
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
         $order->setStartDate($startDate);
@@ -335,6 +337,16 @@ class ClientOrderController extends PaymentController
         $order->setProductInfo($productInfo);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
+        $em->flush();
+
+        // store order record
+        $room = $this->getRepo('Room\Room')->find($product->getRoomId());
+        $roomRecord = new ProductOrderRecord();
+        $roomRecord->setOrderId($order->getId());
+        $roomRecord->setCityId($room->getCityId());
+        $roomRecord->setBuildingId($room->getBuildingId());
+        $roomRecord->setRoomType($room->getType());
+        $em->persist($roomRecord);
         $em->flush();
 
         $view = new View();
