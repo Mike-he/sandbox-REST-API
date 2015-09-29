@@ -433,6 +433,7 @@ class AdminRoomController extends RoomController
      * Get room by id.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -456,17 +457,8 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->getRoomById($id);
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
-
-        // filter by isDeleted
-        if ($room->getIsDeleted() == true) {
-            return $this->customErrorView(
-                400,
-                400002,
-                self::NOT_FOUND_MESSAGE
-            );
-        }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
@@ -552,16 +544,8 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
-
-        // check room is deleted
-        if ($room->getIsDeleted()) {
-            return $this->customErrorView(
-                400,
-                400002,
-                self::NOT_FOUND_MESSAGE
-            );
-        }
+        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // bind data
         $roomJson = $this->container->get('serializer')->serialize($room, 'json');
@@ -619,7 +603,7 @@ class AdminRoomController extends RoomController
         }
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->getRoomById($id);
         if (is_null($room)) {
             $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
         }
@@ -675,7 +659,7 @@ class AdminRoomController extends RoomController
         }
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->getRoomById($id);
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $em = $this->getDoctrine()->getManager();
@@ -725,7 +709,8 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         //supplies id
         $suppliesIds = $paramFetcher->get('id');
@@ -773,10 +758,11 @@ class AdminRoomController extends RoomController
         // check user permission
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        //get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        // get room
+        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
-        //attachments id
+        // attachments id
         $attachmentIds = $paramFetcher->get('id');
 
         $this->getRepo('Room\RoomAttachmentBinding')->deleteRoomAttachmentByIds(
@@ -815,6 +801,9 @@ class AdminRoomController extends RoomController
 
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+
+        // set room deleted
         $room->setIsDeleted(true);
 
         // get product
@@ -832,6 +821,10 @@ class AdminRoomController extends RoomController
     /**
      * @param int  $id
      * @param Room $room
+     * @param $meeting
+     * @param $fixed
+     * @param $attachments
+     * @param $office_supplies
      *
      * @return View
      */
@@ -1207,6 +1200,8 @@ class AdminRoomController extends RoomController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
+     *
+     * @return View
      */
     public function getOfficeRoomUsageAction(
         Request $request,
@@ -1272,6 +1267,8 @@ class AdminRoomController extends RoomController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
+     *
+     * @return View
      */
     public function getFixedRoomUsageAction(
         Request $request,
@@ -1343,6 +1340,8 @@ class AdminRoomController extends RoomController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
+     *
+     * @return View
      */
     public function getFlexibleRoomUsageAction(
         Request $request,
@@ -1425,6 +1424,8 @@ class AdminRoomController extends RoomController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
+     *
+     * @return View
      */
     public function getMeetingRoomUsageAction(
         Request $request,
