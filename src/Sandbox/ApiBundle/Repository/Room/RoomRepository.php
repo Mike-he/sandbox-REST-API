@@ -307,22 +307,6 @@ class RoomRepository extends EntityRepository
     }
 
     /**
-     * @param $roomId
-     *
-     * @return array
-     */
-    public function getRoomById(
-        $roomId
-    ) {
-        $query = $this->createQueryBuilder('r')
-            ->where('r.isDeleted = FALSE')
-            ->andWhere('r.id = :roomId')
-            ->setParameter('roomId', $roomId);
-
-        return $query->getQuery()->getOneOrNullResult();
-    }
-
-    /**
      * @param QueryBuilder $query
      * @param bool         $notFirst
      * @param String       $where

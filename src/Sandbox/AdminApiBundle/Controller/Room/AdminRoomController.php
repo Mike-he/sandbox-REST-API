@@ -244,7 +244,7 @@ class AdminRoomController extends RoomController
         if (!is_null($roomIds) && !empty($roomIds)) {
             foreach ($roomIds as $roomId) {
                 $room = $this->getRepo('Room\Room')->findOneById($roomId);
-                if (!$room->getIsDeleted()) {
+                if (!$room->isDeleted()) {
                     $usage = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
 
                     if (!is_null($usage) && !empty($usage)) {
@@ -457,7 +457,10 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get room
-        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
@@ -544,7 +547,10 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get room
-        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // bind data
@@ -603,7 +609,10 @@ class AdminRoomController extends RoomController
         }
 
         // get room
-        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         if (is_null($room)) {
             $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
         }
@@ -659,7 +668,10 @@ class AdminRoomController extends RoomController
         }
 
         // get room
-        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $em = $this->getDoctrine()->getManager();
@@ -709,7 +721,10 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get room
-        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         //supplies id
@@ -759,7 +774,10 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get room
-        $room = $this->getRepo('Room\Room')->getRoomById($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // attachments id
@@ -807,9 +825,11 @@ class AdminRoomController extends RoomController
         $room->setIsDeleted(true);
 
         // get product
-        $product = $this->getRepo('Product\Product')->findOneByRoomId($id);
-        if (!is_null($product) || !empty($product)) {
-            $product->setVisible(false);
+        $products = $this->getRepo('Product\Product')->findByRoomId($id);
+        foreach ($products as $product) {
+            if (!is_null($product) || !empty($product)) {
+                $product->setVisible(false);
+            }
         }
 
         $em = $this->getDoctrine()->getManager();
