@@ -5,5 +5,5 @@ CREATE TABLE `ProductOrderRecord` (
   `roomType` enum('office','meeting','flexible','fixed') NOT NULL,
   PRIMARY KEY (`orderId`),
   UNIQUE KEY `uk_ProductOrderRecord_orderId` (`orderId`),
-  CONSTRAINT `fk_ProductOrderRecord_orderId` FOREIGN KEY (`orderId`) REFERENCES `ProductOrder` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `fk_ProductOrderRecord_orderId` FOREIGN KEY (`orderId`) REFERENCES `ProductOrder` (`id`) NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
