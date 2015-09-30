@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class RoomRepository extends EntityRepository
@@ -181,8 +182,10 @@ class RoomRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:User\UserView', 'v', 'WITH', 'o.userId = v.id')
             ->where('o.startDate <= :now AND o.endDate >= :now')
             ->andWhere('r.id = :roomId')
+            ->andWhere('o.status = :status')
             ->setParameter('now', $now)
-            ->setParameter('roomId', $roomId);
+            ->setParameter('roomId', $roomId)
+            ->setParameter('status', ProductOrder::STATUS_COMPLETED);
 
         return $query->getQuery()->getResult();
     }
