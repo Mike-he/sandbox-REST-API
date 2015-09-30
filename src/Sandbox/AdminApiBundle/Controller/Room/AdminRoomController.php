@@ -45,7 +45,8 @@ class AdminRoomController extends RoomController
     /**
      * Room.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
      * @ApiDoc(
      *   resource = true,
@@ -207,7 +208,8 @@ class AdminRoomController extends RoomController
     /**
      * Room.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
      * @ApiDoc(
      *   resource = true,
@@ -328,7 +330,6 @@ class AdminRoomController extends RoomController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     *
      * @Annotations\QueryParam(
      *    name="city",
      *    array=false,
@@ -346,7 +347,6 @@ class AdminRoomController extends RoomController
      *    strict=true,
      *    description="Filter by building id"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="type",
@@ -399,6 +399,7 @@ class AdminRoomController extends RoomController
      * Get room by id.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -430,6 +431,7 @@ class AdminRoomController extends RoomController
      * Get room by id.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -517,6 +519,7 @@ class AdminRoomController extends RoomController
      * Update Room.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -556,7 +559,6 @@ class AdminRoomController extends RoomController
         $office_supplies = $form['office_supplies']->getData();
 
         return $this->handleRoomPatch(
-            $id,
             $room,
             $meeting,
             $fixed,
@@ -569,6 +571,7 @@ class AdminRoomController extends RoomController
      * Room attachment.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -626,6 +629,7 @@ class AdminRoomController extends RoomController
      * Room office supplies.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -672,7 +676,9 @@ class AdminRoomController extends RoomController
     /**
      * Delete Room supplies.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -722,6 +728,7 @@ class AdminRoomController extends RoomController
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -770,6 +777,7 @@ class AdminRoomController extends RoomController
      * Delete a Room.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -801,13 +809,15 @@ class AdminRoomController extends RoomController
     }
 
     /**
-     * @param int  $id
-     * @param Room $room
+     * @param Room   $room
+     * @param Object $meeting
+     * @param Object $fixed
+     * @param Object $attachments
+     * @param Object $office_supplies
      *
      * @return View
      */
     private function handleRoomPatch(
-        $id,
         $room,
         $meeting,
         $fixed,
@@ -1164,20 +1174,20 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
      * @Route("/rooms/office/{id}/usage")
      * @Method({"GET"})
      *
      * @Annotations\QueryParam(
      *    name="year",
      *    nullable=false,
-     *    description="
-     *
-     *    "
+     *    description=""
      * )
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param $id
+     * @return View
      */
     public function getOfficeRoomUsageAction(
         Request $request,
@@ -1213,36 +1223,32 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
      * @Route("/rooms/fixed/{id}/usage")
      * @Method({"GET"})
      *
      * @Annotations\QueryParam(
      *    name="seat",
      *    nullable=false,
-     *    description="
-     *
-     *    "
+     *    description=""
      * )
      *
      * @Annotations\QueryParam(
      *    name="start",
      *    nullable=false,
-     *    description="
-     *
-     *    "
+     *    description=""
      * )
      *
      *  @Annotations\QueryParam(
      *    name="end",
      *    nullable=false,
-     *    description="
-     *
-     *    "
+     *    description=""
      * )
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param $id
+     * @return View
      */
     public function getFixedRoomUsageAction(
         Request $request,
@@ -1291,29 +1297,26 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
      * @Route("/rooms/flexible/{id}/usage")
      * @Method({"GET"})
-     *
      *
      * @Annotations\QueryParam(
      *    name="start",
      *    nullable=false,
-     *    description="
-     *
-     *    "
+     *    description=""
      * )
      *
      *  @Annotations\QueryParam(
      *    name="end",
      *    nullable=false,
-     *    description="
-     *
-     *    "
+     *    description=""
      * )
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param $id
+     * @return View
      */
     public function getFlexibleRoomUsageAction(
         Request $request,
@@ -1382,20 +1385,20 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
      * @Route("/rooms/meeting/{id}/usage")
      * @Method({"GET"})
      *
      * @Annotations\QueryParam(
      *    name="day",
      *    nullable=false,
-     *    description="
-     *
-     *    "
+     *    description=""
      * )
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param $id
+     * @return View
      */
     public function getMeetingRoomUsageAction(
         Request $request,
