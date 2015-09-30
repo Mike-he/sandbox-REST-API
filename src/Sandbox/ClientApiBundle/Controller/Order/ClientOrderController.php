@@ -337,12 +337,11 @@ class ClientOrderController extends PaymentController
         $order->setProductInfo($productInfo);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
-        $em->flush();
 
         // store order record
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $roomRecord = new ProductOrderRecord();
-        $roomRecord->setOrderId($order->getId());
+        $roomRecord->setOrder($order);
         $roomRecord->setCityId($room->getCityId());
         $roomRecord->setBuildingId($room->getBuildingId());
         $roomRecord->setRoomType($room->getType());

@@ -15,10 +15,26 @@ class ProductOrderRecord
     /**
      * @var int
      *
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="orderId", type="integer", nullable=false)
      */
     private $orderId;
+
+    /**
+     * @var ProductOrder
+     *
+     * @ORM\OneToOne(targetEntity="ProductOrder")
+     * @ORM\JoinColumn(name="orderId", referencedColumnName="id")
+     */
+    private $order;
 
     /**
      * @var int
@@ -42,6 +58,16 @@ class ProductOrderRecord
     private $roomType;
 
     /**
+     * Get id.
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
      * Set orderId.
      *
      * @param int $orderId
@@ -63,6 +89,30 @@ class ProductOrderRecord
     public function getOrderId()
     {
         return $this->orderId;
+    }
+
+    /**
+     * Set order.
+     *
+     * @param ProductOrder $order
+     *
+     * @return ProductOrderRecord
+     */
+    public function setOrder($order)
+    {
+        $this->order = $order;
+
+        return $this;
+    }
+
+    /**
+     * Get order.
+     *
+     * @return ProductOrder
+     */
+    public function getOrder()
+    {
+        return $this->order;
     }
 
     /**
