@@ -302,7 +302,7 @@ class OrderRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
             ->where('o.status != :unpaid')
             ->andWhere('o.paymentDate IS NOT NULL');
         $parameters['unpaid'] = 'unpaid';
@@ -320,19 +320,19 @@ class OrderRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('r.type = :type');
+            $query->andWhere('por.roomType = :type');
             $parameters['type'] = $type;
         }
 
         // filter by city
         if (!is_null($city)) {
-            $query->andWhere('r.city = :city');
+            $query->andWhere('por.cityId = :city');
             $parameters['city'] = $city;
         }
 
         // filter by building
         if (!is_null($building)) {
-            $query->andWhere('r.building = :building');
+            $query->andWhere('por.buildingId = :building');
             $parameters['building'] = $building;
         }
 
