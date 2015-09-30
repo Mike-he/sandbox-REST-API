@@ -7,4 +7,5 @@ CREATE TABLE `FeedLike` (
   UNIQUE KEY `feed_like_feedId_authorId_UNIQUE` (`feedId`,`authorId`),
   KEY `feed_like_fk_fid_idx` (`feedId`),
   CONSTRAINT `fk_feedLike_fid` FOREIGN KEY (`feedId`) REFERENCES `Feed` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `fk_feedlike_aid` FOREIGN KEY (`authorId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
