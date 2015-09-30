@@ -1,10 +1,7 @@
 CREATE VIEW FeedView AS
-SELECT
-       f.*,
-       COUNT(DISTINCT fc.id) AS comments_count,
-	     COUNT(DISTINCT fl.id) AS likes_count
+SELECT DISTINCT f.*,
+       (SELECT COUNT(fc.id) FROM FeedComment fc LEFT JOIN User u1 ON u1.id = fc.authorId WHERE fc.feedId = f.id AND u1.banned = FALSE) AS comments_count,
+       (SELECT COUNT(fl.id) FROM FeedLike fl LEFT JOIN User u2 ON u2.id = fl.authorId WHERE fl.feedId = f.id AND u2.banned = FALSE) AS likes_count
 FROM Feed f
-LEFT JOIN FeedComment fc ON fc.feedId = f.id
-LEFT JOIN FeedLike fl ON fl.feedId = f.id
-GROUP BY f.id
-;
+LEFT JOIN User u ON u.id = f.ownerId
+WHERE u.banned = FALSE;
