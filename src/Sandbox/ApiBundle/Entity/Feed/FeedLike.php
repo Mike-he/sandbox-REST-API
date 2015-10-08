@@ -49,6 +49,12 @@ class FeedLike
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="authorId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     */
+    private $author;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="authorId", type="integer", nullable=false)
      */
     private $authorId;
@@ -164,5 +170,29 @@ class FeedLike
     public function getFeed()
     {
         return $this->feed;
+    }
+
+    /**
+     * Set author.
+     *
+     * @param $author
+     *
+     * @return FeedLike
+     */
+    public function setAuthor($author)
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * Get author.
+     *
+     * @return \Sandbox\ApiBundle\Entity\User\User
+     */
+    public function getAuthor()
+    {
+        return $this->author;
     }
 }
