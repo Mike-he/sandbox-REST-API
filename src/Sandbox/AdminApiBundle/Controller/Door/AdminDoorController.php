@@ -109,6 +109,7 @@ class AdminDoorController extends DoorController
         $now = new \DateTime();
         $start = new \DateTime('2015-07-01');
         $end = new \DateTime('2099-01-01');
+        $end->setTime(23, 59, 59);
 
         $door = new DoorAccess();
         $door->setUserId($userId);
