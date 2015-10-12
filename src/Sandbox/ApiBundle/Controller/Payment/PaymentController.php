@@ -235,7 +235,7 @@ class PaymentController extends SandboxRestController
 
         $this->get('door_service')->setTimePeriod($updatedDoors, $base, $globals);
 
-        $cardNo = $this->getCardNoIfUserAuthorized();
+        $cardNo = $this->getCardNoByUser($order->getUserId());
         if (is_null($cardNo)) {
             return;
         }

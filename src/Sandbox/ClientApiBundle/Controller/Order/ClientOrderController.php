@@ -1052,7 +1052,11 @@ class ClientOrderController extends PaymentController
         } elseif (is_null($currentUser)) {
             $this->setUserDoorAccess($order, $user, $orderUser);
         } else {
-            $this->setUserDoorAccess($order, $user, $currentUser);
+            if (!is_null($currentUser)) {
+                $this->setUserDoorAccess($order, $user, $currentUser);
+            } else {
+                $this->setUserDoorAccess($order, $user, $orderUser);
+            }
         }
     }
 
