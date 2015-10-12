@@ -22,7 +22,7 @@ use FOS\RestBundle\Controller\Annotations\Post;
  */
 class ClientTopUpOrderController extends PaymentController
 {
-    const PAYMENT_SUBJECT = 'TOPUP';
+    const PAYMENT_SUBJECT = 'SANDBOX3-会员余额充值';
     const PAYMENT_BODY = 'TOPUP ORDER';
     const TOPUP_ORDER_LETTER_HEAD = 'T';
 
