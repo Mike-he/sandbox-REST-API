@@ -42,6 +42,11 @@ class AdminRoomController extends RoomController
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
     const LOCATION_CANNOT_NULL = 'City, Building or Floor cannot be null';
 
+    const OFFICE = 'room.type.office';
+    const MEETING = 'room.type.meeting';
+    const FLEXIBLE = 'room.type.flexible';
+    const FIXED = 'room.type.fixed';
+
     /**
      * Room.
      *
@@ -428,6 +433,52 @@ class AdminRoomController extends RoomController
         $usage = $this->getRepo('Room\Room')->getRoomUsersUsage($id);
 
         return new View($usage);
+    }
+
+    /**
+     * Get rooms types.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/rooms/types")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getRoomTypes(
+        Request $request
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // get rooms types
+        $roomTypes = array(
+            array(
+                'key' => 'office',
+                'description' => $this->get('translator')->trans(self::OFFICE),
+            ),
+            array(
+                'key' => 'meeting',
+                'description' => $this->get('translator')->trans(self::MEETING),
+            ),
+            array(
+                'key' => 'flexible',
+                'description' => $this->get('translator')->trans(self::FLEXIBLE),
+            ),
+            array(
+                'key' => 'fixed',
+                'description' => $this->get('translator')->trans(self::FIXED),
+            ),
+        );
+
+        return new View($roomTypes);
     }
 
     /**
