@@ -22,7 +22,7 @@ use FOS\RestBundle\Controller\Annotations\Post;
  */
 class ClientMembershipOrderController extends PaymentController
 {
-    const PAYMENT_SUBJECT = 'VIP';
+    const PAYMENT_SUBJECT = 'SANDBOX3-VIP会员';
     const PAYMENT_BODY = 'VIP ORDER';
     const VIP_ORDER_LETTER_HEAD = 'V';
 

@@ -31,7 +31,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientOrderController extends PaymentController
 {
-    const PAYMENT_SUBJECT = 'ROOM';
+    const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';
     const PRODUCT_ORDER_LETTER_HEAD = 'P';
 
