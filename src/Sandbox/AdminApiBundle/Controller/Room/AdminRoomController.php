@@ -42,6 +42,8 @@ class AdminRoomController extends RoomController
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
     const LOCATION_CANNOT_NULL = 'City, Building or Floor cannot be null';
 
+    const ROOM_TYPE_PREFIX = 'room.type.';
+
     /**
      * Room.
      *
@@ -428,6 +430,44 @@ class AdminRoomController extends RoomController
         $usage = $this->getRepo('Room\Room')->getRoomUsersUsage($id);
 
         return new View($usage);
+    }
+
+    /**
+     * Get rooms types.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/rooms/types")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getRoomTypes(
+        Request $request
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $roomKeys = array(Room::TYPE_OFFICE, Room::TYPE_MEETING, Room::TYPE_FLEXIBLE, Room::TYPE_FIXED);
+
+        // get rooms types
+        $roomTypes = array();
+        foreach ($roomKeys as $roomKey) {
+            $roomType = array(
+                'key' => $roomKey,
+                'description' => $this->get('translator')->trans(self::ROOM_TYPE_PREFIX.$roomKey),
+            );
+            array_push($roomTypes, $roomType);
+        }
+
+        return new View($roomTypes);
     }
 
     /**
