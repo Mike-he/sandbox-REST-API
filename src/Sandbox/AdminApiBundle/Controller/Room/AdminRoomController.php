@@ -42,10 +42,7 @@ class AdminRoomController extends RoomController
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
     const LOCATION_CANNOT_NULL = 'City, Building or Floor cannot be null';
 
-    const OFFICE = 'room.type.office';
-    const MEETING = 'room.type.meeting';
-    const FLEXIBLE = 'room.type.flexible';
-    const FIXED = 'room.type.fixed';
+    const ROOM_TYPE_PREFIX = 'room.type.';
 
     /**
      * Room.
@@ -458,25 +455,17 @@ class AdminRoomController extends RoomController
         // check user permission
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
+        $roomKeys = array(Room::TYPE_OFFICE, Room::TYPE_MEETING, Room::TYPE_FLEXIBLE, Room::TYPE_FIXED);
+
         // get rooms types
-        $roomTypes = array(
-            array(
-                'key' => 'office',
-                'description' => $this->get('translator')->trans(self::OFFICE),
-            ),
-            array(
-                'key' => 'meeting',
-                'description' => $this->get('translator')->trans(self::MEETING),
-            ),
-            array(
-                'key' => 'flexible',
-                'description' => $this->get('translator')->trans(self::FLEXIBLE),
-            ),
-            array(
-                'key' => 'fixed',
-                'description' => $this->get('translator')->trans(self::FIXED),
-            ),
-        );
+        $roomTypes = array();
+        foreach ($roomKeys as $roomKey) {
+            $roomType = array(
+                'key' => $roomKey,
+                'description' => $this->get('translator')->trans(self::ROOM_TYPE_PREFIX.$roomKey),
+            );
+            array_push($roomTypes, $roomType);
+        }
 
         return new View($roomTypes);
     }
