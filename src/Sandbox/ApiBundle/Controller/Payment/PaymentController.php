@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
@@ -185,21 +184,63 @@ class PaymentController extends SandboxRestController
         $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+        $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
 
         if (empty($roomDoors)) {
             throw new BadRequestHttpException('no doors');
         }
 
-        $myDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
+        $this->storeDoorAccess(
+            $order,
             $order->getUserId(),
             $buildingId,
-            $roomId
+            $roomId,
+            $roomDoors
         );
 
+        $cardNo = $this->getCardNoIfUserAuthorized();
+        if (is_null($cardNo)) {
+            return;
+        }
+        $doorArray = [];
+        foreach ($roomDoors as $roomDoor) {
+            $door = ['doorid' => $roomDoor->getDoorControlId()];
+            array_push($doorArray, $door);
+        }
+        $userId = $order->getUserId();
+        $userArray = [
+            ['empid' => "$userId"],
+        ];
+
+        $this->get('door_service')->setRoomOrderPermission(
+            $base,
+            $userArray,
+            $orderId,
+            $startDate,
+            $endDate,
+            $doorArray,
+            $globals
+        );
+
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $roomDoors
+     */
+    public function storeDoorAccess(
+        $order,
+        $userId,
+        $buildingId,
+        $roomId,
+        $roomDoors
+    ) {
         foreach ($roomDoors as $roomDoor) {
             $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
                 [
-                    'userId' => $order->getUserId(),
+                    'userId' => $userId,
                     'orderId' => $order->getId(),
                     'buildingId' => $buildingId,
                     'doorId' => $roomDoor->getDoorControlId(),
@@ -209,67 +250,18 @@ class PaymentController extends SandboxRestController
                 $access = new DoorAccess();
                 $access->setBuildingId($buildingId);
                 $access->setDoorId($roomDoor->getDoorControlId());
-                $access->setUserId($order->getUserId());
+                $access->setUserId($userId);
                 $access->setRoomId($roomId);
-                $access->setOrderId($orderId);
+                $access->setOrderId($order->getId());
                 $access->setStartDate($order->getStartDate());
                 $access->setEndDate($order->getEndDate());
-                if (empty($myDoors)) {
-                    $timeId = $order->getId();
-                } else {
-                    $timeId = $myDoors[0]->getTimeId();
-                }
-                $access->setTimeId($timeId);
+                $access->setTimeId(0);
 
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($access);
                 $em->flush();
             }
         }
-
-        $updatedDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
-            $order->getUserId(),
-            $buildingId,
-            $roomId
-        );
-
-        $this->get('door_service')->setTimePeriod($updatedDoors, $base, $globals);
-
-        $cardNo = $this->getCardNoByUser($order->getUserId());
-        if (is_null($cardNo)) {
-            return;
-        }
-
-        $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
-            $order->getUserId(),
-            $buildingId
-        );
-
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
-        $userName = $userProfile->getName();
-
-        if (!is_null($doors) && !empty($doors)) {
-            $doorArray = [];
-            foreach ($doors as $door) {
-                $doorId = $door->getDoorId();
-                $timeId = $door->getTimeId();
-                $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
-
-                array_push($doorArray, $door);
-            }
-
-            $this->get('door_service')->cardPermission(
-                $base,
-                $order->getUserId(),
-                $userName,
-                $cardNo,
-                $doorArray,
-                DoorController::METHOD_ADD,
-                $globals
-            );
-        }
-
-        return $order;
     }
 
     /**
