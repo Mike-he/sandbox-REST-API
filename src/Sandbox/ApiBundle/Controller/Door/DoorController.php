@@ -104,33 +104,38 @@ class DoorController extends SandboxRestController
         $this->postDoorApi($base.$globals['door_api_logout'], $data);
     }
 
-    public function cardPermission(
+    /**
+     * @param $base
+     * @param $userId
+     * @param $name
+     * @param $cardNumber
+     * @param $method
+     * @param $globals
+     */
+    public function setEmployeeCard(
         $base,
         $userId,
         $name,
         $cardNumber,
-        $doorArray,
         $method,
         $globals
     ) {
         $sessionId = $this->getSessionId($base, $globals);
         try {
             $data = [
-                'ads_card' => [
+                'ads_emp_card' => [
                     'empid' => "$userId", //from user account
                     'empname' => $name, //from user account
                     'department' => 'SANDBOX',
                     'cardno' => $cardNumber,
-                    'begindate' => '2015-07-01 08:00:00',
                     'expiredate' => '2099-07-01 08:00:00',
                     'operation' => $method,
                 ],
-                'ads_door_permissions' => $doorArray,
             ];
             $json = json_encode($data);
-            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_card_permission'].$json;
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_employee_card'].$json;
 
-            $periodArray = $this->postDoorApi($base.$globals['door_api_set_card_permission'], $data);
+            $periodArray = $this->postDoorApi($base.$globals['door_api_set_employee_card'], $data);
             $this->logOut($sessionId, $base, $globals);
 
             if ($periodArray['result'] != self::RESULT_OK) {
@@ -144,54 +149,81 @@ class DoorController extends SandboxRestController
     }
 
     /**
-     * @param $order
+     * @param $base
+     * @param $userId
+     * @param $orderId
+     * @param $start
+     * @param $end
+     * @param $doorArray
+     * @param $globals
      */
-    public function setTimePeriod(
-        $updatedDoors,
+    public function setRoomOrderPermission(
         $base,
+        $userArray,
+        $orderId,
+        $start,
+        $end,
+        $doorArray,
         $globals
     ) {
-        $id = $updatedDoors[0]->getTimeId();
-
-        $timeArray = [];
-        foreach ($updatedDoors as $updatedDoor) {
-            $start = $updatedDoor->getStartDate();
-            $end = $updatedDoor->getEndDate();
-            $startHour = (string) $start->format('H:i:s');
-            $endHour = (string) $end->format('H:i:s');
-            $startDate = (string) $start->format('Y-m-d');
-            $endDate = (string) $end->format('Y-m-d');
-            $timePeriod = [
-                'begindate' => $startDate,
-                'enddate' => $endDate,
-                'Mon' => '1',
-                'Tues' => '1',
-                'Weds' => '1',
-                'Thurs' => '1',
-                'Fri' => '1',
-                'Sat' => '1',
-                'Sun' => '1',
-                'times' => [
-                    ['begin' => $startHour, 'end' => $endHour],
-                ],
-            ];
-            array_push($timeArray, $timePeriod);
-        }
-
+        $startHour = (string) $start->format('H:i:s');
+        $endHour = (string) $end->format('H:i:s');
+        $startDate = (string) $start->format('Y-m-d');
+        $endDate = (string) $end->format('Y-m-d');
         $sessionId = $this->getSessionId($base, $globals);
-
         try {
             $data = [
+                'ads_room_order' => [
+                    'orderno' => "$orderId", //from user account
+                    'emps' => $userArray,
+                    'doors' => $doorArray,
+                ],
                 'ads_timeperiod' => [
-                    'id' => "$id",
-                    'name' => 'time',
-                    'ads_timeperiods' => $timeArray,
+                    'begindate' => $startDate,
+                    'enddate' => $endDate,
+                    'times' => [
+                        ['begin' => $startHour, 'end' => $endHour],
+                    ],
                 ],
             ];
             $json = json_encode($data);
-            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_time_period'].$json;
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_room_order'].$json;
 
-            $periodArray = $this->postDoorApi($base.$globals['door_api_set_time'], $data);
+            $periodArray = $this->postDoorApi($base.$globals['door_api_set_room_order'], $data);
+            $this->logOut($sessionId, $base, $globals);
+
+            if ($periodArray['exceptionmsg'] == '订单号重复，不能添加订单') {
+                $this->addEmployeeToOrder(
+                    $base,
+                    $orderId,
+                    $userArray,
+                    $globals
+                );
+            } elseif ($periodArray['result'] != self::RESULT_OK) {
+                error_log('Door Access Error');
+            }
+        } catch (\Exception $e) {
+            if (!is_null($sessionId) && !empty($sessionId)) {
+                $this->logOut($sessionId, $base, $globals);
+            }
+        }
+    }
+
+    /**
+     * @param $base
+     * @param $orderId
+     * @param $globals
+     */
+    public function repealRoomOrder(
+        $base,
+        $orderId,
+        $globals
+    ) {
+        $sessionId = $this->getSessionId($base, $globals);
+        try {
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_order_no'].$orderId;
+
+            $periodArray = $this->postDoorApi($base.$globals['door_api_repeal_room_order'], $data);
             $this->logOut($sessionId, $base, $globals);
 
             if ($periodArray['result'] != self::RESULT_OK) {
@@ -203,4 +235,134 @@ class DoorController extends SandboxRestController
             }
         }
     }
+
+    /**
+     * @param $base
+     * @param $orderId
+     * @param $userArray
+     * @param $globals
+     */
+    public function addEmployeeToOrder(
+        $base,
+        $orderId,
+        $userArray,
+        $globals
+    ) {
+        $sessionId = $this->getSessionId($base, $globals);
+        try {
+            $data = [
+                'ads_room_order_add_emp' => [
+                    'orderno' => "$orderId", //from user account
+                    'emps' => $userArray,
+                ],
+            ];
+            $json = json_encode($data);
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_add_emp'].$json;
+
+            $periodArray = $this->postDoorApi($base.$globals['door_api_order_add_emp'], $data);
+            $this->logOut($sessionId, $base, $globals);
+
+            if ($periodArray['result'] != self::RESULT_OK) {
+                error_log('Door Access Error');
+            }
+        } catch (\Exception $e) {
+            if (!is_null($sessionId) && !empty($sessionId)) {
+                $this->logOut($sessionId, $base, $globals);
+            }
+        }
+    }
+
+    /**
+     * @param $base
+     * @param $orderId
+     * @param $userArray
+     * @param $globals
+     */
+    public function deleteEmployeeToOrder(
+        $base,
+        $orderId,
+        $userArray,
+        $globals
+    ) {
+        $sessionId = $this->getSessionId($base, $globals);
+        try {
+            $data = [
+                'ads_room_order_del_emp' => [
+                    'orderno' => "$orderId", //from user account
+                    'emps' => $userArray,
+                ],
+            ];
+            $json = json_encode($data);
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_delete_emp'].$json;
+
+            $periodArray = $this->postDoorApi($base.$globals['door_api_order_delete_emp'], $data);
+            $this->logOut($sessionId, $base, $globals);
+
+            if ($periodArray['result'] != self::RESULT_OK) {
+                error_log('Door Access Error');
+            }
+        } catch (\Exception $e) {
+            if (!is_null($sessionId) && !empty($sessionId)) {
+                $this->logOut($sessionId, $base, $globals);
+            }
+        }
+    }
+
+//    public function setTimePeriod(
+//        $updatedDoors,
+//        $base,
+//        $globals
+//    ) {
+//        $id = $updatedDoors[0]->getTimeId();
+//
+//        $timeArray = [];
+//        foreach ($updatedDoors as $updatedDoor) {
+//            $start = $updatedDoor->getStartDate();
+//            $end = $updatedDoor->getEndDate();
+//            $startHour = (string) $start->format('H:i:s');
+//            $endHour = (string) $end->format('H:i:s');
+//            $startDate = (string) $start->format('Y-m-d');
+//            $endDate = (string) $end->format('Y-m-d');
+//            $timePeriod = [
+//                'begindate' => $startDate,
+//                'enddate' => $endDate,
+//                'Mon' => '1',
+//                'Tues' => '1',
+//                'Weds' => '1',
+//                'Thurs' => '1',
+//                'Fri' => '1',
+//                'Sat' => '1',
+//                'Sun' => '1',
+//                'times' => [
+//                    ['begin' => $startHour, 'end' => $endHour],
+//                ],
+//            ];
+//            array_push($timeArray, $timePeriod);
+//        }
+//
+//        $sessionId = $this->getSessionId($base, $globals);
+//
+//        try {
+//            $data = [
+//                'ads_timeperiod' => [
+//                    'id' => "$id",
+//                    'name' => 'time',
+//                    'ads_timeperiods' => $timeArray,
+//                ],
+//            ];
+//            $json = json_encode($data);
+//            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_time_period'].$json;
+//
+//            $periodArray = $this->postDoorApi($base.$globals['door_api_set_time'], $data);
+//            $this->logOut($sessionId, $base, $globals);
+//
+//            if ($periodArray['result'] != self::RESULT_OK) {
+//                error_log('Door Access Error');
+//            }
+//        } catch (\Exception $e) {
+//            if (!is_null($sessionId) && !empty($sessionId)) {
+//                $this->logOut($sessionId, $base, $globals);
+//            }
+//        }
+//    }
 }

@@ -39,8 +39,6 @@ class ClientDoorController extends DoorController
                 self::CARDNO_NOT_FOUND_MESSAGE
             );
         }
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $userName = $userProfile->getName();
 
         $orders = $this->getRepo('Order\ProductOrder')->findBy(['userId' => $userId]);
         if (empty($orders)) {
@@ -51,21 +49,19 @@ class ClientDoorController extends DoorController
             );
         }
         $globals = $this->getGlobals();
-        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
-
-        foreach ($ids as $id) {
-            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
-            $base = $building->getServer();
-
-            $this->get('door_service')->cardPermission(
-                $base,
-                $userId,
-                $userName,
-                $cardNo,
-                $doorArray = [],
-                DoorController::METHOD_LOST,
-                $globals
-            );
+        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
+        if (!is_null($buildings) && !empty($buildings)) {
+            foreach ($buildings as $oneBuilding) {
+                $server = $oneBuilding->getServer();
+                $this->get('door_service')->setEmployeeCard(
+                    $server,
+                    $userId,
+                    '',
+                    $cardNo,
+                    DoorController::METHOD_LOST,
+                    $globals
+                );
+            }
         }
     }
 }
