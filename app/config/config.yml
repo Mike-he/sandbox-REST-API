@@ -69,11 +69,21 @@ twig:
         door_api_get_card_record: "%door_api_get_card_record%"
         door_api_get_alarm_record: "%door_api_get_alarm_record%"
         door_api_set_card_permission: "%door_api_set_card_permission%"
+        door_api_set_employee_card: "%door_api_set_employee_card%"
+        door_api_set_room_order: "%door_api_set_room_order%"
+        door_api_order_add_emp: "%door_api_order_add_emp%"
+        door_api_order_delete_emp: "%door_api_order_delete_emp%"
+        door_api_repeal_room_order: "%door_api_repeal_room_order%"
         door_api_session_id: "%door_api_session_id%"
         door_api_begin_time: "%door_api_begin_time%"
         door_api_end_time: "%door_api_end_time%"
         door_api_time_period: "%door_api_time_period%"
         door_api_card_permission: "%door_api_card_permission%"
+        door_api_employee_card: "%door_api_employee_card%"
+        door_api_room_order: "%door_api_room_order%"
+        door_api_add_emp: "%door_api_add_emp%"
+        door_api_delete_emp: "%door_api_delete_emp%"
+        door_api_order_no: "%door_api_order_no%"
 
 # Assetic Configuration
 assetic:

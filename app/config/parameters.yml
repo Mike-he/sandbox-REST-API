@@ -54,8 +54,18 @@ parameters:
     door_api_get_card_record: /GetSwipeCardRecord
     door_api_get_alarm_record: /GetAlarmRecord
     door_api_set_card_permission: /SetCardPermission
+    door_api_set_employee_card: /SetEmployeeCard
+    door_api_set_room_order: /SetRoomOrder
+    door_api_order_add_emp: /SetRoomOrder_AddEmp
+    door_api_order_delete_emp: /SetRoomOrder_DeleteEmp
+    door_api_repeal_room_order: /RepealRoomOrder
     door_api_session_id: SessionId=
     door_api_begin_time: BeginTime=
     door_api_end_time: EndTime=
     door_api_time_period: TimePeriod=
     door_api_card_permission: CardPermission=
+    door_api_employee_card: EmployeeCard=
+    door_api_room_order: RoomOrder=
+    door_api_add_emp: RoomOrderAddEmp=
+    door_api_delete_emp: RoomOrderDelEmp=
+    door_api_order_no: OrderNo=
