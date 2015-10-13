@@ -7,7 +7,6 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
-use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
@@ -27,9 +26,6 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
  */
 class AdminDoorController extends DoorController
 {
-    const SHANGHAI_SANDBOX = '上海Sandbox';
-    const SHANGHAI_SANDBOX_DOOR = '{4F768196-2A07-4E50-B716-B725BF877C42}';
-
     /**
      * @Post("/doors/permission/add")
      *
@@ -50,97 +46,60 @@ class AdminDoorController extends DoorController
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
-        $this->setFrontDoorAccess(
-            $userId,
-            $userName,
-            $cardNo,
-            $globals
-        );
-
-        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
-
-        if (!is_null($ids) && !empty($ids)) {
-            foreach ($ids as $id) {
-                $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
-                    $userId,
-                    $id['buildingId']
-                );
-                $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
-                $base = $building->getServer();
-
-                $doorArray = [];
-                foreach ($doors as $door) {
-                    $doorId = $door->getDoorId();
-                    $timeId = $door->getTimeId();
-                    $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
-
-                    array_push($doorArray, $door);
-                }
-
-                $this->get('door_service')->cardPermission(
-                    $base,
+        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
+        if (!is_null($buildings) && !empty($buildings)) {
+            foreach ($buildings as $oneBuilding) {
+                $server = $oneBuilding->getServer();
+                $this->get('door_service')->setEmployeeCard(
+                    $server,
                     $userId,
                     $userName,
                     $cardNo,
-                    $doorArray,
                     DoorController::METHOD_ADD,
                     $globals
                 );
             }
         }
-    }
 
-    /**
-     * @param $userId
-     * @param $userName
-     * @param $cardNo
-     * @param $globals
-     */
-    public function setFrontDoorAccess(
-        $userId,
-        $userName,
-        $cardNo,
-        $globals
-    ) {
-        $sandboxBuilding = $this->getRepo('Room\RoomBuilding')->findOneBy(['name' => self::SHANGHAI_SANDBOX]);
-        $sandboxBuildingId = $sandboxBuilding->getId();
-        $sandboxBase = $sandboxBuilding->getServer();
+        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
-        $now = new \DateTime();
-        $start = new \DateTime('2015-07-01');
-        $end = new \DateTime('2099-01-01');
-        $end->setTime(23, 59, 59);
+        if (!is_null($ids) && !empty($ids)) {
+            foreach ($ids as $id) {
+                $orderIds = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
+                    $userId,
+                    $id['buildingId']
+                );
 
-        $door = new DoorAccess();
-        $door->setUserId($userId);
-        $door->setStartDate($start);
-        $door->setEndDate($end);
-        $door->setBuildingId($sandboxBuildingId);
-        $door->setCreationDate($now);
-        $door->setDoorId(self::SHANGHAI_SANDBOX_DOOR);
-        $door->setOrderId(0);
-        $door->setRoomId(0);
-        $door->setTimeId(1);
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($door);
-        $em->flush();
+                $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
+                $base = $building->getServer();
 
-        $sandboxArray = [];
-        array_push($sandboxArray, $door);
-        $this->setTimePeriod($sandboxArray, $sandboxBase, $globals);
-        $timeArray = [];
-        $time = ['doorid' => self::SHANGHAI_SANDBOX_DOOR, 'timeperiodid' => '1'];
-        array_push($timeArray, $time);
+                foreach ($orderIds as $orderId) {
+                    $doorArray = [];
+                    $order = $this->getRepo('Order\ProductOrder')->find($orderId['orderId']);
+                    $startDate = $order->getStartDate();
+                    $endDate = $order->getEndDate();
+                    $roomId = $order->getProduct()->getRoom()->getId();
+                    $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+                    foreach ($roomDoors as $roomDoor) {
+                        $door = ['doorid' => $roomDoor->getDoorControlId()];
+                        array_push($doorArray, $door);
+                    }
+                    $userArray = [
+                        ['empid' => "$userId"],
+                    ];
 
-        $this->get('door_service')->cardPermission(
-            $sandboxBase,
-            $userId,
-            $userName,
-            $cardNo,
-            $timeArray,
-            DoorController::METHOD_ADD,
-            $globals
-        );
+                    $this->get('door_service')->setRoomOrderPermission(
+                        $base,
+                        $userArray,
+                        $orderId['orderId'],
+                        $startDate,
+                        $endDate,
+                        $doorArray,
+                        $globals
+                    );
+                }
+            }
+        }
     }
 
     /**
@@ -159,25 +118,22 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $userName = $userProfile->getName();
 
         $globals = $this->getGlobals();
-        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
-        foreach ($ids as $id) {
-            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
-            $base = $building->getServer();
-
-            $this->get('door_service')->cardPermission(
-                $base,
-                $userId,
-                $userName,
-                $cardNo,
-                $doorArray = [],
-                DoorController::METHOD_UNLOST,
-                $globals
-            );
+        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
+        if (!is_null($buildings) && !empty($buildings)) {
+            foreach ($buildings as $oneBuilding) {
+                $server = $oneBuilding->getServer();
+                $this->get('door_service')->setEmployeeCard(
+                    $server,
+                    $userId,
+                    '',
+                    $cardNo,
+                    DoorController::METHOD_UNLOST,
+                    $globals
+                );
+            }
         }
     }
 
@@ -197,24 +153,22 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $userName = $userProfile->getName();
 
-        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
         $globals = $this->getGlobals();
-        foreach ($ids as $id) {
-            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
-            $base = $building->getServer();
 
-            $this->get('door_service')->cardPermission(
-                $base,
-                $userId,
-                $userName,
-                $cardNo,
-                $doorArray = [],
-                DoorController::METHOD_CHANGE_CARD,
-                $globals
-            );
+        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
+        if (!is_null($buildings) && !empty($buildings)) {
+            foreach ($buildings as $oneBuilding) {
+                $server = $oneBuilding->getServer();
+                $this->get('door_service')->setEmployeeCard(
+                    $server,
+                    $userId,
+                    '',
+                    $cardNo,
+                    DoorController::METHOD_CHANGE_CARD,
+                    $globals
+                );
+            }
         }
     }
 

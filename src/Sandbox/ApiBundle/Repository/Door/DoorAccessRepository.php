@@ -21,16 +21,17 @@ class DoorAccessRepository extends EntityRepository
         return $query->getResult();
     }
 
-    public function getDoorsByBuilding(
+    public function getOrdersByBuilding(
         $userId,
         $buildingId
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.orderId')
             ->where('d.userId = :userId')
             ->andWhere('d.buildingId = :buildingId')
             ->andWhere('d.endDate > :now')
-            ->groupBy('d.doorId')
+            ->groupBy('d.orderId')
             ->setParameter('userId', $userId)
             ->setParameter('buildingId', $buildingId)
             ->setParameter('now', $now)

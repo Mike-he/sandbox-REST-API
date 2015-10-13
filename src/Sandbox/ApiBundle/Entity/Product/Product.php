@@ -20,6 +20,10 @@ class Product
     const ON_SALE = '1';
     const READY_SALE = '2';
 
+    const UNIT_HOUR = 'hour';
+    const UNIT_DAY = 'day';
+    const Unit_MONTH = 'month';
+
     /**
      * @var int
      *

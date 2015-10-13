@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
+use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -30,7 +31,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientOrderController extends PaymentController
 {
-    const PAYMENT_SUBJECT = 'ROOM';
+    const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';
     const PRODUCT_ORDER_LETTER_HEAD = 'P';
 
@@ -325,6 +326,7 @@ class ClientOrderController extends PaymentController
         $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
         $productInfo = $this->storeRoomInfo($product);
 
+        // set product order
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
         $order->setStartDate($startDate);
@@ -335,6 +337,15 @@ class ClientOrderController extends PaymentController
         $order->setProductInfo($productInfo);
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
+
+        // store order record
+        $room = $this->getRepo('Room\Room')->find($product->getRoomId());
+        $roomRecord = new ProductOrderRecord();
+        $roomRecord->setOrder($order);
+        $roomRecord->setCityId($room->getCityId());
+        $roomRecord->setBuildingId($room->getBuildingId());
+        $roomRecord->setRoomType($room->getType());
+        $em->persist($roomRecord);
         $em->flush();
 
         $view = new View();
@@ -479,90 +490,45 @@ class ClientOrderController extends PaymentController
         $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-        $myDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
-            $order->getUserId(),
-            $buildingId,
-            $roomId
-        );
+        $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
+
         if (empty($roomDoors)) {
             throw new BadRequestHttpException('no doors');
         }
 
-        foreach ($roomDoors as $roomDoor) {
-            $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
-                [
-                    'userId' => $order->getUserId(),
-                    'orderId' => $order->getId(),
-                    'buildingId' => $buildingId,
-                    'doorId' => $roomDoor->getDoorControlId(),
-                ]
-            );
-            if (is_null($doorAccess)) {
-                $access = new DoorAccess();
-                $access->setBuildingId($buildingId);
-                $access->setDoorId($roomDoor->getDoorControlId());
-                $access->setUserId($order->getUserId());
-                $access->setRoomId($roomId);
-                $access->setOrderId($order->getId());
-                $access->setStartDate($order->getStartDate());
-                $access->setEndDate($order->getEndDate());
-                if (empty($myDoors)) {
-                    $timeId = $order->getId();
-                } else {
-                    $timeId = $myDoors[0]->getTimeId();
-                }
-                $access->setTimeId($timeId);
-
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($access);
-                $em->flush();
-            }
-        }
-
-        $updatedDoors = $this->getRepo('Door\DoorAccess')->getAccessByRoom(
+        $this->storeDoorAccess(
+            $order,
             $order->getUserId(),
             $buildingId,
-            $roomId
-        );
-
-        $this->get('door_service')->setTimePeriod(
-            $updatedDoors,
-            $base,
-            $globals
+            $roomId,
+            $roomDoors
         );
 
         $cardNo = $this->getCardNoIfUserAuthorized();
-
         if (is_null($cardNo)) {
             return;
         }
 
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
-        $userName = $userProfile->getName();
-        $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
-            $order->getUserId(),
-            $buildingId
-        );
-        if (!is_null($doors) && !empty($doors)) {
-            $doorArray = [];
-            foreach ($doors as $door) {
-                $doorId = $door->getDoorId();
-                $timeId = $door->getTimeId();
-                $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
-
-                array_push($doorArray, $door);
-            }
-
-            $this->get('door_service')->cardPermission(
-                $base,
-                $order->getUserId(),
-                $userName,
-                $cardNo,
-                $doorArray,
-                DoorController::METHOD_ADD,
-                $globals
-            );
+        $doorArray = [];
+        foreach ($roomDoors as $roomDoor) {
+            $door = ['doorid' => $roomDoor->getDoorControlId()];
+            array_push($doorArray, $door);
         }
+        $userId = $order->getUserId();
+        $userArray = [
+            ['empid' => "$userId"],
+        ];
+
+        $this->get('door_service')->setRoomOrderPermission(
+            $base,
+            $userArray,
+            $order->getId(),
+            $startDate,
+            $endDate,
+            $doorArray,
+            $globals
+        );
 
         $view = new View();
 
@@ -677,81 +643,16 @@ class ClientOrderController extends PaymentController
             $em->persist($order);
             $em->flush();
 
-            $peopleArray = [];
-            array_push($peopleArray, $userId);
-            $appointedId = $order->getAppointed();
-            if (!is_null($appointedId)) {
-                array_push($peopleArray, $appointedId);
-            }
-
-            $people = $this->getRepo('Order\InvitedPeople')->findBy(
-                [
-                    'orderId' => $id,
-                ]
-            );
-            if (!empty($people)) {
-                foreach ($people as $user) {
-                    $userId = $user->getUserId();
-                    array_push($peopleArray, $userId);
-                }
-            }
             $globals = $this->getGlobals();
             $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
             $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
             $base = $building->getServer();
-            foreach ($peopleArray as $user) {
-                $controls = $this->getRepo('Door\DoorAccess')->findBy(
-                    [
-                        'userId' => $user,
-                        'orderId' => $order->getId(),
-                    ]
-                );
-                foreach ($controls as $control) {
-                    $em = $this->getDoctrine()->getManager();
-                    $em->remove($control);
-                    $em->flush();
-                }
 
-                $cardNo = $this->getCardNoByUser($user);
-                if (!is_null($cardNo)) {
-                    $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($user);
-                    $userName = $userProfile->getName();
-                    $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
-                        $user,
-                        $buildingId
-                    );
-                    if (!is_null($doors) && !empty($doors)) {
-                        $doorArray = [];
-                        foreach ($doors as $door) {
-                            $doorId = $door->getDoorId();
-                            $timeId = $door->getTimeId();
-                            $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
-
-                            array_push($doorArray, $door);
-                        }
-
-                        $this->get('door_service')->cardPermission(
-                            $base,
-                            $user,
-                            $userName,
-                            $cardNo,
-                            $doorArray,
-                            DoorController::METHOD_ADD,
-                            $globals
-                        );
-                    } else {
-                        $this->get('door_service')->cardPermission(
-                            $base,
-                            $user,
-                            $userName,
-                            $cardNo,
-                            [],
-                            DoorController::METHOD_DELETE,
-                            $globals
-                        );
-                    }
-                }
-            }
+            $this->get('door_service')->repealRoomOrder(
+                $base,
+                $order->getId(),
+                $globals
+            );
         }
         $view = new View();
 
@@ -782,6 +683,7 @@ class ClientOrderController extends PaymentController
             );
         }
         $status = $order->getStatus();
+        $startDate = $order->getStartDate();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
         if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
@@ -790,12 +692,6 @@ class ClientOrderController extends PaymentController
                 self::WRONG_ORDER_STATUS_CODE,
                 self::WRONG_ORDER_STATUS_MESSAGE
             );
-        }
-        $people = $this->getRepo('Order\InvitedPeople')->findBy(
-            ['orderId' => $id]
-        );
-        if (!is_null($people) && !empty($people)) {
-            $this->deletePeople($order, $people);
         }
 
         $globals = $this->getGlobals();
@@ -811,75 +707,61 @@ class ClientOrderController extends PaymentController
                 self::NO_DOOR_MESSAGE
             );
         }
-        $users = json_decode($request->getContent(), true);
-        foreach ($users as $user) {
-            $people = new InvitedPeople();
-            $people->setOrderId($order);
-            $people->setUserId($user['user_id']);
-            $people->setCreationDate(new \DateTime());
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($people);
-            $em->flush();
+        $people = json_decode($request->getContent(), true);
+        $users = $people['add'];
+        $removeUsers = $people['remove'];
 
-            foreach ($roomDoors as $roomDoor) {
-                $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
-                    [
-                        'userId' => $user['user_id'],
-                        'orderId' => $order->getId(),
-                        'buildingId' => $buildingId,
-                        'doorId' => $roomDoor->getDoorControlId(),
-                    ]
+        $userArray = [];
+        if (!empty($users) && !is_null($users)) {
+            foreach ($users as $user) {
+                $people = new InvitedPeople();
+                $people->setOrderId($id);
+                $people->setUserId($user['user_id']);
+                $people->setCreationDate(new \DateTime());
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($people);
+                $em->flush();
+
+                $this->storeDoorAccess(
+                    $order,
+                    $user['user_id'],
+                    $buildingId,
+                    $roomId,
+                    $roomDoors
                 );
-                if (is_null($doorAccess)) {
-                    $doorOfOrder = $this->getRepo('Door\DoorAccess')->findOneBy(
-                        ['orderId' => $order->getId()]
-                    );
 
-                    $access = new DoorAccess();
-                    $access->setBuildingId($buildingId);
-                    $access->setDoorId($roomDoor->getDoorControlId());
-                    $access->setUserId($user['user_id']);
-                    $access->setTimeId($doorOfOrder->getTimeId());
-                    $access->setRoomId($roomId);
-                    $access->setOrderId($order->getId());
-                    $access->setStartDate($order->getStartDate());
-                    $access->setEndDate($order->getEndDate());
-
-                    $em = $this->getDoctrine()->getManager();
-                    $em->persist($access);
-                    $em->flush();
+                $cardNo = $this->getCardNoByUser($user['user_id']);
+                if (!is_null($cardNo)) {
+                    $empUser = ['empid' => $user['user_id']];
+                    array_push($userArray, $empUser);
                 }
             }
-
-            $cardNo = $this->getCardNoByUser($user['user_id']);
-            if (!is_null($cardNo)) {
-                $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($user['user_id']);
-                $userName = $userProfile->getName();
-
-                $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
-                    $user['user_id'],
-                    $buildingId
-                );
-
+            if (!empty($userArray)) {
                 $doorArray = [];
-                foreach ($doors as $door) {
-                    $doorId = $door->getDoorId();
-                    $timeId = $door->getTimeId();
-                    $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
-
+                foreach ($roomDoors as $roomDoor) {
+                    $door = ['doorid' => $roomDoor->getDoorControlId()];
                     array_push($doorArray, $door);
                 }
 
-                $this->get('door_service')->cardPermission(
+                $this->get('door_service')->setRoomOrderPermission(
                     $base,
-                    $user['user_id'],
-                    $userName,
-                    $cardNo,
+                    $userArray,
+                    $id,
+                    $startDate,
+                    $endDate,
                     $doorArray,
-                    DoorController::METHOD_ADD,
                     $globals
                 );
             }
+        }
+
+        if (!empty($removeUsers) && !is_null($removeUsers)) {
+            $this->deletePeople(
+                $removeUsers,
+                $order->getId(),
+                $globals,
+                $base
+            );
         }
     }
 
@@ -889,16 +771,20 @@ class ClientOrderController extends PaymentController
      * @param ParamFetcherInterface $paramFetcher
      */
     private function deletePeople(
-        $order,
-        $people
+        $removeUsers,
+        $orderId,
+        $globals,
+        $base
     ) {
-        $globals = $this->getGlobals();
-        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        $base = $building->getServer();
-        foreach ($people as $person) {
-            $userId = $person->getUserId();
-
+        $userArray = [];
+        foreach ($removeUsers as $removeUser) {
+            $userId = $removeUser['user_id'];
+            $person = $this->getRepo('Order\InvitedPeople')->findOneBy(
+                [
+                    'orderId' => $orderId,
+                    'userId' => $userId,
+                ]
+            );
             $em = $this->getDoctrine()->getManager();
             $em->remove($person);
             $em->flush();
@@ -906,56 +792,30 @@ class ClientOrderController extends PaymentController
             $controls = $this->getRepo('Door\DoorAccess')->findBy(
                 [
                     'userId' => $userId,
-                    'orderId' => $order->getId(),
+                    'orderId' => $orderId,
                 ]
             );
-
-            foreach ($controls as $control) {
-                $em = $this->getDoctrine()->getManager();
-                $em->remove($control);
-                $em->flush();
-            }
-
-            $cardNo = $this->getCardNoByUser($userId);
-            if (!is_null($cardNo)) {
-                $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-                $userName = $userProfile->getName();
-                $doors = $this->getRepo('Door\DoorAccess')->getDoorsByBuilding(
-                    $userId,
-                    $buildingId
-                );
-
-                if (!is_null($doors) && !empty($doors)) {
-                    $doorArray = [];
-                    foreach ($doors as $door) {
-                        $doorId = $door->getDoorId();
-                        $timeId = $door->getTimeId();
-                        $door = ['doorid' => $doorId, 'timeperiodid' => "$timeId"];
-
-                        array_push($doorArray, $door);
-                    }
-
-                    $this->get('door_service')->cardPermission(
-                        $base,
-                        $userId,
-                        $userName,
-                        $cardNo,
-                        $doorArray,
-                        DoorController::METHOD_ADD,
-                        $globals
-                    );
-                } else {
-                    $this->get('door_service')->cardPermission(
-                        $base,
-                        $userId,
-                        $userName,
-                        $cardNo,
-                        [],
-                        DoorController::METHOD_DELETE,
-                        $globals
-                    );
+            if (!empty($controls)) {
+                foreach ($controls as $control) {
+                    $em = $this->getDoctrine()->getManager();
+                    $em->remove($control);
+                    $em->flush();
                 }
             }
+            $cardNo = $this->getCardNoByUser($userId);
+            if (!is_null($cardNo)) {
+                $empUser = ['empid' => $userId];
+                array_push($userArray, $empUser);
+            }
+        }
+
+        if (!empty($userArray)) {
+            $this->get('door_service')->deleteEmployeeToOrder(
+                $base,
+                $orderId,
+                $userArray,
+                $globals
+            );
         }
     }
 
@@ -1010,6 +870,7 @@ class ClientOrderController extends PaymentController
             );
         }
         $status = $order->getStatus();
+        $startDate = $order->getStartDate();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
         if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
@@ -1019,29 +880,65 @@ class ClientOrderController extends PaymentController
                 self::WRONG_ORDER_STATUS_MESSAGE
             );
         }
-        $requestContent = json_decode($request->getContent(), true);
-        $user = $requestContent['user_id'];
-        $currentUser = $order->getAppointed();
-        $orderUser = $order->getUserId();
-        if (is_null($user) || empty($user) && is_null($currentUser)) {
+        $globals = $this->getGlobals();
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
+        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+        if (empty($roomDoors)) {
             return $this->customErrorView(
                 400,
-                self::NO_APPOINTED_PERSON_CODE,
-                self::NO_APPOINTED_PERSON_CODE_MESSAGE
+                self::NO_DOOR_CODE,
+                self::NO_DOOR_MESSAGE
             );
         }
-        $order->setAppointed($user);
-        $order->setModificationDate(new \DateTime());
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($order);
-        $em->flush();
+        $requestContent = json_decode($request->getContent(), true);
+        $newUser = $requestContent['user_id'];
+        $currentUser = $order->getAppointed();
+        $orderUser = $order->getUserId();
 
-        if (is_null($user) || empty($user)) {
-            $this->setUserDoorAccess($order, $orderUser, $currentUser);
-        } elseif (is_null($currentUser)) {
-            $this->setUserDoorAccess($order, $user, $orderUser);
-        } else {
-            $this->setUserDoorAccess($order, $user, $currentUser);
+        if (!is_null($newUser) && !empty($newUser)) {
+            $userArray = [];
+            $order->setAppointed($newUser);
+            $order->setModificationDate(new \DateTime());
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($order);
+            $em->flush();
+
+            $this->storeDoorAccess(
+                $order,
+                $newUser,
+                $buildingId,
+                $roomId,
+                $roomDoors
+            );
+
+            $cardNo = $this->getCardNoByUser($newUser);
+            if (!is_null($cardNo)) {
+                $empUser = ['empid' => $newUser];
+                array_push($userArray, $empUser);
+            }
+            if (!empty($userArray)) {
+                $doorArray = [];
+                foreach ($roomDoors as $roomDoor) {
+                    $door = ['doorid' => $roomDoor->getDoorControlId()];
+                    array_push($doorArray, $door);
+                }
+
+                $this->get('door_service')->setRoomOrderPermission(
+                    $base,
+                    $userArray,
+                    $id,
+                    $startDate,
+                    $endDate,
+                    $doorArray,
+                    $globals
+                );
+            }
+            if (!is_null($currentUser) && !empty($currentUser)) {
+                //TODO
+            }
         }
     }
 

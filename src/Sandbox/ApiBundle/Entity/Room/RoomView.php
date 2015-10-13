@@ -190,6 +190,13 @@ class RoomView
     private $fixed;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
+     */
+    private $isDeleted = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -847,5 +854,13 @@ class RoomView
         $this->renterEmail = $renterEmail;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->isDeleted;
     }
 }

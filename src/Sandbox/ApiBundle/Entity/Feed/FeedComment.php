@@ -52,14 +52,19 @@ class FeedComment
     private $feedId;
 
     /**
-     * @var string
+     * @var int
      *
      * @ORM\Column(name="authorId", type="integer", nullable=false)
      */
     private $authorId;
 
     /**
-     * @var UserProfile
+     * @var \Sandbox\ApiBundle\Entity\User\User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="authorId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * })
      *
      * @Serializer\Groups({"main", "feed"})
      */

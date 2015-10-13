@@ -8,3 +8,10 @@ register:
   verify:
     invalid_verification: Invalid verification
     expired_verification: Expired verification
+
+room:
+  type:
+    office: Office
+    meeting: Meeting room
+    flexible: Flexible station
+    fixed: Fixed station

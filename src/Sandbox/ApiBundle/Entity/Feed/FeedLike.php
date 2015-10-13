@@ -7,7 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * FeedLike.
  *
- * @ORM\Table(name="FeedLike")
+ * @ORM\Table(
+ *  name="FeedLike",
+ *  indexes={
+ *      @ORM\Index(name="fk_feedLike_feedId_idx", columns={"feedId"})
+ *  })
  * @ORM\Entity
  */
 class FeedLike
@@ -39,7 +43,17 @@ class FeedLike
     private $feedId;
 
     /**
-     * @var string
+     * @var \Sandbox\ApiBundle\Entity\User\User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="authorId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * })
+     */
+    private $author;
+
+    /**
+     * @var int
      *
      * @ORM\Column(name="authorId", type="integer", nullable=false)
      */
@@ -156,5 +170,29 @@ class FeedLike
     public function getFeed()
     {
         return $this->feed;
+    }
+
+    /**
+     * Set author.
+     *
+     * @param $author
+     *
+     * @return FeedLike
+     */
+    public function setAuthor($author)
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * Get author.
+     *
+     * @return \Sandbox\ApiBundle\Entity\User\User
+     */
+    public function getAuthor()
+    {
+        return $this->author;
     }
 }

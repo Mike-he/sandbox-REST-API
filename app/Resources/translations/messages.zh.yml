@@ -8,3 +8,10 @@ register:
   verify:
     invalid_verification: 验证码无效
     expired_verification: 验证码过期
+
+room:
+  type:
+    office: 独立办公室
+    meeting: 会议室
+    flexible: 可选工位
+    fixed: 不可选工位

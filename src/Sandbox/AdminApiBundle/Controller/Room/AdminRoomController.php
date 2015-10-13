@@ -42,6 +42,8 @@ class AdminRoomController extends RoomController
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
     const LOCATION_CANNOT_NULL = 'City, Building or Floor cannot be null';
 
+    const ROOM_TYPE_PREFIX = 'room.type.';
+
     /**
      * Room.
      *
@@ -245,19 +247,22 @@ class AdminRoomController extends RoomController
         $statusArray = [];
         if (!is_null($roomIds) && !empty($roomIds)) {
             foreach ($roomIds as $roomId) {
-                $usage = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
+                $room = $this->getRepo('Room\Room')->findOneById($roomId);
+                if (!$room->isDeleted()) {
+                    $usage = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
 
-                if (!is_null($usage) && !empty($usage)) {
-                    $status = true;
-                } else {
-                    $status = false;
+                    if (!is_null($usage) && !empty($usage)) {
+                        $status = true;
+                    } else {
+                        $status = false;
+                    }
+                    $status = [
+                        'room_id' => $roomId,
+                        'usage' => $status,
+                        'user' => $usage,
+                    ];
+                    array_push($statusArray, $status);
                 }
-                $status = [
-                    'room_id' => $roomId,
-                    'usage' => $status,
-                    'user' => $usage,
-                ];
-                array_push($statusArray, $status);
             }
         }
 
@@ -428,6 +433,44 @@ class AdminRoomController extends RoomController
     }
 
     /**
+     * Get rooms types.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/rooms/types")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getRoomTypes(
+        Request $request
+    ) {
+        // check user permission
+        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $roomKeys = array(Room::TYPE_OFFICE, Room::TYPE_MEETING, Room::TYPE_FLEXIBLE, Room::TYPE_FIXED);
+
+        // get rooms types
+        $roomTypes = array();
+        foreach ($roomKeys as $roomKey) {
+            $roomType = array(
+                'key' => $roomKey,
+                'description' => $this->get('translator')->trans(self::ROOM_TYPE_PREFIX.$roomKey),
+            );
+            array_push($roomTypes, $roomType);
+        }
+
+        return new View($roomTypes);
+    }
+
+    /**
      * Get room by id.
      *
      * @param Request $request
@@ -455,7 +498,10 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
@@ -543,7 +589,11 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // bind data
         $roomJson = $this->container->get('serializer')->serialize($room, 'json');
@@ -601,7 +651,10 @@ class AdminRoomController extends RoomController
         }
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         if (is_null($room)) {
             $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
         }
@@ -658,7 +711,10 @@ class AdminRoomController extends RoomController
         }
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         $em = $this->getDoctrine()->getManager();
@@ -710,7 +766,11 @@ class AdminRoomController extends RoomController
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         //supplies id
         $suppliesIds = $paramFetcher->get('id');
@@ -759,10 +819,14 @@ class AdminRoomController extends RoomController
         // check user permission
         $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        //get room
-        $room = $this->getRepo('Room\Room')->find($id);
+        // get room
+        $room = $this->getRepo('Room\Room')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
-        //attachments id
+        // attachments id
         $attachmentIds = $paramFetcher->get('id');
 
         $this->getRepo('Room\RoomAttachmentBinding')->deleteRoomAttachmentByIds(
@@ -802,10 +866,23 @@ class AdminRoomController extends RoomController
 
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+
+        // set room deleted
+        $room->setIsDeleted(true);
+
+        // get product
+        $products = $this->getRepo('Product\Product')->findByRoomId($id);
+        foreach ($products as $product) {
+            if (!is_null($product) || !empty($product)) {
+                $product->setVisible(false);
+            }
+        }
 
         $em = $this->getDoctrine()->getManager();
-        $em->remove($room);
         $em->flush();
+
+        return new View();
     }
 
     /**

@@ -80,26 +80,26 @@ class FeedRepository extends EntityRepository
                 b.buddyId
             ')
             ->from('SandboxApiBundle:Buddy\Buddy', 'b')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'b.buddyId = u.id')
             ->where('b.userId = :userId')
+            ->andWhere('u.banned = FALSE')
             ->setParameter('userId', $userId);
         $buddyIds = $query->getQuery()->getResult();
 
         if (!is_null($buddyIds) && !empty($buddyIds)) {
-            array_push($userIds, $buddyIds);
+            foreach ($buddyIds as $buddyId) {
+                array_push($userIds, $buddyId['buddyId']);
+            }
         }
 
         // get feeds post by me and my buddies
         $parameters = [];
 
         $query = $this->createQueryBuilder('f')
-            ->select('f')
-            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
-
-        // filter by user banned
-        $query->where('u.banned = FALSE');
+            ->select('f');
 
         // filter by my buddies and my own posts
-        $query->andwhere('f.ownerId IN (:userIds)');
+        $query->where('f.ownerId IN (:userIds)');
         $parameters['userIds'] = $userIds;
 
         // last id

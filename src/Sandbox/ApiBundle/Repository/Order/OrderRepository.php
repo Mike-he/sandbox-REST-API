@@ -302,7 +302,7 @@ class OrderRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
             ->where('o.status != :unpaid')
             ->andWhere('o.paymentDate IS NOT NULL');
         $parameters['unpaid'] = 'unpaid';
@@ -320,19 +320,19 @@ class OrderRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('r.type = :type');
+            $query->andWhere('por.roomType = :type');
             $parameters['type'] = $type;
         }
 
         // filter by city
         if (!is_null($city)) {
-            $query->andWhere('r.city = :city');
+            $query->andWhere('por.cityId = :city');
             $parameters['city'] = $city;
         }
 
         // filter by building
         if (!is_null($building)) {
-            $query->andWhere('r.building = :building');
+            $query->andWhere('por.buildingId = :building');
             $parameters['building'] = $building;
         }
 
@@ -371,6 +371,13 @@ class OrderRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
+     * @param $type
+     * @param $city
+     * @param $building
+     * @param $userId
+     * @param $startDate
+     * @param $endDate
+     *
      * @return array
      */
     public function getOrdersToExport(
@@ -382,41 +389,8 @@ class OrderRepository extends EntityRepository
         $endDate
     ) {
         $query = $this->createQueryBuilder('o')
-            ->select("
-                    CONCAT(rc.name, ', ', rb.name, ', ', r.number, ', ', r.name) as product_name,
-                    CASE r.type
-                        WHEN 'fixed' THEN '可选工位'
-                        WHEN 'meeting' THEN '会议室'
-                        WHEN 'flexible' THEN '不可选工位'
-                        WHEN 'office' THEN '独立办公室'
-                        ELSE '其他' END,
-                    o.userId as employee_id,
-                    p.basePrice,
-                    CASE p.unitPrice
-                        WHEN 'hour' THEN '小时'
-                        WHEN 'day' THEN '天'
-                        WHEN 'month' THEN '月'
-                        ELSE '其他' END,
-                    o.price as amount,
-                    o.discountPrice,
-                    CONCAT(o.startDate, ' - ', o.endDate) as leasing_time,
-                    o.creationDate as order_time,
-                    o.modificationDate as payment_time,
-                    CASE o.status
-                        WHEN 'paid' THEN '已付款'
-                        WHEN 'completed' THEN '已完成'
-                        WHEN 'cancelled' THEN '已取消'
-                        ELSE '其他' END,
-                    up.name,
-                    up.phone,
-                    up.email
-                ")
-            ->innerJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'o.userId = u.id')
-            ->innerJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
-            ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'rc.id = r.city')
-            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'rb.id = r.building');
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
         // filter by user id
         if (!is_null($userId)) {

@@ -44,9 +44,12 @@ class RoomRepository extends EntityRepository
         $query = $this->createQueryBuilder('r')
             ->join('SandboxApiBundle:Room\RoomFloor', 'rf', 'WITH', 'rf.id = r.floor');
 
+        // filter by isDeleted
+        $query->where('r.isDeleted = FALSE');
+
         // filter by type
         if (!is_null($type) && !empty($type)) {
-            $query->where('r.type = :type');
+            $query->andwhere('r.type = :type');
             $parameters['type'] = $type;
             $notFirst = true;
         }
@@ -152,6 +155,7 @@ class RoomRepository extends EntityRepository
 
             ->where('up.name IS NOT NULL')
             ->andWhere('r.id = :roomId')
+            ->andWhere('r.isDeleted = FALSE')
             ->setParameter('roomId', $roomId);
 
         return $query->getQuery()->getResult();
@@ -232,6 +236,7 @@ class RoomRepository extends EntityRepository
                 ->setParameter('floor', $floor);
         }
         $query = $query->andWhere('r.type = :type')
+            ->andWhere('r.isDeleted = FALSE')
             ->setParameter('type', $type);
 
         $query = $query->orderBy('r.id', 'ASC');

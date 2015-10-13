@@ -43,6 +43,7 @@ class ClientPaymentController extends PaymentController
         $orderNumber = $object['order_no'];
         $channel = $object['channel'];
         $userId = (int) $object['body'];
+        $orderType = $orderNumber[0];
 
         $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
             [
@@ -57,21 +58,13 @@ class ClientPaymentController extends PaymentController
             );
         }
 
-        switch ($object['subject']) {
-            case 'Your Subject':
-                if ($chargeId != 'ch_Xsr7u35O3m1Gw4ed2ODmi4Lw') {
-                    die('Your Subject Works with Wrong ChargeId');
-                }
-
-                die('Your Subject Works');
-
-                break;
-            case 'ROOM':
+        switch ($orderType) {
+            case 'P':
 
                 $order = $this->setProductOrder($chargeId);
 
                 break;
-            case 'VIP':
+            case 'V':
 
                 $productId = $myCharge->getOrderId();
                 $order = $this->setMembershipOrder($userId, $productId, $price, $orderNumber);
@@ -79,7 +72,7 @@ class ClientPaymentController extends PaymentController
                 $amount = $this->postConsumeBalance($userId, $price, $orderNumber);
 
                 break;
-            case 'TOPUP':
+            case 'T':
 
                 $order = $this->setTopUpOrder($userId, $price, $orderNumber);
                 $balance = $this->postBalanceChange(
