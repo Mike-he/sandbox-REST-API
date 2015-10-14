@@ -55,7 +55,7 @@ class ClientFeedCommentController extends FeedCommentController
      * )
      *
      *
-     * @Route("feeds/{id}/comments")
+     * @Route("/feeds/{id}/comments")
      * @Method({"GET"})
      *
      * @throws \Exception
@@ -114,7 +114,7 @@ class ClientFeedCommentController extends FeedCommentController
      *
      * @param Request $request
      *
-     * @Route("feeds/{id}/comments")
+     * @Route("/feeds/{id}/comments")
      * @Method({"POST"})
      *
      * @throws \Exception
@@ -176,7 +176,7 @@ class ClientFeedCommentController extends FeedCommentController
      * @param int     $id        id of the feed
      * @param int     $commentId id of the comment
      *
-     * @Route("feeds/{id}/comments/{commentId}")
+     * @Route("/feeds/{id}/comments/{commentId}")
      * @Method({"DELETE"})
      *
      * @throws \Exception
