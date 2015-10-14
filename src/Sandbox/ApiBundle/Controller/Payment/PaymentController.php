@@ -266,6 +266,47 @@ class PaymentController extends SandboxRestController
     }
 
     /**
+     * @param $orderId
+     * @param $currentUser
+     * @param $base
+     * @param $globals
+     */
+    public function removeUserAccess(
+        $orderId,
+        $currentUser,
+        $base,
+        $globals
+    ) {
+        $currentUserArray = [];
+        $controls = $this->getRepo('Door\DoorAccess')->findBy(
+            [
+                'userId' => $currentUser,
+                'orderId' => $orderId,
+            ]
+        );
+        if (!empty($controls)) {
+            foreach ($controls as $control) {
+                $em = $this->getDoctrine()->getManager();
+                $em->remove($control);
+                $em->flush();
+            }
+        }
+        $cardNo = $this->getCardNoByUser($currentUser);
+        if (!is_null($cardNo)) {
+            $empUser = ['empid' => $currentUser];
+            array_push($currentUserArray, $empUser);
+        }
+        if (!empty($currentUserArray)) {
+            $this->get('door_service')->deleteEmployeeToOrder(
+                $base,
+                $orderId,
+                $currentUserArray,
+                $globals
+            );
+        }
+    }
+
+    /**
      * @param $productId
      * @param $price
      * @param $orderNumber

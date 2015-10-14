@@ -79,14 +79,31 @@ class ClientFeedCommentController extends FeedCommentController
             $lastId
         );
 
+        $commentsResponse = array();
+
         foreach ($comments as $comment) {
             $authorId = $comment->getAuthorId();
+            if (is_null($authorId)) {
+                continue;
+            }
+
             $authorProfile = $this->getRepo('User\UserProfile')->findOneByUserId($authorId);
-            $this->throwNotFoundIfNull($authorProfile, self::NOT_FOUND_MESSAGE);
-            $comment->setAuthor($authorProfile);
+            if (is_null($authorProfile) || empty($authorProfile)) {
+                continue;
+            }
+
+            $comment_array = array(
+                'id' => $comment->getId(),
+                'feed_id' => $id,
+                'author' => $authorProfile,
+                'payload' => $comment->getPayload(),
+                'creation_date' => $comment->getCreationDate(),
+            );
+
+            array_push($commentsResponse, $comment_array);
         }
 
-        $view = new View($comments);
+        $view = new View($commentsResponse);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
 
         return $view;
@@ -129,9 +146,11 @@ class ClientFeedCommentController extends FeedCommentController
             $payload = json_encode($payload);
         }
 
+        $user = $this->getRepo('User\User')->find($this->getUserId());
+
         // set comment
         $comment->setFeed($feed);
-        $comment->setAuthorId($this->getUserId());
+        $comment->setAuthor($user);
         $comment->setPayload($payload);
         $comment->setCreationdate(new \DateTime('now'));
 

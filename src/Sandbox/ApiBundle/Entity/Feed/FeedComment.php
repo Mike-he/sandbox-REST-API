@@ -179,7 +179,7 @@ class FeedComment
     }
 
     /**
-     * @param UserProfile $author
+     * @param object $author
      *
      * @return FeedComment
      */
