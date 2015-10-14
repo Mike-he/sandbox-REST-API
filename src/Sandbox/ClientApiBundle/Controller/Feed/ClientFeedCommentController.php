@@ -94,7 +94,7 @@ class ClientFeedCommentController extends FeedCommentController
 
             $comment_array = array(
                 'id' => $comment->getId(),
-                'feed_id' => $id,
+                'feed_id' => $comment->getFeedId(),
                 'author' => $authorProfile,
                 'payload' => $comment->getPayload(),
                 'creation_date' => $comment->getCreationDate(),
