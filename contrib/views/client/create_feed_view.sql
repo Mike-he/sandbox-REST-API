@@ -4,4 +4,5 @@ SELECT DISTINCT f.*,
        (SELECT COUNT(fl.id) FROM FeedLike fl LEFT JOIN User u2 ON u2.id = fl.authorId WHERE fl.feedId = f.id AND u2.banned = FALSE) AS likes_count
 FROM Feed f
 LEFT JOIN User u ON u.id = f.ownerId
-WHERE u.banned = FALSE;
+WHERE u.banned = FALSE
+AND u.authorized = TRUE;
