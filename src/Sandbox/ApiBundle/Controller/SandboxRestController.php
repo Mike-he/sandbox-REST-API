@@ -1068,4 +1068,33 @@ class SandboxRestController extends FOSRestController
             error_log('Send buddy notification went wrong!');
         }
     }
+
+    /**
+     * @param $userId
+     * @param $userName
+     * @param $cardNo
+     * @param $method
+     */
+    public function updateEmployeeCardStatus(
+        $userId,
+        $userName,
+        $cardNo,
+        $method
+    ) {
+        $globals = $this->getGlobals();
+        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
+        if (!is_null($buildings) && !empty($buildings)) {
+            foreach ($buildings as $oneBuilding) {
+                $server = $oneBuilding->getServer();
+                $this->get('door_service')->setEmployeeCard(
+                    $server,
+                    $userId,
+                    $userName,
+                    $cardNo,
+                    $method,
+                    $globals
+                );
+            }
+        }
+    }
 }

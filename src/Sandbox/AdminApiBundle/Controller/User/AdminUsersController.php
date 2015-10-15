@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\User;
 
+use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User;
@@ -379,6 +380,21 @@ class AdminUsersController extends SandboxRestController
         // update to db
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        // update door access status
+        $cardNo = $this->getCardNoByUser($id);
+        if (!is_null($cardNo)) {
+            $method = DoorController::METHOD_UNLOST;
+            if ($user->isBanned()) {
+                $method = DoorController::METHOD_LOST;
+            }
+            $this->updateEmployeeCardStatus(
+                $id,
+                '',
+                $cardNo,
+                $method
+            );
+        }
 
         return new View();
     }

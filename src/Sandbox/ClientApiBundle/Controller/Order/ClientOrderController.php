@@ -713,13 +713,22 @@ class ClientOrderController extends PaymentController
         $userArray = [];
         if (!empty($users) && !is_null($users)) {
             foreach ($users as $user) {
-                $people = new InvitedPeople();
-                $people->setOrderId($id);
-                $people->setUserId($user['user_id']);
-                $people->setCreationDate(new \DateTime());
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($people);
-                $em->flush();
+                $person = $this->getRepo('Order\InvitedPeople')->findOneBy(
+                    [
+                        'orderId' => $id,
+                        'userId' => $user['user_id'],
+                    ]
+                );
+                if (is_null($person)) {
+                    $people = new InvitedPeople();
+                    $people->setOrderId($order);
+                    $people->setUserId($user['user_id']);
+                    $people->setCreationDate(new \DateTime());
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->persist($people);
+                    $em->flush();
+                }
 
                 $this->storeDoorAccess(
                     $order,
@@ -784,9 +793,11 @@ class ClientOrderController extends PaymentController
                     'userId' => $userId,
                 ]
             );
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($person);
-            $em->flush();
+            if (!is_null($person)) {
+                $em = $this->getDoctrine()->getManager();
+                $em->remove($person);
+                $em->flush();
+            }
 
             $controls = $this->getRepo('Door\DoorAccess')->findBy(
                 [

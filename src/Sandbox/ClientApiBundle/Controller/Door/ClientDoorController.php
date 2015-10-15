@@ -4,7 +4,6 @@ namespace Sandbox\ClientApiBundle\Controller\Door;
 
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use FOS\RestBundle\View\View;
-use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -40,28 +39,11 @@ class ClientDoorController extends DoorController
             );
         }
 
-        $orders = $this->getRepo('Order\ProductOrder')->findBy(['userId' => $userId]);
-        if (empty($orders)) {
-            return $this->customErrorView(
-                400,
-                self::NO_ORDER_CODE,
-                self::NO_ORDER_MESSAGE
-            );
-        }
-        $globals = $this->getGlobals();
-        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
-        if (!is_null($buildings) && !empty($buildings)) {
-            foreach ($buildings as $oneBuilding) {
-                $server = $oneBuilding->getServer();
-                $this->get('door_service')->setEmployeeCard(
-                    $server,
-                    $userId,
-                    '',
-                    $cardNo,
-                    DoorController::METHOD_LOST,
-                    $globals
-                );
-            }
-        }
+        $this->updateEmployeeCardStatus(
+            $userId,
+            '',
+            $cardNo,
+            DoorController::METHOD_LOST
+        );
     }
 }
