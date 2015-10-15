@@ -46,21 +46,15 @@ class AdminDoorController extends DoorController
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
-        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
-        if (!is_null($buildings) && !empty($buildings)) {
-            foreach ($buildings as $oneBuilding) {
-                $server = $oneBuilding->getServer();
-                $this->get('door_service')->setEmployeeCard(
-                    $server,
-                    $userId,
-                    $userName,
-                    $cardNo,
-                    DoorController::METHOD_ADD,
-                    $globals
-                );
-            }
-        }
+        $this->updateEmployeeCardStatus(
+            $userId,
+            $userName,
+            $cardNo,
+            DoorController::METHOD_ADD
+        );
 
+        // testing door access api, delay 3 seconds between api calls
+        sleep(3);
         $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
         if (!is_null($ids) && !empty($ids)) {
@@ -119,22 +113,12 @@ class AdminDoorController extends DoorController
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
 
-        $globals = $this->getGlobals();
-
-        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
-        if (!is_null($buildings) && !empty($buildings)) {
-            foreach ($buildings as $oneBuilding) {
-                $server = $oneBuilding->getServer();
-                $this->get('door_service')->setEmployeeCard(
-                    $server,
-                    $userId,
-                    '',
-                    $cardNo,
-                    DoorController::METHOD_UNLOST,
-                    $globals
-                );
-            }
-        }
+        $this->updateEmployeeCardStatus(
+            $userId,
+            '',
+            $cardNo,
+            DoorController::METHOD_UNLOST
+        );
     }
 
     /**
@@ -154,22 +138,12 @@ class AdminDoorController extends DoorController
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
 
-        $globals = $this->getGlobals();
-
-        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
-        if (!is_null($buildings) && !empty($buildings)) {
-            foreach ($buildings as $oneBuilding) {
-                $server = $oneBuilding->getServer();
-                $this->get('door_service')->setEmployeeCard(
-                    $server,
-                    $userId,
-                    '',
-                    $cardNo,
-                    DoorController::METHOD_CHANGE_CARD,
-                    $globals
-                );
-            }
-        }
+        $this->updateEmployeeCardStatus(
+            $userId,
+            '',
+            $cardNo,
+            DoorController::METHOD_CHANGE_CARD
+        );
     }
 
     /**
