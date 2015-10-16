@@ -76,6 +76,32 @@ class SandboxRestController extends FOSRestController
         );
     }
 
+    /**
+     * @param $userArray
+     * @param $orderId
+     */
+    protected function updateDoorAccess(
+        $userArray,
+        $orderId
+    ) {
+        foreach ($userArray as $user) {
+            $userId = $user['empid'];
+            $doors = $this->getRepo('Door\DoorAccess')->findBy(
+                [
+                    'userId' => $userId,
+                    'orderId' => $orderId,
+                ]
+            );
+            if (!empty($doors)) {
+                foreach ($doors as $door) {
+                    $door->setAccess(true);
+                    $em = $this->getDoctrine()->getManager();
+                    $em->flush();
+                }
+            }
+        }
+    }
+
     //--------------------get user's info--------------------//
 
     /**
@@ -247,11 +273,8 @@ class SandboxRestController extends FOSRestController
         }
 
         $result = json_decode($response, true);
-        if ($result['status'] === 'unauthed') {
-            return;
-        }
 
-        return $result['card_no'];
+        return $result;
     }
 
     /**
@@ -305,11 +328,8 @@ class SandboxRestController extends FOSRestController
         }
 
         $result = json_decode($response, true);
-        if ($result['status'] === 'unauthed') {
-            return;
-        }
 
-        return $result['card_no'];
+        return $result;
     }
 
     /**

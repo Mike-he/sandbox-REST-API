@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Payment;
 
+use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
@@ -200,29 +201,28 @@ class PaymentController extends SandboxRestController
             $roomDoors
         );
 
-        $cardNo = $this->getCardNoByUser($userId);
-        if (is_null($cardNo)) {
-            return;
-        }
-        $doorArray = [];
-        foreach ($roomDoors as $roomDoor) {
-            $door = ['doorid' => $roomDoor->getDoorControlId()];
-            array_push($doorArray, $door);
-        }
+        $result = $this->getCardNoByUser($userId);
+        if ($result['status'] === DoorController::STATUS_AUTHED) {
+            $doorArray = [];
+            foreach ($roomDoors as $roomDoor) {
+                $door = ['doorid' => $roomDoor->getDoorControlId()];
+                array_push($doorArray, $door);
+            }
 
-        $userArray = [
-            ['empid' => "$userId"],
-        ];
+            $userArray = [
+                ['empid' => "$userId"],
+            ];
 
-        $this->get('door_service')->setRoomOrderPermission(
-            $base,
-            $userArray,
-            $orderId,
-            $startDate,
-            $endDate,
-            $doorArray,
-            $globals
-        );
+            $this->get('door_service')->setRoomOrderPermission(
+                $base,
+                $userArray,
+                $orderId,
+                $startDate,
+                $endDate,
+                $doorArray,
+                $globals
+            );
+        }
 
         return $order;
     }
@@ -291,8 +291,8 @@ class PaymentController extends SandboxRestController
                 $em->flush();
             }
         }
-        $cardNo = $this->getCardNoByUser($currentUser);
-        if (!is_null($cardNo)) {
+        $result = $this->getCardNoByUser($currentUser);
+        if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
             $empUser = ['empid' => $currentUser];
             array_push($currentUserArray, $empUser);
         }

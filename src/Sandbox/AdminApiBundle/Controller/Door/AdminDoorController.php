@@ -53,8 +53,8 @@ class AdminDoorController extends DoorController
             DoorController::METHOD_ADD
         );
 
-        // testing door access api, delay 3 seconds between api calls
-        sleep(3);
+        // testing door access api, delay 5 seconds between api calls
+        sleep(5);
         $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
 
         if (!is_null($ids) && !empty($ids)) {

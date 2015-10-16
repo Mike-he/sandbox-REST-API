@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
@@ -504,30 +505,28 @@ class ClientOrderController extends PaymentController
             $roomDoors
         );
 
-        $cardNo = $this->getCardNoIfUserAuthorized();
-        if (is_null($cardNo)) {
-            return;
-        }
+        $result = $this->getCardNoIfUserAuthorized();
+        if ($result['status'] === DoorController::STATUS_AUTHED) {
+            $doorArray = [];
+            foreach ($roomDoors as $roomDoor) {
+                $door = ['doorid' => $roomDoor->getDoorControlId()];
+                array_push($doorArray, $door);
+            }
+            $userId = $order->getUserId();
+            $userArray = [
+                ['empid' => "$userId"],
+            ];
 
-        $doorArray = [];
-        foreach ($roomDoors as $roomDoor) {
-            $door = ['doorid' => $roomDoor->getDoorControlId()];
-            array_push($doorArray, $door);
+            $this->get('door_service')->setRoomOrderPermission(
+                $base,
+                $userArray,
+                $order->getId(),
+                $startDate,
+                $endDate,
+                $doorArray,
+                $globals
+            );
         }
-        $userId = $order->getUserId();
-        $userArray = [
-            ['empid' => "$userId"],
-        ];
-
-        $this->get('door_service')->setRoomOrderPermission(
-            $base,
-            $userArray,
-            $order->getId(),
-            $startDate,
-            $endDate,
-            $doorArray,
-            $globals
-        );
 
         $view = new View();
 
@@ -738,8 +737,9 @@ class ClientOrderController extends PaymentController
                     $roomDoors
                 );
 
-                $cardNo = $this->getCardNoByUser($user['user_id']);
-                if (!is_null($cardNo)) {
+                $userEntity = $this->getRepo('User\User')->find($user['user_id']);
+                $result = $this->getCardNoByUser($user['user_id']);
+                if ($result['status'] === DoorController::STATUS_AUTHED && !$userEntity->isBanned()) {
                     $empUser = ['empid' => $user['user_id']];
                     array_push($userArray, $empUser);
                 }
@@ -812,13 +812,12 @@ class ClientOrderController extends PaymentController
                     $em->flush();
                 }
             }
-            $cardNo = $this->getCardNoByUser($userId);
-            if (!is_null($cardNo)) {
+            $result = $this->getCardNoByUser($userId);
+            if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
                 $empUser = ['empid' => $userId];
                 array_push($userArray, $empUser);
             }
         }
-
         if (!empty($userArray)) {
             $this->get('door_service')->deleteEmployeeToOrder(
                 $base,
@@ -924,8 +923,9 @@ class ClientOrderController extends PaymentController
                 $roomDoors
             );
 
-            $cardNo = $this->getCardNoByUser($newUser);
-            if (!is_null($cardNo)) {
+            $userEntity = $this->getRepo('User\User')->find($newUser);
+            $result = $this->getCardNoByUser($newUser);
+            if ($result['status'] === DoorController::STATUS_AUTHED && !$userEntity->isBanned()) {
                 $empUser = ['empid' => $newUser];
                 array_push($userArray, $empUser);
             }
@@ -1027,8 +1027,9 @@ class ClientOrderController extends PaymentController
                 $roomDoors
             );
 
-            $cardNo = $this->getCardNoByUser($orderUser);
-            if (!is_null($cardNo)) {
+            $userEntity = $this->getRepo('User\User')->find($orderUser);
+            $result = $this->getCardNoByUser($orderUser);
+            if ($result['status'] === DoorController::STATUS_AUTHED && !$userEntity->isBanned()) {
                 $empUser = ['empid' => $orderUser];
                 array_push($userArray, $empUser);
             }

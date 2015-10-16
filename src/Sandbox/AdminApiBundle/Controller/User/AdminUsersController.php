@@ -382,19 +382,21 @@ class AdminUsersController extends SandboxRestController
         $em->flush();
 
         // update door access status
-        $cardNo = $this->getCardNoByUser($id);
-        if (!is_null($cardNo)) {
-            $method = DoorController::METHOD_UNLOST;
-            if ($user->isBanned()) {
-                $method = DoorController::METHOD_LOST;
-            }
-            $this->updateEmployeeCardStatus(
-                $id,
-                '',
-                $cardNo,
-                $method
-            );
+        $result = $this->getCardNoByUser($id);
+        if ($result['status'] === DoorController::STATUS_UNAUTHED || is_null($result)) {
+            return;
         }
+        $cardNo = $result['card_no'];
+        $method = DoorController::METHOD_UNLOST;
+        if ($user->isBanned()) {
+            $method = DoorController::METHOD_LOST;
+        }
+        $this->updateEmployeeCardStatus(
+            $id,
+            '',
+            $cardNo,
+            $method
+        );
 
         return new View();
     }
