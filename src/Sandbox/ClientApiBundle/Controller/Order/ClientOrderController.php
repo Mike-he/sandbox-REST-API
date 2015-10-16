@@ -506,7 +506,10 @@ class ClientOrderController extends PaymentController
         );
 
         $result = $this->getCardNoIfUserAuthorized();
-        if ($result['status'] === DoorController::STATUS_AUTHED) {
+        if (
+            !is_null($result) &&
+            $result['status'] === DoorController::STATUS_AUTHED
+        ) {
             $doorArray = [];
             foreach ($roomDoors as $roomDoor) {
                 $door = ['doorid' => $roomDoor->getDoorControlId()];
@@ -681,7 +684,6 @@ class ClientOrderController extends PaymentController
             );
         }
         $status = $order->getStatus();
-        $startDate = $order->getStartDate();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
         if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
@@ -712,16 +714,17 @@ class ClientOrderController extends PaymentController
         $userArray = [];
         if (!empty($users) && !is_null($users)) {
             foreach ($users as $user) {
+                $userId = $user['user_id'];
                 $person = $this->getRepo('Order\InvitedPeople')->findOneBy(
                     [
                         'orderId' => $id,
-                        'userId' => $user['user_id'],
+                        'userId' => $userId,
                     ]
                 );
                 if (is_null($person)) {
                     $people = new InvitedPeople();
                     $people->setOrderId($order);
-                    $people->setUserId($user['user_id']);
+                    $people->setUserId($userId);
                     $people->setCreationDate(new \DateTime());
 
                     $em = $this->getDoctrine()->getManager();
@@ -731,33 +734,23 @@ class ClientOrderController extends PaymentController
 
                 $this->storeDoorAccess(
                     $order,
-                    $user['user_id'],
+                    $userId,
                     $buildingId,
                     $roomId,
                     $roomDoors
                 );
 
-                $userEntity = $this->getRepo('User\User')->find($user['user_id']);
-                $result = $this->getCardNoByUser($user['user_id']);
-                if ($result['status'] === DoorController::STATUS_AUTHED && !$userEntity->isBanned()) {
-                    $empUser = ['empid' => $user['user_id']];
-                    array_push($userArray, $empUser);
-                }
+                $userArray = $this->getUserArrayIfAuthed(
+                    $userId,
+                    $userArray
+                );
             }
             if (!empty($userArray)) {
-                $doorArray = [];
-                foreach ($roomDoors as $roomDoor) {
-                    $door = ['doorid' => $roomDoor->getDoorControlId()];
-                    array_push($doorArray, $door);
-                }
-
-                $this->get('door_service')->setRoomOrderPermission(
+                $this->setRoomOrderAccessIfUserArray(
                     $base,
                     $userArray,
-                    $id,
-                    $startDate,
-                    $endDate,
-                    $doorArray,
+                    $roomDoors,
+                    $order,
                     $globals
                 );
             }
@@ -771,6 +764,64 @@ class ClientOrderController extends PaymentController
                 $base
             );
         }
+    }
+
+    /**
+     * @param $userId
+     * @param $userArray
+     *
+     * @return mixed
+     */
+    public function getUserArrayIfAuthed(
+        $userId,
+        $userArray
+    ) {
+        $userEntity = $this->getRepo('User\User')->find($userId);
+        $result = $this->getCardNoByUser($userId);
+        if (
+            !is_null($result) &&
+            $result['status'] === DoorController::STATUS_AUTHED &&
+            !$userEntity->isBanned()
+        ) {
+            $empUser = ['empid' => $userId];
+            array_push($userArray, $empUser);
+        }
+
+        return $userArray;
+    }
+
+    /**
+     * @param $base
+     * @param $userArray
+     * @param $roomDoors
+     * @param $order
+     * @param $globals
+     */
+    public function setRoomOrderAccessIfUserArray(
+        $base,
+        $userArray,
+        $roomDoors,
+        $order,
+        $globals
+    ) {
+        $orderId = $order->getId();
+        $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
+        $doorArray = [];
+        foreach ($roomDoors as $roomDoor) {
+            $door = ['doorid' => $roomDoor->getDoorControlId()];
+            array_push($doorArray, $door);
+        }
+
+        $this->get('door_service')->setRoomOrderPermission(
+            $base,
+            $userArray,
+            $orderId,
+            $startDate,
+            $endDate,
+            $doorArray,
+            $globals
+        );
     }
 
     /**
@@ -879,7 +930,6 @@ class ClientOrderController extends PaymentController
             );
         }
         $status = $order->getStatus();
-        $startDate = $order->getStartDate();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
         if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
@@ -923,26 +973,17 @@ class ClientOrderController extends PaymentController
                 $roomDoors
             );
 
-            $userEntity = $this->getRepo('User\User')->find($newUser);
-            $result = $this->getCardNoByUser($newUser);
-            if ($result['status'] === DoorController::STATUS_AUTHED && !$userEntity->isBanned()) {
-                $empUser = ['empid' => $newUser];
-                array_push($userArray, $empUser);
-            }
-            if (!empty($userArray)) {
-                $doorArray = [];
-                foreach ($roomDoors as $roomDoor) {
-                    $door = ['doorid' => $roomDoor->getDoorControlId()];
-                    array_push($doorArray, $door);
-                }
+            $userArray = $this->getUserArrayIfAuthed(
+                $newUser,
+                $userArray
+            );
 
-                $this->get('door_service')->setRoomOrderPermission(
+            if (!empty($userArray)) {
+                $this->setRoomOrderAccessIfUserArray(
                     $base,
                     $userArray,
-                    $id,
-                    $startDate,
-                    $endDate,
-                    $doorArray,
+                    $roomDoors,
+                    $order,
                     $globals
                 );
             }
@@ -983,7 +1024,6 @@ class ClientOrderController extends PaymentController
             );
         }
         $status = $order->getStatus();
-        $startDate = $order->getStartDate();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
         if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
@@ -1027,26 +1067,16 @@ class ClientOrderController extends PaymentController
                 $roomDoors
             );
 
-            $userEntity = $this->getRepo('User\User')->find($orderUser);
-            $result = $this->getCardNoByUser($orderUser);
-            if ($result['status'] === DoorController::STATUS_AUTHED && !$userEntity->isBanned()) {
-                $empUser = ['empid' => $orderUser];
-                array_push($userArray, $empUser);
-            }
+            $userArray = $this->getUserArrayIfAuthed(
+                $orderUser,
+                $userArray
+            );
             if (!empty($userArray)) {
-                $doorArray = [];
-                foreach ($roomDoors as $roomDoor) {
-                    $door = ['doorid' => $roomDoor->getDoorControlId()];
-                    array_push($doorArray, $door);
-                }
-
-                $this->get('door_service')->setRoomOrderPermission(
+                $this->setRoomOrderAccessIfUserArray(
                     $base,
                     $userArray,
-                    $id,
-                    $startDate,
-                    $endDate,
-                    $doorArray,
+                    $roomDoors,
+                    $order,
                     $globals
                 );
             }

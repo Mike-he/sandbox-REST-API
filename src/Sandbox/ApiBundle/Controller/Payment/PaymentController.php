@@ -202,7 +202,10 @@ class PaymentController extends SandboxRestController
         );
 
         $result = $this->getCardNoByUser($userId);
-        if ($result['status'] === DoorController::STATUS_AUTHED) {
+        if (
+            !is_null($result) &&
+            $result['status'] === DoorController::STATUS_AUTHED
+        ) {
             $doorArray = [];
             foreach ($roomDoors as $roomDoor) {
                 $door = ['doorid' => $roomDoor->getDoorControlId()];

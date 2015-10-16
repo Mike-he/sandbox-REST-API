@@ -383,8 +383,11 @@ class AdminUsersController extends SandboxRestController
 
         // update door access status
         $result = $this->getCardNoByUser($id);
-        if ($result['status'] === DoorController::STATUS_UNAUTHED || is_null($result)) {
-            return;
+        if (
+            is_null($result) ||
+            $result['status'] === DoorController::STATUS_UNAUTHED
+        ) {
+            return new View();
         }
         $cardNo = $result['card_no'];
         $method = DoorController::METHOD_UNLOST;

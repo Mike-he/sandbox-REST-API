@@ -95,9 +95,9 @@ class SandboxRestController extends FOSRestController
             if (!empty($doors)) {
                 foreach ($doors as $door) {
                     $door->setAccess(true);
-                    $em = $this->getDoctrine()->getManager();
-                    $em->flush();
                 }
+                $em = $this->getDoctrine()->getManager();
+                $em->flush();
             }
         }
     }

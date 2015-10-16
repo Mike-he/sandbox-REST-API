@@ -31,7 +31,10 @@ class ClientDoorController extends DoorController
     ) {
         $userId = $this->getUserId();
         $result = $this->getCardNoIfUserAuthorized();
-        if ($result['status'] === DoorController::STATUS_UNAUTHED || is_null($result)) {
+        if (
+            is_null($result) ||
+            $result['status'] === DoorController::STATUS_UNAUTHED
+        ) {
             return $this->customErrorView(
                 400,
                 self::CARDNO_NOT_FOUND_CODE,
