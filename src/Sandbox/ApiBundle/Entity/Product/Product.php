@@ -135,6 +135,24 @@ class Product
     private $endDate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="recommend", type="boolean")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $recommend = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sortTime", type="string", length=15, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $sortTime;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -360,6 +378,54 @@ class Product
     public function getPrivate()
     {
         return $this->private;
+    }
+
+    /**
+     * Set recommend.
+     *
+     * @param bool $recommend
+     *
+     * @return Product
+     */
+    public function setRecommend($recommend)
+    {
+        $this->recommend = $recommend;
+
+        return $this;
+    }
+
+    /**
+     * Get private.
+     *
+     * @return bool
+     */
+    public function isRecommend()
+    {
+        return $this->$recommend;
+    }
+
+    /**
+     * Set sortTime.
+     *
+     * @param string $sortTime
+     *
+     * @return Product
+     */
+    public function setSortTime($sortTime)
+    {
+        $this->sortTime = $sortTime;
+
+        return $this;
+    }
+
+    /**
+     * Get sortTime.
+     *
+     * @return string
+     */
+    public function getSortTime()
+    {
+        return $this->sortTime;
     }
 
     /**
