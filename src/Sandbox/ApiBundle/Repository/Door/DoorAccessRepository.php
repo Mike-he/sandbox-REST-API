@@ -14,8 +14,10 @@ class DoorAccessRepository extends EntityRepository
             ->select('DISTINCT d.buildingId')
             ->where('d.userId = :userId')
             ->andWhere('d.endDate > :now')
+            ->andWhere('d.access = :access')
             ->setParameter('userId', $userId)
             ->setParameter('now', $now)
+            ->setParameter('access', false)
             ->getQuery();
 
         return $query->getResult();
@@ -31,10 +33,12 @@ class DoorAccessRepository extends EntityRepository
             ->where('d.userId = :userId')
             ->andWhere('d.buildingId = :buildingId')
             ->andWhere('d.endDate > :now')
+            ->andWhere('d.access = :access')
             ->groupBy('d.orderId')
             ->setParameter('userId', $userId)
             ->setParameter('buildingId', $buildingId)
             ->setParameter('now', $now)
+            ->setParameter('access', false)
             ->getQuery();
 
         return $query->getResult();

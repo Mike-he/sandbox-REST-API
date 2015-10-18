@@ -30,14 +30,18 @@ class ClientDoorController extends DoorController
         Request $request
     ) {
         $userId = $this->getUserId();
-        $cardNo = $this->getCardNoIfUserAuthorized();
-        if (is_null($cardNo)) {
+        $result = $this->getCardNoIfUserAuthorized();
+        if (
+            is_null($result) ||
+            $result['status'] === DoorController::STATUS_UNAUTHED
+        ) {
             return $this->customErrorView(
                 400,
                 self::CARDNO_NOT_FOUND_CODE,
                 self::CARDNO_NOT_FOUND_MESSAGE
             );
         }
+        $cardNo = $result['card_no'];
 
         $this->updateEmployeeCardStatus(
             $userId,
