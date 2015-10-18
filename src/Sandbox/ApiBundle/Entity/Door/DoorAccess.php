@@ -85,6 +85,37 @@ class DoorAccess
     private $creationDate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="access", type="boolean", nullable=false)
+     */
+    private $access = false;
+
+    /**
+     * Set access.
+     *
+     * @param bool $banned
+     *
+     * @return DoorAccess
+     */
+    public function setAccess($access)
+    {
+        $this->access = $access;
+
+        return $this;
+    }
+
+    /**
+     * Is access.
+     *
+     * @return bool
+     */
+    public function isAccess()
+    {
+        return $this->access;
+    }
+
+    /**
      * Get id.
      *
      * @return int

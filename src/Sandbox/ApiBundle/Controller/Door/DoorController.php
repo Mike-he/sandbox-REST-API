@@ -33,6 +33,9 @@ class DoorController extends SandboxRestController
     const BUILDING_NOT_FOUND_MESSAGE = 'Building Not Found';
     const CARDNO_NOT_FOUND_CODE = 400008;
     const CARDNO_NOT_FOUND_MESSAGE = 'Cardno Not Found';
+    const STATUS_AUTHED = 'authed';
+    const STATUS_UNAUTHED = 'unauthed';
+    const STATUS_LOST = 'lossed';
 
     public function callDoorApi(
         $ch,
@@ -192,7 +195,12 @@ class DoorController extends SandboxRestController
             $periodArray = $this->postDoorApi($base.$globals['door_api_set_room_order'], $data);
             $this->logOut($sessionId, $base, $globals);
 
-            if ($periodArray['exceptionmsg'] == '订单号重复，不能添加订单') {
+            if ($periodArray['result'] == self::RESULT_OK) {
+                $this->updateDoorAccess(
+                    $userArray,
+                    $orderId
+                );
+            } elseif ($periodArray['exceptionmsg'] == '订单号重复，不能添加订单') {
                 $this->addEmployeeToOrder(
                     $base,
                     $orderId,
@@ -262,6 +270,12 @@ class DoorController extends SandboxRestController
             $periodArray = $this->postDoorApi($base.$globals['door_api_order_add_emp'], $data);
             $this->logOut($sessionId, $base, $globals);
 
+            if ($periodArray['result'] == self::RESULT_OK) {
+                $this->updateDoorAccess(
+                    $userArray,
+                    $orderId
+                );
+            }
             if ($periodArray['result'] != self::RESULT_OK) {
                 error_log('Door Access Error');
             }

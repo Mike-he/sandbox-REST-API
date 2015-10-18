@@ -53,46 +53,15 @@ class AdminDoorController extends DoorController
             DoorController::METHOD_ADD
         );
 
-        // testing door access api, delay 3 seconds between api calls
-        sleep(3);
-        $ids = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
-
-        if (!is_null($ids) && !empty($ids)) {
-            foreach ($ids as $id) {
-                $orderIds = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
-                    $userId,
-                    $id['buildingId']
-                );
-
-                $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
-                $base = $building->getServer();
-
-                foreach ($orderIds as $orderId) {
-                    $doorArray = [];
-                    $order = $this->getRepo('Order\ProductOrder')->find($orderId['orderId']);
-                    $startDate = $order->getStartDate();
-                    $endDate = $order->getEndDate();
-                    $roomId = $order->getProduct()->getRoom()->getId();
-                    $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-                    foreach ($roomDoors as $roomDoor) {
-                        $door = ['doorid' => $roomDoor->getDoorControlId()];
-                        array_push($doorArray, $door);
-                    }
-                    $userArray = [
-                        ['empid' => "$userId"],
-                    ];
-
-                    $this->get('door_service')->setRoomOrderPermission(
-                        $base,
-                        $userArray,
-                        $orderId['orderId'],
-                        $startDate,
-                        $endDate,
-                        $doorArray,
-                        $globals
-                    );
-                }
-            }
+        $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
+        if (!is_null($buildingIds) && !empty($buildingIds)) {
+            // delay 5 seconds between api calls
+            sleep(5);
+            $this->checkIfAccessIsSet(
+                $buildingIds,
+                $userId,
+                $globals
+            );
         }
     }
 
@@ -112,6 +81,16 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
+        $globals = $this->getGlobals();
+
+        $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
+        if (!is_null($buildingIds) && !empty($buildingIds)) {
+            $this->checkIfAccessIsSet(
+                $buildingIds,
+                $userId,
+                $globals
+            );
+        }
 
         $this->updateEmployeeCardStatus(
             $userId,
@@ -137,6 +116,16 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
+        $globals = $this->getGlobals();
+
+        $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
+        if (!is_null($buildingIds) && !empty($buildingIds)) {
+            $this->checkIfAccessIsSet(
+                $buildingIds,
+                $userId,
+                $globals
+            );
+        }
 
         $this->updateEmployeeCardStatus(
             $userId,
@@ -144,6 +133,53 @@ class AdminDoorController extends DoorController
             $cardNo,
             DoorController::METHOD_CHANGE_CARD
         );
+    }
+
+    /**
+     * @param $buildingIds
+     * @param $userId
+     * @param $globals
+     */
+    public function checkIfAccessIsSet(
+        $buildingIds,
+        $userId,
+        $globals
+    ) {
+        foreach ($buildingIds as $id) {
+            $orderIds = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
+                $userId,
+                $id['buildingId']
+            );
+
+            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
+            $base = $building->getServer();
+
+            foreach ($orderIds as $orderId) {
+                $doorArray = [];
+                $order = $this->getRepo('Order\ProductOrder')->find($orderId['orderId']);
+                $startDate = $order->getStartDate();
+                $endDate = $order->getEndDate();
+                $roomId = $order->getProduct()->getRoom()->getId();
+                $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+                foreach ($roomDoors as $roomDoor) {
+                    $door = ['doorid' => $roomDoor->getDoorControlId()];
+                    array_push($doorArray, $door);
+                }
+                $userArray = [
+                    ['empid' => "$userId"],
+                ];
+
+                $this->get('door_service')->setRoomOrderPermission(
+                    $base,
+                    $userArray,
+                    $orderId['orderId'],
+                    $startDate,
+                    $endDate,
+                    $doorArray,
+                    $globals
+                );
+            }
+        }
     }
 
     /**
