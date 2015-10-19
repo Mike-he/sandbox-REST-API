@@ -81,23 +81,24 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
-        $globals = $this->getGlobals();
 
-        $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
-        if (!is_null($buildingIds) && !empty($buildingIds)) {
-            $this->checkIfAccessIsSet(
-                $buildingIds,
-                $userId,
-                $globals
-            );
-        }
-
+        // update card
         $this->updateEmployeeCardStatus(
             $userId,
             '',
             $cardNo,
             DoorController::METHOD_UNLOST
         );
+
+        // set access
+        $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
+        if (!is_null($buildingIds) && !empty($buildingIds)) {
+            $this->checkIfAccessIsSet(
+                $buildingIds,
+                $userId,
+                $this->getGlobals()
+            );
+        }
     }
 
     /**
@@ -116,23 +117,24 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
-        $globals = $this->getGlobals();
 
-        $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
-        if (!is_null($buildingIds) && !empty($buildingIds)) {
-            $this->checkIfAccessIsSet(
-                $buildingIds,
-                $userId,
-                $globals
-            );
-        }
-
+        // update card
         $this->updateEmployeeCardStatus(
             $userId,
             '',
             $cardNo,
             DoorController::METHOD_CHANGE_CARD
         );
+
+        // set access
+        $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
+        if (!is_null($buildingIds) && !empty($buildingIds)) {
+            $this->checkIfAccessIsSet(
+                $buildingIds,
+                $userId,
+                $this->getGlobals()
+            );
+        }
     }
 
     /**
@@ -146,20 +148,35 @@ class AdminDoorController extends DoorController
         $globals
     ) {
         foreach ($buildingIds as $id) {
+            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
+            if (is_null($building)) {
+                continue;
+            }
+
+            // get building door access server
+            $base = $building->getServer();
+
+            // get orders by building
             $orderIds = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
                 $userId,
                 $id['buildingId']
             );
-
-            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
-            $base = $building->getServer();
+            if (is_null($orderIds) || empty($orderIds)) {
+                continue;
+            }
 
             foreach ($orderIds as $orderId) {
                 $doorArray = [];
+
                 $order = $this->getRepo('Order\ProductOrder')->find($orderId['orderId']);
+                if (is_null($order)) {
+                    continue;
+                }
+
                 $startDate = $order->getStartDate();
                 $endDate = $order->getEndDate();
                 $roomId = $order->getProduct()->getRoom()->getId();
+
                 $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
                 foreach ($roomDoors as $roomDoor) {
                     $door = ['doorid' => $roomDoor->getDoorControlId()];

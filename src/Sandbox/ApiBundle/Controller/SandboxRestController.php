@@ -1090,10 +1090,10 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param $userId
-     * @param $userName
-     * @param $cardNo
-     * @param $method
+     * @param int    $userId
+     * @param string $userName
+     * @param string $cardNo
+     * @param string $method
      */
     public function updateEmployeeCardStatus(
         $userId,
@@ -1101,20 +1101,25 @@ class SandboxRestController extends FOSRestController
         $cardNo,
         $method
     ) {
-        $globals = $this->getGlobals();
         $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
-        if (!is_null($buildings) && !empty($buildings)) {
-            foreach ($buildings as $oneBuilding) {
-                $server = $oneBuilding->getServer();
-                $this->get('door_service')->setEmployeeCard(
-                    $server,
-                    $userId,
-                    $userName,
-                    $cardNo,
-                    $method,
-                    $globals
-                );
+        if (is_null($buildings) || empty($buildings)) {
+            return;
+        }
+
+        foreach ($buildings as $oneBuilding) {
+            $server = $oneBuilding->getServer();
+            if (is_null($server)) {
+                continue;
             }
+
+            $this->get('door_service')->setEmployeeCard(
+                $server,
+                $userId,
+                $userName,
+                $cardNo,
+                $method,
+                $this->getGlobals()
+            );
         }
     }
 }
