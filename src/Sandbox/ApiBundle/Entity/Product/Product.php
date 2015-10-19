@@ -139,7 +139,7 @@ class Product
      *
      * @ORM\Column(name="recommend", type="boolean")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
      */
     private $recommend = false;
 
@@ -148,7 +148,7 @@ class Product
      *
      * @ORM\Column(name="sortTime", type="string", length=15, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
      */
     private $sortTime;
 

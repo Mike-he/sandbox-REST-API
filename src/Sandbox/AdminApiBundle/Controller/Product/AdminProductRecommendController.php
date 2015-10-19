@@ -6,6 +6,8 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -59,25 +61,6 @@ class AdminProductRecommendController extends AdminProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="type",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
-     *    strict=true,
-     *    description="Filter by room type"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="visible",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by visibility"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -95,26 +78,6 @@ class AdminProductRecommendController extends AdminProductController
      *    requirements="\d+",
      *    strict=true,
      *    description="page number "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="sortBy",
-     *    array=false,
-     *    default="creationDate",
-     *    nullable=true,
-     *    requirements="(area|basePrice)",
-     *    strict=true,
-     *    description="Sort by date"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="direction",
-     *    array=false,
-     *    default="DESC",
-     *    nullable=true,
-     *    requirements="(ASC|DESC)",
-     *    strict=true,
-     *    description="sort direction"
      * )
      *
      * @Annotations\QueryParam(
@@ -141,12 +104,8 @@ class AdminProductRecommendController extends AdminProductController
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $type = $paramFetcher->get('type');
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
-
-        // sort by
-        $direction = $paramFetcher->get('direction');
 
         // search by name and number
         $search = $paramFetcher->get('query');
@@ -155,12 +114,12 @@ class AdminProductRecommendController extends AdminProductController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         $query = $this->getRepo('Product\Product')->getAdminProducts(
-            $type,
+            null,
             $city,
             $building,
             null,
             'sortTime',
-            $direction,
+            'DESC',
             $search,
             true
         );
@@ -176,7 +135,7 @@ class AdminProductRecommendController extends AdminProductController
     }
 
     /**
-     * Set recommend products.
+     * Add recommend products.
      *
      * @param Request $request the request object
      *
@@ -194,54 +153,61 @@ class AdminProductRecommendController extends AdminProductController
      *
      * @throws BadRequestHttpException
      */
-    public function setProductRecommendAction(
+    public function addProductRecommendAction(
         Request $request
     ) {
         // check user permission
         $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get payload
-        $payload = json_decode($request->getContent(), true);
-        $add = $payload['add'];
-        $remove = $payload['remove'];
-
-        foreach ($add as $productId) {
-            $this->setProductRecommend($productId, true);
+        $productIds = json_decode($request->getContent(), true);
+        if (is_null($productIds) || empty($productIds)) {
+            return new View();
         }
 
-        foreach ($remove as $productId) {
-            $this->setProductRecommend($productId, false);
-        }
-
-        if (!is_null($add) || !is_null($remove)) {
-            // save
-            $em = $this->getDoctrine()->getManager();
-            $em->flush();
-        }
+        // enable recommend
+        $this->setProductRecommend($productIds, true);
 
         return new View();
     }
 
     /**
-     * @param $productId
-     * @param $recommend
+     * Remove recommend products.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Route("/products")
+     * @Method({"POST"})
+     *
+     * @return View
+     *
+     * @throws BadRequestHttpException
      */
-    private function setProductRecommend(
-        $productId,
-        $recommend
+    public function removeProductRecommendAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
-        $product = $this->getRepo('Product\Product')->find($productId);
-        if (is_null($product)) {
-            return;
+        // check user permission
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // get parameter
+        $productIds = $paramFetcher->get('id');
+        if (is_null($productIds) || empty($productIds)) {
+            return new View();
         }
 
-        $product->setRecommend($recommend);
+        // disable recommend
+        $this->setProductRecommend($productIds, false);
 
-        if ($recommend) {
-            $product->setSortTime(round(microtime(true) * 1000));
-        } else {
-            $product->setSortTime(null);
-        }
+        return new View();
     }
 
     /**
@@ -292,6 +258,38 @@ class AdminProductRecommendController extends AdminProductController
         }
 
         return new View();
+    }
+
+    /**
+     * @param array $productIds
+     * @param bool  $recommend
+     */
+    private function setProductRecommend(
+        $productIds,
+        $recommend
+    ) {
+        if (is_null($productIds) || empty($productIds)) {
+            return;
+        }
+
+        foreach ($productIds as $productId) {
+            $product = $this->getRepo('Product\Product')->find($productId);
+            if (is_null($product)) {
+                return;
+            }
+
+            $product->setRecommend($recommend);
+
+            if ($recommend) {
+                $product->setSortTime(round(microtime(true) * 1000));
+            } else {
+                $product->setSortTime(null);
+            }
+        }
+
+        // save
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
     }
 
     /**
