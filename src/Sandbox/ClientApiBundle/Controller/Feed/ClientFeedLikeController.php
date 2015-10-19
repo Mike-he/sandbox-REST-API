@@ -110,10 +110,12 @@ class ClientFeedLikeController extends FeedLikeController
         $feed,
         $myUserId
     ) {
+        $user = $this->getRepo('User\User')->find($myUserId);
+
         // set new like
         $like = new FeedLike();
         $like->setFeed($feed);
-        $like->setAuthor($this->getRepo('User\User')->find($myUserId));
+        $like->setAuthor($user);
         $like->setCreationDate(new \DateTime('now'));
 
         // save to db
