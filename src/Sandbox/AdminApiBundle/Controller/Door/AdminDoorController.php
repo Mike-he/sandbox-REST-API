@@ -186,7 +186,7 @@ class AdminDoorController extends DoorController
                     ['empid' => "$userId"],
                 ];
 
-                $this->get('door_service')->setRoomOrderPermission(
+                $this->setRoomOrderPermission(
                     $base,
                     $userArray,
                     $orderId['orderId'],

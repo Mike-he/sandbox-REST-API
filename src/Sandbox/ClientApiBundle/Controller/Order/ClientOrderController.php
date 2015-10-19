@@ -520,7 +520,7 @@ class ClientOrderController extends PaymentController
                 ['empid' => "$userId"],
             ];
 
-            $this->get('door_service')->setRoomOrderPermission(
+            $this->setRoomOrderPermission(
                 $base,
                 $userArray,
                 $order->getId(),
@@ -649,7 +649,7 @@ class ClientOrderController extends PaymentController
             $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
             $base = $building->getServer();
 
-            $this->get('door_service')->repealRoomOrder(
+            $this->repealRoomOrder(
                 $base,
                 $order->getId(),
                 $globals
@@ -813,7 +813,7 @@ class ClientOrderController extends PaymentController
             array_push($doorArray, $door);
         }
 
-        $this->get('door_service')->setRoomOrderPermission(
+        $this->setRoomOrderPermission(
             $base,
             $userArray,
             $orderId,
@@ -870,7 +870,7 @@ class ClientOrderController extends PaymentController
             }
         }
         if (!empty($userArray)) {
-            $this->get('door_service')->deleteEmployeeToOrder(
+            $this->deleteEmployeeToOrder(
                 $base,
                 $orderId,
                 $userArray,
