@@ -123,6 +123,12 @@ class DoorController extends SandboxRestController
         $method,
         $globals
     ) {
+        if (is_null($userId)
+            || is_null($cardNumber)
+            || is_null($method)) {
+            return;
+        }
+
         $sessionId = $this->getSessionId($base, $globals);
         try {
             $data = [
