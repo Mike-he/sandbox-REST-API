@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use Sandbox\ApiBundle\Controller\Door\DoorController;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
@@ -24,7 +23,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class PaymentController extends SandboxRestController
+class PaymentController extends DoorController
 {
     const STATUS_PAID = 'paid';
     const INSUFFICIENT_FUNDS_CODE = 400001;
@@ -216,7 +215,7 @@ class PaymentController extends SandboxRestController
                 ['empid' => "$userId"],
             ];
 
-            $this->get('door_service')->setRoomOrderPermission(
+            $this->setRoomOrderPermission(
                 $base,
                 $userArray,
                 $orderId,
@@ -300,7 +299,7 @@ class PaymentController extends SandboxRestController
             array_push($currentUserArray, $empUser);
         }
         if (!empty($currentUserArray)) {
-            $this->get('door_service')->deleteEmployeeToOrder(
+            $this->deleteEmployeeToOrder(
                 $base,
                 $orderId,
                 $currentUserArray,
