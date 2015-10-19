@@ -123,6 +123,12 @@ class DoorController extends SandboxRestController
         $method,
         $globals
     ) {
+        if (is_null($userId)
+            || is_null($cardNumber)
+            || is_null($method)) {
+            return;
+        }
+
         $sessionId = $this->getSessionId($base, $globals);
         try {
             $data = [
@@ -322,61 +328,37 @@ class DoorController extends SandboxRestController
         }
     }
 
-//    public function setTimePeriod(
-//        $updatedDoors,
-//        $base,
-//        $globals
-//    ) {
-//        $id = $updatedDoors[0]->getTimeId();
-//
-//        $timeArray = [];
-//        foreach ($updatedDoors as $updatedDoor) {
-//            $start = $updatedDoor->getStartDate();
-//            $end = $updatedDoor->getEndDate();
-//            $startHour = (string) $start->format('H:i:s');
-//            $endHour = (string) $end->format('H:i:s');
-//            $startDate = (string) $start->format('Y-m-d');
-//            $endDate = (string) $end->format('Y-m-d');
-//            $timePeriod = [
-//                'begindate' => $startDate,
-//                'enddate' => $endDate,
-//                'Mon' => '1',
-//                'Tues' => '1',
-//                'Weds' => '1',
-//                'Thurs' => '1',
-//                'Fri' => '1',
-//                'Sat' => '1',
-//                'Sun' => '1',
-//                'times' => [
-//                    ['begin' => $startHour, 'end' => $endHour],
-//                ],
-//            ];
-//            array_push($timeArray, $timePeriod);
-//        }
-//
-//        $sessionId = $this->getSessionId($base, $globals);
-//
-//        try {
-//            $data = [
-//                'ads_timeperiod' => [
-//                    'id' => "$id",
-//                    'name' => 'time',
-//                    'ads_timeperiods' => $timeArray,
-//                ],
-//            ];
-//            $json = json_encode($data);
-//            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_time_period'].$json;
-//
-//            $periodArray = $this->postDoorApi($base.$globals['door_api_set_time'], $data);
-//            $this->logOut($sessionId, $base, $globals);
-//
-//            if ($periodArray['result'] != self::RESULT_OK) {
-//                error_log('Door Access Error');
-//            }
-//        } catch (\Exception $e) {
-//            if (!is_null($sessionId) && !empty($sessionId)) {
-//                $this->logOut($sessionId, $base, $globals);
-//            }
-//        }
-//    }
+    /**
+     * @param int    $userId
+     * @param string $userName
+     * @param string $cardNo
+     * @param string $method
+     */
+    public function updateEmployeeCardStatus(
+        $userId,
+        $userName,
+        $cardNo,
+        $method
+    ) {
+        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
+        if (is_null($buildings) || empty($buildings)) {
+            return;
+        }
+
+        foreach ($buildings as $oneBuilding) {
+            $server = $oneBuilding->getServer();
+            if (is_null($server)) {
+                continue;
+            }
+
+            $this->setEmployeeCard(
+                $server,
+                $userId,
+                $userName,
+                $cardNo,
+                $method,
+                $this->getGlobals()
+            );
+        }
+    }
 }

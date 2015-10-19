@@ -3,7 +3,6 @@
 namespace Sandbox\AdminApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\Door\DoorController;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
@@ -30,7 +29,7 @@ use Rs\Json\Patch;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminUsersController extends SandboxRestController
+class AdminUsersController extends DoorController
 {
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';

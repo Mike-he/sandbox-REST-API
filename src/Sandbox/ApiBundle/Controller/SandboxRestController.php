@@ -85,13 +85,15 @@ class SandboxRestController extends FOSRestController
         $orderId
     ) {
         foreach ($userArray as $user) {
-            $userId = $user['empid'];
+            $userId = (int) $user['empid'];
             $doors = $this->getRepo('Door\DoorAccess')->findBy(
-                [
+                array(
                     'userId' => $userId,
                     'orderId' => $orderId,
-                ]
+                    'access' => false,
+                )
             );
+
             if (!empty($doors)) {
                 foreach ($doors as $door) {
                     $door->setAccess(true);
@@ -1086,35 +1088,6 @@ class SandboxRestController extends FOSRestController
             return $response;
         } catch (Exception $e) {
             error_log('Send buddy notification went wrong!');
-        }
-    }
-
-    /**
-     * @param $userId
-     * @param $userName
-     * @param $cardNo
-     * @param $method
-     */
-    public function updateEmployeeCardStatus(
-        $userId,
-        $userName,
-        $cardNo,
-        $method
-    ) {
-        $globals = $this->getGlobals();
-        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
-        if (!is_null($buildings) && !empty($buildings)) {
-            foreach ($buildings as $oneBuilding) {
-                $server = $oneBuilding->getServer();
-                $this->get('door_service')->setEmployeeCard(
-                    $server,
-                    $userId,
-                    $userName,
-                    $cardNo,
-                    $method,
-                    $globals
-                );
-            }
         }
     }
 }
