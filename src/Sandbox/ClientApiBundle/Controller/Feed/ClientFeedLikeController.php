@@ -13,6 +13,7 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Feed\Feed;
+use Sandbox\ApiBundle\Entity\User;
 
 /**
  * Manipulate the likes of a feed.
@@ -46,6 +47,7 @@ class ClientFeedLikeController extends FeedLikeController
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
         $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get like
         $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
@@ -55,7 +57,7 @@ class ClientFeedLikeController extends FeedLikeController
 
         if (is_null($like)) {
             // create like
-            $like = $this->createLike($feed, $myUserId);
+            $like = $this->createLike($feed, $myUser);
         }
 
         $result = array(
@@ -101,19 +103,19 @@ class ClientFeedLikeController extends FeedLikeController
     }
 
     /**
-     * @param Feed   $feed
-     * @param string $myUserId
+     * @param Feed $feed
+     * @param User $myUser
      *
      * @return FeedLike
      */
     private function createLike(
         $feed,
-        $myUserId
+        $myUser
     ) {
         // set new like
         $like = new FeedLike();
         $like->setFeed($feed);
-        $like->setAuthorId($myUserId);
+        $like->setAuthor($myUser);
         $like->setCreationDate(new \DateTime('now'));
 
         // save to db
