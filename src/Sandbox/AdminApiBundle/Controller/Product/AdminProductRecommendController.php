@@ -3,6 +3,8 @@
 namespace Sandbox\AdminApiBundle\Controller\Product;
 
 use Knp\Component\Pager\Paginator;
+use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
+use Sandbox\AdminApiBundle\Form\Product\ProductRecommendPositionType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -94,7 +96,7 @@ class AdminProductRecommendController extends AdminProductController
      *
      * @throws \Exception
      */
-    public function getProductsAction(
+    public function getProductsRecommendAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -146,7 +148,7 @@ class AdminProductRecommendController extends AdminProductController
      *  }
      * )
      *
-     * @Route("/products")
+     * @Route("/products/recommend")
      * @Method({"POST"})
      *
      * @return View
@@ -157,7 +159,7 @@ class AdminProductRecommendController extends AdminProductController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get payload
         $productIds = json_decode($request->getContent(), true);
@@ -184,8 +186,17 @@ class AdminProductRecommendController extends AdminProductController
      *  }
      * )
      *
-     * @Route("/products")
-     * @Method({"POST"})
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Id of recommend product to be disabled"
+     * )
+     *
+     * @Route("/products/recommend")
+     * @Method({"DELETE"})
      *
      * @return View
      *
@@ -196,7 +207,7 @@ class AdminProductRecommendController extends AdminProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get parameter
         $productIds = $paramFetcher->get('id');
@@ -235,29 +246,32 @@ class AdminProductRecommendController extends AdminProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get product
         $product = $this->getRepo('Product\Product')->find($id);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
-        // get payload
-        $payload = json_decode($request->getContent(), true);
-        $action = $payload['action'];
-        $cityId = $payload['city_id'];
-        $buildingId = $payload['building_id'];
+        var_dump($product->getId());
+        var_dump($product->isRecommend());
 
-        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
-        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
-
-        // move product
-        if ($action == 'top') {
-            $this->topProduct($product);
-        } elseif ($action == 'up' || $action == 'down') {
-            $this->moveProduct($product, $action, $city, $building);
+        if (!$product->isRecommend()) {
+            return new View();
         }
 
-        return new View();
+        var_dump($id);
+
+        // get payload
+        $position = new ProductRecommendPosition();
+
+        $form = $this->createForm(new ProductRecommendPositionType(), $position);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            return $this->changeProductPosition($product, $position);
+        }
+
+        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
     }
 
     /**
@@ -275,7 +289,7 @@ class AdminProductRecommendController extends AdminProductController
         foreach ($productIds as $productId) {
             $product = $this->getRepo('Product\Product')->find($productId);
             if (is_null($product)) {
-                return;
+                continue;
             }
 
             $product->setRecommend($recommend);
@@ -293,15 +307,40 @@ class AdminProductRecommendController extends AdminProductController
     }
 
     /**
+     * @param Product                  $product
+     * @param ProductRecommendPosition $position
+     *
+     * @return View
+     */
+    private function changeProductPosition(
+        $product,
+        $position
+    ) {
+        $action = $position->getAction();
+        $cityId = $position->getCityId();
+        $buildingId = $position->getBuildingId();
+
+        // find city and building
+        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
+        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
+
+        // move product
+        if ($action == ProductRecommendPosition::ACTION_TOP) {
+            $this->topProduct($product);
+        } elseif ($action == ProductRecommendPosition::ACTION_UP
+            || $action == ProductRecommendPosition::ACTION_DOWN) {
+            $this->moveProduct($product, $action, $city, $building);
+        }
+
+        return new View();
+    }
+
+    /**
      * @param Product $product
      */
     private function topProduct(
         $product
     ) {
-        if (is_null($product) || !$product->isRecommend()) {
-            return;
-        }
-
         // set sortTime to current timestamp
         $product->setSortTime(round(microtime(true) * 1000));
 
@@ -322,20 +361,12 @@ class AdminProductRecommendController extends AdminProductController
         $city,
         $building
     ) {
-        if (is_null($product) || !$product->isRecommend()) {
-            return;
-        }
-
         $swapProduct = $this->getRepo('Product\Product')->findSwapProduct(
             $product,
             $action,
             $city,
             $building
         );
-
-        if (is_null($swapProduct) || !$product->isRecommend()) {
-            return;
-        }
 
         // swap
         $productSortTime = $product->getSortTime();

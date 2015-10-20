@@ -10,15 +10,15 @@ sandbox_admin_api_auth_logout:
     type:     annotation
     prefix:   /auth
 
-# products /admin/products
-sandbox_admin_api_products:
-    resource: "@SandboxAdminApiBundle/Controller/Product/AdminProductController.php"
-    type:     annotation
-    prefix:   /
-
 # products recommend /admin/products/recommend
 sandbox_admin_api_products_recommend:
     resource: "@SandboxAdminApiBundle/Controller/Product/AdminProductRecommendController.php"
+    type:     annotation
+    prefix:   /
+
+# products /admin/products
+sandbox_admin_api_products:
+    resource: "@SandboxAdminApiBundle/Controller/Product/AdminProductController.php"
     type:     annotation
     prefix:   /
 

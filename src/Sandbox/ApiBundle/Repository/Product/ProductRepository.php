@@ -389,6 +389,14 @@ class ProductRepository extends EntityRepository
             $notFirst = true;
         }
 
+        // get only recommend products
+        if ($recommend) {
+            $where = 'p.recommend = :recommend';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['recommend'] = $recommend;
+            $notFirst = true;
+        }
+
         // sort by by method
         switch ($sortBy) {
             case 'area':
@@ -400,13 +408,6 @@ class ProductRepository extends EntityRepository
             default:
                 $query->orderBy('p.'.$sortBy, $direction);
                 break;
-        }
-
-        // get only recommend products
-        if ($recommend) {
-            $where = 'p.recommend = :recommend';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $parameters['recommend'] = $recommend;
         }
 
         // set all parameters

@@ -395,7 +395,7 @@ class Product
     }
 
     /**
-     * Get private.
+     * Get recommend.
      *
      * @return bool
      */
