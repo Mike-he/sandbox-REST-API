@@ -10,6 +10,12 @@ sandbox_admin_api_auth_logout:
     type:     annotation
     prefix:   /auth
 
+# products recommend /admin/products/recommend
+sandbox_admin_api_products_recommend:
+    resource: "@SandboxAdminApiBundle/Controller/Product/AdminProductRecommendController.php"
+    type:     annotation
+    prefix:   /
+
 # products /admin/products
 sandbox_admin_api_products:
     resource: "@SandboxAdminApiBundle/Controller/Product/AdminProductController.php"
@@ -76,7 +82,7 @@ sandbox_admin_api_permissions:
     type:     annotation
     prefix:   /
 
-# Adnub Token Auth /admin/auth/me
+# Admin Token Auth /admin/auth/me
 sandbox_admin_api_auth:
     resource: "@SandboxAdminApiBundle/Controller/Auth/AdminAuthController.php"
     type:     annotation
