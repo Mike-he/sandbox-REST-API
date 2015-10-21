@@ -7,6 +7,7 @@ use Doctrine\ORM\QueryBuilder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 
 class ProductRepository extends EntityRepository
 {
@@ -505,7 +506,7 @@ class ProductRepository extends EntityRepository
         $queryStr = $queryStr.' WHERE p.recommend = :recommend';
 
         $operator = '>';
-        if ($action == 'down') {
+        if ($action == ProductRecommendPosition::ACTION_DOWN) {
             $operator = '<';
         }
         $queryStr = $queryStr.' AND p.sortTime '.$operator.' :sortTime';

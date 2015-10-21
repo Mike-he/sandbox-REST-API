@@ -249,17 +249,11 @@ class AdminProductRecommendController extends AdminProductController
         $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get product
-        $product = $this->getRepo('Product\Product')->find($id);
+        $product = $this->getRepo('Product\Product')->findOneBy(array(
+            'id' => $id,
+            'recommend' => true,
+        ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
-
-        var_dump($product->getId());
-        var_dump($product->isRecommend());
-
-        if (!$product->isRecommend()) {
-            return new View();
-        }
-
-        var_dump($id);
 
         // get payload
         $position = new ProductRecommendPosition();
