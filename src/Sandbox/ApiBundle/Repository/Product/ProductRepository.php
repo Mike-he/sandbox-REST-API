@@ -535,4 +535,70 @@ class ProductRepository extends EntityRepository
 
         return $query->getSingleResult();
     }
+
+    /**
+     * @param RoomCity $city
+     * @param int      $limit
+     * @param int      $offset
+     * @param bool     $recommend
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getProductsRecommend(
+        $city,
+        $limit,
+        $offset,
+        $recommend
+    ) {
+        $queryStr = 'SELECT p FROM SandboxApiBundle:Product\Product p';
+
+        if (!is_null($city)) {
+            $queryStr = $queryStr.' LEFT JOIN Room r WITH p.roomId = r.id';
+        }
+
+        $queryStr = $queryStr.' WHERE p.visible = :visible';
+        $queryStr = $queryStr.' AND p.recommend = :recommend';
+
+        if (!is_null($city)) {
+            $queryStr = $queryStr.' AND r.city = :city';
+        }
+
+        if ($recommend) {
+            $queryStr = $queryStr.' ORDER BY p.sortTime DESC';
+        } else {
+            $queryStr = $queryStr.' ORDER BY p.creationDate DESC';
+        }
+
+        $query = $this->getEntityManager()->createQuery($queryStr);
+        $query->setParameter('visible', true);
+        $query->setParameter('recommend', $recommend);
+
+        if (!is_null($city)) {
+            $query->setParameter('city', $city);
+        }
+
+        $query->setFirstResult($offset);
+        $query->setMaxResults($limit);
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $recommend
+     *
+     * @return int
+     */
+    public function getProductsRecommendCount(
+      $recommend
+    ) {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->select('COUNT(p)')
+            ->where('p.recommend = :recommend')
+            ->setParameter('recommend', $recommend);
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
 }

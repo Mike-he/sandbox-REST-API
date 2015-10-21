@@ -108,6 +108,12 @@ sandbox_client_api_user_password:
     type:     annotation
     prefix:   /user
 
+# Products /products/recommend
+sandbox_client_api_product:
+    resource: "@SandboxClientApiBundle/Controller/Product/ClientProductRecommendController.php"
+    type:     annotation
+    prefix:   /
+
 # Products /products
 sandbox_client_api_product:
     resource: "@SandboxClientApiBundle/Controller/Product/ClientProductController.php"
