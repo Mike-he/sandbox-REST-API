@@ -1,0 +1,22 @@
+CREATE TABLE `Event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `description` longtext NOT NULL,
+  `cityId` int(11) NOT NULL,
+  `buildingId` int(11) NOT NULL,
+  `roomId` int(11) DEFAULT NULL,
+  `limitNumber` int(11) NOT NULL,
+  `registrationStartDate` datetime NOT NULL,
+  `registrationEndDate` datetime NOT NULL,
+  `registrationMethod` enum('online','offline') NOT NULL,
+  `verify` tinyint(1) NOT NULL,
+  `visible` tinyint(1) NOT NULL,
+  `eventEndDate` datetime NOT NULL,
+  `creationDate` datetime NOT NULL,
+  `modificationDate` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_Event_cityId_idx` (`cityId`),
+  KEY `fk_Event_buildingId_idx` (`buildingId`),
+  CONSTRAINT `fk_Event_buildingId` FOREIGN KEY (`buildingId`) REFERENCES `RoomBuilding` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_Event_cityId` FOREIGN KEY (`cityId`) REFERENCES `RoomCity` (`id`) ON DELETE CASCADE
+);
