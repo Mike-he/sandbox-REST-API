@@ -505,12 +505,6 @@ class ProductRepository extends EntityRepository
 
         $queryStr = $queryStr.' WHERE p.recommend = :recommend';
 
-        $operator = '>';
-        if ($action == ProductRecommendPosition::ACTION_DOWN) {
-            $operator = '<';
-        }
-        $queryStr = $queryStr.' AND p.sortTime '.$operator.' :sortTime';
-
         if (!is_null($city)) {
             $queryStr = $queryStr.' AND r.city = :city';
         }
@@ -519,6 +513,21 @@ class ProductRepository extends EntityRepository
             $queryStr = $queryStr.' AND r.building = :building';
         }
 
+        // operator
+        $operator = '>';
+        if ($action == ProductRecommendPosition::ACTION_DOWN) {
+            $operator = '<';
+        }
+        $queryStr = $queryStr.' AND p.sortTime '.$operator.' :sortTime';
+
+        // order by
+        $orderBy = 'ASC';
+        if ($action == ProductRecommendPosition::ACTION_DOWN) {
+            $orderBy = 'DESC';
+        }
+        $queryStr = $queryStr.' ORDER BY p.sortTime '.$orderBy;
+
+        // set parameters
         $query = $this->getEntityManager()->createQuery($queryStr);
         $query->setParameter('recommend', true);
         $query->setParameter('sortTime', $product->getSortTime());
