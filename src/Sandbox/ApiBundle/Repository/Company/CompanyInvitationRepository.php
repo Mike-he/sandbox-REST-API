@@ -22,7 +22,7 @@ class CompanyInvitationRepository extends EntityRepository
                     LEFT JOIN SandboxApiBundle:Company\Company c
                     WITH ci.companyId = c.id
                     LEFT JOIN SandboxApiBundle:User\User u
-                    WITH ci.askUserId
+                    WITH ci.askUserId = u.id
                     WHERE
                      ci.recvUserId = :myUser
                      AND u.banned = FALSE

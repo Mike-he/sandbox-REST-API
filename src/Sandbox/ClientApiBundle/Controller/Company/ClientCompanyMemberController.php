@@ -98,7 +98,7 @@ class ClientCompanyMemberController extends CompanyMemberController
                 continue;
             }
 
-            //check member is buddy
+            // check member is buddy
             $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
                 'userId' => $userId,
                 'buddyId' => $memberId,

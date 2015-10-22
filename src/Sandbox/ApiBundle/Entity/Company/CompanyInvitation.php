@@ -12,9 +12,9 @@ use Sandbox\ApiBundle\Entity\User\User;
  * @ORM\Table(
  *      name="CompanyInvitation",
  *      indexes={
- *          @ORM\Index(name="fk_BuddyRequest_companyId_idx", columns={"companyId"}),
- *          @ORM\Index(name="fk_BuddyRequest_askUserId_idx", columns={"askUserId"}),
- *          @ORM\Index(name="fk_BuddyRequest_recvUserId_idx", columns={"recvUserId"})
+ *          @ORM\Index(name="fk_CompanyInvitation_companyId_idx", columns={"companyId"}),
+ *          @ORM\Index(name="fk_CompanyInvitation_askUserId_idx", columns={"askUserId"}),
+ *          @ORM\Index(name="fk_CompanyInvitation_recvUserId_idx", columns={"recvUserId"})
  *      }
  * )
  * @ORM\Entity(
