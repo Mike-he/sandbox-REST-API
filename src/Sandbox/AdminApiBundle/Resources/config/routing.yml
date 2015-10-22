@@ -93,3 +93,9 @@ sandbox_admin_api_events:
     resource: "@SandboxAdminApiBundle/Controller/Event/AdminEventsController.php"
     type:     annotation
     prefix:  /
+
+# Admin Token Auth /admin/auth/me
+sandbox_admin_api_food:
+    resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodController.php"
+    type:     annotation
+    prefix:   /
