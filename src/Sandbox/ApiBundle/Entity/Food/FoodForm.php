@@ -12,6 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class FoodForm
 {
+    const FOOD_FORM_TYPE_CUP = 'cup_size';
+    const FOOD_FORM_TYPE_SINGLE = 'single';
+    const FOOD_FORM_TYPE_MULTIPLE = 'multiple';
+
     /**
      * @var int
      *

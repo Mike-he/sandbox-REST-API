@@ -2,7 +2,7 @@ CREATE TABLE `FoodForm` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `foodId` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `type` enum('cupSize','single','multiple') NOT NULL,
+  `type` enum('cup_size','single','multiple') NOT NULL,
   `required` boolean DEFAULT TRUE NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,

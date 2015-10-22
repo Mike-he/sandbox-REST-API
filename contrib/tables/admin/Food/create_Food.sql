@@ -4,7 +4,7 @@ CREATE TABLE `Food` (
   `description` text NOT NULL,
   `cityId` int(11) NOT NULL,
   `buildingId` int(11) NOT NULL,
-  `type` enum('drinks','desserts') NOT NULL,
+  `category` enum('drink','dessert') NOT NULL,
   `price` numeric(15,2),
   `inventory` int(11),
   `creationDate` datetime NOT NULL,

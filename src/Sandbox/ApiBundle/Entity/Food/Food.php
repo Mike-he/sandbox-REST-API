@@ -12,6 +12,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Food
 {
+    const FOOD_CATEGORY_DRINKS = 'drink';
+    const FOOD_CATEGORY_DESSERTS = 'dessert';
+
     /**
      * @var int
      *
@@ -72,9 +75,9 @@ class Food
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", length=255)
+     * @ORM\Column(name="category", type="string", length=255)
      */
-    private $type;
+    private $category;
 
     /**
      * @var string
@@ -285,27 +288,27 @@ class Food
     }
 
     /**
-     * Set type.
+     * Set category.
      *
-     * @param string $type
+     * @param string $category
      *
      * @return Food
      */
-    public function setType($type)
+    public function setCategory($category)
     {
-        $this->type = $type;
+        $this->category = $category;
 
         return $this;
     }
 
     /**
-     * Get type.
+     * Get category.
      *
      * @return string
      */
-    public function getType()
+    public function getCategory()
     {
-        return $this->type;
+        return $this->category;
     }
 
     /**
