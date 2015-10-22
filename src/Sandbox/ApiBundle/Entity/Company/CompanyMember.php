@@ -137,7 +137,7 @@ class CompanyMember
     }
 
     /**
-     * @return int
+     * @return Company
      */
     public function getCompany()
     {
@@ -145,7 +145,7 @@ class CompanyMember
     }
 
     /**
-     * @param int $company
+     * @param Company $company
      */
     public function setCompany($company)
     {
@@ -155,7 +155,7 @@ class CompanyMember
     /**
      * Get companyId.
      *
-     * @return Company
+     * @return int
      */
     public function getCompanyId()
     {

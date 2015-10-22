@@ -33,7 +33,8 @@ class Company
      *      "profile",
      *      "profile_stranger",
      *      "profile_basic",
-     *      "profile_basic_stranger"
+     *      "profile_basic_stranger",
+     *      "company_invitation"
      * })
      */
     private $id;
@@ -52,7 +53,8 @@ class Company
      *      "profile",
      *      "profile_stranger",
      *      "profile_basic",
-     *      "profile_basic_stranger"
+     *      "profile_basic_stranger",
+     *      "company_invitation"
      * })
      */
     private $name;

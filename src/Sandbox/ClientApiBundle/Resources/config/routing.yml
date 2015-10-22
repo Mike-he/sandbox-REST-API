@@ -14,6 +14,12 @@ sandbox_client_api_feed_comment:
     type:     annotation
     prefix:   /
 
+# COMPANIES Invitations /companies/invitations
+sandbox_client_api_company_invitation:
+    resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyInvitationController.php"
+    type:     annotation
+    prefix:   /companies
+
 # COMPANIES /companies
 sandbox_client_api_company:
     resource: "@SandboxClientApiBundle/Controller/Company/ClientCompanyController.php"

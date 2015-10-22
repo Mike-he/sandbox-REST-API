@@ -78,6 +78,9 @@ class ClientCompanyMemberController extends CompanyMemberController
         $id
     ) {
         $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($id);
+
+        // get company
         $company = $this->getRepo('Company\Company')->find($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
@@ -90,7 +93,12 @@ class ClientCompanyMemberController extends CompanyMemberController
         $memberIds = json_decode($request->getContent(), true);
 
         foreach ($memberIds as $memberId) {
-            //check member is buddy
+            $member = $this->getRepo('User\User')->find($memberId);
+            if (is_null($member)) {
+                continue;
+            }
+
+            // check member is buddy
             $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
                 'userId' => $userId,
                 'buddyId' => $memberId,
@@ -104,11 +112,7 @@ class ClientCompanyMemberController extends CompanyMemberController
                 continue;
             }
 
-            // update user profile's company
-            $this->setUserProfileCompany($memberId, $company);
-
-            $companyMember = $this->generateCompanyMember($company, $memberId);
-            $em->persist($companyMember);
+            $this->saveCompanyInvitation($em, $company, $user, $member);
         }
 
         $em->flush();
