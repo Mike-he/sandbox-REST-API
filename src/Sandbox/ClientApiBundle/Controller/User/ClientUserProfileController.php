@@ -62,6 +62,11 @@ class ClientUserProfileController extends UserProfileController
         $user = $this->getRepo('User\User')->find($userId);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
+        // check user is banned or unauthorized
+        if ($user->isBanned() || !$user->isAuthorized()) {
+            return new View();
+        }
+
         // get profile
         $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
