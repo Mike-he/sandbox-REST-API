@@ -12,8 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Food
 {
-    const FOOD_CATEGORY_DRINKS = 'drink';
-    const FOOD_CATEGORY_DESSERTS = 'dessert';
+    const CATEGORY_DRINKS = 'drink';
+    const CATEGORY_DESSERTS = 'dessert';
 
     /**
      * @var int
