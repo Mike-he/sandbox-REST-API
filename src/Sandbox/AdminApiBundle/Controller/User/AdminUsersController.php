@@ -388,7 +388,20 @@ class AdminUsersController extends DoorController
         ) {
             return new View();
         }
+
+        // set card
         $cardNo = $result['card_no'];
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($id);
+        $userName = $userProfile->getName();
+        $this->updateEmployeeCardStatus(
+            $id,
+            $userName,
+            $cardNo,
+            DoorController::METHOD_ADD
+        );
+        sleep(1);
+
+        // update card
         $method = DoorController::METHOD_UNLOST;
         if ($user->isBanned()) {
             $method = DoorController::METHOD_LOST;

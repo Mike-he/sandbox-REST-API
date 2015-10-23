@@ -41,8 +41,20 @@ class ClientDoorController extends DoorController
                 self::CARDNO_NOT_FOUND_MESSAGE
             );
         }
-        $cardNo = $result['card_no'];
 
+        // set card
+        $cardNo = $result['card_no'];
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $userName = $userProfile->getName();
+        $this->updateEmployeeCardStatus(
+            $userId,
+            $userName,
+            $cardNo,
+            DoorController::METHOD_ADD
+        );
+        sleep(1);
+
+        // update card to lost
         $this->updateEmployeeCardStatus(
             $userId,
             '',

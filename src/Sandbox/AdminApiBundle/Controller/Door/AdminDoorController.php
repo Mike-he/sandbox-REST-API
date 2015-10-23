@@ -237,6 +237,17 @@ class AdminDoorController extends DoorController
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
 
+        // set card
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $userName = $userProfile->getName();
+        $this->updateEmployeeCardStatus(
+            $userId,
+            $userName,
+            $cardNo,
+            DoorController::METHOD_ADD
+        );
+        sleep(1);
+
         // update card
         $this->updateEmployeeCardStatus(
             $userId,
@@ -272,6 +283,17 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
+
+        // set card
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $userName = $userProfile->getName();
+        $this->updateEmployeeCardStatus(
+            $userId,
+            $userName,
+            $cardNo,
+            DoorController::METHOD_ADD
+        );
+        sleep(1);
 
         // update card
         $this->updateEmployeeCardStatus(
