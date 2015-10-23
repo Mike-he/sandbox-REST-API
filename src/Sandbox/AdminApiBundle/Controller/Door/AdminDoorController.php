@@ -161,21 +161,24 @@ class AdminDoorController extends DoorController
             return;
         }
 
-        if (is_null($room)) {
-            // update user to doors of a room
-        } elseif (is_null($building)) {
-            // update user to doors of a building
-        } elseif (is_null($city)) {
-            // update user to doors of a city
-        } else {
-            // update user to all door servers
-            $this->updateEmployeeCardStatus(
-                $userId,
-                $name,
-                $result['card_no'],
-                DoorController::METHOD_ADD
-            );
-        }
+        // comment out for phase 1
+//        if (is_null($room)) {
+//            // update user to doors of a room
+//        } elseif (is_null($building)) {
+//            // update user to doors of a building
+//        } elseif (is_null($city)) {
+//            // update user to doors of a city
+//        } else {
+
+        // update user to all door servers
+        $this->updateEmployeeCardStatus(
+            $userId,
+            $name,
+            $result['card_no'],
+            DoorController::METHOD_ADD
+        );
+
+//        }
     }
 
     /**
