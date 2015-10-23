@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -26,7 +27,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Form\Form;
 
 /**
- * Class AdminEventsController.
+ * Class AdminEventController.
  *
  * @category Sandbox
  *
@@ -35,14 +36,14 @@ use Symfony\Component\Form\Form;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminEventsController extends SandboxRestController
+class AdminEventController extends SandboxRestController
 {
     const ERROR_NOT_ALLOWED_MODIFY_CODE = 400001;
     const ERROR_NOT_ALLOWED_MODIFY_MESSAGE = 'Not allowed to modify - 不允许被修改';
     const ERROR_NOT_ALLOWED_DELETE_CODE = 400002;
     const ERROR_NOT_ALLOWED_DELETE_MESSAGE = 'Not allowed to delete - 不允许被删除';
 
-    const ROOM_CANNOT_INVALID = 'Room cannot be invalid';
+    const ERROR_ROOM_INVALID = 'Invalid room';
 
     /**
      * Get Events.
@@ -117,6 +118,46 @@ class AdminEventsController extends SandboxRestController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * Get definite id of event.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Route("/events/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getEventAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // get an event
+        $event = $this->getRepo('Event\Event')->find($id);
+        $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        // set view
+        $view = new View($event);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('admin_event'))
+        );
+
+        return $view;
     }
 
     /**

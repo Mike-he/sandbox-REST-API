@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Event;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Event.
@@ -24,6 +25,10 @@ class Event
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $id;
 
@@ -31,6 +36,10 @@ class Event
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $name;
 
@@ -38,6 +47,10 @@ class Event
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $description;
 
@@ -45,6 +58,8 @@ class Event
      * @var int
      *
      * @ORM\Column(name="cityId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $cityId;
 
@@ -55,6 +70,10 @@ class Event
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="cityId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $city;
 
@@ -62,6 +81,8 @@ class Event
      * @var int
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $buildingId;
 
@@ -72,6 +93,10 @@ class Event
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="buildingId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $building;
 
@@ -79,6 +104,10 @@ class Event
      * @var int
      *
      * @ORM\Column(name="roomId", type="integer", nullable=true)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $roomId;
 
@@ -86,6 +115,10 @@ class Event
      * @var int
      *
      * @ORM\Column(name="limitNumber", type="integer", nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $limitNumber;
 
@@ -93,6 +126,10 @@ class Event
      * @var \DateTime
      *
      * @ORM\Column(name="registrationStartDate", type="datetime", nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $registrationStartDate;
 
@@ -100,6 +137,10 @@ class Event
      * @var \DateTime
      *
      * @ORM\Column(name="registrationEndDate", type="datetime", nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $registrationEndDate;
 
@@ -107,6 +148,8 @@ class Event
      * @var \DateTime
      *
      * @ORM\Column(name="eventEndDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $eventEndDate;
 
@@ -114,6 +157,11 @@ class Event
      * @var string
      *
      * @ORM\Column(name="registrationMethod", type="string", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $registrationMethod;
 
@@ -121,6 +169,11 @@ class Event
      * @var bool
      *
      * @ORM\Column(name="verify", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $verify;
 
@@ -128,6 +181,8 @@ class Event
      * @var bool
      *
      * @ORM\Column(name="visible", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $visible = true;
 
@@ -135,6 +190,8 @@ class Event
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -142,6 +199,8 @@ class Event
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -154,6 +213,10 @@ class Event
      *      cascade={"persist"}
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $attachments;
 
@@ -166,6 +229,11 @@ class Event
      *      cascade={"persist"}
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $dates;
 
@@ -178,6 +246,11 @@ class Event
      *      cascade={"persist"}
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $forms;
 

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Event;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * EventTime.
@@ -18,6 +19,11 @@ class EventTime
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $id;
 
@@ -25,6 +31,10 @@ class EventTime
      * @var int
      *
      * @ORM\Column(name="dateId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $dateId;
 
@@ -35,6 +45,10 @@ class EventTime
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="dateId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $date;
 
@@ -42,6 +56,11 @@ class EventTime
      * @var \DateTime
      *
      * @ORM\Column(name="startTime", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $startTime;
 
@@ -49,6 +68,11 @@ class EventTime
      * @var \DateTime
      *
      * @ORM\Column(name="endTime", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $endTime;
 
@@ -56,6 +80,11 @@ class EventTime
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $description;
 

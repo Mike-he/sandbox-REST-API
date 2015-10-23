@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Event;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * EventAttachment.
@@ -18,6 +19,11 @@ class EventAttachment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $id;
 
@@ -25,6 +31,10 @@ class EventAttachment
      * @var int
      *
      * @ORM\Column(name="eventId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $eventId;
 
@@ -35,6 +45,10 @@ class EventAttachment
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="eventId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $event;
 
@@ -42,6 +56,10 @@ class EventAttachment
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $content;
 
@@ -49,6 +67,11 @@ class EventAttachment
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $attachmentType;
 
@@ -56,6 +79,11 @@ class EventAttachment
      * @var string
      *
      * @ORM\Column(name="filename", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $filename;
 
@@ -63,6 +91,11 @@ class EventAttachment
      * @var string
      *
      * @ORM\Column(name="preview", type="text", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $preview;
 
@@ -70,6 +103,11 @@ class EventAttachment
      * @var string
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $size;
 

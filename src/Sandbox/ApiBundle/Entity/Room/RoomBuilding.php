@@ -39,7 +39,8 @@ class RoomBuilding
      *      "admin_detail",
      *      "company_info",
      *      "company_basic",
-     *      "feed"
+     *      "feed",
+     *      "admin_event"
      *  }
      * )
      */
@@ -80,7 +81,8 @@ class RoomBuilding
      *      "admin_detail",
      *      "company_info",
      *      "company_basic",
-     *      "feed"
+     *      "feed",
+     *      "admin_event"
      *  }
      * )
      */
@@ -91,7 +93,7 @@ class RoomBuilding
      *
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "admin_event"})
      */
     private $address;
 
