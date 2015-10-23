@@ -18,7 +18,7 @@ class Version20151023102419_feature_13399 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("ALTER TABLE EventRegistration CHANGE status status enum('pending', 'refused', 'accepted') NOT NULL");
+        $this->addSql("ALTER TABLE EventRegistration CHANGE status status enum('pending', 'rejected', 'accepted') NOT NULL");
     }
 
     /**

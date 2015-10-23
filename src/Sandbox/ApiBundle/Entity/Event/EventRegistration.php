@@ -14,7 +14,7 @@ class EventRegistration
 {
     const STATUS_PENDING = 'pending';
     const STATUS_ACCEPTED = 'accepted';
-    const STATUS_REFUSED = 'refused';
+    const STATUS_REJECTED = 'rejected';
 
     /**
      * @var int
