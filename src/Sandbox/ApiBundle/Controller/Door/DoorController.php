@@ -361,4 +361,61 @@ class DoorController extends SandboxRestController
             );
         }
     }
+
+    /**
+     * @param string $base
+     * @param int    $userId
+     * @param string $cardNo
+     */
+    public function setEmployeeCardForOneBuilding(
+        $base,
+        $userId,
+        $cardNo
+    ) {
+        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $userName = $userProfile->getName();
+        $this->setEmployeeCard(
+            $base,
+            $userId,
+            $userName,
+            $cardNo,
+            self::METHOD_ADD,
+            $this->getGlobals()
+        );
+    }
+
+    /**
+     * @param $base
+     * @param $userArray
+     * @param $roomDoors
+     * @param $order
+     * @param $globals
+     */
+    public function setRoomOrderAccessIfUserArray(
+        $base,
+        $userArray,
+        $roomDoors,
+        $order,
+        $globals
+    ) {
+        $orderId = $order->getId();
+        $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
+        $doorArray = [];
+        foreach ($roomDoors as $roomDoor) {
+            $door = ['doorid' => $roomDoor->getDoorControlId()];
+            array_push($doorArray, $door);
+        }
+        sleep(3);
+
+        $this->setRoomOrderPermission(
+            $base,
+            $userArray,
+            $orderId,
+            $startDate,
+            $endDate,
+            $doorArray,
+            $globals
+        );
+    }
 }

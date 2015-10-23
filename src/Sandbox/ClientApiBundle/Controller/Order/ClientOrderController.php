@@ -490,8 +490,6 @@ class ClientOrderController extends PaymentController
         $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-        $startDate = $order->getStartDate();
-        $endDate = $order->getEndDate();
 
         if (empty($roomDoors)) {
             throw new BadRequestHttpException('no doors');
@@ -510,23 +508,21 @@ class ClientOrderController extends PaymentController
             !is_null($result) &&
             $result['status'] === DoorController::STATUS_AUTHED
         ) {
-            $doorArray = [];
-            foreach ($roomDoors as $roomDoor) {
-                $door = ['doorid' => $roomDoor->getDoorControlId()];
-                array_push($doorArray, $door);
-            }
             $userId = $order->getUserId();
+            $this->setEmployeeCardForOneBuilding(
+                $base,
+                $userId,
+                $result['card_no']
+            );
+
             $userArray = [
                 ['empid' => "$userId"],
             ];
-
-            $this->setRoomOrderPermission(
+            $this->setRoomOrderAccessIfUserArray(
                 $base,
                 $userArray,
-                $order->getId(),
-                $startDate,
-                $endDate,
-                $doorArray,
+                $roomDoors,
+                $order,
                 $globals
             );
         }
@@ -741,6 +737,7 @@ class ClientOrderController extends PaymentController
                 );
 
                 $userArray = $this->getUserArrayIfAuthed(
+                    $base,
                     $userId,
                     $userArray
                 );
@@ -773,6 +770,7 @@ class ClientOrderController extends PaymentController
      * @return mixed
      */
     public function getUserArrayIfAuthed(
+        $base,
         $userId,
         $userArray
     ) {
@@ -783,45 +781,17 @@ class ClientOrderController extends PaymentController
             $result['status'] === DoorController::STATUS_AUTHED &&
             !$userEntity->isBanned()
         ) {
+            $this->setEmployeeCardForOneBuilding(
+                $base,
+                $userId,
+                $result['card_no']
+            );
+
             $empUser = ['empid' => $userId];
             array_push($userArray, $empUser);
         }
 
         return $userArray;
-    }
-
-    /**
-     * @param $base
-     * @param $userArray
-     * @param $roomDoors
-     * @param $order
-     * @param $globals
-     */
-    public function setRoomOrderAccessIfUserArray(
-        $base,
-        $userArray,
-        $roomDoors,
-        $order,
-        $globals
-    ) {
-        $orderId = $order->getId();
-        $startDate = $order->getStartDate();
-        $endDate = $order->getEndDate();
-        $doorArray = [];
-        foreach ($roomDoors as $roomDoor) {
-            $door = ['doorid' => $roomDoor->getDoorControlId()];
-            array_push($doorArray, $door);
-        }
-
-        $this->setRoomOrderPermission(
-            $base,
-            $userArray,
-            $orderId,
-            $startDate,
-            $endDate,
-            $doorArray,
-            $globals
-        );
     }
 
     /**
@@ -974,6 +944,7 @@ class ClientOrderController extends PaymentController
             );
 
             $userArray = $this->getUserArrayIfAuthed(
+                $base,
                 $newUser,
                 $userArray
             );
@@ -1068,6 +1039,7 @@ class ClientOrderController extends PaymentController
             );
 
             $userArray = $this->getUserArrayIfAuthed(
+                $base,
                 $orderUser,
                 $userArray
             );

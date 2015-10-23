@@ -185,8 +185,6 @@ class PaymentController extends DoorController
         $base = $building->getServer();
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-        $startDate = $order->getStartDate();
-        $endDate = $order->getEndDate();
 
         if (empty($roomDoors)) {
             throw new BadRequestHttpException('no doors');
@@ -205,23 +203,20 @@ class PaymentController extends DoorController
             !is_null($result) &&
             $result['status'] === DoorController::STATUS_AUTHED
         ) {
-            $doorArray = [];
-            foreach ($roomDoors as $roomDoor) {
-                $door = ['doorid' => $roomDoor->getDoorControlId()];
-                array_push($doorArray, $door);
-            }
+            $this->setEmployeeCardForOneBuilding(
+                $base,
+                $userId,
+                $result['card_no']
+            );
 
             $userArray = [
                 ['empid' => "$userId"],
             ];
-
-            $this->setRoomOrderPermission(
+            $this->setRoomOrderAccessIfUserArray(
                 $base,
                 $userArray,
-                $orderId,
-                $startDate,
-                $endDate,
-                $doorArray,
+                $roomDoors,
+                $order,
                 $globals
             );
         }
