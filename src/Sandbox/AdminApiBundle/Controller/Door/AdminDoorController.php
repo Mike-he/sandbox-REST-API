@@ -131,7 +131,6 @@ class AdminDoorController extends DoorController
 
             foreach ($users as $user) {
                 $this->syncSingleUserData($user, $syncCity, $syncBuilding, $syncRoom);
-                sleep(1);
             }
         } elseif ($syncUser->isAuthorized()) {
             $this->syncSingleUserData($syncUser, $syncCity, $syncBuilding, $syncRoom);
@@ -157,7 +156,10 @@ class AdminDoorController extends DoorController
         $name = !is_null($profile) ? $profile->getName() : "$userId";
 
         // get user's card no
-        $cardNo = $this->getCardNoByUser($userId);
+        $result = $this->getCardNoByUser($userId);
+        if (is_null($result)) {
+            return;
+        }
 
         if (is_null($room)) {
             // update user to doors of a room
@@ -170,7 +172,7 @@ class AdminDoorController extends DoorController
             $this->updateEmployeeCardStatus(
                 $userId,
                 $name,
-                $cardNo,
+                $result['card_no'],
                 DoorController::METHOD_ADD
             );
         }
