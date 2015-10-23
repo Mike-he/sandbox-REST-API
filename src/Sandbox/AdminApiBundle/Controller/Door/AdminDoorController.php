@@ -110,6 +110,8 @@ class AdminDoorController extends DoorController
                 // sync access data
             }
         }
+
+        return new View();
     }
 
     /**
