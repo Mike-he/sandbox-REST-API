@@ -406,7 +406,7 @@ class DoorController extends SandboxRestController
             $door = ['doorid' => $roomDoor->getDoorControlId()];
             array_push($doorArray, $door);
         }
-        sleep(3);
+        sleep(1);
 
         $this->setRoomOrderPermission(
             $base,
