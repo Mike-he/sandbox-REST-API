@@ -93,3 +93,9 @@ sandbox_admin_api_events:
     resource: "@SandboxAdminApiBundle/Controller/Event/AdminEventsController.php"
     type:     annotation
     prefix:  /
+
+# Events registrations /admin/events/registrations
+sandbox_admin_api_events_registrations:
+    resource: "@SandboxAdminApiBundle/Controller/Event/AdminEventRegistrationController.php"
+    type:     annotation
+    prefix:  /
