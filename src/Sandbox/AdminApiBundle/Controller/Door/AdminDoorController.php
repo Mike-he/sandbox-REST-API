@@ -129,6 +129,7 @@ class AdminDoorController extends DoorController
 
             foreach ($users as $user) {
                 $this->syncSingleUserData($user, $syncCity, $syncBuilding, $syncRoom);
+                sleep(1);
             }
         } elseif ($syncUser->isAuthorized()) {
             $this->syncSingleUserData($syncUser, $syncCity, $syncBuilding, $syncRoom);
