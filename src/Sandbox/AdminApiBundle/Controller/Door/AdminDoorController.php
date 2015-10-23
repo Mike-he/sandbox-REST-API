@@ -13,6 +13,11 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Room\Room;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin Door Controller.
@@ -26,6 +31,151 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
  */
 class AdminDoorController extends DoorController
 {
+    const DOOR_MODULE_USER = 'user';
+    const DOOR_MODULE_ACCESS = 'access';
+
+    /**
+     * @Get("/doors/data/sync")
+     *
+     * @Annotations\QueryParam(
+     *    name="module",
+     *    array=true,
+     *    strict=true,
+     *    nullable=false,
+     *    description="module of door"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    default=null,
+     *    nullable=true,
+     *    description="user id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    description="building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room",
+     *    default=null,
+     *    nullable=true,
+     *    description="room id"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function syncDataAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // get parameters
+        $syncModules = $paramFetcher->get('module');
+        if (is_null($syncModules) || empty($syncModules)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $syncUserId = $paramFetcher->get('user');
+        $syncCityId = $paramFetcher->get('city');
+        $syncBuildingId = $paramFetcher->get('building');
+        $syncRoomId = $paramFetcher->get('room');
+
+        // get entities
+        $syncUser = !is_null($syncUserId) ? $this->getRepo('User\User')->find($syncUserId) : null;
+        $syncCity = !is_null($syncCityId) ? $this->getRepo('Room\RoomCity')->find($syncCityId) : null;
+        $syncBuilding = !is_null($syncBuildingId) ? $this->getRepo('Room\RoomBuilding')->find($syncBuildingId) : null;
+        $syncRoom = !is_null($syncRoomId) ? $this->getRepo('Room\Room')->find($syncRoomId) : null;
+
+        foreach ($syncModules as $module) {
+            if ($module == self::DOOR_MODULE_USER) {
+                // sync user data
+                $this->syncUserData($syncUser, $syncCity, $syncBuilding, $syncRoom);
+            } elseif ($module == self::DOOR_MODULE_ACCESS) {
+                // sync access data
+            }
+        }
+
+        return new View();
+    }
+
+    /**
+     * @param User         $syncUser
+     * @param RoomCity     $syncCity
+     * @param RoomBuilding $syncBuilding
+     * @param Room         $syncRoom
+     */
+    private function syncUserData(
+        $syncUser,
+        $syncCity,
+        $syncBuilding,
+        $syncRoom
+    ) {
+        if (is_null($syncUser)) {
+            $users = $this->getRepo('User\User')->findByAuthorized(true);
+
+            foreach ($users as $user) {
+                $this->syncSingleUserData($user, $syncCity, $syncBuilding, $syncRoom);
+                sleep(1);
+            }
+        } elseif ($syncUser->isAuthorized()) {
+            $this->syncSingleUserData($syncUser, $syncCity, $syncBuilding, $syncRoom);
+        }
+    }
+
+    /**
+     * @param User         $user
+     * @param RoomCity     $city
+     * @param RoomBuilding $building
+     * @param Room         $room
+     */
+    private function syncSingleUserData(
+        $user,
+        $city,
+        $building,
+        $room
+    ) {
+        $userId = $user->getId();
+
+        // get user's name
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+        $name = !is_null($profile) ? $profile->getName() : "$userId";
+
+        // get user's card no
+        $cardNo = $this->getCardNoByUser($userId);
+
+        if (is_null($room)) {
+            // update user to doors of a room
+        } elseif (is_null($building)) {
+            // update user to doors of a building
+        } elseif (is_null($city)) {
+            // update user to doors of a city
+        } else {
+            // update user to all door servers
+            $this->updateEmployeeCardStatus(
+                $userId,
+                $name,
+                $cardNo,
+                DoorController::METHOD_ADD
+            );
+        }
+    }
+
     /**
      * @Post("/doors/permission/add")
      *
