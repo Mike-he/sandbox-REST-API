@@ -12,6 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class EventRegistration
 {
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACCEPTED = 'accepted';
+    const STATUS_REJECTED = 'rejected';
+
     /**
      * @var int
      *
@@ -60,7 +64,7 @@ class EventRegistration
      *
      * @ORM\Column(name="status", type="string", nullable=false)
      */
-    private $status;
+    private $status = self::STATUS_PENDING;
 
     /**
      * @var \DateTime

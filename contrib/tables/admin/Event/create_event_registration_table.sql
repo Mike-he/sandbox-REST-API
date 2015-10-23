@@ -2,7 +2,7 @@ CREATE TABLE `EventRegistration` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
-  `status` enum('pending','refused','accept') NOT NULL,
+  `status` enum('pending','rejected','accepted') NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
