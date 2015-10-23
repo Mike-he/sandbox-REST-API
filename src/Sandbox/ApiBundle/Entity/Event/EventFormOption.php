@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Event;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * EventFormOption.
@@ -18,6 +19,11 @@ class EventFormOption
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $id;
 
@@ -25,6 +31,10 @@ class EventFormOption
      * @var int
      *
      * @ORM\Column(name="formId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $formId;
 
@@ -35,6 +45,10 @@ class EventFormOption
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="formId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $form;
 
@@ -42,6 +56,11 @@ class EventFormOption
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $content;
 

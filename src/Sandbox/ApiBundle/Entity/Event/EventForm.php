@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Event;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * EventForm.
@@ -24,6 +25,11 @@ class EventForm
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $id;
 
@@ -31,6 +37,10 @@ class EventForm
      * @var int
      *
      * @ORM\Column(name="eventId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $eventId;
 
@@ -41,6 +51,10 @@ class EventForm
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="eventId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $event;
 
@@ -48,6 +62,11 @@ class EventForm
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $title;
 
@@ -55,8 +74,29 @@ class EventForm
      * @var string
      *
      * @ORM\Column(name="type", type="string", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $type;
+
+    /**
+     * @var EventFormOption
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Event\EventFormOption",
+     *      mappedBy="form",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="formId")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
+     */
+    private $option;
 
     /**
      * Get id.
@@ -162,5 +202,29 @@ class EventForm
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Set option.
+     *
+     * @param EventFormOption $option
+     *
+     * @return EventForm
+     */
+    public function setForm($option)
+    {
+        $this->option = $option;
+
+        return $this;
+    }
+
+    /**
+     * Get option.
+     *
+     * @return EventFormOption
+     */
+    public function getOption()
+    {
+        return $this->option;
     }
 }

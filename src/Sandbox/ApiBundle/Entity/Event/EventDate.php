@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Event;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * EventDate.
@@ -18,6 +19,11 @@ class EventDate
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $id;
 
@@ -25,6 +31,10 @@ class EventDate
      * @var int
      *
      * @ORM\Column(name="eventId", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $eventId;
 
@@ -35,6 +45,10 @@ class EventDate
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="eventId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({
+     *      "main"
+     * })
      */
     private $event;
 
@@ -42,8 +56,29 @@ class EventDate
      * @var \DateTime
      *
      * @ORM\Column(name="date", type="date", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $date;
+
+    /**
+     * @var EventTime
+     *
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Event\EventTime",
+     *      mappedBy="date",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="dateId")
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
+     */
+    private $time;
 
     /**
      * Get id.
@@ -125,5 +160,29 @@ class EventDate
     public function getDate()
     {
         return $this->date;
+    }
+
+    /**
+     * Set time.
+     *
+     * @param EventTime $time
+     *
+     * @return EventDate
+     */
+    public function setTime($time)
+    {
+        $this->time = $time;
+
+        return $this;
+    }
+
+    /**
+     * Get time.
+     *
+     * @return EventTime
+     */
+    public function getTime()
+    {
+        return $this->time;
     }
 }
