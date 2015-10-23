@@ -3,9 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\Food;
 
 use Doctrine\ORM\EntityManager;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Food\Food;
 use Sandbox\ApiBundle\Entity\Food\FoodAttachment;
 use Sandbox\ApiBundle\Entity\Food\FoodForm;
@@ -58,7 +56,7 @@ class AdminFoodController extends FoodController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminFoodPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         $food = new Food();
 
@@ -98,7 +96,7 @@ class AdminFoodController extends FoodController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminFoodPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get food
         $food = $this->getRepo('Food\Food')->find($id);
@@ -333,12 +331,12 @@ class AdminFoodController extends FoodController
      *
      * @throws \Exception
      */
-    public function deleteRoomSuppliesAction(
+    public function deleteFoodAction(
         Request $request,
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminFoodPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
         // get food
         $food = $this->getRepo('Food\Food')->find($id);
@@ -357,14 +355,8 @@ class AdminFoodController extends FoodController
      *
      * @param Integer $OpLevel
      */
-    private function checkAdminRoomPermission(
+    private function checkAdminFoodPermission(
         $OpLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ROOM,
-            $OpLevel
-        );
     }
 }
