@@ -50,7 +50,8 @@ class ClientUserBasicProfileController extends UserProfileController
         ParamFetcherInterface $paramFetcher
     ) {
         // my user
-        $myUser = $this->getRepo('User\User')->find($this->getUserId());
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // request user
         $userId = $paramFetcher->get('user_id');
@@ -62,8 +63,9 @@ class ClientUserBasicProfileController extends UserProfileController
         $user = $this->getRepo('User\User')->find($userId);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        // check user is banned or unauthorized
-        if ($user->isBanned() || !$user->isAuthorized()) {
+        // check the other user is banned or unauthorized
+        if ($myUserId != $userId &&
+            ($user->isBanned() || !$user->isAuthorized())) {
             return new View();
         }
 
