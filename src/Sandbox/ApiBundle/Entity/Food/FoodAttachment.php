@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Food;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FoodAttachment.
@@ -18,6 +19,8 @@ class FoodAttachment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $id;
 
@@ -25,6 +28,8 @@ class FoodAttachment
      * @var int
      *
      * @ORM\Column(name="foodId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $foodId;
 
@@ -35,6 +40,8 @@ class FoodAttachment
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="foodId", referencedColumnName="id", onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $food;
 
@@ -42,6 +49,8 @@ class FoodAttachment
      * @var string
      *
      * @ORM\Column(name="content", type="text")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $content;
 
@@ -49,6 +58,8 @@ class FoodAttachment
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $attachmentType;
 
@@ -56,6 +67,8 @@ class FoodAttachment
      * @var string
      *
      * @ORM\Column(name="filename", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $filename;
 
@@ -63,6 +76,8 @@ class FoodAttachment
      * @var string
      *
      * @ORM\Column(name="preview", type="text")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $preview;
 
@@ -70,6 +85,8 @@ class FoodAttachment
      * @var int
      *
      * @ORM\Column(name="size", type="integer")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $size;
 

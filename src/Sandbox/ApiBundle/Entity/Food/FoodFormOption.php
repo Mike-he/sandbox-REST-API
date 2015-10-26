@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Food;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FoodFormOption.
@@ -18,6 +19,8 @@ class FoodFormOption
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $id;
 
@@ -25,6 +28,8 @@ class FoodFormOption
      * @var int
      *
      * @ORM\Column(name="formId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $formId;
 
@@ -35,6 +40,8 @@ class FoodFormOption
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="formId", referencedColumnName="id", onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $form;
 
@@ -42,6 +49,8 @@ class FoodFormOption
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $name;
 
@@ -49,6 +58,8 @@ class FoodFormOption
      * @var string
      *
      * @ORM\Column(name="price", type="decimal")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $price;
 
@@ -56,6 +67,8 @@ class FoodFormOption
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -63,6 +76,8 @@ class FoodFormOption
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
