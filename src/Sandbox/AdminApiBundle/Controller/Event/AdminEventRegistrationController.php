@@ -177,13 +177,13 @@ class AdminEventRegistrationController extends SandboxRestController
         $query = $paramFetcher->get('query');
 
         // get query result
-        $queryResults = $this->getRepo('Event\EventRegistration')->getEventRegistrations(
+        $eventRegistrations = $this->getRepo('Event\EventRegistration')->getEventRegistrations(
             $event_id,
             $status,
             $query
         );
 
-        $registrationsArray = $this->generateRegistrationsArray($queryResults);
+        $registrationsArray = $this->generateRegistrationsArray($eventRegistrations);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -196,20 +196,20 @@ class AdminEventRegistrationController extends SandboxRestController
     }
 
     /**
-     * @param array $queryResults
+     * @param array $eventRegistrations
      *
      * @return array
      */
     private function generateRegistrationsArray(
-        $queryResults
+        $eventRegistrations
     ) {
-        if (!is_null($queryResults) && !empty($queryResults)) {
+        if (!is_null($eventRegistrations) && !empty($eventRegistrations)) {
             $registrationsArray = array();
-            foreach ($queryResults as $result) {
+            foreach ($eventRegistrations as $registration) {
                 // get form option results
-                $formsArray = $this->getEventRegistrationFormOptions($result['id']);
-                $results = array_merge($result, array('forms' => $formsArray));
-                array_push($registrationsArray, $results);
+                $formsArray = $this->getEventRegistrationFormOptions($registration['id']);
+                $registrations = array_merge($registration, array('forms' => $formsArray));
+                array_push($registrationsArray, $registrations);
             }
 
             return $registrationsArray;
@@ -234,39 +234,45 @@ class AdminEventRegistrationController extends SandboxRestController
         if (!is_null($registrationForms) && !empty($registrationForms)) {
             $formsArray = array();
             foreach ($registrationForms as $registrationForm) {
-                $inputResult = null;
+                $userInput = $registrationForm->getUserInput();
+                $form = $registrationForm->getForm();
+                $formType = $form->getType();
+                $formId = $form->getId();
+                $formTitle = $form->getTitle();
 
-                // text string result
-                if (in_array($registrationForm->getForm()->getType(), array(
+                $typeArray = array(
                     EventForm::TYPE_TEXT,
                     EventForm::TYPE_EMAIL,
                     EventForm::TYPE_PHONE,
-                ))
+                );
+
+                $inputResult = null;
+
+                if (in_array($formType, $typeArray)
                 ) {
-                    $inputResult = $registrationForm->getUserInput();
-                }
-                // radio result
-                elseif ($registrationForm->getForm()->getType() == EventForm::TYPE_RADIO) {
+                    // text string result
+                    $inputResult = $userInput;
+                } elseif ($formType == EventForm::TYPE_RADIO) {
+                    // radio result
                     $option = $this->getRepo('Event\EventFormOption')->findOneBy(array(
-                        'id' => (int) $registrationForm->getUserInput(),
-                        'formId' => $registrationForm->getForm()->getId(),
+                        'id' => (int) $userInput,
+                        'formId' => $formId,
                     ));
                     $inputResult = $option->getContent();
-                }
-                // check box result
-                elseif ($registrationForm->getForm()->getType() == EventForm::TYPE_CHECKBOX) {
+                } elseif ($formType == EventForm::TYPE_CHECKBOX) {
+                    // check box result
                     $delimiter = ',';
-                    $optionIds = explode($delimiter, $registrationForm->getUserInput());
+                    $optionIds = explode($delimiter, $userInput);
 
                     $inputResult = $this->getRepo('Event\EventFormOption')->getEventFormOptionCheckbox(
                         $optionIds,
-                        $registrationForm->getForm()->getId()
+                        $formId
                     );
                 }
 
                 $formArray = array(
-                    'id' => $registrationForm->getId(),
-                    'title' => $registrationForm->getForm()->getTitle(),
+                    'id' => $formId,
+                    'title' => $formTitle,
                     'user_input' => $inputResult,
                 );
                 array_push($formsArray, $formArray);
