@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Event;
 
+use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
@@ -9,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -62,7 +64,7 @@ class AdminEventRegistrationController extends SandboxRestController
      *
      * @throws \Exception
      */
-    public function patchEventRegistrationAction(
+    public function patchEventRegistrationsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -100,6 +102,186 @@ class AdminEventRegistrationController extends SandboxRestController
         }
 
         return new View();
+    }
+
+    /**
+     * Get event registrations list.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $event_id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="(accepted|refused)",
+     *    strict=true,
+     *    description="event status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Route("/events/{event_id}/registrations")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throw \Exception
+     */
+    public function getAdminEventRegistrationsAction(
+        Request $request,
+        ParamFetcherInterface  $paramFetcher,
+        $event_id
+    ) {
+        // check user permission
+        $this->checkAdminEventRegistrationPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        // filters
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $status = $paramFetcher->get('status');
+        $query = $paramFetcher->get('query');
+
+        // get query result
+        $eventRegistrations = $this->getRepo('Event\EventRegistration')->getEventRegistrations(
+            $event_id,
+            $status,
+            $query
+        );
+
+        $registrationsArray = $this->generateRegistrationsArray($eventRegistrations);
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $registrationsArray,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * @param array $eventRegistrations
+     *
+     * @return array
+     */
+    private function generateRegistrationsArray(
+        $eventRegistrations
+    ) {
+        if (!is_null($eventRegistrations) && !empty($eventRegistrations)) {
+            $registrationsArray = array();
+            foreach ($eventRegistrations as $registration) {
+                // get form option results
+                $formsArray = $this->getEventRegistrationFormOptions($registration['id']);
+                $registrations = array_merge($registration, array('forms' => $formsArray));
+                array_push($registrationsArray, $registrations);
+            }
+
+            return $registrationsArray;
+        }
+
+        return array();
+    }
+
+    /**
+     * Get option results.
+     *
+     * @param $registrationId
+     *
+     * @return array
+     */
+    private function getEventRegistrationFormOptions(
+        $registrationId
+    ) {
+        $registrationForms = $this->getRepo('Event\EventRegistrationForm')
+            ->findByRegistrationId($registrationId);
+
+        $typeArray = array(
+            EventForm::TYPE_TEXT,
+            EventForm::TYPE_EMAIL,
+            EventForm::TYPE_PHONE,
+        );
+
+        if (!is_null($registrationForms) && !empty($registrationForms)) {
+            $formsArray = array();
+            foreach ($registrationForms as $registrationForm) {
+                $userInput = $registrationForm->getUserInput();
+                $form = $registrationForm->getForm();
+                $formType = $form->getType();
+                $formId = $form->getId();
+                $formTitle = $form->getTitle();
+
+                $inputResult = null;
+
+                if (in_array($formType, $typeArray)
+                ) {
+                    // text string result
+                    $inputResult = $userInput;
+                } elseif ($formType == EventForm::TYPE_RADIO) {
+                    // radio result
+                    $option = $this->getRepo('Event\EventFormOption')->findOneBy(array(
+                        'id' => (int) $userInput,
+                        'formId' => $formId,
+                    ));
+                    $inputResult = $option->getContent();
+                } elseif ($formType == EventForm::TYPE_CHECKBOX) {
+                    // check box result
+                    $delimiter = ',';
+                    $optionIds = explode($delimiter, $userInput);
+
+                    $inputResult = $this->getRepo('Event\EventFormOption')->getEventFormOptionCheckbox(
+                        $optionIds,
+                        $formId
+                    );
+                }
+
+                $formArray = array(
+                    'id' => $formId,
+                    'title' => $formTitle,
+                    'user_input' => $inputResult,
+                );
+                array_push($formsArray, $formArray);
+            }
+
+            return $formsArray;
+        }
+
+        return array();
     }
 
     /**
