@@ -284,13 +284,19 @@ class AdminDoorController extends DoorController
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
 
+        // get user's current card no
+        $result = $this->getCardNoByUser($userId);
+        if (is_null($result)) {
+            return;
+        }
+
         // set card
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
         $this->updateEmployeeCardStatus(
             $userId,
             $userName,
-            $cardNo,
+            $result['card_no'],
             DoorController::METHOD_ADD
         );
         sleep(1);
