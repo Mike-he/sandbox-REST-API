@@ -231,6 +231,12 @@ class AdminEventRegistrationController extends SandboxRestController
         $registrationForms = $this->getRepo('Event\EventRegistrationForm')
             ->findByRegistrationId($registrationId);
 
+        $typeArray = array(
+            EventForm::TYPE_TEXT,
+            EventForm::TYPE_EMAIL,
+            EventForm::TYPE_PHONE,
+        );
+
         if (!is_null($registrationForms) && !empty($registrationForms)) {
             $formsArray = array();
             foreach ($registrationForms as $registrationForm) {
@@ -239,12 +245,6 @@ class AdminEventRegistrationController extends SandboxRestController
                 $formType = $form->getType();
                 $formId = $form->getId();
                 $formTitle = $form->getTitle();
-
-                $typeArray = array(
-                    EventForm::TYPE_TEXT,
-                    EventForm::TYPE_EMAIL,
-                    EventForm::TYPE_PHONE,
-                );
 
                 $inputResult = null;
 
