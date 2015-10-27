@@ -179,80 +179,83 @@ class ClientEventRegistrationController extends SandboxRestController
     ) {
         $em = $this->getDoctrine()->getManager();
 
-        if (!is_null($forms) && !empty($forms)) {
-            foreach ($forms as $form) {
-                $userInput = $form['user_input'];
-                if (is_null($userInput)) {
+        if (is_null($forms) || empty($forms)) {
+            return;
+        }
+
+        foreach ($forms as $form) {
+            $userInput = $form['user_input'];
+            if (is_null($userInput)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_MISSING_USER_INPUT_CODE,
+                    self::ERROR_MISSING_USER_INPUT_MESSAGE
+                );
+            }
+
+            $eventForm = $this->getRepo('Event\EventForm')->find($form['id']);
+            if (is_null($eventForm)) {
+                throw new BadRequestHttpException(self::ERROR_EVENT_INVALID);
+            }
+
+            // check if user input is legal
+            $formType = $eventForm->getType();
+            $formId = $eventForm->getId();
+
+            if ($formType == EventForm::TYPE_PHONE) {
+                if (!is_numeric($userInput)) {
                     return $this->customErrorView(
                         400,
-                        self::ERROR_MISSING_USER_INPUT_CODE,
-                        self::ERROR_MISSING_USER_INPUT_MESSAGE
+                        self::ERROR_INVALID_PHONE_CODE,
+                        self::ERROR_INVALID_PHONE_MESSAGE
                     );
                 }
-
-                $eventForm = $this->getRepo('Event\EventForm')->find($form['id']);
-                if (is_null($eventForm)) {
-                    throw new BadRequestHttpException(self::ERROR_EVENT_INVALID);
+            } elseif ($formType == EventForm::TYPE_EMAIL) {
+                if (!filter_var($userInput, FILTER_VALIDATE_EMAIL)) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_INVALID_EMAIL_CODE,
+                        self::ERROR_INVALID_EMAIL_MESSAGE
+                    );
                 }
+            } elseif ($formType == EventForm::TYPE_RADIO) {
+                $formOption = $this->getRepo('Event\EventFormOption')->findOneBy(array(
+                    'id' => (int) $userInput,
+                    'formId' => $formId,
+                ));
+                if (is_null($formOption)) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_INVALID_RADIO_CODE,
+                        self::ERROR_INVALID_RADIO_MESSAGE
+                    );
+                }
+            } elseif ($formType == EventForm::TYPE_CHECKBOX) {
+                $delimiter = ',';
+                $ids = explode($delimiter, $userInput);
 
-                // check if user input is legal
-                $formType = $eventForm->getType();
-                $formId = $eventForm->getId();
-                if ($formType == EventForm::TYPE_PHONE) {
-                    if (!is_numeric($userInput)) {
-                        return $this->customErrorView(
-                            400,
-                            self::ERROR_INVALID_PHONE_CODE,
-                            self::ERROR_INVALID_PHONE_MESSAGE
-                        );
-                    }
-                } elseif ($formType == EventForm::TYPE_EMAIL) {
-                    if (!filter_var($userInput, FILTER_VALIDATE_EMAIL)) {
-                        return $this->customErrorView(
-                            400,
-                            self::ERROR_INVALID_EMAIL_CODE,
-                            self::ERROR_INVALID_EMAIL_MESSAGE
-                        );
-                    }
-                } elseif ($formType == EventForm::TYPE_RADIO) {
+                foreach ($ids as $id) {
                     $formOption = $this->getRepo('Event\EventFormOption')->findOneBy(array(
-                        'id' => (int) $userInput,
+                        'id' => (int) $id,
                         'formId' => $formId,
                     ));
                     if (is_null($formOption)) {
                         return $this->customErrorView(
                             400,
-                            self::ERROR_INVALID_RADIO_CODE,
-                            self::ERROR_INVALID_RADIO_MESSAGE
+                            self::ERROR_INVALID_CHECKBOX_CODE,
+                            self::ERROR_INVALID_CHECKBOX_MESSAGE
                         );
                     }
-                } elseif ($formType == EventForm::TYPE_CHECKBOX) {
-                    $delimiter = ',';
-                    $ids = explode($delimiter, $userInput);
-
-                    foreach ($ids as $id) {
-                        $formOption = $this->getRepo('Event\EventFormOption')->findOneBy(array(
-                            'id' => (int) $id,
-                            'formId' => $formId,
-                        ));
-                        if (is_null($formOption)) {
-                            return $this->customErrorView(
-                                400,
-                                self::ERROR_INVALID_CHECKBOX_CODE,
-                                self::ERROR_INVALID_CHECKBOX_MESSAGE
-                            );
-                        }
-                    }
                 }
-
-                $registrationForm = new EventRegistrationForm();
-
-                $registrationForm->setRegistration($eventRegistration);
-                $registrationForm->setForm($eventForm);
-                $registrationForm->setUserInput($userInput);
-
-                $em->persist($registrationForm);
             }
+
+            $registrationForm = new EventRegistrationForm();
+
+            $registrationForm->setRegistration($eventRegistration);
+            $registrationForm->setForm($eventForm);
+            $registrationForm->setUserInput($userInput);
+
+            $em->persist($registrationForm);
         }
 
         return new View();
