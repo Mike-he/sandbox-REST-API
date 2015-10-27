@@ -75,7 +75,7 @@ class ClientEventController extends SandboxRestController
      *
      * @throw \Exception
      */
-    public function getAllClientEventsAction(
+    public function getClientEventsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
