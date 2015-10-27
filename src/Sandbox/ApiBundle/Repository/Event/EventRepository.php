@@ -36,4 +36,21 @@ class EventRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param int $userId
+     *
+     * @return array
+     */
+    public function getMyClientEvents(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
+            ->where('e.visible = true')
+            ->andWhere('er.userId = :userId')
+            ->setParameter('userId', $userId);
+
+        return $query->getQuery()->getResult();
+    }
 }
