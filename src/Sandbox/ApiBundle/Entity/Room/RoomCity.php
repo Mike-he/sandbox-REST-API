@@ -29,7 +29,7 @@ class RoomCity
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "admin_event"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "admin_event", "client_detail"})
      */
     private $name;
 

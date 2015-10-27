@@ -20,7 +20,7 @@ class FoodFormOption
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $id;
 
@@ -50,7 +50,7 @@ class FoodFormOption
      *
      * @ORM\Column(name="name", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $name;
 
@@ -59,7 +59,7 @@ class FoodFormOption
      *
      * @ORM\Column(name="price", type="decimal")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $price;
 

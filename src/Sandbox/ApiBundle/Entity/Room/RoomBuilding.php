@@ -82,7 +82,8 @@ class RoomBuilding
      *      "company_info",
      *      "company_basic",
      *      "feed",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_detail"
      *  }
      * )
      */
