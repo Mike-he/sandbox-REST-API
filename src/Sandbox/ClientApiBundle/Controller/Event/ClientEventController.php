@@ -26,7 +26,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 class ClientEventController extends SandboxRestController
 {
     /**
-     * Get client events.
+     * Get all client events.
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -58,24 +58,74 @@ class ClientEventController extends SandboxRestController
      *    description="page number"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="belong",
-     *    array=false,
-     *    default="1",
-     *    nullable=true,
-     *    requirements="(all|my)",
-     *    strict=true,
-     *    description="page number"
-     * )
-     *
-     * @Route("/events")
+     * @Route("/events/all")
      * @Method({"GET"})
      *
      * @return View
      *
      * @throw \Exception
      */
-    public function getClientEventsAction(
+    public function getAllClientEventsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // filters
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $query = $this->getRepo('Event\Event')->findBy(array('visible' => true));
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $query,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * Get my register client events.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     * @Route("/events/my")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throw \Exception
+     */
+    public function getMyClientEventsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -84,9 +134,8 @@ class ClientEventController extends SandboxRestController
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $belong = $paramFetcher->get('belong');
 
-        $query = $this->getRepo('Event\Event')->getClientEvents($belong, $userId);
+        $query = $this->getRepo('Event\Event')->getMyClientEvents($userId);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
