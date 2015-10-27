@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Food;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Food.
@@ -21,6 +22,8 @@ class Food
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $id;
 
@@ -28,6 +31,8 @@ class Food
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $name;
 
@@ -35,6 +40,8 @@ class Food
      * @var string
      *
      * @ORM\Column(name="description", type="text")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $description;
 
@@ -42,6 +49,8 @@ class Food
      * @var int
      *
      * @ORM\Column(name="cityId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $cityId;
 
@@ -52,6 +61,8 @@ class Food
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $city;
 
@@ -59,6 +70,8 @@ class Food
      * @var int
      *
      * @ORM\Column(name="buildingId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $buildingId;
 
@@ -69,6 +82,8 @@ class Food
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $building;
 
@@ -76,6 +91,8 @@ class Food
      * @var string
      *
      * @ORM\Column(name="category", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $category;
 
@@ -83,6 +100,8 @@ class Food
      * @var string
      *
      * @ORM\Column(name="price", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $price;
 
@@ -90,6 +109,8 @@ class Food
      * @var int
      *
      * @ORM\Column(name="inventory", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $inventory;
 
@@ -97,6 +118,8 @@ class Food
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $creationDate;
 
@@ -104,6 +127,8 @@ class Food
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $modificationDate;
 
@@ -117,6 +142,8 @@ class Food
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="foodId")
      * @ORM\OrderBy({"id" = "ASC"})
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $attachments;
 
@@ -130,6 +157,8 @@ class Food
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="foodId")
      * @ORM\OrderBy({"id" = "ASC"})
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $forms;
 

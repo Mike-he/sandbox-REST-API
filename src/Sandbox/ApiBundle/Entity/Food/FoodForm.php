@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Food;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FoodForm.
@@ -22,6 +23,8 @@ class FoodForm
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $id;
 
@@ -29,6 +32,8 @@ class FoodForm
      * @var int
      *
      * @ORM\Column(name="foodId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $foodId;
 
@@ -39,6 +44,8 @@ class FoodForm
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="foodId", referencedColumnName="id", onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $food;
 
@@ -53,6 +60,8 @@ class FoodForm
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id", referencedColumnName="formId")
      * })
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $options;
 
@@ -60,6 +69,8 @@ class FoodForm
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $title;
 
@@ -67,6 +78,8 @@ class FoodForm
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $type;
 
@@ -74,6 +87,8 @@ class FoodForm
      * @var bool
      *
      * @ORM\Column(name="required", type="boolean")
+     *
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $required = true;
 
@@ -81,6 +96,8 @@ class FoodForm
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -88,6 +105,8 @@ class FoodForm
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

@@ -20,6 +20,10 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Controller\Food\FoodController;
 use FOS\RestBundle\View\View;
+use JMS\Serializer\SerializationContext;
+use Knp\Component\Pager\Paginator;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Admin Food Controller.
@@ -33,6 +37,161 @@ use FOS\RestBundle\View\View;
  */
 class AdminFoodController extends FoodController
 {
+    /**
+     * Get Food List.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="category",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="(drink|dessert)",
+     *    strict=true,
+     *    description="Filter by food category"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many food to return per page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    array=false,
+     *    default="DESC",
+     *    nullable=true,
+     *    requirements="(ASC|DESC)",
+     *    strict=true,
+     *    description="sort direction"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Route("/food")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getFoodAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminFoodPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // filters
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $category = $paramFetcher->get('category');
+        $buildingId = $paramFetcher->get('building');
+
+        // get building
+        if (is_null($buildingId) || empty($buildingId)) {
+            $this->throwNotFoundIfNull($buildingId, self::NOT_FOUND_MESSAGE);
+        }
+
+        // sort direction
+        $direction = $paramFetcher->get('direction');
+
+        // search by name and number
+        $search = $paramFetcher->get('search');
+
+        $query = $this->getRepo('Food\Food')->getFoodList(
+            $category,
+            $buildingId,
+            $direction,
+            $search
+        );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $query,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * Get food by id.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Route("/food/{id}")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getFoodByIdAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminFoodPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // get food
+        $food = $this->getRepo('Food\Food')->find($id);
+        $this->throwNotFoundIfNull($food, self::NOT_FOUND_MESSAGE);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_detail']));
+        $view->setData($food);
+
+        return $view;
+    }
+
     /**
      * Post Food.
      *
@@ -82,7 +241,6 @@ class AdminFoodController extends FoodController
      *
      * @param Request $request
      * @param int     $id
-     *
      *
      * @Route("/food/{id}")
      * @Method({"PUT"})
@@ -149,14 +307,14 @@ class AdminFoodController extends FoodController
         if (is_null($attachments) || empty($attachments)) {
             throw new BadRequestHttpException(self::ATTACHMENT_CANNOT_NULL);
         }
-        //add attachments
+        // add attachments
         $this->addFoodAttachment(
             $em,
             $food,
             $attachments
         );
 
-        //add forms
+        // add forms
         if (!is_null($forms) && !empty($forms)) {
             $this->addFoodForms(
                 $em,
@@ -189,13 +347,13 @@ class AdminFoodController extends FoodController
         $foodId = $food->getId();
 
         if (!is_null($attachments) && !empty($attachments)) {
-            //remove attachments
+            // remove attachments
             $this->removeFoodProperties(
                 $em,
                 $foodId,
                 self::ENTITY_FOOD_ATTACHMENT
             );
-            //add attachments
+            // add attachments
             $this->addFoodAttachment(
                 $em,
                 $food,
@@ -204,13 +362,13 @@ class AdminFoodController extends FoodController
         }
 
         if (!is_null($forms) && !empty($forms)) {
-            //remove forms
+            // remove forms
             $this->removeFoodProperties(
                 $em,
                 $foodId,
                 self::ENTITY_FOOD_FORM
             );
-            //add forms
+            // add forms
             $this->addFoodForms(
                 $em,
                 $food,
@@ -218,6 +376,7 @@ class AdminFoodController extends FoodController
             );
         }
 
+        $food->setModificationDate(new \DateTime());
         $em->flush();
 
         return new View();
@@ -342,7 +501,7 @@ class AdminFoodController extends FoodController
         $food = $this->getRepo('Food\Food')->find($id);
         $this->throwNotFoundIfNull($food, self::NOT_FOUND_MESSAGE);
 
-        //delete food
+        // delete food
         $em = $this->getDoctrine()->getManager();
         $em->remove($food);
         $em->flush();
