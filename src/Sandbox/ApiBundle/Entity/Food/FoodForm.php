@@ -24,7 +24,7 @@ class FoodForm
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $id;
 
@@ -61,7 +61,7 @@ class FoodForm
      *   @ORM\JoinColumn(name="id", referencedColumnName="formId")
      * })
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $options;
 
@@ -70,7 +70,7 @@ class FoodForm
      *
      * @ORM\Column(name="title", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $title;
 
@@ -79,7 +79,7 @@ class FoodForm
      *
      * @ORM\Column(name="type", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $type;
 
@@ -88,7 +88,7 @@ class FoodForm
      *
      * @ORM\Column(name="required", type="boolean")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $required = true;
 

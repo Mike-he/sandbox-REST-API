@@ -33,3 +33,9 @@ sandbox_api_company_industries:
     resource: "@SandboxApiBundle/Controller/Company/CompanyIndustryController.php"
     type:     annotation
     prefix:   /company
+
+# Food /food
+sandbox_api_food:
+    resource: "@SandboxApiBundle/Controller/Food/FoodController.php"
+    type:     annotation
+    prefix:   /

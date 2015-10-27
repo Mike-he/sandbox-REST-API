@@ -192,3 +192,9 @@ sandbox_client_api_user_account:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserAccountController.php"
     type:     annotation
     prefix:   /user
+
+# Food /food
+sandbox_client_api_food:
+    resource: "@SandboxClientApiBundle/Controller/Food/ClientFoodController.php"
+    type:     annotation
+    prefix:   /

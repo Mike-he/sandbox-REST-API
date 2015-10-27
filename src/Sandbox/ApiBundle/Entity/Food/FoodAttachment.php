@@ -20,7 +20,7 @@ class FoodAttachment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $id;
 
@@ -50,7 +50,7 @@ class FoodAttachment
      *
      * @ORM\Column(name="content", type="text")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $content;
 
@@ -59,7 +59,7 @@ class FoodAttachment
      *
      * @ORM\Column(name="attachmentType", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $attachmentType;
 
@@ -68,7 +68,7 @@ class FoodAttachment
      *
      * @ORM\Column(name="filename", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $filename;
 
@@ -77,7 +77,7 @@ class FoodAttachment
      *
      * @ORM\Column(name="preview", type="text")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $preview;
 
@@ -86,7 +86,7 @@ class FoodAttachment
      *
      * @ORM\Column(name="size", type="integer")
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
     private $size;
 

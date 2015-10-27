@@ -26,7 +26,9 @@ class FoodRepository extends EntityRepository
         $category,
         $buildingId,
         $direction,
-        $search
+        $search = null,
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('f')
             ->where('f.buildingId = :buildingId')
@@ -37,14 +39,20 @@ class FoodRepository extends EntityRepository
                 ->setParameter('category', $category);
         }
 
-        //search by
+        // search by
         if (!is_null($search)) {
             $query = $query->andWhere('f.name LIKE :search OR f.id LIKE :search')
                 ->setParameter('search', '%'.$search.'%');
         }
 
-        $query = $query->orderBy('f.creationDate', $direction)
-            ->getQuery();
+        $query = $query->orderBy('f.creationDate', $direction);
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query = $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        $query = $query->getQuery();
 
         return $query->getResult();
     }
