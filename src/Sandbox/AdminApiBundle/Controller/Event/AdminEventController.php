@@ -163,10 +163,15 @@ class AdminEventController extends SandboxRestController
     /**
      * @param Request $request
      *
-     * @Method({"POST"})
-     * @Route("/events")
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
      *  }
      * )
+     *
+     * @Method({"POST"})
+     * @Route("/events")
      *
      * @return View
      *
@@ -310,7 +315,7 @@ class AdminEventController extends SandboxRestController
         // check room is valid
         $room = $this->getRepo('Room\Room')->find($event->getRoomId());
         if (is_null($room)) {
-            throw new BadRequestHttpException(self::ROOM_CANNOT_INVALID);
+            throw new BadRequestHttpException(self::ERROR_ROOM_INVALID);
         }
 
         $requestContent = $request->getContent();

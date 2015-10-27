@@ -192,3 +192,9 @@ sandbox_client_api_user_account:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserAccountController.php"
     type:     annotation
     prefix:   /user
+
+# Event /client/event/{event_id}/registration
+sandbox_client_api_event_registration:
+    resource: "@SandboxClientApiBundle/Controller/Event/ClientEventRegistrationController.php"
+    type:     annotation
+    prefix:   /
