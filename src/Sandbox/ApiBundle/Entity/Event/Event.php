@@ -19,6 +19,9 @@ class Event
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
 
+    const EVENT_BELONG_ALL = 'all';
+    const EVENT_BELONG_MY = 'my';
+
     /**
      * @var int
      *

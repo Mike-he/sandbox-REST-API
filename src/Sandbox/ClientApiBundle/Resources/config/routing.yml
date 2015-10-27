@@ -198,3 +198,9 @@ sandbox_client_api_food:
     resource: "@SandboxClientApiBundle/Controller/Food/ClientFoodController.php"
     type:     annotation
     prefix:   /
+
+# Event /client/events
+sandbox_client_api_events:
+    resource: "@SandboxClientApiBundle/Controller/Event/ClientEventController.php"
+    type:     annotation
+    prefix:   /
