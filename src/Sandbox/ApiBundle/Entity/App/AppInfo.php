@@ -16,19 +16,11 @@ use JMS\Serializer\Annotation as Serializer;
 class AppInfo
 {
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main"})
-     */
-    private $id;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="platform", type="string", length=16, nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Serializer\Groups({"main"})
      */
     private $platform;
@@ -56,16 +48,6 @@ class AppInfo
      * @Serializer\Groups({"main"})
      */
     private $date;
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Set platform.
