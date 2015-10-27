@@ -12,6 +12,16 @@ use Doctrine\ORM\EntityRepository;
  */
 class FoodRepository extends EntityRepository
 {
+    /**
+     * Get food list.
+     *
+     * @param string $category
+     * @param int    $buildingId
+     * @param string $direction
+     * @param string $search
+     *
+     * @return array
+     */
     public function getFoodList(
         $category,
         $buildingId,

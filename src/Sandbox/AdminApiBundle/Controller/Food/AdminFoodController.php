@@ -50,7 +50,6 @@ class AdminFoodController extends FoodController
      *  }
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="category",
      *    array=false,
@@ -61,7 +60,6 @@ class AdminFoodController extends FoodController
      *    description="Filter by food category"
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="building",
      *    array=false,
@@ -70,7 +68,6 @@ class AdminFoodController extends FoodController
      *    strict=true,
      *    description="Filter by building id"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="pageLimit",
@@ -91,7 +88,6 @@ class AdminFoodController extends FoodController
      *    strict=true,
      *    description="page number "
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="direction",
@@ -124,7 +120,7 @@ class AdminFoodController extends FoodController
         // check user permission
         $this->checkAdminFoodPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
-        //filters
+        // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $category = $paramFetcher->get('category');
@@ -138,7 +134,7 @@ class AdminFoodController extends FoodController
         // sort direction
         $direction = $paramFetcher->get('direction');
 
-        //search by name and number
+        // search by name and number
         $search = $paramFetcher->get('search');
 
         $query = $this->getRepo('Food\Food')->getFoodList(
@@ -246,7 +242,6 @@ class AdminFoodController extends FoodController
      * @param Request $request
      * @param int     $id
      *
-     *
      * @Route("/food/{id}")
      * @Method({"PUT"})
      *
@@ -312,14 +307,14 @@ class AdminFoodController extends FoodController
         if (is_null($attachments) || empty($attachments)) {
             throw new BadRequestHttpException(self::ATTACHMENT_CANNOT_NULL);
         }
-        //add attachments
+        // add attachments
         $this->addFoodAttachment(
             $em,
             $food,
             $attachments
         );
 
-        //add forms
+        // add forms
         if (!is_null($forms) && !empty($forms)) {
             $this->addFoodForms(
                 $em,
@@ -352,13 +347,13 @@ class AdminFoodController extends FoodController
         $foodId = $food->getId();
 
         if (!is_null($attachments) && !empty($attachments)) {
-            //remove attachments
+            // remove attachments
             $this->removeFoodProperties(
                 $em,
                 $foodId,
                 self::ENTITY_FOOD_ATTACHMENT
             );
-            //add attachments
+            // add attachments
             $this->addFoodAttachment(
                 $em,
                 $food,
@@ -367,13 +362,13 @@ class AdminFoodController extends FoodController
         }
 
         if (!is_null($forms) && !empty($forms)) {
-            //remove forms
+            // remove forms
             $this->removeFoodProperties(
                 $em,
                 $foodId,
                 self::ENTITY_FOOD_FORM
             );
-            //add forms
+            // add forms
             $this->addFoodForms(
                 $em,
                 $food,
@@ -506,7 +501,7 @@ class AdminFoodController extends FoodController
         $food = $this->getRepo('Food\Food')->find($id);
         $this->throwNotFoundIfNull($food, self::NOT_FOUND_MESSAGE);
 
-        //delete food
+        // delete food
         $em = $this->getDoctrine()->getManager();
         $em->remove($food);
         $em->flush();
