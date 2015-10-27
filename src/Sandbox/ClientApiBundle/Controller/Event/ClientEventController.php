@@ -168,7 +168,7 @@ class ClientEventController extends SandboxRestController
      *
      * @throws \Exception
      */
-    public function getClientAction(
+    public function getClientEventAction(
         Request $request,
         $id
     ) {
