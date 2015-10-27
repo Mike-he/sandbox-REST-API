@@ -27,7 +27,8 @@ class Event
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $id;
@@ -38,7 +39,8 @@ class Event
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $name;
@@ -49,7 +51,8 @@ class Event
      * @ORM\Column(name="description", type="text", nullable=false)
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $description;
@@ -72,7 +75,8 @@ class Event
      * })
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $city;
@@ -95,7 +99,8 @@ class Event
      * })
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $building;
@@ -106,7 +111,8 @@ class Event
      * @ORM\Column(name="roomId", type="integer", nullable=true)
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $roomId;
@@ -117,7 +123,8 @@ class Event
      * @ORM\Column(name="limitNumber", type="integer", nullable=false)
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $limitNumber;
@@ -128,7 +135,8 @@ class Event
      * @ORM\Column(name="registrationStartDate", type="datetime", nullable=false)
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $registrationStartDate;
@@ -139,7 +147,8 @@ class Event
      * @ORM\Column(name="registrationEndDate", type="datetime", nullable=false)
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $registrationEndDate;
@@ -160,7 +169,8 @@ class Event
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $registrationMethod;
@@ -172,7 +182,8 @@ class Event
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $verify;
@@ -215,7 +226,8 @@ class Event
      * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $attachments;
@@ -232,7 +244,8 @@ class Event
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $dates;
@@ -249,7 +262,8 @@ class Event
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $forms;
