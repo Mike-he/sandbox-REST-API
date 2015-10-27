@@ -22,7 +22,8 @@ class EventFormOption
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $id;
@@ -59,7 +60,8 @@ class EventFormOption
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $content;

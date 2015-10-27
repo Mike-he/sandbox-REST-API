@@ -22,7 +22,8 @@ class EventAttachment
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $id;
@@ -58,7 +59,8 @@ class EventAttachment
      * @ORM\Column(name="content", type="text", nullable=false)
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $content;
@@ -70,7 +72,8 @@ class EventAttachment
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $attachmentType;
@@ -82,7 +85,8 @@ class EventAttachment
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $filename;
@@ -94,7 +98,8 @@ class EventAttachment
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $preview;
@@ -106,7 +111,8 @@ class EventAttachment
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $size;

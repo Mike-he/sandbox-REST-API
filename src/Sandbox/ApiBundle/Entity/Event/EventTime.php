@@ -22,7 +22,8 @@ class EventTime
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $id;
@@ -59,7 +60,8 @@ class EventTime
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $startTime;
@@ -71,7 +73,8 @@ class EventTime
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $endTime;
@@ -83,7 +86,8 @@ class EventTime
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $description;

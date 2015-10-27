@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Class ClientEventController.
@@ -73,7 +74,7 @@ class ClientEventController extends SandboxRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
-        $query = $this->getRepo('Event\Event')->findBy(array('visible' => true));
+        $query = $this->getRepo('Event\Event')->findByVisible(true);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -145,5 +146,42 @@ class ClientEventController extends SandboxRestController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * Get definite id of event.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Route("/events/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getClientEventAction(
+        Request $request,
+        $id
+    ) {
+        // get an event
+        $event = $this->getRepo('Event\Event')->find($id);
+        $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        // set view
+        $view = new View($event);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('client_event'))
+        );
+
+        return $view;
     }
 }
