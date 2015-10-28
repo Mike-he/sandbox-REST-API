@@ -78,7 +78,7 @@ class ClientCompanyMemberController extends CompanyMemberController
         $id
     ) {
         $userId = $this->getUserId();
-        $user = $this->getRepo('User\User')->find($id);
+        $user = $this->getRepo('User\User')->find($userId);
 
         // get company
         $company = $this->getRepo('Company\Company')->find($id);
