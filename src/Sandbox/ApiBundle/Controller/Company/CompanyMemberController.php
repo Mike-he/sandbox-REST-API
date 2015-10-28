@@ -2,9 +2,10 @@
 
 namespace Sandbox\ApiBundle\Controller\Company;
 
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\Company\Company;
+use Sandbox\ApiBundle\Entity\Company\Company;
 use Sandbox\ApiBundle\Entity\Company\CompanyMember;
 use Sandbox\ApiBundle\Entity\Company\CompanyInvitation;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Company Member Controller.
