@@ -313,9 +313,11 @@ class AdminEventController extends SandboxRestController
         Request $request
     ) {
         // check room is valid
-        $room = $this->getRepo('Room\Room')->find($event->getRoomId());
-        if (is_null($room)) {
-            throw new BadRequestHttpException(self::ERROR_ROOM_INVALID);
+        if (!is_null($event->getRoomId())) {
+            $room = $this->getRepo('Room\Room')->find($event->getRoomId());
+            if (is_null($room)) {
+                throw new BadRequestHttpException(self::ERROR_ROOM_INVALID);
+            }
         }
 
         $requestContent = $request->getContent();
