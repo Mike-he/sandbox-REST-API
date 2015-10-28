@@ -283,7 +283,7 @@ class AdminEventController extends SandboxRestController
         $event = $this->getRepo('Event\Event')->find($id);
 
         // check if is valid to delete
-        if (new \DateTime('now') >= $event->getStartDate()) {
+        if (new \DateTime('now') >= $event->getRegistrationStartDate()) {
             return $this->customErrorView(
                 400,
                 self::ERROR_NOT_ALLOWED_DELETE_CODE,
