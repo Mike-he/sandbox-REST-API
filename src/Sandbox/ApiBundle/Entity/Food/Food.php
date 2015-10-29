@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Food;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use JsonSerializable;
 
 /**
  * Food.
@@ -11,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(name="Food")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Food\FoodRepository")
  */
-class Food
+class Food implements JsonSerializable
 {
     const CATEGORY_DRINK = 'drink';
     const CATEGORY_DESSERT = 'dessert';
@@ -489,5 +490,25 @@ class Food
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'city' => $this->city,
+            'building' => $this->building,
+            'category' => $this->category,
+        );
+    }
+
+    public function jsonDessert()
+    {
+        return array(
+            'price' => $this->price,
+            'inventory' => $this->inventory,
+        );
     }
 }

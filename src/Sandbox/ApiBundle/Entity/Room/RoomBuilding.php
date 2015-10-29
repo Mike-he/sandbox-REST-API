@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use JsonSerializable;
 
 /**
  * RoomBuilding.
@@ -16,7 +17,7 @@ use JMS\Serializer\Annotation as Serializer;
  * )
  * @ORM\Entity
  */
-class RoomBuilding
+class RoomBuilding implements JsonSerializable
 {
     /**
      * @var int
@@ -322,5 +323,13 @@ class RoomBuilding
     public function getServer()
     {
         return $this->server;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'name' => $this->name,
+        );
     }
 }
