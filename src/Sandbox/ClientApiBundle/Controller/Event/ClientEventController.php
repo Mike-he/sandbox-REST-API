@@ -55,7 +55,7 @@ class ClientEventController extends SandboxRestController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="offset of page"
+     *    description="id of the previous event"
      * )
      *
      * @Route("/events/all")
@@ -117,7 +117,7 @@ class ClientEventController extends SandboxRestController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="last id"
+     *    description="id of the previous event"
      * )
      *
      * @Route("/events/my")
