@@ -38,18 +38,56 @@ class EventRepository extends EntityRepository
     }
 
     /**
+     * @param int $limit
+     * @param int $lastId
+     *
+     * @return array
+     */
+    public function getAllClientEvents(
+        $limit,
+        $lastId
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->where('e.visible = true');
+
+        if (!is_null($lastId)) {
+            $query->andWhere('e.id < :lastId')
+                ->setParameter('lastId', $lastId);
+        }
+
+        $query->orderBy('e.creationDate', 'DESC');
+
+        $query->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param int $userId
+     * @param int $limit
+     * @param int $lastId
      *
      * @return array
      */
     public function getMyClientEvents(
-        $userId
+        $userId,
+        $limit,
+        $lastId
     ) {
         $query = $this->createQueryBuilder('e')
             ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('e.visible = true')
             ->andWhere('er.userId = :userId')
             ->setParameter('userId', $userId);
+
+        if (!is_null($lastId)) {
+            $query->andWhere('e.id < :lastId')
+                ->setParameter('lastId', $lastId);
+        }
+
+        $query->orderBy('e.creationDate', 'DESC');
+
+        $query->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
     }

@@ -202,7 +202,11 @@ class Event
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event",
+     *      "client_event"
+     * })
      */
     private $creationDate;
 
@@ -267,6 +271,16 @@ class Event
      * })
      */
     private $forms;
+
+    /**
+     * @var bool
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $isRegistered;
 
     /**
      * Get id.
@@ -720,5 +734,25 @@ class Event
     public function getForms()
     {
         return $this->forms;
+    }
+
+    /**
+     * @param bool $isRegistered
+     *
+     * @return Event
+     */
+    public function setIsRegistered($isRegistered)
+    {
+        $this->isRegistered = $isRegistered;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function IsRegistered()
+    {
+        return $this->isRegistered;
     }
 }

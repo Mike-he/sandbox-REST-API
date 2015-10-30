@@ -3,7 +3,6 @@
 namespace Sandbox\ClientApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,23 +39,23 @@ class ClientEventController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
-     *    default="20",
+     *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many products to return"
+     *    description="limit for page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="last_id",
      *    array=false,
-     *    default="1",
+     *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number"
+     *    description="id of the previous event"
      * )
      *
      * @Route("/events/all")
@@ -71,19 +70,21 @@ class ClientEventController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // filters
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
+        $limit = $paramFetcher->get('limit');
+        $lastId = $paramFetcher->get('last_id');
 
-        $query = $this->getRepo('Event\Event')->findByVisible(true);
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $query,
-            $pageIndex,
-            $pageLimit
+        $query = $this->getRepo('Event\Event')->getAllClientEvents(
+            $limit,
+            $lastId
         );
 
-        return new View($pagination);
+        $view = new View($query);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
+
+        return $view;
     }
 
     /**
@@ -100,23 +101,23 @@ class ClientEventController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
-     *    default="20",
+     *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many products to return"
+     *    description="limit for page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="last_id",
      *    array=false,
-     *    default="1",
+     *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number"
+     *    description="id of the previous event"
      * )
      *
      * @Route("/events/my")
@@ -133,19 +134,22 @@ class ClientEventController extends SandboxRestController
         $userId = $this->getUserId();
 
         // filters
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
+        $limit = $paramFetcher->get('limit');
+        $lastId = $paramFetcher->get('last_id');
 
-        $query = $this->getRepo('Event\Event')->getMyClientEvents($userId);
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $query,
-            $pageIndex,
-            $pageLimit
+        $query = $this->getRepo('Event\Event')->getMyClientEvents(
+            $userId,
+            $limit,
+            $lastId
         );
 
-        return new View($pagination);
+        $view = new View($query);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
+
+        return $view;
     }
 
     /**
@@ -172,9 +176,21 @@ class ClientEventController extends SandboxRestController
         Request $request,
         $id
     ) {
+        $userId = $this->getUserId();
+
         // get an event
         $event = $this->getRepo('Event\Event')->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        // check if user is registered
+        $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
+            'eventId' => $id,
+            'userId' => $userId,
+        ));
+
+        if (!is_null($registration)) {
+            $event->setIsRegistered(true);
+        }
 
         // set view
         $view = new View($event);
