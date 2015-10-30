@@ -60,4 +60,6 @@ security:
         - { path: ^/client, role: ROLE_CLIENT_API }
         - { path: ^/admin/auth/login$, role: ROLE_ADMIN }
         - { path: ^/admin, role: ROLE_ADMIN_API }
+        - { path: ^/user/background/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/user/avatar/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
 

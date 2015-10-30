@@ -15,6 +15,11 @@ use Sandbox\ApiBundle\Entity\User\UserProfileVisitor;
 use Sandbox\ApiBundle\Form\User\UserEducationType;
 use Sandbox\ApiBundle\Form\User\UserExperienceType;
 use Sandbox\ApiBundle\Form\User\UserPortfolioType;
+use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\View\View;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use JMS\Serializer\SerializationContext;
 
 /**
  * User Profile Controller.
@@ -28,6 +33,50 @@ use Sandbox\ApiBundle\Form\User\UserPortfolioType;
  */
 class UserProfileController extends SandboxRestController
 {
+    /**
+     * Get background attachments.
+     *
+     * @param Request $request
+     *
+     * @Route("/user/background/attachments")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getBackgroundAttachmentsAction(
+        Request $request
+    ) {
+        $attachments = $this->getRepo('User\UserBackground')->findAll();
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['background_list']));
+        $view->setData($attachments);
+
+        return $view;
+    }
+
+    /**
+     * Get avatar attachments.
+     *
+     * @param Request $request
+     *
+     * @Route("/user/avatar/attachments")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAvatarAttachmentsAction(
+        Request $request
+    ) {
+        $attachments = $this->getRepo('User\UserAvatar')->findAll();
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['avatar_list']));
+        $view->setData($attachments);
+
+        return $view;
+    }
+
     /**
      * @param User        $myUser
      * @param User        $requestUser

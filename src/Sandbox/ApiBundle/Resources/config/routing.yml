@@ -46,3 +46,8 @@ sandbox_api_app:
     type:     annotation
     prefix:   /
 
+# UserProfile
+sandbox_api_user profile:
+    resource: "@SandboxApiBundle/Controller/User/UserProfileController.php"
+    type:     annotation
+    prefix:   /
