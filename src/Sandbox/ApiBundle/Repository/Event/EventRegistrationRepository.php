@@ -43,4 +43,32 @@ class EventRegistrationRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param int $eventId
+     * @param int $registrationId
+     *
+     * @return array
+     */
+    public function getEventRegistration(
+        $eventId,
+        $registrationId
+    ) {
+        $query = $this->createQueryBuilder('er')
+            ->select('
+                er.id,
+                up.name as user_name,
+                up.gender,
+                u.phone,
+                u.email
+            ')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = :eventId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = er.userId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = er.userId')
+            ->where('er.id = :registrationId')
+            ->setParameter('eventId', $eventId)
+            ->setParameter('registrationId', $registrationId);
+
+        return $query->getQuery()->getSingleResult();
+    }
 }
