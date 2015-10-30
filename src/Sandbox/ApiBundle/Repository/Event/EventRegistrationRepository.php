@@ -43,4 +43,22 @@ class EventRegistrationRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param int $eventId
+     *
+     * @return array
+     */
+    public function getRegistrationCounts(
+        $eventId
+    ) {
+        $query = $this->createQueryBuilder('er')
+            ->select('
+                count(er) as counts
+            ')
+            ->where('er.eventId = :eventId')
+            ->setParameter('eventId', $eventId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

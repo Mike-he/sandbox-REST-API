@@ -39,25 +39,20 @@ class EventRepository extends EntityRepository
 
     /**
      * @param int $limit
-     * @param int $lastId
+     * @param int $offset
      *
      * @return array
      */
     public function getAllClientEvents(
         $limit,
-        $lastId
+        $offset
     ) {
         $query = $this->createQueryBuilder('e')
             ->where('e.visible = true');
 
-        if (!is_null($lastId)) {
-            $query->andWhere('e.id < :lastId')
-                ->setParameter('lastId', $lastId);
-        }
-
-        $query->orderBy('e.creationDate', 'DESC');
-
-        $query->setMaxResults($limit);
+        $query->orderBy('e.creationDate', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
     }
@@ -65,14 +60,14 @@ class EventRepository extends EntityRepository
     /**
      * @param int $userId
      * @param int $limit
-     * @param int $lastId
+     * @param int $offset
      *
      * @return array
      */
     public function getMyClientEvents(
         $userId,
         $limit,
-        $lastId
+        $offset
     ) {
         $query = $this->createQueryBuilder('e')
             ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
@@ -80,14 +75,9 @@ class EventRepository extends EntityRepository
             ->andWhere('er.userId = :userId')
             ->setParameter('userId', $userId);
 
-        if (!is_null($lastId)) {
-            $query->andWhere('e.id < :lastId')
-                ->setParameter('lastId', $lastId);
-        }
-
-        $query->orderBy('e.creationDate', 'DESC');
-
-        $query->setMaxResults($limit);
+        $query->orderBy('e.creationDate', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
     }
