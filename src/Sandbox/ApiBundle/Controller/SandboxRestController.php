@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
+use Sandbox\ApiBundle\Entity\Announcement\Announcement;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Acl\Exception\Exception;
 
@@ -1153,6 +1154,64 @@ class SandboxRestController extends FOSRestController
                     'company' => array(
                         'id' => $company->getId(),
                         'name' => $company->getName(),
+                    ),
+                ),
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // init curl
+            $ch = curl_init($apiURL);
+
+            // get then response when post OpenFire API
+            $response = $this->get('curl_util')->callAPI(
+                $ch,
+                'POST',
+                null,
+                $jsonData);
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode != self::HTTP_STATUS_OK) {
+                return;
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            error_log('Send buddy notification went wrong!');
+        }
+    }
+
+    /**
+     * @param Announcement $announcement
+     * @param string       $action
+     */
+    protected function sendXmppAnnouncementNotification(
+        $announcement,
+        $action
+    ) {
+        if (is_null($announcement)) {
+            return;
+        }
+
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            // openfire API URL
+            $apiURL = $globals['openfire_innet_url'].
+                $globals['openfire_plugin_sandbox'].
+                $globals['openfire_plugin_sandbox_notification'].
+                $globals['openfire_plugin_sandbox_notification_broadcast'];
+
+            // request json
+            $jsonDataArray = array(
+                'outcasts' => null,
+                'content' => array(
+                    'type' => 'announcement',
+                    'action' => $action,
+                    'object' => array(
+                        'id' => $announcement->getId(),
+                        'title' => $announcement->getTitle(),
                     ),
                 ),
             );
