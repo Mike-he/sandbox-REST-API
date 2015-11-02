@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\ChatGroup;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Entity\User\User;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -19,7 +20,7 @@ class ChatGroup
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "chatgroup"})
      */
     private $id;
 
@@ -27,9 +28,27 @@ class ChatGroup
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=128, nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "chatgroup"})
      */
     private $name;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="creatorId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "chatgroup"})
+     */
+    private $creatorId;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="creatorId", referencedColumnName="id", onDelete="CASCADE")
+     * })
+     */
+    private $creator;
 
     /**
      * @var \DateTime
@@ -46,6 +65,13 @@ class ChatGroup
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"chatgroup"})
+     */
+    private $members;
 
     /**
      * Get id.
@@ -79,6 +105,38 @@ class ChatGroup
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @param int $creatorId
+     */
+    public function setCreatorId($creatorId)
+    {
+        $this->creatorId = $creatorId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCreatorId()
+    {
+        return $this->creatorId;
+    }
+
+    /**
+     * @param User $creator
+     */
+    public function setCreator($creator)
+    {
+        $this->creator = $creator;
+    }
+
+    /**
+     * @return User
+     */
+    public function getCreator()
+    {
+        return $this->creator;
     }
 
     /**
@@ -123,5 +181,28 @@ class ChatGroup
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * @param array $members
+     */
+    public function setMembers($members)
+    {
+        $this->members = $members;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMembers()
+    {
+        return $this->members;
+    }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 }

@@ -3,11 +3,16 @@
 namespace Sandbox\ClientApiBundle\Controller\ChatGroup;
 
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
+use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
+use Sandbox\ClientApiBundle\Data\ChatGroup\ChatGroupData;
+use Sandbox\ClientApiBundle\Form\ChatGroup\ChatGroupType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Rs\Json\Patch;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Client Chat Group Controller.
@@ -34,6 +39,92 @@ class ClientChatGroupController extends ChatGroupController
     public function postChatGroupAction(
         Request $request
     ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // check banned and authorized
+        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        // get request payload
+        $data = new ChatGroupData();
+
+        $form = $this->createForm(new ChatGroupType(), $data);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // validate request content
+        $memberIds = $data->getMemberIds();
+        $name = $data->getName();
+
+        if (is_null($memberIds) || empty($memberIds)) {
+            // TODO return custom error
+        }
+
+        // create new chat group
+        $em = $this->getDoctrine()->getManager();
+
+        $chatGroup = new ChatGroup();
+
+        // add member
+        $chatGroupName = $name;
+        $memberCount = 0;
+
+        foreach ($memberIds as $memberId) {
+            $member = $this->getRepo('User\User')->find($memberId);
+            if (is_null($member)) {
+                continue;
+            }
+
+            // check member is buddy
+            $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                'user' => $myUser,
+                'buddy' => $member,
+            ));
+            if (is_null($buddy)) {
+                continue;
+            }
+
+            $memberProfile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+            if (is_null($memberProfile)) {
+                continue;
+            }
+
+            // save member
+            $this->saveChatGroupMember($em, $chatGroup, $member, $myUser);
+
+            // generate name
+            if (is_null($name)) {
+                $chatGroupName = $chatGroupName.$memberProfile->getName();
+
+                if ($memberCount < sizeof($memberIds)) {
+                    $chatGroupName = $chatGroupName.', ';
+                }
+            }
+
+            ++$memberCount;
+        }
+
+        $chatGroup->setName($chatGroupName);
+        $em->persist($chatGroup);
+
+        // TODO create chat group in Openfire
+
+
+        // save to db
+        $em->flush();
+
+        // response
+        $view = new View();
+        $view->setData(array(
+            'id' => $chatGroup->getId(),
+        ));
+
+        return $view;
     }
 
     /**
@@ -49,6 +140,19 @@ class ClientChatGroupController extends ChatGroupController
     public function getChatGroupsAction(
         Request $request
     ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // check banned and authorized
+        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+            return new View(array());
+        }
+
+        // get my chat groups
+        $chatGroups = $this->getRepo('ChatGroup\ChatGroup')->getMyChatGroups($myUserId);
+
+        // response
+        return new View($chatGroups);
     }
 
     /**
@@ -66,6 +170,47 @@ class ClientChatGroupController extends ChatGroupController
         Request $request,
         $id
     ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // check banned and authorized
+        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+            return new View();
+        }
+
+        // get chat group
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->getChatGroup($id, $myUserId);
+
+        return new View($chatGroup);
+    }
+
+    /**
+     * Retrieve everything a given chat group.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/chatgroups/{id}/all")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getChatGroupAllAction(
+        Request $request,
+        $id
+    ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // check banned and authorized
+        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+            return new View();
+        }
+
+        // get chat group
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->getChatGroup($id, $myUserId);
+
+        return new View($chatGroup);
     }
 
     /**
@@ -83,6 +228,34 @@ class ClientChatGroupController extends ChatGroupController
         Request $request,
         $id
     ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // check banned and authorized
+        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+            return new View();
+        }
+
+        // get $chatGroup
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $chatGroupJson = $this->container->get('serializer')->serialize($chatGroup, 'json');
+        $patch = new Patch($chatGroupJson, $request->getContent());
+        $chatGroupJson = $patch->apply();
+
+        $form = $this->createForm(new ChatGroupType(), $chatGroup);
+        $form->submit(json_decode($chatGroupJson, true));
+
+        // set chatGroup
+        $chatGroup->setModificationDate(new \DateTime('now'));
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -100,12 +273,40 @@ class ClientChatGroupController extends ChatGroupController
         Request $request,
         $id
     ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // check banned and authorized
+        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+            return new View();
+        }
+
+        // get chatGroup
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        if (is_null($chatGroup)) {
+            return new View();
+        }
+
+        // only chat group creator is allowed to remove it
+        if ($myUser != $chatGroup->getCreator()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        // TODO remove chat group in Openfire
+
+        // remove from db
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($chatGroup);
+        $em->flush();
+
+        return new View();
     }
 
     /**
      * Mute a chat group.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @Route("/chatgroups/{id}/mute")
      * @Method({"POST"})
@@ -113,8 +314,10 @@ class ClientChatGroupController extends ChatGroupController
      * @return View
      */
     public function muteChatGroupAction(
-        Request $request
+        Request $request,
+        $id
     ) {
+        $this->handleChatGroupMute(true);
     }
 
     /**
@@ -132,5 +335,49 @@ class ClientChatGroupController extends ChatGroupController
         Request $request,
         $id
     ) {
+        $this->handleChatGroupMute(false);
+    }
+
+    /**
+     * @param $mute
+     *
+     * @return View
+     */
+    private function handleChatGroupMute(
+        $mute
+    ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // check banned and authorized
+        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+            return new View();
+        }
+
+        // get chatGroup
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        if (is_null($chatGroup)) {
+            return new View();
+        }
+
+        // get chat group member
+        $chatGroupMember = $this->getRepo('ChatGroup\ChatGroupMember')
+            ->findOneBy(
+                array(
+                    'chatGroup' => $chatGroup,
+                    'user' => $myUser,
+                )
+            );
+        if (is_null($chatGroup)) {
+            return new View();
+        }
+
+        $chatGroupMember->setMute($mute);
+
+        // remove from db
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 }
