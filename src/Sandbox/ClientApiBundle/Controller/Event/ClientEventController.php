@@ -49,13 +49,13 @@ class ClientEventController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="last_id",
+     *    name="offset",
      *    array=false,
-     *    default=null,
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="id of the previous event"
+     *    description="offset of page"
      * )
      *
      * @Route("/events/all")
@@ -71,14 +71,14 @@ class ClientEventController extends SandboxRestController
     ) {
         // filters
         $limit = $paramFetcher->get('limit');
-        $lastId = $paramFetcher->get('last_id');
+        $offset = $paramFetcher->get('offset');
 
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
         $query = $this->getRepo('Event\Event')->getAllClientEvents(
             $limit,
-            $lastId
+            $offset
         );
 
         $view = new View($query);
@@ -111,13 +111,13 @@ class ClientEventController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="last_id",
+     *    name="offset",
      *    array=false,
-     *    default=null,
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="id of the previous event"
+     *    description="offset of the page"
      * )
      *
      * @Route("/events/my")
@@ -135,7 +135,7 @@ class ClientEventController extends SandboxRestController
 
         // filters
         $limit = $paramFetcher->get('limit');
-        $lastId = $paramFetcher->get('last_id');
+        $offset = $paramFetcher->get('offset');
 
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
@@ -143,7 +143,7 @@ class ClientEventController extends SandboxRestController
         $query = $this->getRepo('Event\Event')->getMyClientEvents(
             $userId,
             $limit,
-            $lastId
+            $offset
         );
 
         $view = new View($query);

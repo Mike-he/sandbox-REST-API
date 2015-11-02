@@ -30,18 +30,20 @@ class ClientEventRegistrationController extends SandboxRestController
     const ERROR_EVENT_INVALID = 'Invalid event';
     const ERROR_EVENT_FORM_INVALID = 'Invalid event form';
 
-    const ERROR_EXIST_EVENT_REGISTRATION_CODE = '400001';
+    const ERROR_EXIST_EVENT_REGISTRATION_CODE = 400001;
     const ERROR_EXIST_EVENT_REGISTRATION_MESSAGE = 'You have already registered';
-    const ERROR_INVALID_PHONE_CODE = '400002';
+    const ERROR_INVALID_PHONE_CODE = 400002;
     const ERROR_INVALID_PHONE_MESSAGE = 'Invalid phone';
-    const ERROR_INVALID_EMAIL_CODE = '400003';
+    const ERROR_INVALID_EMAIL_CODE = 400003;
     const ERROR_INVALID_EMAIL_MESSAGE = 'Invalid email';
-    const ERROR_INVALID_RADIO_CODE = '400004';
+    const ERROR_INVALID_RADIO_CODE = 400004;
     const ERROR_INVALID_RADIO_MESSAGE = 'Invalid radio';
-    const ERROR_INVALID_CHECKBOX_CODE = '400005';
+    const ERROR_INVALID_CHECKBOX_CODE = 400005;
     const ERROR_INVALID_CHECKBOX_MESSAGE = 'Invalid checkbox';
-    const ERROR_MISSING_USER_INPUT_CODE = '400006';
+    const ERROR_MISSING_USER_INPUT_CODE = 400006;
     const ERROR_MISSING_USER_INPUT_MESSAGE = 'Missing user input';
+    const ERROR_OVER_LIMIT_NUMBER_CODE = 400007;
+    const ERROR_OVER_LIMIT_NUMBER_MESSAGE = 'Over registration limit number';
 
     /**
      * Post registrations.
@@ -78,22 +80,34 @@ class ClientEventRegistrationController extends SandboxRestController
 
     /**
      * @param EventRegistration $eventRegistration
-     * @param int               $event_id
+     * @param int               $eventId
      * @param Request           $request
      *
      * @return View
      */
     private function handleEventRequest(
         $eventRegistration,
-        $event_id,
+        $eventId,
         $request
     ) {
         $userId = $this->getUserId();
 
         // check event is valid
-        $event = $this->getRepo('Event\Event')->find($event_id);
+        $event = $this->getRepo('Event\Event')->find($eventId);
         if (is_null($event) || $event->getVisible() == false) {
             throw new BadRequestHttpException(self::ERROR_EVENT_INVALID);
+        }
+
+        // check if registration over limit number
+        $registrationCounts = $this->getRepo('Event\EventRegistration')
+            ->getRegistrationCounts($eventId);
+        $registrationCounts = (int) $registrationCounts;
+        if ($registrationCounts >= $event->getLimitNumber()) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_OVER_LIMIT_NUMBER_CODE,
+                self::ERROR_OVER_LIMIT_NUMBER_MESSAGE
+            );
         }
 
         // check if the user is already registered
