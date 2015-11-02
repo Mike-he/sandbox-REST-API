@@ -168,7 +168,7 @@ class AdminEventRegistrationController extends SandboxRestController
         $event_id
     ) {
         // check user permission
-        $this->checkAdminEventRegistrationPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminEventRegistrationPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -193,6 +193,48 @@ class AdminEventRegistrationController extends SandboxRestController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * Get definite id of event registration.
+     *
+     * @param Request $request
+     * @param int     $event_id
+     * @param int     $registration_id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Route("/events/{event_id}/registrations/{registration_id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throw \Exception
+     */
+    public function getAdminEventRegistrationAction(
+        Request $request,
+        $event_id,
+        $registration_id
+    ) {
+        // check user permission
+        $this->checkAdminEventRegistrationPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // get query result
+        $eventRegistrationArray = $this->getRepo('Event\EventRegistration')->getEventRegistration(
+            $event_id,
+            $registration_id
+            );
+
+        $formsArray = $this->getEventRegistrationFormOptions($registration_id);
+
+        $registration = array_merge($eventRegistrationArray, array('forms' => $formsArray));
+
+        return new View($registration);
     }
 
     /**
