@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Food;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use JsonSerializable;
 
 /**
  * FoodAttachment.
@@ -11,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(name="FoodAttachment")
  * @ORM\Entity
  */
-class FoodAttachment
+class FoodAttachment implements JsonSerializable
 {
     /**
      * @var int
@@ -266,5 +267,16 @@ class FoodAttachment
         $this->food = $food;
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'content' => $this->content,
+            'attachmentType' => $this->attachmentType,
+            'filename' => $this->filename,
+            'preview' => $this->preview,
+            'size' => $this->size,
+        );
     }
 }

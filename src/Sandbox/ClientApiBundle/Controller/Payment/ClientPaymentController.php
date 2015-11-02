@@ -60,12 +60,10 @@ class ClientPaymentController extends PaymentController
 
         switch ($orderType) {
             case 'P':
-
                 $order = $this->setProductOrder($chargeId);
 
                 break;
             case 'V':
-
                 $productId = $myCharge->getOrderId();
                 $order = $this->setMembershipOrder($userId, $productId, $price, $orderNumber);
                 $this->postAccountUpgrade($userId, $productId, $orderNumber);
@@ -73,8 +71,17 @@ class ClientPaymentController extends PaymentController
 
                 break;
             case 'T':
-
                 $order = $this->setTopUpOrder($userId, $price, $orderNumber);
+                $balance = $this->postBalanceChange(
+                    $userId,
+                    $price,
+                    $orderNumber,
+                    $channel
+                );
+
+                break;
+            case 'F':
+                $orderId = $this->findAndSetFoodOrder($orderNumber);
                 $balance = $this->postBalanceChange(
                     $userId,
                     $price,
