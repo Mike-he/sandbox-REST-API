@@ -550,7 +550,7 @@ class Company
     /**
      * Get creatorId.
      *
-     * @return \Sandbox\ApiBundle\Entity\User\User
+     * @return int
      */
     public function getCreatorId()
     {
@@ -558,7 +558,7 @@ class Company
     }
 
     /**
-     * Set creatorId.
+     * @param int $creatorId
      *
      * @return Company
      */
