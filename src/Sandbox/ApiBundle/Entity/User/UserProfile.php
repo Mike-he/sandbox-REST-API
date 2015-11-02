@@ -414,7 +414,8 @@ class UserProfile
      *      "profile_basic",
      *      "profile_stranger",
      *      "profile_basic_stranger",
-     *      "buddy"
+     *      "buddy",
+     *      "member"
      *  }
      * )
      */
