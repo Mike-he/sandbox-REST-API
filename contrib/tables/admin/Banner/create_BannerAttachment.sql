@@ -4,7 +4,7 @@ CREATE TABLE `BannerAttachment` (
   `content` longtext NOT NULL,
   `attachmentType` varchar(64) NOT NULL,
   `filename` varchar(255) NOT NULL,
-  `preview` longtext NOT NULL,
+  `preview` longtext,
   `size` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_BannerAttachment_bannerId_idx` (`bannerId`),

@@ -62,7 +62,7 @@ class BannerAttachment
     /**
      * @var string
      *
-     * @ORM\Column(name="preview", type="text")
+     * @ORM\Column(name="preview", type="text", nullable=true)
      */
     private $preview;
 
