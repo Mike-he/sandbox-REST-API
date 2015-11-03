@@ -18,7 +18,7 @@ class Version20151102152807_feature_13491 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE FeedComment ADD fatherAuthorId INT');
+        $this->addSql('ALTER TABLE FeedComment ADD replyToUserId INT');
     }
 
     /**
@@ -29,6 +29,6 @@ class Version20151102152807_feature_13491 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE FeedComment DROP fathorAuthorId');
+        $this->addSql('ALTER TABLE FeedComment DROP replyToUserId');
     }
 }

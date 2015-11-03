@@ -92,9 +92,10 @@ class ClientFeedCommentController extends FeedCommentController
                 continue;
             }
 
-            $fatherAuthorId = $comment->getFatherAuthorId();
-            if (!is_null($fatherAuthorId)) {
-                $fatherAuthor = $this->getRepo('User\UserProfile')->findOneByUserId($fatherAuthorId);
+            $replyToUserId = $comment->getReplyToUserId();
+            $replyToUser = null;
+            if (!is_null($replyToUserId)) {
+                $replyToUser = $this->getRepo('User\UserProfile')->findOneByUserId($replyToUserId);
             }
 
             $comment_array = array(
@@ -103,7 +104,7 @@ class ClientFeedCommentController extends FeedCommentController
                 'author' => $authorProfile,
                 'payload' => $comment->getPayload(),
                 'creation_date' => $comment->getCreationDate(),
-                'reply_to' => $fatherAuthor,
+                'reply_to_user' => $replyToUser,
             );
 
             array_push($commentsResponse, $comment_array);
@@ -153,79 +154,20 @@ class ClientFeedCommentController extends FeedCommentController
         }
 
         $user = $this->getRepo('User\User')->find($this->getUserId());
+        $replyToUserId = $comment->getReplyToUserId();
+        if (!is_null($replyToUserId) || $replyToUserId != '') {
+            $replyToUser = $this->getRepo('User\User')->find($comment->getReplyToUserId());
+            $this->throwNotFoundIfNull($replyToUser, self::NOT_FOUND_MESSAGE);
+        }
 
         // set comment
         $comment->setFeed($feed);
         $comment->setAuthor($user);
         $comment->setPayload($payload);
         $comment->setCreationdate(new \DateTime('now'));
-
-        // save to db
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($comment);
-        $em->flush();
-
-        // set view
-        $view = new View();
-        $view->setData(array(
-            'id' => $comment->getId(),
-            'creationDate' => $comment->getCreationDate(),
-        ));
-
-        return $view;
-    }
-
-    /**
-     * Post feed comment reply.
-     *
-     * @param Request $request
-     * @param int     $comment_id
-     *
-     * @Route("/feeds/comments/{comment_id}/reply")
-     * @Method({"POST"})
-     *
-     * @return View
-     *
-     * @throw \Exception
-     */
-    public function postFeedCommentReplyAction(
-        Request $request,
-        $comment_id
-    ) {
-        $fatherComment = $this->getRepo('Feed\FeedComment')->find($comment_id);
-        $this->throwNotFoundIfNull($fatherComment, self::NOT_FOUND_MESSAGE);
-        $fatherAuthorId = $fatherComment->getAuthorId();
-
-        $feed = $this->getRepo('Feed\Feed')->find($fatherComment->getFeedId());
-        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
-
-        // get request payload
-        $comment = new FeedComment();
-
-        $form = $this->createForm(new FeedCommentType(), $comment);
-        $form->handleRequest($request);
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        if (!is_null($replyToUserId) || $replyToUserId != '') {
+            $comment->setReplyToUserId($replyToUserId);
         }
-
-        $payload = $comment->getPayload();
-        if (is_null($payload)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-        if (!is_string($payload)) {
-            // in case the client send a non-string object, e.g. json
-            $payload = json_encode($payload);
-        }
-
-        $author = $this->getRepo('User\User')->find($this->getUserId());
-        $fatherAuthor = $this->getRepo('User\User')->find($fatherAuthorId);
-        $this->throwNotFoundIfNull($fatherAuthor, self::NOT_FOUND_MESSAGE);
-
-        $comment->setAuthor($author);
-        $comment->setPayload($payload);
-        $comment->setFeed($feed);
-        $comment->setFatherAuthorId($fatherAuthor->getId());
-        $comment->setCreationDate(new \DateTime('now'));
 
         // save to db
         $em = $this->getDoctrine()->getManager();

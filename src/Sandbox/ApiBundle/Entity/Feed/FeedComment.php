@@ -91,14 +91,14 @@ class FeedComment
     /**
      * @var int
      *
-     * @ORM\Column(name="fatherAuthorId", type="integer", nullable=false)
+     * @ORM\Column(name="replyToUserId", type="integer", nullable=true)
      */
-    private $fatherAuthorId;
+    private $replyToUserId;
 
     /**
      * @var \Sandbox\ApiBundle\Entity\User\User
      */
-    private $fatherAuthor;
+    private $replyToUser;
 
     /**
      * Get id.
@@ -251,50 +251,50 @@ class FeedComment
     }
 
     /**
-     * Set fatherAuthorId.
+     * Set replyToUserId.
      *
-     * @param $fatherAuthorId
+     * @param $replyToUserId
      *
      * @return FeedComment
      */
-    public function setFatherAuthorId($fatherAuthorId)
+    public function setReplyToUserId($replyToUserId)
     {
-        $this->fatherAuthorId = $fatherAuthorId;
+        $this->replyToUserId = $replyToUserId;
 
         return $this;
     }
 
     /**
-     * Get fatherAuthorId.
+     * Get replyToUserId.
      *
      * @return int
      */
-    public function getFatherAuthorId()
+    public function getReplyToUserId()
     {
-        return $this->fatherAuthorId;
+        return $this->replyToUserId;
     }
 
     /**
-     * Set fatherAuthor.
+     * Set replyToUser.
      *
-     * @param \Sandbox\ApiBundle\Entity\User\User $fatherAuthor
+     * @param \Sandbox\ApiBundle\Entity\User\User $replyToUser
      *
      * @return FeedComment
      */
-    public function setFatherAuthor($fatherAuthor)
+    public function setReplyToUser($replyToUser)
     {
-        $this->fatherAuthor = $fatherAuthor;
+        $this->replyToUser = $replyToUser;
 
         return $this;
     }
 
     /**
-     * Get fatherAuthor.
+     * Get replyToUser.
      *
      * @return \Sandbox\ApiBundle\Entity\User\User
      */
-    public function getFatherAuthor()
+    public function getReplyToUser()
     {
-        return $this->fatherAuthor;
+        return $this->replyToUser;
     }
 }
