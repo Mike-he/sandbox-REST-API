@@ -22,6 +22,7 @@ class EventRegistrationRepository extends EntityRepository
         $query = $this->createQueryBuilder('er')
             ->select('
                 er.id,
+                er.status,
                 up.name as user_name,
                 up.gender,
                 u.phone,
