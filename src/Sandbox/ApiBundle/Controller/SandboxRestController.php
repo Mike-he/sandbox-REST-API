@@ -1205,7 +1205,7 @@ class SandboxRestController extends FOSRestController
 
             // request json
             $jsonDataArray = array(
-                'outcasts' => null,
+                'outcasts' => array(),
                 'content' => array(
                     'type' => 'announcement',
                     'action' => $action,
