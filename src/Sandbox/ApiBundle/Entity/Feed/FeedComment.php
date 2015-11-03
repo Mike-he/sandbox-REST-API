@@ -89,6 +89,18 @@ class FeedComment
     private $creationDate;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="fatherAuthorId", type="integer", nullable=false)
+     */
+    private $fatherAuthorId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\User\User
+     */
+    private $fatherAuthor;
+
+    /**
      * Get id.
      *
      * @return int
@@ -236,5 +248,53 @@ class FeedComment
     public function getFeed()
     {
         return $this->feed;
+    }
+
+    /**
+     * Set fatherAuthorId.
+     *
+     * @param $fatherAuthorId
+     *
+     * @return FeedComment
+     */
+    public function setFatherAuthorId($fatherAuthorId)
+    {
+        $this->fatherAuthorId = $fatherAuthorId;
+
+        return $this;
+    }
+
+    /**
+     * Get fatherAuthorId.
+     *
+     * @return int
+     */
+    public function getFatherAuthorId()
+    {
+        return $this->fatherAuthorId;
+    }
+
+    /**
+     * Set fatherAuthor.
+     *
+     * @param \Sandbox\ApiBundle\Entity\User\User $fatherAuthor
+     *
+     * @return FeedComment
+     */
+    public function setFatherAuthor($fatherAuthor)
+    {
+        $this->fatherAuthor = $fatherAuthor;
+
+        return $this;
+    }
+
+    /**
+     * Get fatherAuthor.
+     *
+     * @return \Sandbox\ApiBundle\Entity\User\User
+     */
+    public function getFatherAuthor()
+    {
+        return $this->fatherAuthor;
     }
 }
