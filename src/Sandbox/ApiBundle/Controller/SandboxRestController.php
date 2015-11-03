@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
+use Sandbox\ApiBundle\Entity\Announcement\Announcement;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Acl\Exception\Exception;
 
@@ -1025,11 +1026,9 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param $fromUser
-     * @param $recvUser
-     * @param $action
-     *
-     * @return mixed|void
+     * @param User   $fromUser
+     * @param User   $recvUser
+     * @param string $action
      */
     protected function sendXmppBuddyNotification(
         $fromUser,
@@ -1065,6 +1064,154 @@ class SandboxRestController extends FOSRestController
                     'from' => array(
                         'id' => $fromUser->getId(),
                         'xmpp_username' => $fromUser->getXmppUsername(),
+                    ),
+                ),
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // init curl
+            $ch = curl_init($apiURL);
+
+            // get then response when post OpenFire API
+            $response = $this->get('curl_util')->callAPI(
+                $ch,
+                'POST',
+                null,
+                $jsonData);
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode != self::HTTP_STATUS_OK) {
+                return;
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            error_log('Send buddy notification went wrong!');
+        }
+    }
+
+    /**
+     * @param Company $company
+     * @param User    $fromUser
+     * @param User    $recvUser
+     * @param string  $action
+     * @param bool    $memberSync
+     */
+    protected function sendXmppCompanyNotification(
+        $company,
+        $fromUser,
+        $recvUser,
+        $action,
+        $memberSync
+    ) {
+        if (is_null($fromUser)
+            || is_null($recvUser)) {
+            return;
+        }
+
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            // openfire API URL
+            $apiURL = $globals['openfire_innet_url'].
+                $globals['openfire_plugin_sandbox'].
+                $globals['openfire_plugin_sandbox_notification'];
+
+            // get receivers
+            $domainURL = $globals['xmpp_domain'];
+            $receivers = array();
+
+            if ($memberSync) {
+                $members = $this->getRepo('Company\CompanyMember')->findBy(array(
+                    'company' => $company,
+                ));
+
+                foreach ($members as $member) {
+                    $user = $this->getRepo('User\User')->find($member->getUserId());
+                    if (is_null($user)) {
+                        continue;
+                    }
+                    $jid = $user->getXmppUsername().'@'.$domainURL;
+                    $receivers[] = array('jid' => $jid);
+                }
+            } else {
+                $jid = $recvUser->getXmppUsername().'@'.$domainURL;
+                $receivers[] = array('jid' => $jid);
+            }
+
+            // request json
+            $jsonDataArray = array(
+                'receivers' => $receivers,
+                'content' => array(
+                    'type' => 'company',
+                    'action' => $action,
+                    'from' => array(
+                        'id' => $fromUser->getId(),
+                        'xmpp_username' => $fromUser->getXmppUsername(),
+                    ),
+                    'company' => array(
+                        'id' => $company->getId(),
+                        'name' => $company->getName(),
+                    ),
+                ),
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // init curl
+            $ch = curl_init($apiURL);
+
+            // get then response when post OpenFire API
+            $response = $this->get('curl_util')->callAPI(
+                $ch,
+                'POST',
+                null,
+                $jsonData);
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode != self::HTTP_STATUS_OK) {
+                return;
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            error_log('Send buddy notification went wrong!');
+        }
+    }
+
+    /**
+     * @param Announcement $announcement
+     * @param string       $action
+     */
+    protected function sendXmppAnnouncementNotification(
+        $announcement,
+        $action
+    ) {
+        if (is_null($announcement)) {
+            return;
+        }
+
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            // openfire API URL
+            $apiURL = $globals['openfire_innet_url'].
+                $globals['openfire_plugin_sandbox'].
+                $globals['openfire_plugin_sandbox_notification'].
+                $globals['openfire_plugin_sandbox_notification_broadcast'];
+
+            // request json
+            $jsonDataArray = array(
+                'outcasts' => null,
+                'content' => array(
+                    'type' => 'announcement',
+                    'action' => $action,
+                    'object' => array(
+                        'id' => $announcement->getId(),
+                        'title' => $announcement->getTitle(),
                     ),
                 ),
             );

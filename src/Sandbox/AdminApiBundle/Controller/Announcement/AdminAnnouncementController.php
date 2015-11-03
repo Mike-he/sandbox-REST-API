@@ -33,7 +33,8 @@ class AdminAnnouncementController extends AnnouncementController
     /**
      * Get announcements.
      *
-     * @param Request $request
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
      * @ApiDoc(
      *   resource = true,
@@ -51,7 +52,6 @@ class AdminAnnouncementController extends AnnouncementController
      *    strict=true,
      *    description="page number "
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="sortBy",
@@ -129,6 +129,7 @@ class AdminAnnouncementController extends AnnouncementController
      * Get announcement by id.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -200,6 +201,10 @@ class AdminAnnouncementController extends AnnouncementController
         $em->persist($announcement);
         $em->flush();
 
+        // send notification
+        $this->sendXmppAnnouncementNotification($announcement, 'publish');
+
+        // response
         $response = array(
             'id' => $announcement->getId(),
         );
@@ -211,6 +216,7 @@ class AdminAnnouncementController extends AnnouncementController
      * Put announcement.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -267,6 +273,7 @@ class AdminAnnouncementController extends AnnouncementController
      * Delete an announcement.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
