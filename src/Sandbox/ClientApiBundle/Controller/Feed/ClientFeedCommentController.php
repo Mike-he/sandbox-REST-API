@@ -155,13 +155,7 @@ class ClientFeedCommentController extends FeedCommentController
 
         $user = $this->getRepo('User\User')->find($this->getUserId());
 
-        $replyToUserId = null;
-        $requestContent = $request->getContent();
-        $commentArray = json_decode($requestContent, true);
-        if (array_key_exists('reply_to_user_id', $commentArray)) {
-            $replyToUserId = $commentArray['reply_to_user_id'];
-        }
-
+        $replyToUserId = $comment->getReplyToUserId();
         if (!is_null($replyToUserId)) {
             $replyToUser = $this->getRepo('User\User')->find($replyToUserId);
             $this->throwNotFoundIfNull($replyToUser, self::NOT_FOUND_MESSAGE);
@@ -172,9 +166,7 @@ class ClientFeedCommentController extends FeedCommentController
         $comment->setAuthor($user);
         $comment->setPayload($payload);
         $comment->setCreationdate(new \DateTime('now'));
-        if (!is_null($replyToUserId)) {
-            $comment->setReplyToUserId($replyToUserId);
-        }
+        $comment->setReplyToUserId($replyToUserId);
 
         // save to db
         $em = $this->getDoctrine()->getManager();

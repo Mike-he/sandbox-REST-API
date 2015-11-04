@@ -12,11 +12,7 @@ class FeedCommentType extends AbstractType
     {
         $builder
             ->add('payload')
-            ->add(
-                'reply_to_user_id',
-                null,
-                array('mapped' => false)
-            )
+            ->add('reply_to_user_id')
         ;
     }
 
