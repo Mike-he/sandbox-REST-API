@@ -89,6 +89,18 @@ class FeedComment
     private $creationDate;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="replyToUserId", type="integer", nullable=true)
+     */
+    private $replyToUserId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\User\User
+     */
+    private $replyToUser;
+
+    /**
      * Get id.
      *
      * @return int
@@ -236,5 +248,53 @@ class FeedComment
     public function getFeed()
     {
         return $this->feed;
+    }
+
+    /**
+     * Set replyToUserId.
+     *
+     * @param $replyToUserId
+     *
+     * @return FeedComment
+     */
+    public function setReplyToUserId($replyToUserId)
+    {
+        $this->replyToUserId = $replyToUserId;
+
+        return $this;
+    }
+
+    /**
+     * Get replyToUserId.
+     *
+     * @return int
+     */
+    public function getReplyToUserId()
+    {
+        return $this->replyToUserId;
+    }
+
+    /**
+     * Set replyToUser.
+     *
+     * @param \Sandbox\ApiBundle\Entity\User\User $replyToUser
+     *
+     * @return FeedComment
+     */
+    public function setReplyToUser($replyToUser)
+    {
+        $this->replyToUser = $replyToUser;
+
+        return $this;
+    }
+
+    /**
+     * Get replyToUser.
+     *
+     * @return \Sandbox\ApiBundle\Entity\User\User
+     */
+    public function getReplyToUser()
+    {
+        return $this->replyToUser;
     }
 }

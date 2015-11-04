@@ -37,8 +37,7 @@ class UserProfile
      *      "profile_basic",
      *      "profile_stranger",
      *      "profile_basic_stranger",
-     *      "admin_order",
-     *      "feed"
+     *      "admin_order"
      *  }
      * )
      */
@@ -101,8 +100,7 @@ class UserProfile
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "buddy",
-     *      "member",
-     *      "feed"
+     *      "member"
      *  }
      * )
      */
@@ -323,8 +321,7 @@ class UserProfile
      *      "profile_stranger",
      *      "profile_basic_stranger",
      *      "buddy",
-     *      "member",
-     *      "feed"
+     *      "member"
      *  }
      * )
      **/
