@@ -227,4 +227,37 @@ class FeedRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param int $myUserId
+     * @param int $limit
+     * @param int $lastId
+     *
+     * @return array
+     */
+    public function getMyFeeds(
+        $myUserId,
+        $limit,
+        $lastId
+    ) {
+        $query = $this->createQueryBuilder('f')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
+            ->where('f.ownerId = :myUserId')
+            ->setParameter('myUserId', $myUserId);
+
+        // filter by user banned
+        $query->andWhere('u.banned = FALSE');
+
+        // filter by type
+        if (!is_null($lastId)) {
+            $query->andWhere('f.id < :lastId')
+                ->setParameter('lastId', $lastId);
+        }
+
+        $query->orderBy('f.creationDate', 'DESC');
+
+        $query->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
 }

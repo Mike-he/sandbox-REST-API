@@ -262,6 +262,63 @@ class ClientFeedController extends FeedController
     }
 
     /**
+     * List all my feeds.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many feeds to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="last_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="last id"
+     * )
+     *
+     * @Route("feeds/my")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getMyFeedsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $myUserId = $this->getUserId();
+
+        // if user is not authorized, respond empty list
+        if (!$this->checkUserAuthorized($myUserId)) {
+            return new View(array());
+        }
+
+        $limit = $paramFetcher->get('limit');
+        $lastId = $paramFetcher->get('last_id');
+
+        // get all my feeds
+        $feeds = $this->getRepo('Feed\FeedView')->getMyFeeds(
+            $myUserId,
+            $limit,
+            $lastId
+        );
+
+        return $this->handleGetFeeds($feeds, $myUserId);
+    }
+
+    /**
      * Get feed by id.
      *
      * @param Request $request
