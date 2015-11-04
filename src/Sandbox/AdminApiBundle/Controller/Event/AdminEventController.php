@@ -341,23 +341,24 @@ class AdminEventController extends SandboxRestController
 
         if (array_key_exists('registration_start_date', $eventArray)) {
             $registrationStartDate = $eventArray['registration_start_date'];
-            if (array_key_exists('registration_end_date', $eventArray)) {
-                $registrationEndDate = $eventArray['registration_end_date'];
+        }
 
-                $registrationStartDate = new \DateTime($registrationStartDate);
-                $registrationEndDate = new \DateTime($registrationEndDate);
-                $registrationStartDate->setTime(00, 00, 00);
-                $registrationEndDate->setTime(23, 59, 59);
+        if (array_key_exists('registration_end_date', $eventArray)) {
+            $registrationEndDate = $eventArray['registration_end_date'];
+        }
 
-                // check registration date is valid
-                if ($registrationStartDate > $registrationEndDate) {
-                    return $this->customErrorView(
-                        400,
-                        self::ERROR_INVALID_REGISTRATION_DATE_CODE,
-                        self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
-                    );
-                }
-            }
+        $registrationStartDate = new \DateTime($registrationStartDate);
+        $registrationEndDate = new \DateTime($registrationEndDate);
+        $registrationStartDate->setTime(00, 00, 00);
+        $registrationEndDate->setTime(23, 59, 59);
+
+        // check registration date is valid
+        if ($registrationStartDate > $registrationEndDate) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_REGISTRATION_DATE_CODE,
+                self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
+            );
         }
 
         if (array_key_exists('city_id', $eventArray)) {
@@ -451,23 +452,24 @@ class AdminEventController extends SandboxRestController
 
         if (array_key_exists('registration_start_date', $eventArray)) {
             $registrationStartDate = $eventArray['registration_start_date'];
-            if (array_key_exists('registration_end_date', $eventArray)) {
-                $registrationEndDate = $eventArray['registration_end_date'];
+        }
 
-                $registrationStartDate = new \DateTime($registrationStartDate);
-                $registrationEndDate = new \DateTime($registrationEndDate);
-                $registrationStartDate->setTime(00, 00, 00);
-                $registrationEndDate->setTime(23, 59, 59);
+        if (array_key_exists('registration_end_date', $eventArray)) {
+            $registrationEndDate = $eventArray['registration_end_date'];
+        }
 
-                // check registration date is valid
-                if ($registrationStartDate > $registrationEndDate) {
-                    return $this->customErrorView(
-                        400,
-                        self::ERROR_INVALID_REGISTRATION_DATE_CODE,
-                        self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
-                    );
-                }
-            }
+        $registrationStartDate = new \DateTime($registrationStartDate);
+        $registrationEndDate = new \DateTime($registrationEndDate);
+        $registrationStartDate->setTime(00, 00, 00);
+        $registrationEndDate->setTime(23, 59, 59);
+
+        // check registration date is valid
+        if ($registrationStartDate > $registrationEndDate) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_REGISTRATION_DATE_CODE,
+                self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
+            );
         }
 
         if (array_key_exists('city_id', $eventArray)) {
