@@ -47,7 +47,6 @@ class AdminBannerController extends BannerController
      *  }
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
@@ -55,7 +54,7 @@ class AdminBannerController extends BannerController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many food to return per page"
+     *    description="How many banners to return per page"
      * )
      *
      * @Annotations\QueryParam(
@@ -173,7 +172,7 @@ class AdminBannerController extends BannerController
         // check user permission
         $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        // get food
+        // get banner
         $banner = $this->getRepo('Banner\Banner')->find($id);
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
 
@@ -388,11 +387,11 @@ class AdminBannerController extends BannerController
         // check user permission
         $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        // get food
+        // get banner
         $banner = $this->getRepo('Banner\Banner')->find($id);
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
 
-        // delete food
+        // delete banner
         $em = $this->getDoctrine()->getManager();
         $em->remove($banner);
         $em->flush();
@@ -411,7 +410,7 @@ class AdminBannerController extends BannerController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ROOM,
+            AdminPermission::KEY_PLATFORM_BANNER,
             $OpLevel
         );
     }
