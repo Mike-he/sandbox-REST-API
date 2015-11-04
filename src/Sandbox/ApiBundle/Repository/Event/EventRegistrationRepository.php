@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Repository\Event;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Event\Event;
-use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 
 class EventRegistrationRepository extends EntityRepository
 {
@@ -35,10 +34,7 @@ class EventRegistrationRepository extends EntityRepository
             ->setParameter('eventId', $eventId);
 
         // filter by status
-        if ($status == EventRegistration::STATUS_ACCEPTED
-            || $status == EventRegistration::STATUS_REJECTED
-            || $status == EventRegistration::STATUS_PENDING
-        ) {
+        if (!is_null($status)) {
             $query = $query->andWhere('er.status = :status')
                 ->setParameter('status', $status);
         }
