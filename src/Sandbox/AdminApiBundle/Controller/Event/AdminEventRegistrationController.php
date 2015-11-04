@@ -143,7 +143,7 @@ class AdminEventRegistrationController extends SandboxRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(accepted|refused)",
+     *    requirements="(pending|accepted|refused)",
      *    strict=true,
      *    description="event status"
      * )

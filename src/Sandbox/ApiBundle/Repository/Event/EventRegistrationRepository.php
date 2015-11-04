@@ -28,15 +28,18 @@ class EventRegistrationRepository extends EntityRepository
                 u.phone,
                 u.email
             ')
-            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = :eventId')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = er.eventId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = er.userId')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = er.userId')
+            ->where('e.id = :eventId')
             ->setParameter('eventId', $eventId);
 
         // filter by status
         if ($status == EventRegistration::STATUS_ACCEPTED
-            || $status == EventRegistration::STATUS_REJECTED) {
-            $query = $query->where('er.status = :status')
+            || $status == EventRegistration::STATUS_REJECTED
+            || $status == EventRegistration::STATUS_PENDING
+        ) {
+            $query = $query->andWhere('er.status = :status')
                 ->setParameter('status', $status);
         }
 
