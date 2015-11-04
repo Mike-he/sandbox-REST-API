@@ -29,7 +29,7 @@ use JMS\Serializer\SerializationContext;
 class ClientUserProfileController extends UserProfileController
 {
     /**
-     * Get a single Profile.
+     * Get user's rofile.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -38,6 +38,12 @@ class ClientUserProfileController extends UserProfileController
      *    name="user_id",
      *    default=null,
      *    description="userId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="xmpp_username",
+     *    default=null,
+     *    description="xmppUsername"
      * )
      *
      * @Route("/profile")

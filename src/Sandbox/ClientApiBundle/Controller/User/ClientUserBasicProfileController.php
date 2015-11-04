@@ -29,7 +29,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class ClientUserBasicProfileController extends UserProfileController
 {
     /**
-     * Get user's education.
+     * Get user's basic profile.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -38,6 +38,12 @@ class ClientUserBasicProfileController extends UserProfileController
      *    name="user_id",
      *    default=null,
      *    description="userId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="xmpp_username",
+     *    default=null,
+     *    description="xmppUsername"
      * )
      *
      * @Route("/basic")
@@ -80,7 +86,7 @@ class ClientUserBasicProfileController extends UserProfileController
         }
 
         // get profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         $viewGroup = 'profile_basic';
