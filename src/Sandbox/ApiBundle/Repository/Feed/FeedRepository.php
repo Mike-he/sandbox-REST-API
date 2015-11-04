@@ -229,21 +229,21 @@ class FeedRepository extends EntityRepository
     }
 
     /**
-     * @param int $myUserId
+     * @param int $userId
      * @param int $limit
      * @param int $lastId
      *
      * @return array
      */
     public function getMyFeeds(
-        $myUserId,
+        $userId,
         $limit,
         $lastId
     ) {
         $query = $this->createQueryBuilder('f')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
             ->where('f.ownerId = :myUserId')
-            ->setParameter('myUserId', $myUserId);
+            ->setParameter('myUserId', $userId);
 
         // filter by user banned
         $query->andWhere('u.banned = FALSE');

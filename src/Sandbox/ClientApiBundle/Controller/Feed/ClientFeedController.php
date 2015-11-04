@@ -287,7 +287,13 @@ class ClientFeedController extends FeedController
      *    description="last id"
      * )
      *
-     * @Route("feeds/my")
+     * @Annotations\QueryParam(
+     *    name="user_id",
+     *    default=null,
+     *    description="userId"
+     * )
+     *
+     * @Route("/feeds/my")
      * @Method({"GET"})
      *
      * @throws \Exception
@@ -305,17 +311,33 @@ class ClientFeedController extends FeedController
             return new View(array());
         }
 
+        // request user
+        $userId = $paramFetcher->get('user_id');
+        if (is_null($userId)) {
+            $userId = $myUserId;
+        }
+
+        // get request user
+        $user = $this->getRepo('User\User')->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // check the other user is banned or unauthorized
+        if ($myUserId != $userId &&
+            ($user->isBanned() || !$user->isAuthorized())) {
+            return new View();
+        }
+
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
         // get all my feeds
         $feeds = $this->getRepo('Feed\FeedView')->getMyFeeds(
-            $myUserId,
+            $userId,
             $limit,
             $lastId
         );
 
-        return $this->handleGetFeeds($feeds, $myUserId);
+        return $this->handleGetFeeds($feeds, $userId);
     }
 
     /**
