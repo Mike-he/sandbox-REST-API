@@ -105,3 +105,9 @@ sandbox_admin_api_food:
     resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodController.php"
     type:     annotation
     prefix:   /
+
+# Banners /admin/banners
+sandbox_admin_api_banners:
+    resource: "@SandboxAdminApiBundle/Controller/Banner/AdminBannerController.php"
+    type:     annotation
+    prefix:   /

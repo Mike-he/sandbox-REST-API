@@ -8,10 +8,14 @@ use Doctrine\ORM\Mapping as ORM;
  * Banner.
  *
  * @ORM\Table(name="Banner")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Banner\BannerRepository")
  */
 class Banner
 {
+    const SOURCE_EVENT = 'event';
+    const SOURCE_NEWS = 'news';
+    const SOURCE_URL = 'url';
+
     /**
      * @var int
      *
