@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\News\NewsAttachment;
 use Sandbox\ApiBundle\Form\News\NewsPostType;
+use Sandbox\ApiBundle\Form\News\NewsPutType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -135,6 +136,92 @@ class AdminNewsController extends SandboxRestController
     }
 
     /**
+     * Modify a news.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Method({"PUT"})
+     * @Route("/news/{id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function putAdminNewsAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $news = $this->getRepo('News\News')->find($id);
+        $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
+
+        $form = $this->createForm(
+            new NewsPutType(),
+            $news,
+            array('method' => 'PUT')
+        );
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // handle new form
+        return $this->handleNewsPut(
+            $news,
+            $request
+        );
+    }
+
+    /**
+     * Delete a news.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/news/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function deleteNewsAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $news = $this->getRepo('News\News')->find($id);
+        $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
+
+        $news->setVisible(false);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * Save news to db.
      *
      * @param News    $news
@@ -170,6 +257,78 @@ class AdminNewsController extends SandboxRestController
         );
 
         return new View($response);
+    }
+
+    /**
+     * @param News    $news
+     * @param Request $request
+     *
+     * @return View
+     */
+    private function handleNewsPut(
+        $news,
+        $request
+    ) {
+        $requestContent = $request->getContent();
+        $eventArray = json_decode($requestContent, true);
+
+        $attachments = null;
+        if (array_key_exists('news_attachments', $eventArray)) {
+            $attachments = $eventArray['news_attachments'];
+        }
+
+        // modify news
+        $this->modifyNews($news);
+
+        // modify news attachments
+        $this->modifyNewsAttachments(
+            $news,
+            $attachments
+        );
+
+        return new View();
+    }
+
+    /**
+     * Modify news.
+     *
+     * @param News $news
+     */
+    private function modifyNews(
+        $news
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $now = new \DateTime('now');
+        $news->setModificationDate($now);
+
+        $em->flush();
+    }
+
+    /**
+     * Modify news attachments.
+     *
+     * @param News  $news
+     * @param Array $attachments
+     */
+    private function modifyNewsAttachments(
+        $news,
+        $attachments
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        // remove old data from db
+        if (!is_null($attachments) || !empty($attachments)) {
+            $eventAttachments = $this->getRepo('News\NewsAttachment')->findByNews($news);
+            foreach ($eventAttachments as $eventAttachment) {
+                $em->remove($eventAttachment);
+            }
+
+            $this->addNewsAttachments(
+                $news,
+                $attachments
+            );
+        }
     }
 
     /**
