@@ -100,7 +100,7 @@ class ClientEventRegistrationController extends SandboxRestController
 
         // check if registration over limit number
         $limitNumber = $event->getLimitNumber();
-        if ($limitNumber != 0) {
+        if ($limitNumber > 0) {
             $registrationCounts = $this->getRepo('Event\EventRegistration')
                 ->getRegistrationCounts($eventId);
             $registrationCounts = (int) $registrationCounts;
