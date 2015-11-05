@@ -216,3 +216,9 @@ sandbox_client_api_food_orders:
     resource: "@SandboxClientApiBundle/Controller/Food/ClientFoodOrderController.php"
     type:     annotation
     prefix:   /
+
+# News /client/news
+sandbox_client_api_news:
+    resource: "@SandboxClientApiBundle/Controller/News/ClientNewsController.php"
+    type:     annotation
+    prefix:   /
