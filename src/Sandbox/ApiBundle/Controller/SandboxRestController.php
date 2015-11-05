@@ -1209,7 +1209,7 @@ class SandboxRestController extends FOSRestController
                 'content' => array(
                     'type' => 'announcement',
                     'action' => $action,
-                    'object' => array(
+                    'announcement' => array(
                         'id' => $announcement->getId(),
                         'title' => $announcement->getTitle(),
                     ),
