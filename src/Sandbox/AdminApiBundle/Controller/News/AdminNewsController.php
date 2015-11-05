@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\News;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\News\News;
@@ -112,7 +113,7 @@ class AdminNewsController extends SandboxRestController
      *
      * @throws \Exception
      */
-    public function getAdminNews(
+    public function getAdminNewsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -133,6 +134,46 @@ class AdminNewsController extends SandboxRestController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * Get definite id of news.
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/news/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getOneAdminNewsAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // get an news
+        $news = $this->getRepo('News\News')->find($id);
+        $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
+
+        // set view
+        $view = new View($news);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('main'))
+        );
+
+        return $view;
     }
 
     /**
