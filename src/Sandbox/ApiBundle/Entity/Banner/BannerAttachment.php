@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Banner;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * BannerAttachment.
@@ -18,6 +19,8 @@ class BannerAttachment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $id;
 
@@ -25,6 +28,8 @@ class BannerAttachment
      * @var int
      *
      * @ORM\Column(name="bannerId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $bannerId;
 
@@ -35,6 +40,8 @@ class BannerAttachment
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="bannerId", referencedColumnName="id", onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $banner;
 
@@ -42,6 +49,8 @@ class BannerAttachment
      * @var string
      *
      * @ORM\Column(name="content", type="text")
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $content;
 
@@ -49,6 +58,8 @@ class BannerAttachment
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $attachmentType;
 
@@ -56,6 +67,8 @@ class BannerAttachment
      * @var string
      *
      * @ORM\Column(name="filename", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $filename;
 
@@ -63,6 +76,8 @@ class BannerAttachment
      * @var string
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $preview;
 

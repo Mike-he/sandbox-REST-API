@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Banner;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Banner.
@@ -22,6 +23,8 @@ class Banner
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $id;
 
@@ -29,6 +32,8 @@ class Banner
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $title;
 
@@ -36,6 +41,8 @@ class Banner
      * @var string
      *
      * @ORM\Column(name="content", type="text")
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $content;
 
@@ -43,6 +50,8 @@ class Banner
      * @var string
      *
      * @ORM\Column(name="source", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $source;
 
@@ -50,6 +59,8 @@ class Banner
      * @var int
      *
      * @ORM\Column(name="sourceId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $sourceId;
 
@@ -57,6 +68,8 @@ class Banner
      * @var string
      *
      * @ORM\Column(name="sortTime", type="string", length=15)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $sortTime;
 
@@ -64,6 +77,8 @@ class Banner
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -71,6 +86,8 @@ class Banner
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -84,6 +101,8 @@ class Banner
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="bannerId")
      * @ORM\OrderBy({"id" = "ASC"})
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $attachments;
 
@@ -292,9 +311,8 @@ class Banner
     public function __construct()
     {
         $now = new \DateTime('now');
-        $nowTime = $now->getTimestamp();
         $this->setCreationDate($now);
         $this->setModificationDate($now);
-        $this->setSortTime($nowTime);
+        $this->setSortTime(round(microtime(true) * 1000));
     }
 }

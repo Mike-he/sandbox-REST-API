@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Banner;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
 
 /**
  * BannerRepository.
@@ -27,12 +28,40 @@ class BannerRepository extends EntityRepository
 
         // search by
         if (!is_null($search)) {
-            $query = $query->andWhere('b.title LIKE :search OR b.content LIKE :search')
+            $query = $query->where('b.title LIKE :search OR b.content LIKE :search')
                 ->setParameter('search', '%'.$search.'%');
         }
 
         $query = $query->getQuery()->getResult();
 
         return $query;
+    }
+
+    /**
+     * @param string $sortTime
+     * @param string $action
+     *
+     * @return mixed
+     */
+    public function findSwapBanner(
+        $sortTime,
+        $action
+    ) {
+        // operator and order direction
+        $operator = '>';
+        $direction = 'ASC';
+        if ($action == BannerPosition::ACTION_DOWN) {
+            $operator = '<';
+            $direction = 'DESC';
+        }
+
+        $query = $this->createQueryBuilder('b')
+            ->where('b.sortTime '.$operator.' :sortTime')
+            ->setParameter('sortTime', $sortTime)
+            ->orderBy('b.sortTime', $direction)
+            ->setMaxResults(1)
+            ->getQuery();
+
+        return $query->getSingleResult();
     }
 }
