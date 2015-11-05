@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * NewsAttachments.
+ * NewsAttachment.
  *
- * @ORM\Table(name = "NewsAttachments")
+ * @ORM\Table(name = "NewsAttachment")
  * @ORM\Entity
  */
-class NewsAttachments
+class NewsAttachment
 {
     /**
      * @var int
@@ -103,7 +103,7 @@ class NewsAttachments
      *
      * @param int $newsId
      *
-     * @return NewsAttachments
+     * @return NewsAttachment
      */
     public function setNewsId($newsId)
     {
@@ -151,7 +151,7 @@ class NewsAttachments
      *
      * @param string $content
      *
-     * @return NewsAttachments
+     * @return NewsAttachment
      */
     public function setContent($content)
     {
@@ -175,7 +175,7 @@ class NewsAttachments
      *
      * @param string $attachmentType
      *
-     * @return NewsAttachments
+     * @return NewsAttachment
      */
     public function setAttachmentType($attachmentType)
     {
@@ -199,7 +199,7 @@ class NewsAttachments
      *
      * @param string $filename
      *
-     * @return NewsAttachments
+     * @return NewsAttachment
      */
     public function setFilename($filename)
     {
@@ -223,7 +223,7 @@ class NewsAttachments
      *
      * @param string $preview
      *
-     * @return NewsAttachments
+     * @return NewsAttachment
      */
     public function setPreview($preview)
     {
@@ -247,7 +247,7 @@ class NewsAttachments
      *
      * @param int $size
      *
-     * @return NewsAttachments
+     * @return NewsAttachment
      */
     public function setSize($size)
     {

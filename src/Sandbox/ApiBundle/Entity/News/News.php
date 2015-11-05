@@ -70,6 +70,19 @@ class News
     private $modificationDate;
 
     /**
+     * @var NewsAttachment
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\News\NewsAttachment",
+     *      mappedBy="news",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="newsId")
+     * @Serializer\Groups({"main"})
+     */
+    private $attachments;
+
+    /**
      * Get id.
      *
      * @return int
@@ -197,5 +210,25 @@ class News
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * @param NewsAttachment $attachments
+     *
+     * @return News
+     */
+    public function setAttachments($attachments)
+    {
+        $this->attachments = $attachments;
+
+        return $this;
+    }
+
+    /**
+     * @return NewsAttachment
+     */
+    public function getAttachments()
+    {
+        return $this->attachments;
     }
 }

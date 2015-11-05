@@ -1,4 +1,4 @@
-CREATE TABLE `NewsAttachments` (
+CREATE TABLE `NewsAttachment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `newsId` int(11) NOT NULL,
   `content` longtext NOT NULL,
