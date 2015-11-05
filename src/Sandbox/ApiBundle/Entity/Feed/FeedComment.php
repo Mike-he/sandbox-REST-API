@@ -4,7 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Feed;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sandbox\ApiBundle\Entity\User\UserProfile;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * FeedComment.
@@ -151,7 +151,7 @@ class FeedComment
     /**
      * Get authorId.
      *
-     * @return string
+     * @return int
      */
     public function getAuthorId()
     {
@@ -183,7 +183,7 @@ class FeedComment
     }
 
     /**
-     * @return UserProfile
+     * @return User
      */
     public function getAuthor()
     {
@@ -191,7 +191,7 @@ class FeedComment
     }
 
     /**
-     * @param object $author
+     * @param User $author
      *
      * @return FeedComment
      */
@@ -277,7 +277,7 @@ class FeedComment
     /**
      * Set replyToUser.
      *
-     * @param \Sandbox\ApiBundle\Entity\User\User $replyToUser
+     * @param User $replyToUser
      *
      * @return FeedComment
      */
@@ -291,7 +291,7 @@ class FeedComment
     /**
      * Get replyToUser.
      *
-     * @return \Sandbox\ApiBundle\Entity\User\User
+     * @return User
      */
     public function getReplyToUser()
     {

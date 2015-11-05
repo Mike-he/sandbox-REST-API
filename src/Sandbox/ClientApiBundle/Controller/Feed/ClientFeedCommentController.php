@@ -32,7 +32,9 @@ class ClientFeedCommentController extends FeedCommentController
     /**
      * Get all comments of a given feed.
      *
-     * @param Request $request
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     * @param int                   $id           the feed id
      *
      * @Annotations\QueryParam(
      *    name="limit",
@@ -53,7 +55,6 @@ class ClientFeedCommentController extends FeedCommentController
      *    strict=true,
      *    description="last id"
      * )
-     *
      *
      * @Route("/feeds/{id}/comments")
      * @Method({"GET"})
@@ -120,6 +121,7 @@ class ClientFeedCommentController extends FeedCommentController
      * post a comment for a given feed.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @Route("/feeds/{id}/comments")
      * @Method({"POST"})
@@ -132,6 +134,9 @@ class ClientFeedCommentController extends FeedCommentController
         Request $request,
         $id
     ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
         $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
@@ -153,25 +158,34 @@ class ClientFeedCommentController extends FeedCommentController
             $payload = json_encode($payload);
         }
 
-        $user = $this->getRepo('User\User')->find($this->getUserId());
-
+        // get reply to user
         $replyToUserId = $comment->getReplyToUserId();
-        if (!is_null($replyToUserId)) {
-            $replyToUser = $this->getRepo('User\User')->find($replyToUserId);
-            $this->throwNotFoundIfNull($replyToUser, self::NOT_FOUND_MESSAGE);
-        }
+        $replyToUser = !is_null($replyToUserId) ? $this->getRepo('User\User')->find($replyToUserId) : null;
 
         // set comment
         $comment->setFeed($feed);
-        $comment->setAuthor($user);
+        $comment->setAuthor($myUser);
         $comment->setPayload($payload);
         $comment->setCreationdate(new \DateTime('now'));
-        $comment->setReplyToUserId($replyToUserId);
+
+        if (!is_null($replyToUser)) {
+            $comment->setReplyToUserId($replyToUserId);
+        }
 
         // save to db
         $em = $this->getDoctrine()->getManager();
         $em->persist($comment);
         $em->flush();
+
+        // send notification
+        $recvUsers = array($feed->getOwner());
+        if (!is_null($replyToUser)) {
+            $recvUsers[] = $replyToUser;
+        }
+
+        $this->sendXmppFeedNotification(
+            $feed, $myUser, $recvUsers, 'comment'
+        );
 
         // set view
         $view = new View();

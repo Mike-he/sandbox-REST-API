@@ -13,7 +13,7 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Feed\Feed;
-use Sandbox\ApiBundle\Entity\User;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Manipulate the likes of a feed.
@@ -31,6 +31,7 @@ class ClientFeedLikeController extends FeedLikeController
      * like a post.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @Route("feeds/{id}/likes")
      * @Method({"POST"})
@@ -43,11 +44,11 @@ class ClientFeedLikeController extends FeedLikeController
         Request $request,
         $id
     ) {
-        $feed = $this->getRepo('Feed\Feed')->find($id);
-        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
-
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        $feed = $this->getRepo('Feed\Feed')->find($id);
+        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
         // get like
         $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
@@ -58,6 +59,11 @@ class ClientFeedLikeController extends FeedLikeController
         if (is_null($like)) {
             // create like
             $like = $this->createLike($feed, $myUser);
+
+            // send notification
+            $this->sendXmppFeedNotification(
+                $feed, $myUser, array($feed->getOwner()), 'like'
+            );
         }
 
         $result = array(
@@ -71,6 +77,7 @@ class ClientFeedLikeController extends FeedLikeController
      * unlike a post.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @Route("feeds/{id}/likes")
      * @Method({"DELETE"})

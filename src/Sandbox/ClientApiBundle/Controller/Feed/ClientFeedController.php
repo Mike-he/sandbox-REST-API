@@ -16,6 +16,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -403,6 +404,9 @@ class ClientFeedController extends FeedController
     public function postFeedAction(
         Request $request
     ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
         // if user is not authorized, respond empty list
         if (!$this->checkUserAuthorized($this->getUserId())) {
             return new View(array());
@@ -418,7 +422,7 @@ class ClientFeedController extends FeedController
         }
 
         $feed->setCreationDate(new \DateTime('now'));
-        $feed->setOwnerid($this->getUserId());
+        $feed->setOwner($myUser);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($feed);
@@ -472,7 +476,7 @@ class ClientFeedController extends FeedController
         // only owner can delete the feed
         $userId = $this->getUserId();
         if ($userId != $feed->getOwnerId()) {
-            throw new BadRequestHttpException(self::NOT_ALLOWED_MESSAGE);
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         $em = $this->getDoctrine()->getManager();
