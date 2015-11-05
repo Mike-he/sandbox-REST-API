@@ -7,6 +7,6 @@ CREATE TABLE `NewsAttachment` (
   `preview` longtext NOT NULL,
   `size` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_NewsAttachments_newsId_idx` (`newsId`),
-  CONSTRAINT `fk_NewsAttachments_newsId` FOREIGN KEY (`newsId`) REFERENCES `News` (`id`) ON DELETE CASCADE
+  KEY `fk_NewsAttachment_newsId_idx` (`newsId`),
+  CONSTRAINT `fk_NewsAttachment_newsId` FOREIGN KEY (`newsId`) REFERENCES `News` (`id`) ON DELETE CASCADE
 );
