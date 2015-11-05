@@ -38,14 +38,12 @@ class EventPutType extends AbstractType
                 'date',
                 array(
                     'widget' => 'single_text',
-                    'mapped' => false,
                 ))
             ->add(
                 'registration_end_date',
                 'date',
                 array(
                     'widget' => 'single_text',
-                    'mapped' => false,
                 ))
             ->add(
                 'event_forms',

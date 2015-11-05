@@ -327,25 +327,23 @@ class AdminEventController extends SandboxRestController
         $requestContent = $request->getContent();
         $eventArray = json_decode($requestContent, true);
 
+        $attachments = null;
         if (array_key_exists('event_attachments', $eventArray)) {
             $attachments = $eventArray['event_attachments'];
         }
 
+        $dates = null;
         if (array_key_exists('event_dates', $eventArray)) {
             $dates = $eventArray['event_dates'];
         }
 
+        $eventForms = null;
         if (array_key_exists('event_forms', $eventArray)) {
             $eventForms = $eventArray['event_forms'];
         }
 
-        if (array_key_exists('registration_start_date', $eventArray)) {
-            $registrationStartDate = $eventArray['registration_start_date'];
-        }
-
-        if (array_key_exists('registration_end_date', $eventArray)) {
-            $registrationEndDate = $eventArray['registration_end_date'];
-        }
+        $registrationStartDate = $event->getRegistrationStartDate();
+        $registrationEndDate = $event->getRegistrationEndDate();
 
         $registrationStartDate = new \DateTime($registrationStartDate);
         $registrationEndDate = new \DateTime($registrationEndDate);
@@ -361,25 +359,19 @@ class AdminEventController extends SandboxRestController
             );
         }
 
-        if (array_key_exists('city_id', $eventArray)) {
-            $cityId = $eventArray['city_id'];
-        }
+        $cityId = $event->getCityId();
 
-        if (array_key_exists('building_id', $eventArray)) {
-            $buildingId = $eventArray['building_id'];
-        }
+        $buildingId = $event->getBuildingId();
 
-        if (array_key_exists('limit_number', $eventArray)) {
-            $limitNumber = $eventArray['limit_number'];
+        $limitNumber = (int) $event->getLimitNumber();
 
-            // check limit number is valid
-            if (!is_integer($limitNumber) || $limitNumber < 0) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_INVALID_LIMIT_NUMBER_CODE,
-                    self::ERROR_INVALID_LIMIT_NUMBER_MESSAGE
-                );
-            }
+        // check limit number is valid
+        if ($limitNumber < 0) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_LIMIT_NUMBER_CODE,
+                self::ERROR_INVALID_LIMIT_NUMBER_MESSAGE
+            );
         }
 
         // add events
@@ -429,37 +421,35 @@ class AdminEventController extends SandboxRestController
         $event,
         $request
     ) {
-        //check room is valid
-        $room = $this->getRepo('Room\Room')->find($event->getRoomId());
-        if (is_null($room)) {
-            throw new BadRequestHttpException(self::ERROR_ROOM_INVALID);
+        // check room is valid
+        if (!is_null($event->getRoomId())) {
+            $room = $this->getRepo('Room\Room')->find($event->getRoomId());
+            if (is_null($room)) {
+                throw new BadRequestHttpException(self::ERROR_ROOM_INVALID);
+            }
         }
 
         $requestContent = $request->getContent();
         $eventArray = json_decode($requestContent, true);
 
+        $attachments = null;
         if (array_key_exists('event_attachments', $eventArray)) {
             $attachments = $eventArray['event_attachments'];
         }
 
+        $dates = null;
         if (array_key_exists('event_dates', $eventArray)) {
             $dates = $eventArray['event_dates'];
         }
 
+        $eventForms = null;
         if (array_key_exists('event_forms', $eventArray)) {
             $eventForms = $eventArray['event_forms'];
         }
 
-        if (array_key_exists('registration_start_date', $eventArray)) {
-            $registrationStartDate = $eventArray['registration_start_date'];
-        }
+        $registrationStartDate = $event->getRegistrationStartDate();
+        $registrationEndDate = $event->getRegistrationEndDate();
 
-        if (array_key_exists('registration_end_date', $eventArray)) {
-            $registrationEndDate = $eventArray['registration_end_date'];
-        }
-
-        $registrationStartDate = new \DateTime($registrationStartDate);
-        $registrationEndDate = new \DateTime($registrationEndDate);
         $registrationStartDate->setTime(00, 00, 00);
         $registrationEndDate->setTime(23, 59, 59);
 
@@ -472,25 +462,19 @@ class AdminEventController extends SandboxRestController
             );
         }
 
-        if (array_key_exists('city_id', $eventArray)) {
-            $cityId = $eventArray['city_id'];
-        }
+        $cityId = $event->getCityId();
 
-        if (array_key_exists('building_id', $eventArray)) {
-            $buildingId = $eventArray['building_id'];
-        }
+        $buildingId = $event->getBuildingId();
 
-        if (array_key_exists('limit_number', $eventArray)) {
-            $limitNumber = $eventArray['limit_number'];
+        $limitNumber = (int) $event->getLimitNumber();
 
-            // check limit number is valid
-            if (!is_integer($limitNumber) || $limitNumber < 0) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_INVALID_LIMIT_NUMBER_CODE,
-                    self::ERROR_INVALID_LIMIT_NUMBER_MESSAGE
-                );
-            }
+        // check limit number is valid
+        if ($limitNumber < 0) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_LIMIT_NUMBER_CODE,
+                self::ERROR_INVALID_LIMIT_NUMBER_MESSAGE
+            );
         }
 
         // modify event

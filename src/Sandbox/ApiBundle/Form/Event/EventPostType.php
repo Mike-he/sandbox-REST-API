@@ -33,20 +33,8 @@ class EventPostType extends AbstractType
             ->add('building_id')
             ->add('room_id')
             ->add('limit_number')
-            ->add(
-                'registration_start_date',
-                'date',
-                array(
-                    'widget' => 'single_text',
-                    'mapped' => false,
-                ))
-            ->add(
-                'registration_end_date',
-                'date',
-                array(
-                    'widget' => 'single_text',
-                    'mapped' => false,
-                ))
+            ->add('registration_start_date')
+            ->add('registration_end_date')
             ->add('registration_method')
             ->add('verify')
             ->add(
