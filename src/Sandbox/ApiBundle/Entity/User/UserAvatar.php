@@ -56,7 +56,7 @@ class UserAvatar
     /**
      * @var string
      *
-     * @ORM\Column(name="preview", type="text")
+     * @ORM\Column(name="preview", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "avatar_list"})
      */
