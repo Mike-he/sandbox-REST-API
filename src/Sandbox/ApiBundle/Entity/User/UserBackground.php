@@ -56,7 +56,7 @@ class UserBackground
     /**
      * @var string
      *
-     * @ORM\Column(name="preview", type="text")
+     * @ORM\Column(name="preview", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "background_list"})
      */
