@@ -68,8 +68,7 @@ class AdminNewsController extends SandboxRestController
         }
 
         return $this->handleNewsPost(
-            $news,
-            $request
+            $news
         );
     }
 
@@ -124,11 +123,18 @@ class AdminNewsController extends SandboxRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
-        $news = $this->getRepo('News\News')->findByVisible(true);
+        $newsArray = array();
+        $allNews = $this->getRepo('News\News')->findByVisible(true);
+        foreach ($allNews as $news) {
+            $attachments = $this->getRepo('News\NewsAttachment')->findByNews($news);
+            $news->setAttachments($attachments);
+
+            array_push($newsArray, $news);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $news,
+            $newsArray,
             $pageIndex,
             $pageLimit
         );
@@ -166,6 +172,10 @@ class AdminNewsController extends SandboxRestController
         // get an news
         $news = $this->getRepo('News\News')->find($id);
         $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
+
+        // set attachments
+        $attachments = $this->getRepo('News\NewsAttachment')->findByNews($news);
+        $news->setAttachments($attachments);
 
         // set view
         $view = new View($news);
@@ -265,22 +275,14 @@ class AdminNewsController extends SandboxRestController
     /**
      * Save news to db.
      *
-     * @param News    $news
-     * @param Request $request
+     * @param News $news
      *
      * @return View
      */
     private function handleNewsPost(
-        $news,
-        $request
+        $news
     ) {
-        $requestContent = $request->getContent();
-        $eventArray = json_decode($requestContent, true);
-
-        $attachments = null;
-        if (array_key_exists('news_attachments', $eventArray)) {
-            $attachments = $eventArray['news_attachments'];
-        }
+        $attachments = $news->getAttachments();
 
         // add news
         $this->addNews(
@@ -301,22 +303,14 @@ class AdminNewsController extends SandboxRestController
     }
 
     /**
-     * @param News    $news
-     * @param Request $request
+     * @param News $news
      *
      * @return View
      */
     private function handleNewsPut(
-        $news,
-        $request
+        $news
     ) {
-        $requestContent = $request->getContent();
-        $eventArray = json_decode($requestContent, true);
-
-        $attachments = null;
-        if (array_key_exists('news_attachments', $eventArray)) {
-            $attachments = $eventArray['news_attachments'];
-        }
+        $attachments = $news->getAttachments();
 
         // modify news
         $this->modifyNews($news);

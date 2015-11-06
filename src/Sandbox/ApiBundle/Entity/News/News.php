@@ -36,11 +36,20 @@ class News
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text", nullable=false)
+     * @ORM\Column(name="description", type="string", length=1024, nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
     private $description;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="content", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $content;
 
     /**
      * @var bool
@@ -70,14 +79,8 @@ class News
     private $modificationDate;
 
     /**
-     * @var NewsAttachment
+     * @var array
      *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\News\NewsAttachment",
-     *      mappedBy="news",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="newsId")
      * @Serializer\Groups({"main"})
      */
     private $attachments;
@@ -138,6 +141,30 @@ class News
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Set content.
+     *
+     * @param string $content
+     *
+     * @return News
+     */
+    public function setContent($content)
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * Get content.
+     *
+     * @return string
+     */
+    public function getContent()
+    {
+        return $this->content;
     }
 
     /**

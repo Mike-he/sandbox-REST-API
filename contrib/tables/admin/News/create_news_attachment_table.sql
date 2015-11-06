@@ -4,7 +4,7 @@ CREATE TABLE `NewsAttachment` (
   `content` longtext NOT NULL,
   `attachmentType` varchar(255) NOT NULL,
   `filename` varchar(255) NOT NULL,
-  `preview` longtext NOT NULL,
+  `preview` longtext,
   `size` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_NewsAttachment_newsId_idx` (`newsId`),

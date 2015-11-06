@@ -73,7 +73,7 @@ class NewsAttachment
     /**
      * @var string
      *
-     * @ORM\Column(name="preview", type="text", nullable=false)
+     * @ORM\Column(name="preview", type="text", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */

@@ -16,12 +16,9 @@ class NewsPostType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add(
-                'news_attachments',
-                null,
-                array('mapped' => false)
-            )
+            ->add('attachments')
             ->add('description')
+            ->add('content')
         ;
     }
 
