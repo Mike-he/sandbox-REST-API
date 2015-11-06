@@ -33,7 +33,8 @@ class Company
      *      "profile",
      *      "profile_stranger",
      *      "profile_basic",
-     *      "profile_basic_stranger"
+     *      "profile_basic_stranger",
+     *      "company_invitation"
      * })
      */
     private $id;
@@ -52,7 +53,8 @@ class Company
      *      "profile",
      *      "profile_stranger",
      *      "profile_basic",
-     *      "profile_basic_stranger"
+     *      "profile_basic_stranger",
+     *      "company_invitation"
      * })
      */
     private $name;
@@ -548,7 +550,7 @@ class Company
     /**
      * Get creatorId.
      *
-     * @return \Sandbox\ApiBundle\Entity\User\User
+     * @return int
      */
     public function getCreatorId()
     {
@@ -556,7 +558,7 @@ class Company
     }
 
     /**
-     * Set creatorId.
+     * @param int $creatorId
      *
      * @return Company
      */

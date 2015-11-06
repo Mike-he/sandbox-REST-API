@@ -94,4 +94,34 @@ class UserViewRepository extends EntityRepository
 
         return $queryResults->getQuery()->getResult();
     }
+
+    /**
+     * @param string $query
+     * @param int    $limit
+     * @param int    $offset
+     *
+     * @return array
+     */
+    public function searchMember(
+        $query,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('up')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = u.id')
+            ->where('u.name LIKE :query')
+            ->orWhere('u.id LIKE :query')
+            ->orWhere('u.email LIKE :query')
+            ->orWhere('u.phone LIKE :query')
+            ->andWhere('u.banned = false')
+            ->andWhere('u.authorized = true')
+            ->setParameter('query', $query.'%');
+
+        $query->orderBy('up.userId', 'ASC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
 }

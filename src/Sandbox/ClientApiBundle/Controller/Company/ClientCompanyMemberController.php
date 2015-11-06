@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Company;
 
 use Sandbox\ApiBundle\Controller\Company\CompanyMemberController;
 use Sandbox\ApiBundle\Entity\Company\Company;
+use Sandbox\ApiBundle\Entity\User\User;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
@@ -78,19 +79,27 @@ class ClientCompanyMemberController extends CompanyMemberController
         $id
     ) {
         $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($userId);
+
+        // get company
         $company = $this->getRepo('Company\Company')->find($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
         // check user is allowed to modify
         $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
 
-        //add member
+        // add member
         $em = $this->getDoctrine()->getManager();
 
         $memberIds = json_decode($request->getContent(), true);
 
         foreach ($memberIds as $memberId) {
-            //check member is buddy
+            $member = $this->getRepo('User\User')->find($memberId);
+            if (is_null($member)) {
+                continue;
+            }
+
+            // check member is buddy
             $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
                 'userId' => $userId,
                 'buddyId' => $memberId,
@@ -104,11 +113,16 @@ class ClientCompanyMemberController extends CompanyMemberController
                 continue;
             }
 
-            // update user profile's company
-            $this->setUserProfileCompany($memberId, $company);
+            $this->saveCompanyInvitation($em, $company, $user, $member);
 
-            $companyMember = $this->generateCompanyMember($company, $memberId);
-            $em->persist($companyMember);
+            // send notification
+            $this->sendXmppCompanyNotification(
+                $company,
+                $user,
+                $member,
+                'invite',
+                false
+            );
         }
 
         $em->flush();
@@ -139,26 +153,38 @@ class ClientCompanyMemberController extends CompanyMemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($userId);
+
+        // get company
+        $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        // get member id array
         $memberIds = $paramFetcher->get('id');
+
         // check param is empty
         if (empty($memberIds)) {
             // quit company
-            return $this->quitMyCompany($id);
+            return $this->quitMyCompany($company, $user);
         } else {
             // delete members
-           return $this->deleteMembers($memberIds, $id);
+           return $this->deleteMembers($company, $user, $memberIds);
         }
     }
 
     /**
-     * @param $companyId
+     * @param Company $company
+     * @param User    $user
      *
      * @return View
      */
-    public function quitMyCompany($companyId)
-    {
-        $userId = $this->getUserId();
-        if ($this->isCompanyCreator($userId, $companyId)) {
+    public function quitMyCompany(
+        $company,
+        $user
+    ) {
+        // creator cannot quit
+        if ($company->getCreator() == $user) {
             return $this->customErrorView(
                 400,
                 self::ERROR_IS_CREATOR_SET_CODE,
@@ -168,48 +194,69 @@ class ClientCompanyMemberController extends CompanyMemberController
 
         // quit my company
         $companyMember = $this->getRepo('Company\CompanyMember')->findOneBy(array(
-            'userId' => $userId,
-            'companyId' => $companyId,
+            'user' => $user,
+            'company' => $company,
         ));
-        $this->throwNotFoundIfNull($companyMember, self::NOT_FOUND_MESSAGE);
 
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($companyMember);
-        $em->flush();
+        if (!is_null($companyMember)) {
+            // send notification
+            $this->sendXmppCompanyNotification(
+                $company,
+                $user,
+                $user,
+                'member_quit',
+                true
+            );
+
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($companyMember);
+            $em->flush();
+        }
 
         return new View();
     }
 
     /**
-     * @param $memberIds
-     * @param $companyId
+     * @param Company $company
+     * @param User    $user
+     * @param array   $memberIds
      *
      * @return View
      */
     public function deleteMembers(
-        $memberIds,
-        $companyId
+        $company,
+        $user,
+        $memberIds
     ) {
         // check user is allowed to modify
-        $company = $this->getRepo('Company\Company')->find($companyId);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
-        $userId = $this->getUserId();
-        $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
+        $this->throwAccessDeniedIfNotCompanyCreator($company->getCreatorId(), $user->getId());
 
-        // removed creator id
-        $memIds = array();
-        foreach ($memberIds as $memberId) {
-            if ($this->isCompanyCreator($companyId, $memberId)) {
-                continue;
-            }
-            $memIds[] = $memberId;
+        if (is_null($memberIds) || empty($memberIds)) {
+            return new View();
         }
 
-        //delete members
-        $this->getRepo('Company\CompanyMember')->deleteCompanyMembers(
-            $memIds,
-            $companyId
-        );
+        // delete members
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($memberIds as $memberId) {
+            $member = $this->getRepo('Company\CompanyMember')->findBy($memberId);
+            if (is_null($member)) {
+                continue;
+            }
+
+            // send notification
+            $this->sendXmppCompanyNotification(
+                $company,
+                $member,
+                $member,
+                'member_remove',
+                true
+            );
+
+            $em->remove($member);
+        }
+
+        $em->flush();
 
         return new View();
     }

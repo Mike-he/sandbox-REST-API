@@ -97,6 +97,7 @@ class ClientTopUpOrderController extends PaymentController
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
             $channel !== self::PAYMENT_CHANNEL_UPACP &&
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
             $channel !== self::PAYMENT_CHANNEL_ALIPAY
         ) {
             return $this->customErrorView(

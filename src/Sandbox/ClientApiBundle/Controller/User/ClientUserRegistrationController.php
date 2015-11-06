@@ -266,25 +266,7 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // create default profile
         $profile = new UserProfile();
-
-        $defaultName =
-            $this->getGlobal('user_profile_default_name_prefix').$user->getId();
-
-        // get user name by phone or email
-        try {
-            if (!is_null($phone)) {
-                $phoneLen = strlen($phone);
-                $defaultName = substr($phone, $phoneLen - 6);
-            } elseif (!is_null($email)) {
-                $emailExtract = explode('@', $email);
-                $defaultName = $emailExtract[0];
-            }
-        } catch (\Exception $e) {
-            error_log('user default name error: '.$e);
-        }
-
-        $profile->setName($defaultName);
-
+        $profile->setName('');
         $profile->setUser($user);
         $em->persist($profile);
 

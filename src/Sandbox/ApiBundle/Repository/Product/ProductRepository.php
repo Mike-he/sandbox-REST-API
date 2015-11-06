@@ -7,21 +7,19 @@ use Doctrine\ORM\QueryBuilder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 
 class ProductRepository extends EntityRepository
 {
-    public function getMeetingProductsNotInOrder(
-
-    ) {
-    }
-
     /**
      * @param $userId
      * @param $cityId
      * @param $buildingId
      * @param $allowedPeople
-     * @param $startDate
-     * @param $endDate
+     * @param $startTime
+     * @param $endTime
+     * @param $startHour
+     * @param $endHour
      * @param $limit
      * @param $offset
      *
@@ -299,9 +297,11 @@ class ProductRepository extends EntityRepository
      * @param String       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
+     * @param int          $visible
      * @param String       $sortBy
      * @param String       $direction
      * @param String       $search
+     * @param bool         $recommend
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
@@ -312,7 +312,8 @@ class ProductRepository extends EntityRepository
         $visible,
         $sortBy,
         $direction,
-        $search
+        $search,
+        $recommend = false
     ) {
         $notFirst = false;
         $parameters = [];
@@ -320,7 +321,7 @@ class ProductRepository extends EntityRepository
         $query = $this->createQueryBuilder('p')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
 
-        //only needed when searching products
+        // only needed when searching products
         if (!is_null($search)) {
             $query->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'r.city = rc.id');
             $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.building = rb.id');
@@ -389,7 +390,15 @@ class ProductRepository extends EntityRepository
             $notFirst = true;
         }
 
-        //sort by by method
+        // get only recommend products
+        if ($recommend) {
+            $where = 'p.recommend = :recommend';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['recommend'] = $recommend;
+            $notFirst = true;
+        }
+
+        // sort by by method
         switch ($sortBy) {
             case 'area':
                 $query->orderBy('r.'.$sortBy, $direction);
@@ -402,7 +411,7 @@ class ProductRepository extends EntityRepository
                 break;
         }
 
-        //set all parameters
+        // set all parameters
         if ($notFirst) {
             $query->setParameters($parameters);
         }
@@ -429,6 +438,11 @@ class ProductRepository extends EntityRepository
         }
     }
 
+    /**
+     * @param $roomId
+     *
+     * @return mixed
+     */
     public function checkFixedRoomInProduct(
         $roomId
     ) {
@@ -464,5 +478,136 @@ class ProductRepository extends EntityRepository
             ->getQuery();
 
         $query->execute();
+    }
+
+    /**
+     * @param Product      $product
+     * @param string       $action
+     * @param RoomCity     $city
+     * @param RoomBuilding $building
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findSwapProduct(
+        $product,
+        $action,
+        $city,
+        $building
+    ) {
+        $queryStr = 'SELECT p FROM SandboxApiBundle:Product\Product p';
+
+        if (!is_null($city) || !is_null($building)) {
+            $queryStr = $queryStr.' LEFT JOIN Room r WITH p.roomId = r.id';
+        }
+
+        $queryStr = $queryStr.' WHERE p.recommend = :recommend';
+
+        if (!is_null($city)) {
+            $queryStr = $queryStr.' AND r.city = :city';
+        }
+
+        if (!is_null($building)) {
+            $queryStr = $queryStr.' AND r.building = :building';
+        }
+
+        // operator
+        $operator = '>';
+        if ($action == ProductRecommendPosition::ACTION_DOWN) {
+            $operator = '<';
+        }
+        $queryStr = $queryStr.' AND p.sortTime '.$operator.' :sortTime';
+
+        // order by
+        $orderBy = 'ASC';
+        if ($action == ProductRecommendPosition::ACTION_DOWN) {
+            $orderBy = 'DESC';
+        }
+        $queryStr = $queryStr.' ORDER BY p.sortTime '.$orderBy;
+
+        // set parameters
+        $query = $this->getEntityManager()->createQuery($queryStr);
+        $query->setParameter('recommend', true);
+        $query->setParameter('sortTime', $product->getSortTime());
+
+        if (!is_null($city)) {
+            $query->setParameter('city', $city);
+        }
+
+        if (!is_null($building)) {
+            $query->setParameter('building', $building);
+        }
+
+        $query->setMaxResults(1);
+
+        return $query->getSingleResult();
+    }
+
+    /**
+     * @param RoomCity $city
+     * @param int      $limit
+     * @param int      $offset
+     * @param bool     $recommend
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getProductsRecommend(
+        $city,
+        $limit,
+        $offset,
+        $recommend
+    ) {
+        $queryStr = 'SELECT p FROM SandboxApiBundle:Product\Product p';
+
+        if (!is_null($city)) {
+            $queryStr = $queryStr.' LEFT JOIN SandboxApiBundle:Room\Room r WITH p.roomId = r.id';
+        }
+
+        $queryStr = $queryStr.' WHERE p.visible = :visible';
+        $queryStr = $queryStr.' AND p.recommend = :recommend';
+
+        if (!is_null($city)) {
+            $queryStr = $queryStr.' AND r.city = :city';
+        }
+
+        if ($recommend) {
+            $queryStr = $queryStr.' ORDER BY p.sortTime DESC';
+        } else {
+            $queryStr = $queryStr.' ORDER BY p.creationDate DESC';
+        }
+
+        $query = $this->getEntityManager()->createQuery($queryStr);
+        $query->setParameter('visible', true);
+        $query->setParameter('recommend', $recommend);
+
+        if (!is_null($city)) {
+            $query->setParameter('city', $city);
+        }
+
+        $query->setFirstResult($offset);
+        $query->setMaxResults($limit);
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $recommend
+     *
+     * @return int
+     */
+    public function getProductsRecommendCount(
+      $recommend
+    ) {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->select('COUNT(p)')
+            ->where('p.recommend = :recommend')
+            ->setParameter('recommend', $recommend);
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 }

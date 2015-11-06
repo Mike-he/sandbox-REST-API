@@ -53,6 +53,9 @@ class FeedCommentRepository extends EntityRepository
         //set all parameters
         $query->setParameters($parameters);
 
+        // order by creationDate
+        $query->orderBy('c.creationDate', 'ASC');
+
         $result = $query->getQuery()->getResult();
 
         return $result;

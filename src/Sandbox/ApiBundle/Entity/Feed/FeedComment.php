@@ -4,7 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Feed;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sandbox\ApiBundle\Entity\User\UserProfile;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * FeedComment.
@@ -89,6 +89,18 @@ class FeedComment
     private $creationDate;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="replyToUserId", type="integer", nullable=true)
+     */
+    private $replyToUserId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\User\User
+     */
+    private $replyToUser;
+
+    /**
      * Get id.
      *
      * @return int
@@ -139,7 +151,7 @@ class FeedComment
     /**
      * Get authorId.
      *
-     * @return string
+     * @return int
      */
     public function getAuthorId()
     {
@@ -171,7 +183,7 @@ class FeedComment
     }
 
     /**
-     * @return UserProfile
+     * @return User
      */
     public function getAuthor()
     {
@@ -179,7 +191,7 @@ class FeedComment
     }
 
     /**
-     * @param object $author
+     * @param User $author
      *
      * @return FeedComment
      */
@@ -236,5 +248,53 @@ class FeedComment
     public function getFeed()
     {
         return $this->feed;
+    }
+
+    /**
+     * Set replyToUserId.
+     *
+     * @param $replyToUserId
+     *
+     * @return FeedComment
+     */
+    public function setReplyToUserId($replyToUserId)
+    {
+        $this->replyToUserId = $replyToUserId;
+
+        return $this;
+    }
+
+    /**
+     * Get replyToUserId.
+     *
+     * @return int
+     */
+    public function getReplyToUserId()
+    {
+        return $this->replyToUserId;
+    }
+
+    /**
+     * Set replyToUser.
+     *
+     * @param User $replyToUser
+     *
+     * @return FeedComment
+     */
+    public function setReplyToUser($replyToUser)
+    {
+        $this->replyToUser = $replyToUser;
+
+        return $this;
+    }
+
+    /**
+     * Get replyToUser.
+     *
+     * @return User
+     */
+    public function getReplyToUser()
+    {
+        return $this->replyToUser;
     }
 }

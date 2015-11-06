@@ -4,6 +4,8 @@ namespace Sandbox\ApiBundle\Controller\Company;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Sandbox\ApiBundle\Entity\Company\Company;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Company Controller.
@@ -71,28 +73,6 @@ class CompanyController extends SandboxRestController
 
     /**
      * @param int $userId
-     * @param int $companyId
-     *
-     * @return bool
-     */
-    public function isCompanyMember(
-        $userId,
-        $companyId
-    ) {
-        $member = $this->getRepo('Company\CompanyMember')
-            ->findOneBy(array(
-                'companyId' => $companyId,
-                'userId' => $userId,
-            ));
-        if (is_null($member)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param int $userId
      *
      * @return bool
      */
@@ -116,25 +96,6 @@ class CompanyController extends SandboxRestController
     {
         $company = $this->getRepo('Company\Company')
             ->findOneByCreatorId($creatorId);
-        if (is_null($company)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param $userId
-     * @param $companyId
-     *
-     * @return bool
-     */
-    public function isCompanyCreator($userId, $companyId)
-    {
-        $company = $this->getRepo('Company\Company')->findOneBy(array(
-            'id' => $companyId,
-            'creatorId' => $userId,
-        ));
         if (is_null($company)) {
             return false;
         }

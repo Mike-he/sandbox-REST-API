@@ -42,7 +42,8 @@ class AdminProductController extends ProductController
     /**
      * Product.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
      * @ApiDoc(
      *   resource = true,
@@ -86,7 +87,7 @@ class AdminProductController extends ProductController
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    description="Filter by building id"
+     *    description="Filter by visibility"
      * )
      *
      * @Annotations\QueryParam(
@@ -151,7 +152,7 @@ class AdminProductController extends ProductController
         // check user permission
         $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
-        //filters
+        // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -159,11 +160,11 @@ class AdminProductController extends ProductController
         $buildingId = $paramFetcher->get('building');
         $visible = $paramFetcher->get('visible');
 
-        //sort by
+        // sort by
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
 
-        //search by name and number
+        // search by name and number
         $search = $paramFetcher->get('query');
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
@@ -193,6 +194,7 @@ class AdminProductController extends ProductController
      * Get product by id.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -229,6 +231,7 @@ class AdminProductController extends ProductController
      * Delete a product.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -407,6 +410,7 @@ class AdminProductController extends ProductController
      * Update a product.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -484,7 +488,7 @@ class AdminProductController extends ProductController
      *
      * @param Integer $OpLevel
      */
-    private function checkAdminProductPermission(
+    protected function checkAdminProductPermission(
         $OpLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(

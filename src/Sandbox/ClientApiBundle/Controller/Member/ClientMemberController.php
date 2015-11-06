@@ -13,6 +13,8 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Entity\Buddy\Buddy;
+use Sandbox\ApiBundle\Entity\Buddy\BuddyRequest;
 
 /**
  * Rest controller for UserProfile.
@@ -399,6 +401,7 @@ class ClientMemberController extends MemberController
         ParamFetcherInterface $paramFetcher
     ) {
         $userId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($userId);
 
         // if user is not authorized, respond empty list
         if (!$this->checkUserAuthorized($userId)) {
@@ -412,52 +415,115 @@ class ClientMemberController extends MemberController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        // find all members who have the query in any of their mapped fields
-        $finder = $this->container->get('fos_elastica.finder.search.member');
+        $membersResult = $this->getRepo('User\UserView')->searchMember(
+            $query,
+            $limit,
+            $offset
+        );
 
-        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-
-        $multiMatchQuery->setQuery($query);
-        $multiMatchQuery->setType('phrase_prefix');
-        $multiMatchQuery->setFields(array('name'));
-
-        $results = $finder->find($multiMatchQuery);
-        if (is_null($results) || empty($results)) {
-            return new View(array());
-        }
-
-        // members for response
         $members = array();
+        foreach ($membersResult as $profile) {
+            $memberId = $profile->getUserId();
+            $buddy = $this->getRepo('User\User')->find($memberId);
 
-        for ($i = $offset; $i < count($results); ++$i) {
-            if (count($members) >= $limit) {
-                break;
+            $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+               'user' => $myUser,
+                'buddy' => $buddy,
+            ));
+
+            if (!is_null($myBuddy)) {
+                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+            } else {
+                $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                    'askUser' => $myUser,
+                    'recvUser' => $buddy,
+                    'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                ));
+
+                if (!is_null($myBuddyRequest)) {
+                    $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+                }
             }
 
-            $profile = $results[$i];
-            $userId = $profile->getUserId();
-
-            $user = $this->getRepo('User\User')->find($userId);
-            if (is_null($user)
-                || $user->isBanned()
-                || !$user->isAuthorized()) {
-                continue;
-            }
-
+            // check buddy status
             $member = array(
-                'id' => $userId,
+                'id' => $memberId,
                 'profile' => $profile,
             );
 
             array_push($members, $member);
         }
 
-        // set view
         $view = new View($members);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('member'))
-        );
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['member']));
 
         return $view;
     }
+    // elastica search members
+//    public function getMembersSearchAction(
+//        Request $request,
+//        ParamFetcherInterface $paramFetcher
+//    ) {
+//        $userId = $this->getUserId();
+//
+//        // if user is not authorized, respond empty list
+//        if (!$this->checkUserAuthorized($userId)) {
+//            return new View(array());
+//        }
+//
+//        $query = $paramFetcher->get('query');
+//        $limit = $paramFetcher->get('limit');
+//        $offset = $paramFetcher->get('offset');
+//
+//        // get max limit
+//        $limit = $this->getLoadMoreLimit($limit);
+//
+//        // find all members who have the query in any of their mapped fields
+//        $finder = $this->container->get('fos_elastica.finder.search.member');
+//
+//        $multiMatchQuery = new \Elastica\Query\MultiMatch();
+//
+//        $multiMatchQuery->setQuery($query);
+//        $multiMatchQuery->setType('phrase_prefix');
+//        $multiMatchQuery->setFields(array('name'));
+//
+//        $results = $finder->find($multiMatchQuery);
+//        if (is_null($results) || empty($results)) {
+//            return new View(array());
+//        }
+//
+//        // members for response
+//        $members = array();
+//
+//        for ($i = $offset; $i < count($results); ++$i) {
+//            if (count($members) >= $limit) {
+//                break;
+//            }
+//
+//            $profile = $results[$i];
+//            $userId = $profile->getUserId();
+//
+//            $user = $this->getRepo('User\User')->find($userId);
+//            if (is_null($user)
+//                || $user->isBanned()
+//                || !$user->isAuthorized()) {
+//                continue;
+//            }
+//
+//            $member = array(
+//                'id' => $userId,
+//                'profile' => $profile,
+//            );
+//
+//            array_push($members, $member);
+//        }
+//
+//        // set view
+//        $view = new View($members);
+//        $view->setSerializationContext(
+//            SerializationContext::create()->setGroups(array('member'))
+//        );
+//
+//        return $view;
+//    }
 }

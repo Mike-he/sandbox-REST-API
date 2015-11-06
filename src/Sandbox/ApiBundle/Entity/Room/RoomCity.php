@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use JsonSerializable;
 
 /**
  * RoomCity.
@@ -11,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(name="RoomCity")
  * @ORM\Entity
  */
-class RoomCity
+class RoomCity implements JsonSerializable
 {
     /**
      * @var int
@@ -20,7 +21,14 @@ class RoomCity
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "admin_detail",
+     *      "admin_event",
+     *      "client_event"
+     * })
      */
     private $id;
 
@@ -29,7 +37,15 @@ class RoomCity
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "admin_detail",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event"
+     * })
      */
     private $name;
 
@@ -65,5 +81,13 @@ class RoomCity
     public function getName()
     {
         return $this->name;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'name' => $this->name,
+        );
     }
 }
