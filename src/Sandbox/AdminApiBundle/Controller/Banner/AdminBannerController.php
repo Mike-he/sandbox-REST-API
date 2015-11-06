@@ -11,16 +11,18 @@ use Sandbox\ApiBundle\Entity\Banner\BannerAttachment;
 use Sandbox\ApiBundle\Form\Banner\BannerType;
 use Sandbox\ApiBundle\Form\Banner\BannerPutType;
 use Sandbox\ApiBundle\Form\Banner\BannerAttachmentType;
+use Sandbox\ApiBundle\Form\Banner\BannerPositionType;
+use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Controller\Banner\BannerController;
-use FOS\RestBundle\View\View;
 use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use FOS\RestBundle\View\View;
 
 /**
  * Admin Banner Controller.
@@ -109,6 +111,44 @@ class AdminBannerController extends BannerController
     }
 
     /**
+     * Change position of banner.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/banners/{id}/position")
+     * @Method({"POST"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function changeBannerPositionAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        // get banner
+        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        $position = new BannerPosition();
+        $form = $this->createForm(new BannerPositionType(), $position);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return $this->updateBannerPosition(
+            $banner,
+            $position
+        );
+    }
+
+    /**
      * Post Banner.
      *
      * @param Request $request
@@ -191,6 +231,38 @@ class AdminBannerController extends BannerController
             $banner,
             $attachments
         );
+    }
+
+    /**
+     * Delete Banner.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/banners/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function deleteBannerAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        // get banner
+        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        // delete banner
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($banner);
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -368,35 +440,57 @@ class AdminBannerController extends BannerController
     }
 
     /**
-     * Delete Banner.
-     *
-     * @param Request $request the request object
-     * @param int     $id
-     *
-     * @Route("/banners/{id}")
-     * @Method({"DELETE"})
+     * @param Banner         $banner
+     * @param BannerPosition $position
      *
      * @return View
-     *
-     * @throws \Exception
      */
-    public function deleteBannerAction(
-        Request $request,
-        $id
+    private function updateBannerPosition(
+        $banner,
+        $position
     ) {
-        // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $action = $position->getAction();
 
-        // get banner
-        $banner = $this->getRepo('Banner\Banner')->find($id);
-        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+        // change banner position
+        if ($action == BannerPosition::ACTION_TOP) {
+            $banner->setSortTime(round(microtime(true) * 1000));
+        } elseif (
+            $action == BannerPosition::ACTION_UP ||
+            $action == BannerPosition::ACTION_DOWN
+        ) {
+            $this->swapBannerPosition(
+                $banner,
+                $action
+            );
+        }
 
-        // delete banner
+        // save
         $em = $this->getDoctrine()->getManager();
-        $em->remove($banner);
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Banner $banner
+     * @param string $action
+     */
+    private function swapBannerPosition(
+        $banner,
+        $action
+    ) {
+        $sortTime = $banner->getSortTime();
+        $swapBanner = $this->getRepo('Banner\Banner')->findSwapBanner(
+            $sortTime,
+            $action
+        );
+
+        // swap banner sort time
+        if (!is_null($swapBanner)) {
+            $swapSortTime = $swapBanner->getSortTime();
+            $banner->setSortTime($swapSortTime);
+            $swapBanner->setSortTime($sortTime);
+        }
     }
 
     /**
