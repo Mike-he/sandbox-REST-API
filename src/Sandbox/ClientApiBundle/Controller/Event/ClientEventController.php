@@ -76,12 +76,24 @@ class ClientEventController extends SandboxRestController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $query = $this->getRepo('Event\Event')->getAllClientEvents(
+        $eventsArray = array();
+        $events = $this->getRepo('Event\Event')->getAllClientEvents(
             $limit,
             $offset
         );
+        foreach ($events as $event) {
+            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
 
-        $view = new View($query);
+            $event->setAttachments($attachments);
+            $event->setDates($dates);
+            $event->setForms($forms);
+
+            array_push($eventsArray, $event);
+        }
+
+        $view = new View($eventsArray);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
 
         return $view;
@@ -140,13 +152,25 @@ class ClientEventController extends SandboxRestController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $query = $this->getRepo('Event\Event')->getMyClientEvents(
+        $eventsArray = array();
+        $events = $this->getRepo('Event\Event')->getMyClientEvents(
             $userId,
             $limit,
             $offset
         );
+        foreach ($events as $event) {
+            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
 
-        $view = new View($query);
+            $event->setAttachments($attachments);
+            $event->setDates($dates);
+            $event->setForms($forms);
+
+            array_push($eventsArray, $event);
+        }
+
+        $view = new View($eventsArray);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
 
         return $view;
@@ -191,6 +215,15 @@ class ClientEventController extends SandboxRestController
         if (!is_null($registration)) {
             $event->setIsRegistered(true);
         }
+
+        // set other array
+        $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+        $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+        $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+
+        $event->setAttachments($attachments);
+        $event->setDates($dates);
+        $event->setForms($forms);
 
         // set view
         $view = new View($event);

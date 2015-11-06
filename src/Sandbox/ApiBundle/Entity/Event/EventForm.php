@@ -100,7 +100,7 @@ class EventForm
      *      "client_event"
      * })
      */
-    private $option;
+    private $options;
 
     /**
      * Get id.
@@ -209,26 +209,26 @@ class EventForm
     }
 
     /**
-     * Set option.
+     * Set options.
      *
-     * @param EventFormOption $option
+     * @param EventFormOption $options
      *
      * @return EventForm
      */
-    public function setForm($option)
+    public function setOptions($options)
     {
-        $this->option = $option;
+        $this->options = $options;
 
         return $this;
     }
 
     /**
-     * Get option.
+     * Get options.
      *
      * @return EventFormOption
      */
-    public function getOption()
+    public function getOptions()
     {
-        return $this->option;
+        return $this->options;
     }
 }

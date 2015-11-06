@@ -99,15 +99,18 @@ class ClientEventRegistrationController extends SandboxRestController
         }
 
         // check if registration over limit number
-        $registrationCounts = $this->getRepo('Event\EventRegistration')
-            ->getRegistrationCounts($eventId);
-        $registrationCounts = (int) $registrationCounts;
-        if ($registrationCounts >= $event->getLimitNumber()) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_OVER_LIMIT_NUMBER_CODE,
-                self::ERROR_OVER_LIMIT_NUMBER_MESSAGE
-            );
+        $limitNumber = $event->getLimitNumber();
+        if ($limitNumber > 0) {
+            $registrationCounts = $this->getRepo('Event\EventRegistration')
+                ->getRegistrationCounts($eventId);
+            $registrationCounts = (int) $registrationCounts;
+            if ($registrationCounts >= $limitNumber) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_OVER_LIMIT_NUMBER_CODE,
+                    self::ERROR_OVER_LIMIT_NUMBER_MESSAGE
+                );
+            }
         }
 
         // check if the user is already registered
