@@ -165,11 +165,12 @@ class ClientFeedCommentController extends FeedCommentController
         // set comment
         $comment->setFeed($feed);
         $comment->setAuthor($myUser);
-        $comment->setPayload($payload);
         $comment->setCreationdate(new \DateTime('now'));
 
         if (!is_null($replyToUser)) {
             $comment->setReplyToUserId($replyToUserId);
+        } else {
+            $comment->setReplyToUserId(null);
         }
 
         // save to db
@@ -178,14 +179,22 @@ class ClientFeedCommentController extends FeedCommentController
         $em->flush();
 
         // send notification
-        $recvUsers = array($feed->getOwner());
+        $recvUsers = array();
+
+        $owner = $feed->getOwner();
+        if ($myUser != $owner) {
+            $recvUsers[] = $owner;
+        }
+
         if (!is_null($replyToUser)) {
             $recvUsers[] = $replyToUser;
         }
 
-        $this->sendXmppFeedNotification(
-            $feed, $myUser, $recvUsers, 'comment'
-        );
+        if (!empty($recvUsers)) {
+            $this->sendXmppFeedNotification(
+                $feed, $myUser, $recvUsers, 'comment'
+            );
+        }
 
         // set view
         $view = new View();

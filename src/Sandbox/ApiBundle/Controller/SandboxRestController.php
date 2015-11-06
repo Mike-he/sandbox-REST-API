@@ -1042,7 +1042,7 @@ class SandboxRestController extends FOSRestController
             $jsonData = $this->getAnnouncementNotificationJsonData($announcement, $action);
 
             // send xmpp notification
-            $this->sendXmppNotification('announcement', $action, $jsonData, false);
+            $this->sendXmppNotification('announcement', $action, $jsonData, true);
         } catch (Exception $e) {
             error_log('Send announcement notification went wrong!');
         }

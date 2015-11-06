@@ -426,7 +426,6 @@ class ClientFeedController extends FeedController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($feed);
-        $em->flush();
 
         //add attachments
         $attachments = $form['feed_attachments']->getData();
@@ -438,6 +437,8 @@ class ClientFeedController extends FeedController
                 $attachments
             );
         }
+
+        $em->flush();
 
         $response = array(
             'id' => $feed->getId(),
@@ -508,7 +509,6 @@ class ClientFeedController extends FeedController
 
             $em->persist($feedAttachment);
         }
-        $em->flush();
     }
 
     /**

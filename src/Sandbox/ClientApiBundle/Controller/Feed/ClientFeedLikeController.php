@@ -60,10 +60,12 @@ class ClientFeedLikeController extends FeedLikeController
             // create like
             $like = $this->createLike($feed, $myUser);
 
-            // send notification
-            $this->sendXmppFeedNotification(
-                $feed, $myUser, array($feed->getOwner()), 'like'
-            );
+            if ($myUser != $feed->getOwner()) {
+                // send notification
+                $this->sendXmppFeedNotification(
+                    $feed, $myUser, array($feed->getOwner()), 'like'
+                );
+            }
         }
 
         $result = array(
