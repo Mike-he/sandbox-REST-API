@@ -30,13 +30,7 @@ class BannerType extends AbstractType
                     'mapped' => false,
                 )
             )
-            ->add(
-                'banner_attachments',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
+            ->add('cover', 'text')
         ;
     }
 
