@@ -81,7 +81,7 @@ class EventDate
      *      "client_event"
      * })
      */
-    private $time;
+    private $times;
 
     /**
      * Get id.
@@ -166,26 +166,26 @@ class EventDate
     }
 
     /**
-     * Set time.
+     * Set times.
      *
-     * @param EventTime $time
+     * @param EventTime $times
      *
      * @return EventDate
      */
-    public function setTime($time)
+    public function setTimes($times)
     {
-        $this->time = $time;
+        $this->times = $times;
 
         return $this;
     }
 
     /**
-     * Get time.
+     * Get times.
      *
      * @return EventTime
      */
-    public function getTime()
+    public function getTimes()
     {
-        return $this->time;
+        return $this->times;
     }
 }

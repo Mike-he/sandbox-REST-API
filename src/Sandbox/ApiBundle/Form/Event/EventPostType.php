@@ -16,19 +16,9 @@ class EventPostType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add(
-                'event_attachments',
-                null,
-                array(
-                    'mapped' => false,
-                ))
+            ->add('attachments')
             ->add('description')
-            ->add(
-                'event_dates',
-                null,
-                array(
-                    'mapped' => false,
-                ))
+            ->add('dates')
             ->add('city_id')
             ->add('building_id')
             ->add('room_id')
@@ -37,12 +27,7 @@ class EventPostType extends AbstractType
             ->add('registration_end_date')
             ->add('registration_method')
             ->add('verify')
-            ->add(
-                'event_forms',
-                null,
-                array(
-                    'mapped' => false,
-                ))
+            ->add('forms')
         ;
     }
 

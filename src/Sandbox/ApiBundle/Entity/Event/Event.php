@@ -220,14 +220,8 @@ class Event
     private $modificationDate;
 
     /**
-     * @var EventAttachment
+     * @var array
      *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Event\EventAttachment",
-     *      mappedBy="event",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
      * @Serializer\Groups({
      *      "main",
      *      "admin_event",
@@ -237,14 +231,7 @@ class Event
     private $attachments;
 
     /**
-     * @var EventDate
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Event\EventDate",
-     *      mappedBy="event",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
+     * @var array
      *
      * @Serializer\Groups({
      *      "main",
@@ -255,14 +242,7 @@ class Event
     private $dates;
 
     /**
-     * @var EventForm
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Event\EventForm",
-     *      mappedBy="event",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
+     * @var array
      *
      * @Serializer\Groups({
      *      "main",

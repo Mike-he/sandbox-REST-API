@@ -112,11 +112,24 @@ class AdminEventController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
 
-        $query = $this->getRepo('Event\Event')->getEvents($status);
+        $eventsArray = array();
+        $events = $this->getRepo('Event\Event')->getEvents($status);
+        foreach ($events as $eventArray) {
+            $event = $eventArray['event'];
+            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+
+            $event->setAttachments($attachments);
+            $event->setDates($dates);
+            $event->setForms($forms);
+
+            array_push($eventsArray, $event);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $eventsArray,
             $pageIndex,
             $pageLimit
         );
@@ -154,6 +167,15 @@ class AdminEventController extends SandboxRestController
         // get an event
         $event = $this->getRepo('Event\Event')->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        // set other array
+        $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+        $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+        $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+
+        $event->setAttachments($attachments);
+        $event->setDates($dates);
+        $event->setForms($forms);
 
         // set view
         $view = new View($event);
@@ -324,24 +346,12 @@ class AdminEventController extends SandboxRestController
             }
         }
 
-        $requestContent = $request->getContent();
-        $eventArray = json_decode($requestContent, true);
-
-        $attachments = null;
-        if (array_key_exists('event_attachments', $eventArray)) {
-            $attachments = $eventArray['event_attachments'];
-        }
-
-        $dates = null;
-        if (array_key_exists('event_dates', $eventArray)) {
-            $dates = $eventArray['event_dates'];
-        }
-
-        $eventForms = null;
-        if (array_key_exists('event_forms', $eventArray)) {
-            $eventForms = $eventArray['event_forms'];
-        }
-
+        $attachments = $event->getAttachments();
+        $dates = $event->getDates();
+        $eventForms = $event->getForms();
+        $cityId = $event->getCityId();
+        $buildingId = $event->getBuildingId();
+        $limitNumber = (int) $event->getLimitNumber();
         $registrationStartDate = $event->getRegistrationStartDate();
         $registrationEndDate = $event->getRegistrationEndDate();
 
@@ -358,12 +368,6 @@ class AdminEventController extends SandboxRestController
                 self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
             );
         }
-
-        $cityId = $event->getCityId();
-
-        $buildingId = $event->getBuildingId();
-
-        $limitNumber = (int) $event->getLimitNumber();
 
         // check limit number is valid
         if ($limitNumber < 0) {
@@ -429,24 +433,12 @@ class AdminEventController extends SandboxRestController
             }
         }
 
-        $requestContent = $request->getContent();
-        $eventArray = json_decode($requestContent, true);
-
-        $attachments = null;
-        if (array_key_exists('event_attachments', $eventArray)) {
-            $attachments = $eventArray['event_attachments'];
-        }
-
-        $dates = null;
-        if (array_key_exists('event_dates', $eventArray)) {
-            $dates = $eventArray['event_dates'];
-        }
-
-        $eventForms = null;
-        if (array_key_exists('event_forms', $eventArray)) {
-            $eventForms = $eventArray['event_forms'];
-        }
-
+        $attachments = $event->getAttachments();
+        $dates = $event->getDates();
+        $eventForms = $event->getForms();
+        $cityId = $event->getCityId();
+        $buildingId = $event->getBuildingId();
+        $limitNumber = (int) $event->getLimitNumber();
         $registrationStartDate = $event->getRegistrationStartDate();
         $registrationEndDate = $event->getRegistrationEndDate();
 
@@ -461,12 +453,6 @@ class AdminEventController extends SandboxRestController
                 self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
             );
         }
-
-        $cityId = $event->getCityId();
-
-        $buildingId = $event->getBuildingId();
-
-        $limitNumber = (int) $event->getLimitNumber();
 
         // check limit number is valid
         if ($limitNumber < 0) {
@@ -540,7 +526,6 @@ class AdminEventController extends SandboxRestController
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
         $event->setEventEndDate($eventEndDate);
-        $event->setCreationDate($now);
         $event->setModificationDate($now);
 
         $em->flush();

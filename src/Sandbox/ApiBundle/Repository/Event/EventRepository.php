@@ -34,6 +34,8 @@ class EventRepository extends EntityRepository
                 ->setParameter('now', $now);
         }
 
+        $query->orderBy('e.creationDate', 'DESC');
+
         return $query->getQuery()->getResult();
     }
 
