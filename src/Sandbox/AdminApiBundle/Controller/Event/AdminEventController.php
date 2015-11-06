@@ -219,8 +219,7 @@ class AdminEventController extends SandboxRestController
         }
 
         return $this->handleEventPost(
-            $event,
-            $request
+            $event
         );
     }
 
@@ -274,8 +273,7 @@ class AdminEventController extends SandboxRestController
 
         // handle event form
         return $this->handleEventPut(
-            $event,
-            $request
+            $event
         );
     }
 
@@ -329,14 +327,12 @@ class AdminEventController extends SandboxRestController
     /**
      * Save event to db.
      *
-     * @param Event   $event
-     * @param Request $request
+     * @param Event $event
      *
      * @return View
      */
     private function handleEventPost(
-        $event,
-        Request $request
+        $event
     ) {
         // check room is valid
         if (!is_null($event->getRoomId())) {
@@ -416,14 +412,12 @@ class AdminEventController extends SandboxRestController
     /**
      * Save event modification to db.
      *
-     * @param Request $request
-     * @param Event   $event
+     * @param Event $event
      *
      * @return View
      */
     private function handleEventPut(
-        $event,
-        $request
+        $event
     ) {
         // check room is valid
         if (!is_null($event->getRoomId())) {

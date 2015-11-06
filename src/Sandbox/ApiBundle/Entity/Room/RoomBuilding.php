@@ -97,7 +97,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "admin_event"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "admin_event", "client_event"})
      */
     private $address;
 
