@@ -2,15 +2,12 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Banner;
 
-use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Banner\Banner;
-use Sandbox\ApiBundle\Entity\Banner\BannerAttachment;
 use Sandbox\ApiBundle\Form\Banner\BannerType;
 use Sandbox\ApiBundle\Form\Banner\BannerPutType;
-use Sandbox\ApiBundle\Form\Banner\BannerAttachmentType;
 use Sandbox\ApiBundle\Form\Banner\BannerPositionType;
 use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
 use Symfony\Component\HttpFoundation\Request;
@@ -182,12 +179,10 @@ class AdminBannerController extends BannerController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $attachments = $form['banner_attachments']->getData();
         $url = $form['url']->getData();
 
         return $this->handleBannerPost(
             $banner,
-            $attachments,
             $url
         );
     }
@@ -225,12 +220,10 @@ class AdminBannerController extends BannerController
         );
         $form->handleRequest($request);
 
-        $attachments = $form['banner_attachments']->getData();
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
 
-        return $this->handleBannerPut(
-            $banner,
-            $attachments
-        );
+        return new View();
     }
 
     /**
@@ -274,19 +267,9 @@ class AdminBannerController extends BannerController
      */
     private function handleBannerPost(
         $banner,
-        $attachments,
         $url
     ) {
         $em = $this->getDoctrine()->getManager();
-        if (is_null($attachments) || empty($attachments)) {
-            throw new BadRequestHttpException(self::ATTACHMENT_NULL);
-        }
-        // add attachments
-        $this->addBannerAttachment(
-            $em,
-            $banner,
-            $attachments
-        );
 
         $source = $banner->getSource();
         $sourceId = $banner->getSourceId();
@@ -339,53 +322,6 @@ class AdminBannerController extends BannerController
     }
 
     /**
-     * @param Banner $banner
-     * @param array  $attachments
-     *
-     * @return View
-     */
-    private function handleBannerPut(
-        $banner,
-        $attachments
-    ) {
-        $em = $this->getDoctrine()->getManager();
-        if (!is_null($attachments) && !empty($attachments)) {
-            // remove attachments
-            $this->removeAttachment(
-                $em,
-                $banner
-            );
-
-            // add attachments
-            $this->addBannerAttachment(
-                $em,
-                $banner,
-                $attachments
-            );
-        }
-
-        $em->flush();
-
-        return new View();
-    }
-
-    /**
-     * @param $em
-     * @param $banner
-     */
-    private function removeAttachment(
-        $em,
-        $banner
-    ) {
-        $attachments = $this->getRepo('Banner\BannerAttachment')->findBy(['banner' => $banner]);
-        if (!empty($attachments)) {
-            foreach ($attachments as $attachment) {
-                $em->remove($attachment);
-            }
-        }
-    }
-
-    /**
      * set banner content for event.
      *
      * @param Banner $banner
@@ -415,28 +351,6 @@ class AdminBannerController extends BannerController
         $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
 
         $banner->setContent($news->getTitle());
-    }
-
-    /**
-     * Save attachment to db.
-     *
-     * @param EntityManager $em
-     * @param Banner        $banner
-     * @param Array         $attachments
-     */
-    private function addBannerAttachment(
-        $em,
-        $banner,
-        $attachments
-    ) {
-        foreach ($attachments as $attachment) {
-            $bannerAttachment = new BannerAttachment();
-            $form = $this->createForm(new BannerAttachmentType(), $bannerAttachment);
-            $form->submit($attachment, true);
-
-            $bannerAttachment->setBanner($banner);
-            $em->persist($bannerAttachment);
-        }
     }
 
     /**

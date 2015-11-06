@@ -16,13 +16,7 @@ class BannerPutType extends AbstractType
     {
         $builder
             ->add('title', 'text')
-            ->add(
-                'banner_attachments',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
+            ->add('cover', 'text')
         ;
     }
 

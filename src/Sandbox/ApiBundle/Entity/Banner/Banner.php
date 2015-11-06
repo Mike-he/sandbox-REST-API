@@ -49,6 +49,15 @@ class Banner
     /**
      * @var string
      *
+     * @ORM\Column(name="cover", type="text")
+     *
+     * @Serializer\Groups({"main", "client_list"})
+     */
+    private $cover;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="source", type="string", length=64)
      *
      * @Serializer\Groups({"main", "client_list"})
@@ -90,21 +99,6 @@ class Banner
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
-
-    /**
-     * @var array
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Banner\BannerAttachment",
-     *      mappedBy="banner",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="bannerId")
-     * @ORM\OrderBy({"id" = "ASC"})
-     *
-     * @Serializer\Groups({"main", "client_list"})
-     */
-    private $attachments;
 
     /**
      * Get id.
@@ -162,6 +156,30 @@ class Banner
     public function getContent()
     {
         return $this->content;
+    }
+
+    /**
+     * Set cover.
+     *
+     * @param string $cover
+     *
+     * @return Banner
+     */
+    public function setCover($cover)
+    {
+        $this->cover = $cover;
+
+        return $this;
+    }
+
+    /**
+     * Get cover.
+     *
+     * @return string
+     */
+    public function getCover()
+    {
+        return $this->cover;
     }
 
     /**
@@ -282,30 +300,6 @@ class Banner
     public function getModificationDate()
     {
         return $this->modificationDate;
-    }
-
-    /**
-     * Get attachments.
-     *
-     * @return array
-     */
-    public function getAttachments()
-    {
-        return $this->attachments;
-    }
-
-    /**
-     * Set attachments.
-     *
-     * @param array $attachments
-     *
-     * @return Banner
-     */
-    public function setAttachments($attachments)
-    {
-        $this->attachments = $attachments;
-
-        return $this;
     }
 
     public function __construct()
