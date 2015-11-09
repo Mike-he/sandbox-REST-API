@@ -134,6 +134,13 @@ class ClientOrderController extends PaymentController
      *    description="Offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -146,11 +153,13 @@ class ClientOrderController extends PaymentController
         $userId = $this->getUserId();
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $search = $paramFetcher->get('search');
 
         $orders = $this->getRepo('Order\ProductOrder')->getUserCurrentOrders(
             $userId,
             $limit,
-            $offset
+            $offset,
+            $search
         );
 
         $view = new View();
