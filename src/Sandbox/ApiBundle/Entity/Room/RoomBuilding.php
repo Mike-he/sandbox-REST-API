@@ -42,7 +42,8 @@ class RoomBuilding implements JsonSerializable
      *      "company_basic",
      *      "feed",
      *      "admin_event",
-     *      "client_event"
+     *      "client_event",
+     *      "current_order"
      *  }
      * )
      */
@@ -86,7 +87,8 @@ class RoomBuilding implements JsonSerializable
      *      "feed",
      *      "admin_event",
      *      "client_detail",
-     *      "client_event"
+     *      "client_event",
+     *      "current_order"
      *  }
      * )
      */
@@ -97,7 +99,15 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "admin_event", "client_event"})
+     * @Serializer\Groups({
+     *  "main",
+     *  "admin_room",
+     *  "client",
+     *  "admin_detail",
+     *  "admin_event",
+     *  "client_event",
+     *  "current_order"
+     * })
      */
     private $address;
 

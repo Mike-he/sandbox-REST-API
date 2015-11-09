@@ -56,7 +56,7 @@ class RoomFixed
      *
      * @ORM\Column(name="seatNumber", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
      */
     private $seatNumber;
 

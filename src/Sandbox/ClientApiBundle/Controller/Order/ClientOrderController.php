@@ -110,6 +110,57 @@ class ClientOrderController extends PaymentController
     }
 
     /**
+     * Get user's current available rooms.
+     *
+     * @Get("/orders/current")
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getUserCurrentRoomsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $orders = $this->getRepo('Order\ProductOrder')->getUserCurrentOrders(
+            $userId,
+            $limit,
+            $offset
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['current_order']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
      * Create orders.
      *
      * @Post("/orders")

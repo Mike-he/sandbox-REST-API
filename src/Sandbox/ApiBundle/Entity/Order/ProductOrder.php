@@ -26,7 +26,7 @@ class ProductOrder
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order"})
      */
     private $id;
 
@@ -44,7 +44,7 @@ class ProductOrder
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "current_order"})
      */
     private $userId;
 
@@ -163,7 +163,7 @@ class ProductOrder
      *
      * @ORM\Column(name="startDate", type="datetime")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order"})
      */
     private $startDate;
 
@@ -172,7 +172,7 @@ class ProductOrder
      *
      * @ORM\Column(name="endDate", type="datetime")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order"})
      */
     private $endDate;
 
@@ -218,7 +218,7 @@ class ProductOrder
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
      * @ORM\JoinColumn(name="productId", referencedColumnName="id", onDelete="SET NULL")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order"})
      */
     private $product;
 
