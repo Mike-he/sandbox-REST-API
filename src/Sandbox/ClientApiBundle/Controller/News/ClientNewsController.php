@@ -75,12 +75,57 @@ class ClientNewsController extends SandboxRestController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $query = $this->getRepo('News\News')->getAllClientNews(
+        $newsArray = array();
+        $allNews = $this->getRepo('News\News')->getAllClientNews(
             $limit,
             $offset
         );
+        foreach ($allNews as $news) {
+            $attachments = $this->getRepo('News\NewsAttachment')->findByNews($news);
+            $news->setAttachments($attachments);
 
-        $view = new View($query);
+            array_push($newsArray, $news);
+        }
+
+        $view = new View($newsArray);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+
+        return $view;
+    }
+
+    /**
+     * Get definite id of news.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Route("/news/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getClientNewsAction(
+        Request $request,
+        $id
+    ) {
+        // get a news
+        $news = $this->getRepo('News\News')->find($id);
+        $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
+
+        // set news attachments
+        $attachments = $this->getRepo('News\NewsAttachment')->findByNews($news);
+        $news->setAttachments($attachments);
+
+        $view = new View($news);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
 
         return $view;
