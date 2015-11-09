@@ -56,22 +56,29 @@ class ClientChatGroupMemberController extends ChatGroupController
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
-        $members = $this->getRepo('ChatGroup\ChatGroupMember')
-            ->getChatGroupMembers($chatGroup);
+        $members = $this->getRepo('ChatGroup\ChatGroupMember')->getChatGroupMembers($chatGroup);
 
         if (is_null($members) || empty($members)) {
             return new View();
         }
 
+        // get chat group members array
+        $membersArray = array();
+
         foreach ($members as $member) {
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($member->getUserId());
-            $member->setProfile($profile);
+            $memberArray = array();
+            $memberArray['id'] = $member->getId();
+
+            $profile = $this->getRepo('User\UserProfile')->findOneByUser($member->getUser());
+            $memberArray['profile'] = $profile;
+
+            array_push($membersArray, $memberArray);
         }
 
         // response
-        $view = new View($members);
+        $view = new View($membersArray);
         $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('chatgroup_member'))
+            SerializationContext::create()->setGroups(array('chatgroup'))
         );
 
         return $view;

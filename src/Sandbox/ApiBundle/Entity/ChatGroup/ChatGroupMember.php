@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Entity\ChatGroup;
 
 use Doctrine\ORM\Mapping as ORM;
 use Sandbox\ApiBundle\Entity\User\User;
-use Sandbox\ApiBundle\Entity\User\UserProfile;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -21,6 +20,7 @@ use JMS\Serializer\Annotation as Serializer;
  *      }
  * )
  * @ORM\Entity(
+ *      repositoryClass="Sandbox\ApiBundle\Repository\ChatGroup\ChatGroupMemberRepository"
  * )
  */
 class ChatGroupMember
@@ -87,13 +87,6 @@ class ChatGroupMember
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      */
     private $modificationDate;
-
-    /**
-     * @var UserProfile
-     *
-     * @Serializer\Groups({"main", "chatgroup_info", "chatgroup_member"})
-     */
-    private $profile;
 
     /**
      * Get id.

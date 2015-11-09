@@ -21,7 +21,7 @@ class ChatGroupMemberRepository extends EntityRepository
                     SELECT cgm
                     FROM SandboxApiBundle:ChatGroup\ChatGroupMember cgm
                     LEFT JOIN SandboxApiBundle:User\User u
-                    WITH cgm.userId = u.id
+                    WITH cgm.user = u
                     WHERE
                       cgm.chatGroup = :chatGroup
                       AND u.banned = FALSE
