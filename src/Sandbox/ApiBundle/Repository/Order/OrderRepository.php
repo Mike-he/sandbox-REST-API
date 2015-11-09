@@ -13,34 +13,54 @@ class OrderRepository extends EntityRepository
     const CANCELLED = "'cancelled'";
 
     /**
-     * @param $userId
-     * @param $limit
-     * @param $offset
+     * @param int    $userId
+     * @param int    $limit
+     * @param int    $offset
+     * @param string $search
      *
      * @return array
      */
     public function getUserCurrentOrders(
         $userId,
         $limit,
-        $offset
+        $offset,
+        $search
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('o')
-            ->leftJoin('SandboxApiBundle:Order\InvitedPeople', 'p', 'WITH', 'p.orderId = o.id')
+            ->leftJoin('SandboxApiBundle:Order\InvitedPeople', 'i', 'WITH', 'i.orderId = o.id')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'r.cityId = c.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->where(
                 '(
                     o.userId = :userId OR
                     o.appointed = :userId OR
-                    p.userId = :userId
+                    i.userId = :userId
                 )'
             )
             ->andWhere('o.startDate <= :now AND o.endDate > :now')
             ->setParameter('now', $now)
-            ->setParameter('userId', $userId)
-            ->orderBy('o.modificationDate', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
+            ->setParameter('userId', $userId);
+
+        if (!is_null($search)) {
+            $query->andWhere(
+                    '(
+                        up.name LIKE :search OR
+                        c.name LIKE :search OR
+                        b.name LIKE :search OR
+                        r.type LIKE :search
+                    )'
+                )
+                    ->setParameter('search', "%$search%");
+        }
+
+        $query = $query->orderBy('o.modificationDate', 'DESC')
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
+                ->getQuery();
 
         return $query->getResult();
     }
