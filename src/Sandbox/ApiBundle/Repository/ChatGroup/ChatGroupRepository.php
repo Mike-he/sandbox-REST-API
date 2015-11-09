@@ -19,10 +19,13 @@ class ChatGroupRepository extends EntityRepository
             ->createQuery(
                 '
                 SELECT
-                  cg.id, cg.name, cgm.mute
+                  cg.id,
+                  cg.name,
+                  cg.creatorId AS creator_id,
+                  cgm.mute
                 FROM SandboxApiBundle:ChatGroup\ChatGroup cg
                 LEFT JOIN SandboxApiBundle:ChatGroup\ChatGroupMember cgm
-                WITH cg.id = cgm.chatGroupId
+                WITH cg = cgm.chatGroup
                 WHERE cgm.user = :myUser
                 '
             )
@@ -45,10 +48,13 @@ class ChatGroupRepository extends EntityRepository
             ->createQuery(
                 '
                 SELECT
-                  cg.id, cg.name, cgm.mute
+                  cg.id,
+                  cg.name,
+                  cg.creatorId AS creator_id,
+                  cgm.mute
                 FROM SandboxApiBundle:ChatGroup\ChatGroup cg
                 LEFT JOIN SandboxApiBundle:ChatGroup\ChatGroupMember cgm
-                WITH cg.id = cgm.chatGroupId
+                WITH cg = cgm.chatGroup
                 WHERE cg.id = :id
                 AND cgm.user = :myUser
                 '

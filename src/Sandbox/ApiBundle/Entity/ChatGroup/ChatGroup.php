@@ -10,7 +10,9 @@ use JMS\Serializer\Annotation as Serializer;
  * ChatGroup.
  *
  * @ORM\Table(name="ChatGroup")
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="Sandbox\ApiBundle\Repository\ChatGroup\ChatGroupRepository"
+ * )
  */
 class ChatGroup
 {

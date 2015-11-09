@@ -22,19 +22,19 @@ class ChatGroupController extends SandboxRestController
     /**
      * @param $em
      * @param ChatGroup $chatGroup
-     * @param User      $member
+     * @param User      $newUser
      * @param User      $myUser
      */
     protected function saveChatGroupMember(
         $em,
         $chatGroup,
-        $member,
+        $newUser,
         $myUser
     ) {
         $member = $this->getRepo('ChatGroup\ChatGroupMember')->findOneBy(
             array(
                 'chatGroup' => $chatGroup,
-                'user' => $member,
+                'user' => $newUser,
             )
         );
 
@@ -42,7 +42,7 @@ class ChatGroupController extends SandboxRestController
             // new chat group member
             $chatGroupMember = new ChatGroupMember();
             $chatGroupMember->setChatGroup($chatGroup);
-            $chatGroupMember->setUser($member);
+            $chatGroupMember->setUser($newUser);
             $chatGroupMember->setAddBy($myUser);
             $em->persist($chatGroupMember);
         }

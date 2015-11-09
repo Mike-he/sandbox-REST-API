@@ -210,3 +210,9 @@ sandbox_client_api_events:
     resource: "@SandboxClientApiBundle/Controller/Event/ClientEventController.php"
     type:     annotation
     prefix:   /
+
+# ChatGroup /client/chatgroups
+sandbox_client_api_chatgroup:
+    resource: "@SandboxClientApiBundle/Controller/ChatGroup/ClientChatGroupController.php"
+    type:     annotation
+    prefix:   /

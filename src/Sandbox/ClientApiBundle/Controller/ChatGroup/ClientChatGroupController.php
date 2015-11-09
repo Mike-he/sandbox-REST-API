@@ -5,7 +5,8 @@ namespace Sandbox\ClientApiBundle\Controller\ChatGroup;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ClientApiBundle\Data\ChatGroup\ChatGroupData;
-use Sandbox\ClientApiBundle\Form\ChatGroup\ChatGroupType;
+use Sandbox\ApiBundle\Form\ChatGroup\ChatGroupType;
+use Sandbox\ClientApiBundle\Form\ChatGroup\ChatGroupDataType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -13,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Rs\Json\Patch;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Client Chat Group Controller.
@@ -50,7 +52,7 @@ class ClientChatGroupController extends ChatGroupController
         // get request payload
         $data = new ChatGroupData();
 
-        $form = $this->createForm(new ChatGroupType(), $data);
+        $form = $this->createForm(new ChatGroupDataType(), $data);
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -69,27 +71,35 @@ class ClientChatGroupController extends ChatGroupController
         $em = $this->getDoctrine()->getManager();
 
         $chatGroup = new ChatGroup();
+        $chatGroup->setCreator($myUser);
 
         // add member
         $chatGroupName = $name;
         $memberCount = 0;
 
-        foreach ($memberIds as $memberId) {
-            $member = $this->getRepo('User\User')->find($memberId);
-            if (is_null($member)) {
-                continue;
+        $allMembersIds = array($myUserId);
+        $allMembersIds = array_merge($allMembersIds, $memberIds);
+
+        foreach ($allMembersIds as $memberId) {
+            if ($memberId != $myUserId) {
+                $member = $this->getRepo('User\User')->find($memberId);
+                if (is_null($member)) {
+                    continue;
+                }
+
+                // check member is buddy
+                $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                    'user' => $myUser,
+                    'buddy' => $member,
+                ));
+                if (is_null($buddy)) {
+                    continue;
+                }
+            } else {
+                $member = $myUser;
             }
 
-            // check member is buddy
-            $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                'user' => $myUser,
-                'buddy' => $member,
-            ));
-            if (is_null($buddy)) {
-                continue;
-            }
-
-            $memberProfile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+            $memberProfile = $this->getRepo('User\UserProfile')->findOneByUser($member);
             if (is_null($memberProfile)) {
                 continue;
             }
@@ -98,15 +108,15 @@ class ClientChatGroupController extends ChatGroupController
             $this->saveChatGroupMember($em, $chatGroup, $member, $myUser);
 
             // generate name
+            ++$memberCount;
+
             if (is_null($name)) {
                 $chatGroupName = $chatGroupName.$memberProfile->getName();
 
-                if ($memberCount < sizeof($memberIds)) {
+                if ($memberCount < sizeof($allMembersIds)) {
                     $chatGroupName = $chatGroupName.', ';
                 }
             }
-
-            ++$memberCount;
         }
 
         $chatGroup->setName($chatGroupName);
@@ -207,10 +217,34 @@ class ClientChatGroupController extends ChatGroupController
             return new View();
         }
 
-        // get chat group
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->getChatGroup($id, $myUserId);
+        // get chatGroup
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
-        return new View($chatGroup);
+        // get chat group array
+        $chatGroupArray = $this->getRepo('ChatGroup\ChatGroup')->getChatGroup($id, $myUserId);
+
+        // get chat group members array
+        $membersArray = array();
+
+        $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
+        foreach ($members as $member) {
+            $memberArray = array();
+            $memberArray['id'] = $member->getId();
+
+            $profile = $this->getRepo('User\UserProfile')->findOneByUser($member->getUser());
+            $memberArray['profile'] = $profile;
+
+            array_push($membersArray, $memberArray);
+        }
+
+        $chatGroupArray['members'] = $membersArray;
+
+        // set view
+        $view = new View(array($chatGroupArray));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('chatgroup')));
+
+        return $view;
     }
 
     /**
@@ -236,7 +270,7 @@ class ClientChatGroupController extends ChatGroupController
             return new View();
         }
 
-        // get $chatGroup
+        // get chatGroup
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
@@ -317,7 +351,7 @@ class ClientChatGroupController extends ChatGroupController
         Request $request,
         $id
     ) {
-        $this->handleChatGroupMute(true);
+        $this->handleChatGroupMute($id, true);
     }
 
     /**
@@ -335,15 +369,17 @@ class ClientChatGroupController extends ChatGroupController
         Request $request,
         $id
     ) {
-        $this->handleChatGroupMute(false);
+        $this->handleChatGroupMute($id, false);
     }
 
     /**
-     * @param $mute
+     * @param int  $id
+     * @param bool $mute
      *
      * @return View
      */
     private function handleChatGroupMute(
+        $id,
         $mute
     ) {
         $myUserId = $this->getUserId();
