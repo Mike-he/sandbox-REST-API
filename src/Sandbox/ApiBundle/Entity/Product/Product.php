@@ -31,7 +31,7 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "current_order"})
      */
     private $id;
 
@@ -49,7 +49,7 @@ class Product
      *
      * @ORM\Column(name="description", type="text")
      *
-     * @Serializer\Groups({"main", "client", "admin_room"})
+     * @Serializer\Groups({"main", "client", "admin_room", "current_order"})
      */
     private $description;
 
@@ -58,7 +58,7 @@ class Product
      *
      * @ORM\Column(name="seatNumber", type="string", length=64, nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "current_order"})
      */
     private $seatNumber;
 
@@ -176,7 +176,7 @@ class Product
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order"})
      */
     private $room;
 

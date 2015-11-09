@@ -19,6 +19,39 @@ class OrderRepository extends EntityRepository
      *
      * @return array
      */
+    public function getUserCurrentOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $now = new \DateTime();
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Order\InvitedPeople', 'p', 'WITH', 'p.orderId = o.id')
+            ->where(
+                '(
+                    o.userId = :userId OR
+                    o.appointed = :userId OR
+                    p.userId = :userId
+                )'
+            )
+            ->andWhere('o.startDate <= :now AND o.endDate > :now')
+            ->setParameter('now', $now)
+            ->setParameter('userId', $userId)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
     public function getUserCancelledOrders(
         $userId,
         $limit,

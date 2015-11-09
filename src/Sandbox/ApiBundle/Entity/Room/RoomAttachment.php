@@ -22,7 +22,7 @@ class RoomAttachment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
      */
     private $id;
 
@@ -31,7 +31,7 @@ class RoomAttachment
      *
      * @ORM\Column(name="content", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
      */
     private $content;
 
@@ -40,7 +40,7 @@ class RoomAttachment
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
      */
     private $attachmentType;
 
@@ -49,7 +49,7 @@ class RoomAttachment
      *
      * @ORM\Column(name="filename", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
      */
     private $filename;
 
@@ -58,7 +58,7 @@ class RoomAttachment
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
      */
     private $preview;
 
@@ -67,7 +67,7 @@ class RoomAttachment
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
      */
     private $size;
 
