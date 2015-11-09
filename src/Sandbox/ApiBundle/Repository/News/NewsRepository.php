@@ -25,4 +25,16 @@ class NewsRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @return array
+     */
+    public function getAllAdminNews()
+    {
+        $query = $this->createQueryBuilder('n')
+            ->where('n.visible = TRUE')
+            ->orderBy('n.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

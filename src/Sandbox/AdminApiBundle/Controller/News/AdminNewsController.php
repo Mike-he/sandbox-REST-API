@@ -124,7 +124,7 @@ class AdminNewsController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
 
         $newsArray = array();
-        $allNews = $this->getRepo('News\News')->findByVisible(true);
+        $allNews = $this->getRepo('News\News')->getAllAdminNews();
         foreach ($allNews as $news) {
             $attachments = $this->getRepo('News\NewsAttachment')->findByNews($news);
             $news->setAttachments($attachments);
