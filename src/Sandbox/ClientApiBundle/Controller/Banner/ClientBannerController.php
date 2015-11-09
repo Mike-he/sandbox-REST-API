@@ -42,4 +42,32 @@ class ClientBannerController extends BannerController
 
         return $view;
     }
+
+    /**
+     * Get Banner By Id.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/banners/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getBannerByIdAction(
+        Request $request,
+        $id
+    ) {
+        // get banner
+        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_list']));
+        $view->setData($banner);
+
+        return $view;
+    }
 }

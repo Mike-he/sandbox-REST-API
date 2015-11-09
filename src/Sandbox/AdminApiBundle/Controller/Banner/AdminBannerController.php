@@ -259,6 +259,33 @@ class AdminBannerController extends BannerController
     }
 
     /**
+     * Get Banner By Id.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/banners/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getBannerByIdAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        // get banner
+        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        return new View($banner);
+    }
+
+    /**
      * @param Banner $banner
      * @param array  $attachments
      * @param string $url
