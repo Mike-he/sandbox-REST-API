@@ -334,15 +334,16 @@ class ClientBuddyController extends BuddyController
         $buddy,
         $myUser
     ) {
-        // check if user null
-        if (!is_null($buddy) && !empty($buddy)) {
+        // return if user null
+        if (is_null($buddy)) {
             return array();
         }
+
         $myBuddy = $this->getRepo('Buddy\Buddy')->findOneByBuddy($buddy);
         $profile = $this->getRepo('User\UserProfile')->findOneByUser($buddy);
 
-        // check if is my buddy
-        if (!is_null($myBuddy) || !empty($myBuddy)) {
+        // return if is my buddy
+        if (!is_null($myBuddy)) {
             return array();
         }
 
