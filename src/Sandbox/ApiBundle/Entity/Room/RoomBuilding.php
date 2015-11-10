@@ -15,7 +15,7 @@ use JsonSerializable;
  *          @ORM\Index(name="fk_Building_cityId_idx", columns={"cityId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Location\LocationRepository")
  */
 class RoomBuilding implements JsonSerializable
 {
@@ -43,7 +43,8 @@ class RoomBuilding implements JsonSerializable
      *      "feed",
      *      "admin_event",
      *      "client_event",
-     *      "current_order"
+     *      "current_order",
+     *      "building_nearby"
      *  }
      * )
      */
@@ -61,7 +62,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "building_nearby"})
      **/
     private $city;
 
@@ -88,7 +89,8 @@ class RoomBuilding implements JsonSerializable
      *      "admin_event",
      *      "client_detail",
      *      "client_event",
-     *      "current_order"
+     *      "current_order",
+     *      "building_nearby"
      *  }
      * )
      */
@@ -106,7 +108,8 @@ class RoomBuilding implements JsonSerializable
      *  "admin_detail",
      *  "admin_event",
      *  "client_event",
-     *  "current_order"
+     *  "current_order",
+     *  "building_nearby"
      * })
      */
     private $address;
@@ -116,7 +119,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="lat", type="float", precision=9, scale=6, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "building_nearby"})
      */
     private $lat;
 
@@ -125,7 +128,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="lng", type="float", precision=9, scale=6, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "building_nearby"})
      */
     private $lng;
 
@@ -134,7 +137,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="avatar", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "avatar"})
+     * @Serializer\Groups({"main", "avatar", "building_nearby"})
      */
     private $avatar;
 
