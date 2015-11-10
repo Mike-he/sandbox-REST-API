@@ -79,26 +79,6 @@ class LocationController extends SandboxRestController
     }
 
     /**
-     * @Get("/buildings/{id}")
-     *
-     * @param Request $request
-     * @param $id
-     *
-     * @return View
-     */
-    public function getOneBuildingAction(
-        Request $request,
-        $id
-    ) {
-        $building = $this->getRepo('Room\RoomBuilding')->find($id);
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
-        $view->setData($building);
-
-        return new View($building);
-    }
-
-    /**
      * @Get("/floors")
      *
      * @Annotations\QueryParam(
@@ -149,7 +129,7 @@ class LocationController extends SandboxRestController
      *
      * @return View
      */
-    public function getBuildingAvatar(
+    public function getBuildingAvatarAction(
         Request $request,
         $id
     ) {
@@ -177,5 +157,85 @@ class LocationController extends SandboxRestController
         });
 
         $response->send();
+    }
+
+    /**
+     * Get closest building.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lat",
+     *    array=false,
+     *    default=null,
+     *    requirements="-?\d+",
+     *    strict=true,
+     *    description="coordinate lat"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lng",
+     *    array=false,
+     *    default=null,
+     *    requirements="-?\d+",
+     *    strict=true,
+     *    description="coordinate lng"
+     * )
+     *
+     * @Route("/buildings/closest")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getClosestBuildingAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $lat = (int) $paramFetcher->get('lat');
+        $lng = (int) $paramFetcher->get('lng');
+        $globals = $this->getGlobals();
+        $range = $globals['nearby_range_km'];
+
+        $building = $this->getRepo('Room\RoomBuilding')->findClosestBuilding(
+            $lat,
+            $lng,
+            $range
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['building_closest']));
+        $view->setData($building);
+
+        return $view;
+    }
+
+    /**
+     * @Get("/buildings/{id}")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return View
+     */
+    public function getOneBuildingAction(
+        Request $request,
+        $id
+    ) {
+        $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData($building);
+
+        return new View($building);
     }
 }
