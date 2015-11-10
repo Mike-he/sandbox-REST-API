@@ -334,42 +334,44 @@ class ClientBuddyController extends BuddyController
         $buddy,
         $myUser
     ) {
+        // check if user null
         if (!is_null($buddy) && !empty($buddy)) {
-            $myBuddy = $this->getRepo('Buddy\Buddy')->findOneByBuddy($buddy);
-            $profile = $this->getRepo('User\UserProfile')->findOneByUser($buddy);
+            return array();
+        }
+        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneByBuddy($buddy);
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($buddy);
 
-            // if is my buddy
-            if (!is_null($myBuddy) || !empty($myBuddy)) {
-                return array();
-            }
+        // check if is my buddy
+        if (!is_null($myBuddy) || !empty($myBuddy)) {
+            return array();
+        }
 
-            $askBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                'askUserId' => $myUser->getId(),
-                'recvUserId' => $buddy->getId(),
-            ));
-            $recvBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-                'askUserId' => $buddy->getId(),
-                'recvUserId' => $myUser->getId(),
-            ));
+        $askBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+            'askUserId' => $myUser->getId(),
+            'recvUserId' => $buddy->getId(),
+        ));
+        $recvBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+            'askUserId' => $buddy->getId(),
+            'recvUserId' => $myUser->getId(),
+        ));
 
-            if (is_null($askBuddyRequest) && is_null($recvBuddyRequest)) {
-                // have not sent buddy request
-                return $buddyProfile = array(
-                    'profile' => $profile,
-                );
-            } elseif (is_null($askBuddyRequest)) {
-                // have received buddy request
-                return $myRequest = $this->generateRequestArray(
-                    $recvBuddyRequest,
-                    $profile
-                );
-            } else {
-                // have sent buddy request
-                return $myRequest = $this->generateRequestArray(
-                    $askBuddyRequest,
-                    $profile
-                );
-            }
+        if (is_null($askBuddyRequest) && is_null($recvBuddyRequest)) {
+            // have not sent buddy request
+            return $buddyProfile = array(
+                'profile' => $profile,
+            );
+        } elseif (is_null($askBuddyRequest)) {
+            // have received buddy request
+            return $myRequest = $this->generateRequestArray(
+                $recvBuddyRequest,
+                $profile
+            );
+        } else {
+            // have sent buddy request
+            return $myRequest = $this->generateRequestArray(
+                $askBuddyRequest,
+                $profile
+            );
         }
     }
 
