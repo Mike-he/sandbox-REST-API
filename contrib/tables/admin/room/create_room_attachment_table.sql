@@ -5,5 +5,10 @@ CREATE TABLE `RoomAttachment` (
   `filename` varchar(64) NOT NULL,
   `preview` text,
   `size` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  `roomType` varchar(255) NOT NULL,
+  `buildingId` int(11) NOT NULL,
+  `creationDate` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_RoomAttachment_buildingId_idx` (`buildingId`),
+  CONSTRAINT `fk_RoomAttachment_buildingId` FOREIGN KEY (`buildingId`) REFERENCES `RoomBuilding` (`id`) ON DELETE CASCADE
 );
