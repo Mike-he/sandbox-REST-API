@@ -264,4 +264,117 @@ class ClientBuddyController extends BuddyController
 
         return new View();
     }
+
+    /**
+     * Get contact recommend buddies.
+     *
+     * @param Request $request
+     *
+     * @Route("/buddies/contacts")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postBuddyContactAction(
+        Request $request
+    ) {
+        // get my user
+        $myUser = $this->getUser()->getMyUser();
+
+        // get request data
+        $requestContent = $request->getContent();
+        $contactsData = json_decode($requestContent, true);
+
+        if (!is_null($contactsData) && !empty($contactsData)) {
+            $contactBuddies = array();
+            foreach ($contactsData as $contact) {
+                if (isset($contact['phone']) && !is_null($contact['phone'])) {
+                    $phone = $contact['phone'];
+                    $buddy = $this->getRepo('User\User')->findOneByPhone($phone);
+
+                    // get contact buddy profile
+                    $buddyProfile = $this->getContactBuddyProfile($buddy, $myUser);
+
+                    if (!is_null($buddyProfile) && !empty($buddyProfile)) {
+                        array_push($contactBuddies, $buddyProfile);
+                    }
+                }
+
+                if (isset($contact['email']) && !is_null($contact['email'])) {
+                    $email = $contact['email'];
+                    $buddy = $this->getRepo('User\User')->findOneByEmail($email);
+
+                    // get contact buddy profile
+                    $buddyProfile = $this->getContactBuddyProfile($buddy, $myUser);
+
+                    if (!is_null($buddyProfile) && !empty($buddyProfile)) {
+                        array_push($contactBuddies, $buddyProfile);
+                    }
+                }
+            }
+
+            // set view
+            $view = new View($contactBuddies);
+            $view->setSerializationContext(SerializationContext::create()->setGroups(array('buddy')));
+
+            return $view;
+        }
+
+        return new View(array());
+    }
+
+    /**
+     * @param User $buddy
+     * @param User $myUser
+     *
+     * @return array
+     */
+    private function getContactBuddyProfile(
+        $buddy,
+        $myUser
+    ) {
+        if (!is_null($buddy) && !empty($buddy)) {
+            $myBuddy = $this->getRepo('Buddy\Buddy')->findOneByBuddy($buddy);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUser($buddy);
+
+            // if is not my buddy
+            if (is_null($myBuddy) || empty($myBuddy)) {
+                $askBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                    'askUserId' => $myUser->getId(),
+                    'recvUserId' => $buddy->getId(),
+                ));
+                $recvBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                    'askUserId' => $buddy->getId(),
+                    'recvUserId' => $myUser->getId(),
+                ));
+
+                // have not sent buddy request
+                if (is_null($askBuddyRequest) && is_null($recvBuddyRequest)) {
+                    return $buddyProfile = array(
+                        'profile' => $profile,
+                    );
+                } elseif (is_null($askBuddyRequest)) {
+                    $myRequest = array(
+                        'id' => $recvBuddyRequest->getId(),
+                        'ask_user_id' => $recvBuddyRequest->getAskUserId(),
+                        'message' => $recvBuddyRequest->getMessage(),
+                        'status' => $recvBuddyRequest->getStatus(),
+                        'profile' => $profile,
+                    );
+
+                    return $myRequest;
+                } else {
+                    $myRequest = array(
+                        'id' => $askBuddyRequest->getId(),
+                        'ask_user_id' => $askBuddyRequest->getAskUserId(),
+                        'message' => $askBuddyRequest->getMessage(),
+                        'status' => $askBuddyRequest->getStatus(),
+                        'profile' => $profile,
+                    );
+
+                    return $myRequest;
+                }
+            }
+        }
+    }
 }
