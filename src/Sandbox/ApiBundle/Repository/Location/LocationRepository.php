@@ -13,7 +13,7 @@ class LocationRepository extends EntityRepository
      *
      * @return array
      */
-    public function findClosestBuilding(
+    public function findNearbyBuildings(
         $lat,
         $lng,
         $range

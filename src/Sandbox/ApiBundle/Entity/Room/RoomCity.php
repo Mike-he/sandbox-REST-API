@@ -29,7 +29,7 @@ class RoomCity implements JsonSerializable
      *      "admin_event",
      *      "client_event",
      *      "current_order",
-     *      "building_closest"
+     *      "building_nearby"
      * })
      */
     private $id;
@@ -48,7 +48,7 @@ class RoomCity implements JsonSerializable
      *      "client_detail",
      *      "client_event",
      *      "current_order",
-     *      "building_closest"
+     *      "building_nearby"
      * })
      */
     private $name;

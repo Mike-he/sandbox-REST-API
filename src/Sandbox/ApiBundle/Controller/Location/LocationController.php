@@ -190,14 +190,14 @@ class LocationController extends SandboxRestController
      *    description="coordinate lng"
      * )
      *
-     * @Route("/buildings/closest")
+     * @Route("/buildings/nearby")
      * @Method({"GET"})
      *
      * @throws \Exception
      *
      * @return View
      */
-    public function getClosestBuildingAction(
+    public function getNearbyBuildingsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -206,15 +206,15 @@ class LocationController extends SandboxRestController
         $globals = $this->getGlobals();
         $range = $globals['nearby_range_km'];
 
-        $building = $this->getRepo('Room\RoomBuilding')->findClosestBuilding(
+        $buildings = $this->getRepo('Room\RoomBuilding')->findNearbyBuildings(
             $lat,
             $lng,
             $range
         );
 
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['building_closest']));
-        $view->setData($building);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['building_nearby']));
+        $view->setData($buildings);
 
         return $view;
     }
