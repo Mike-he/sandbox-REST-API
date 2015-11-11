@@ -122,11 +122,11 @@ class ClientChatGroupController extends ChatGroupController
         $chatGroup->setName($chatGroupName);
         $em->persist($chatGroup);
 
-        // TODO create chat group in Openfire
-
-
         // save to db
         $em->flush();
+
+        // create chat group in Openfire
+        $this->createXmppChatGroup($chatGroup);
 
         // response
         $view = new View();

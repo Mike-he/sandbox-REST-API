@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Form\User\UserProfileType;
 use Symfony\Component\HttpFoundation\Request;
@@ -105,14 +106,17 @@ class ClientUserBasicProfileController extends UserProfileController
     public function patchUserBasicProfileAction(
         Request $request
     ) {
+        // get user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
         // get profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUserId(
-            $this->getUserId()
-        );
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($myUser);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         return $this->handleUserBasicProfilePatch(
             $request,
+            $myUser,
             $profile
         );
     }
@@ -130,23 +134,29 @@ class ClientUserBasicProfileController extends UserProfileController
         Request $request,
         $id
     ) {
+        // get user
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
         // get profile
         $profile = $this->getRepo('User\UserProfile')->find($id);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         // check user is allowed to modify
-        if ($this->getUserId() != $profile->getUserId()) {
+        if ($myUserId != $profile->getUserId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         return $this->handleUserBasicProfilePatch(
             $request,
+            $myUser,
             $profile
         );
     }
 
     /**
      * @param Request     $request
+     * @param User        $user
      * @param UserProfile $profile
      *
      * @return View
@@ -155,6 +165,7 @@ class ClientUserBasicProfileController extends UserProfileController
      */
     private function handleUserBasicProfilePatch(
         Request $request,
+        $user,
         $profile
     ) {
         // bind data
@@ -171,6 +182,8 @@ class ClientUserBasicProfileController extends UserProfileController
         // update to db
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $this->updateXmppUser($user->getXmppUsername(), null, $profile->getName());
 
         return new View();
     }
