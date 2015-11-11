@@ -118,8 +118,8 @@ sandbox_admin_api_news:
     type:     annotation
     prefix:   /
 
-# Room Building /admin/room/building
+# Room Building /admin/building
 sandbox_admin_api_room_building:
-    resource: "@SandboxAdminApiBundle/Controller/Room/AdminRoomBuildingController.php"
+    resource: "@SandboxAdminApiBundle/Controller/Building/AdminBuildingController.php"
     type:     annotation
-    prefix:   /room
+    prefix:   /

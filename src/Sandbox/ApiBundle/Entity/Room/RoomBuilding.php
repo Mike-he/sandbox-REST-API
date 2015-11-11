@@ -15,7 +15,9 @@ use JsonSerializable;
  *          @ORM\Index(name="fk_Building_cityId_idx", columns={"cityId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomBuildingRepository"
+ * )
  */
 class RoomBuilding implements JsonSerializable
 {
