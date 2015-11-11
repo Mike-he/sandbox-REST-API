@@ -28,15 +28,19 @@ class EventController extends SandboxRestController
         $event
     ) {
         $limitNumber = $event->getLimitNumber();
-        if ($limitNumber > 0) {
-            $registrationCounts = $this->getRepo('Event\EventRegistration')
-                ->getRegistrationCounts($event->getId());
-            $registrationCounts = (int) $registrationCounts;
-            if ($registrationCounts >= $limitNumber) {
-                return true;
-            }
+        if ($limitNumber == 0) {
+            return false;
         }
 
-        return false;
+        $registrationCounts = $this->getRepo('Event\EventRegistration')
+            ->getRegistrationCounts($event->getId());
+        $registrationCounts = (int) $registrationCounts;
+
+        // if not over limit number
+        if ($registrationCounts < $limitNumber) {
+            return false;
+        }
+
+        return true;
     }
 }
