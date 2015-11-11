@@ -42,6 +42,10 @@ class AdminEventController extends SandboxRestController
     const ERROR_NOT_ALLOWED_MODIFY_MESSAGE = 'Not allowed to modify - 不允许被修改';
     const ERROR_NOT_ALLOWED_DELETE_CODE = 400002;
     const ERROR_NOT_ALLOWED_DELETE_MESSAGE = 'Not allowed to delete - 不允许被删除';
+    const ERROR_INVALID_LIMIT_NUMBER_CODE = 400003;
+    const ERROR_INVALID_LIMIT_NUMBER_MESSAGE = 'Invalid limit number';
+    const ERROR_INVALID_REGISTRATION_DATE_CODE = 400004;
+    const ERROR_INVALID_REGISTRATION_DATE_MESSAGE = 'Invalid registration date';
 
     const ERROR_ROOM_INVALID = 'Invalid room';
 
@@ -108,11 +112,24 @@ class AdminEventController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
 
-        $query = $this->getRepo('Event\Event')->getEvents($status);
+        $eventsArray = array();
+        $events = $this->getRepo('Event\Event')->getEvents($status);
+        foreach ($events as $eventArray) {
+            $event = $eventArray['event'];
+            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+
+            $event->setAttachments($attachments);
+            $event->setDates($dates);
+            $event->setForms($forms);
+
+            array_push($eventsArray, $event);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $eventsArray,
             $pageIndex,
             $pageLimit
         );
@@ -150,6 +167,15 @@ class AdminEventController extends SandboxRestController
         // get an event
         $event = $this->getRepo('Event\Event')->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        // set other array
+        $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+        $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+        $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+
+        $event->setAttachments($attachments);
+        $event->setDates($dates);
+        $event->setForms($forms);
 
         // set view
         $view = new View($event);
@@ -193,8 +219,7 @@ class AdminEventController extends SandboxRestController
         }
 
         return $this->handleEventPost(
-            $event,
-            $request
+            $event
         );
     }
 
@@ -248,8 +273,7 @@ class AdminEventController extends SandboxRestController
 
         // handle event form
         return $this->handleEventPut(
-            $event,
-            $request
+            $event
         );
     }
 
@@ -283,7 +307,7 @@ class AdminEventController extends SandboxRestController
         $event = $this->getRepo('Event\Event')->find($id);
 
         // check if is valid to delete
-        if (new \DateTime('now') >= $event->getStartDate()) {
+        if (new \DateTime('now') >= $event->getRegistrationStartDate()) {
             return $this->customErrorView(
                 400,
                 self::ERROR_NOT_ALLOWED_DELETE_CODE,
@@ -303,50 +327,51 @@ class AdminEventController extends SandboxRestController
     /**
      * Save event to db.
      *
-     * @param Event   $event
-     * @param Request $request
+     * @param Event $event
      *
      * @return View
      */
     private function handleEventPost(
-        $event,
-        Request $request
+        $event
     ) {
         // check room is valid
-        $room = $this->getRepo('Room\Room')->find($event->getRoomId());
-        if (is_null($room)) {
-            throw new BadRequestHttpException(self::ERROR_ROOM_INVALID);
+        if (!is_null($event->getRoomId())) {
+            $room = $this->getRepo('Room\Room')->find($event->getRoomId());
+            if (is_null($room)) {
+                throw new BadRequestHttpException(self::ERROR_ROOM_INVALID);
+            }
         }
 
-        $requestContent = $request->getContent();
-        $eventArray = json_decode($requestContent, true);
+        $attachments = $event->getAttachments();
+        $dates = $event->getDates();
+        $eventForms = $event->getForms();
+        $cityId = $event->getCityId();
+        $buildingId = $event->getBuildingId();
+        $limitNumber = (int) $event->getLimitNumber();
+        $registrationStartDate = $event->getRegistrationStartDate();
+        $registrationEndDate = $event->getRegistrationEndDate();
 
-        if (array_key_exists('event_attachments', $eventArray)) {
-            $attachments = $eventArray['event_attachments'];
+        $registrationStartDate = new \DateTime($registrationStartDate);
+        $registrationEndDate = new \DateTime($registrationEndDate);
+        $registrationStartDate->setTime(00, 00, 00);
+        $registrationEndDate->setTime(23, 59, 59);
+
+        // check registration date is valid
+        if ($registrationStartDate > $registrationEndDate) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_REGISTRATION_DATE_CODE,
+                self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
+            );
         }
 
-        if (array_key_exists('event_dates', $eventArray)) {
-            $dates = $eventArray['event_dates'];
-        }
-
-        if (array_key_exists('event_forms', $eventArray)) {
-            $eventForms = $eventArray['event_forms'];
-        }
-
-        if (array_key_exists('registration_start_date', $eventArray)) {
-            $registrationStartDate = $eventArray['registration_start_date'];
-        }
-
-        if (array_key_exists('registration_end_date', $eventArray)) {
-            $registrationEndDate = $eventArray['registration_end_date'];
-        }
-
-        if (array_key_exists('city_id', $eventArray)) {
-            $cityId = $eventArray['city_id'];
-        }
-
-        if (array_key_exists('building_id', $eventArray)) {
-            $buildingId = $eventArray['building_id'];
+        // check limit number is valid
+        if ($limitNumber < 0) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_LIMIT_NUMBER_CODE,
+                self::ERROR_INVALID_LIMIT_NUMBER_MESSAGE
+            );
         }
 
         // add events
@@ -387,50 +412,49 @@ class AdminEventController extends SandboxRestController
     /**
      * Save event modification to db.
      *
-     * @param Request $request
-     * @param Event   $event
+     * @param Event $event
      *
      * @return View
      */
     private function handleEventPut(
-        $event,
-        $request
+        $event
     ) {
-        //check room is valid
-        $room = $this->getRepo('Room\Room')->find($event->getRoomId());
-        if (is_null($room)) {
-            throw new BadRequestHttpException(self::ROOM_CANNOT_INVALID);
+        // check room is valid
+        if (!is_null($event->getRoomId())) {
+            $room = $this->getRepo('Room\Room')->find($event->getRoomId());
+            if (is_null($room)) {
+                throw new BadRequestHttpException(self::ERROR_ROOM_INVALID);
+            }
         }
 
-        $requestContent = $request->getContent();
-        $eventArray = json_decode($requestContent, true);
+        $attachments = $event->getAttachments();
+        $dates = $event->getDates();
+        $eventForms = $event->getForms();
+        $cityId = $event->getCityId();
+        $buildingId = $event->getBuildingId();
+        $limitNumber = (int) $event->getLimitNumber();
+        $registrationStartDate = $event->getRegistrationStartDate();
+        $registrationEndDate = $event->getRegistrationEndDate();
 
-        if (array_key_exists('event_attachments', $eventArray)) {
-            $attachments = $eventArray['event_attachments'];
+        $registrationStartDate->setTime(00, 00, 00);
+        $registrationEndDate->setTime(23, 59, 59);
+
+        // check registration date is valid
+        if ($registrationStartDate > $registrationEndDate) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_REGISTRATION_DATE_CODE,
+                self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
+            );
         }
 
-        if (array_key_exists('event_dates', $eventArray)) {
-            $dates = $eventArray['event_dates'];
-        }
-
-        if (array_key_exists('event_forms', $eventArray)) {
-            $eventForms = $eventArray['event_forms'];
-        }
-
-        if (array_key_exists('registration_start_date', $eventArray)) {
-            $registrationStartDate = $eventArray['registration_start_date'];
-        }
-
-        if (array_key_exists('registration_end_date', $eventArray)) {
-            $registrationEndDate = $eventArray['registration_end_date'];
-        }
-
-        if (array_key_exists('city_id', $eventArray)) {
-            $cityId = $eventArray['city_id'];
-        }
-
-        if (array_key_exists('building_id', $eventArray)) {
-            $buildingId = $eventArray['building_id'];
+        // check limit number is valid
+        if ($limitNumber < 0) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_LIMIT_NUMBER_CODE,
+                self::ERROR_INVALID_LIMIT_NUMBER_MESSAGE
+            );
         }
 
         // modify event
@@ -467,19 +491,19 @@ class AdminEventController extends SandboxRestController
     /**
      * Modify events.
      *
-     * @param Event  $event
-     * @param int    $cityId
-     * @param int    $buildingId
-     * @param String $registrationStartDate
-     * @param String $registrationEndDate
-     * @param Array  $dates
+     * @param Event     $event
+     * @param int       $cityId
+     * @param int       $buildingId
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @param Array     $dates
      */
     private function modifyEvents(
         $event,
         $cityId,
         $buildingId,
-        $registrationStartDate,
-        $registrationEndDate,
+        $startDate,
+        $endDate,
         $dates
     ) {
         $em = $this->getDoctrine()->getManager();
@@ -488,19 +512,14 @@ class AdminEventController extends SandboxRestController
 
         $city = $this->getRepo('Room\RoomCity')->find($cityId);
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        $startDate = new \DateTime($registrationStartDate);
-        $endDate = new \DateTime($registrationEndDate);
 
         $eventEndDate = $this->getEventEndDate($dates);
 
-        $startDate->setTime(00, 00, 00);
-        $endDate->setTime(23, 59, 59);
         $event->setCity($city);
         $event->setBuilding($building);
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
         $event->setEventEndDate($eventEndDate);
-        $event->setCreationDate($now);
         $event->setModificationDate($now);
 
         $em->flush();
@@ -588,19 +607,19 @@ class AdminEventController extends SandboxRestController
     /**
      * Save events to db.
      *
-     * @param Event  $event
-     * @param int    $cityId
-     * @param int    $buildingId
-     * @param String $registrationStartDate
-     * @param String $registrationEndDate
-     * @param Array  $dates
+     * @param Event     $event
+     * @param int       $cityId
+     * @param int       $buildingId
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @param Array     $dates
      */
     private function addEvents(
         $event,
         $cityId,
         $buildingId,
-        $registrationStartDate,
-        $registrationEndDate,
+        $startDate,
+        $endDate,
         $dates
     ) {
         $em = $this->getDoctrine()->getManager();
@@ -609,13 +628,9 @@ class AdminEventController extends SandboxRestController
 
         $city = $this->getRepo('Room\RoomCity')->find($cityId);
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        $startDate = new \DateTime($registrationStartDate);
-        $endDate = new \DateTime($registrationEndDate);
 
         $eventEndDate = $this->getEventEndDate($dates);
 
-        $startDate->setTime(00, 00, 00);
-        $endDate->setTime(23, 59, 59);
         $event->setCity($city);
         $event->setBuilding($building);
         $event->setRegistrationStartDate($startDate);
@@ -625,7 +640,6 @@ class AdminEventController extends SandboxRestController
         $event->setModificationDate($now);
 
         $em->persist($event);
-        $em->flush();
     }
 
     /**
@@ -651,7 +665,6 @@ class AdminEventController extends SandboxRestController
                 $eventAttachment->setSize($attachment['size']);
                 $em->persist($eventAttachment);
             }
-            $em->flush();
         }
     }
 
@@ -673,7 +686,6 @@ class AdminEventController extends SandboxRestController
                 $eventDate->setEvent($event);
                 $eventDate->setDate(new \DateTime($date['date']));
                 $em->persist($eventDate);
-                $em->flush();
 
                 // add events times
                 if (!is_null($date['times']) && !empty($date['times'])) {
@@ -685,7 +697,6 @@ class AdminEventController extends SandboxRestController
                         $eventTime->setDescription($time['description']);
                         $em->persist($eventTime);
                     }
-                    $em->flush();
                 }
             }
         }
@@ -714,7 +725,6 @@ class AdminEventController extends SandboxRestController
                 $eventForm->setTitle($form['title']);
                 $eventForm->setType($form['type']);
                 $em->persist($eventForm);
-                $em->flush();
 
                 if (
                     isset($form['options'])
@@ -728,10 +738,10 @@ class AdminEventController extends SandboxRestController
                         $eventFormOption->setContent($option['content']);
                         $em->persist($eventFormOption);
                     }
-                    $em->flush();
                 }
             }
         }
+        $em->flush();
     }
 
     /**

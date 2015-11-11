@@ -202,7 +202,11 @@ class Event
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event",
+     *      "client_event"
+     * })
      */
     private $creationDate;
 
@@ -216,14 +220,8 @@ class Event
     private $modificationDate;
 
     /**
-     * @var EventAttachment
+     * @var array
      *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Event\EventAttachment",
-     *      mappedBy="event",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
      * @Serializer\Groups({
      *      "main",
      *      "admin_event",
@@ -233,14 +231,7 @@ class Event
     private $attachments;
 
     /**
-     * @var EventDate
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Event\EventDate",
-     *      mappedBy="event",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
+     * @var array
      *
      * @Serializer\Groups({
      *      "main",
@@ -251,14 +242,7 @@ class Event
     private $dates;
 
     /**
-     * @var EventForm
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Event\EventForm",
-     *      mappedBy="event",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="eventId")
+     * @var array
      *
      * @Serializer\Groups({
      *      "main",
@@ -267,6 +251,26 @@ class Event
      * })
      */
     private $forms;
+
+    /**
+     * @var bool
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $isRegistered;
+
+    /**
+     * @var bool
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $isOverLimitNumber;
 
     /**
      * Get id.
@@ -720,5 +724,45 @@ class Event
     public function getForms()
     {
         return $this->forms;
+    }
+
+    /**
+     * @param bool $isRegistered
+     *
+     * @return Event
+     */
+    public function setIsRegistered($isRegistered)
+    {
+        $this->isRegistered = $isRegistered;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function IsRegistered()
+    {
+        return $this->isRegistered;
+    }
+
+    /**
+     * @param bool $isOverLimitNumber
+     *
+     * @return Event
+     */
+    public function setIsOverLimitNumber($isOverLimitNumber)
+    {
+        $this->isOverLimitNumber = $isOverLimitNumber;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function IsOverLimitNumber()
+    {
+        return $this->isOverLimitNumber;
     }
 }

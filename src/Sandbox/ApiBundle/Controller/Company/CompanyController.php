@@ -105,25 +105,6 @@ class CompanyController extends SandboxRestController
 
     /**
      * @param $userId
-     * @param $companyId
-     *
-     * @return bool
-     */
-    public function isCompanyCreator($userId, $companyId)
-    {
-        $company = $this->getRepo('Company\Company')->findOneBy(array(
-            'id' => $companyId,
-            'creatorId' => $userId,
-        ));
-        if (is_null($company)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param $userId
      * @param $company
      */
     public function setUserProfileCompany($userId, $company)

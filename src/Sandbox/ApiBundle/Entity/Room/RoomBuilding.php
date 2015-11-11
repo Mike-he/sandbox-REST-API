@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use JsonSerializable;
 
 /**
  * RoomBuilding.
@@ -14,9 +15,11 @@ use JMS\Serializer\Annotation as Serializer;
  *          @ORM\Index(name="fk_Building_cityId_idx", columns={"cityId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomBuildingRepository"
+ * )
  */
-class RoomBuilding
+class RoomBuilding implements JsonSerializable
 {
     /**
      * @var int
@@ -41,11 +44,23 @@ class RoomBuilding
      *      "company_basic",
      *      "feed",
      *      "admin_event",
-     *      "client_event"
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building"
      *  }
      * )
      */
     private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=1024, nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $description;
 
     /**
      * @var int
@@ -59,7 +74,7 @@ class RoomBuilding
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "building_nearby", "admin_building"})
      **/
     private $city;
 
@@ -85,7 +100,10 @@ class RoomBuilding
      *      "feed",
      *      "admin_event",
      *      "client_detail",
-     *      "client_event"
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building"
      *  }
      * )
      */
@@ -96,7 +114,17 @@ class RoomBuilding
      *
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "admin_event"})
+     * @Serializer\Groups({
+     *  "main",
+     *  "admin_room",
+     *  "client",
+     *  "admin_detail",
+     *  "admin_event",
+     *  "client_event",
+     *  "current_order",
+     *  "building_nearby",
+     *  "admin_building"
+     * })
      */
     private $address;
 
@@ -105,7 +133,7 @@ class RoomBuilding
      *
      * @ORM\Column(name="lat", type="float", precision=9, scale=6, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "building_nearby", "admin_building"})
      */
     private $lat;
 
@@ -114,16 +142,25 @@ class RoomBuilding
      *
      * @ORM\Column(name="lng", type="float", precision=9, scale=6, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "building_nearby", "admin_building"})
      */
     private $lng;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="floorNumber", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $floorNumber;
 
     /**
      * @var string
      *
      * @ORM\Column(name="avatar", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main", "avatar"})
+     * @Serializer\Groups({"main", "avatar", "building_nearby", "admin_building"})
      */
     private $avatar;
 
@@ -132,9 +169,34 @@ class RoomBuilding
      *
      * @ORM\Column(name="server", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"server"})
+     * @Serializer\Groups({"server", "admin_building"})
      */
     private $server;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $roomAttachments;
 
     /**
      * Get id.
@@ -144,6 +206,30 @@ class RoomBuilding
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set description.
+     *
+     * @param string $description
+     *
+     * @return RoomBuilding
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**
@@ -267,6 +353,30 @@ class RoomBuilding
     }
 
     /**
+     * Set floor number.
+     *
+     * @param int $floorNumber
+     *
+     * @return RoomBuilding
+     */
+    public function setFloorNumber($floorNumber)
+    {
+        $this->floorNumber = $floorNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get floor number.
+     *
+     * @return int
+     */
+    public function getFloorNumber()
+    {
+        return $this->floorNumber;
+    }
+
+    /**
      * Set avatar.
      *
      * @param string $avatar
@@ -288,6 +398,18 @@ class RoomBuilding
     public function getAvatar()
     {
         return $this->avatar;
+    }
+
+    /**
+     * @param RoomCity $city
+     *
+     * @return RoomBuilding
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+
+        return $this;
     }
 
     /**
@@ -322,5 +444,85 @@ class RoomBuilding
     public function getServer()
     {
         return $this->server;
+    }
+
+    /**
+     * Set creationDate.
+     *
+     * @param \DateTime $creationDate
+     *
+     * @return RoomBuilding
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get creationDate.
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * Set modificationDate.
+     *
+     * @param \DateTime $modificationDate
+     *
+     * @return RoomBuilding
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modificationDate.
+     *
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * Set room attachments.
+     *
+     * @param $roomAttachments
+     *
+     * @return RoomBuilding
+     */
+    public function setRoomAttachments($roomAttachments)
+    {
+        $this->roomAttachments = $roomAttachments;
+
+        return $this;
+    }
+
+    /**
+     * Get room attachments.
+     *
+     * @return array
+     */
+    public function getRoomAttachments()
+    {
+        return $this->roomAttachments;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'name' => $this->name,
+        );
     }
 }

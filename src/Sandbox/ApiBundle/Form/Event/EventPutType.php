@@ -16,19 +16,9 @@ class EventPutType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add(
-                'event_attachments',
-                null,
-                array(
-                    'mapped' => false,
-                ))
+            ->add('attachments')
             ->add('description')
-            ->add(
-                'event_dates',
-                null,
-                array(
-                    'mapped' => false,
-                ))
+            ->add('dates')
             ->add('city_id')
             ->add('building_id')
             ->add('room_id')
@@ -38,21 +28,14 @@ class EventPutType extends AbstractType
                 'date',
                 array(
                     'widget' => 'single_text',
-                    'mapped' => false,
                 ))
             ->add(
                 'registration_end_date',
                 'date',
                 array(
                     'widget' => 'single_text',
-                    'mapped' => false,
                 ))
-            ->add(
-                'event_forms',
-                null,
-                array(
-                    'mapped' => false,
-                ))
+            ->add('forms')
         ;
     }
 

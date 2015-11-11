@@ -264,4 +264,134 @@ class ClientBuddyController extends BuddyController
 
         return new View();
     }
+
+    /**
+     * Get contact recommend buddies.
+     *
+     * @param Request $request
+     *
+     * @Route("/buddies/contacts")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postBuddyContactAction(
+        Request $request
+    ) {
+        // get my user
+        $myUser = $this->getUser()->getMyUser();
+
+        // get request data
+        $requestContent = $request->getContent();
+        $contactsData = json_decode($requestContent, true);
+
+        // check request data
+        if (is_null($contactsData) || empty($contactsData)) {
+            return new View(array());
+        }
+
+        $contactBuddies = array();
+        foreach ($contactsData as $contact) {
+            if (isset($contact['phone']) && !is_null($contact['phone'])) {
+                $phone = $contact['phone'];
+                $buddy = $this->getRepo('User\User')->findOneByPhone($phone);
+
+                // get contact buddy profile
+                $buddyProfile = $this->getContactBuddyProfile($buddy, $myUser);
+
+                if (!is_null($buddyProfile) && !empty($buddyProfile)) {
+                    array_push($contactBuddies, $buddyProfile);
+                }
+            }
+
+            if (isset($contact['email']) && !is_null($contact['email'])) {
+                $email = $contact['email'];
+                $buddy = $this->getRepo('User\User')->findOneByEmail($email);
+
+                // get contact buddy profile
+                $buddyProfile = $this->getContactBuddyProfile($buddy, $myUser);
+
+                if (!is_null($buddyProfile) && !empty($buddyProfile)) {
+                    array_push($contactBuddies, $buddyProfile);
+                }
+            }
+        }
+
+        // set view
+        $view = new View($contactBuddies);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('buddy')));
+
+        return $view;
+    }
+
+    /**
+     * @param User $buddy
+     * @param User $myUser
+     *
+     * @return array
+     */
+    private function getContactBuddyProfile(
+        $buddy,
+        $myUser
+    ) {
+        // return if user null
+        if (is_null($buddy)) {
+            return array();
+        }
+
+        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneByBuddy($buddy);
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($buddy);
+
+        // return if is my buddy
+        if (!is_null($myBuddy)) {
+            return array();
+        }
+
+        $askBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+            'askUserId' => $myUser->getId(),
+            'recvUserId' => $buddy->getId(),
+        ));
+        $recvBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+            'askUserId' => $buddy->getId(),
+            'recvUserId' => $myUser->getId(),
+        ));
+
+        if (is_null($askBuddyRequest) && is_null($recvBuddyRequest)) {
+            // have not sent buddy request
+            return $buddyProfile = array(
+                'profile' => $profile,
+            );
+        } elseif (is_null($askBuddyRequest)) {
+            // have received buddy request
+            return $myRequest = $this->generateRequestArray(
+                $recvBuddyRequest,
+                $profile
+            );
+        } else {
+            // have sent buddy request
+            return $myRequest = $this->generateRequestArray(
+                $askBuddyRequest,
+                $profile
+            );
+        }
+    }
+
+    /**
+     * @param BuddyRequest $request
+     * @param UserProfile  $profile
+     *
+     * @return array
+     */
+    private function generateRequestArray(
+        $request,
+        $profile
+    ) {
+        return $myRequest = array(
+            'id' => $request->getId(),
+            'ask_user_id' => $request->getAskUserId(),
+            'message' => $request->getMessage(),
+            'status' => $request->getStatus(),
+            'profile' => $profile,
+        );
+    }
 }

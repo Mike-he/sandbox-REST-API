@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Food;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use JsonSerializable;
 
 /**
  * FoodFormOption.
@@ -11,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(name="FoodFormOption")
  * @ORM\Entity
  */
-class FoodFormOption
+class FoodFormOption implements JsonSerializable
 {
     /**
      * @var int
@@ -57,7 +58,7 @@ class FoodFormOption
     /**
      * @var string
      *
-     * @ORM\Column(name="price", type="decimal")
+     * @ORM\Column(name="price", type="decimal", precision=10, scale=2)
      *
      * @Serializer\Groups({"main", "admin_detail", "client_detail"})
      */
@@ -240,5 +241,15 @@ class FoodFormOption
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'form_id' => $this->formId,
+            'name' => $this->name,
+            'price' => $this->price,
+        );
     }
 }

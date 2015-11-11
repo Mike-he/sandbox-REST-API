@@ -565,7 +565,7 @@ class ProductRepository extends EntityRepository
         $queryStr = 'SELECT p FROM SandboxApiBundle:Product\Product p';
 
         if (!is_null($city)) {
-            $queryStr = $queryStr.' LEFT JOIN Room r WITH p.roomId = r.id';
+            $queryStr = $queryStr.' LEFT JOIN SandboxApiBundle:Room\Room r WITH p.roomId = r.id';
         }
 
         $queryStr = $queryStr.' WHERE p.visible = :visible';

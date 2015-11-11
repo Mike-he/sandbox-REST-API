@@ -16,6 +16,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -262,6 +263,85 @@ class ClientFeedController extends FeedController
     }
 
     /**
+     * List all my feeds.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many feeds to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="last_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="last id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user_id",
+     *    default=null,
+     *    description="userId"
+     * )
+     *
+     * @Route("/feeds/my")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getMyFeedsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $myUserId = $this->getUserId();
+
+        // if user is not authorized, respond empty list
+        if (!$this->checkUserAuthorized($myUserId)) {
+            return new View(array());
+        }
+
+        // request user
+        $userId = $paramFetcher->get('user_id');
+        if (is_null($userId)) {
+            $userId = $myUserId;
+        }
+
+        // get request user
+        $user = $this->getRepo('User\User')->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // check the other user is banned or unauthorized
+        if ($myUserId != $userId &&
+            ($user->isBanned() || !$user->isAuthorized())) {
+            return new View();
+        }
+
+        $limit = $paramFetcher->get('limit');
+        $lastId = $paramFetcher->get('last_id');
+
+        // get all my feeds
+        $feeds = $this->getRepo('Feed\FeedView')->getMyFeeds(
+            $userId,
+            $limit,
+            $lastId
+        );
+
+        return $this->handleGetFeeds($feeds, $userId);
+    }
+
+    /**
      * Get feed by id.
      *
      * @param Request $request
@@ -324,6 +404,9 @@ class ClientFeedController extends FeedController
     public function postFeedAction(
         Request $request
     ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
         // if user is not authorized, respond empty list
         if (!$this->checkUserAuthorized($this->getUserId())) {
             return new View(array());
@@ -339,11 +422,10 @@ class ClientFeedController extends FeedController
         }
 
         $feed->setCreationDate(new \DateTime('now'));
-        $feed->setOwnerid($this->getUserId());
+        $feed->setOwner($myUser);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($feed);
-        $em->flush();
 
         //add attachments
         $attachments = $form['feed_attachments']->getData();
@@ -355,6 +437,8 @@ class ClientFeedController extends FeedController
                 $attachments
             );
         }
+
+        $em->flush();
 
         $response = array(
             'id' => $feed->getId(),
@@ -393,7 +477,7 @@ class ClientFeedController extends FeedController
         // only owner can delete the feed
         $userId = $this->getUserId();
         if ($userId != $feed->getOwnerId()) {
-            throw new BadRequestHttpException(self::NOT_ALLOWED_MESSAGE);
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -425,7 +509,6 @@ class ClientFeedController extends FeedController
 
             $em->persist($feedAttachment);
         }
-        $em->flush();
     }
 
     /**

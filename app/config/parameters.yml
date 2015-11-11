@@ -29,6 +29,7 @@ parameters:
     openfire_plugin_bstgroupchat: /plugins/bstgroupchat
     openfire_plugin_bstgroupchat_room: /rooms
     openfire_plugin_bstgroupchat_room_member: /members
+    openfire_plugin_sandbox_notification_broadcast: /broadcast
     sms_api_base_url: http://utf8.sms.webchinese.cn/?
     sms_api_uid: account@sandbox3.cn
     sms_api_key: 807574a49cc90043531c

@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20151023102419_feature_13399 extends AbstractMigration
+class Version20151111_app_environment_and_feature extends AbstractMigration
 {
     /**
      * @param Schema $schema
@@ -18,7 +18,9 @@ class Version20151023102419_feature_13399 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("ALTER TABLE EventRegistration CHANGE status status enum('pending', 'rejected', 'accepted') NOT NULL");
+        $this->addSql('ALTER TABLE AppInfo ADD environment VARCHAR(16) NOT NULL');
+        $this->addSql('CREATE TABLE Feature (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(16) NOT NULL, ready boolean DEFAULT FALSE NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
+
     }
 
     /**
@@ -29,6 +31,7 @@ class Version20151023102419_feature_13399 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("ALTER TABLE EventRegistration CHANGE status status enum('pending', 'refused', 'accept') NOT NULL");
+        $this->addSql('ALTER TABLE AppInfo DROP environment');
+        $this->addSql('DROP TABLE Feature');
     }
 }

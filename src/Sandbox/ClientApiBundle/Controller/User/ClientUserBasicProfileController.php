@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class ClientUserBasicProfileController extends UserProfileController
 {
     /**
-     * Get user's education.
+     * Get user's basic profile.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
@@ -39,6 +39,12 @@ class ClientUserBasicProfileController extends UserProfileController
      *    name="user_id",
      *    default=null,
      *    description="userId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="xmpp_username",
+     *    default=null,
+     *    description="xmppUsername"
      * )
      *
      * @Route("/basic")
@@ -54,14 +60,24 @@ class ClientUserBasicProfileController extends UserProfileController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // request user
+        // get user id
         $userId = $paramFetcher->get('user_id');
         if (is_null($userId)) {
             $userId = $this->getUserId();
         }
 
+        // get xmpp username
+        $xmppUsername = $paramFetcher->get('xmpp_username');
+
         // get request user
-        $user = $this->getRepo('User\User')->find($userId);
+        $user = null;
+
+        if (is_null($xmppUsername)) {
+            $user = $this->getRepo('User\User')->find($userId);
+        } else {
+            $user = $this->getRepo('User\User')->findOneByXmppUsername($xmppUsername);
+        }
+
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         // check the other user is banned or unauthorized
@@ -71,7 +87,7 @@ class ClientUserBasicProfileController extends UserProfileController
         }
 
         // get profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         $viewGroup = 'profile_basic';

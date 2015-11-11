@@ -8,10 +8,12 @@ use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
+use Sandbox\ApiBundle\Entity\Food\FoodOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Payment Controller.
@@ -74,6 +76,12 @@ class PaymentController extends DoorController
     const PRODUCT_NOT_AVAILABLE_MESSAGE = 'Product Is Not Available';
     const FLEXIBLE_ROOM_FULL_CODE = 400023;
     const FLEXIBLE_ROOM_FULL_MESSAGE = 'This Room Is Full';
+    const FOOD_SOLD_OUT_CODE = 400024;
+    const FOOD_SOLD_OUT_MESSAGE = 'This Item Is Sold Out';
+    const FOOD_DOES_NOT_EXIST_CODE = 400025;
+    const FOOD_DOES_NOT_EXIST_MESSAGE = 'This Item Does Not Exist';
+    const FOOD_OPTION_DOES_NOT_EXIST_CODE = 400026;
+    const FOOD_OPTION_DOES_NOT_EXIST_MESSAGE = 'This Option Does Not Exist';
     const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';
@@ -447,5 +455,48 @@ class PaymentController extends DoorController
         }
 
         return $endDate;
+    }
+
+    /**
+     * @param $order
+     *
+     * @return int
+     */
+    public function updateFoodOrderStatus(
+        $order
+    ) {
+        $order->setStatus(FoodOrder::STATUS_PAID);
+        $order->setPaymentDate(new \DateTime());
+        $foodInfo = $order->getFoodInfo();
+        $infoArrays = json_decode($foodInfo, true);
+        foreach ($infoArrays as $infoArray) {
+            if (array_key_exists('quantity', $infoArray) && array_key_exists('inventory', $infoArray)) {
+                $food = $this->getRepo('Food\Food')->find($infoArray['id']);
+                $food->setInventory($infoArray['inventory'] - $infoArray['quantity']);
+            }
+        }
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return $order->getId();
+    }
+
+    /**
+     * @param $orderNumber
+     *
+     * @return int
+     */
+    public function findAndSetFoodOrder(
+        $orderNumber
+    ) {
+        $order = $this->getRepo('Food\FoodOrder')->findOneBy(
+            ['orderNumber' => $orderNumber]
+        );
+        if (is_null($order)) {
+            throw new NotFoundHttpException(self::ORDER_NOT_FOUND_MESSAGE);
+        }
+
+        // update order status
+        return $this->updateFoodOrderStatus($order);
     }
 }

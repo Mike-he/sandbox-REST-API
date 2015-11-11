@@ -3,6 +3,8 @@
 namespace Sandbox\ApiBundle\Entity\Feed;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Feed.
@@ -34,6 +36,18 @@ class Feed
      * @ORM\Column(name="ownerId", type="integer", nullable=false)
      */
     private $ownerId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\User\User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ownerId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * })
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $owner;
 
     /**
      * @var \DateTime
@@ -93,11 +107,31 @@ class Feed
     /**
      * Get ownerId.
      *
-     * @return string
+     * @return int
      */
     public function getOwnerId()
     {
         return $this->ownerId;
+    }
+
+    /**
+     * @param User $owner
+     *
+     * @return Feed
+     */
+    public function setOwner($owner)
+    {
+        $this->owner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getOwner()
+    {
+        return $this->owner;
     }
 
     /**
