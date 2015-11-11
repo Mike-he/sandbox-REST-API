@@ -111,3 +111,22 @@ sandbox_admin_api_banners:
     resource: "@SandboxAdminApiBundle/Controller/Banner/AdminBannerController.php"
     type:     annotation
     prefix:   /
+
+# News /admin/news
+sandbox_admin_api_news:
+    resource: "@SandboxAdminApiBundle/Controller/News/AdminNewsController.php"
+    type:     annotation
+    prefix:   /
+
+# Message /admin/messages
+sandbox_admin_api_message:
+    resource: "@SandboxAdminApiBundle/Controller/Message/AdminMessageController.php"
+    type:     annotation
+    prefix:   /
+
+# Room Building /admin/building
+sandbox_admin_api_building:
+    resource: "@SandboxAdminApiBundle/Controller/Building/AdminBuildingController.php"
+    type:     annotation
+    prefix:   /
+

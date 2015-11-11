@@ -48,7 +48,7 @@ class RoomFloor
      *
      * @ORM\Column(name="floorNumber", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
      */
     private $floorNumber;
 

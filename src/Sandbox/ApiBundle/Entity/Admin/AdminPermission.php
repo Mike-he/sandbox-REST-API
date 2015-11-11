@@ -28,6 +28,9 @@ class AdminPermission
     const KEY_PLATFORM_DASHBOARD = 'platform.dashboard';
     const KEY_PLATFORM_EVENT = 'platform.event';
     const KEY_PLATFORM_BANNER = 'platform.banner';
+    const KEY_PLATFORM_NEWS = 'platform.news';
+    const KEY_PLATFORM_MESSAGE = 'platform.message';
+    const KEY_PLATFORM_BUILDING = 'platform.building';
 
     /**
      * @var int

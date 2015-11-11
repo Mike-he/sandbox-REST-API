@@ -197,7 +197,7 @@ class ClientEventRegistrationController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
 
         if (is_null($forms) || empty($forms)) {
-            return;
+            return new View();
         }
 
         foreach ($forms as $form) {

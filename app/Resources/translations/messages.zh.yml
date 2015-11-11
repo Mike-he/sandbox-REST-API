@@ -13,5 +13,5 @@ room:
   type:
     office: 独立办公室
     meeting: 会议室
-    flexible: 可选工位
-    fixed: 不可选工位
+    flexible: 不可选工位
+    fixed: 可选工位
