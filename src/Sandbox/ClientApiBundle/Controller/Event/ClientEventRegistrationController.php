@@ -2,7 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Event;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ClientEventRegistrationController extends SandboxRestController
+class ClientEventRegistrationController extends EventController
 {
     const ERROR_EVENT_INVALID = 'Invalid event';
     const ERROR_EVENT_FORM_INVALID = 'Invalid event form';
@@ -99,18 +99,13 @@ class ClientEventRegistrationController extends SandboxRestController
         }
 
         // check if registration over limit number
-        $limitNumber = $event->getLimitNumber();
-        if ($limitNumber > 0) {
-            $registrationCounts = $this->getRepo('Event\EventRegistration')
-                ->getRegistrationCounts($eventId);
-            $registrationCounts = (int) $registrationCounts;
-            if ($registrationCounts >= $limitNumber) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_OVER_LIMIT_NUMBER_CODE,
-                    self::ERROR_OVER_LIMIT_NUMBER_MESSAGE
-                );
-            }
+        $isOverLimitNumber = $this->checkIfOverLimitNumber($event);
+        if ($isOverLimitNumber) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_OVER_LIMIT_NUMBER_CODE,
+                self::ERROR_OVER_LIMIT_NUMBER_MESSAGE
+            );
         }
 
         // check if the user is already registered
