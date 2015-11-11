@@ -15,7 +15,9 @@ use JsonSerializable;
  *          @ORM\Index(name="fk_Building_cityId_idx", columns={"cityId"})
  *      }
  * )
- * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Location\LocationRepository")
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomBuildingRepository"
+ * )
  */
 class RoomBuilding implements JsonSerializable
 {
@@ -49,6 +51,15 @@ class RoomBuilding implements JsonSerializable
      * )
      */
     private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=1024, nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $description;
 
     /**
      * @var int
@@ -133,6 +144,13 @@ class RoomBuilding implements JsonSerializable
     private $lng;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="floorNumber", type="integer", nullable=false)
+     */
+    private $floorNumber;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="avatar", type="string", length=255, nullable=false)
@@ -151,6 +169,31 @@ class RoomBuilding implements JsonSerializable
     private $server;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $roomAttachments;
+
+    /**
      * Get id.
      *
      * @return int
@@ -158,6 +201,30 @@ class RoomBuilding implements JsonSerializable
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set description.
+     *
+     * @param string $description
+     *
+     * @return RoomBuilding
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**
@@ -281,6 +348,30 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
+     * Set floor number.
+     *
+     * @param int $floorNumber
+     *
+     * @return RoomBuilding
+     */
+    public function setFloorNumber($floorNumber)
+    {
+        $this->floorNumber = $floorNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get floor number.
+     *
+     * @return int
+     */
+    public function getFloorNumber()
+    {
+        return $this->floorNumber;
+    }
+
+    /**
      * Set avatar.
      *
      * @param string $avatar
@@ -302,6 +393,18 @@ class RoomBuilding implements JsonSerializable
     public function getAvatar()
     {
         return $this->avatar;
+    }
+
+    /**
+     * @param RoomCity $city
+     *
+     * @return RoomBuilding
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+
+        return $this;
     }
 
     /**
@@ -336,6 +439,78 @@ class RoomBuilding implements JsonSerializable
     public function getServer()
     {
         return $this->server;
+    }
+
+    /**
+     * Set creationDate.
+     *
+     * @param \DateTime $creationDate
+     *
+     * @return RoomBuilding
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get creationDate.
+     *
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * Set modificationDate.
+     *
+     * @param \DateTime $modificationDate
+     *
+     * @return RoomBuilding
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modificationDate.
+     *
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * Set room attachments.
+     *
+     * @param $roomAttachments
+     *
+     * @return RoomBuilding
+     */
+    public function setRoomAttachments($roomAttachments)
+    {
+        $this->roomAttachments = $roomAttachments;
+
+        return $this;
+    }
+
+    /**
+     * Get room attachments.
+     *
+     * @return array
+     */
+    public function getRoomAttachments()
+    {
+        return $this->roomAttachments;
     }
 
     public function jsonSerialize()

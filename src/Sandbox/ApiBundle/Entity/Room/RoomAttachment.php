@@ -90,6 +90,15 @@ class RoomAttachment
     private $buildingId;
 
     /**
+     * @var RoomBuilding
+     *
+     * @ORM\ManyToOne(targetEntity="RoomBuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main"})
+     */
+    private $building;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -266,6 +275,30 @@ class RoomAttachment
         $this->buildingId = $buildingId;
 
         return $this;
+    }
+
+    /**
+     * Set room building.
+     *
+     * @param RoomBuilding $building
+     *
+     * @return RoomAttachment
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+
+        return $this;
+    }
+
+    /**
+     * Get room building.
+     *
+     * @return RoomBuilding
+     */
+    public function getBuilding()
+    {
+        return $this->building;
     }
 
     /**

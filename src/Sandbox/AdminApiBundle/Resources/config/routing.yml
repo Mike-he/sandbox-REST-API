@@ -123,3 +123,10 @@ sandbox_admin_api_message:
     resource: "@SandboxAdminApiBundle/Controller/Message/AdminMessageController.php"
     type:     annotation
     prefix:   /
+
+# Room Building /admin/building
+sandbox_admin_api_building:
+    resource: "@SandboxAdminApiBundle/Controller/Building/AdminBuildingController.php"
+    type:     annotation
+    prefix:   /
+
