@@ -211,6 +211,18 @@ sandbox_client_api_events:
     type:     annotation
     prefix:   /
 
+# ChatGroup /client/chatgroups
+sandbox_client_api_chatgroup:
+    resource: "@SandboxClientApiBundle/Controller/ChatGroup/ClientChatGroupController.php"
+    type:     annotation
+    prefix:   /
+
+# ChatGroup members /client/chatgroups/{id}/members
+sandbox_client_api_chatgroup_member:
+    resource: "@SandboxClientApiBundle/Controller/ChatGroup/ClientChatGroupMemberController.php"
+    type:     annotation
+    prefix:   /
+
 # FoodOrder /food
 sandbox_client_api_food_orders:
     resource: "@SandboxClientApiBundle/Controller/Food/ClientFoodOrderController.php"

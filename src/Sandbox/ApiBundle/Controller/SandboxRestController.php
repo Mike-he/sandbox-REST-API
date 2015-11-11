@@ -1402,4 +1402,93 @@ class SandboxRestController extends FOSRestController
 
         return json_encode($jsonDataArray);
     }
+
+    //---------------------------------------- XMPP User ----------------------------------------//
+
+    /**
+     * @param string $username
+     * @param string $password
+     * @param string $name
+     * @param string $fullJID
+     *
+     * @return bool
+     */
+    protected function updateXmppUser(
+        $username,
+        $password = null,
+        $name = null,
+        $fullJID = null
+    ) {
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // set ezUser secret to basic auth
+        $ezuserNameSecret = $globals['openfire_plugin_bstuser_property_name_ezuser'].':'.
+            $globals['openfire_plugin_bstuser_property_secret_ezuser'];
+
+        $auth = 'Basic '.base64_encode($ezuserNameSecret);
+
+        // Openfire API URL
+        $apiUrl = $globals['openfire_innet_url'].
+            $globals['openfire_plugin_bstuser'].
+            $globals['openfire_plugin_bstuser_users'];
+
+        // request json
+        $jsonData = $this->createXmppUserPayload($username, $password, $name, $fullJID);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        // get then response when post OpenFire API
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'PUT',
+            array('Authorization: '.$auth),
+            $jsonData
+        );
+
+        if (!$response) {
+            return false;
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $username
+     * @param string $password
+     * @param string $name
+     * @param string $fullJID
+     *
+     * @return string
+     */
+    protected function createXmppUserPayload(
+        $username,
+        $password,
+        $name,
+        $fullJID
+    ) {
+        $dataArray = array();
+        $dataArray['username'] = $username;
+
+        if (!is_null($password)) {
+            $dataArray['password'] = $password;
+        }
+
+        if (!is_null($name)) {
+            $dataArray['name'] = $name;
+        }
+
+        if (!is_null($fullJID)) {
+            $dataArray['fulljid'] = $fullJID;
+        }
+
+        return json_encode($dataArray);
+    }
 }
