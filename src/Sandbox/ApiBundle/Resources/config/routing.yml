@@ -51,3 +51,9 @@ sandbox_api_user profile:
     resource: "@SandboxApiBundle/Controller/User/UserProfileController.php"
     type:     annotation
     prefix:   /
+
+# Feature Info /features
+sandbox_api_features:
+    resource: "@SandboxApiBundle/Controller/Feature/FeatureController.php"
+    type:     annotation
+    prefix:   /
