@@ -3,7 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -23,7 +23,7 @@ use JMS\Serializer\SerializationContext;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ClientEventController extends SandboxRestController
+class ClientEventController extends EventController
 {
     /**
      * Get all client events.
@@ -206,14 +206,22 @@ class ClientEventController extends SandboxRestController
         $event = $this->getRepo('Event\Event')->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
+        $eventId = $event->getId();
+
         // check if user is registered
         $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
-            'eventId' => $id,
+            'eventId' => $eventId,
             'userId' => $userId,
         ));
 
         if (!is_null($registration)) {
             $event->setIsRegistered(true);
+        }
+
+        // check if registration over limit number
+        $isOverLimitNumber = $this->checkIfOverLimitNumber($event);
+        if ($isOverLimitNumber) {
+            $event->setIsOverLimitNumber(true);
         }
 
         // set other array
