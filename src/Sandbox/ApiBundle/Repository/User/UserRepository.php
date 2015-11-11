@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\User\User;
 
 class UserRepository extends EntityRepository
 {
@@ -142,6 +143,22 @@ class UserRepository extends EntityRepository
 
         $query->setFirstResult($offset);
         $query->setMaxResults($limit);
+
+        return $query->getResult();
+    }
+
+    /**
+     * Get All Non Service Users.
+     *
+     * @return array
+     */
+    public function getNonServiceUsers()
+    {
+        $query = $this->createQueryBuilder('u')
+            ->where('u.xmppUsername <> :service')
+            ->orderBy('u.creationDate', 'ASC')
+            ->setParameter('service', User::XMPP_SERVICE)
+            ->getQuery();
 
         return $query->getResult();
     }

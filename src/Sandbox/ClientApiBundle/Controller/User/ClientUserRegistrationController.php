@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
+use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Traits\StringUtil;
@@ -273,6 +274,9 @@ class ClientUserRegistrationController extends UserRegistrationController
         // remove registration
         $em->remove($registration);
         $em->flush();
+
+        // add service account to buddy list
+        $this->addBuddyToUser(['0' => $user]);
 
         return new View();
     }

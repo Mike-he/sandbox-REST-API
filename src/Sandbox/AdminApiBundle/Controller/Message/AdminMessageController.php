@@ -131,13 +131,10 @@ class AdminMessageController extends SandboxRestController
         $em->persist($message);
         $em->flush();
 
-        $response = array(
-            'id' => $message->getId(),
-        );
+        // send message to all users using sandbox service account
+        $this->sendXmppMessageNotification($message->getContent());
 
-        //TODO: Call API Send Message To All Users
-
-        return new View($response);
+        return new View();
     }
 
     /**

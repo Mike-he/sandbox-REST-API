@@ -501,4 +501,24 @@ class AdminUsersController extends DoorController
         // set view
         return new View($user);
     }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/users/buddy/set")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function setServiceAsBuddyAction(
+        Request $request
+    ) {
+        $users = $this->getRepo('User\User')->getNonServiceUsers();
+
+        if (!empty($users)) {
+            $this->addBuddyToUser($users);
+        }
+
+        return new View();
+    }
 }
