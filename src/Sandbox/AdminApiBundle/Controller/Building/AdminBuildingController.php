@@ -157,7 +157,7 @@ class AdminBuildingController extends SandboxRestController
         // set view
         $view = new View($building);
         $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('main'))
+            SerializationContext::create()->setGroups(array('admin_building'))
         );
 
         return $view;
