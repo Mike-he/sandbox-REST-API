@@ -15,6 +15,9 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class AppInfo
 {
+    const IOS_PLATFORM = 'ios';
+    const ANDROID_PLATFORM = 'android';
+
     /**
      * @var string
      *
@@ -48,6 +51,14 @@ class AppInfo
      * @Serializer\Groups({"main"})
      */
     private $date;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="environment", type="string", length=16, nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $environment;
 
     /**
      * Set platform.
@@ -143,5 +154,29 @@ class AppInfo
     public function getDate()
     {
         return $this->date;
+    }
+
+    /**
+     * Set environment.
+     *
+     * @param string $environment
+     *
+     * @return AppInfo
+     */
+    public function setEnvironment($environment)
+    {
+        $this->environment = $environment;
+
+        return $this;
+    }
+
+    /**
+     * Get environment.
+     *
+     * @return string
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
     }
 }

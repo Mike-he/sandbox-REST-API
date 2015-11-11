@@ -3,6 +3,7 @@ CREATE TABLE `AppInfo` (
   `version` varchar(16) NOT NULL,
   `url` varchar(128) NOT NULL,
   `date` varchar(16) NOT NULL,
+  `environment` varchar(16) NOT NULL,
   PRIMARY KEY (`platform`)
 );
 
