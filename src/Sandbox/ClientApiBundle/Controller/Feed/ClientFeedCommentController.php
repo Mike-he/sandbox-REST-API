@@ -192,7 +192,7 @@ class ClientFeedCommentController extends FeedCommentController
 
         if (!empty($recvUsers)) {
             $this->sendXmppFeedNotification(
-                $feed, $myUser, $recvUsers, 'comment'
+                $feed, $myUser, $recvUsers, 'comment', $comment
             );
         }
 
