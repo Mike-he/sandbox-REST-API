@@ -263,6 +263,16 @@ class Event
     private $isRegistered;
 
     /**
+     * @var bool
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $isOverLimitNumber;
+
+    /**
      * Get id.
      *
      * @return int
@@ -734,5 +744,25 @@ class Event
     public function IsRegistered()
     {
         return $this->isRegistered;
+    }
+
+    /**
+     * @param bool $isOverLimitNumber
+     *
+     * @return Event
+     */
+    public function setIsOverLimitNumber($isOverLimitNumber)
+    {
+        $this->isOverLimitNumber = $isOverLimitNumber;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function IsOverLimitNumber()
+    {
+        return $this->isOverLimitNumber;
     }
 }
