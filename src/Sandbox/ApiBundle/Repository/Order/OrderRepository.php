@@ -237,11 +237,14 @@ class OrderRepository extends EntityRepository
     public function getBookedDates(
         $id
     ) {
+        $now = new \DateTime('now');
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
             ->andWhere('o.status <> \'cancelled\'')
+            ->andWhere('o.endDate > :now')
             ->orderBy('o.startDate', 'ASC')
             ->setParameter('productId', $id)
+            ->setParameter('now', $now)
             ->getQuery();
 
         return $query->getResult();
