@@ -1420,7 +1420,7 @@ class SandboxRestController extends FOSRestController
      *
      * @return string | object
      */
-    public function getNotificationBroadcastJsonData(
+    private function getNotificationBroadcastJsonData(
         $outcasts,
         $contentArray = null,
         $messageArray = null
