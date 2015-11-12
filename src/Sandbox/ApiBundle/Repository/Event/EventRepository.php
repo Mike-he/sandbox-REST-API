@@ -72,28 +72,24 @@ class EventRepository extends EntityRepository
         $limit,
         $offset
     ) {
-        $accepted = EventRegistration::STATUS_ACCEPTED;
-
         $queryStr = '
                 SELECT e
                 FROM SandboxApiBundle:Event\Event e
                 LEFT JOIN SandboxApiBundle:Event\EventRegistration er WITH er.eventId = e.id
-                WHERE (
-                      e.verify = FALSE
-                      AND e.visible = TRUE
-                      AND er.userId = :userId
+                WHERE e.visible = TRUE
+                AND er.userId = :userId
+                AND (
+                    e.verify = FALSE
                 ) OR (
-                      e.verify = TRUE
-                      AND e.visible = TRUE
-                      AND er.userId = :userId
-                      AND er.status = :accepted
+                    e.verify = TRUE
+                    AND er.status = :accepted
                 )
         ';
 
         $query = $this->getEntityManager()
             ->createQuery($queryStr)
             ->setParameter('userId', $userId)
-            ->setParameter('accepted', $accepted)
+            ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
