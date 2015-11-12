@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Sandbox\ApiBundle\Entity\Food\FoodOrder;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
@@ -88,6 +89,40 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_ALIPAY = 'alipay';
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
+
+    /**
+     * @param object $order
+     * @param string $channel
+     */
+    public function storePayChannel(
+        $order,
+        $channel
+    ) {
+        switch ($channel) {
+            case self::PAYMENT_CHANNEL_ALIPAY:
+                $payChannel = ProductOrder::CHANNEL_ALIPAY;
+
+                break;
+            case self::PAYMENT_CHANNEL_WECHAT:
+                $payChannel = ProductOrder::CHANNEL_WECHAT;
+
+                break;
+            case self::PAYMENT_CHANNEL_UPACP:
+                $payChannel = ProductOrder::CHANNEL_UNIONPAY;
+
+                break;
+            case self::PAYMENT_CHANNEL_ACCOUNT:
+                $payChannel = ProductOrder::CHANNEL_ACCOUNT;
+
+                break;
+            default:
+                $payChannel = null;
+
+                break;
+        }
+
+        $order->setPayChannel($payChannel);
+    }
 
     /**
      * @param $order
@@ -170,7 +205,8 @@ class PaymentController extends DoorController
      * @param $data
      */
     public function setProductOrder(
-        $chargeId
+        $chargeId,
+        $channel
     ) {
         $map = $this->getRepo('Order\OrderMap')->findOneBy(['chargeId' => $chargeId]);
         $this->throwNotFoundIfNull($map, self::NOT_FOUND_MESSAGE);
@@ -183,6 +219,13 @@ class PaymentController extends DoorController
         $order->setStatus(self::STATUS_PAID);
         $order->setPaymentDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
+
+        // store payment channel
+        $this->storePayChannel(
+            $order,
+            $channel
+        );
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
@@ -338,25 +381,30 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $price
-     * @param $orderNumber
-     *
-     * @return TopUpOrder
+     * @param int    $userId
+     * @param string $price
+     * @param string $orderNumber
+     * @param string $channel
      */
     public function setTopUpOrder(
         $userId,
         $price,
-        $orderNumber
+        $orderNumber,
+        $channel
     ) {
         $order = new TopUpOrder();
         $order->setUserId($userId);
         $order->setOrderNumber($orderNumber);
         $order->setPrice($price);
+
+        $this->storePayChannel(
+            $order,
+            $channel
+        );
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
-
-        return $order;
     }
 
     /**

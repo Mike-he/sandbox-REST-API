@@ -60,18 +60,39 @@ class ClientPaymentController extends PaymentController
 
         switch ($orderType) {
             case 'P':
-                $order = $this->setProductOrder($chargeId);
+                $order = $this->setProductOrder(
+                    $chargeId,
+                    $channel
+                );
 
                 break;
             case 'V':
                 $productId = $myCharge->getOrderId();
-                $order = $this->setMembershipOrder($userId, $productId, $price, $orderNumber);
-                $this->postAccountUpgrade($userId, $productId, $orderNumber);
-                $amount = $this->postConsumeBalance($userId, $price, $orderNumber);
+                $order = $this->setMembershipOrder(
+                    $userId,
+                    $productId,
+                    $price,
+                    $orderNumber
+                );
+                $this->postAccountUpgrade(
+                    $userId,
+                    $productId,
+                    $orderNumber
+                );
+                $amount = $this->postConsumeBalance(
+                    $userId,
+                    $price,
+                    $orderNumber
+                );
 
                 break;
             case 'T':
-                $order = $this->setTopUpOrder($userId, $price, $orderNumber);
+                $this->setTopUpOrder(
+                    $userId,
+                    $price,
+                    $orderNumber,
+                    $channel
+                );
                 $balance = $this->postBalanceChange(
                     $userId,
                     $price,
