@@ -1144,7 +1144,7 @@ class SandboxRestController extends FOSRestController
 
             // get message data
             $jsonData = $this->getNotificationBroadcastJsonData(
-                null,
+                array(),
                 null,
                 $messageArray
             );
@@ -1420,16 +1420,22 @@ class SandboxRestController extends FOSRestController
      *
      * @return string | object
      */
-    private function getNotificationBroadcastJsonData(
+    public function getNotificationBroadcastJsonData(
         $outcasts,
-        $contentArray,
+        $contentArray = null,
         $messageArray = null
     ) {
-        $jsonDataArray = array(
-            'outcasts' => $outcasts,
-            'content' => $contentArray,
-            'message' => $messageArray,
-        );
+        $jsonDataArray = array('outcasts' => $outcasts);
+
+        // check content array
+        if (!is_null($contentArray)) {
+            $jsonDataArray['content'] = $contentArray;
+        }
+
+        // check message array
+        if (!is_null($messageArray)) {
+            $jsonDataArray['message'] = $messageArray;
+        }
 
         return json_encode($jsonDataArray);
     }
