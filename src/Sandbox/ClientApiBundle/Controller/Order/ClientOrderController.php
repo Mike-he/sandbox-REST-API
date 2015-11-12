@@ -291,8 +291,9 @@ class ClientOrderController extends PaymentController
             $endDate->modify('- 1 day');
             $endDate->setTime(23, 59, 59);
         } else {
+            $timeModify = $this->getGlobal('time_for_half_hour_early');
             $halfHour = clone $now;
-            $halfHour->modify('- 30 minutes');
+            $halfHour->modify($timeModify);
 
             // check to allow ordering half an hour early
             if ($halfHour > $startDate) {
