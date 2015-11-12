@@ -257,28 +257,4 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         return new View();
     }
-
-    /**
-     * @param object $em
-     * @param User   $user
-     * @param User   $buddy
-     */
-    private function saveBuddy(
-        $em,
-        $user,
-        $buddy
-    ) {
-        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-            'user' => $user,
-            'buddy' => $buddy,
-        ));
-
-        if (is_null($myBuddy)) {
-            $myBuddy = new Buddy();
-            $myBuddy->setUser($user);
-            $myBuddy->setBuddy($buddy);
-
-            $em->persist($myBuddy);
-        }
-    }
 }

@@ -6,7 +6,7 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Sandbox\ApiBundle\Entity\Admin\Admin;
+use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
@@ -31,6 +31,8 @@ class SandboxRestController extends FOSRestController
     const BAD_PARAM_MESSAGE = 'Bad parameters';
 
     const CONFLICT_MESSAGE = 'This resource already exists';
+
+    const SERVICE_ACCOUNT_NOT_FOUND = 'Sandbox Service Account Not Found';
 
     const HTTP_STATUS_OK = 200;
     const HTTP_STATUS_OK_NO_CONTENT = 204;
@@ -1042,7 +1044,7 @@ class SandboxRestController extends FOSRestController
             $jsonData = $this->getAnnouncementNotificationJsonData($announcement, $action);
 
             // send xmpp notification
-            $this->sendXmppNotification('announcement', $action, $jsonData, true);
+            $this->sendXmppNotification($jsonData, true);
         } catch (Exception $e) {
             error_log('Send announcement notification went wrong!');
         }
@@ -1063,7 +1065,7 @@ class SandboxRestController extends FOSRestController
             $jsonData = $this->getBuddyNotificationJsonData($action, $fromUser, $recvUser);
 
             // send xmpp notification
-            $this->sendXmppNotification('buddy', $action, $jsonData, false);
+            $this->sendXmppNotification($jsonData, false);
         } catch (Exception $e) {
             error_log('Send buddy notification went wrong!');
         }
@@ -1090,7 +1092,7 @@ class SandboxRestController extends FOSRestController
             );
 
             // send xmpp notification
-            $this->sendXmppNotification('company', $action, $jsonData, false);
+            $this->sendXmppNotification($jsonData, false);
         } catch (Exception $e) {
             error_log('Send company notification went wrong!');
         }
@@ -1117,21 +1119,48 @@ class SandboxRestController extends FOSRestController
             );
 
             // send xmpp notification
-            $this->sendXmppNotification('feed', $action, $jsonData, false);
+            $this->sendXmppNotification($jsonData, false);
         } catch (Exception $e) {
             error_log('Send feed notification went wrong!');
         }
     }
 
     /**
-     * @param string $type
-     * @param string $action
+     * @param string $body
+     */
+    protected function sendXmppMessageNotification(
+        $body
+    ) {
+        try {
+            $globals = $this->getGlobals();
+            $domainURL = $globals['xmpp_domain'];
+            $jid = User::XMPP_SERVICE.'@'.$domainURL;
+
+            $messageArray = [
+                'type' => 'chat',
+                'from' => $jid,
+                'body' => $body,
+            ];
+
+            // get message data
+            $jsonData = $this->getNotificationBroadcastJsonData(
+                array(),
+                null,
+                $messageArray
+            );
+
+            // send xmpp notification
+            $this->sendXmppNotification($jsonData, true);
+        } catch (Exception $e) {
+            error_log('Send message notification went wrong!');
+        }
+    }
+
+    /**
      * @param object $jsonData
      * @param bool   $broadcast
      */
     protected function sendXmppNotification(
-        $type,
-        $action,
         $jsonData,
         $broadcast
     ) {
@@ -1153,7 +1182,7 @@ class SandboxRestController extends FOSRestController
             $ch = curl_init($apiURL);
             $this->get('curl_util')->callAPI($ch, 'POST', null, $jsonData);
         } catch (Exception $e) {
-            error_log('Send XMPP notification went wrong: '.$type.':'.$action);
+            error_log('Send XMPP notification went wrong.');
         }
     }
 
@@ -1393,12 +1422,20 @@ class SandboxRestController extends FOSRestController
      */
     private function getNotificationBroadcastJsonData(
         $outcasts,
-        $contentArray
+        $contentArray = null,
+        $messageArray = null
     ) {
-        $jsonDataArray = array(
-            'outcasts' => $outcasts,
-            'content' => $contentArray,
-        );
+        $jsonDataArray = array('outcasts' => $outcasts);
+
+        // check content array
+        if (!is_null($contentArray)) {
+            $jsonDataArray['content'] = $contentArray;
+        }
+
+        // check message array
+        if (!is_null($messageArray)) {
+            $jsonDataArray['message'] = $messageArray;
+        }
 
         return json_encode($jsonDataArray);
     }
@@ -1490,5 +1527,60 @@ class SandboxRestController extends FOSRestController
         }
 
         return json_encode($dataArray);
+    }
+
+    /**
+     * @param array $users
+     */
+    protected function addBuddyToUser(
+        $users
+    ) {
+        // find service account as buddy
+        $serviceUser = $this->getRepo('User\User')->findOneByXmppUsername(User::XMPP_SERVICE);
+        $this->throwNotFoundIfNull($serviceUser, self::SERVICE_ACCOUNT_NOT_FOUND);
+
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($users as $user) {
+            // set service account as buddy for user
+            $this->saveBuddy(
+                $em,
+                $user,
+                $serviceUser
+            );
+
+            // set user as buddy for service account
+            $this->saveBuddy(
+                $em,
+                $serviceUser,
+                $user
+            );
+        }
+
+        $em->flush();
+    }
+
+    /**
+     * @param object $em
+     * @param User   $user
+     * @param User   $buddy
+     */
+    protected function saveBuddy(
+        $em,
+        $user,
+        $buddy
+    ) {
+        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+            'user' => $user,
+            'buddy' => $buddy,
+        ));
+
+        if (is_null($myBuddy)) {
+            $myBuddy = new Buddy();
+            $myBuddy->setUser($user);
+            $myBuddy->setBuddy($buddy);
+
+            $em->persist($myBuddy);
+        }
     }
 }

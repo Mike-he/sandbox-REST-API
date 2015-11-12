@@ -24,6 +24,8 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class User implements UserInterface
 {
+    const XMPP_SERVICE = 'service';
+
     /**
      * @var int
      *

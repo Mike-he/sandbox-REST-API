@@ -227,11 +227,24 @@ class ClientBuddyController extends BuddyController
         $id
     ) {
         $userId = $this->getUserId();
+        $user = $this->getRepo('User\User')->find($userId);
+
+        // not allowed to delete buddy if user is sandbox service account
+        if ($user->getXmppUsername() == User::XMPP_SERVICE) {
+            return new View();
+        }
 
         // get buddy
         $buddy = $this->getRepo('Buddy\Buddy')->find($id);
 
         if (!is_null($buddy)) {
+            $userBuddy = $buddy->getBuddy();
+
+            // not allowed to delete user if buddy is sandbox service account
+            if ($userBuddy->getXmppUsername() == User::XMPP_SERVICE) {
+                return new View();
+            }
+
             // check user is allowed to delete
             if ($userId != $buddy->getUserId()) {
                 throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
