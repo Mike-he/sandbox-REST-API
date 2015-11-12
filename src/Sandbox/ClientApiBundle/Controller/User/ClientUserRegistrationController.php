@@ -276,7 +276,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $em->flush();
 
         // add service account to buddy list
-        $this->addBuddyToUser(['0' => $user]);
+        $this->addBuddyToUser(array($user));
 
         return new View();
     }

@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller;
 
-use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -1145,8 +1144,8 @@ class SandboxRestController extends FOSRestController
 
             // get message data
             $jsonData = $this->getNotificationBroadcastJsonData(
-                array(),
-                array(),
+                null,
+                null,
                 $messageArray
             );
 
@@ -1158,8 +1157,6 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param string $type
-     * @param string $action
      * @param object $jsonData
      * @param bool   $broadcast
      */
@@ -1423,10 +1420,10 @@ class SandboxRestController extends FOSRestController
      *
      * @return string | object
      */
-    public function getNotificationBroadcastJsonData(
+    private function getNotificationBroadcastJsonData(
         $outcasts,
         $contentArray,
-        $messageArray = []
+        $messageArray = null
     ) {
         $jsonDataArray = array(
             'outcasts' => $outcasts,
@@ -1452,73 +1449,45 @@ class SandboxRestController extends FOSRestController
         $em = $this->getDoctrine()->getManager();
 
         foreach ($users as $user) {
-            // check if buddy exists for user
-            $buddy = $this->checkIfBuddyExists(
+            // set service account as buddy for user
+            $this->saveBuddy(
+                $em,
                 $user,
                 $serviceUser
             );
 
-            if (is_null($buddy)) {
-                // set service account as buddy for user
-                $this->setUserBuddy(
-                    $em,
-                    $user,
-                    $serviceUser
-                );
-            }
-
-            // check if buddy exists for service account
-            $serviceBuddy = $this->checkIfBuddyExists(
+            // set user as buddy for service account
+            $this->saveBuddy(
+                $em,
                 $serviceUser,
                 $user
             );
-
-            if (is_null($serviceBuddy)) {
-                // set user as buddy for service account
-                $this->setUserBuddy(
-                    $em,
-                    $serviceUser,
-                    $user
-                );
-            }
         }
 
         $em->flush();
     }
 
     /**
-     * @param User $user
-     * @param User $userBuddy
-     *
-     * @return User
+     * @param object $em
+     * @param User   $user
+     * @param User   $buddy
      */
-    private function checkIfBuddyExists(
-        $user,
-        $userBuddy
-    ) {
-        $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(
-            [
-                'user' => $user,
-                'buddy' => $userBuddy,
-            ]
-        );
-
-        return $buddy;
-    }
-
-    /**
-     * @param EntityManager $em
-     * @param User $user
-     * @param User $buddy
-     */
-    private function setUserBuddy(
+    protected function saveBuddy(
         $em,
         $user,
         $buddy
     ) {
-        $userBuddy = new Buddy();
-        $userBuddy->setUser($user);
-        $userBuddy->setBuddy($buddy);
-        $em->persist($userBuddy);
+        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+            'user' => $user,
+            'buddy' => $buddy,
+        ));
+
+        if (is_null($myBuddy)) {
+            $myBuddy = new Buddy();
+            $myBuddy->setUser($user);
+            $myBuddy->setBuddy($buddy);
+
+            $em->persist($myBuddy);
+        }
     }
 }

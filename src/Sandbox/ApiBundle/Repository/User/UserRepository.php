@@ -155,7 +155,7 @@ class UserRepository extends EntityRepository
     public function getNonServiceUsers()
     {
         $query = $this->createQueryBuilder('u')
-            ->where('u.xmppUsername <> :service')
+            ->where('u.xmppUsername != :service')
             ->orderBy('u.creationDate', 'ASC')
             ->setParameter('service', User::XMPP_SERVICE)
             ->getQuery();
