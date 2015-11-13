@@ -61,6 +61,36 @@ class AppInfo
     private $environment;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="copyrightYear", type="string", length=16, nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $copyrightYear;
+
+    /**
+     * Get copyrightYear.
+     *
+     * @return string
+     */
+    public function getCopyrightYear()
+    {
+        return $this->copyrightYear;
+    }
+
+    /**
+     * Set copyrightYear.
+     *
+     * @param string $copyrightYear
+     *
+     * @return AppInfo
+     */
+    public function setCopyrightYear($copyrightYear)
+    {
+        $this->copyrightYear = $copyrightYear;
+    }
+
+    /**
      * Set platform.
      *
      * @param string $platform

@@ -29,6 +29,13 @@ class TopUpOrder
     private $orderNumber;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="payChannel", type="string", length=16, nullable=true)
+     */
+    private $payChannel;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="userId", type="integer")
@@ -184,6 +191,30 @@ class TopUpOrder
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Set payChannel.
+     *
+     * @param string $payChannel
+     *
+     * @return TopUpOrder
+     */
+    public function setPayChannel($payChannel)
+    {
+        $this->payChannel = $payChannel;
+
+        return $this;
+    }
+
+    /**
+     * Get payChannel.
+     *
+     * @return string
+     */
+    public function getPayChannel()
+    {
+        return $this->payChannel;
     }
 
     public function __construct()

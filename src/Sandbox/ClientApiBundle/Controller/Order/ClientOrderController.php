@@ -291,13 +291,19 @@ class ClientOrderController extends PaymentController
             $endDate->modify('- 1 day');
             $endDate->setTime(23, 59, 59);
         } else {
-            if ($now > $startDate) {
+            $timeModify = $this->getGlobal('time_for_half_hour_early');
+            $halfHour = clone $now;
+            $halfHour->modify($timeModify);
+
+            // check to allow ordering half an hour early
+            if ($halfHour > $startDate) {
                 return $this->customErrorView(
                     400,
                     self::WRONG_BOOKING_DATE_CODE,
                     self::WRONG_BOOKING_DATE_MESSAGE
                 );
             }
+
             $startHour = $startDate->format('H:i:s');
             $endHour = $endDate->format('H:i:s');
             $roomId = $product->getRoomId();
@@ -519,8 +525,10 @@ class ClientOrderController extends PaymentController
      *
      * @return View
      */
-    private function payByAccount($order)
-    {
+    private function payByAccount(
+        $order,
+        $channel
+    ) {
         $price = $order->getDiscountPrice();
         $orderNumber = $order->getOrderNumber();
         $balance = $this->postBalanceChange(
@@ -540,6 +548,13 @@ class ClientOrderController extends PaymentController
         $order->setStatus(self::STATUS_PAID);
         $order->setPaymentDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
+
+        // store payment channel
+        $this->storePayChannel(
+            $order,
+            $channel
+        );
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
@@ -639,8 +654,12 @@ class ClientOrderController extends PaymentController
                 self::WRONG_CHANNEL_MESSAGE
             );
         }
+
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
-            return $this->payByAccount($order);
+            return $this->payByAccount(
+                $order,
+                $channel
+            );
         }
 
         $orderNumber = $order->getOrderNumber();

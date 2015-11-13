@@ -49,6 +49,7 @@ twig:
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"
         expired_verification_time: "%expired_verification_time%"
+        time_for_half_hour_early: "%time_for_half_hour_early%"
         user_profile_default_name_prefix: "%user_profile_default_name_prefix%"
         sandbox_auth_key: "%sandbox_auth_key%"
         crm_api_url: "%crm_api_url%"
