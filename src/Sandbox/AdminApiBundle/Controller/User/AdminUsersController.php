@@ -521,4 +521,31 @@ class AdminUsersController extends DoorController
 
         return new View();
     }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/users/openfire/set")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function setUserInfoToOpenfireAction(
+        Request $request
+    ) {
+        $users = $this->getRepo('User\User')->findAll();
+
+        foreach ($users as $user) {
+            try {
+                $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+
+                $this->updateXmppUser($user->getXmppUsername(), null, $profile->getName());
+            } catch (\Exception $e) {
+                error_log('Sync user went wrong. User ID: '.$user->getId());
+                continue;
+            }
+        }
+
+        return new View();
+    }
 }

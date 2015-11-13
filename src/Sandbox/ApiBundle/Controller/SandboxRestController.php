@@ -1511,8 +1511,7 @@ class SandboxRestController extends FOSRestController
         $name,
         $fullJID
     ) {
-        $dataArray = array();
-        $dataArray['username'] = $username;
+        $dataArray = array('username' => $username);
 
         if (!is_null($password)) {
             $dataArray['password'] = $password;
