@@ -19,6 +19,11 @@ class ProductOrder
     const STATUS_UNPAID = 'unpaid';
     const STATUS_COMPLETED = 'completed';
 
+    const CHANNEL_WECHAT = '微信支付';
+    const CHANNEL_ALIPAY = '支付宝';
+    const CHANNEL_UNIONPAY = '银联付款';
+    const CHANNEL_ACCOUNT = '账户余额';
+
     /**
      * @var int
      *
@@ -38,6 +43,15 @@ class ProductOrder
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $orderNumber;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="payChannel", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $payChannel;
 
     /**
      * @var int
@@ -818,6 +832,30 @@ class ProductOrder
     public function getOrderNumber()
     {
         return $this->orderNumber;
+    }
+
+    /**
+     * Set payChannel.
+     *
+     * @param string $payChannel
+     *
+     * @return ProductOrder
+     */
+    public function setPayChannel($payChannel)
+    {
+        $this->payChannel = $payChannel;
+
+        return $this;
+    }
+
+    /**
+     * Get payChannel.
+     *
+     * @return string
+     */
+    public function getPayChannel()
+    {
+        return $this->payChannel;
     }
 
     public function __construct()

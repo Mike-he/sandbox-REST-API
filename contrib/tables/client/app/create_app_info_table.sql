@@ -4,6 +4,7 @@ CREATE TABLE `AppInfo` (
   `url` varchar(128) NOT NULL,
   `date` varchar(16) NOT NULL,
   `environment` varchar(16) NOT NULL,
+  `copyrightYear` varchar(16) NOT NULL,
   PRIMARY KEY (`platform`)
 );
 

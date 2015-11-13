@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Event;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 
 class EventRepository extends EntityRepository
 {
@@ -71,16 +72,27 @@ class EventRepository extends EntityRepository
         $limit,
         $offset
     ) {
-        $query = $this->createQueryBuilder('e')
-            ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
-            ->where('e.visible = true')
-            ->andWhere('er.userId = :userId')
-            ->setParameter('userId', $userId);
+        $queryStr = '
+                SELECT e
+                FROM SandboxApiBundle:Event\Event e
+                LEFT JOIN SandboxApiBundle:Event\EventRegistration er WITH er.eventId = e.id
+                WHERE e.visible = TRUE
+                AND er.userId = :userId
+                AND (
+                    e.verify = FALSE
+                ) OR (
+                    e.verify = TRUE
+                    AND er.status = :accepted
+                )
+        ';
 
-        $query->orderBy('e.creationDate', 'DESC')
+        $query = $this->getEntityManager()
+            ->createQuery($queryStr)
+            ->setParameter('userId', $userId)
+            ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
-        return $query->getQuery()->getResult();
+        return $query->getResult();
     }
 }

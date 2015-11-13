@@ -171,72 +171,6 @@ class ClientUserPasswordController extends UserPasswordController
     }
 
     /**
-     * @param string $auth
-     * @param string $username
-     * @param string $password
-     * @param string $fullJID
-     */
-    private function updateXmppUserPassword(
-        $auth,
-        $username,
-        $password,
-        $fullJID = null
-    ) {
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        // Openfire API URL
-        $apiUrl = $globals['openfire_innet_url'].
-            $globals['openfire_plugin_bstuser'].
-            $globals['openfire_plugin_bstuser_users'];
-
-        // request json
-        $jsonData = $this->createJsonData($username, $password, $fullJID);
-
-        // init curl
-        $ch = curl_init($apiUrl);
-
-        // get then response when post OpenFire API
-        $response = $this->get('curl_util')->callAPI(
-            $ch,
-            'PUT',
-            array('Authorization: '.$auth),
-            $jsonData);
-        if (!$response) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode != self::HTTP_STATUS_OK) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-    }
-
-    /**
-     * @param string $username
-     * @param string $password
-     * @param string $fullJID
-     *
-     * @return string
-     */
-    private function createJsonData(
-        $username,
-        $password,
-        $fullJID
-    ) {
-        $dataArray = array();
-        $dataArray['username'] = $username;
-        $dataArray['password'] = $password;
-
-        if (!is_null($fullJID)) {
-            $dataArray['fulljid'] = $fullJID;
-        }
-
-        return json_encode($dataArray);
-    }
-
-    /**
      * @param PasswordForgetSubmit $submit
      *
      * @return View
@@ -296,7 +230,7 @@ class ClientUserPasswordController extends UserPasswordController
      * @param string $email
      * @param string $phone
      *
-     * @return ForgetPassword
+     * @return UserForgetPassword
      */
     private function saveOrUpdateForgetPassword(
         $userId,
@@ -516,20 +450,13 @@ class ClientUserPasswordController extends UserPasswordController
         $password,
         $forgetPassword
     ) {
-        $em = $this->getDoctrine()->getManager();
-
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        // set ezUser secret to basic auth
-        $ezuserNameSecret = $globals['openfire_plugin_bstuser_property_name_ezuser'].':'.
-            $globals['openfire_plugin_bstuser_property_secret_ezuser'];
-
-        $basicAuth = 'Basic '.base64_encode($ezuserNameSecret);
-
         // update xmpp user password
-        $this->updateXmppUserPassword($basicAuth, $user->getXmppUsername(), $password);
+        $result = $this->updateXmppUser($user->getXmppUsername(), $password);
+        if (!$result) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $em = $this->getDoctrine()->getManager();
 
         // set new password
         $user->setPassword($password);

@@ -85,10 +85,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         );
 
         // get attachment
-        $attachments = $this->getRepo('Room\RoomAttachment')->findBy(
-            $filters,
-            ['creationDate' => 'DESC']
-        );
+        $attachments = $this->getRepo('Room\RoomAttachment')->findBy($filters);
 
         return new View($attachments);
     }
