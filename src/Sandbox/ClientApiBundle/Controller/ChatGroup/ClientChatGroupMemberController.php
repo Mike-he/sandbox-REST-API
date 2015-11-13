@@ -66,13 +66,18 @@ class ClientChatGroupMemberController extends ChatGroupController
         $membersArray = array();
 
         foreach ($members as $member) {
-            $memberArray = array();
-            $memberArray['id'] = $member->getId();
+            try {
+                $memberArray = array();
+                $memberArray['id'] = $member->getId();
 
-            $profile = $this->getRepo('User\UserProfile')->findOneByUser($member->getUser());
-            $memberArray['profile'] = $profile;
+                $profile = $this->getRepo('User\UserProfile')->findOneByUser($member->getUser());
+                $memberArray['profile'] = $profile;
 
-            array_push($membersArray, $memberArray);
+                array_push($membersArray, $memberArray);
+            } catch (\Exception $e) {
+                error_log($e);
+                continue;
+            }
         }
 
         // response
@@ -114,27 +119,38 @@ class ClientChatGroupMemberController extends ChatGroupController
         $em = $this->getDoctrine()->getManager();
 
         $memberIds = json_decode($request->getContent(), true);
+        $members = array();
 
         foreach ($memberIds as $memberId) {
-            $member = $this->getRepo('User\User')->find($memberId);
-            if (is_null($member)) {
+            try {
+                $member = $this->getRepo('User\User')->find($memberId);
+                if (is_null($member)) {
+                    continue;
+                }
+
+                // check member is buddy
+                $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                    'user' => $myUser,
+                    'buddy' => $member,
+                ));
+                if (is_null($buddy)) {
+                    continue;
+                }
+
+                // save member
+                $this->saveChatGroupMember($em, $chatGroup, $member, $myUser);
+
+                array_push($members, $member);
+            } catch (\Exception $e) {
+                error_log($e);
                 continue;
             }
-
-            // check member is buddy
-            $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                'user' => $myUser,
-                'buddy' => $member,
-            ));
-            if (is_null($buddy)) {
-                continue;
-            }
-
-            // save member
-            $this->saveChatGroupMember($em, $chatGroup, $member, $myUser);
         }
 
         $em->flush();
+
+        // update chat group in Openfire
+        $this->handleXmppChatGroupMember($chatGroup, $myUser, $members, 'POST');
 
         return new view();
     }
@@ -217,6 +233,9 @@ class ClientChatGroupMemberController extends ChatGroupController
             $em = $this->getDoctrine()->getManager();
             $em->remove($chatGroupMember);
             $em->flush();
+
+            // update chat group in Openfire
+            $this->handleXmppChatGroupMember($chatGroup, $user, array($user), 'DELETE');
         }
 
         return new View();
@@ -240,19 +259,33 @@ class ClientChatGroupMemberController extends ChatGroupController
         }
 
         $em = $this->getDoctrine()->getManager();
+        $members = array();
 
         foreach ($memberIds as $memberId) {
-            $chatGroupMember = $this->getRepo('ChatGroup\ChatGroupMember')->find($memberId);
+            try {
+                $chatGroupMember = $this->getRepo('ChatGroup\ChatGroupMember')->find($memberId);
+                if (is_null($chatGroupMember)) {
+                    continue;
+                }
 
-            // ignore creator
-            if ($chatGroup->getCreator() == $chatGroupMember->getUser()) {
+                // ignore creator
+                if ($chatGroup->getCreator() == $chatGroupMember->getUser()) {
+                    continue;
+                }
+
+                $em->remove($chatGroupMember);
+
+                array_push($members, $chatGroupMember->getUser());
+            } catch (\Exception $e) {
+                error_log($e);
                 continue;
             }
-
-            $em->remove($chatGroupMember);
         }
 
         $em->flush();
+
+        // update chat group in Openfire
+        $this->handleXmppChatGroupMember($chatGroup, $user, $members, 'DELETE');
 
         return new View();
     }

@@ -62,17 +62,9 @@ class ChatGroupController extends SandboxRestController
             $globals = $twig->getGlobals();
 
             $domain = $globals['xmpp_domain'];
-
-            // openfire API URL
-            $apiURL = $globals['openfire_innet_url'].
-                $globals['openfire_plugin_bstgroupchat'].
-                $globals['openfire_plugin_bstgroupchat_room'];
-
             $jid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
-
             $owner = $chatGroup->getCreator()->getXmppUsername().'@'.$domain;
-
-            $members = $this->addXmppChatGroupMember($chatGroup, $domain);
+            $members = $this->addMembers($chatGroup, $domain);
 
             // request json
             $jsonDataArray = array(
@@ -84,22 +76,8 @@ class ChatGroupController extends SandboxRestController
             );
             $jsonData = json_encode($jsonDataArray);
 
-            // init curl
-            $ch = curl_init($apiURL);
-
-            // get then response when post OpenFire API
-            $response = $this->get('curl_util')->callAPI(
-                $ch,
-                'POST',
-                null,
-                $jsonData);
-
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($httpCode != self::HTTP_STATUS_OK) {
-                return;
-            }
-
-            return $response;
+            // call openfire room api
+            $this->callOpenfireRoomApi('POST', $jsonData);
         } catch (\Exception $e) {
             error_log('Create XMPP chat group went wrong!');
         }
@@ -111,7 +89,7 @@ class ChatGroupController extends SandboxRestController
      *
      * @return array
      */
-    protected function addXmppChatGroupMember(
+    private function addMembers(
         $chatGroup,
         $domain
     ) {
@@ -120,8 +98,8 @@ class ChatGroupController extends SandboxRestController
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
         foreach ($members as $member) {
             try {
-                $memberJid = $member->getUser()->getXmppUsername().'@'.$domain;
-                array_push($memberJids, $memberJid);
+                $memberJidArray = $this->setMemberJidArray($member->getUser(), $domain);
+                array_push($memberJids, $memberJidArray);
             } catch (\Exception $e) {
                 error_log('Add XMPP chat group member went wrong!');
                 continue;
@@ -129,5 +107,180 @@ class ChatGroupController extends SandboxRestController
         }
 
         return $memberJids;
+    }
+
+    /**
+     * @param User   $user
+     * @param string $domain
+     *
+     * @return array
+     */
+    private function setMemberJidArray(
+        $user,
+        $domain
+    ) {
+        return array('jid' => $user->getXmppUsername().'@'.$domain);
+    }
+
+    /**
+     * @param ChatGroup $chatGroup
+     * @param User      $user
+     *
+     * @return mixed|void
+     */
+    protected function updateXmppChatGroup(
+        $chatGroup,
+        $user
+    ) {
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            $domain = $globals['xmpp_domain'];
+            $jid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $actor = $user->getXmppUsername().'@'.$domain;
+
+            $room = array(
+                'jid' => $jid,
+                'name' => $chatGroup->getName(),
+            );
+
+            // request json
+            $jsonDataArray = array(
+                'actor' => $actor,
+                'rooms' => array($room),
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // call openfire room api
+            $this->callOpenfireRoomApi('PUT', $jsonData);
+        } catch (\Exception $e) {
+            error_log('Update XMPP chat group went wrong!');
+        }
+    }
+
+    /**
+     * @param ChatGroup $chatGroup
+     * @param User      $user
+     *
+     * @return mixed|void
+     */
+    protected function deleteXmppChatGroup(
+        $chatGroup,
+        $user
+    ) {
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            $domain = $globals['xmpp_domain'];
+            $jid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $actor = $user->getXmppUsername().'@'.$domain;
+
+            $room = array('jid' => $jid);
+
+            // request json
+            $jsonDataArray = array(
+                'actor' => $actor,
+                'rooms' => array($room),
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // call openfire room api
+            $this->callOpenfireRoomApi('DELETE', $jsonData);
+        } catch (\Exception $e) {
+            error_log('Update XMPP chat group went wrong!');
+        }
+    }
+
+    /**
+     * @param ChatGroup $chatGroup
+     * @param User      $user
+     * @param array     $members
+     * @param string    $method
+     *
+     * @return mixed|void
+     */
+    protected function handleXmppChatGroupMember(
+        $chatGroup,
+        $user,
+        $members,
+        $method
+    ) {
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            $domain = $globals['xmpp_domain'];
+            $jid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $actor = $user->getXmppUsername().'@'.$domain;
+
+            $room = array('jid' => $jid);
+
+            $membersArray = array();
+            foreach ($members as $member) {
+                $memberJidArray = $this->setMemberJidArray($member, $domain);
+                array_push($membersArray, $memberJidArray);
+            }
+
+            // request json
+            $jsonDataArray = array(
+                'actor' => $actor,
+                'rooms' => array($room),
+                'members' => $membersArray,
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // call openfire room api
+            $this->callOpenfireRoomApi($method, $jsonData, true);
+        } catch (\Exception $e) {
+            error_log('Update XMPP chat group went wrong!');
+        }
+    }
+
+    /**
+     * @param string $method
+     * @param object $jsonData
+     * @param bool   $member
+     *
+     * @return mixed|void
+     */
+    protected function callOpenfireRoomApi(
+        $method,
+        $jsonData,
+        $member = false
+    ) {
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            // openfire API URL
+            $apiURL = $globals['openfire_innet_url'].
+                $globals['openfire_plugin_bstgroupchat'].
+                $globals['openfire_plugin_bstgroupchat_room'];
+
+            if ($member) {
+                $apiURL = $apiURL.$globals['openfire_plugin_bstgroupchat_room_member'];
+            }
+
+            // init curl
+            $ch = curl_init($apiURL);
+
+            // get then response when post OpenFire API
+            $response = $this->get('curl_util')->callAPI($ch, $method, null, $jsonData);
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode != self::HTTP_STATUS_OK) {
+                return;
+            }
+
+            return $response;
+        } catch (\Exception $e) {
+            error_log('Call Openfire Room API went wrong!');
+        }
     }
 }

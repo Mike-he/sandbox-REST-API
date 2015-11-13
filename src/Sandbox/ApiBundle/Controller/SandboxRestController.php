@@ -1162,7 +1162,7 @@ class SandboxRestController extends FOSRestController
      */
     protected function sendXmppNotification(
         $jsonData,
-        $broadcast
+        $broadcast = false
     ) {
         try {
             // get globals

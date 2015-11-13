@@ -81,41 +81,46 @@ class ClientChatGroupController extends ChatGroupController
         $allMembersIds = array_merge($allMembersIds, $memberIds);
 
         foreach ($allMembersIds as $memberId) {
-            if ($memberId != $myUserId) {
-                $member = $this->getRepo('User\User')->find($memberId);
-                if (is_null($member)) {
+            try {
+                if ($memberId != $myUserId) {
+                    $member = $this->getRepo('User\User')->find($memberId);
+                    if (is_null($member)) {
+                        continue;
+                    }
+
+                    // check member is buddy
+                    $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                        'user' => $myUser,
+                        'buddy' => $member,
+                    ));
+                    if (is_null($buddy)) {
+                        continue;
+                    }
+                } else {
+                    $member = $myUser;
+                }
+
+                $memberProfile = $this->getRepo('User\UserProfile')->findOneByUser($member);
+                if (is_null($memberProfile)) {
                     continue;
                 }
 
-                // check member is buddy
-                $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
-                    'user' => $myUser,
-                    'buddy' => $member,
-                ));
-                if (is_null($buddy)) {
-                    continue;
-                }
-            } else {
-                $member = $myUser;
-            }
+                // save member
+                $this->saveChatGroupMember($em, $chatGroup, $member, $myUser);
 
-            $memberProfile = $this->getRepo('User\UserProfile')->findOneByUser($member);
-            if (is_null($memberProfile)) {
+                // generate name
+                ++$memberCount;
+
+                if (is_null($name)) {
+                    $chatGroupName = $chatGroupName.$memberProfile->getName();
+
+                    if ($memberCount < sizeof($allMembersIds)) {
+                        $chatGroupName = $chatGroupName.', ';
+                    }
+                }
+            } catch (\Exception $e) {
+                error_log($e);
                 continue;
-            }
-
-            // save member
-            $this->saveChatGroupMember($em, $chatGroup, $member, $myUser);
-
-            // generate name
-            ++$memberCount;
-
-            if (is_null($name)) {
-                $chatGroupName = $chatGroupName.$memberProfile->getName();
-
-                if ($memberCount < sizeof($allMembersIds)) {
-                    $chatGroupName = $chatGroupName.', ';
-                }
             }
         }
 
@@ -132,6 +137,7 @@ class ClientChatGroupController extends ChatGroupController
         $view = new View();
         $view->setData(array(
             'id' => $chatGroup->getId(),
+            'name' => $chatGroup->getName(),
         ));
 
         return $view;
@@ -229,13 +235,18 @@ class ClientChatGroupController extends ChatGroupController
 
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
         foreach ($members as $member) {
-            $memberArray = array();
-            $memberArray['id'] = $member->getId();
+            try {
+                $memberArray = array();
+                $memberArray['id'] = $member->getId();
 
-            $profile = $this->getRepo('User\UserProfile')->findOneByUser($member->getUser());
-            $memberArray['profile'] = $profile;
+                $profile = $this->getRepo('User\UserProfile')->findOneByUser($member->getUser());
+                $memberArray['profile'] = $profile;
 
-            array_push($membersArray, $memberArray);
+                array_push($membersArray, $memberArray);
+            } catch (\Exception $e) {
+                error_log($e);
+                continue;
+            }
         }
 
         $chatGroupArray['members'] = $membersArray;
@@ -289,6 +300,9 @@ class ClientChatGroupController extends ChatGroupController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
+        // update chat group in Openfire
+        $this->updateXmppChatGroup($chatGroup, $myUser);
+
         return new View();
     }
 
@@ -326,12 +340,13 @@ class ClientChatGroupController extends ChatGroupController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        // TODO remove chat group in Openfire
-
         // remove from db
         $em = $this->getDoctrine()->getManager();
         $em->remove($chatGroup);
         $em->flush();
+
+        // update chat group in Openfire
+        $this->deleteXmppChatGroup($chatGroup, $myUser);
 
         return new View();
     }
