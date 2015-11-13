@@ -130,3 +130,8 @@ sandbox_admin_api_building:
     type:     annotation
     prefix:   /
 
+# Verify Feed /admin/verify/feeds
+sandbox_admin_api_verify_feed:
+    resource: "@SandboxAdminApiBundle/Controller/Verify/AdminVerifyFeedController.php"
+    type:     annotation
+    prefix:   /verify

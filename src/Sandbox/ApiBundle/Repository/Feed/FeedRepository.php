@@ -261,4 +261,21 @@ class FeedRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param string $query
+     *
+     * @return array
+     */
+    public function getVerifyFeeds(
+        $query
+    ) {
+        $queryBuilder = $this->createQueryBuilder('f')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'f.ownerId = up.userId')
+            ->where('up.name LIKE :query')
+            ->setParameter('query', $query.'%')
+            ->orderBy('f.creationDate', 'DESC');
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 }
