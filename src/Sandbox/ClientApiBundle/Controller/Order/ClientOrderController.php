@@ -181,245 +181,254 @@ class ClientOrderController extends PaymentController
     public function createOrdersAction(
         Request $request
     ) {
-        $userId = $this->getUserId();
-        $user = $this->getRepo('User\User')->find($userId);
-        $order = new ProductOrder();
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->beginTransaction();
 
-        $form = $this->createForm(new OrderType(), $order);
-        $form->handleRequest($request);
+        try {
+            $userId = $this->getUserId();
+            $user = $this->getRepo('User\User')->find($userId);
+            $order = new ProductOrder();
 
-        if (!$form->isValid()) {
-            return $this->customErrorView(
-                400,
-                self::INVALID_FORM_CODE,
-                self::INVALID_FORM_MESSAGE
-            );
-        }
+            $form = $this->createForm(new OrderType(), $order);
+            $form->handleRequest($request);
 
-        //check if product exists
-        $productId = $order->getProductId();
-        $product = $this->getRepo('Product\Product')->find($productId);
-
-        if (is_null($product)) {
-            return $this->customErrorView(
-                400,
-                self::PRODUCT_NOT_FOUND_CODE,
-                self::PRODUCT_NOT_FOUND_MESSAGE
-            );
-        }
-        $productStart = $product->getStartDate();
-        $productEnd = $product->getEndDate();
-        $now = new \DateTime();
-        $type = $product->getRoom()->getType();
-        $startDate = new \DateTime($order->getStartDate());
-
-        if (
-            $now < $productStart ||
-            $now > $productEnd ||
-            $startDate < $productStart ||
-            $startDate > $productEnd ||
-            $product->getVisible() == false
-        ) {
-            return $this->customErrorView(
-                400,
-                self::PRODUCT_NOT_AVAILABLE_CODE,
-                self::PRODUCT_NOT_AVAILABLE_MESSAGE
-            );
-        }
-
-        $period = $form['rent_period']->getData();
-        $timeUnit = $form['time_unit']->getData();
-        $basePrice = $product->getBasePrice();
-        $calculatedPrice = $basePrice * $period;
-
-        if ($order->getPrice() != $calculatedPrice) {
-            return $this->customErrorView(
-                400,
-                self::PRICE_MISMATCH_CODE,
-                self::PRICE_MISMATCH_MESSAGE
-            );
-        }
-
-        if ($type === Room::TYPE_OFFICE && $order->getIsRenew()) {
-            $myEnd = $now->modify('+ 7 days');
-            $myOrder = $this->getRepo('Order\ProductOrder')->getRenewOrder(
-                $userId,
-                $productId,
-                $myEnd
-            );
-            if (empty($myOrder)) {
+            if (!$form->isValid()) {
                 return $this->customErrorView(
                     400,
-                    self::CAN_NOT_RENEW_CODE,
-                    self::CAN_NOT_RENEW_MESSAGE
-                );
-            }
-            $startDate = $myOrder[0]->getEndDate();
-            $endDate = clone $startDate;
-            $endDate->modify('+ 30 days');
-        } else {
-            $diff = $startDate->diff($now)->days;
-            if ($diff > 7) {
-                return $this->customErrorView(
-                    400,
-                    self::NOT_WITHIN_DATE_RANGE_CODE,
-                    self::NOT_WITHIN_DATE_RANGE_MESSAGE
-                );
-            }
-            $datePeriod = $period;
-            if ($timeUnit === 'hour') {
-                $datePeriod = $period * 60;
-                $timeUnit = 'min';
-            } elseif ($timeUnit === 'month') {
-                $datePeriod = $period * 30;
-                $timeUnit = 'days';
-            }
-            $endDate = clone $startDate;
-            $endDate->modify('+'.$datePeriod.$timeUnit);
-        }
-
-        if ($type == Room::TYPE_OFFICE || $type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
-            $nowDate = $now->format('Y-m-d');
-            $startPeriod = $startDate->format('Y-m-d');
-            if ($nowDate > $startPeriod) {
-                return $this->customErrorView(
-                    400,
-                    self::WRONG_BOOKING_DATE_CODE,
-                    self::WRONG_BOOKING_DATE_MESSAGE
-                );
-            }
-            $endDate->modify('- 1 day');
-            $endDate->setTime(23, 59, 59);
-        } else {
-            $timeModify = $this->getGlobal('time_for_half_hour_early');
-            $halfHour = clone $now;
-            $halfHour->modify($timeModify);
-
-            // check to allow ordering half an hour early
-            if ($halfHour > $startDate) {
-                return $this->customErrorView(
-                    400,
-                    self::WRONG_BOOKING_DATE_CODE,
-                    self::WRONG_BOOKING_DATE_MESSAGE
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
                 );
             }
 
-            $startHour = $startDate->format('H:i:s');
-            $endHour = $endDate->format('H:i:s');
-            $roomId = $product->getRoomId();
-            $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $roomId]);
-            if (!is_null($meeting)) {
-                $allowedStart = $meeting->getStartHour();
-                $allowedStart = $allowedStart->format('H:i:s');
-                $allowedEnd = $meeting->getEndHour();
-                $allowedEnd = $allowedEnd->format('H:i:s');
-                if ($startHour < $allowedStart || $endHour > $allowedEnd) {
+            //check if product exists
+            $productId = $order->getProductId();
+            $product = $this->getRepo('Product\Product')->find($productId);
+
+            if (is_null($product)) {
+                return $this->customErrorView(
+                    400,
+                    self::PRODUCT_NOT_FOUND_CODE,
+                    self::PRODUCT_NOT_FOUND_MESSAGE
+                );
+            }
+            $productStart = $product->getStartDate();
+            $productEnd = $product->getEndDate();
+            $now = new \DateTime();
+            $type = $product->getRoom()->getType();
+            $startDate = new \DateTime($order->getStartDate());
+
+            if (
+                $now < $productStart ||
+                $now > $productEnd ||
+                $startDate < $productStart ||
+                $startDate > $productEnd ||
+                $product->getVisible() == false
+            ) {
+                return $this->customErrorView(
+                    400,
+                    self::PRODUCT_NOT_AVAILABLE_CODE,
+                    self::PRODUCT_NOT_AVAILABLE_MESSAGE
+                );
+            }
+
+            $period = $form['rent_period']->getData();
+            $timeUnit = $form['time_unit']->getData();
+            $basePrice = $product->getBasePrice();
+            $calculatedPrice = $basePrice * $period;
+
+            if ($order->getPrice() != $calculatedPrice) {
+                return $this->customErrorView(
+                    400,
+                    self::PRICE_MISMATCH_CODE,
+                    self::PRICE_MISMATCH_MESSAGE
+                );
+            }
+
+            if ($type === Room::TYPE_OFFICE && $order->getIsRenew()) {
+                $myEnd = $now->modify('+ 7 days');
+                $myOrder = $this->getRepo('Order\ProductOrder')->getRenewOrder(
+                    $userId,
+                    $productId,
+                    $myEnd
+                );
+                if (empty($myOrder)) {
                     return $this->customErrorView(
                         400,
-                        self::ROOM_NOT_OPEN_CODE,
-                        self::ROOM_NOT_OPEN_MESSAGE
+                        self::CAN_NOT_RENEW_CODE,
+                        self::CAN_NOT_RENEW_MESSAGE
+                    );
+                }
+                $startDate = $myOrder[0]->getEndDate();
+                $endDate = clone $startDate;
+                $endDate->modify('+ 30 days');
+            } else {
+                $diff = $startDate->diff($now)->days;
+                if ($diff > 7) {
+                    return $this->customErrorView(
+                        400,
+                        self::NOT_WITHIN_DATE_RANGE_CODE,
+                        self::NOT_WITHIN_DATE_RANGE_MESSAGE
+                    );
+                }
+                $datePeriod = $period;
+                if ($timeUnit === 'hour') {
+                    $datePeriod = $period * 60;
+                    $timeUnit = 'min';
+                } elseif ($timeUnit === 'month') {
+                    $datePeriod = $period * 30;
+                    $timeUnit = 'days';
+                }
+                $endDate = clone $startDate;
+                $endDate->modify('+'.$datePeriod.$timeUnit);
+            }
+
+            if ($type == Room::TYPE_OFFICE || $type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
+                $nowDate = $now->format('Y-m-d');
+                $startPeriod = $startDate->format('Y-m-d');
+                if ($nowDate > $startPeriod) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_BOOKING_DATE_CODE,
+                        self::WRONG_BOOKING_DATE_MESSAGE
+                    );
+                }
+                $endDate->modify('- 1 day');
+                $endDate->setTime(23, 59, 59);
+            } else {
+                $timeModify = $this->getGlobal('time_for_half_hour_early');
+                $halfHour = clone $now;
+                $halfHour->modify($timeModify);
+
+                // check to allow ordering half an hour early
+                if ($halfHour > $startDate) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_BOOKING_DATE_CODE,
+                        self::WRONG_BOOKING_DATE_MESSAGE
+                    );
+                }
+
+                $startHour = $startDate->format('H:i:s');
+                $endHour = $endDate->format('H:i:s');
+                $roomId = $product->getRoomId();
+                $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $roomId]);
+                if (!is_null($meeting)) {
+                    $allowedStart = $meeting->getStartHour();
+                    $allowedStart = $allowedStart->format('H:i:s');
+                    $allowedEnd = $meeting->getEndHour();
+                    $allowedEnd = $allowedEnd->format('H:i:s');
+                    if ($startHour < $allowedStart || $endHour > $allowedEnd) {
+                        return $this->customErrorView(
+                            400,
+                            self::ROOM_NOT_OPEN_CODE,
+                            self::ROOM_NOT_OPEN_MESSAGE
+                        );
+                    }
+                }
+            }
+
+            //check if flexible room is full
+            if ($type == Room::TYPE_FLEXIBLE) {
+                $allowedPeople = $product->getRoom()->getAllowedPeople();
+                $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+
+                if ($allowedPeople <= (int) $orderCount) {
+                    return $this->customErrorView(
+                        400,
+                        self::FLEXIBLE_ROOM_FULL_CODE,
+                        self::FLEXIBLE_ROOM_FULL_MESSAGE
+                    );
+                }
+            } else {
+                $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+                if (!empty($checkOrder) && !is_null($checkOrder)) {
+                    return $this->customErrorView(
+                        400,
+                        self::ORDER_CONFLICT_CODE,
+                        self::ORDER_CONFLICT_MESSAGE
                     );
                 }
             }
-        }
 
-        //check if flexible room is full
-        if ($type == Room::TYPE_FLEXIBLE) {
-            $allowedPeople = $product->getRoom()->getAllowedPeople();
-            $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
-                $productId,
-                $startDate,
-                $endDate
+            $ruleId = $form['rule_id']->getData();
+            if (!is_null($ruleId) && !empty($ruleId)) {
+                $order->setRuleId($ruleId);
+                $discountPrice = $order->getDiscountPrice();
+                $isRenew = $order->getIsRenew();
+                $result = $this->getDiscountPriceForOrder(
+                    $ruleId,
+                    $productId,
+                    $period,
+                    $startDate,
+                    $endDate,
+                    $isRenew
+                );
+
+                if (array_key_exists('bind_product_id', $result['rule'])) {
+                    $order->setMembershipBindId($result['rule']['bind_product_id']);
+                }
+
+                if ($discountPrice != $result['discount_price']) {
+                    return $this->customErrorView(
+                        400,
+                        self::DISCOUNT_PRICE_MISMATCH_CODE,
+                        self::DISCOUNT_PRICE_MISMATCH_MESSAGE
+                    );
+                }
+
+                if (array_key_exists('rule_name', $result['rule'])) {
+                    $order->setRuleName($result['rule']['rule_name']);
+                }
+
+                if (array_key_exists('rule_description', $result['rule'])) {
+                    $order->setRuleDescription($result['rule']['rule_description']);
+                }
+            }
+
+            $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
+            $productInfo = $this->storeRoomInfo($product);
+
+            // set product order
+            $order->setOrderNumber($orderNumber);
+            $order->setProduct($product);
+            $order->setStartDate($startDate);
+            $order->setEndDate($endDate);
+            $order->setUser($user);
+            $order->setLocation('location');
+            $order->setStatus('unpaid');
+            $order->setProductInfo($productInfo);
+            $em->persist($order);
+
+            // store order record
+            $room = $this->getRepo('Room\Room')->find($product->getRoomId());
+            $roomRecord = new ProductOrderRecord();
+            $roomRecord->setOrder($order);
+            $roomRecord->setCityId($room->getCityId());
+            $roomRecord->setBuildingId($room->getBuildingId());
+            $roomRecord->setRoomType($room->getType());
+            $em->persist($roomRecord);
+            $em->flush();
+
+            $view = new View();
+            $view->setData(
+                ['order_id' => $order->getId()]
             );
 
-            if ($allowedPeople <= (int) $orderCount) {
-                return $this->customErrorView(
-                    400,
-                    self::FLEXIBLE_ROOM_FULL_CODE,
-                    self::FLEXIBLE_ROOM_FULL_MESSAGE
-                );
-            }
-        } else {
-            $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-            if (!empty($checkOrder) && !is_null($checkOrder)) {
-                return $this->customErrorView(
-                    400,
-                    self::ORDER_CONFLICT_CODE,
-                    self::ORDER_CONFLICT_MESSAGE
-                );
-            }
+            $em->getConnection()->commit();
+
+            return $view;
+        } catch (\Exception $exception) {
+            $em->getConnection()->rollback();
+            throw $exception;
         }
-
-        $ruleId = $form['rule_id']->getData();
-        if (!is_null($ruleId) && !empty($ruleId)) {
-            $order->setRuleId($ruleId);
-            $discountPrice = $order->getDiscountPrice();
-            $isRenew = $order->getIsRenew();
-            $result = $this->getDiscountPriceForOrder(
-                $ruleId,
-                $productId,
-                $period,
-                $startDate,
-                $endDate,
-                $isRenew
-            );
-
-            if (array_key_exists('bind_product_id', $result['rule'])) {
-                $order->setMembershipBindId($result['rule']['bind_product_id']);
-            }
-
-            if ($discountPrice != $result['discount_price']) {
-                return $this->customErrorView(
-                    400,
-                    self::DISCOUNT_PRICE_MISMATCH_CODE,
-                    self::DISCOUNT_PRICE_MISMATCH_MESSAGE
-                );
-            }
-
-            if (array_key_exists('rule_name', $result['rule'])) {
-                $order->setRuleName($result['rule']['rule_name']);
-            }
-
-            if (array_key_exists('rule_description', $result['rule'])) {
-                $order->setRuleDescription($result['rule']['rule_description']);
-            }
-        }
-
-        $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
-        $productInfo = $this->storeRoomInfo($product);
-
-        // set product order
-        $order->setOrderNumber($orderNumber);
-        $order->setProduct($product);
-        $order->setStartDate($startDate);
-        $order->setEndDate($endDate);
-        $order->setUser($user);
-        $order->setLocation('location');
-        $order->setStatus('unpaid');
-        $order->setProductInfo($productInfo);
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($order);
-
-        // store order record
-        $room = $this->getRepo('Room\Room')->find($product->getRoomId());
-        $roomRecord = new ProductOrderRecord();
-        $roomRecord->setOrder($order);
-        $roomRecord->setCityId($room->getCityId());
-        $roomRecord->setBuildingId($room->getBuildingId());
-        $roomRecord->setRoomType($room->getType());
-        $em->persist($roomRecord);
-        $em->flush();
-
-        $view = new View();
-        $view->setData(
-            ['order_id' => $order->getId()]
-        );
-
-        return $view;
     }
 
     /**
