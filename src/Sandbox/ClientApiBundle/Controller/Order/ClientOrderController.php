@@ -416,13 +416,12 @@ class ClientOrderController extends PaymentController
             $roomRecord->setRoomType($room->getType());
             $em->persist($roomRecord);
             $em->flush();
+            $em->getConnection()->commit();
 
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
             );
-
-            $em->getConnection()->commit();
 
             return $view;
         } catch (\Exception $exception) {
