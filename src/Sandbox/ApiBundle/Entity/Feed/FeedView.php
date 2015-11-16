@@ -63,6 +63,15 @@ class FeedView
     private $creationDate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="visible", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main", "feed"})
+     */
+    private $visible;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="likes_count", type="integer",  nullable=false)
@@ -213,6 +222,16 @@ class FeedView
         $this->owner = $owner;
 
         return $this;
+    }
+
+    /**
+     * Get visible.
+     *
+     * @return bool
+     */
+    public function getVisible()
+    {
+        return $this->visible;
     }
 
     /**

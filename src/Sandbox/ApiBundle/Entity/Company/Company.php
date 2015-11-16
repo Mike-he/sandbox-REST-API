@@ -189,6 +189,21 @@ class Company
     private $creatorId;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "company_info"})
+     */
+    private $creatorProfile;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="banned", type="boolean", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $banned = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -224,6 +239,13 @@ class Company
      * @Serializer\Groups({"main", "company_info"})
      */
     private $members;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "company_info"})
+     */
+    private $companyVerifyRecord;
 
     /**
      * Get id.
@@ -670,5 +692,77 @@ class Company
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+    }
+
+    /**
+     * Set creator profile.
+     *
+     * @param $creatorProfile
+     *
+     * @return Company
+     */
+    public function setCreatorProfile($creatorProfile)
+    {
+        $this->creatorProfile = $creatorProfile;
+
+        return $this;
+    }
+
+    /**
+     * Get creator profile.
+     *
+     * @return array
+     */
+    public function getCreatorProfile()
+    {
+        return $this->creatorProfile;
+    }
+
+    /**
+     * Set banned.
+     *
+     * @param bool $banned
+     *
+     * @return Company
+     */
+    public function setBanned($banned)
+    {
+        $this->banned = $banned;
+
+        return $this;
+    }
+
+    /**
+     * Get banned.
+     *
+     * @return bool
+     */
+    public function getBanned()
+    {
+        return $this->banned;
+    }
+
+    /**
+     * Set company verify record.
+     *
+     * @param $companyVerifyRecord
+     *
+     * @return Company
+     */
+    public function setCompanyVerifyRecord($companyVerifyRecord)
+    {
+        $this->companyVerifyRecord = $companyVerifyRecord;
+
+        return $this;
+    }
+
+    /**
+     * Get company verify record.
+     *
+     * @return array
+     */
+    public function getCompanyVerifyRecord()
+    {
+        return $this->companyVerifyRecord;
     }
 }

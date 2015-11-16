@@ -21,6 +21,23 @@ use FOS\RestBundle\View\View;
 class FeedController extends SandboxRestController
 {
     /**
+     * @param $feeds
+     * @param $userId
+     *
+     * @return array
+     */
+    protected function handleGetVerifyFeeds(
+        $feeds,
+        $userId
+    ) {
+        foreach ($feeds as $feed) {
+            $this->setFeed($feed, $userId);
+        }
+
+        return $feeds;
+    }
+
+    /**
      * @param array $feeds
      * @param int   $userId
      *

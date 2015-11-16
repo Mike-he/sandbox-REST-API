@@ -370,7 +370,10 @@ class ClientFeedController extends FeedController
             return new View(array());
         }
 
-        $feed = $this->getRepo('Feed\FeedView')->find($id);
+        $feed = $this->getRepo('Feed\FeedView')->findOneBy(array(
+            'id' => $id,
+            'visible' => true,
+        ));
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
         $this->setFeed($feed, $userId);

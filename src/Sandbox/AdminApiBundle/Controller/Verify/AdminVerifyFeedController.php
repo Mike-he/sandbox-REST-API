@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Verify;
 
+use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Feed\FeedController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -33,6 +34,26 @@ class AdminVerifyFeedController extends FeedController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="query",
      *    array=false,
      *    default=null,
@@ -44,6 +65,8 @@ class AdminVerifyFeedController extends FeedController
      * @Method({"GET"})
      *
      * @return View
+     *
+     * @throws \Exception
      */
     public function getVerifyFeedsAction(
         Request $request,
@@ -53,6 +76,8 @@ class AdminVerifyFeedController extends FeedController
         $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // filters
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
         $query = $paramFetcher->get('query');
 
         // check if query is null or empty
@@ -62,7 +87,16 @@ class AdminVerifyFeedController extends FeedController
 
         $feeds = $this->getRepo('Feed\FeedView')->getVerifyFeeds($query);
 
-        return $this->handleGetFeeds($feeds, null);
+        $feedsArray = $this->handleGetVerifyFeeds($feeds, null);
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $feedsArray,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
@@ -81,9 +115,9 @@ class AdminVerifyFeedController extends FeedController
      * @Route("feeds/{id}")
      * @Method({"DELETE"})
      *
-     * @throws \Exception
-     *
      * @return View
+     *
+     * @throws \Exception
      */
     public function deleteFeedAction(
         Request $request,
@@ -95,9 +129,13 @@ class AdminVerifyFeedController extends FeedController
         $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
+        // set feed visible false
+        $feed->setVisible(false);
+
         $em = $this->getDoctrine()->getManager();
-        $em->remove($feed);
         $em->flush();
+
+        return new View();
     }
 
     /**

@@ -50,6 +50,14 @@ class Feed
     private $owner;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="visible", type="boolean", nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $visible = true;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -132,6 +140,30 @@ class Feed
     public function getOwner()
     {
         return $this->owner;
+    }
+
+    /**
+     * Set visible.
+     *
+     * @param bool $visible
+     *
+     * @return Feed
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
+
+        return $this;
+    }
+
+    /**
+     * Get visible.
+     *
+     * @return bool
+     */
+    public function getVisible()
+    {
+        return $this->visible;
     }
 
     /**

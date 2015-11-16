@@ -188,4 +188,19 @@ class CompanyRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @param string $query
+     *
+     * @return array
+     */
+    public function getVerifyCompanies(
+        $query
+    ) {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->where('c.name LIKE :query')
+            ->setParameter('query', $query.'%');
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 }
