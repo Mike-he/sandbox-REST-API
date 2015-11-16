@@ -199,7 +199,7 @@ class Company
      * @var bool
      *
      * @ORM\Column(name="banned", type="boolean", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "company_limit"})
      */
     private $banned = false;
 
@@ -243,7 +243,7 @@ class Company
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "company_info", "company_limit"})
      */
     private $companyVerifyRecord;
 

@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Company\CompanyController;
 use Sandbox\ApiBundle\Entity\Random\ClientRandomRecord;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Sandbox\ApiBundle\Entity\Company\CompanyMember;
+use Sandbox\ApiBundle\Entity\Company\CompanyVerifyRecord;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Company\CompanyType;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,8 +61,19 @@ class ClientCompanyController extends CompanyController
     ) {
         $userId = $this->getUserId();
 
-        //get companies
+        // get companies
         $companies = $this->getRepo('Company\Company')->findMyCompanies($userId);
+
+        // check companies
+        if (empty($companies)) {
+            return new View(array());
+        }
+
+        // set company verify record
+        foreach ($companies as $company) {
+            $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
+            $company->setCompanyVerifyRecord($record);
+        }
 
         //set view
         $view = new View($companies);
@@ -344,6 +356,11 @@ class ClientCompanyController extends CompanyController
 
             $company = $results[$i];
 
+            // check company banned
+            if ($company->getBanned()) {
+                continue;
+            }
+
             $user = $this->getRepo('User\User')->find($company->getCreatorId());
             if (is_null($user)
                 || $user->isBanned()
@@ -574,6 +591,14 @@ class ClientCompanyController extends CompanyController
 
         // update company modification date
         $company->setModificationDate(new \DateTime('now'));
+
+        // check if company banned
+        if ($company->getBanned()) {
+            $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
+            if (!is_null($record)) {
+                $record->setStatus(CompanyVerifyRecord::STATUS_UPDATED);
+            }
+        }
 
         // update to db
         $em = $this->getDoctrine()->getManager();

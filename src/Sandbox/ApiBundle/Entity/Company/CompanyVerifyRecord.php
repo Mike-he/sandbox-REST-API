@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class CompanyVerifyRecord
 {
+    const STATUS_PENDING = 'pending';
     const STATUS_UPDATED = 'updated';
     const STATUS_REJECTED = 'rejected';
     const STATUS_ACCEPTED = 'accepted';
@@ -24,7 +25,7 @@ class CompanyVerifyRecord
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "company_info", "company_limit"})
      */
     private $id;
 
@@ -51,9 +52,9 @@ class CompanyVerifyRecord
      * @var string
      *
      * @ORM\Column(name="status", type="string", nullable=true)
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "company_info", "company_limit"})
      */
-    private $status;
+    private $status = self::STATUS_PENDING;
 
     /**
      * @var string
@@ -67,7 +68,7 @@ class CompanyVerifyRecord
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "company_info", "company_limit"})
      */
     private $creationDate;
 
@@ -75,7 +76,7 @@ class CompanyVerifyRecord
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "company_info", "company_limit"})
      */
     private $modificationDate;
 

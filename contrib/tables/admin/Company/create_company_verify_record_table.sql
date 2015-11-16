@@ -1,7 +1,7 @@
 CREATE TABLE `CompanyVerifyRecord` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `companyId` int(11) NOT NULL,
-  `status` ENUM('updated', 'rejected', 'accepted') NOT NULL,
+  `status` ENUM('pending','updated', 'rejected', 'accepted'),
   `companyInfo` longtext NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,

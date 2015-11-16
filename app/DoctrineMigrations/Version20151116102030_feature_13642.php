@@ -18,7 +18,7 @@ class Version20151116102030_feature_13642 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("CREATE TABLE CompanyVerifyRecord (id INT AUTO_INCREMENT NOT NULL, companyId INT NOT NULL, status ENUM('updated', 'rejected', 'accepted') NOT NULL, companyInfo LONGTEXT NOT NULL, creationDate DATETIME NOT NULL, modificationDate DATETIME NOT NULL, INDEX fk_CompanyVerifyRecord_companyId_idx (companyId), PRIMARY KEY(id))");
+        $this->addSql("CREATE TABLE CompanyVerifyRecord (id INT AUTO_INCREMENT NOT NULL, companyId INT NOT NULL, status ENUM('pending','updated', 'rejected', 'accepted'), companyInfo LONGTEXT NOT NULL, creationDate DATETIME NOT NULL, modificationDate DATETIME NOT NULL, INDEX fk_CompanyVerifyRecord_companyId_idx (companyId), PRIMARY KEY(id))");
         $this->addSql('ALTER TABLE CompanyVerifyRecord ADD CONSTRAINT fk_CompanyVerifyRecord_companyId FOREIGN KEY (companyId) REFERENCES Company (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE Feed ADD visible TINYINT(1) NOT NULL');
         $this->addSql('ALTER TABLE Company ADD banned TINYINT(1) NOT NULL');

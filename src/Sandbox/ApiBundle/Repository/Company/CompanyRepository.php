@@ -34,7 +34,8 @@ class CompanyRepository extends EntityRepository
 
         $queryStr = $queryStr.
                   ' WHERE u.authorized = TRUE
-                  AND u.banned = FALSE';
+                  AND u.banned = FALSE
+                  AND c.banned = FALSE';
 
         if (!is_null($recordIds) && !empty($recordIds)) {
             $queryStr = $queryStr.' AND c.id NOT IN (:ids)';
@@ -151,6 +152,7 @@ class CompanyRepository extends EntityRepository
                   c.buildingId IN (:buildingIds)
                   AND u.authorized = TRUE
                   AND u.banned = FALSE
+                  AND c.banned = FALSE
                   ORDER BY field
                 '
             )
