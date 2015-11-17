@@ -84,6 +84,7 @@ class EventRepository extends EntityRepository
                     e.verify = TRUE
                     AND er.status = :accepted
                 )
+                ORDER BY er.creationDate DESC
         ';
 
         $query = $this->getEntityManager()
