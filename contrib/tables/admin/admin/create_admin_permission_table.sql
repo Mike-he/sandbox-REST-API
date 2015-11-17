@@ -25,3 +25,4 @@ INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDa
 INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.news','新闻管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
 INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.message','消息管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
 INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.building','大楼管理','2015-08-24 00:00:00','2015-08-24 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.verify','审查管理','2015-08-24 00:00:00','2015-08-24 00:00:00');

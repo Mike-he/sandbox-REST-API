@@ -13,6 +13,7 @@ CREATE TABLE `Company` (
   `linkedin` varchar(128) DEFAULT NULL,
   `buildingId` int(11) DEFAULT NULL,
   `creatorId` int(11) NOT NULL,
+  `banned` tinyint(1) NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
