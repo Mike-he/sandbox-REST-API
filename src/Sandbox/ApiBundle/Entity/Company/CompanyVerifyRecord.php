@@ -25,7 +25,7 @@ class CompanyVerifyRecord
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "company_info", "company_limit"})
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -33,7 +33,7 @@ class CompanyVerifyRecord
      * @var int
      *
      * @ORM\Column(name="companyId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main"})
      */
     private $companyId;
 
@@ -44,7 +44,7 @@ class CompanyVerifyRecord
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
      * })
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main"})
      */
     private $company;
 
@@ -52,7 +52,7 @@ class CompanyVerifyRecord
      * @var string
      *
      * @ORM\Column(name="status", type="string", nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_limit"})
+     * @Serializer\Groups({"main", "company_info", "company_limit", "verify"})
      */
     private $status = self::STATUS_PENDING;
 
@@ -60,7 +60,7 @@ class CompanyVerifyRecord
      * @var string
      *
      * @ORM\Column(name="companyInfo", type="text", nullable=false)
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "verify"})
      */
     private $companyInfo;
 
@@ -68,7 +68,7 @@ class CompanyVerifyRecord
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main", "company_info", "company_limit"})
+     * @Serializer\Groups({"main", "verify"})
      */
     private $creationDate;
 
@@ -76,7 +76,7 @@ class CompanyVerifyRecord
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main", "company_info", "company_limit"})
+     * @Serializer\Groups({"main", "verify"})
      */
     private $modificationDate;
 

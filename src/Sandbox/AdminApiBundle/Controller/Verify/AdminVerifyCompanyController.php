@@ -5,12 +5,15 @@ namespace Sandbox\AdminApiBundle\Controller\Verify;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Company\CompanyController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Sandbox\ApiBundle\Entity\Company\CompanyVerifyRecord;
+use Sandbox\ApiBundle\Form\Verify\VerifyCompanyRecordType;
+use Sandbox\ApiBundle\Form\Verify\VerifyCompanyType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -115,6 +118,9 @@ class AdminVerifyCompanyController extends CompanyController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         // get a company
         $company = $this->getRepo('Company\Company')->findOneById($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
@@ -133,40 +139,124 @@ class AdminVerifyCompanyController extends CompanyController
         // set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
-            ->setGroups(array('company_info')));
+            ->setGroups(array('verify')));
 
         return $view;
     }
 
     /**
-     * Banned a company.
+     * Modify a company status.
      *
      * @param Request $request
      * @param int     $id
      *
-     * @Route("/companies/{id}/banned")
-     * @Method({"POST"})
+     * @Route("/companies/{id}")
+     * @Method({"PATCH"})
      *
      * @return View
      *
-     * @throws \Exception
+     * @throw \Exception
      */
-    public function bannedVerifyCompanyAction(
+    public function patchVerifyCompanyStatus(
         Request $request,
         $id
     ) {
-        // get a company
-        $company = $this->getRepo('Company\Company')->findOneById($id);
+        // check user permission
+        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        // get company
+        $company = $this->getRepo('Company\Company')->find($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
-        // check company is not banned
-        if ($company->getBanned()) {
+        //bind data
+        $companyJson = $this->container->get('serializer')->serialize($company, 'json');
+        $patch = new Patch($companyJson, $request->getContent());
+        $companyJson = $patch->apply();
+
+        $form = $this->createForm(new VerifyCompanyType(), $company);
+        $form->submit(json_decode($companyJson, true));
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+
+        if ($company->isBanned()) {
+            $this->handleVerifyCompanyBanned($company, $em);
+        } else {
+            $this->handleVerifyCompanyUnbanned($company);
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * Modify a company verify record status.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/companies/{id}/record")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throw \Exception
+     */
+    public function patchVerifyCompanyRecordStatus(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        // get company
+        $company = $this->getRepo('Company\Company')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        // check banned
+        if (!$company->isBanned()) {
             return new View();
         }
 
-        // banned company
-        $company->setBanned(true);
+        // get company record
+        $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
+        if (is_null($record)) {
+            return new View();
+        }
 
+        //bind data
+        $recordJson = $this->container->get('serializer')->serialize($record, 'json');
+        $patch = new Patch($recordJson, $request->getContent());
+        $recordJson = $patch->apply();
+
+        $form = $this->createForm(new VerifyCompanyRecordType(), $record);
+        $form->submit(json_decode($recordJson, true));
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+
+        if ($record->getStatus() == CompanyVerifyRecord::STATUS_ACCEPTED) {
+            $company->setBanned(false);
+        } elseif ($record->getStatus() == CompanyVerifyRecord::STATUS_REJECTED) {
+            $this->handleVerifyCompanyRecordReject($record);
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * Banned a company.
+     *
+     * @param Company $company
+     * @param         $em
+     */
+    private function handleVerifyCompanyBanned(
+        $company,
+        $em
+    ) {
         $companyInfo = $this->storeCompanyInfo(
             $company
         );
@@ -179,90 +269,35 @@ class AdminVerifyCompanyController extends CompanyController
         $record->setCreationDate($now);
         $record->setModificationDate($now);
 
-        $em = $this->getDoctrine()->getManager();
         $em->persist($record);
-        $em->flush();
-
-        return new View();
     }
 
     /**
      * Unbanned a company.
      *
-     * @param Request $request
-     * @param int     $id
-     *
-     * @Route("/companies/{id}/unbanned")
-     * @Method({"POST"})
-     *
-     * @return View
-     *
-     * @throws \Exception
+     * @param Company $company
      */
-    public function unbannedVerifyCompanyAction(
-        Request $request,
-        $id
+    private function handleVerifyCompanyUnbanned(
+        $company
     ) {
-        // get a company
-        $company = $this->getRepo('Company\Company')->findOneById($id);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
-
-        // check company is banned
-        if (!$company->getBanned()) {
-            return new View();
-        }
-
-        // unbanned company
-        $company->setBanned(false);
-
         $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
         $record->setStatus(CompanyVerifyRecord::STATUS_ACCEPTED);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        return new View();
     }
 
     /**
      * Reject a company modification request.
      *
-     * @param Request $request
-     * @param int     $id
-     *
-     * @Route("/companies/{id}/rejected")
-     * @Method({"POST"})
-     *
-     * @return View
-     *
-     * @throws \Exception
+     * @param CompanyVerifyRecord $record
      */
-    public function rejectVerifyCompanyAction(
-        Request $request,
-        $id
+    private function handleVerifyCompanyRecordReject(
+        $record
     ) {
-        // get a company
-        $company = $this->getRepo('Company\Company')->findOneById($id);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
-
-        // check company is banned
-        if (!$company->getBanned()) {
-            return new View();
-        }
-
-        $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
-
         // check if is updated
         if ($record->getStatus() != CompanyVerifyRecord::STATUS_UPDATED) {
-            return new View();
+            return;
         }
 
         $record->setStatus(CompanyVerifyRecord::STATUS_REJECTED);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        return new View();
     }
 
     /**
@@ -322,7 +357,6 @@ class AdminVerifyCompanyController extends CompanyController
             );
             $memberArray = array(
                 'id' => $member->getId(),
-                'company_id' => $member->getCompanyId(),
                 'profile' => $memberProfileArray,
             );
             array_push($membersArray, $memberArray);

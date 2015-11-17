@@ -18,6 +18,8 @@ class CompanyVerifyRecordRepository extends EntityRepository
         $query = $this->createQueryBuilder('r')
             ->where('r.companyId = :companyId')
             ->andWhere('r.status != :accepted')
+            ->setMaxResults(1)
+            ->orderBy('r.creationDate', 'DESC')
             ->setParameter('companyId', $companyId)
             ->setParameter('accepted', CompanyVerifyRecord::STATUS_ACCEPTED);
 

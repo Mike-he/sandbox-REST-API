@@ -68,7 +68,7 @@ class CompanyMember
     /**
      * @var UserProfile
      *
-     * @Serializer\Groups({"main", "company_info", "company_member_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_member_basic", "verify"})
      */
     private $profile;
 

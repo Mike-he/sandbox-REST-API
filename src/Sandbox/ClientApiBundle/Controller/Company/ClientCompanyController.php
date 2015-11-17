@@ -357,7 +357,7 @@ class ClientCompanyController extends CompanyController
             $company = $results[$i];
 
             // check company banned
-            if ($company->getBanned()) {
+            if ($company->isBanned()) {
                 continue;
             }
 
@@ -415,6 +415,10 @@ class ClientCompanyController extends CompanyController
         // set company all info
         $this->setCompanyAllInfo($company);
 
+        // set verify record
+        $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
+        $company->setCompanyVerifyRecord($record);
+
         // set view
         $view = new View($company);
         $view->setSerializationContext(SerializationContext::create()
@@ -454,6 +458,10 @@ class ClientCompanyController extends CompanyController
 //            }
 //        };
 //        --------------------------->
+
+        // set verify record
+        $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
+        $company->setCompanyVerifyRecord($record);
 
         // set view
         $view = new View($company);
@@ -593,7 +601,7 @@ class ClientCompanyController extends CompanyController
         $company->setModificationDate(new \DateTime('now'));
 
         // check if company banned
-        if ($company->getBanned()) {
+        if ($company->isBanned()) {
             $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
             if (!is_null($record)) {
                 $record->setStatus(CompanyVerifyRecord::STATUS_UPDATED);
