@@ -64,6 +64,11 @@ class ClientPaymentController extends PaymentController
                     $chargeId,
                     $channel
                 );
+                $amount = $this->postConsumeBalance(
+                    $userId,
+                    $price,
+                    $orderNumber
+                );
 
                 break;
             case 'V':
@@ -99,6 +104,11 @@ class ClientPaymentController extends PaymentController
                     $orderNumber,
                     $channel
                 );
+                $amount = $this->postConsumeBalance(
+                    $userId,
+                    $price,
+                    $orderNumber
+                );
 
                 break;
             case 'F':
@@ -108,6 +118,11 @@ class ClientPaymentController extends PaymentController
                     $price,
                     $orderNumber,
                     $channel
+                );
+                $amount = $this->postConsumeBalance(
+                    $userId,
+                    $price,
+                    $orderNumber
                 );
 
                 break;
