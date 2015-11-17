@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
@@ -1183,6 +1184,61 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param int    $orderId
+     * @param string $orderNumber
+     * @param int    $fromUserId
+     * @param array  $receivers
+     * @param string $action
+     */
+    protected function sendXmppInviteAndAppointNotification(
+        $orderId,
+        $orderNumber,
+        $fromUserId,
+        $receivers,
+        $action
+    ) {
+        try {
+            $globals = $this->getGlobals();
+            $domainURL = $globals['xmpp_domain'];
+            $fromUser = $this->getRepo('User\User')->find($fromUserId);
+
+            if (!is_null($fromUser)) {
+                // get receivers
+                $receiversArray = [];
+                foreach ($receivers as $receiverId) {
+                    $recevUser = $this->getRepo('User\User')->find($receiverId);
+                    array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
+                }
+
+                // get order array
+                $orderArray = $this->getOrderArray(
+                    $orderId,
+                    $orderNumber
+                );
+
+                // get content
+                $contentArray = $this->getDefaultContentArray(
+                    ProductOrder::ACTION_TYPE,
+                    $action,
+                    $fromUser,
+                    $orderArray
+                );
+
+                // get message data
+                $jsonData = $this->getNotificationJsonData(
+                    $receiversArray,
+                    $contentArray
+                );
+
+                // send xmpp notification
+                $this->sendXmppNotification($jsonData, true);
+            }
+        } catch (Exception $e) {
+            error_log('Send message notification went wrong!');
+        }
+    }
+
+    /**
      * @param object $jsonData
      * @param bool   $broadcast
      */
@@ -1210,6 +1266,22 @@ class SandboxRestController extends FOSRestController
         } catch (Exception $e) {
             error_log('Send XMPP notification went wrong.');
         }
+    }
+
+    /**
+     * @param int    $orderId
+     * @param string $orderNumber
+     *
+     * @return array
+     */
+    private function getOrderArray(
+        $orderId,
+        $orderNumber
+    ) {
+        return [
+                'id' => $orderId,
+                'order_number' => $orderNumber,
+        ];
     }
 
     /**
@@ -1382,7 +1454,8 @@ class SandboxRestController extends FOSRestController
     private function getDefaultContentArray(
         $type,
         $action,
-        $fromUser = null
+        $fromUser = null,
+        $orderArray = null
     ) {
         $timestamp = round(microtime(true) * 1000);
 
@@ -1395,6 +1468,11 @@ class SandboxRestController extends FOSRestController
         // get fromUserArray
         if (!is_null($fromUser)) {
             $contentArray['from'] = $this->getFromUserArray($fromUser);
+        }
+
+        // get order array
+        if (!is_null($orderArray)) {
+            $contentArray['order'] = $orderArray;
         }
 
         return $contentArray;

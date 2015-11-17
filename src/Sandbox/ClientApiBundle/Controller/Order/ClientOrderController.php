@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -796,9 +797,16 @@ class ClientOrderController extends PaymentController
         $removeUsers = $people['remove'];
 
         $userArray = [];
+        $recvUsers = [];
         if (!empty($users) && !is_null($users)) {
             foreach ($users as $user) {
                 $userId = $user['user_id'];
+
+                // find user
+                $user = $this->getRepo('User\User')->find($userId);
+                $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+
+                // find user in invitedPeople
                 $person = $this->getRepo('Order\InvitedPeople')->findOneBy(
                     [
                         'orderId' => $id,
@@ -814,6 +822,9 @@ class ClientOrderController extends PaymentController
                     $em = $this->getDoctrine()->getManager();
                     $em->persist($people);
                     $em->flush();
+
+                    // set user array for message
+                    array_push($recvUsers, $userId);
                 }
 
                 $this->storeDoorAccess(
@@ -830,6 +841,8 @@ class ClientOrderController extends PaymentController
                     $userArray
                 );
             }
+
+            // set room access
             if (!empty($userArray)) {
                 $this->setRoomOrderAccessIfUserArray(
                     $base,
@@ -837,6 +850,17 @@ class ClientOrderController extends PaymentController
                     $roomDoors,
                     $order,
                     $globals
+                );
+            }
+
+            // send notification to invited users
+            if (!empty($recvUsers)) {
+                $this->sendXmppInviteAndAppointNotification(
+                    $order->getId(),
+                    $order->getOrderNumber(),
+                    $order->getUserId(),
+                    $recvUsers,
+                    ProductOrder::ACTION_INVITE
                 );
             }
         }
@@ -1016,6 +1040,10 @@ class ClientOrderController extends PaymentController
         $orderUser = $order->getUserId();
 
         if (!is_null($newUser) && !empty($newUser)) {
+            // find user
+            $user = $this->getRepo('User\User')->find($newUser);
+            $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+
             $userArray = [];
             $order->setAppointed($newUser);
             $order->setModificationDate(new \DateTime());
@@ -1037,6 +1065,7 @@ class ClientOrderController extends PaymentController
                 $userArray
             );
 
+            // set room access
             if (!empty($userArray)) {
                 $this->setRoomOrderAccessIfUserArray(
                     $base,
@@ -1046,6 +1075,16 @@ class ClientOrderController extends PaymentController
                     $globals
                 );
             }
+
+            // send notification to new user
+            $this->sendXmppInviteAndAppointNotification(
+                $order->getId(),
+                $order->getOrderNumber(),
+                $orderUser,
+                [$newUser],
+                ProductOrder::ACTION_APPOINT
+            );
+
             if (!is_null($currentUser) && !empty($currentUser) && $currentUser != 0) {
                 $this->removeUserAccess(
                     $id,
