@@ -1596,7 +1596,9 @@ class SandboxRestController extends FOSRestController
             'name' => $event->getName(),
         );
 
-        return $this->getNotificationJsonData($receivers, $contentArray);
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     //---------------------------------------- XMPP User ----------------------------------------//
