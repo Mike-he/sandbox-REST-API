@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Event\Event;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
@@ -1126,6 +1127,31 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param User   $recvUser
+     * @param Event  $event
+     * @param string $action
+     */
+    protected function sendXmppEventNotification(
+        $recvUser,
+        $event,
+        $action
+    ) {
+        try {
+            // get event message data
+            $jsonData = $this->getEventNotificationJsonData(
+                $action,
+                $recvUser,
+                $event
+            );
+
+            // send xmpp notification
+            $this->sendXmppNotification($jsonData, false);
+        } catch (Exception $e) {
+            error_log('Send event registration accept notification went wrong!');
+        }
+    }
+
+    /**
      * @param string $body
      */
     protected function sendXmppMessageNotification(
@@ -1438,6 +1464,42 @@ class SandboxRestController extends FOSRestController
         }
 
         return json_encode($jsonDataArray);
+    }
+
+    /**
+     * @param string $action
+     * @param User   $recvUser
+     * @param Event  $event
+     *
+     * @return object|string
+     */
+    private function getEventNotificationJsonData(
+        $action,
+        $recvUser,
+        $event
+    ) {
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $domainURL = $globals['xmpp_domain'];
+
+        // get receivers
+        $receivers = array(
+            array('jid' => $recvUser->getXmppUsername().'@'.$domainURL),
+        );
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            'event', $action
+        );
+
+        $contentArray['event'] = array(
+            'id' => $event->getId(),
+            'name' => $event->getName(),
+        );
+
+        return $this->getNotificationJsonData($receivers, $contentArray);
     }
 
     //---------------------------------------- XMPP User ----------------------------------------//

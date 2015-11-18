@@ -9,8 +9,8 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
-use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
+use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -18,6 +18,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Class AdminEventRegistrationController.
@@ -99,6 +100,14 @@ class AdminEventRegistrationController extends SandboxRestController
 
             $em = $this->getDoctrine()->getManager();
             $em->flush();
+
+            if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
+                $this->sendXmppEventNotification(
+                    $user,
+                    $registration->getEvent(),
+                    EventRegistration::ACTION_ACCEPT
+                );
+            }
         }
 
         return new View();
