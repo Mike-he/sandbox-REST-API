@@ -25,6 +25,7 @@ use JMS\Serializer\Annotation as Serializer;
 class User implements UserInterface
 {
     const XMPP_SERVICE = 'service';
+    const ERROR_NOT_FOUND = 'User Not Found';
 
     /**
      * @var int

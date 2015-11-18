@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
@@ -1183,6 +1184,37 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param int    $orderId
+     * @param string $orderNumber
+     * @param int    $fromUserId
+     * @param array  $receivers
+     * @param string $action
+     */
+    protected function sendXmppProductOrderNotification(
+        $orderId,
+        $orderNumber,
+        $receivers,
+        $action,
+        $fromUserId = null
+    ) {
+        try {
+            // get notification data
+            $jsonData = $this->getProductOrderNotificationJsonData(
+                $orderId,
+                $orderNumber,
+                $fromUserId,
+                $receivers,
+                $action
+            );
+
+            // send xmpp notification
+            $this->sendXmppNotification($jsonData, true);
+        } catch (Exception $e) {
+            error_log('Send message notification went wrong!');
+        }
+    }
+
+    /**
      * @param object $jsonData
      * @param bool   $broadcast
      */
@@ -1210,6 +1242,61 @@ class SandboxRestController extends FOSRestController
         } catch (Exception $e) {
             error_log('Send XMPP notification went wrong.');
         }
+    }
+
+    /**
+     * @param int    $orderId
+     * @param string $orderNumber
+     *
+     * @return array
+     */
+    private function getOrderArray(
+        $orderId,
+        $orderNumber
+    ) {
+        return [
+                'id' => $orderId,
+                'order_number' => $orderNumber,
+        ];
+    }
+
+    /**
+     * @param Announcement $announcement
+     * @param string       $action
+     *
+     * @return string | object
+     */
+    private function getProductOrderNotificationJsonData(
+        $orderId,
+        $orderNumber,
+        $fromUserId,
+        $receivers,
+        $action
+    ) {
+        $globals = $this->getGlobals();
+        $domainURL = $globals['xmpp_domain'];
+        $fromUser = $this->getRepo('User\User')->find($fromUserId);
+
+        // get receivers array
+        $receiversArray = [];
+        foreach ($receivers as $receiverId) {
+            $recevUser = $this->getRepo('User\User')->find($receiverId);
+            array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
+        }
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            ProductOrder::ACTION_TYPE,
+            $action,
+            $fromUser
+        );
+
+        // get order array
+        $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
+
+        $data = $this->getNotificationJsonData($receiversArray, $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1263,7 +1350,9 @@ class SandboxRestController extends FOSRestController
             'buddy', $action, $fromUser
         );
 
-        return $this->getNotificationJsonData($receivers, $contentArray);
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1319,7 +1408,9 @@ class SandboxRestController extends FOSRestController
             'name' => $company->getName(),
         );
 
-        return $this->getNotificationJsonData($receivers, $contentArray);
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1369,7 +1460,9 @@ class SandboxRestController extends FOSRestController
             );
         }
 
-        return $this->getNotificationJsonData($receivers, $contentArray);
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1437,7 +1530,7 @@ class SandboxRestController extends FOSRestController
             'content' => $contentArray,
         );
 
-        return json_encode($jsonDataArray);
+        return $jsonDataArray;
     }
 
     /**
@@ -1499,7 +1592,9 @@ class SandboxRestController extends FOSRestController
             'name' => $event->getName(),
         );
 
-        return $this->getNotificationJsonData($receivers, $contentArray);
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     //---------------------------------------- XMPP User ----------------------------------------//
