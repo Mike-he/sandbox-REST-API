@@ -278,7 +278,7 @@ class FeedRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('f')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'f.ownerId = up.userId')
             ->where('up.name LIKE :query')
-            ->andWhere('f.visible = false')
+            ->andWhere('f.visible = true')
             ->setParameter('query', $query.'%')
             ->orderBy('f.creationDate', 'DESC');
 
