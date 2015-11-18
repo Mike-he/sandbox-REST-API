@@ -855,7 +855,7 @@ class ClientOrderController extends PaymentController
 
             // send notification to invited users
             if (!empty($recvUsers)) {
-                $this->sendXmppInviteAndAppointNotification(
+                $this->sendXmppProductOrderNotification(
                     $order->getId(),
                     $order->getOrderNumber(),
                     $order->getUserId(),
@@ -1077,7 +1077,7 @@ class ClientOrderController extends PaymentController
             }
 
             // send notification to new user
-            $this->sendXmppInviteAndAppointNotification(
+            $this->sendXmppProductOrderNotification(
                 $order->getId(),
                 $order->getOrderNumber(),
                 $orderUser,
