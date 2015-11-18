@@ -107,7 +107,7 @@ class AdminEventRegistrationController extends SandboxRestController
                 $this->sendXmppEventRisgtrationAcceptNotification(
                     $user,
                     $registration->getEvent(),
-                    'registration_accept'
+                    EventRegistration::ACTION_ACCEPT
                 );
             }
         }
