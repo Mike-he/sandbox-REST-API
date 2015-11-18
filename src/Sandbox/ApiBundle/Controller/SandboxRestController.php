@@ -1193,14 +1193,13 @@ class SandboxRestController extends FOSRestController
     protected function sendXmppProductOrderNotification(
         $orderId,
         $orderNumber,
-        $fromUserId,
         $receivers,
-        $action
+        $action,
+        $fromUserId = null
     ) {
         try {
-
             // get notification data
-            $jsonData = $this->getInviteAndAppointNotificationJsonData(
+            $jsonData = $this->getProductOrderNotificationJsonData(
                 $orderId,
                 $orderNumber,
                 $fromUserId,
@@ -1267,7 +1266,7 @@ class SandboxRestController extends FOSRestController
      *
      * @return string | object
      */
-    private function getInviteAndAppointNotificationJsonData(
+    private function getProductOrderNotificationJsonData(
         $orderId,
         $orderNumber,
         $fromUserId,
@@ -1278,25 +1277,22 @@ class SandboxRestController extends FOSRestController
         $domainURL = $globals['xmpp_domain'];
         $fromUser = $this->getRepo('User\User')->find($fromUserId);
 
+        // get receivers array
         $receiversArray = [];
-        $contentArray = [];
-        if (!is_null($fromUser)) {
-            // get receivers
-            foreach ($receivers as $receiverId) {
-                $recevUser = $this->getRepo('User\User')->find($receiverId);
-                array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
-            }
-
-            // get content array
-            $contentArray = $this->getDefaultContentArray(
-                ProductOrder::ACTION_TYPE,
-                $action,
-                $fromUser
-            );
-
-            // get order array
-            $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
+        foreach ($receivers as $receiverId) {
+            $recevUser = $this->getRepo('User\User')->find($receiverId);
+            array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
         }
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            ProductOrder::ACTION_TYPE,
+            $action,
+            $fromUser
+        );
+
+        // get order array
+        $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
 
         $data = $this->getNotificationJsonData($receiversArray, $contentArray);
 

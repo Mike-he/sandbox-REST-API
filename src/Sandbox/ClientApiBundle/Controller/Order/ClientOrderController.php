@@ -858,9 +858,9 @@ class ClientOrderController extends PaymentController
                 $this->sendXmppProductOrderNotification(
                     $order->getId(),
                     $order->getOrderNumber(),
-                    $order->getUserId(),
                     $recvUsers,
-                    ProductOrder::ACTION_INVITE
+                    ProductOrder::ACTION_INVITE,
+                    $order->getUserId()
                 );
             }
         }
@@ -1080,9 +1080,9 @@ class ClientOrderController extends PaymentController
             $this->sendXmppProductOrderNotification(
                 $order->getId(),
                 $order->getOrderNumber(),
-                $orderUser,
                 [$newUser],
-                ProductOrder::ACTION_APPOINT
+                ProductOrder::ACTION_APPOINT,
+                $orderUser
             );
 
             if (!is_null($currentUser) && !empty($currentUser) && $currentUser != 0) {
