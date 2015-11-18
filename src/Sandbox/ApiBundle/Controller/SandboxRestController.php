@@ -1131,14 +1131,14 @@ class SandboxRestController extends FOSRestController
      * @param Event  $event
      * @param string $action
      */
-    protected function sendXmppEventRisgtrationAcceptNotification(
+    protected function sendXmppEventNotification(
         $recvUser,
         $event,
         $action
     ) {
         try {
             // get event message data
-            $jsonData = $this->generateEventRegistrationAcceptNotificationJsonData(
+            $jsonData = $this->getEventNotificationJsonData(
                 $action,
                 $recvUser,
                 $event
@@ -1473,7 +1473,7 @@ class SandboxRestController extends FOSRestController
      *
      * @return object|string
      */
-    private function generateEventRegistrationAcceptNotificationJsonData(
+    private function getEventNotificationJsonData(
         $action,
         $recvUser,
         $event
@@ -1493,12 +1493,11 @@ class SandboxRestController extends FOSRestController
         $contentArray = $this->getDefaultContentArray(
             'event', $action
         );
-        if (!is_null($event)) {
-            $contentArray['event'] = array(
-                'id' => $event->getId(),
-                'name' => $event->getName(),
-            );
-        }
+
+        $contentArray['event'] = array(
+            'id' => $event->getId(),
+            'name' => $event->getName(),
+        );
 
         return $this->getNotificationJsonData($receivers, $contentArray);
     }

@@ -102,7 +102,7 @@ class AdminEventRegistrationController extends SandboxRestController
             $em->flush();
 
             if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
-                $this->sendXmppEventRisgtrationAcceptNotification(
+                $this->sendXmppEventNotification(
                     $user,
                     $registration->getEvent(),
                     EventRegistration::ACTION_ACCEPT
