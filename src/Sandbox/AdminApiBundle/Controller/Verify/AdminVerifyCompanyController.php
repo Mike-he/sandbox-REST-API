@@ -89,6 +89,16 @@ class AdminVerifyCompanyController extends CompanyController
         foreach ($companies as $company) {
             $profile = $this->getRepo('User\UserProfile')->findOneByUserId($company->getCreatorId());
             $company->setCreatorProfile($profile);
+
+            // set company verify record
+            $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
+            if (is_null($record)) {
+                continue;
+            }
+            $recordStatusArray = array(
+                'status' => $record->getStatus(),
+            );
+            $company->setCompanyVerifyRecord($recordStatusArray);
         }
 
         $paginator = new Paginator();
