@@ -1353,7 +1353,7 @@ class SandboxRestController extends FOSRestController
      *
      * @return array
      */
-    private function getDefaultContentArray(
+    protected function getDefaultContentArray(
         $type,
         $action,
         $fromUser = null
@@ -1402,7 +1402,7 @@ class SandboxRestController extends FOSRestController
      *
      * @return string | object
      */
-    private function getNotificationJsonData(
+    protected function getNotificationJsonData(
         $receivers,
         $contentArray
     ) {

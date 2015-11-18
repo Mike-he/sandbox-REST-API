@@ -11,13 +11,16 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
+use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPatchType;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Class AdminEventRegistrationController.
@@ -99,6 +102,14 @@ class AdminEventRegistrationController extends SandboxRestController
 
             $em = $this->getDoctrine()->getManager();
             $em->flush();
+
+            if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
+                $this->sendXmppEventRisgtrationAcceptNotification(
+                    $user,
+                    $registration->getEvent(),
+                    'registration_accept'
+                );
+            }
         }
 
         return new View();
@@ -324,6 +335,68 @@ class AdminEventRegistrationController extends SandboxRestController
         }
 
         return array();
+    }
+
+    /**
+     * @param User   $recvUser
+     * @param Event  $event
+     * @param string $action
+     */
+    private function sendXmppEventRisgtrationAcceptNotification(
+        $recvUser,
+        $event,
+        $action
+    ) {
+        try {
+            // get event message data
+            $jsonData = $this->generateEventRegistrationAcceptNotificationJsonData(
+                $action,
+                $recvUser,
+                $event
+            );
+
+            // send xmpp notification
+            $this->sendXmppNotification($jsonData, false);
+        } catch (Exception $e) {
+            error_log('Send event registration accept notification went wrong!');
+        }
+    }
+
+    /**
+     * @param string $action
+     * @param User   $recvUser
+     * @param Event  $event
+     *
+     * @return object|string
+     */
+    private function generateEventRegistrationAcceptNotificationJsonData(
+        $action,
+        $recvUser,
+        $event
+    ) {
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $domainURL = $globals['xmpp_domain'];
+
+        // get receivers
+        $receivers = array(
+            array('jid' => $recvUser->getXmppUsername().'@'.$domainURL),
+        );
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            'event', $action
+        );
+        if (!is_null($event)) {
+            $contentArray['event'] = array(
+                'id' => $event->getId(),
+                'name' => $event->getName(),
+            );
+        }
+
+        return $this->getNotificationJsonData($receivers, $contentArray);
     }
 
     /**
