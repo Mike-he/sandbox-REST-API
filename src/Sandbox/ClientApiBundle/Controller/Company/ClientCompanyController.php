@@ -136,14 +136,14 @@ class ClientCompanyController extends CompanyController
         $myProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $this->throwNotFoundIfNull($myProfile, self::NOT_FOUND_MESSAGE);
 
+        // TODO change to $myProfile->getBuilding()
+        // for some reason, now this is not working in my local environment
+        //var_dump($myProfile->getBuilding());
+
         // get my building
         $buildingId = $myProfile->getBuildingId();
         if (is_null($buildingId)) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_BUILDING_NOT_SET_CODE,
-                self::ERROR_BUILDING_NOT_SET_MESSAGE
-            );
+            return new View(array());
         }
 
         // get my profile
