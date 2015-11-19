@@ -313,7 +313,8 @@ class ClientBuddyController extends BuddyController
                 $buddyProfile = $this->getContactBuddyProfile($buddy, $myUser);
 
                 if (!is_null($buddyProfile) && !empty($buddyProfile)) {
-                    array_push($contactBuddies, $buddyProfile);
+                    $matchArray = array_merge($contact, $buddyProfile);
+                    array_push($contactBuddies, $matchArray);
                 }
             }
 
@@ -325,7 +326,8 @@ class ClientBuddyController extends BuddyController
                 $buddyProfile = $this->getContactBuddyProfile($buddy, $myUser);
 
                 if (!is_null($buddyProfile) && !empty($buddyProfile)) {
-                    array_push($contactBuddies, $buddyProfile);
+                    $matchArray = array_merge($contact, $buddyProfile);
+                    array_push($contactBuddies, $matchArray);
                 }
             }
         }
