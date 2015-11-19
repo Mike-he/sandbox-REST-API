@@ -17,7 +17,7 @@ class NewsRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('n')
-            ->where('n.visible = true');
+            ->where('n.isDeleted = FALSE');
 
         $query->orderBy('n.creationDate', 'DESC')
             ->setFirstResult($offset)
@@ -32,7 +32,7 @@ class NewsRepository extends EntityRepository
     public function getAllAdminNews()
     {
         $query = $this->createQueryBuilder('n')
-            ->where('n.visible = TRUE')
+            ->where('n.isDeleted = FALSE')
             ->orderBy('n.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
