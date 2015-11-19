@@ -175,7 +175,7 @@ class LocationController extends SandboxRestController
      *    name="lat",
      *    array=false,
      *    default=null,
-     *    requirements="-?\d+",
+     *    requirements="-?\d+(\.\d+)",
      *    strict=true,
      *    description="coordinate lat"
      * )
@@ -184,7 +184,7 @@ class LocationController extends SandboxRestController
      *    name="lng",
      *    array=false,
      *    default=null,
-     *    requirements="-?\d+",
+     *    requirements="-?\d+(\.\d+)",
      *    strict=true,
      *    description="coordinate lng"
      * )
@@ -200,8 +200,8 @@ class LocationController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $lat = (int) $paramFetcher->get('lat');
-        $lng = (int) $paramFetcher->get('lng');
+        $lat = $paramFetcher->get('lat');
+        $lng = $paramFetcher->get('lng');
         $globals = $this->getGlobals();
         $range = $globals['nearby_range_km'];
 
