@@ -175,7 +175,7 @@ class LocationController extends SandboxRestController
      *    name="lat",
      *    array=false,
      *    default=null,
-     *    requirements="-?\d+(\.\d+)",
+     *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="coordinate lat"
      * )
@@ -184,7 +184,7 @@ class LocationController extends SandboxRestController
      *    name="lng",
      *    array=false,
      *    default=null,
-     *    requirements="-?\d+(\.\d+)",
+     *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="coordinate lng"
      * )
