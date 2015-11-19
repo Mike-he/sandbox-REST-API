@@ -1170,11 +1170,13 @@ class SandboxRestController extends FOSRestController
             ];
 
             // get message data
-            $jsonData = $this->getNotificationBroadcastJsonData(
+            $data = $this->getNotificationBroadcastJsonData(
                 array(),
                 null,
                 $messageArray
             );
+
+            $jsonData = json_encode(array($data));
 
             // send xmpp notification
             $this->sendXmppNotification($jsonData, true);
@@ -1319,7 +1321,9 @@ class SandboxRestController extends FOSRestController
             'title' => $announcement->getTitle(),
         );
 
-        return $this->getNotificationBroadcastJsonData(array(), $contentArray);
+        $data = $this->getNotificationBroadcastJsonData(array(), $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1518,26 +1522,30 @@ class SandboxRestController extends FOSRestController
     /**
      * @param array $receivers
      * @param array $contentArray
+     * @param array $messageArray
      *
-     * @return string | object
+     * @return array
      */
     private function getNotificationJsonData(
         $receivers,
-        $contentArray
+        $contentArray = null,
+        $messageArray = null
     ) {
-        $jsonDataArray = array(
-            'receivers' => $receivers,
-            'content' => $contentArray,
-        );
+        $jsonDataArray = array('receivers' => $receivers);
 
-        return $jsonDataArray;
+        return $this->setJsonDataArrayBody(
+            $jsonDataArray,
+            $contentArray,
+            $messageArray
+        );
     }
 
     /**
      * @param array $outcasts
      * @param array $contentArray
+     * @param array $messageArray
      *
-     * @return string | object
+     * @return array
      */
     private function getNotificationBroadcastJsonData(
         $outcasts,
@@ -1546,6 +1554,25 @@ class SandboxRestController extends FOSRestController
     ) {
         $jsonDataArray = array('outcasts' => $outcasts);
 
+        return $this->setJsonDataArrayBody(
+            $jsonDataArray,
+            $contentArray,
+            $messageArray
+        );
+    }
+
+    /**
+     * @param array $jsonDataArray
+     * @param array $contentArray
+     * @param array $messageArray
+     *
+     * @return array
+     */
+    private function setJsonDataArrayBody(
+        $jsonDataArray,
+        $contentArray,
+        $messageArray
+    ) {
         // check content array
         if (!is_null($contentArray)) {
             $jsonDataArray['content'] = $contentArray;
@@ -1556,7 +1583,7 @@ class SandboxRestController extends FOSRestController
             $jsonDataArray['message'] = $messageArray;
         }
 
-        return json_encode($jsonDataArray);
+        return $jsonDataArray;
     }
 
     /**
