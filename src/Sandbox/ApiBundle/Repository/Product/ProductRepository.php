@@ -252,32 +252,33 @@ class ProductRepository extends EntityRepository
             $query = $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
                 ->andWhere(
-                    'p.id NOT IN (
-                        SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
-                        WHERE po.status <> \'cancelled\'
-                        AND po.productId <> \'null\'
-                        AND
-                        (
-                            (po.startDate <= :startDate AND po.endDate > :startDate) OR
-                            (po.startDate < :endDate AND po.endDate >= :endDate) OR
-                            (po.startDate >= :startDate AND po.endDate <= :endDate)
+                    '(
+                        p.id NOT IN (
+                            SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
+                            WHERE po.status <> \'cancelled\'
+                            AND po.productId <> \'null\'
+                            AND
+                            (
+                                (po.startDate <= :startDate AND po.endDate > :startDate) OR
+                                (po.startDate < :endDate AND po.endDate >= :endDate) OR
+                                (po.startDate >= :startDate AND po.endDate <= :endDate)
+                            )
                         )
-                    )'
-                )
-                ->orWhere(
-                    'p.id IN (
-                        SELECT o.productId FROM SandboxApiBundle:Order\ProductOrder o
-                        WHERE o.status <> \'cancelled\'
-                        AND r.type = \'flexible\'
-                        AND o.productId <> \'null\'
-                        AND
-                        (
-                            (o.startDate <= :startDate AND o.endDate > :startDate) OR
-                            (o.startDate < :endDate AND o.endDate >= :endDate) OR
-                            (o.startDate >= :startDate AND o.endDate <= :endDate)
+                        OR
+                        p.id IN (
+                            SELECT o.productId FROM SandboxApiBundle:Order\ProductOrder o
+                            WHERE o.status <> \'cancelled\'
+                            AND r.type = \'flexible\'
+                            AND o.productId <> \'null\'
+                            AND
+                            (
+                                (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                                (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                                (o.startDate >= :startDate AND o.endDate <= :endDate)
+                            )
+                            GROUP BY o.productId
+                            HAVING COUNT(o.productId) < r.allowedPeople
                         )
-                        GROUP BY o.productId
-                        HAVING COUNT(o.productId) < r.allowedPeople
                     )'
                 )
                 ->setParameter('startDate', $startDate)

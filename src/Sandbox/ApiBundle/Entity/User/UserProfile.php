@@ -60,7 +60,8 @@ class UserProfile
      *      "feed",
      *      "company_member_basic",
      *      "company_info",
-     *      "chatgroup"
+     *      "chatgroup",
+     *      "verify"
      *  }
      * )
      */
@@ -84,7 +85,8 @@ class UserProfile
      *      "company_member_basic",
      *      "company_info",
      *      "client",
-     *      "chatgroup"
+     *      "chatgroup",
+     *      "verify"
      *  }
      * )
      */

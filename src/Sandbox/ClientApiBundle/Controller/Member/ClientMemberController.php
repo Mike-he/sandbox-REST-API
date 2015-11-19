@@ -213,11 +213,7 @@ class ClientMemberController extends MemberController
         // get my building
         $buildingId = $myProfile->getBuildingId();
         if (is_null($buildingId)) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_BUILDING_NOT_SET_CODE,
-                self::ERROR_BUILDING_NOT_SET_MESSAGE
-            );
+            return new View(array());
         }
 
         // get my profile

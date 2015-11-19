@@ -252,7 +252,7 @@ class ClientChatGroupController extends ChatGroupController
         $chatGroupArray['members'] = $membersArray;
 
         // set view
-        $view = new View(array($chatGroupArray));
+        $view = new View($chatGroupArray);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('chatgroup')));
 
         return $view;

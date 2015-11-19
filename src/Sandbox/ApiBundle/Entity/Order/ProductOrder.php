@@ -24,6 +24,10 @@ class ProductOrder
     const CHANNEL_UNIONPAY = '银联付款';
     const CHANNEL_ACCOUNT = '账户余额';
 
+    const ACTION_TYPE = 'product_order';
+    const ACTION_INVITE = 'invite';
+    const ACTION_APPOINT = 'appoint';
+
     /**
      * @var int
      *

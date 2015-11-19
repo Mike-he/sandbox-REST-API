@@ -32,10 +32,11 @@ class FeedRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('f')
             ->select('f')
-            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
+            ->where('f.visible = true');
 
         // filter by user banned
-        $query->where('u.banned = FALSE');
+        $query->andWhere('u.banned = FALSE');
 
         // filter by type
         if (!is_null($lastId)) {
@@ -75,7 +76,7 @@ class FeedRepository extends EntityRepository
 
         // get my buddy ids
         $query = $this->getEntityManager()
-            ->createQueryBuilder()
+            ->createQueryBuilder('f')
             ->select('
                 b.buddyId
             ')
@@ -83,6 +84,7 @@ class FeedRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'b.buddyId = u.id')
             ->where('b.userId = :userId')
             ->andWhere('u.banned = FALSE')
+            ->andWhere('f.visible = true')
             ->setParameter('userId', $userId);
         $buddyIds = $query->getQuery()->getResult();
 
@@ -139,10 +141,11 @@ class FeedRepository extends EntityRepository
         $query = $this->createQueryBuilder('f')
             ->select('f')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = f.ownerId')
-            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
+            ->where('f.visible = true');
 
         // filter by user banned
-        $query->where('u.banned = FALSE');
+        $query->andWhere('u.banned = FALSE');
 
         // filter by my building
         $query->andwhere('up.buildingId = :buildingId');
@@ -201,10 +204,11 @@ class FeedRepository extends EntityRepository
         $query = $this->createQueryBuilder('f')
             ->select('f')
             ->leftJoin('SandboxApiBundle:Company\CompanyMember', 'cm', 'WITH', 'cm.userId = f.ownerId')
-            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id');
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
+            ->where('f.visible = true');
 
         // filter by user banned
-        $query->where('u.banned = FALSE');
+        $query->andWhere('u.banned = FALSE');
 
         // filter by my companies
         $query->andwhere('cm.companyId IN (:companyIds)');
@@ -243,6 +247,7 @@ class FeedRepository extends EntityRepository
         $query = $this->createQueryBuilder('f')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
             ->where('f.ownerId = :myUserId')
+            ->andWhere('f.visible = true')
             ->setParameter('myUserId', $userId);
 
         // filter by user banned
@@ -260,5 +265,23 @@ class FeedRepository extends EntityRepository
         $query->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param string $query
+     *
+     * @return array
+     */
+    public function getVerifyFeeds(
+        $query
+    ) {
+        $queryBuilder = $this->createQueryBuilder('f')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'f.ownerId = up.userId')
+            ->where('up.name LIKE :query')
+            ->andWhere('f.visible = TRUE')
+            ->setParameter('query', $query.'%')
+            ->orderBy('f.creationDate', 'DESC');
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }

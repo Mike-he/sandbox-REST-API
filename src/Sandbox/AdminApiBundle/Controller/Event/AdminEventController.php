@@ -45,7 +45,11 @@ class AdminEventController extends SandboxRestController
     const ERROR_INVALID_LIMIT_NUMBER_CODE = 400003;
     const ERROR_INVALID_LIMIT_NUMBER_MESSAGE = 'Invalid limit number';
     const ERROR_INVALID_REGISTRATION_DATE_CODE = 400004;
-    const ERROR_INVALID_REGISTRATION_DATE_MESSAGE = 'Invalid registration date';
+    const ERROR_INVALID_REGISTRATION_DATE_MESSAGE = 'Registration start date should before registration end date';
+    const ERROR_INVALID_EVENT_START_DATE_COED = 400005;
+    const ERROR_INVALID_EVENT_START_DATE_MESSAGE = 'Registration end date should before event start date';
+    const ERROR_INVALID_EVENT_TIME_CODE = 400006;
+    const ERROR_INVALID_EVENT_TIME_MESSAGE = 'Event start time should before event end time';
 
     const ERROR_ROOM_INVALID = 'Invalid room';
 
@@ -356,6 +360,8 @@ class AdminEventController extends SandboxRestController
         $registrationStartDate->setTime(00, 00, 00);
         $registrationEndDate->setTime(23, 59, 59);
 
+        $eventStartDate = $this->getEventStartDate($dates);
+
         // check registration date is valid
         if ($registrationStartDate > $registrationEndDate) {
             return $this->customErrorView(
@@ -363,6 +369,30 @@ class AdminEventController extends SandboxRestController
                 self::ERROR_INVALID_REGISTRATION_DATE_CODE,
                 self::ERROR_INVALID_REGISTRATION_DATE_MESSAGE
             );
+        }
+
+        // check registration end date is before event date
+        if ($registrationEndDate > $eventStartDate) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_EVENT_START_DATE_COED,
+                self::ERROR_INVALID_EVENT_START_DATE_MESSAGE
+            );
+        }
+
+        // check event start time and end time
+        if (!is_null($dates) && !empty($dates)) {
+            foreach ($dates as $date) {
+                foreach ($date['times'] as $time) {
+                    if ($time['start_time'] >= $time['end_time']) {
+                        return $this->customErrorView(
+                            400,
+                            self::ERROR_INVALID_EVENT_TIME_CODE,
+                            self::ERROR_INVALID_EVENT_TIME_MESSAGE
+                        );
+                    }
+                }
+            }
         }
 
         // check limit number is valid
@@ -742,6 +772,30 @@ class AdminEventController extends SandboxRestController
             }
         }
         $em->flush();
+    }
+
+    /**
+     * @param $dates
+     *
+     * @return \Datetime
+     */
+    private function getEventStartDate(
+        $dates
+    ) {
+        if (!is_null($dates) && !empty($dates)) {
+            $minDate = min($dates);
+
+            $timeArray = array();
+            foreach ($minDate['times'] as $time) {
+                array_push($timeArray, $time['start_time']);
+            }
+            $minTime = min($timeArray);
+            $eventStartDate = new \DateTime($minDate['date'].' '.$minTime);
+
+            return $eventStartDate;
+        }
+
+        return new \DateTime();
     }
 
     /**

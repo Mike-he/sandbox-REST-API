@@ -34,7 +34,8 @@ class Company
      *      "profile_stranger",
      *      "profile_basic",
      *      "profile_basic_stranger",
-     *      "company_invitation"
+     *      "company_invitation",
+     *      "verify"
      * })
      */
     private $id;
@@ -54,7 +55,8 @@ class Company
      *      "profile_stranger",
      *      "profile_basic",
      *      "profile_basic_stranger",
-     *      "company_invitation"
+     *      "company_invitation",
+     *      "verify"
      * })
      */
     private $name;
@@ -67,7 +69,8 @@ class Company
      *      "main",
      *      "company_info",
      *      "company_basic",
-     *      "company_limit"
+     *      "company_limit",
+     *      "verify"
      * })
      */
     private $description;
@@ -80,7 +83,8 @@ class Company
      *      "main",
      *      "company_info",
      *      "company_basic",
-     *      "company_limit"
+     *      "company_limit",
+     *      "verify"
      * })
      */
     private $address;
@@ -89,7 +93,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "verify"})
      */
     private $phone;
 
@@ -97,7 +101,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="fax", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "verify"})
      */
     private $fax;
 
@@ -105,7 +109,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "verify"})
      */
     private $email;
 
@@ -113,7 +117,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="website", type="string", length=256, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "verify"})
      */
     private $website;
 
@@ -121,7 +125,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="sinaWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "verify"})
      */
     private $sinaWeibo;
 
@@ -129,7 +133,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="tencentWeibo", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "verify"})
      */
     private $tencentWeibo;
 
@@ -137,7 +141,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="facebook", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "verify"})
      */
     private $facebook;
 
@@ -145,7 +149,7 @@ class Company
      * @var string
      *
      * @ORM\Column(name="linkedin", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "company_info", "company_basic"})
+     * @Serializer\Groups({"main", "company_info", "company_basic", "verify"})
      */
     private $linkedin;
 
@@ -184,15 +188,30 @@ class Company
      * @var int
      *
      * @ORM\Column(name="creatorId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "company_info","company_limit"})
+     * @Serializer\Groups({"main", "company_info", "company_limit"})
      */
     private $creatorId;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "company_info", "verify"})
+     */
+    private $creatorProfile;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="banned", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "company_limit", "company_info", "verify"})
+     */
+    private $banned = false;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "verify"})
      */
     private $creationDate;
 
@@ -200,30 +219,37 @@ class Company
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "verify"})
      */
     private $modificationDate;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "company_info", "verify"})
      */
     private $industries;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "company_info", "verify"})
      */
     private $portfolios;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "company_info"})
+     * @Serializer\Groups({"main", "company_info", "verify"})
      */
     private $members;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "company_info", "company_limit", "verify"})
+     */
+    private $companyVerifyRecord;
 
     /**
      * Get id.
@@ -670,5 +696,77 @@ class Company
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+    }
+
+    /**
+     * Set creator profile.
+     *
+     * @param $creatorProfile
+     *
+     * @return Company
+     */
+    public function setCreatorProfile($creatorProfile)
+    {
+        $this->creatorProfile = $creatorProfile;
+
+        return $this;
+    }
+
+    /**
+     * Get creator profile.
+     *
+     * @return array
+     */
+    public function getCreatorProfile()
+    {
+        return $this->creatorProfile;
+    }
+
+    /**
+     * Set banned.
+     *
+     * @param bool $banned
+     *
+     * @return Company
+     */
+    public function setBanned($banned)
+    {
+        $this->banned = $banned;
+
+        return $this;
+    }
+
+    /**
+     * Get banned.
+     *
+     * @return bool
+     */
+    public function isBanned()
+    {
+        return $this->banned;
+    }
+
+    /**
+     * Set company verify record.
+     *
+     * @param $companyVerifyRecord
+     *
+     * @return Company
+     */
+    public function setCompanyVerifyRecord($companyVerifyRecord)
+    {
+        $this->companyVerifyRecord = $companyVerifyRecord;
+
+        return $this;
+    }
+
+    /**
+     * Get company verify record.
+     *
+     * @return array
+     */
+    public function getCompanyVerifyRecord()
+    {
+        return $this->companyVerifyRecord;
     }
 }

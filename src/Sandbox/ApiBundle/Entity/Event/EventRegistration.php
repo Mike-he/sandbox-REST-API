@@ -16,6 +16,8 @@ class EventRegistration
     const STATUS_ACCEPTED = 'accepted';
     const STATUS_REJECTED = 'rejected';
 
+    const ACTION_ACCEPT = 'registration_accept';
+
     /**
      * @var int
      *

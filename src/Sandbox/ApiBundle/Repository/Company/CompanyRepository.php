@@ -34,7 +34,8 @@ class CompanyRepository extends EntityRepository
 
         $queryStr = $queryStr.
                   ' WHERE u.authorized = TRUE
-                  AND u.banned = FALSE';
+                  AND u.banned = FALSE
+                  AND c.banned = FALSE';
 
         if (!is_null($recordIds) && !empty($recordIds)) {
             $queryStr = $queryStr.' AND c.id NOT IN (:ids)';
@@ -151,6 +152,7 @@ class CompanyRepository extends EntityRepository
                   c.buildingId IN (:buildingIds)
                   AND u.authorized = TRUE
                   AND u.banned = FALSE
+                  AND c.banned = FALSE
                   ORDER BY field
                 '
             )
@@ -187,5 +189,20 @@ class CompanyRepository extends EntityRepository
             ->setParameter('userId', $userId);
 
         return $query->getResult();
+    }
+
+    /**
+     * @param string $query
+     *
+     * @return array
+     */
+    public function getVerifyCompanies(
+        $query
+    ) {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->where('c.name LIKE :query')
+            ->setParameter('query', $query.'%');
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }

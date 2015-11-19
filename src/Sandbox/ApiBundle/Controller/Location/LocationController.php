@@ -66,10 +66,9 @@ class LocationController extends SandboxRestController
             $buildings = $this->getRepo('Room\RoomBuilding')->findBy(
                 ['cityId' => $cityId]
             );
-
-            return new View($buildings);
+        } else {
+            $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
         }
-        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
@@ -236,6 +235,6 @@ class LocationController extends SandboxRestController
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
         $view->setData($building);
 
-        return new View($building);
+        return $view;
     }
 }

@@ -4,6 +4,8 @@ namespace Sandbox\ApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
@@ -1126,6 +1128,31 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param User   $recvUser
+     * @param Event  $event
+     * @param string $action
+     */
+    protected function sendXmppEventNotification(
+        $recvUser,
+        $event,
+        $action
+    ) {
+        try {
+            // get event message data
+            $jsonData = $this->getEventNotificationJsonData(
+                $action,
+                $recvUser,
+                $event
+            );
+
+            // send xmpp notification
+            $this->sendXmppNotification($jsonData, false);
+        } catch (Exception $e) {
+            error_log('Send event registration accept notification went wrong!');
+        }
+    }
+
+    /**
      * @param string $body
      */
     protected function sendXmppMessageNotification(
@@ -1143,10 +1170,43 @@ class SandboxRestController extends FOSRestController
             ];
 
             // get message data
-            $jsonData = $this->getNotificationBroadcastJsonData(
+            $data = $this->getNotificationBroadcastJsonData(
                 array(),
                 null,
                 $messageArray
+            );
+
+            $jsonData = json_encode(array($data));
+
+            // send xmpp notification
+            $this->sendXmppNotification($jsonData, true);
+        } catch (Exception $e) {
+            error_log('Send message notification went wrong!');
+        }
+    }
+
+    /**
+     * @param int    $orderId
+     * @param string $orderNumber
+     * @param int    $fromUserId
+     * @param array  $receivers
+     * @param string $action
+     */
+    protected function sendXmppProductOrderNotification(
+        $orderId,
+        $orderNumber,
+        $receivers,
+        $action,
+        $fromUserId = null
+    ) {
+        try {
+            // get notification data
+            $jsonData = $this->getProductOrderNotificationJsonData(
+                $orderId,
+                $orderNumber,
+                $fromUserId,
+                $receivers,
+                $action
             );
 
             // send xmpp notification
@@ -1187,6 +1247,61 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param int    $orderId
+     * @param string $orderNumber
+     *
+     * @return array
+     */
+    private function getOrderArray(
+        $orderId,
+        $orderNumber
+    ) {
+        return [
+                'id' => $orderId,
+                'order_number' => $orderNumber,
+        ];
+    }
+
+    /**
+     * @param Announcement $announcement
+     * @param string       $action
+     *
+     * @return string | object
+     */
+    private function getProductOrderNotificationJsonData(
+        $orderId,
+        $orderNumber,
+        $fromUserId,
+        $receivers,
+        $action
+    ) {
+        $globals = $this->getGlobals();
+        $domainURL = $globals['xmpp_domain'];
+        $fromUser = $this->getRepo('User\User')->find($fromUserId);
+
+        // get receivers array
+        $receiversArray = [];
+        foreach ($receivers as $receiverId) {
+            $recevUser = $this->getRepo('User\User')->find($receiverId);
+            array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
+        }
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            ProductOrder::ACTION_TYPE,
+            $action,
+            $fromUser
+        );
+
+        // get order array
+        $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
+
+        $data = $this->getNotificationJsonData($receiversArray, $contentArray);
+
+        return json_encode(array($data));
+    }
+
+    /**
      * @param Announcement $announcement
      * @param string       $action
      *
@@ -1206,7 +1321,9 @@ class SandboxRestController extends FOSRestController
             'title' => $announcement->getTitle(),
         );
 
-        return $this->getNotificationBroadcastJsonData(array(), $contentArray);
+        $data = $this->getNotificationBroadcastJsonData(array(), $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1237,7 +1354,9 @@ class SandboxRestController extends FOSRestController
             'buddy', $action, $fromUser
         );
 
-        return $this->getNotificationJsonData($receivers, $contentArray);
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1293,7 +1412,9 @@ class SandboxRestController extends FOSRestController
             'name' => $company->getName(),
         );
 
-        return $this->getNotificationJsonData($receivers, $contentArray);
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1343,7 +1464,9 @@ class SandboxRestController extends FOSRestController
             );
         }
 
-        return $this->getNotificationJsonData($receivers, $contentArray);
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     /**
@@ -1399,26 +1522,30 @@ class SandboxRestController extends FOSRestController
     /**
      * @param array $receivers
      * @param array $contentArray
+     * @param array $messageArray
      *
-     * @return string | object
+     * @return array
      */
     private function getNotificationJsonData(
         $receivers,
-        $contentArray
+        $contentArray = null,
+        $messageArray = null
     ) {
-        $jsonDataArray = array(
-            'receivers' => $receivers,
-            'content' => $contentArray,
-        );
+        $jsonDataArray = array('receivers' => $receivers);
 
-        return json_encode($jsonDataArray);
+        return $this->setJsonDataArrayBody(
+            $jsonDataArray,
+            $contentArray,
+            $messageArray
+        );
     }
 
     /**
      * @param array $outcasts
      * @param array $contentArray
+     * @param array $messageArray
      *
-     * @return string | object
+     * @return array
      */
     private function getNotificationBroadcastJsonData(
         $outcasts,
@@ -1427,6 +1554,25 @@ class SandboxRestController extends FOSRestController
     ) {
         $jsonDataArray = array('outcasts' => $outcasts);
 
+        return $this->setJsonDataArrayBody(
+            $jsonDataArray,
+            $contentArray,
+            $messageArray
+        );
+    }
+
+    /**
+     * @param array $jsonDataArray
+     * @param array $contentArray
+     * @param array $messageArray
+     *
+     * @return array
+     */
+    private function setJsonDataArrayBody(
+        $jsonDataArray,
+        $contentArray,
+        $messageArray
+    ) {
         // check content array
         if (!is_null($contentArray)) {
             $jsonDataArray['content'] = $contentArray;
@@ -1437,7 +1583,45 @@ class SandboxRestController extends FOSRestController
             $jsonDataArray['message'] = $messageArray;
         }
 
-        return json_encode($jsonDataArray);
+        return $jsonDataArray;
+    }
+
+    /**
+     * @param string $action
+     * @param User   $recvUser
+     * @param Event  $event
+     *
+     * @return object|string
+     */
+    private function getEventNotificationJsonData(
+        $action,
+        $recvUser,
+        $event
+    ) {
+        // get globals
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $domainURL = $globals['xmpp_domain'];
+
+        // get receivers
+        $receivers = array(
+            array('jid' => $recvUser->getXmppUsername().'@'.$domainURL),
+        );
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            'event', $action
+        );
+
+        $contentArray['event'] = array(
+            'id' => $event->getId(),
+            'name' => $event->getName(),
+        );
+
+        $data = $this->getNotificationJsonData($receivers, $contentArray);
+
+        return json_encode(array($data));
     }
 
     //---------------------------------------- XMPP User ----------------------------------------//
