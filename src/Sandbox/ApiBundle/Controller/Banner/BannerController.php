@@ -16,8 +16,12 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
  */
 class BannerController extends SandboxRestController
 {
-    const ATTACHMENT_NULL = 'Attachment cannot be null';
-    const WRONG_SOURCE = 'Wrong Source';
-    const URL_NULL = 'Url cannot be null';
-    const BANNER_ALREADY_EXIST = 'This Banner Already Exists';
+    const URL_NULL_CODE = 400001;
+    const URL_NULL_MESSAGE = 'Url cannot be null';
+
+    const WRONG_SOURCE_CODE = 400002;
+    const WRONG_SOURCE_MESSAGE = 'Wrong Source';
+
+    const BANNER_ALREADY_EXIST_CODE = 400003;
+    const BANNER_ALREADY_EXIST_MESSAGE = 'This Banner Already Exists';
 }
