@@ -93,7 +93,7 @@ class ClientBuddyController extends BuddyController
         ));
 
         if (!is_null($myBuddy)) {
-            $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+            $profile->setStatus(BuddyRequest::STATUS_ACCEPTED);
             $profile->setBuddyId($myBuddy->getId());
 
             // if both user is buddy with each other
@@ -115,11 +115,11 @@ class ClientBuddyController extends BuddyController
             $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
                 'askUser' => $myUser,
                 'recvUser' => $user,
-                'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                'status' => BuddyRequest::STATUS_PENDING,
             ));
 
             if (!is_null($myBuddyRequest)) {
-                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+                $profile->setStatus(BuddyRequest::STATUS_PENDING);
             }
         }
 
@@ -363,11 +363,13 @@ class ClientBuddyController extends BuddyController
         $recvBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
             'askUser' => $buddy,
             'recvUser' => $myUser,
+            'status' => BuddyRequest::STATUS_PENDING,
         ));
 
         $askBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
             'askUser' => $myUser,
             'recvUser' => $buddy,
+            'status' => BuddyRequest::STATUS_PENDING,
         ));
 
         $profile = $this->getRepo('User\UserProfile')->findOneByUser($buddy);

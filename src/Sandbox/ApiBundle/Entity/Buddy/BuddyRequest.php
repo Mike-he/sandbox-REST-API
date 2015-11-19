@@ -21,8 +21,8 @@ use Sandbox\ApiBundle\Entity\User\User;
  */
 class BuddyRequest
 {
-    const BUDDY_REQUEST_STATUS_PENDING = 'pending';
-    const BUDDY_REQUEST_STATUS_ACCEPTED = 'accepted';
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACCEPTED = 'accepted';
 
     /**
      * @var int
@@ -71,7 +71,7 @@ class BuddyRequest
      *
      * @ORM\Column(name="status", type="string", nullable=false)
      */
-    private $status = self::BUDDY_REQUEST_STATUS_PENDING;
+    private $status = self::STATUS_PENDING;
 
     /**
      * @var \DateTime

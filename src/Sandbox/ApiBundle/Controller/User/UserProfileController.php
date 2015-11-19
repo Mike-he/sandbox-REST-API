@@ -108,7 +108,7 @@ class UserProfileController extends SandboxRestController
         ));
 
         if (!is_null($myBuddy)) {
-            $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+            $profile->setStatus(BuddyRequest::STATUS_ACCEPTED);
             $profile->setBuddyId($myBuddy->getId());
 
             // if both user is buddy with each other
@@ -128,11 +128,11 @@ class UserProfileController extends SandboxRestController
             $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
                 'askUser' => $requestUser,
                 'recvUser' => $myUser,
-                'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                'status' => BuddyRequest::STATUS_PENDING,
             ));
 
             if (!is_null($myBuddyRequest)) {
-                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+                $profile->setStatus(BuddyRequest::STATUS_PENDING);
             }
         }
 
