@@ -130,7 +130,7 @@ class AdminVerifyFeedController extends FeedController
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
         // set feed visible false
-        $feed->setVisible(false);
+        $feed->setIsDeleted(true);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

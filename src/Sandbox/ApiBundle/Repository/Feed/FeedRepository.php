@@ -33,7 +33,7 @@ class FeedRepository extends EntityRepository
         $query = $this->createQueryBuilder('f')
             ->select('f')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
-            ->where('f.visible = true');
+            ->where('f.isDeleted = true');
 
         // filter by user banned
         $query->andWhere('u.banned = FALSE');
@@ -76,7 +76,7 @@ class FeedRepository extends EntityRepository
 
         // get my buddy ids
         $query = $this->getEntityManager()
-            ->createQueryBuilder('f')
+            ->createQueryBuilder()
             ->select('
                 b.buddyId
             ')
@@ -84,7 +84,6 @@ class FeedRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'b.buddyId = u.id')
             ->where('b.userId = :userId')
             ->andWhere('u.banned = FALSE')
-            ->andWhere('f.visible = true')
             ->setParameter('userId', $userId);
         $buddyIds = $query->getQuery()->getResult();
 
@@ -103,6 +102,9 @@ class FeedRepository extends EntityRepository
         // filter by my buddies and my own posts
         $query->where('f.ownerId IN (:userIds)');
         $parameters['userIds'] = $userIds;
+
+        // filter by feed delete
+        $query->andWhere('f.isDeleted = FALSE');
 
         // last id
         if (!is_null($lastId)) {
@@ -142,7 +144,7 @@ class FeedRepository extends EntityRepository
             ->select('f')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = f.ownerId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
-            ->where('f.visible = true');
+            ->where('f.isDeleted = FALSE');
 
         // filter by user banned
         $query->andWhere('u.banned = FALSE');
@@ -205,7 +207,7 @@ class FeedRepository extends EntityRepository
             ->select('f')
             ->leftJoin('SandboxApiBundle:Company\CompanyMember', 'cm', 'WITH', 'cm.userId = f.ownerId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
-            ->where('f.visible = true');
+            ->where('f.isDeleted = FALSE');
 
         // filter by user banned
         $query->andWhere('u.banned = FALSE');
@@ -247,7 +249,7 @@ class FeedRepository extends EntityRepository
         $query = $this->createQueryBuilder('f')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
             ->where('f.ownerId = :myUserId')
-            ->andWhere('f.visible = true')
+            ->andWhere('f.isDeleted = FALSE')
             ->setParameter('myUserId', $userId);
 
         // filter by user banned
@@ -278,7 +280,7 @@ class FeedRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('f')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'f.ownerId = up.userId')
             ->where('up.name LIKE :query')
-            ->andWhere('f.visible = TRUE')
+            ->andWhere('f.isDeleted = FALSE')
             ->setParameter('query', $query.'%')
             ->orderBy('f.creationDate', 'DESC');
 

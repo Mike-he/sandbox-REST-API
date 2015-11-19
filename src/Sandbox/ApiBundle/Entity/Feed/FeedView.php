@@ -65,11 +65,11 @@ class FeedView
     /**
      * @var bool
      *
-     * @ORM\Column(name="visible", type="boolean", nullable=false)
+     * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
      *
      * @Serializer\Groups({"main", "feed"})
      */
-    private $visible;
+    private $isDeleted;
 
     /**
      * @var int
@@ -225,13 +225,13 @@ class FeedView
     }
 
     /**
-     * Get visible.
+     * Get isDeleted.
      *
      * @return bool
      */
-    public function getVisible()
+    public function isDeleted()
     {
-        return $this->visible;
+        return $this->isDeleted;
     }
 
     /**
