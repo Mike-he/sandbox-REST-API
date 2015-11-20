@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Sandbox\ApiBundle\Traits\BuddyNotification;
 
 /**
  * Rest controller for UserProfile.
@@ -31,6 +32,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  */
 class ClientBuddyRequestController extends BuddyRequestController
 {
+    use BuddyNotification;
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
     const ERROR_ACCOUNT_BANNED_MESSAGE = '该请求的账户已经被冻结或未认证，暂时无法添加此账户!';
 

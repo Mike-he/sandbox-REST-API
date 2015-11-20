@@ -13,6 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Traits\CompanyNotification;
 
 /**
  * Rest controller for Company Invitation.
@@ -26,6 +27,8 @@ use Rs\Json\Patch;
  */
 class ClientCompanyInvitationController extends ClientCompanyMemberController
 {
+    use CompanyNotification;
+
     /**
      * Get my company invitations.
      *

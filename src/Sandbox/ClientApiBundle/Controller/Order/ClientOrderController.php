@@ -19,6 +19,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 
 /**
  * Rest controller for Client Orders.
@@ -32,6 +33,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientOrderController extends PaymentController
 {
+    use ProductOrderNotification;
     const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';
     const PRODUCT_ORDER_LETTER_HEAD = 'P';

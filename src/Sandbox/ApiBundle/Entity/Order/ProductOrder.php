@@ -27,6 +27,8 @@ class ProductOrder
     const ACTION_TYPE = 'product_order';
     const ACTION_INVITE = 'invite';
     const ACTION_APPOINT = 'appoint';
+    const ACTION_START = 'start';
+    const ACTION_END = 'end';
 
     /**
      * @var int

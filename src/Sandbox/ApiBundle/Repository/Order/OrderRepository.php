@@ -13,6 +13,117 @@ class OrderRepository extends EntityRepository
     const CANCELLED = "'cancelled'";
 
     /**
+     * @param $now
+     * @param $meetingTime
+     *
+     * @return array
+     */
+    public function getMeetingStartSoonOrders(
+        $now,
+        $meetingTime
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('o.status = \'paid\'')
+            ->andWhere('o.startDate > :now')
+            ->andWhere('(r.type == \'meeting\' AND o.startDate <= :meetingTime)')
+            ->setParameter('meetingTime', $meetingTime)
+            ->setParameter('now', $now)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $now
+     * @param $meetingTime
+     *
+     * @return array
+     */
+    public function getMeetingEndSoonOrders(
+        $now,
+        $meetingTime
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('(o.status = \'paid\' OR o.status = \'completed\')')
+            ->andWhere('o.endDate > :now')
+            ->andWhere('(r.type == \'meeting\' AND o.endDate <= :meetingTime)')
+            ->setParameter('meetingTime', $meetingTime)
+            ->setParameter('now', $now)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $now
+     * @param $workspaceTime
+     *
+     * @return array
+     */
+    public function getStartSoonOrders(
+        $now,
+        $workspaceTime
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('o.status = \'paid\'')
+            ->andWhere('o.startDate > :now')
+            ->andWhere('(r.type != \'meeting\' AND o.startDate <= :workspaceTime)')
+            ->setParameter('workspaceTime', $workspaceTime)
+            ->setParameter('now', $now)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $now
+     * @param $workspaceTime
+     * @param $officeTime
+     *
+     * @return array
+     */
+    public function getEndSoonOrders(
+        $now,
+        $workspaceTime,
+        $officeTime,
+        $allowedTime
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.endDate > :now')
+            ->andWhere(
+                '(
+                    (
+                        r.type == \'fixed\' OR
+                        r.type == \'flexible\' AND
+                        o.endDate <= :workspaceTime
+                    )
+                    OR
+                    (
+                        r.type == \'office\' AND
+                        o.endDate <= :officeTime AND
+                        o.endDate >= :allowedTime
+                    )
+                )'
+            )
+            ->setParameter('workspaceTime', $workspaceTime)
+            ->setParameter('officeTime', $officeTime)
+            ->setParameter('allowedTime', $allowedTime)
+            ->setParameter('now', $now)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
      * @param int    $userId
      * @param int    $limit
      * @param int    $offset

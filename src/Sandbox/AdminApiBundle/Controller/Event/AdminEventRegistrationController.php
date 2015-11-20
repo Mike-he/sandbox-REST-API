@@ -19,6 +19,7 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Traits\EventNotification;
 
 /**
  * Class AdminEventRegistrationController.
@@ -32,6 +33,7 @@ use Sandbox\ApiBundle\Entity\User\User;
  */
 class AdminEventRegistrationController extends SandboxRestController
 {
+    use EventNotification;
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
     const ERROR_ACCOUNT_BANNED_MESSAGE = 'Registration user is banned or unauthorized. - 报名用户已经被冻结或未认证.';
 
