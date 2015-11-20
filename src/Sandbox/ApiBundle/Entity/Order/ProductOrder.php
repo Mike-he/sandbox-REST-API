@@ -25,8 +25,10 @@ class ProductOrder
     const CHANNEL_ACCOUNT = '账户余额';
 
     const ACTION_TYPE = 'product_order';
-    const ACTION_INVITE = 'invite';
-    const ACTION_APPOINT = 'appoint';
+    const ACTION_INVITE_ADD = 'invite_add';
+    const ACTION_APPOINT_ADD = 'appoint_add';
+    const ACTION_INVITE_REMOVE = 'invite_remove';
+    const ACTION_APPOINT_REMOVE = 'appoint_remove';
     const ACTION_START = 'start';
     const ACTION_END = 'end';
 

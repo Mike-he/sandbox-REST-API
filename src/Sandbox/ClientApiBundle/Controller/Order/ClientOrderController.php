@@ -861,19 +861,31 @@ class ClientOrderController extends PaymentController
                     $order->getId(),
                     $order->getOrderNumber(),
                     $recvUsers,
-                    ProductOrder::ACTION_INVITE,
+                    ProductOrder::ACTION_INVITE_ADD,
                     $order->getUserId()
                 );
             }
         }
 
         if (!empty($removeUsers) && !is_null($removeUsers)) {
-            $this->deletePeople(
+            // remove user
+            $removedUserArray = $this->deletePeople(
                 $removeUsers,
                 $order->getId(),
                 $globals,
                 $base
             );
+
+            // send notification to invited users
+            if (!empty($removedUserArray)) {
+                $this->sendXmppProductOrderNotification(
+                    $order->getId(),
+                    $order->getOrderNumber(),
+                    $removedUserArray,
+                    ProductOrder::ACTION_INVITE_REMOVE,
+                    $order->getUserId()
+                );
+            }
         }
     }
 
@@ -912,6 +924,7 @@ class ClientOrderController extends PaymentController
      * @param Request $request
      * @param $id
      * @param ParamFetcherInterface $paramFetcher
+     * @param array
      */
     private function deletePeople(
         $removeUsers,
@@ -920,6 +933,7 @@ class ClientOrderController extends PaymentController
         $base
     ) {
         $userArray = [];
+        $recvUsers = [];
         foreach ($removeUsers as $removeUser) {
             $userId = $removeUser['user_id'];
             $person = $this->getRepo('Order\InvitedPeople')->findOneBy(
@@ -932,6 +946,9 @@ class ClientOrderController extends PaymentController
                 $em = $this->getDoctrine()->getManager();
                 $em->remove($person);
                 $em->flush();
+
+                // set user array for message
+                array_push($recvUsers, $userId);
             }
 
             $controls = $this->getRepo('Door\DoorAccess')->findBy(
@@ -953,6 +970,8 @@ class ClientOrderController extends PaymentController
                 array_push($userArray, $empUser);
             }
         }
+
+        // remove room access
         if (!empty($userArray)) {
             $this->deleteEmployeeToOrder(
                 $base,
@@ -961,6 +980,8 @@ class ClientOrderController extends PaymentController
                 $globals
             );
         }
+
+        return $recvUsers;
     }
 
     /**
@@ -1083,7 +1104,7 @@ class ClientOrderController extends PaymentController
                 $order->getId(),
                 $order->getOrderNumber(),
                 [$newUser],
-                ProductOrder::ACTION_APPOINT,
+                ProductOrder::ACTION_APPOINT_ADD,
                 $orderUser
             );
 
@@ -1093,6 +1114,15 @@ class ClientOrderController extends PaymentController
                     $currentUser,
                     $base,
                     $globals
+                );
+
+                // send notification to old appointed user
+                $this->sendXmppProductOrderNotification(
+                    $order->getId(),
+                    $order->getOrderNumber(),
+                    [$currentUser],
+                    ProductOrder::ACTION_APPOINT_REMOVE,
+                    $orderUser
                 );
             } else {
                 $this->removeUserAccess(
@@ -1187,6 +1217,15 @@ class ClientOrderController extends PaymentController
                     $currentUser,
                     $base,
                     $globals
+                );
+
+                // send notification to appointed user
+                $this->sendXmppProductOrderNotification(
+                    $order->getId(),
+                    $order->getOrderNumber(),
+                    [$currentUser],
+                    ProductOrder::ACTION_APPOINT_REMOVE,
+                    $orderUser
                 );
             }
         }
