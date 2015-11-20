@@ -54,11 +54,11 @@ class News
     /**
      * @var bool
      *
-     * @ORM\Column(name="visible", type="boolean", nullable=false)
+     * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
-    private $visible = true;
+    private $isDeleted = false;
 
     /**
      * @var \DateTime
@@ -168,27 +168,27 @@ class News
     }
 
     /**
-     * Set visible.
+     * Set isDeleted.
      *
-     * @param bool $visible
+     * @param bool $isDeleted
      *
      * @return News
      */
-    public function setVisible($visible)
+    public function setIsDeleted($isDeleted)
     {
-        $this->visible = $visible;
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }
 
     /**
-     * Get visible.
+     * Get isDeleted.
      *
      * @return bool
      */
-    public function getVisible()
+    public function isDeleted()
     {
-        return $this->visible;
+        return $this->isDeleted;
     }
 
     /**

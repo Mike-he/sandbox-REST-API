@@ -118,7 +118,10 @@ class ClientNewsController extends SandboxRestController
         $id
     ) {
         // get a news
-        $news = $this->getRepo('News\News')->find($id);
+        $news = $this->getRepo('News\News')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
 
         // set news attachments

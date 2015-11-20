@@ -169,7 +169,10 @@ class AdminEventController extends SandboxRestController
         $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get an event
-        $event = $this->getRepo('Event\Event')->find($id);
+        $event = $this->getRepo('Event\Event')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
         // set other array
@@ -320,7 +323,7 @@ class AdminEventController extends SandboxRestController
         }
 
         // set event visible false
-        $event->setVisible(false);
+        $event->setIsDeleted(true);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

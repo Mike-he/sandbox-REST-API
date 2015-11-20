@@ -10,7 +10,7 @@ CREATE TABLE `Event` (
   `registrationEndDate` datetime NOT NULL,
   `registrationMethod` enum('online','offline') NOT NULL,
   `verify` tinyint(1) NOT NULL,
-  `visible` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) DEFAULT FALSE NOT NULL,
   `eventEndDate` datetime NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
