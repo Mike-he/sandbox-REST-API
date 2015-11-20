@@ -19,6 +19,10 @@ class Event
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
 
+    const REGISTRATION_PREHEATING = 'preheating';
+    const REGISTRATION_ONGOING = 'ongoing';
+    const REGISTRATION_END = 'end';
+
     /**
      * @var int
      *
@@ -271,6 +275,26 @@ class Event
      * })
      */
     private $isOverLimitNumber;
+
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $registeredPersonNumber;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $registrationStatus;
 
     /**
      * Get id.
@@ -764,5 +788,53 @@ class Event
     public function IsOverLimitNumber()
     {
         return $this->isOverLimitNumber;
+    }
+
+    /**
+     * Set registered person number.
+     *
+     * @param int $registeredPersonNumber
+     *
+     * @return Event
+     */
+    public function setRegisteredPersonNumber($registeredPersonNumber)
+    {
+        $this->registeredPersonNumber = $registeredPersonNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get registered person number.
+     *
+     * @return int
+     */
+    public function getRegisteredPersonNumber()
+    {
+        return $this->registeredPersonNumber;
+    }
+
+    /**
+     * Set registration status.
+     *
+     * @param string $registrationStatus
+     *
+     * @return Event
+     */
+    public function setRegistrationStatus($registrationStatus)
+    {
+        $this->registrationStatus = $registrationStatus;
+
+        return $this;
+    }
+
+    /**
+     * Get registration status.
+     *
+     * @return string
+     */
+    public function getRegistrationStatus()
+    {
+        return $this->registrationStatus;
     }
 }
