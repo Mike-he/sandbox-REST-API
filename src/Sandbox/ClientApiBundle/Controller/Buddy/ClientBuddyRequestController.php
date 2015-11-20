@@ -57,19 +57,38 @@ class ClientBuddyRequestController extends BuddyRequestController
         $myRequests = array();
 
         foreach ($buddyRequests as $buddyRequest) {
-            $profile = $this->getRepo('User\UserProfile')->findOneByUser(
-                $buddyRequest->getAskUser()
-            );
+            try {
+                $askUser = $buddyRequest->getAskUser();
 
-            $myRequest = array(
-                'id' => $buddyRequest->getId(),
-                'ask_user_id' => $buddyRequest->getAskUserId(),
-                'message' => $buddyRequest->getMessage(),
-                'status' => $buddyRequest->getStatus(),
-                'profile' => $profile,
-            );
+                // get current status with the ask user
+                $status = $buddyRequest->getStatus();
 
-            array_push($myRequests, $myRequest);
+                if ($status == BuddyRequest::STATUS_ACCEPTED) {
+                    $buddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+                        'user' => $myUser,
+                        'buddy' => $askUser,
+                    ));
+                    if (is_null($buddy)) {
+                        $status = BuddyRequest::STATUS_PENDING;
+                    }
+                }
+
+                // get ask user profile
+                $profile = $this->getRepo('User\UserProfile')->findOneByUser($askUser);
+
+                $myRequest = array(
+                    'id' => $buddyRequest->getId(),
+                    'ask_user_id' => $buddyRequest->getAskUserId(),
+                    'message' => $buddyRequest->getMessage(),
+                    'status' => $status,
+                    'profile' => $profile,
+                );
+
+                array_push($myRequests, $myRequest);
+            } catch (\Exception $e) {
+                error_log('Get buddy request went wrong');
+                continue;
+            }
         }
 
         // set view
