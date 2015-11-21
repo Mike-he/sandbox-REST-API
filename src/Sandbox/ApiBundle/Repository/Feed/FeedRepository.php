@@ -33,7 +33,7 @@ class FeedRepository extends EntityRepository
         $query = $this->createQueryBuilder('f')
             ->select('f')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
-            ->where('f.isDeleted = true');
+            ->where('f.isDeleted = FALSE');
 
         // filter by user banned
         $query->andWhere('u.banned = FALSE');
