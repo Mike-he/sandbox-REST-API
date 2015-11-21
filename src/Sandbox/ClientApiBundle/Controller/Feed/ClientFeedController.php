@@ -365,6 +365,7 @@ class ClientFeedController extends FeedController
         $id
     ) {
         $userId = $this->getUserId();
+
         // if user is not authorized, respond empty list
         if (!$this->checkUserAuthorized($userId)) {
             return new View(array());
@@ -372,7 +373,7 @@ class ClientFeedController extends FeedController
 
         $feed = $this->getRepo('Feed\FeedView')->findOneBy(array(
             'id' => $id,
-            'visible' => true,
+            'isDeleted' => false,
         ));
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
 
