@@ -203,7 +203,10 @@ class ClientEventController extends EventController
         $userId = $this->getUserId();
 
         // get an event
-        $event = $this->getRepo('Event\Event')->find($id);
+        $event = $this->getRepo('Event\Event')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
         $eventId = $event->getId();

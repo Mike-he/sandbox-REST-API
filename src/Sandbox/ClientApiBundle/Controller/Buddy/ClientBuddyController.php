@@ -93,7 +93,7 @@ class ClientBuddyController extends BuddyController
         ));
 
         if (!is_null($myBuddy)) {
-            $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_ACCEPTED);
+            $profile->setStatus(BuddyRequest::STATUS_ACCEPTED);
             $profile->setBuddyId($myBuddy->getId());
 
             // if both user is buddy with each other
@@ -115,11 +115,11 @@ class ClientBuddyController extends BuddyController
             $myBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
                 'askUser' => $myUser,
                 'recvUser' => $user,
-                'status' => BuddyRequest::BUDDY_REQUEST_STATUS_PENDING,
+                'status' => BuddyRequest::STATUS_PENDING,
             ));
 
             if (!is_null($myBuddyRequest)) {
-                $profile->setStatus(BuddyRequest::BUDDY_REQUEST_STATUS_PENDING);
+                $profile->setStatus(BuddyRequest::STATUS_PENDING);
             }
         }
 
@@ -295,8 +295,7 @@ class ClientBuddyController extends BuddyController
         $myUser = $this->getUser()->getMyUser();
 
         // get request data
-        $requestContent = $request->getContent();
-        $contactsData = json_decode($requestContent, true);
+        $contactsData = json_decode($request->getContent(), true);
 
         // check request data
         if (is_null($contactsData) || empty($contactsData)) {
@@ -305,28 +304,31 @@ class ClientBuddyController extends BuddyController
 
         $contactBuddies = array();
         foreach ($contactsData as $contact) {
-            if (isset($contact['phone']) && !is_null($contact['phone'])) {
-                $phone = $contact['phone'];
-                $buddy = $this->getRepo('User\User')->findOneByPhone($phone);
+            try {
+                $user = null;
+
+                if (array_key_exists('phone', $contact)) {
+                    $user = $this->getRepo('User\User')->findOneByPhone($contact['phone']);
+                }
+
+                if (array_key_exists('email', $contact)) {
+                    $user = $this->getRepo('User\User')->findOneByEmail($contact['email']);
+                }
+
+                if (is_null($user)) {
+                    continue;
+                }
 
                 // get contact buddy profile
-                $buddyProfile = $this->getContactBuddyProfile($buddy, $myUser);
+                $buddyProfile = $this->getContactBuddyProfile($user, $myUser);
 
                 if (!is_null($buddyProfile) && !empty($buddyProfile)) {
-                    array_push($contactBuddies, $buddyProfile);
+                    $matchArray = array_merge($contact, $buddyProfile);
+                    array_push($contactBuddies, $matchArray);
                 }
-            }
-
-            if (isset($contact['email']) && !is_null($contact['email'])) {
-                $email = $contact['email'];
-                $buddy = $this->getRepo('User\User')->findOneByEmail($email);
-
-                // get contact buddy profile
-                $buddyProfile = $this->getContactBuddyProfile($buddy, $myUser);
-
-                if (!is_null($buddyProfile) && !empty($buddyProfile)) {
-                    array_push($contactBuddies, $buddyProfile);
-                }
+            } catch (\Exception $e) {
+                error_log('Buddy contact match went wrong');
+                continue;
             }
         }
 
@@ -347,64 +349,62 @@ class ClientBuddyController extends BuddyController
         $buddy,
         $myUser
     ) {
-        // return if user null
-        if (is_null($buddy)) {
-            return array();
-        }
-
-        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneByBuddy($buddy);
-        $profile = $this->getRepo('User\UserProfile')->findOneByUser($buddy);
+        $myBuddy = $this->getRepo('Buddy\Buddy')->findOneBy(array(
+            'user' => $myUser,
+            'buddy' => $buddy,
+        ));
 
         // return if is my buddy
         if (!is_null($myBuddy)) {
             return array();
         }
 
-        $askBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-            'askUserId' => $myUser->getId(),
-            'recvUserId' => $buddy->getId(),
-        ));
+        // check buddy request
         $recvBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
-            'askUserId' => $buddy->getId(),
-            'recvUserId' => $myUser->getId(),
+            'askUser' => $buddy,
+            'recvUser' => $myUser,
+            'status' => BuddyRequest::STATUS_PENDING,
         ));
 
-        if (is_null($askBuddyRequest) && is_null($recvBuddyRequest)) {
-            // have not sent buddy request
-            return $buddyProfile = array(
-                'profile' => $profile,
-            );
-        } elseif (is_null($askBuddyRequest)) {
-            // have received buddy request
-            return $myRequest = $this->generateRequestArray(
-                $recvBuddyRequest,
-                $profile
-            );
-        } else {
-            // have sent buddy request
-            return $myRequest = $this->generateRequestArray(
-                $askBuddyRequest,
-                $profile
-            );
+        $askBuddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+            'askUser' => $myUser,
+            'recvUser' => $buddy,
+            'status' => BuddyRequest::STATUS_PENDING,
+        ));
+
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($buddy);
+
+        // generate content
+        $request = null;
+
+        if (!is_null($recvBuddyRequest)) {
+            $request = $recvBuddyRequest;
+        } elseif (!is_null($askBuddyRequest)) {
+            $request = $askBuddyRequest;
         }
+
+        return $this->generateRequestArray($profile, $request);
     }
 
     /**
-     * @param BuddyRequest $request
      * @param UserProfile  $profile
+     * @param BuddyRequest $request
      *
      * @return array
      */
     private function generateRequestArray(
-        $request,
-        $profile
+        $profile,
+        $request = null
     ) {
-        return $myRequest = array(
-            'id' => $request->getId(),
-            'ask_user_id' => $request->getAskUserId(),
-            'message' => $request->getMessage(),
-            'status' => $request->getStatus(),
-            'profile' => $profile,
-        );
+        $content = array('profile' => $profile);
+
+        if (!is_null($request)) {
+            $content['id'] = $request->getId();
+            $content['ask_user_id'] = $request->getAskUserId();
+            $content['message'] = $request->getMessage();
+            $content['status'] = $request->getStatus();
+        }
+
+        return $content;
     }
 }

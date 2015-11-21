@@ -170,7 +170,10 @@ class AdminNewsController extends SandboxRestController
         $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get an news
-        $news = $this->getRepo('News\News')->find($id);
+        $news = $this->getRepo('News\News')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
 
         // set attachments
@@ -264,7 +267,7 @@ class AdminNewsController extends SandboxRestController
         $news = $this->getRepo('News\News')->find($id);
         $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
 
-        $news->setVisible(false);
+        $news->setIsDeleted(true);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

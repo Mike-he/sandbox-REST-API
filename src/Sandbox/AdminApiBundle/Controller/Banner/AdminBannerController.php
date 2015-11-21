@@ -317,26 +317,38 @@ class AdminBannerController extends BannerController
                 break;
             case Banner::SOURCE_URL:
                 if (is_null($url) || empty($url)) {
-                    throw new BadRequestHttpException(self::URL_NULL);
+                    return $this->customErrorView(
+                        400,
+                        self::URL_NULL_CODE,
+                        self::URL_NULL_MESSAGE
+                    );
                 }
                 $banner->setContent($url);
 
                 break;
             default:
-                throw new BadRequestHttpException(self::WRONG_SOURCE);
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_SOURCE_CODE,
+                    self::WRONG_SOURCE_MESSAGE
+                );
 
                 break;
         }
 
         // check if banner already exists
-        $existBanner = $this->getRepo('Banner\Banner')->findOneBy(
-            [
-                'source' => $source,
-                'sourceId' => $sourceId,
-            ]
+        $existBanner = $this->getExistingBanner(
+            $source,
+            $sourceId,
+            $url
         );
+
         if (!is_null($existBanner)) {
-            throw new BadRequestHttpException(self::BANNER_ALREADY_EXIST);
+            return $this->customErrorView(
+                400,
+                self::BANNER_ALREADY_EXIST_CODE,
+                self::BANNER_ALREADY_EXIST_MESSAGE
+            );
         }
 
         $em->persist($banner);
@@ -346,6 +358,35 @@ class AdminBannerController extends BannerController
         );
 
         return new View($response);
+    }
+
+    /**
+     * @param string $source
+     * @param int    $sourceId
+     * @param string $url
+     */
+    private function getExistingBanner(
+        $source,
+        $sourceId,
+        $url
+    ) {
+        if (!is_null($url)) {
+            $existBanner = $this->getRepo('Banner\Banner')->findOneBy(
+                [
+                    'source' => $source,
+                    'content' => $url,
+                ]
+            );
+        } else {
+            $existBanner = $this->getRepo('Banner\Banner')->findOneBy(
+                [
+                    'source' => $source,
+                    'sourceId' => $sourceId,
+                ]
+            );
+        }
+
+        return $existBanner;
     }
 
     /**

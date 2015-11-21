@@ -23,7 +23,7 @@ class EventRepository extends EntityRepository
                 r.number as room_number
             ')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
-            ->where('e.visible = TRUE');
+            ->where('e.isDeleted = FALSE');
 
         // filter by status
         $now = new \DateTime('now');
@@ -51,7 +51,7 @@ class EventRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('e')
-            ->where('e.visible = true');
+            ->where('e.isDeleted = FALSE');
 
         $query->orderBy('e.creationDate', 'DESC')
             ->setFirstResult($offset)
@@ -76,7 +76,7 @@ class EventRepository extends EntityRepository
                 SELECT e
                 FROM SandboxApiBundle:Event\Event e
                 LEFT JOIN SandboxApiBundle:Event\EventRegistration er WITH er.eventId = e.id
-                WHERE e.visible = TRUE
+                WHERE e.isDeleted = FALSE
                 AND er.userId = :userId
                 AND (
                     e.verify = FALSE

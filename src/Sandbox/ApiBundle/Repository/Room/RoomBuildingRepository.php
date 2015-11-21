@@ -47,9 +47,9 @@ class RoomBuildingRepository extends EntityRepository
     }
 
     /**
-     * @param float $lat
-     * @param float $lng
-     * @param int   $range
+     * @param string $lat
+     * @param string $lng
+     * @param int    $range
      *
      * @return array
      */
