@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPutType;
@@ -112,6 +113,10 @@ class AdminBuildingController extends SandboxRestController
             $cityId,
             $query
         );
+        foreach ($buildings as $building) {
+            $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
+            $building->setFloors($floors);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -153,6 +158,10 @@ class AdminBuildingController extends SandboxRestController
         // get a building
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        // set floor numbers
+        $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
+        $building->setFloors($floors);
 
         // set view
         $view = new View($building);
@@ -257,6 +266,7 @@ class AdminBuildingController extends SandboxRestController
     ) {
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
+        $floors = $building->getFloors();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -275,6 +285,13 @@ class AdminBuildingController extends SandboxRestController
         $this->addRoomAttachments(
             $building,
             $roomAttachments,
+            $em
+        );
+
+        // add floors
+        $this->addFloors(
+            $building,
+            $floors,
             $em
         );
 
@@ -299,6 +316,7 @@ class AdminBuildingController extends SandboxRestController
     ) {
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
+        $floors = $building->getFloors();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -324,6 +342,13 @@ class AdminBuildingController extends SandboxRestController
         $this->removeRoomAttachments(
             $building,
             $roomAttachments,
+            $em
+        );
+
+        // modify floors
+        $this->modifyFloors(
+            $building,
+            $floors,
             $em
         );
 
@@ -381,6 +406,35 @@ class AdminBuildingController extends SandboxRestController
     }
 
     /**
+     * Modify floor numbers.
+     *
+     * @param RoomBuilding $building
+     * @param array        $floors
+     * @param              $em
+     */
+    private function modifyFloors(
+        $building,
+        $floors,
+        $em
+    ) {
+        if (!isset($floors['modify']) || empty($floors['modify'])) {
+            return;
+        }
+
+        foreach ($floors['modify'] as $floor) {
+            $roomFloor = $this->getRepo('Room\RoomFloor')->find($floor['id']);
+            $roomFloor->setFloorNumber($floor['floor_number']);
+        }
+
+        // add floor number
+        $this->addFloors(
+            $building,
+            $floors,
+            $em
+        );
+    }
+
+    /**
      * Add room building.
      *
      * @param RoomBuilding $building
@@ -433,6 +487,31 @@ class AdminBuildingController extends SandboxRestController
             $roomAttachment->setBuilding($building);
             $roomAttachment->setCreationDate(new \DateTime('now'));
             $em->persist($roomAttachment);
+        }
+    }
+
+    /**
+     * Add floors.
+     *
+     * @param RoomBuilding $building
+     * @param array        $floors
+     * @param              $em
+     */
+    private function addFloors(
+        $building,
+        $floors,
+        $em
+    ) {
+        if (!isset($floors['add']) || empty($floors['add'])) {
+            return;
+        }
+
+        foreach ($floors['add'] as $floor) {
+            $roomFloor = new RoomFloor();
+            $roomFloor->setBuilding($building);
+            $roomFloor->setFloorNumber($floor['floor_number']);
+
+            $em->persist($roomFloor);
         }
     }
 
