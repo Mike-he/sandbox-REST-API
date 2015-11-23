@@ -86,13 +86,11 @@ class ClientEventController extends EventController
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
             $registrationCounts = $this->getRepo('Event\EventRegistration')
                 ->getRegistrationCounts($event->getId());
-            $registrationStatus = $this->generateRegistrationStatus($event);
 
             $event->setAttachments($attachments);
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
-            $event->setRegistrationStatus($registrationStatus);
         }
 
         $view = new View($events);
@@ -245,30 +243,5 @@ class ClientEventController extends EventController
         );
 
         return $view;
-    }
-
-    /**
-     * @param Event $event
-     *
-     * @return string
-     */
-    private function generateRegistrationStatus(
-        $event
-    ) {
-        $now = new \DateTime('now');
-
-        $registrationStatus = null;
-        if ($now < $event->getRegistrationStartDate()) {
-            $registrationStatus = Event::REGISTRATION_PREHEATING;
-        } elseif (
-            $event->getRegistrationEndDate() > $now
-            && $now > $event->getRegistrationStartDate()
-        ) {
-            $registrationStatus = Event::REGISTRATION_ONGOING;
-        } elseif ($now > $event->getRegistrationEndDate()) {
-            $registrationStatus = Event::REGISTRATION_END;
-        }
-
-        return $registrationStatus;
     }
 }
