@@ -68,11 +68,6 @@ class ClientMemberController extends MemberController
     ) {
         $userId = $this->getUserId();
 
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
-
         $clientId = $this->getUser()->getClientId();
 
         $limit = $paramFetcher->get('limit');
@@ -187,11 +182,6 @@ class ClientMemberController extends MemberController
     ) {
         $userId = $this->getUserId();
 
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
-
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
@@ -305,11 +295,6 @@ class ClientMemberController extends MemberController
     ) {
         $userId = $this->getUserId();
 
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
-
         // get params
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -398,11 +383,6 @@ class ClientMemberController extends MemberController
     ) {
         $userId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($userId);
-
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
 
         $query = $paramFetcher->get('query');
         $limit = $paramFetcher->get('limit');

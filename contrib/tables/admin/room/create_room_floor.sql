@@ -1,6 +1,6 @@
 CREATE TABLE `RoomFloor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `floorNumber` int(11) NOT NULL,
+  `floorNumber` VARCHAR(64)NOT NULL,
   `buildingId` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `floorNumber_buildingId` (`floorNumber`,`buildingId`),

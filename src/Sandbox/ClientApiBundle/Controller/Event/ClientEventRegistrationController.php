@@ -93,8 +93,11 @@ class ClientEventRegistrationController extends EventController
         $userId = $this->getUserId();
 
         // check event is valid
-        $event = $this->getRepo('Event\Event')->find($eventId);
-        if (is_null($event) || $event->getVisible() == false) {
+        $event = $this->getRepo('Event\Event')->findOneBy(array(
+            'id' => $eventId,
+            'isDeleted' => false,
+        ));
+        if (is_null($event)) {
             throw new BadRequestHttpException(self::ERROR_EVENT_INVALID);
         }
 
@@ -271,5 +274,32 @@ class ClientEventRegistrationController extends EventController
         }
 
         return new View();
+    }
+
+    /**
+     * Check if is over limit number.
+     *
+     * @param Event $event
+     *
+     * @return bool
+     */
+    protected function checkIfOverLimitNumber(
+        $event
+    ) {
+        $limitNumber = $event->getLimitNumber();
+        if ($limitNumber == 0) {
+            return false;
+        }
+
+        $registrationCounts = $this->getRepo('Event\EventRegistration')
+            ->getRegistrationCounts($event->getId());
+        $registrationCounts = (int) $registrationCounts;
+
+        // if not over limit number
+        if ($registrationCounts < $limitNumber) {
+            return false;
+        }
+
+        return true;
     }
 }

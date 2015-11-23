@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Sandbox\ApiBundle\Traits\BuddyNotification;
 
 /**
  * Rest controller for UserProfile.
@@ -31,6 +32,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  */
 class ClientBuddyRequestController extends BuddyRequestController
 {
+    use BuddyNotification;
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
     const ERROR_ACCOUNT_BANNED_MESSAGE = '该请求的账户已经被冻结或未认证，暂时无法添加此账户!';
 
@@ -69,7 +71,7 @@ class ClientBuddyRequestController extends BuddyRequestController
                         'buddy' => $askUser,
                     ));
                     if (is_null($buddy)) {
-                        $status = BuddyRequest::STATUS_PENDING;
+                        $status = null;
                     }
                 }
 
@@ -80,9 +82,12 @@ class ClientBuddyRequestController extends BuddyRequestController
                     'id' => $buddyRequest->getId(),
                     'ask_user_id' => $buddyRequest->getAskUserId(),
                     'message' => $buddyRequest->getMessage(),
-                    'status' => $status,
                     'profile' => $profile,
                 );
+
+                if (!is_null($status)) {
+                    $myRequest['status'] = $status;
+                }
 
                 array_push($myRequests, $myRequest);
             } catch (\Exception $e) {
@@ -219,8 +224,8 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         // check user that request me is not banned
         $user = $this->getRepo('User\User')->findOneById($askUserId);
-        if ($user->isBanned() || !$user->isAuthorized()) {
-            // user of the request is banned or unauthorized
+        if ($user->isBanned()) {
+            // user of the request is banned
             return $this->customErrorView(
                 401,
                 self::ERROR_ACCOUNT_BANNED_CODE,

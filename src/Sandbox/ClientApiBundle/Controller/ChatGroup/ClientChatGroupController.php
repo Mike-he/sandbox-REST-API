@@ -44,8 +44,8 @@ class ClientChatGroupController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
@@ -159,8 +159,8 @@ class ClientChatGroupController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             return new View(array());
         }
 
@@ -190,7 +190,7 @@ class ClientChatGroupController extends ChatGroupController
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        if ($myUser->isBanned()) {
             return new View();
         }
 
@@ -218,8 +218,8 @@ class ClientChatGroupController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             return new View();
         }
 
@@ -276,8 +276,8 @@ class ClientChatGroupController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             return new View();
         }
 
@@ -324,8 +324,8 @@ class ClientChatGroupController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             return new View();
         }
 
@@ -400,8 +400,8 @@ class ClientChatGroupController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             return new View();
         }
 
@@ -428,6 +428,9 @@ class ClientChatGroupController extends ChatGroupController
         // remove from db
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        // set chat config in Openfire
+        $this->handleXmppChatGroupMute($chatGroup, $myUser, $mute);
 
         return new View();
     }

@@ -253,8 +253,7 @@ class FeedRepository extends EntityRepository
             ->setParameter('myUserId', $userId);
 
         // filter by user banned
-        $query->andWhere('u.banned = FALSE')
-            ->andWhere('u.authorized = TRUE');
+        $query->andWhere('u.banned = FALSE');
 
         // filter by type
         if (!is_null($lastId)) {

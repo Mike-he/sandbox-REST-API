@@ -17,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use Sandbox\ApiBundle\Traits\AnnouncementNotification;
 
 /**
  * Announcement controller.
@@ -30,6 +31,8 @@ use FOS\RestBundle\Controller\Annotations;
  */
 class AdminAnnouncementController extends AnnouncementController
 {
+    use AnnouncementNotification;
+
     /**
      * Get announcements.
      *

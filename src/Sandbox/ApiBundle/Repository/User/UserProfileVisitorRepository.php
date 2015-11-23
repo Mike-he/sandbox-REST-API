@@ -26,7 +26,6 @@ class UserProfileVisitorRepository extends EntityRepository
                   LEFT JOIN SandboxApiBundle:User\User u
                   WITH u.id = upv.visitorId
                   WHERE upv.userId = :myUserId
-                  AND u.authorized = TRUE
                   AND u.banned = FALSE
                   AND upv.id IN
                   (

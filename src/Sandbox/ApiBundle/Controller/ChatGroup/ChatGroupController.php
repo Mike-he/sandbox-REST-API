@@ -283,4 +283,75 @@ class ChatGroupController extends SandboxRestController
             error_log('Call Openfire Room API went wrong!');
         }
     }
+
+    /**
+     * @param ChatGroup $chatGroup
+     * @param User      $user
+     * @param bool      $mute
+     *
+     * @return mixed|void
+     */
+    protected function handleXmppChatGroupMute(
+        $chatGroup,
+        $user,
+        $mute
+    ) {
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            $domain = $globals['xmpp_domain'];
+            $targetJid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $userJid = $user->getXmppUsername().'@'.$domain;
+
+            // request json
+            $jsonDataArray = array(
+                'user_jid' => $userJid,
+                'target_jid' => $targetJid,
+                'mute' => $mute,
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // call openfire room api
+            $this->callOpenfireChatConfigApi($jsonData);
+        } catch (\Exception $e) {
+            error_log('Update XMPP chat group went wrong!');
+        }
+    }
+
+    /**
+     * @param object $jsonData
+     *
+     * @return mixed|void
+     */
+    protected function callOpenfireChatConfigApi(
+        $jsonData
+    ) {
+        try {
+            // get globals
+            $twig = $this->container->get('twig');
+            $globals = $twig->getGlobals();
+
+            // openfire API URL
+            $apiURL = $globals['openfire_innet_url'].
+                $globals['openfire_plugin_bstios'].
+                $globals['openfire_plugin_bstios_chatconfig'];
+
+            // init curl
+            $ch = curl_init($apiURL);
+
+            // get then response when post OpenFire API
+            $response = $this->get('curl_util')->callAPI($ch, 'POST', null, $jsonData);
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode != self::HTTP_STATUS_OK) {
+                return;
+            }
+
+            return $response;
+        } catch (\Exception $e) {
+            error_log('Call Openfire Chat Config API went wrong!');
+        }
+    }
 }

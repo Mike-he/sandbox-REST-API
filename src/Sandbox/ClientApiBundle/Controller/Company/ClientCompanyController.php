@@ -117,11 +117,6 @@ class ClientCompanyController extends CompanyController
     ) {
         $userId = $this->getUserId();
 
-        // check user is auth
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
-
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
@@ -208,11 +203,6 @@ class ClientCompanyController extends CompanyController
         ParamFetcherInterface $paramFetcher
     ) {
         $userId = $this->getUserId();
-
-        // check user is auth
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
 
         $clientId = $this->getUser()->getClientId();
 
@@ -320,11 +310,6 @@ class ClientCompanyController extends CompanyController
     ) {
         $userId = $this->getUserId();
 
-        // check user is auth
-        if (!$this->checkUserAuthorized($userId)) {
-            return new View(array());
-        }
-
         $query = $paramFetcher->get('query');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -362,9 +347,7 @@ class ClientCompanyController extends CompanyController
             }
 
             $user = $this->getRepo('User\User')->find($company->getCreatorId());
-            if (is_null($user)
-                || $user->isBanned()
-                || !$user->isAuthorized()) {
+            if (is_null($user) || $user->isBanned()) {
                 continue;
             }
 
@@ -495,16 +478,6 @@ class ClientCompanyController extends CompanyController
 //        }
 //        --------------------------->
         $userId = $this->getUserId();
-
-        // check user is authorized
-        $user = $this->getRepo('User\User')->findOneById($userId);
-        if (!$user->isAuthorized()) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_NOT_AUTHORIZE_SET_CODE,
-                self::ERROR_NOT_AUTHORIZE_SET_MESSAGE
-            );
-        };
 
         // check user has created a company
         if ($this->hasCreatedCompany($userId)) {

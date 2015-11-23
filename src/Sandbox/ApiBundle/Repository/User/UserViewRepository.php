@@ -115,7 +115,6 @@ class UserViewRepository extends EntityRepository
             ->orWhere('u.email LIKE :query')
             ->orWhere('u.phone LIKE :query')
             ->andWhere('u.banned = false')
-            ->andWhere('u.authorized = true')
             ->setParameter('query', $query.'%');
 
         $query->orderBy('up.userId', 'ASC')

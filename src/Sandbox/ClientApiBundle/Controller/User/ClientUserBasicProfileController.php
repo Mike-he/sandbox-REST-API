@@ -80,9 +80,8 @@ class ClientUserBasicProfileController extends UserProfileController
 
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        // check the other user is banned or unauthorized
-        if ($myUserId != $userId &&
-            ($user->isBanned() || !$user->isAuthorized())) {
+        // check the other user is banned
+        if ($myUserId != $userId && $user->isBanned()) {
             return new View();
         }
 

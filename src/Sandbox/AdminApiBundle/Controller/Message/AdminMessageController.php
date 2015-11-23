@@ -17,6 +17,7 @@ use FOS\RestBundle\View\View;
 use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use Sandbox\ApiBundle\Traits\MessageNotification;
 
 /**
  * Admin Message Controller.
@@ -30,6 +31,8 @@ use FOS\RestBundle\Controller\Annotations;
  */
 class AdminMessageController extends SandboxRestController
 {
+    use MessageNotification;
+
     /**
      * Get Message List.
      *

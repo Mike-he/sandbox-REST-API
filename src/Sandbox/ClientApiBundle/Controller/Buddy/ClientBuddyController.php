@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Traits\BuddyNotification;
 
 /**
  * Rest controller for UserProfile.
@@ -28,6 +29,8 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
  */
 class ClientBuddyController extends BuddyController
 {
+    use BuddyNotification;
+
     /**
      * Search buddies.
      *
@@ -52,11 +55,6 @@ class ClientBuddyController extends BuddyController
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
-
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($myUserId)) {
-            return new View(array());
-        }
 
         // get user
         $query = $paramFetcher->get('query');
@@ -152,11 +150,6 @@ class ClientBuddyController extends BuddyController
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
-
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($myUserId)) {
-            return new View(array());
-        }
 
         // get buddies
         $buddies = $this->getRepo('Buddy\Buddy')->getBuddies($myUser);
