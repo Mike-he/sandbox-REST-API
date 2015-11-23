@@ -93,8 +93,11 @@ class ClientEventRegistrationController extends EventController
         $userId = $this->getUserId();
 
         // check event is valid
-        $event = $this->getRepo('Event\Event')->find($eventId);
-        if (is_null($event) || $event->getVisible() == false) {
+        $event = $this->getRepo('Event\Event')->findOneBy(array(
+            'id' => $eventId,
+            'isDeleted' => false,
+        ));
+        if (is_null($event)) {
             throw new BadRequestHttpException(self::ERROR_EVENT_INVALID);
         }
 
