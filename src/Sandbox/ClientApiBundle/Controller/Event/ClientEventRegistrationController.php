@@ -275,4 +275,31 @@ class ClientEventRegistrationController extends EventController
 
         return new View();
     }
+
+    /**
+     * Check if is over limit number.
+     *
+     * @param Event $event
+     *
+     * @return bool
+     */
+    protected function checkIfOverLimitNumber(
+        $event
+    ) {
+        $limitNumber = $event->getLimitNumber();
+        if ($limitNumber == 0) {
+            return false;
+        }
+
+        $registrationCounts = $this->getRepo('Event\EventRegistration')
+            ->getRegistrationCounts($event->getId());
+        $registrationCounts = (int) $registrationCounts;
+
+        // if not over limit number
+        if ($registrationCounts < $limitNumber) {
+            return false;
+        }
+
+        return true;
+    }
 }
