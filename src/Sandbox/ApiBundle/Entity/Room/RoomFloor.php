@@ -30,7 +30,7 @@ class RoomFloor
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "admin_building"})
      */
     private $id;
 
