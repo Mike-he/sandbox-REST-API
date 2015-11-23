@@ -13,6 +13,7 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Traits\CompanyNotification;
 
 /**
  * Rest controller for CompanyMemberMap.
@@ -26,6 +27,7 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientCompanyMemberController extends CompanyMemberController
 {
+    use CompanyNotification;
     const ERROR_IS_CREATOR_SET_CODE = 400001;
     const ERROR_IS_CREATOR_SET_MESSAGE = 'You are company creator, cannot quit!';
 

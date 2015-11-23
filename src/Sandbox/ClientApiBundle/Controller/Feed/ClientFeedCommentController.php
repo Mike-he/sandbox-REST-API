@@ -16,6 +16,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Traits\FeedNotification;
 
 /**
  * Manipulate the comments of a feed.
@@ -29,6 +30,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientFeedCommentController extends FeedCommentController
 {
+    use FeedNotification;
+
     /**
      * Get all comments of a given feed.
      *

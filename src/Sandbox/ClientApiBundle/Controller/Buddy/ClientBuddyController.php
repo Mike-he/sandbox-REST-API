@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Traits\BuddyNotification;
 
 /**
  * Rest controller for UserProfile.
@@ -28,6 +29,8 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
  */
 class ClientBuddyController extends BuddyController
 {
+    use BuddyNotification;
+
     /**
      * Search buddies.
      *

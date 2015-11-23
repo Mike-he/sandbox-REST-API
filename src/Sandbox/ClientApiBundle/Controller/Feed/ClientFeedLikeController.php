@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Feed\Feed;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Traits\FeedNotification;
 
 /**
  * Manipulate the likes of a feed.
@@ -27,6 +28,8 @@ use Sandbox\ApiBundle\Entity\User\User;
  */
 class ClientFeedLikeController extends FeedLikeController
 {
+    use FeedNotification;
+
     /**
      * like a post.
      *
