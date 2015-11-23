@@ -22,7 +22,6 @@ class BuddyRepository extends EntityRepository
                 LEFT JOIN SandboxApiBundle:User\User u
                 WITH b.buddyId = u.id
                 WHERE u.banned = FALSE
-                  AND u.authorized = TRUE
                   AND b.user = :myUser
                 '
             )

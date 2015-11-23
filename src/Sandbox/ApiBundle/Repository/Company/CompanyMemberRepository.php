@@ -25,7 +25,6 @@ class CompanyMemberRepository extends EntityRepository
                     WHERE
                       cm.company = :company
                       AND u.banned = FALSE
-                      AND u.authorized = TRUE
                 '
             )
             ->setParameter('company', $company);

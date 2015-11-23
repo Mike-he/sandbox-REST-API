@@ -56,11 +56,6 @@ class ClientBuddyController extends BuddyController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($myUserId)) {
-            return new View(array());
-        }
-
         // get user
         $query = $paramFetcher->get('query');
         if (filter_var($query, FILTER_VALIDATE_EMAIL)) {
@@ -155,11 +150,6 @@ class ClientBuddyController extends BuddyController
         // get my user
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
-
-        // if user is not authorized, respond empty list
-        if (!$this->checkUserAuthorized($myUserId)) {
-            return new View(array());
-        }
 
         // get buddies
         $buddies = $this->getRepo('Buddy\Buddy')->getBuddies($myUser);

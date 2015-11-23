@@ -26,7 +26,6 @@ class CompanyInvitationRepository extends EntityRepository
                     WHERE
                      ci.recvUserId = :myUser
                      AND u.banned = FALSE
-                     AND u.authorized = TRUE
                 '
             )
             ->setParameter('myUser', $myUser);
