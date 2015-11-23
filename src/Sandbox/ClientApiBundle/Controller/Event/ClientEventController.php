@@ -162,10 +162,13 @@ class ClientEventController extends EventController
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+            $registrationCounts = $this->getRepo('Event\EventRegistration')
+                ->getRegistrationCounts($event->getId());
 
             $event->setAttachments($attachments);
             $event->setDates($dates);
             $event->setForms($forms);
+            $event->setRegisteredPersonNumber((int) $registrationCounts);
 
             array_push($eventsArray, $event);
         }
@@ -221,20 +224,17 @@ class ClientEventController extends EventController
             $event->setIsRegistered(true);
         }
 
-        // check if registration over limit number
-        $isOverLimitNumber = $this->checkIfOverLimitNumber($event);
-        if ($isOverLimitNumber) {
-            $event->setIsOverLimitNumber(true);
-        }
-
         // set other array
         $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
         $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
         $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+        $registrationCounts = $this->getRepo('Event\EventRegistration')
+            ->getRegistrationCounts($event->getId());
 
         $event->setAttachments($attachments);
         $event->setDates($dates);
         $event->setForms($forms);
+        $event->setRegisteredPersonNumber((int) $registrationCounts);
 
         // set view
         $view = new View($event);

@@ -757,26 +757,6 @@ class Event
     }
 
     /**
-     * @param bool $isOverLimitNumber
-     *
-     * @return Event
-     */
-    public function setIsOverLimitNumber($isOverLimitNumber)
-    {
-        $this->isOverLimitNumber = $isOverLimitNumber;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function IsOverLimitNumber()
-    {
-        return $this->isOverLimitNumber;
-    }
-
-    /**
      * Set registered person number.
      *
      * @param int $registeredPersonNumber
