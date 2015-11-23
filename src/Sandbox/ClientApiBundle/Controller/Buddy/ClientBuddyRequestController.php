@@ -71,7 +71,7 @@ class ClientBuddyRequestController extends BuddyRequestController
                         'buddy' => $askUser,
                     ));
                     if (is_null($buddy)) {
-                        $status = BuddyRequest::STATUS_PENDING;
+                        $status = null;
                     }
                 }
 
@@ -82,9 +82,12 @@ class ClientBuddyRequestController extends BuddyRequestController
                     'id' => $buddyRequest->getId(),
                     'ask_user_id' => $buddyRequest->getAskUserId(),
                     'message' => $buddyRequest->getMessage(),
-                    'status' => $status,
                     'profile' => $profile,
                 );
+
+                if (!is_null($status)) {
+                    $myRequest['status'] = $status;
+                }
 
                 array_push($myRequests, $myRequest);
             } catch (\Exception $e) {
