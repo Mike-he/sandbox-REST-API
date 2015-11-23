@@ -224,8 +224,8 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         // check user that request me is not banned
         $user = $this->getRepo('User\User')->findOneById($askUserId);
-        if ($user->isBanned() || !$user->isAuthorized()) {
-            // user of the request is banned or unauthorized
+        if ($user->isBanned()) {
+            // user of the request is banned
             return $this->customErrorView(
                 401,
                 self::ERROR_ACCOUNT_BANNED_CODE,

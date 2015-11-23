@@ -25,7 +25,6 @@ class ChatGroupMemberRepository extends EntityRepository
                     WHERE
                       cgm.chatGroup = :chatGroup
                       AND u.banned = FALSE
-                      AND u.authorized = TRUE
                 '
             )
             ->setParameter('chatGroup', $chatGroup);

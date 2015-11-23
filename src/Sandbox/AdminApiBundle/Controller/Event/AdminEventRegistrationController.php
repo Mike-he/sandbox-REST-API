@@ -84,8 +84,8 @@ class AdminEventRegistrationController extends SandboxRestController
             }
 
             // check registration user's banned and authorized status
-            $user = $this->getRepo('User\User')->find($registration->getUser());
-            if ($user->isBanned() || !$user->isAuthorized()) {
+            $user = $registration->getUser();
+            if ($user->isBanned()) {
                 return $this->customErrorView(
                     401,
                     self::ERROR_ACCOUNT_BANNED_CODE,

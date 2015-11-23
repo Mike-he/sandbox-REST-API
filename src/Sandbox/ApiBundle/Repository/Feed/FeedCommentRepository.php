@@ -38,9 +38,8 @@ class FeedCommentRepository extends EntityRepository
         $query->where('c.feedId = :feedId');
         $parameters['feedId'] = $id;
 
-        // filter by user banned and authorized
+        // filter by user banned
         $query->andWhere('u.banned = FALSE');
-        $query->andWhere('u.authorized = TRUE');
 
         // filter by type
         if (!is_null($lastId)) {

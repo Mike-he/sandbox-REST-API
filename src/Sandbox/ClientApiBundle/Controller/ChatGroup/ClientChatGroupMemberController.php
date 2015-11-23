@@ -47,8 +47,8 @@ class ClientChatGroupMemberController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             return new View();
         }
 
@@ -106,8 +106,8 @@ class ClientChatGroupMemberController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
@@ -181,8 +181,8 @@ class ClientChatGroupMemberController extends ChatGroupController
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        // check banned and authorized
-        if ($myUser->isBanned() || !$myUser->isAuthorized()) {
+        // check banned
+        if ($myUser->isBanned()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 

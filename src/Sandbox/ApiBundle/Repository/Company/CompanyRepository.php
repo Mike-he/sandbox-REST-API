@@ -33,8 +33,7 @@ class CompanyRepository extends EntityRepository
         }
 
         $queryStr = $queryStr.
-                  ' WHERE u.authorized = TRUE
-                  AND u.banned = FALSE
+                  ' WHERE u.banned = FALSE
                   AND c.banned = FALSE';
 
         if (!is_null($recordIds) && !empty($recordIds)) {
@@ -150,7 +149,6 @@ class CompanyRepository extends EntityRepository
                   WITH c.creatorId = u.id
                   WHERE
                   c.buildingId IN (:buildingIds)
-                  AND u.authorized = TRUE
                   AND u.banned = FALSE
                   AND c.banned = FALSE
                   ORDER BY field
@@ -183,7 +181,6 @@ class CompanyRepository extends EntityRepository
                   WHERE
                     cm.userId = :userId
                     AND u.banned = FALSE
-                    AND u.authorized = TRUE
                 '
             )
             ->setParameter('userId', $userId);
