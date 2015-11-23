@@ -147,13 +147,11 @@ class RoomBuilding implements JsonSerializable
     private $lng;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="floorNumber", type="integer", nullable=false)
+     * @var array
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
-    private $floorNumber;
+    private $floors;
 
     /**
      * @var string
@@ -353,27 +351,27 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
-     * Set floor number.
+     * Set floors.
      *
-     * @param int $floorNumber
+     * @param array $floors
      *
      * @return RoomBuilding
      */
-    public function setFloorNumber($floorNumber)
+    public function setFloors($floors)
     {
-        $this->floorNumber = $floorNumber;
+        $this->floors = $floors;
 
         return $this;
     }
 
     /**
-     * Get floor number.
+     * Get floors.
      *
      * @return int
      */
-    public function getFloorNumber()
+    public function getFloors()
     {
-        return $this->floorNumber;
+        return $this->floors;
     }
 
     /**

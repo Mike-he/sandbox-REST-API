@@ -22,7 +22,7 @@ class RoomBuildingPostType extends AbstractType
             ->add('address')
             ->add('lat')
             ->add('lng')
-            ->add('floor_number')
+            ->add('floors')
             ->add('server')
             ->add('room_attachments')
         ;

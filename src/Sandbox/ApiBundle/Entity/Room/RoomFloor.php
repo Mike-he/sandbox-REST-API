@@ -44,11 +44,19 @@ class RoomFloor
     private $buildingId;
 
     /**
+     * @var RoomBuilding
+     *
+     * @ORM\ManyToOne(targetEntity="RoomBuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $building;
+
+    /**
      * @var int
      *
-     * @ORM\Column(name="floorNumber", type="integer", nullable=false)
+     * @ORM\Column(name="floorNumber", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "admin_building"})
      */
     private $floorNumber;
 
@@ -71,7 +79,7 @@ class RoomFloor
      */
     public function setBuildingId($buildingId)
     {
-        $this->buildingid = $buildingId;
+        $this->buildingId = $buildingId;
 
         return $this;
     }
@@ -95,7 +103,7 @@ class RoomFloor
      */
     public function setFloorNumber($floorNumber)
     {
-        $this->floornumber = $floorNumber;
+        $this->floorNumber = $floorNumber;
 
         return $this;
     }
@@ -108,5 +116,29 @@ class RoomFloor
     public function getFloorNumber()
     {
         return $this->floorNumber;
+    }
+
+    /**
+     * Set building.
+     *
+     * @param RoomBuilding $building
+     *
+     * @return RoomFloor
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+
+        return $this;
+    }
+
+    /**
+     * Get building.
+     *
+     * @return RoomBuilding
+     */
+    public function getBuilding()
+    {
+        return $this->building;
     }
 }

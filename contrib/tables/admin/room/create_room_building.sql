@@ -5,7 +5,6 @@ CREATE TABLE `RoomBuilding` (
   `address` VARCHAR(255) NOT NULL,
   `lat` FLOAT(9,6) NOT NULL,
   `lng` FLOAT(9,6) NOT NULL,
-  `floorNumber` int(11) NOT NULL,
   `cityId` int(11) NOT NULL,
   `server` VARCHAR(255) NOT NULL,
   `creationDate` datetime NOT NULL,
