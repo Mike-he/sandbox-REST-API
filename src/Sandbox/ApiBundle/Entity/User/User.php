@@ -300,8 +300,9 @@ class User implements UserInterface
 
     public function __construct()
     {
-        $this->setCreationDate(new \DateTime('now'));
-        $this->setModificationDate(new \DateTime('now'));
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 
     /**

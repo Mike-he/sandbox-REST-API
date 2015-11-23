@@ -21,7 +21,7 @@ class AppInfo
     /**
      * @var string
      *
-     * @ORM\Column(name="platform", type="string", length=16, nullable=false)
+     * @ORM\Column(name="platform", type="string", length=16)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Serializer\Groups({"main"})
@@ -67,28 +67,6 @@ class AppInfo
      * @Serializer\Groups({"main"})
      */
     private $copyrightYear;
-
-    /**
-     * Get copyrightYear.
-     *
-     * @return string
-     */
-    public function getCopyrightYear()
-    {
-        return $this->copyrightYear;
-    }
-
-    /**
-     * Set copyrightYear.
-     *
-     * @param string $copyrightYear
-     *
-     * @return AppInfo
-     */
-    public function setCopyrightYear($copyrightYear)
-    {
-        $this->copyrightYear = $copyrightYear;
-    }
 
     /**
      * Set platform.
@@ -208,5 +186,27 @@ class AppInfo
     public function getEnvironment()
     {
         return $this->environment;
+    }
+
+    /**
+     * Get copyrightYear.
+     *
+     * @return string
+     */
+    public function getCopyrightYear()
+    {
+        return $this->copyrightYear;
+    }
+
+    /**
+     * Set copyrightYear.
+     *
+     * @param string $copyrightYear
+     *
+     * @return AppInfo
+     */
+    public function setCopyrightYear($copyrightYear)
+    {
+        $this->copyrightYear = $copyrightYear;
     }
 }
