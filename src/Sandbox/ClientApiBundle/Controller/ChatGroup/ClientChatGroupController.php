@@ -429,6 +429,9 @@ class ClientChatGroupController extends ChatGroupController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
+        // set chat config in Openfire
+        $this->handleXmppChatGroupMute($chatGroup, $myUser, $mute);
+
         return new View();
     }
 }
