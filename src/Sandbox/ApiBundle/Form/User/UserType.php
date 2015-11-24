@@ -16,6 +16,8 @@ class UserType extends AbstractType
     {
         $builder
             ->add('banned')
+            ->add('card_no')
+            ->add('credential_no')
         ;
     }
 

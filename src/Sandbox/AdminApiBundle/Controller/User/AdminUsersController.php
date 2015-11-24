@@ -364,7 +364,7 @@ class AdminUsersController extends DoorController
             AdminPermissionMap::OP_LEVEL_EDIT
         );
 
-        //get user Entity
+        // get user
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
@@ -443,9 +443,11 @@ class AdminUsersController extends DoorController
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
+        $form = $this->createForm(new UserType(), $user);
+        $form->handleRequest($request);
+
         // authorized user
         $user->setAuthorized(true);
-
         $user->setModificationDate(new \DateTime('now'));
 
         // update to db
