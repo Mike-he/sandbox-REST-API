@@ -6,6 +6,13 @@ use Doctrine\ORM\EntityRepository;
 
 class UserViewRepository extends EntityRepository
 {
+    /**
+     * @param $banned
+     * @param $sortBy
+     * @param $direction
+     *
+     * @return array
+     */
     public function getUsers(
         $banned,
         $sortBy,
@@ -33,6 +40,11 @@ class UserViewRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $ids
+     *
+     * @return array
+     */
     public function getUsersByIds(
         $ids
     ) {
@@ -72,10 +84,12 @@ class UserViewRepository extends EntityRepository
         $direction
     ) {
         $queryResults = $this->createQueryBuilder('u')
-            ->where('u.name LIKE :query')
-            ->orWhere('u.id LIKE :query')
+            ->where('u.id LIKE :query')
+            ->orWhere('u.name LIKE :query')
             ->orWhere('u.email LIKE :query')
             ->orWhere('u.phone LIKE :query')
+            ->orWhere('u.cardNo LIKE :query')
+            ->orWhere('u.credentialNo LIKE :query')
             ->setParameter('query', $query.'%');
 
         if (!is_null($banned)) {
