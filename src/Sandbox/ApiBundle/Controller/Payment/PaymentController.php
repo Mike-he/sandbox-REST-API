@@ -29,6 +29,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class PaymentController extends DoorController
 {
     const STATUS_PAID = 'paid';
+    const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
     const INSUFFICIENT_FUNDS_CODE = 400001;
     const INSUFFICIENT_FUNDS_MESSAGE = 'Insufficient funds in account balance - 余额不足';
     const SYSTEM_ERROR_CODE = 500001;
@@ -37,8 +38,6 @@ class PaymentController extends DoorController
     const INVALID_FORM_MESSAGE = 'Invalid Form';
     const PRODUCT_NOT_FOUND_CODE = 400003;
     const PRODUCT_NOT_FOUND_MESSAGE = 'Product Does Not Exist';
-    const ORDER_CONFLICT_CODE = 400004;
-    const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
     const PRICE_MISMATCH_CODE = 400005;
     const PRICE_MISMATCH_MESSAGE = 'PRICE DOES NOT MATCH';
     const WRONG_PAYMENT_STATUS_CODE = 400006;
@@ -75,8 +74,6 @@ class PaymentController extends DoorController
     const ROOM_NOT_OPEN_MESSAGE = 'Meeting Room Is Not Opening During This Hour';
     const PRODUCT_NOT_AVAILABLE_CODE = 400022;
     const PRODUCT_NOT_AVAILABLE_MESSAGE = 'Product Is Not Available';
-    const FLEXIBLE_ROOM_FULL_CODE = 400023;
-    const FLEXIBLE_ROOM_FULL_MESSAGE = 'This Room Is Full';
     const FOOD_SOLD_OUT_CODE = 400024;
     const FOOD_SOLD_OUT_MESSAGE = 'This Item Is Sold Out';
     const FOOD_DOES_NOT_EXIST_CODE = 400025;
@@ -452,7 +449,7 @@ class PaymentController extends DoorController
         $datetime = new \DateTime();
         $now = clone $datetime;
         $now->setTime(00, 00, 00);
-        $date = $datetime->format('Ymdhis');
+        $date = round(microtime(true) * 1000);
         $counter = $this->getRepo('Order\OrderCount')->findOneBy(['orderDate' => $now]);
         if (is_null($counter)) {
             $count = 1;
@@ -464,7 +461,23 @@ class PaymentController extends DoorController
             $em->persist($counter);
             $em->flush();
         }
-        $orderNumber = $letter.$date.$count;
+        $orderNumber = $letter."$date"."$count";
+
+        return $orderNumber;
+    }
+
+    /**
+     * @param $letter
+     *
+     * @return string
+     */
+    public function getOrderNumberForProductOrder(
+        $letter,
+        $orderCheck
+    ) {
+        $date = round(microtime(true) * 1000);
+        $checkId = $orderCheck->getId();
+        $orderNumber = $letter."$date"."$checkId";
 
         return $orderNumber;
     }
