@@ -60,6 +60,22 @@ class UserView
     /**
      * @var string
      *
+     * @ORM\Column(name="cardNo", type="string", length=32, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $cardNo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="credentialNo", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $credentialNo;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
      * @Serializer\Groups({"main", "account", "client", "room_usage"})
      */
@@ -121,6 +137,26 @@ class UserView
     public function isAuthorized()
     {
         return $this->authorized;
+    }
+
+    /**
+     * Get cardNo.
+     *
+     * @return string
+     */
+    public function getCardNo()
+    {
+        return $this->cardNo;
+    }
+
+    /**
+     * Get credentialNo.
+     *
+     * @return string
+     */
+    public function getCredentialNo()
+    {
+        return $this->credentialNo;
     }
 
     /**

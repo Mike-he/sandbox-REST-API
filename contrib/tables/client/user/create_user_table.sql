@@ -6,6 +6,8 @@ CREATE TABLE `User` (
   `phone` varchar(64) DEFAULT NULL,
   `banned` tinyint(4) NOT NULL,
   `authorized` tinyint(4) NOT NULL,
+  `cardNo` varchar(32) DEFAULT NULL,
+  `credentialNo` varchar(64) DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

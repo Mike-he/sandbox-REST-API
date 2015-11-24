@@ -151,6 +151,7 @@ class DoorController extends SandboxRestController
                 error_log('Door Access Error');
             }
         } catch (\Exception $e) {
+            error_log('Door Access Error');
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $base, $globals);
             }
@@ -159,7 +160,7 @@ class DoorController extends SandboxRestController
 
     /**
      * @param $base
-     * @param $userId
+     * @param $userArray
      * @param $orderId
      * @param $start
      * @param $end
@@ -347,7 +348,7 @@ class DoorController extends SandboxRestController
 
         foreach ($buildings as $oneBuilding) {
             $server = $oneBuilding->getServer();
-            if (is_null($server)) {
+            if (is_null($server) || empty($server)) {
                 continue;
             }
 
