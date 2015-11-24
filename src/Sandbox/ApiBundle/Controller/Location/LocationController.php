@@ -101,12 +101,14 @@ class LocationController extends SandboxRestController
             $floors = $this->getRepo('Room\RoomFloor')->findBy(
                 ['buildingId' => $buildingId]
             );
-
-            return new View($floors);
+        } else {
+            $floors = $this->getRepo('Room\RoomFloor')->findAll();
         }
-        $floors = $this->getRepo('Room\RoomFloor')->findAll();
 
-        return new View($floors);
+        $view = new View($floors);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+
+        return $view;
     }
 
     /**
