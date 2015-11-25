@@ -201,15 +201,6 @@ class ClientCompanyMemberController extends CompanyMemberController
         ));
 
         if (!is_null($companyMember)) {
-            // send notification
-            $this->sendXmppCompanyNotification(
-                $company,
-                $user,
-                $user,
-                'member_quit',
-                true
-            );
-
             $em = $this->getDoctrine()->getManager();
             $em->remove($companyMember);
             $em->flush();
@@ -245,15 +236,6 @@ class ClientCompanyMemberController extends CompanyMemberController
             if (is_null($member)) {
                 continue;
             }
-
-            // send notification
-            $this->sendXmppCompanyNotification(
-                $company,
-                $member,
-                $member,
-                'member_remove',
-                true
-            );
 
             $em->remove($member);
         }
