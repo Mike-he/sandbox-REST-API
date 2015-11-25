@@ -72,6 +72,9 @@ class ClientCompanyController extends CompanyController
         // set company verify record
         foreach ($companies as $company) {
             $record = $this->getRepo('Company\CompanyVerifyRecord')->getCurrentRecord($company->getId());
+            if (is_null($record) || empty($record)) {
+                continue;
+            }
             $company->setCompanyVerifyRecord($record);
         }
 
