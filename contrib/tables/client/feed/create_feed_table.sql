@@ -4,5 +4,6 @@ CREATE TABLE `Feed` (
   `ownerId` varchar(64) NOT NULL,
   `isDeleted` tinyint(1) DEFAULT FALSE NOT NULL,
   `creationDate` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_Feed_ownerId` FOREIGN KEY (`ownerId`) REFERENCES `User` (`id`) ON DELETE CASCADE
 );
