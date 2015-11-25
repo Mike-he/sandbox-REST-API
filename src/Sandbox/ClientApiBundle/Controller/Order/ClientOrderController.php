@@ -716,16 +716,21 @@ class ClientOrderController extends PaymentController
 
             // get appointed user
             $userArray = [];
-            $appointed = $order->getAppointed();
-            if (!is_null($appointed) && !empty($appointed)) {
-                array_push($userArray, $appointed);
-            }
-
-            // get invited users
-            $people = $this->getRepo('Order\InvitedPeople')->findBy(['orderId' => $id]);
-            if (!empty($people)) {
-                foreach ($people as $person) {
-                    array_push($userArray, $person->getUserId());
+            $type = $order->getProduct()->getRoom()->getType();
+            if ($type == Room::TYPE_OFFICE) {
+                $action = ProductOrder::ACTION_INVITE_REMOVE;
+                // get invited users
+                $people = $this->getRepo('Order\InvitedPeople')->findBy(['orderId' => $id]);
+                if (!empty($people)) {
+                    foreach ($people as $person) {
+                        array_push($userArray, $person->getUserId());
+                    }
+                }
+            } else {
+                $action = ProductOrder::ACTION_APPOINT_REMOVE;
+                $appointed = $order->getAppointed();
+                if (!is_null($appointed) && !empty($appointed)) {
+                    array_push($userArray, $appointed);
                 }
             }
 
@@ -735,7 +740,7 @@ class ClientOrderController extends PaymentController
                     $id,
                     $order->getOrderNumber(),
                     $userArray,
-                    ProductOrder::ACTION_INVITE_REMOVE,
+                    $action,
                     $order->getUserId()
                 );
             }
