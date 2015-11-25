@@ -253,14 +253,14 @@ class Event
     private $forms;
 
     /**
-     * @var bool
+     * @var EventRegistration
      *
      * @Serializer\Groups({
      *      "main",
      *      "client_event"
      * })
      */
-    private $isRegistered;
+    private $eventRegistration;
 
     /**
      * @var int
@@ -737,23 +737,27 @@ class Event
     }
 
     /**
-     * @param bool $isRegistered
+     * Set eventRegistration.
+     *
+     * @param EventRegistration $eventRegistration
      *
      * @return Event
      */
-    public function setIsRegistered($isRegistered)
+    public function setEventRegistration($eventRegistration)
     {
-        $this->isRegistered = $isRegistered;
+        $this->eventRegistration = $eventRegistration;
 
         return $this;
     }
 
     /**
-     * @return bool
+     * Get eventRegistration.
+     *
+     * @return EventRegistration
      */
-    public function IsRegistered()
+    public function getEventRegistration()
     {
-        return $this->isRegistered;
+        return $this->eventRegistration;
     }
 
     /**
