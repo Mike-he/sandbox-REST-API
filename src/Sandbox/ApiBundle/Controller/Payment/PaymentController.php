@@ -9,7 +9,6 @@ use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Sandbox\ApiBundle\Entity\Food\FoodOrder;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
@@ -95,30 +94,7 @@ class PaymentController extends DoorController
         $order,
         $channel
     ) {
-        switch ($channel) {
-            case self::PAYMENT_CHANNEL_ALIPAY:
-                $payChannel = ProductOrder::CHANNEL_ALIPAY;
-
-                break;
-            case self::PAYMENT_CHANNEL_WECHAT:
-                $payChannel = ProductOrder::CHANNEL_WECHAT;
-
-                break;
-            case self::PAYMENT_CHANNEL_UPACP:
-                $payChannel = ProductOrder::CHANNEL_UNIONPAY;
-
-                break;
-            case self::PAYMENT_CHANNEL_ACCOUNT:
-                $payChannel = ProductOrder::CHANNEL_ACCOUNT;
-
-                break;
-            default:
-                $payChannel = null;
-
-                break;
-        }
-
-        $order->setPayChannel($payChannel);
+        $order->setPayChannel($channel);
     }
 
     /**

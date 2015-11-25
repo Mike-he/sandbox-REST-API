@@ -19,11 +19,6 @@ class ProductOrder
     const STATUS_UNPAID = 'unpaid';
     const STATUS_COMPLETED = 'completed';
 
-    const CHANNEL_WECHAT = '微信支付';
-    const CHANNEL_ALIPAY = '支付宝';
-    const CHANNEL_UNIONPAY = '银联付款';
-    const CHANNEL_ACCOUNT = '账户余额';
-
     const ACTION_TYPE = 'product_order';
     const ACTION_INVITE_ADD = 'invite_add';
     const ACTION_APPOINT_ADD = 'appoint_add';
