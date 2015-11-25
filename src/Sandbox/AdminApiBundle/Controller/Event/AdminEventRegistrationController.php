@@ -240,6 +240,9 @@ class AdminEventRegistrationController extends SandboxRestController
             $event_id,
             $registration_id
             );
+        if (is_null($eventRegistrationArray)) {
+            return new View(array());
+        }
 
         $formsArray = $this->getEventRegistrationFormOptions($registration_id);
 
