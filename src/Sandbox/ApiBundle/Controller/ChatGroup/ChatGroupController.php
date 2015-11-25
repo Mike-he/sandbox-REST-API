@@ -62,7 +62,8 @@ class ChatGroupController extends SandboxRestController
             $globals = $twig->getGlobals();
 
             $domain = $globals['xmpp_domain'];
-            $jid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $id = $chatGroup->getId();
+            $jid = "$id".'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
             $owner = $chatGroup->getCreator()->getXmppUsername().'@'.$domain;
             $members = $this->addMembers($chatGroup, $domain);
 
@@ -138,7 +139,8 @@ class ChatGroupController extends SandboxRestController
             $globals = $twig->getGlobals();
 
             $domain = $globals['xmpp_domain'];
-            $jid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $id = $chatGroup->getId();
+            $jid = "$id".'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
             $actor = $user->getXmppUsername().'@'.$domain;
 
             $room = array(
@@ -176,7 +178,8 @@ class ChatGroupController extends SandboxRestController
             $globals = $twig->getGlobals();
 
             $domain = $globals['xmpp_domain'];
-            $jid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $id = $chatGroup->getId();
+            $jid = "$id".'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
             $actor = $user->getXmppUsername().'@'.$domain;
 
             $room = array('jid' => $jid);
@@ -215,7 +218,8 @@ class ChatGroupController extends SandboxRestController
             $globals = $twig->getGlobals();
 
             $domain = $globals['xmpp_domain'];
-            $jid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $id = $chatGroup->getId();
+            $jid = "$id".'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
             $actor = $user->getXmppUsername().'@'.$domain;
 
             $room = array('jid' => $jid);
@@ -302,7 +306,8 @@ class ChatGroupController extends SandboxRestController
             $globals = $twig->getGlobals();
 
             $domain = $globals['xmpp_domain'];
-            $targetJid = $chatGroup->getId().'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $id = $chatGroup->getId();
+            $targetJid = "$id".'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
             $userJid = $user->getXmppUsername().'@'.$domain;
 
             // request json
