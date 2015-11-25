@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Order;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Symfony\Component\Validator\Constraints\DateTime;
@@ -152,6 +153,11 @@ class OrderRepository extends EntityRepository
                     i.userId = :userId
                 )'
             )
+            ->andWhere(
+                '(
+                    o.status = \''.ProductOrder::STATUS_PAID.'\' OR '
+                    .'o.status = \''.ProductOrder::STATUS_COMPLETED.'\'
+                )')
             ->andWhere('o.startDate <= :now AND o.endDate > :now')
             ->setParameter('now', $now)
             ->setParameter('userId', $userId);
