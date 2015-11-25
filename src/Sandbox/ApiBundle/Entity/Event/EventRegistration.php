@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Event;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * EventRegistration.
@@ -24,6 +25,7 @@ class EventRegistration
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -31,6 +33,7 @@ class EventRegistration
      * @var int
      *
      * @ORM\Column(name="eventId", type="integer", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $eventId;
 
@@ -41,6 +44,7 @@ class EventRegistration
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="eventId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     * @Serializer\Groups({"main"})
      */
     private $event;
 
@@ -48,6 +52,7 @@ class EventRegistration
      * @var int
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $userId;
 
@@ -58,6 +63,7 @@ class EventRegistration
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="userId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
+     * @Serializer\Groups({"main"})
      */
     private $user;
 
@@ -65,6 +71,10 @@ class EventRegistration
      * @var string
      *
      * @ORM\Column(name="status", type="string", nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
      */
     private $status = self::STATUS_PENDING;
 
@@ -72,6 +82,7 @@ class EventRegistration
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -79,6 +90,7 @@ class EventRegistration
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
