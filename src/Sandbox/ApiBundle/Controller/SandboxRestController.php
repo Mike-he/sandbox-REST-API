@@ -392,7 +392,7 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param int $userId
+     * @param int    $userId
      * @param string $amount
      * @param string $tradeId
      *

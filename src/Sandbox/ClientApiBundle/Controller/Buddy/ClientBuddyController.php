@@ -285,7 +285,8 @@ class ClientBuddyController extends BuddyController
         Request $request
     ) {
         // get my user
-        $myUser = $this->getUser()->getMyUser();
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get request data
         $contactsData = json_decode($request->getContent(), true);
@@ -308,7 +309,7 @@ class ClientBuddyController extends BuddyController
                     $user = $this->getRepo('User\User')->findOneByEmail($contact['email']);
                 }
 
-                if (is_null($user)) {
+                if (is_null($user) || $user == $myUser) {
                     continue;
                 }
 
