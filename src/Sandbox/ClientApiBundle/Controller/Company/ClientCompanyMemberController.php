@@ -241,7 +241,7 @@ class ClientCompanyMemberController extends CompanyMemberController
         $em = $this->getDoctrine()->getManager();
 
         foreach ($memberIds as $memberId) {
-            $member = $this->getRepo('Company\CompanyMember')->findBy($memberId);
+            $member = $this->getRepo('Company\CompanyMember')->find($memberId);
             if (is_null($member)) {
                 continue;
             }
