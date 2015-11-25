@@ -65,7 +65,7 @@ class ClientPaymentController extends PaymentController
                     $channel
                 );
                 $amount = $this->postConsumeBalance(
-                    $userId,
+                    $order->getUserId(),
                     $price,
                     $orderNumber
                 );

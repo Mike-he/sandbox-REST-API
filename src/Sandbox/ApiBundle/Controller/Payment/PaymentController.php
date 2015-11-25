@@ -175,7 +175,10 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $data
+     * @param $chargeId
+     * @param $channel
+     *
+     * @return ProductOrder
      */
     public function setProductOrder(
         $chargeId,
