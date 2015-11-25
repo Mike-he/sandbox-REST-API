@@ -20,8 +20,8 @@ use Sandbox\ApiBundle\Entity\User\User;
 class CompanyController extends SandboxRestController
 {
     /**
-     * @param int $company
-     * @param int $userId
+     * @param Company $company
+     * @param int     $userId
      */
     public function throwAccessDeniedIfNotCompanyCreator(
         $company,

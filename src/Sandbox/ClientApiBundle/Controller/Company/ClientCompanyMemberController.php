@@ -231,7 +231,7 @@ class ClientCompanyMemberController extends CompanyMemberController
         $memberIds
     ) {
         // check user is allowed to modify
-        $this->throwAccessDeniedIfNotCompanyCreator($company->getCreatorId(), $user->getId());
+        $this->throwAccessDeniedIfNotCompanyCreator($company, $user->getId());
 
         if (is_null($memberIds) || empty($memberIds)) {
             return new View();
