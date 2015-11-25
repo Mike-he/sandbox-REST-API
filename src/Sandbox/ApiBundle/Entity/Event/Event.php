@@ -263,6 +263,16 @@ class Event
     private $isRegistered;
 
     /**
+     * @var bool
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $isAccepted;
+
+    /**
      * @var int
      *
      * @Serializer\Groups({
@@ -802,5 +812,29 @@ class Event
     public function getAcceptedPersonNumber()
     {
         return $this->acceptedPersonNumber;
+    }
+
+    /**
+     * Set isAccepted.
+     *
+     * @param $isAccepted
+     *
+     * @return Event
+     */
+    public function setIsAccepted($isAccepted)
+    {
+        $this->isAccepted = $isAccepted;
+
+        return $this;
+    }
+
+    /**
+     * Get isAccepted.
+     *
+     * @return bool
+     */
+    public function isAccepted()
+    {
+        return $this->isAccepted;
     }
 }

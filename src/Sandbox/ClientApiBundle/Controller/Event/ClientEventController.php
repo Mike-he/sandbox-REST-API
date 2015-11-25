@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -69,6 +70,8 @@ class ClientEventController extends EventController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
         // filters
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -81,16 +84,40 @@ class ClientEventController extends EventController
             $offset
         );
         foreach ($events as $event) {
+            $eventId = $event->getId();
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
             $registrationCounts = $this->getRepo('Event\EventRegistration')
-                ->getRegistrationCounts($event->getId());
+                ->getRegistrationCounts($eventId);
+
+            // check if user is registered
+            $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
+                'eventId' => $eventId,
+                'userId' => $userId,
+            ));
+
+            if (!is_null($registration)) {
+                // set registered true
+                $event->setIsRegistered(true);
+
+                // set status accepted
+                if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
+                    $event->setIsAccepted(true);
+                }
+            }
 
             $event->setAttachments($attachments);
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+            // set accepted person number
+            if ($event->getVerify()) {
+                $acceptedCounts = $this->getRepo('Event\EventRegistration')
+                    ->getAcceptedPersonNumber($eventId);
+                $event->setAcceptedPersonNumber((int) $acceptedCounts);
+            }
         }
 
         $view = new View($events);
@@ -159,16 +186,36 @@ class ClientEventController extends EventController
             $offset
         );
         foreach ($events as $event) {
+            $eventId = $event->getId();
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
             $registrationCounts = $this->getRepo('Event\EventRegistration')
-                ->getRegistrationCounts($event->getId());
+                ->getRegistrationCounts($eventId);
 
+            // check if user is registered
+            $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
+                'eventId' => $eventId,
+                'userId' => $userId,
+                'status' => EventRegistration::STATUS_ACCEPTED,
+            ));
+
+            if (!is_null($registration)) {
+                $event->setIsAccepted(true);
+            }
+
+            $event->setIsRegistered(true);
             $event->setAttachments($attachments);
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+            // set accepted person number
+            if ($event->getVerify()) {
+                $acceptedCounts = $this->getRepo('Event\EventRegistration')
+                    ->getAcceptedPersonNumber($eventId);
+                $event->setAcceptedPersonNumber((int) $acceptedCounts);
+            }
 
             array_push($eventsArray, $event);
         }
@@ -221,7 +268,13 @@ class ClientEventController extends EventController
         ));
 
         if (!is_null($registration)) {
+            // set registered true
             $event->setIsRegistered(true);
+
+            // set status accepted
+            if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
+                $event->setIsAccepted(true);
+            }
         }
 
         // set other array
