@@ -108,15 +108,6 @@ class ClientCompanyInvitationController extends ClientCompanyMemberController
 
                 // update user profile's company
                 $this->setUserProfileCompany($myUserId, $company);
-
-                // send notification
-                $this->sendXmppCompanyNotification(
-                    $company,
-                    $myUser,
-                    $myUser,
-                    'member_add',
-                    true
-                );
             }
 
             $em->flush();
