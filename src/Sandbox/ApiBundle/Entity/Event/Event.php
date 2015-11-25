@@ -253,7 +253,7 @@ class Event
     private $forms;
 
     /**
-     * @var array
+     * @var EventRegistration
      *
      * @Serializer\Groups({
      *      "main",
@@ -737,6 +737,8 @@ class Event
     }
 
     /**
+     * Set eventRegistration.
+     *
      * @param EventRegistration $eventRegistration
      *
      * @return Event
@@ -749,7 +751,9 @@ class Event
     }
 
     /**
-     * @return array
+     * Get eventRegistration.
+     *
+     * @return EventRegistration
      */
     public function getEventRegistration()
     {
