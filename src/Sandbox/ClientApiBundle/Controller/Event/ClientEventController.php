@@ -229,12 +229,19 @@ class ClientEventController extends EventController
         $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
         $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
         $registrationCounts = $this->getRepo('Event\EventRegistration')
-            ->getRegistrationCounts($event->getId());
+            ->getRegistrationCounts($eventId);
 
         $event->setAttachments($attachments);
         $event->setDates($dates);
         $event->setForms($forms);
         $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+        // set accepted person number
+        if ($event->getVerify()) {
+            $acceptedCounts = $this->getRepo('Event\EventRegistration')
+                ->getAcceptedPersonNumber($eventId);
+            $event->setAcceptedPersonNumber((int) $acceptedCounts);
+        }
 
         // set view
         $view = new View($event);
