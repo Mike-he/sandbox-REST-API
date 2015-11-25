@@ -712,9 +712,33 @@ class ClientOrderController extends PaymentController
             $order->setStatus('cancelled');
             $order->setCancelledDate($now);
             $order->setModificationDate($now);
-
-            $em->persist($order);
             $em->flush();
+
+            // get appointed user
+            $userArray = [];
+            $appointed = $order->getAppointed();
+            if (!is_null($appointed) && !empty($appointed)) {
+                array_push($userArray, $appointed);
+            }
+
+            // get invited users
+            $people = $this->getRepo('Order\InvitedPeople')->findBy(['orderId' => $id]);
+            if (!empty($people)) {
+                foreach ($people as $person) {
+                    array_push($userArray, $person->getUserId());
+                }
+            }
+
+            // send notification to invited and appointed users
+            if (!empty($userArray)) {
+                $this->sendXmppProductOrderNotification(
+                    $id,
+                    $order->getOrderNumber(),
+                    $userArray,
+                    ProductOrder::ACTION_INVITE_REMOVE,
+                    $order->getUserId()
+                );
+            }
 
             $globals = $this->getGlobals();
             $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
