@@ -253,24 +253,14 @@ class Event
     private $forms;
 
     /**
-     * @var bool
+     * @var array
      *
      * @Serializer\Groups({
      *      "main",
      *      "client_event"
      * })
      */
-    private $isRegistered;
-
-    /**
-     * @var bool
-     *
-     * @Serializer\Groups({
-     *      "main",
-     *      "client_event"
-     * })
-     */
-    private $isAccepted;
+    private $eventRegistration;
 
     /**
      * @var int
@@ -747,23 +737,23 @@ class Event
     }
 
     /**
-     * @param bool $isRegistered
+     * @param EventRegistration $eventRegistration
      *
      * @return Event
      */
-    public function setIsRegistered($isRegistered)
+    public function setEventRegistration($eventRegistration)
     {
-        $this->isRegistered = $isRegistered;
+        $this->eventRegistration = $eventRegistration;
 
         return $this;
     }
 
     /**
-     * @return bool
+     * @return array
      */
-    public function IsRegistered()
+    public function getEventRegistration()
     {
-        return $this->isRegistered;
+        return $this->eventRegistration;
     }
 
     /**
@@ -812,29 +802,5 @@ class Event
     public function getAcceptedPersonNumber()
     {
         return $this->acceptedPersonNumber;
-    }
-
-    /**
-     * Set isAccepted.
-     *
-     * @param $isAccepted
-     *
-     * @return Event
-     */
-    public function setIsAccepted($isAccepted)
-    {
-        $this->isAccepted = $isAccepted;
-
-        return $this;
-    }
-
-    /**
-     * Get isAccepted.
-     *
-     * @return bool
-     */
-    public function isAccepted()
-    {
-        return $this->isAccepted;
     }
 }

@@ -5,7 +5,6 @@ namespace Sandbox\ClientApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
-use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -98,13 +97,8 @@ class ClientEventController extends EventController
             ));
 
             if (!is_null($registration)) {
-                // set registered true
-                $event->setIsRegistered(true);
-
-                // set status accepted
-                if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
-                    $event->setIsAccepted(true);
-                }
+                // set registration
+                $event->setEventRegistration($registration);
             }
 
             $event->setAttachments($attachments);
@@ -197,14 +191,12 @@ class ClientEventController extends EventController
             $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
                 'eventId' => $eventId,
                 'userId' => $userId,
-                'status' => EventRegistration::STATUS_ACCEPTED,
             ));
 
             if (!is_null($registration)) {
-                $event->setIsAccepted(true);
+                // set registration
+                $event->setEventRegistration($registration);
             }
-
-            $event->setIsRegistered(true);
             $event->setAttachments($attachments);
             $event->setDates($dates);
             $event->setForms($forms);
@@ -268,13 +260,8 @@ class ClientEventController extends EventController
         ));
 
         if (!is_null($registration)) {
-            // set registered true
-            $event->setIsRegistered(true);
-
-            // set status accepted
-            if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
-                $event->setIsAccepted(true);
-            }
+            // set registration
+            $event->setEventRegistration($registration);
         }
 
         // set other array
