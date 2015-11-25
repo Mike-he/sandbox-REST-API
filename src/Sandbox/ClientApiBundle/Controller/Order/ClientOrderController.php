@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
+use Sandbox\ApiBundle\Entity\Order\ProductOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -20,6 +21,7 @@ use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Rest controller for Client Orders.
@@ -185,7 +187,6 @@ class ClientOrderController extends PaymentController
         Request $request
     ) {
         $em = $this->getDoctrine()->getManager();
-        $em->getConnection()->beginTransaction();
 
         try {
             $userId = $this->getUserId();
@@ -330,37 +331,18 @@ class ClientOrderController extends PaymentController
                 }
             }
 
-            //check if flexible room is full
-            if ($type == Room::TYPE_FLEXIBLE) {
-                $allowedPeople = $product->getRoom()->getAllowedPeople();
-                $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
-                    $productId,
-                    $startDate,
-                    $endDate
-                );
+            // check for duplicate orders
+            $allowedPeople = $product->getRoom()->getAllowedPeople();
+            $orderCheck = $this->orderDuplicationCheck(
+                $em,
+                $type,
+                $allowedPeople,
+                $productId,
+                $startDate,
+                $endDate
+            );
 
-                if ($allowedPeople <= (int) $orderCount) {
-                    return $this->customErrorView(
-                        400,
-                        self::FLEXIBLE_ROOM_FULL_CODE,
-                        self::FLEXIBLE_ROOM_FULL_MESSAGE
-                    );
-                }
-            } else {
-                $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
-                    $productId,
-                    $startDate,
-                    $endDate
-                );
-                if (!empty($checkOrder) && !is_null($checkOrder)) {
-                    return $this->customErrorView(
-                        400,
-                        self::ORDER_CONFLICT_CODE,
-                        self::ORDER_CONFLICT_MESSAGE
-                    );
-                }
-            }
-
+            // check for discount rule and price
             $ruleId = $form['rule_id']->getData();
             if (!is_null($ruleId) && !empty($ruleId)) {
                 $order->setRuleId($ruleId);
@@ -396,7 +378,10 @@ class ClientOrderController extends PaymentController
                 }
             }
 
-            $orderNumber = $this->getOrderNumber(self::PRODUCT_ORDER_LETTER_HEAD);
+            $orderNumber = $this->getOrderNumberForProductOrder(
+                self::PRODUCT_ORDER_LETTER_HEAD,
+                $orderCheck
+            );
             $productInfo = $this->storeRoomInfo($product);
 
             // set product order
@@ -417,9 +402,9 @@ class ClientOrderController extends PaymentController
             $roomRecord->setCityId($room->getCityId());
             $roomRecord->setBuildingId($room->getBuildingId());
             $roomRecord->setRoomType($room->getType());
+            $em->remove($orderCheck);
             $em->persist($roomRecord);
             $em->flush();
-            $em->getConnection()->commit();
 
             $view = new View();
             $view->setData(
@@ -428,7 +413,6 @@ class ClientOrderController extends PaymentController
 
             return $view;
         } catch (\Exception $exception) {
-            $em->getConnection()->rollback();
             throw $exception;
         }
     }
@@ -724,10 +708,11 @@ class ClientOrderController extends PaymentController
             self::PAYMENT_CHANNEL_ACCOUNT
         );
         if (!is_null($balance)) {
+            $em = $this->getDoctrine()->getManager();
             $order->setStatus('cancelled');
             $order->setCancelledDate($now);
             $order->setModificationDate($now);
-            $em = $this->getDoctrine()->getManager();
+
             $em->persist($order);
             $em->flush();
 
@@ -1406,5 +1391,115 @@ class ClientOrderController extends PaymentController
         );
 
         return $view;
+    }
+
+    /**
+     * @param $productId
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return ProductOrderCheck
+     */
+    private function setProductOrderCheck(
+        $productId,
+        $startDate,
+        $endDate
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $orderCheck = new ProductOrderCheck();
+        $orderCheck->setProductId($productId);
+        $orderCheck->setStartDate($startDate);
+        $orderCheck->setEndDate($endDate);
+        $em->persist($orderCheck);
+        $em->flush();
+
+        return $orderCheck;
+    }
+
+    /**
+     * @param $em
+     * @param $type
+     * @param $allowedPeople
+     * @param $productId
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return View|ProductOrderCheck
+     */
+    private function orderDuplicationCheck(
+        $em,
+        $type,
+        $allowedPeople,
+        $productId,
+        $startDate,
+        $endDate
+    ) {
+        if ($type == Room::TYPE_FLEXIBLE) {
+            //check if flexible room is full before order creation
+            $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
+                $productId,
+                $startDate,
+                $endDate
+            );
+
+            if ($allowedPeople <= $orderCount) {
+                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+            }
+
+            // check if flexible room is full after order check creation
+            // in case of duplicate submits
+            $orderCheck = $this->setProductOrderCheck(
+                $productId,
+                $startDate,
+                $endDate
+            );
+
+            $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkFlexibleForClient(
+                $productId,
+                $startDate,
+                $endDate
+            );
+
+            if ($allowedPeople < ($orderCount + $orderCheckCount)) {
+                $em->remove($orderCheck);
+                $em->flush();
+
+                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+            }
+        } else {
+            //check for room conflict before order creation
+            $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
+                $productId,
+                $startDate,
+                $endDate
+            );
+
+            if (!empty($checkOrder) && !is_null($checkOrder)) {
+                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+            }
+
+            // check for room conflict after order check creation
+            // in case of duplicate submits
+            $orderCheck = $this->setProductOrderCheck(
+                $productId,
+                $startDate,
+                $endDate
+            );
+
+            $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkProductForClient(
+                $productId,
+                $startDate,
+                $endDate
+            );
+
+            if ($orderCheckCount > 1) {
+                $em->remove($orderCheck);
+                $em->flush();
+
+                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+            }
+        }
+
+        return $orderCheck;
     }
 }

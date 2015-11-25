@@ -5,6 +5,8 @@ SELECT
        u.email,
        u.banned,
        u.authorized,
+       u.cardNo,
+       u.credentialNo,
        up.name,
 	     up.gender
 FROM User u

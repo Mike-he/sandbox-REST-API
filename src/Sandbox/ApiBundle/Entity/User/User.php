@@ -85,6 +85,22 @@ class User implements UserInterface
     private $authorized = false;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="cardNo", type="string", length=32, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $cardNo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="credentialNo", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $credentialNo;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -255,6 +271,54 @@ class User implements UserInterface
     }
 
     /**
+     * Get cardNo.
+     *
+     * @return string
+     */
+    public function getCardNo()
+    {
+        return $this->cardNo;
+    }
+
+    /**
+     * Set cardNo.
+     *
+     * @param string $cardNo
+     *
+     * @return User
+     */
+    public function setCardNo($cardNo)
+    {
+        $this->cardNo = $cardNo;
+
+        return $this;
+    }
+
+    /**
+     * Get credentialNo.
+     *
+     * @return string
+     */
+    public function getCredentialNo()
+    {
+        return $this->credentialNo;
+    }
+
+    /**
+     * Set credentialNo.
+     *
+     * @param string $credentialNo
+     *
+     * @return User
+     */
+    public function setCredentialNo($credentialNo)
+    {
+        $this->credentialNo = $credentialNo;
+
+        return $this;
+    }
+
+    /**
      * Get creationDate.
      *
      * @return \DateTime
@@ -300,8 +364,9 @@ class User implements UserInterface
 
     public function __construct()
     {
-        $this->setCreationDate(new \DateTime('now'));
-        $this->setModificationDate(new \DateTime('now'));
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 
     /**
