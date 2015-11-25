@@ -340,13 +340,13 @@ class ClientChatGroupController extends ChatGroupController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
+        // update chat group in Openfire
+        $this->deleteXmppChatGroup($chatGroup, $myUser);
+
         // remove from db
         $em = $this->getDoctrine()->getManager();
         $em->remove($chatGroup);
         $em->flush();
-
-        // update chat group in Openfire
-        $this->deleteXmppChatGroup($chatGroup, $myUser);
 
         return new View();
     }
