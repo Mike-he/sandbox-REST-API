@@ -28,7 +28,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('o.status = \'paid\'')
             ->andWhere('o.startDate > :now')
-            ->andWhere('(r.type == \'meeting\' AND o.startDate <= :meetingTime)')
+            ->andWhere('(r.type = \'meeting\' AND o.startDate <= :meetingTime)')
             ->setParameter('meetingTime', $meetingTime)
             ->setParameter('now', $now)
             ->getQuery();
@@ -51,7 +51,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('(o.status = \'paid\' OR o.status = \'completed\')')
             ->andWhere('o.endDate > :now')
-            ->andWhere('(r.type == \'meeting\' AND o.endDate <= :meetingTime)')
+            ->andWhere('(r.type = \'meeting\' AND o.endDate <= :meetingTime)')
             ->setParameter('meetingTime', $meetingTime)
             ->setParameter('now', $now)
             ->getQuery();
@@ -103,13 +103,13 @@ class OrderRepository extends EntityRepository
             ->andWhere(
                 '(
                     (
-                        r.type == \'fixed\' OR
-                        r.type == \'flexible\' AND
+                        r.type = \'fixed\' OR
+                        r.type = \'flexible\' AND
                         o.endDate <= :workspaceTime
                     )
                     OR
                     (
-                        r.type == \'office\' AND
+                        r.type = \'office\' AND
                         o.endDate <= :officeTime AND
                         o.endDate >= :allowedTime
                     )
