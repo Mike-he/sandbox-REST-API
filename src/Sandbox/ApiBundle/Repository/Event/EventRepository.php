@@ -78,11 +78,14 @@ class EventRepository extends EntityRepository
                 LEFT JOIN SandboxApiBundle:Event\EventRegistration er WITH er.eventId = e.id
                 WHERE e.isDeleted = FALSE
                 AND er.userId = :userId
-                AND (
-                    e.verify = FALSE
-                ) OR (
-                    e.verify = TRUE
-                    AND er.status = :accepted
+                AND
+                (
+                    (
+                        e.verify = FALSE
+                    ) OR (
+                        e.verify = TRUE
+                        AND er.status = :accepted
+                    )
                 )
                 ORDER BY er.creationDate DESC
         ';
