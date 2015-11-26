@@ -301,7 +301,7 @@ class ClientEventRegistrationController extends EventController
         $registrationCounts = (int) $registrationCounts;
 
         // if not over limit number
-        if ($registrationCounts <= $limitNumber) {
+        if ($registrationCounts < $limitNumber) {
             return false;
         }
 

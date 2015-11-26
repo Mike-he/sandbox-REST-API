@@ -186,6 +186,17 @@ class AdminEventRegistrationController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
         $query = $paramFetcher->get('query');
+        $event = $this->getRepo('Event\Event')->find($event_id);
+        $registrationCounts = $this->getRepo('Event\EventRegistration')
+            ->getRegistrationCounts($event_id);
+        $customParameters['registration_person_number'] = (int) $registrationCounts;
+
+        // set accepted person number
+        if ($event->getVerify()) {
+            $acceptedCounts = $this->getRepo('Event\EventRegistration')
+                ->getAcceptedPersonNumber($event_id);
+            $customParameters['accepted_person_number'] = (int) $acceptedCounts;
+        }
 
         // get query result
         $eventRegistrations = $this->getRepo('Event\EventRegistration')->getEventRegistrations(
@@ -202,6 +213,7 @@ class AdminEventRegistrationController extends SandboxRestController
             $pageIndex,
             $pageLimit
         );
+        $pagination->setCustomParameters($customParameters);
 
         return new View($pagination);
     }
