@@ -331,6 +331,23 @@ class ClientOrderController extends PaymentController
                 }
             }
 
+            // check if it's same order from the same user
+            // return orderId if so
+            if ($type !== Room::TYPE_FLEXIBLE) {
+                $sameOrder = $this->getRepo('Order\ProductOrder')->getOrderFromSameUser(
+                    $productId,
+                    $userId,
+                    $startDate,
+                    $endDate
+                );
+
+                if (!is_null($sameOrder)) {
+                    return new View(
+                        ['order_id' => $sameOrder->getId()]
+                    );
+                }
+            }
+
             // check for duplicate orders
             $allowedPeople = $product->getRoom()->getAllowedPeople();
             $orderCheck = $this->orderDuplicationCheck(
@@ -1496,7 +1513,7 @@ class ClientOrderController extends PaymentController
                 throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
             }
         } else {
-            //check for room conflict before order creation
+            // check for room conflict before order creation
             $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
                 $productId,
                 $startDate,

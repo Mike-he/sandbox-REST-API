@@ -14,6 +14,38 @@ class OrderRepository extends EntityRepository
     const CANCELLED = "'cancelled'";
 
     /**
+     * @param $productId
+     * @param $userId
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getOrderFromSameUser(
+        $productId,
+        $userId,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status != :status')
+            ->andWhere('o.startDate = :startDate')
+            ->andWhere('o.endDate = :endDate')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.productId = :productId')
+            ->setParameter('productId', $productId)
+            ->setParameter('userId', $userId)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->setParameter('status', ProductOrder::STATUS_CANCELLED)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
+
+    /**
      * @param $now
      * @param $meetingTime
      *
