@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserPasswordController;
 use Sandbox\ApiBundle\Entity\User\UserForgetPassword;
+use Sandbox\ApiBundle\Traits\YunPianSms;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\PasswordForgetReset;
 use Sandbox\ClientApiBundle\Data\User\PasswordForgetVerify;
@@ -33,8 +34,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserPasswordController extends UserPasswordController
 {
+    // Traits
     use StringUtil;
+    use YunPianSms;
 
+    // Constants
     const ERROR_MISSING_PHONE_OR_EMAIL_CODE = 400001;
     const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'Missing phone number or email address.-手机号和邮箱不能同时为空';
 
@@ -194,8 +198,8 @@ class ClientUserPasswordController extends UserPasswordController
                 return $this->customErrorView(400, self::ERROR_MISSING_PHONE_OR_EMAIL_CODE, self::ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE);
             }
 
-            // check country code and phone number valid
-            if (!is_numeric($phone) || !$this->isPhoneNumberValid($phone)) {
+            // check phone number valid
+            if (!is_numeric($phone)) {
                 return $this->customErrorView(400, self::ERROR_INVALID_PHONE_CODE, self::ERROR_INVALID_PHONE_MESSAGE);
             }
 
@@ -339,7 +343,7 @@ class ClientUserPasswordController extends UserPasswordController
             // sms verification code to phone
             $smsText = '您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：'
                 .$forgetPassword->getCode().'。验证码在10分钟内有效。';
-            $this->sendSms($phone, urlencode($smsText));
+            $this->send_sms($phone, $smsText);
         }
     }
 

@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Traits\YunPianSms;
 
 /**
  * Phone binding controller.
@@ -29,6 +30,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserPhoneBindingController extends UserPhoneBindingController
 {
+    // Traits
+    use YunPianSms;
+
+    // Constants
     const ERROR_INVALID_PHONE_NUMBER_CODE = 400001;
     const ERROR_INVALID_PHONE_NUMBER_MESSAGE = 'Invalid phone number.-该手机号无效';
 
@@ -124,11 +129,6 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $submit
     ) {
         $phone = $submit->getPhone();
-
-        // check country code and phone number valid
-        if (!$this->isPhoneNumberValid($phone)) {
-            return $this->customErrorView(400, self::ERROR_INVALID_PHONE_NUMBER_CODE, self::ERROR_INVALID_PHONE_NUMBER_MESSAGE);
-        }
 
         // check phone number already used
         $user = $this->getRepo('User\User')->findOneBy(array(
@@ -228,6 +228,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     ) {
         $smsText = '您正在申请绑定当前手机，如确认是本人行为，请提交以下验证码完成操作：'
             .$phoneVerification->getCode().'。验证码在10分钟内有效。';
-        $this->sendSms($phoneVerification->getPhone(), urlencode($smsText));
+
+        $this->send_sms($phoneVerification->getPhone(), $smsText);
     }
 }

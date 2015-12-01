@@ -18,7 +18,6 @@ parameters:
     nearby_range_km: 100
     expired_verification_time: +10 minutes
     time_for_half_hour_early: -30 minutes
-    user_profile_default_name_prefix: 用户_
     xmpp_domain: devxmpp.sandbox3.cn
     openfire_innet_url: http://127.0.0.1:9090
     openfire_plugin_bstuser: /plugins/bstuser
@@ -33,9 +32,8 @@ parameters:
     openfire_plugin_bstgroupchat_room_member: /members
     openfire_plugin_bstios: /plugins/bstios
     openfire_plugin_bstios_chatconfig: /chatconfig
-    sms_api_base_url: http://utf8.sms.webchinese.cn/?
-    sms_api_uid: account@sandbox3.cn
-    sms_api_key: 807574a49cc90043531c
+    sms_api_url: http://yunpian.com/v1/sms/send.json
+    sms_api_key: 21c29536f85636a862306aa6f8ffdf74
     email_from_address: notification@sandbox3.cn
     email_from_name: 展想创合
     sandbox_auth_key: sandbox_auth_test
