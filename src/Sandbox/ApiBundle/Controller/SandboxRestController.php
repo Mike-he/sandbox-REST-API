@@ -155,6 +155,8 @@ class SandboxRestController extends FOSRestController
         $permissionKeys = null,
         $opLevel = 0
     ) {
+        $myPermission = null;
+
         // get admin
         $admin = $this->getRepo('Admin\Admin')->find($adminId);
         $type = $admin->getType();
@@ -186,13 +188,12 @@ class SandboxRestController extends FOSRestController
             if (is_null($myPermission)) {
                 throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
             }
-
-            return;
         }
 
         // if permission key is array
         if (is_array($permissionKeys)) {
-            $flag = false;
+            $permissionFound = false;
+
             foreach ($permissionKeys as $permissionKey) {
                 $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
 
@@ -203,18 +204,18 @@ class SandboxRestController extends FOSRestController
                         'permissionId' => $permission->getId(),
                     ));
                 if (!is_null($myPermission)) {
-                    $flag = true;
+                    $permissionFound = true;
                     break;
                 }
             }
 
-            if (!$flag) {
+            if (!$permissionFound) {
                 throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
             }
         }
 
         // check user's operation level
-        if ($myPermission->getOpLevel() < $opLevel) {
+        if (is_null($myPermission) || $myPermission->getOpLevel() < $opLevel) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
     }

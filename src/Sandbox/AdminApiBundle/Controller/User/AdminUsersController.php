@@ -367,6 +367,7 @@ class AdminUsersController extends DoorController
         // get user
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+        $banned = $user->isBanned();
 
         // bind data
         $userJson = $this->container->get('serializer')->serialize($user, 'json');
@@ -375,6 +376,17 @@ class AdminUsersController extends DoorController
 
         $form = $this->createForm(new UserType(), $user);
         $form->submit(json_decode($userJson, true));
+        $updateBanned = $user->isBanned();
+
+        // check if user banned status changed
+        if ($banned !== $updateBanned) {
+            $this->throwAccessDeniedIfAdminNotAllowed(
+                $this->getAdminId(),
+                AdminType::KEY_PLATFORM,
+                AdminPermission::KEY_PLATFORM_USER,
+                AdminPermissionMap::OP_LEVEL_USER_BANNED
+            );
+        }
 
         // update to db
         $em = $this->getDoctrine()->getManager();
