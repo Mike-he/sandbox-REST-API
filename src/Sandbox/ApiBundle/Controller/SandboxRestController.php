@@ -691,48 +691,6 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * Send sms.
-     *
-     * Reference: http://sms.webchinese.cn/api.shtml#top4
-     * Example: $url='http://sms.webchinese.cn/web_api/?Uid=账号&Key=接口密钥&smsMob=手机号码&smsText=短信
-     *
-     * @param $smsMob
-     * @param $smsText
-     *
-     * @return mixed|string
-     */
-    protected function sendSms(
-        $smsMob,
-        $smsText
-    ) {
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        // set url
-        $url = $globals['sms_api_base_url'];
-        $url = $url.'Uid='.$globals['sms_api_uid'];
-        $url = $url.'&Key='.$globals['sms_api_key'];
-        $url = $url.'&smsMob='.$smsMob;
-        $url = $url.'&smsText='.$smsText;
-
-        // call api
-        if (function_exists('file_get_contents')) {
-            $file_contents = file_get_contents($url);
-        } else {
-            $ch = curl_init();
-            $timeout = 5;
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-            $file_contents = curl_exec($ch);
-            curl_close($ch);
-        }
-
-        return $file_contents;
-    }
-
-    /**
      * Send email.
      *
      * @param $subject
@@ -766,26 +724,6 @@ class SandboxRestController extends FOSRestController
                 'text/html'
             );
         $mailer->send($message);
-    }
-
-    /**
-     * @param $phone
-     *
-     * @return bool
-     */
-    protected function isPhoneNumberValid(
-        $phone
-    ) {
-        if (is_null($phone) || !ctype_digit($phone)) {
-            return false;
-        }
-
-        $phoneNumLength = strlen($phone);
-        if ($phoneNumLength != 11) {
-            return false;
-        }
-
-        return true;
     }
 
     //--------------------for user default value--------------------//

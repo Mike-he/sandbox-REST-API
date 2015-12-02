@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
+use Sandbox\ApiBundle\Traits\YunPianSms;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
 use Sandbox\ClientApiBundle\Data\User\RegisterVerify;
@@ -33,8 +34,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserRegistrationController extends UserRegistrationController
 {
+    // Traits
     use StringUtil;
+    use YunPianSms;
 
+    // Constants
     const ERROR_MISSING_PHONE_OR_EMAIL_CODE = 400001;
     const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'register.submit.missing_email_phone';
 
@@ -427,8 +431,9 @@ class ClientUserRegistrationController extends UserRegistrationController
                 ));
         } else {
             // sms verification code to phone
-            $smsText = '欢迎注册展想创合！您的手机验证码为：'.$code.'，请输入后进行验证，谢谢！验证码在10分钟内有效。';
-            $this->sendSms($phone, urlencode($smsText));
+            $smsText = '【展想创合】欢迎注册展想创合！您的手机验证码为：'.$code.'，请输入后进行验证，谢谢！验证码在10分钟内有效。';
+
+            $this->send_sms($phone, $smsText);
         }
     }
 }
