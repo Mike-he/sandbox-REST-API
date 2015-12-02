@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
@@ -18,7 +19,6 @@ use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Product\Product;
 
 /**
@@ -36,7 +36,8 @@ class AdminOrderController extends OrderController
     /**
      * Order.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @ApiDoc(
      *   resource = true,
@@ -133,6 +134,13 @@ class AdminOrderController extends OrderController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    description="payment channel"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -163,6 +171,7 @@ class AdminOrderController extends OrderController
         }
 
         //filters
+        $channel = $paramFetcher->get('channel');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $type = $paramFetcher->get('type');
@@ -178,6 +187,7 @@ class AdminOrderController extends OrderController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         $query = $this->getRepo('Order\ProductOrder')->getOrdersForAdmin(
+            $channel,
             $type,
             $city,
             $building,
@@ -200,7 +210,8 @@ class AdminOrderController extends OrderController
     /**
      * Export orders to excel.
      *
-     * @param Request $request
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
      *    name="type",
@@ -252,7 +263,7 @@ class AdminOrderController extends OrderController
      *    description="start date. Must be YYYY-mm-dd"
      * )
      *
-     *  @Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="endDate",
      *    array=false,
      *    default=null,
@@ -260,6 +271,13 @@ class AdminOrderController extends OrderController
      *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
      *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    description="payment channel"
      * )
      *
      * @Route("/orders/export")
@@ -280,6 +298,7 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
 
+        $channel = $paramFetcher->get('channel');
         $type = $paramFetcher->get('type');
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
@@ -294,6 +313,7 @@ class AdminOrderController extends OrderController
 
         //get array of orders
         $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport(
+            $channel,
             $type,
             $city,
             $building,
@@ -306,7 +326,7 @@ class AdminOrderController extends OrderController
 
         // set excel body
         foreach ($orders as $order) {
-            $productInfo = json_decode($order['productInfo'], true);
+            $productInfo = json_decode($order->getProductInfo(), true);
 
             // set product name
             $productName = $productInfo['room']['city']['name'].
@@ -315,85 +335,75 @@ class AdminOrderController extends OrderController
 
             // set product type
             $productTypeKey = $productInfo['room']['type'];
-            $productType = null;
-            if ($productTypeKey == Room::TYPE_FIXED) {
-                $productType = '可选工位';
-            } elseif ($productTypeKey == Room::TYPE_MEETING) {
-                $productType = '会议室';
-            } elseif ($productTypeKey == Room::TYPE_FLEXIBLE) {
-                $productType = '不可选工位';
-            } elseif ($productTypeKey == Room::TYPE_OFFICE) {
-                $productType = '独立办公室';
-            }
+            $productType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey
+            );
 
             // set unit price
             $unitPriceKey = $productInfo['unit_price'];
-            $unitPrice = null;
-            if ($unitPriceKey == Product::UNIT_HOUR) {
-                $unitPrice = '小时';
-            } elseif ($unitPriceKey == Product::UNIT_DAY) {
-                $unitPrice = '天';
-            } elseif ($unitPriceKey == Product::Unit_MONTH) {
-                $unitPrice = '月';
-            }
+            $unitPrice = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey
+            );
 
             // set status
-            $statusKey = $order['status'];
-            $status = null;
-            if ($statusKey == ProductOrder::STATUS_PAID) {
-                $status = '已付款';
-            } elseif ($statusKey == ProductOrder::STATUS_COMPLETED) {
-                $status = '已完成';
-            } elseif ($statusKey == ProductOrder::STATUS_CANCELLED) {
-                $status = '已取消';
-            }
+            $statusKey = $order->getStatus();
+            $status = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey
+            );
 
             // set leasing name
-            $leasingTime = date('Y-m-d H:i:s', $order['startDate']->getTimestamp()).' - '.
-                date('Y-m-d H:i:s', $order['endDate']->getTimestamp());
+            $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
+                .' - '
+                .$order->getEndDate()->format('Y-m-d H:i:s');
 
-            // set user profile
-            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order['userId']);
+            $userId = $order->getUserId();
+            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+            $user = $this->getRepo('User\User')->find($userId);
 
-            // get user
-            $user = $this->getRepo('User\User')->findOneById($order['userId']);
+            $paymentChannel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel()
+            );
 
             // set excel body
             $body = array(
-                'product_name' => $productName,
-                'type' => $productType,
-                'employee_id' => $order['userId'],
-                'base_price' => $productInfo['base_price'],
-                'unit_price' => $unitPrice,
-                'amount' => $order['price'],
-                'discount_price' => $order['discountPrice'],
-                'leasing_time' => $leasingTime,
-                'order_time' => date('Y-m-d H:i:s', $order['creationDate']->getTimestamp()),
-                'payment_time' => date('Y-m-d H:i:s', $order['modificationDate']->getTimestamp()),
-                'status' => $status,
-                'name' => $userProfile->getName(),
-                'phone' => $user->getPhone(),
-                'email' => $user->getEmail(),
+                ProductOrderExport::ORDER_NUMBER => $order->getOrderNumber(),
+                ProductOrderExport::PRODUCT_NAME => $productName,
+                ProductOrderExport::ROOM_TYPE => $productType,
+                ProductOrderExport::USER_ID => $userId,
+                ProductOrderExport::BASE_PRICE => $productInfo['base_price'],
+                ProductOrderExport::UNIT_PRICE => $unitPrice,
+                ProductOrderExport::AMOUNT => $order->getPrice(),
+                ProductOrderExport::DISCOUNT_PRICE => $order->getDiscountPrice(),
+                ProductOrderExport::LEASING_TIME => $leasingTime,
+                ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
+                ProductOrderExport::ORDER_STATUS => $status,
+                ProductOrderExport::USER_NAME => $userProfile->getName(),
+                ProductOrderExport::USER_PHONE => $user->getPhone(),
+                ProductOrderExport::USER_EMAIL => $user->getEmail(),
+                ProductOrderExport::PAYMENT_CHANNEL => $paymentChannel,
             );
 
             $excelBody[] = $body;
         }
 
         $headers = [
-            '商品', //Product name
-            '房间类型', //Product type
-            '租赁人ID', //Employee ID
-            '单价', //Base price
-            '单位', //Unit price
-            '订单原价', //Amount
-            '实收款', //Discount price
-            '租赁时间', //Leasing time
-            '创建时间', //Order time
-            '付款时间', //Payment complete time
-            '订单状态', //Order status
-            '租赁人', //User name
-            '租赁人手机', //User mobile
-            '租赁人邮箱', //User email
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_NAME),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_PHONE),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL),
         ];
 
         //Fill data

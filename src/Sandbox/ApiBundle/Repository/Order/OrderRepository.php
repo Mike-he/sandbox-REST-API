@@ -484,6 +484,7 @@ class OrderRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
+     * @param String       $channel
      * @param String       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
@@ -495,6 +496,7 @@ class OrderRepository extends EntityRepository
      * @return array
      */
     public function getOrdersForAdmin(
+        $channel,
         $type,
         $city,
         $building,
@@ -515,6 +517,12 @@ class OrderRepository extends EntityRepository
         //only needed when searching orders
         if (!is_null($search)) {
             $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId');
+        }
+
+        // filter by payment channel
+        if (!is_null($channel)) {
+            $query->andWhere('o.payChannel = :channel');
+            $parameters['channel'] = $channel;
         }
 
         // filter by user id
@@ -576,16 +584,18 @@ class OrderRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
-     * @param $type
-     * @param $city
-     * @param $building
-     * @param $userId
-     * @param $startDate
-     * @param $endDate
+     * @param string   $channel
+     * @param string   $type
+     * @param int      $city
+     * @param int      $building
+     * @param int      $userId
+     * @param datetime $startDate
+     * @param datetime $endDate
      *
      * @return array
      */
     public function getOrdersToExport(
+        $channel,
         $type,
         $city,
         $building,
@@ -608,6 +618,12 @@ class OrderRepository extends EntityRepository
 
         // only export order that is paid
         $query->andWhere('o.paymentDate IS NOT NULL');
+
+        // filter by payment channel
+        if (!is_null($channel)) {
+            $query->andWhere('o.payChannel = :channel');
+            $parameters['channel'] = $channel;
+        }
 
         // filter by type
         if (!is_null($type)) {
@@ -644,6 +660,6 @@ class OrderRepository extends EntityRepository
         //set all parameters
         $query->setParameters($parameters);
 
-        return $query->getQuery()->getArrayResult();
+        return $query->getQuery()->getResult();
     }
 }
