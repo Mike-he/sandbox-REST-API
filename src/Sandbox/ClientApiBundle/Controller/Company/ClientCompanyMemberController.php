@@ -135,9 +135,9 @@ class ClientCompanyMemberController extends CompanyMemberController
     /**
      * delete members.
      *
-     * @param $id
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     * @param $id
      *
      * @Annotations\QueryParam(
      *    name="id",
@@ -151,9 +151,9 @@ class ClientCompanyMemberController extends CompanyMemberController
      * @return View
      */
     public function deleteCompanyMembersAction(
-        $id,
         Request $request,
-        ParamFetcherInterface $paramFetcher
+        ParamFetcherInterface $paramFetcher,
+        $id
     ) {
         $userId = $this->getUserId();
         $user = $this->getRepo('User\User')->find($userId);
@@ -204,6 +204,11 @@ class ClientCompanyMemberController extends CompanyMemberController
             $em = $this->getDoctrine()->getManager();
             $em->remove($companyMember);
             $em->flush();
+
+            // update company in user profile
+            $this->getRepo('User\UserProfile')->resetUserProfileCompany(
+                $company, $user
+            );
         }
 
         return new View();
@@ -232,12 +237,22 @@ class ClientCompanyMemberController extends CompanyMemberController
         $em = $this->getDoctrine()->getManager();
 
         foreach ($memberIds as $memberId) {
-            $member = $this->getRepo('Company\CompanyMember')->find($memberId);
-            if (is_null($member)) {
+            try {
+                $member = $this->getRepo('Company\CompanyMember')->find($memberId);
+                if (is_null($member)) {
+                    continue;
+                }
+
+                $em->remove($member);
+
+                // update company in user profile
+                $this->getRepo('User\UserProfile')->resetUserProfileCompany(
+                    $company, $member->getUser()
+                );
+            } catch (\Exception $e) {
+                error_log('Remove company member went wrong!');
                 continue;
             }
-
-            $em->remove($member);
         }
 
         $em->flush();
