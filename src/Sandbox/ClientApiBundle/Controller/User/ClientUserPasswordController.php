@@ -341,7 +341,7 @@ class ClientUserPasswordController extends UserPasswordController
             );
         } else {
             // sms verification code to phone
-            $smsText = '您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：'
+            $smsText = '【展想创合】您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：'
                 .$forgetPassword->getCode().'。验证码在10分钟内有效。';
             $this->send_sms($phone, $smsText);
         }
