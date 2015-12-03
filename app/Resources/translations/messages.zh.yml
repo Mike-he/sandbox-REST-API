@@ -1,3 +1,18 @@
+location:
+  city:
+    sh: 上海
+    bj: 北京（即将开业）
+    gz: 广州（即将开业）
+    sz: 深圳（即将开业）
+    xm: 厦门（即将开业）
+    hz: 杭州（即将开业）
+    cd: 成都（即将开业）
+    cq: 重庆（即将开业）
+    qd: 青岛（即将开业）
+    xa: 西安（即将开业）
+    sf: 旧金山（即将开业）
+    bs: 波士顿（即将开业）
+
 register:
   submit:
     missing_email_phone: 未填写手机号或邮箱
