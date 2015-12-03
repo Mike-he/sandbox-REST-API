@@ -15,3 +15,36 @@ room:
     meeting: 会议室
     flexible: 随机工位
     fixed: 固定工位
+  unit:
+    hour: 小时
+    day: 天
+    month: 月
+
+product_order:
+  channel:
+    wx: 微信支付
+    upacp: 银联支付
+    alipay: 支付宝支付
+    account: 余额支付
+  status:
+    unpaid: 未付款
+    paid: 已付款
+    completed: 已完成
+    cancelled: 已取消
+  export_header:
+    order_number: 订单号
+    product_name: 商品
+    type: 房间类型
+    user_id: 租赁人ID
+    base_price: 单价
+    unit_price: 单位
+    amount: 订单原价
+    discount_price: 实收款
+    leasing_time: 租赁时间
+    order_time: 创建时间
+    payment_time: 付款时间
+    status: 订单状态
+    name: 租赁人
+    phone: 租赁人手机
+    email: 租赁人邮箱
+    channel: 支付渠道

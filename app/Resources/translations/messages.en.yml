@@ -15,3 +15,36 @@ room:
     meeting: Meeting room
     flexible: Flexible station
     fixed: Fixed station
+  unit:
+    hour: Hour
+    day: Day
+    month: Month
+
+product_order:
+  channel:
+    wx: WechatPay
+    upacp: UnionPay
+    alipay: Alipay
+    account: Balance
+  status:
+    unpaid: Unpaid
+    paid: Paid
+    completed: Completed
+    cancelled: Cancelled
+  export_header:
+    order_number: Order Number
+    product_name: Product Name
+    type: Room Type
+    user_id: Renter ID
+    base_price: Base Price
+    unit_price: Unit
+    amount: Amount
+    discount_price: Paid Amount
+    leasing_time: Leasing Time
+    order_time: Order Creation
+    payment_time: Payment Date
+    status: Status
+    name: Renter Name
+    phone: Renter Mobile
+    email: Renter Email
+    channel: Payment Channel
