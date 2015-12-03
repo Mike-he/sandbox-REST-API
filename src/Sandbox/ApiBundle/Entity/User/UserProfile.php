@@ -16,7 +16,9 @@ use Sandbox\ApiBundle\Entity\Company\Company;
  *          @ORM\UniqueConstraint(name="userId_UNIQUE", columns={"userId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(
+ *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserProfileRepository"
+ * )
  */
 class UserProfile
 {

@@ -347,19 +347,24 @@ class DoorController extends SandboxRestController
         }
 
         foreach ($buildings as $oneBuilding) {
-            $server = $oneBuilding->getServer();
-            if (is_null($server) || empty($server)) {
+            try {
+                $server = $oneBuilding->getServer();
+                if (is_null($server) || empty($server)) {
+                    continue;
+                }
+
+                $this->setEmployeeCard(
+                    $server,
+                    $userId,
+                    $userName,
+                    $cardNo,
+                    $method,
+                    $this->getGlobals()
+                );
+            } catch (\Exception $e) {
+                error_log('Door Access Error, Update Card');
                 continue;
             }
-
-            $this->setEmployeeCard(
-                $server,
-                $userId,
-                $userName,
-                $cardNo,
-                $method,
-                $this->getGlobals()
-            );
         }
     }
 

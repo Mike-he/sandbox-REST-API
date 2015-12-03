@@ -594,24 +594,28 @@ class ClientCompanyController extends CompanyController
     /**
      * delete company.
      *
-     * @param int $id
+     * @param Request $request
+     * @param int     $id
      *
      * @Route("/companies/{id}")
      * @Method({"DELETE"})
      *
      * @return View
      */
-    public function deleteCompanyAction($id)
-    {
+    public function deleteCompanyAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
         // get company Entity
         $company = $this->getRepo('Company\Company')->find($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
         // check the user is allowed to delete
-        $userId = $this->getUserId();
         $this->throwAccessDeniedIfNotCompanyCreator($company, $userId);
 
-        // quit my company
+        // delete my company
         $em = $this->getDoctrine()->getManager();
         $em->remove($company);
         $em->flush();

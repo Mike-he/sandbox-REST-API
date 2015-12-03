@@ -331,53 +331,63 @@ class AdminDoorController extends DoorController
         $globals
     ) {
         foreach ($buildingIds as $id) {
-            $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
-            if (is_null($building)) {
-                continue;
-            }
-
-            // get building door access server
-            $base = $building->getServer();
-
-            // get orders by building
-            $orderIds = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
-                $userId,
-                $id['buildingId']
-            );
-            if (is_null($orderIds) || empty($orderIds)) {
-                continue;
-            }
-
-            foreach ($orderIds as $orderId) {
-                $doorArray = [];
-
-                $order = $this->getRepo('Order\ProductOrder')->find($orderId['orderId']);
-                if (is_null($order)) {
+            try {
+                $building = $this->getRepo('Room\RoomBuilding')->find($id['buildingId']);
+                if (is_null($building)) {
                     continue;
                 }
 
-                $startDate = $order->getStartDate();
-                $endDate = $order->getEndDate();
-                $roomId = $order->getProduct()->getRoom()->getId();
+                // get building door access server
+                $base = $building->getServer();
 
-                $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-                foreach ($roomDoors as $roomDoor) {
-                    $door = ['doorid' => $roomDoor->getDoorControlId()];
-                    array_push($doorArray, $door);
-                }
-                $userArray = [
-                    ['empid' => "$userId"],
-                ];
-
-                $this->setRoomOrderPermission(
-                    $base,
-                    $userArray,
-                    $orderId['orderId'],
-                    $startDate,
-                    $endDate,
-                    $doorArray,
-                    $globals
+                // get orders by building
+                $orderIds = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
+                    $userId,
+                    $id['buildingId']
                 );
+                if (is_null($orderIds) || empty($orderIds)) {
+                    continue;
+                }
+
+                foreach ($orderIds as $orderId) {
+                    try {
+                        $doorArray = [];
+
+                        $order = $this->getRepo('Order\ProductOrder')->find($orderId['orderId']);
+                        if (is_null($order)) {
+                            continue;
+                        }
+
+                        $startDate = $order->getStartDate();
+                        $endDate = $order->getEndDate();
+                        $roomId = $order->getProduct()->getRoom()->getId();
+
+                        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+                        foreach ($roomDoors as $roomDoor) {
+                            $door = ['doorid' => $roomDoor->getDoorControlId()];
+                            array_push($doorArray, $door);
+                        }
+                        $userArray = [
+                            ['empid' => "$userId"],
+                        ];
+
+                        $this->setRoomOrderPermission(
+                            $base,
+                            $userArray,
+                            $orderId['orderId'],
+                            $startDate,
+                            $endDate,
+                            $doorArray,
+                            $globals
+                        );
+                    } catch (\Exception $e) {
+                        error_log('Door Access Error, Set Card');
+                        continue;
+                    }
+                }
+            } catch (\Exception $e) {
+                error_log('Door Access Error, Set Card');
+                continue;
             }
         }
     }
