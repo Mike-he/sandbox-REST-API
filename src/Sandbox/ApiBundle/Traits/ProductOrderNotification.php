@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\Security\Acl\Exception\Exception;
 
 /**
@@ -27,22 +28,29 @@ trait ProductOrderNotification
      * @param string $action
      */
     protected function sendXmppProductOrderNotification(
-        $orderId,
-        $orderNumber,
+        $order,
         $receivers,
         $action,
         $fromUserId = null,
-        $orders = []
+        $orders = [],
+        $first = null,
+        $second = null
     ) {
         try {
-            if (empty($orders) && !is_null($orderId) && !is_null($orderNumber)) {
+            if (empty($orders) && !is_null($order)) {
+                $city = $order->getProduct()->getRoom()->getCity()->getName();
+                $building = $order->getProduct()->getRoom()->getBuilding()->getName();
+                $room = $order->getProduct()->getRoom()->getName();
+
+                $body = $first.$city.$building.$room.$second;
                 // get notification data
                 $data = $this->getProductOrderNotificationJsonData(
-                    $orderId,
-                    $orderNumber,
+                    $order->getId(),
+                    $order->getOrderNumber(),
                     $fromUserId,
                     $receivers,
-                    $action
+                    $action,
+                    $body
                 );
 
                 $jsonData = json_encode(array($data));
@@ -54,7 +62,8 @@ trait ProductOrderNotification
                         $order->getOrderNumber(),
                         $fromUserId,
                         [$order->getUserId()],
-                        $action
+                        $action,
+                        $first
                     );
 
                     array_push($dataArray, $data);
@@ -84,7 +93,8 @@ trait ProductOrderNotification
         $orderNumber,
         $fromUserId,
         $receivers,
-        $action
+        $action,
+        $body
     ) {
         $globals = $this->getGlobals();
         $domainURL = $globals['xmpp_domain'];
@@ -110,7 +120,19 @@ trait ProductOrderNotification
         // get order array
         $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
 
-        return $this->getNotificationJsonData($receiversArray, $contentArray);
+        $jid = User::XMPP_SERVICE.'@'.$domainURL;
+        // get message from service account
+        $messageArray = [
+            'type' => 'chat',
+            'from' => $jid,
+            'body' => $body,
+        ];
+
+        return $this->getNotificationJsonData(
+            $receiversArray,
+            $contentArray,
+            $messageArray
+        );
     }
 
     /**

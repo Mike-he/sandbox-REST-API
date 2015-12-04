@@ -137,6 +137,19 @@ class SandboxRestController extends FOSRestController
         return $this->getUser()->getUserId();
     }
 
+    /**
+     * @param $orderUserId
+     */
+    protected function throwAccessDeniedIfNotSameUser(
+        $orderUserId
+    ) {
+        $userId = $this->getUserId();
+
+        if ($orderUserId !== $userId) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+    }
+
     //-------------------- check admin permission --------------------//
 
     /**

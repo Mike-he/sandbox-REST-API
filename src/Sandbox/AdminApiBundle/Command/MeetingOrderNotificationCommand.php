@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,7 +41,8 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
                 array(),
                 ProductOrder::ACTION_START,
                 null,
-                $startOrders
+                $startOrders,
+                ProductOrderMessage::MEETING_START_MESSAGE
             );
         }
 
@@ -51,7 +53,8 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
                 array(),
                 ProductOrder::ACTION_END,
                 null,
-                $endOrders
+                $endOrders,
+                ProductOrderMessage::MEETING_END_MESSAGE
             );
         }
     }

@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,19 +32,40 @@ class OrderNotificationCommand extends ContainerAwareCommand
         $allowedTime = clone $workspaceTime;
         $allowedTime->modify('+6 days');
 
-        $startOrders = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getStartSoonOrders(
-                $now, $workspaceTime
+        $this->sendOfficeNotification(
+            $now,
+            $workspaceTime,
+            $officeTime,
+            $allowedTime
+        );
+
+        $this->sendWorkspaceNotification(
+            $now,
+            $workspaceTime
+        );
+    }
+
+    /**
+     * @param $now
+     * @param $workspaceTime
+     * @param $officeTime
+     * @param $allowedTime
+     */
+    private function sendOfficeNotification(
+        $now,
+        $workspaceTime,
+        $officeTime,
+        $allowedTime
+    ) {
+        $startOrders = $this->getRepo('Order\ProductOrder')
+            ->getOfficeStartSoonOrders(
+                $now,
+                $workspaceTime
             );
 
-        $endOrders = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getEndSoonOrders(
+        $endOrders = $this->getRepo('Order\ProductOrder')
+            ->getOfficeEndSoonOrders(
                 $now,
-                $workspaceTime,
                 $officeTime,
                 $allowedTime
             );
@@ -51,22 +73,67 @@ class OrderNotificationCommand extends ContainerAwareCommand
         if (!empty($startOrders)) {
             $this->sendXmppProductOrderNotification(
                 null,
-                null,
                 array(),
                 ProductOrder::ACTION_START,
                 null,
-                $startOrders
+                $startOrders,
+                ProductOrderMessage::OFFICE_START_MESSAGE
             );
         }
 
         if (!empty($endOrders)) {
             $this->sendXmppProductOrderNotification(
                 null,
+                array(),
+                ProductOrder::ACTION_END,
+                null,
+                $endOrders,
+                ProductOrderMessage::OFFICE_END_MESSAGE
+            );
+        }
+    }
+
+    /**
+     * @param $now
+     * @param $workspaceTime
+     * @param $officeTime
+     * @param $allowedTime
+     */
+    private function sendWorkspaceNotification(
+        $now,
+        $workspaceTime
+    ) {
+        $startOrders = $this->getRepo('Order\ProductOrder')
+            ->getWorkspaceStartSoonOrders(
+                $now,
+                $workspaceTime
+            );
+
+        $endOrders = $this->getRepo('Order\ProductOrder')
+            ->getWorkspaceEndSoonOrders(
+                $now,
+                $workspaceTime
+            );
+
+        if (!empty($startOrders)) {
+            $this->sendXmppProductOrderNotification(
+                null,
+                array(),
+                ProductOrder::ACTION_START,
+                null,
+                $startOrders,
+                ProductOrderMessage::WORKSPACE_START_MESSAGE
+            );
+        }
+
+        if (!empty($endOrders)) {
+            $this->sendXmppProductOrderNotification(
                 null,
                 array(),
                 ProductOrder::ACTION_END,
                 null,
-                $endOrders
+                $endOrders,
+                ProductOrderMessage::WORKSPACE_END_MESSAGE
             );
         }
     }
