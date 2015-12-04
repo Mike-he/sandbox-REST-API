@@ -9,7 +9,12 @@ use JsonSerializable;
 /**
  * RoomCity.
  *
- * @ORM\Table(name="RoomCity")
+ * @ORM\Table(
+ *      name="RoomCity",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class RoomCity implements JsonSerializable
@@ -56,6 +61,26 @@ class RoomCity implements JsonSerializable
     private $name;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="key", type="string", length=16, nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "admin_detail",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building"
+     * })
+     */
+    private $key;
+
+    /**
      * Get id.
      *
      * @return int
@@ -87,6 +112,30 @@ class RoomCity implements JsonSerializable
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set key.
+     *
+     * @param string $key
+     *
+     * @return RoomCity
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+
+        return $this;
+    }
+
+    /**
+     * Get key.
+     *
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
     }
 
     public function jsonSerialize()

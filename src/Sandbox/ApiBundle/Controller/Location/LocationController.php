@@ -27,6 +27,8 @@ use JMS\Serializer\SerializationContext;
  */
 class LocationController extends SandboxRestController
 {
+    const LOCATION_CITY_PREFIX = 'location.city.';
+
     /**
      * @Get("/cities")
      *
@@ -39,7 +41,26 @@ class LocationController extends SandboxRestController
     ) {
         $cities = $this->getRepo('Room\RoomCity')->findAll();
 
-        return new View($cities);
+        $citiesArray = array();
+        foreach ($cities as $city) {
+            $name = $city->getName();
+            $key = $city->getKey();
+
+            $translatedKey = self::LOCATION_CITY_PREFIX.$key;
+            $translatedName = $this->get('translator')->trans($translatedKey);
+            if ($translatedName != $translatedKey) {
+                $name = $translatedName;
+            }
+
+            $cityArray = array(
+                'id' => $city->getId(),
+                'key' => $key,
+                'name' => $name,
+            );
+            array_push($citiesArray, $cityArray);
+        }
+
+        return new View($citiesArray);
     }
 
     /**

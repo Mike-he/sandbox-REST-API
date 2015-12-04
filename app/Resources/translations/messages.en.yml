@@ -1,3 +1,18 @@
+location:
+  city:
+    sh: Shanghai
+    bj: Beijing (Opening soon)
+    gz: Guangzhou (Opening soon)
+    sz: Shenzhen (Opening soon)
+    xm: Xiamen (Opening soon)
+    hz: Hangzhou (Opening soon)
+    cd: Chengdu (Opening soon)
+    cq: Chongqing (Opening soon)
+    qd: Qingdao (Opening soon)
+    xa: Xi'an (Opening soon)
+    sf: San Francisco (Opening soon)
+    bs: Boston (Opening soon)
+
 register:
   submit:
     missing_email_phone: Missing phone number or email address
