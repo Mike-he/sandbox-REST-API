@@ -360,9 +360,12 @@ class AdminOrderController extends OrderController
             $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
             $user = $this->getRepo('User\User')->find($userId);
 
-            $paymentChannel = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel()
-            );
+            $paymentChannel = $order->getPayChannel();
+            if (!is_null($paymentChannel) && !empty($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel()
+                );
+            }
 
             // set excel body
             $body = array(
