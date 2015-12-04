@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
@@ -642,6 +643,10 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+
+        // check if request user is the same as order user
+        $this->throwAccessDeniedIfNotSameUser($order->getUserId());
+
         if ($order->getStatus() !== 'unpaid') {
             return $this->customErrorView(
                 400,
@@ -708,6 +713,10 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+
+        // check if request user is the same as order user
+        $this->throwAccessDeniedIfNotSameUser($order->getUserId());
+
         $now = new \DateTime();
         if ($order->getStatus() !== 'paid' || $order->getStartDate() <= $now) {
             return $this->customErrorView(
@@ -754,11 +763,13 @@ class ClientOrderController extends PaymentController
             // send notification to invited and appointed users
             if (!empty($userArray)) {
                 $this->sendXmppProductOrderNotification(
-                    $id,
-                    $order->getOrderNumber(),
+                    $order,
                     $userArray,
                     $action,
-                    $order->getUserId()
+                    $order->getUserId(),
+                    [],
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
                 );
             }
 
@@ -801,6 +812,10 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+
+        // check if request user is the same as order user
+        $this->throwAccessDeniedIfNotSameUser($order->getUserId());
+
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
@@ -889,11 +904,13 @@ class ClientOrderController extends PaymentController
             // send notification to invited users
             if (!empty($recvUsers)) {
                 $this->sendXmppProductOrderNotification(
-                    $order->getId(),
-                    $order->getOrderNumber(),
+                    $order,
                     $recvUsers,
                     ProductOrder::ACTION_INVITE_ADD,
-                    $order->getUserId()
+                    $order->getUserId(),
+                    [],
+                    ProductOrderMessage::APPOINT_MESSAGE_PART1,
+                    ProductOrderMessage::APPOINT_MESSAGE_PART2
                 );
             }
         }
@@ -910,11 +927,13 @@ class ClientOrderController extends PaymentController
             // send notification to invited users
             if (!empty($removedUserArray)) {
                 $this->sendXmppProductOrderNotification(
-                    $order->getId(),
-                    $order->getOrderNumber(),
+                    $order,
                     $removedUserArray,
                     ProductOrder::ACTION_INVITE_REMOVE,
-                    $order->getUserId()
+                    $order->getUserId(),
+                    [],
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
                 );
             }
         }
@@ -1065,6 +1084,10 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+
+        // check if request user is the same as order user
+        $this->throwAccessDeniedIfNotSameUser($order->getUserId());
+
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
@@ -1132,11 +1155,13 @@ class ClientOrderController extends PaymentController
 
             // send notification to new user
             $this->sendXmppProductOrderNotification(
-                $order->getId(),
-                $order->getOrderNumber(),
+                $order,
                 [$newUser],
                 ProductOrder::ACTION_APPOINT_ADD,
-                $orderUser
+                $orderUser,
+                [],
+                ProductOrderMessage::APPOINT_MESSAGE_PART1,
+                ProductOrderMessage::APPOINT_MESSAGE_PART2
             );
 
             if (!is_null($currentUser) && !empty($currentUser) && $currentUser != 0) {
@@ -1149,11 +1174,13 @@ class ClientOrderController extends PaymentController
 
                 // send notification to old appointed user
                 $this->sendXmppProductOrderNotification(
-                    $order->getId(),
-                    $order->getOrderNumber(),
+                    $order,
                     [$currentUser],
                     ProductOrder::ACTION_APPOINT_REMOVE,
-                    $orderUser
+                    $orderUser,
+                    [],
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
                 );
             } else {
                 $this->removeUserAccess(
@@ -1184,6 +1211,10 @@ class ClientOrderController extends PaymentController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+
+        // check if request user is the same as order user
+        $this->throwAccessDeniedIfNotSameUser($order->getUserId());
+
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
@@ -1252,11 +1283,13 @@ class ClientOrderController extends PaymentController
 
                 // send notification to appointed user
                 $this->sendXmppProductOrderNotification(
-                    $order->getId(),
-                    $order->getOrderNumber(),
+                    $order,
                     [$currentUser],
                     ProductOrder::ACTION_APPOINT_REMOVE,
-                    $orderUser
+                    $orderUser,
+                    [],
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
                 );
             }
         }
