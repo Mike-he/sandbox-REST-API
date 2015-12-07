@@ -138,14 +138,12 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param $orderUserId
+     * @param $userId
      */
     protected function throwAccessDeniedIfNotSameUser(
-        $orderUserId
+        $userId
     ) {
-        $userId = $this->getUserId();
-
-        if ($orderUserId !== $userId) {
+        if ($this->getUserId() !== $userId) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
     }
