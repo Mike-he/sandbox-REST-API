@@ -129,8 +129,11 @@ class DoorController extends SandboxRestController
             return;
         }
 
-        $sessionId = $this->getSessionId($base, $globals);
+        $sessionId = null;
+
         try {
+            $sessionId = $this->getSessionId($base, $globals);
+
             $data = [
                 'ads_emp_card' => [
                     'empid' => "$userId", //from user account
@@ -180,8 +183,11 @@ class DoorController extends SandboxRestController
         $endHour = (string) $end->format('H:i:s');
         $startDate = (string) $start->format('Y-m-d');
         $endDate = (string) $end->format('Y-m-d');
-        $sessionId = $this->getSessionId($base, $globals);
+        $sessionId = null;
+
         try {
+            $sessionId = $this->getSessionId($base, $globals);
+
             $data = [
                 'ads_room_order' => [
                     'orderno' => "$orderId", //from user account
@@ -234,8 +240,11 @@ class DoorController extends SandboxRestController
         $orderId,
         $globals
     ) {
-        $sessionId = $this->getSessionId($base, $globals);
+        $sessionId = null;
+
         try {
+            $sessionId = $this->getSessionId($base, $globals);
+
             $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_order_no'].$orderId;
 
             $periodArray = $this->postDoorApi($base.$globals['door_api_repeal_room_order'], $data);
@@ -263,8 +272,11 @@ class DoorController extends SandboxRestController
         $userArray,
         $globals
     ) {
-        $sessionId = $this->getSessionId($base, $globals);
+        $sessionId = null;
+
         try {
+            $sessionId = $this->getSessionId($base, $globals);
+
             $data = [
                 'ads_room_order_add_emp' => [
                     'orderno' => "$orderId", //from user account
@@ -305,8 +317,11 @@ class DoorController extends SandboxRestController
         $userArray,
         $globals
     ) {
-        $sessionId = $this->getSessionId($base, $globals);
+        $sessionId = null;
+
         try {
+            $sessionId = $this->getSessionId($base, $globals);
+
             $data = [
                 'ads_room_order_del_emp' => [
                     'orderno' => "$orderId", //from user account

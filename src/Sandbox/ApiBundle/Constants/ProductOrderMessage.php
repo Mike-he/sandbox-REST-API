@@ -13,7 +13,7 @@ class ProductOrderMessage
     const OFFICE_START_MESSAGE = '您的办公室将在明天开始使用';
     const OFFICE_END_MESSAGE = '您的办公室将在七天后到期';
 
-    const APPOINT_MESSAGE_PART1 = '您已被授权进入“';
+    const APPOINT_MESSAGE_PART1 = '您已被授权进入“';
     const APPOINT_MESSAGE_PART2 = '”房间了，你可以用Sandbox3的卡片开启该房间的门禁。';
 
     const CANCEL_ORDER_MESSAGE_PART1 = '您在“';

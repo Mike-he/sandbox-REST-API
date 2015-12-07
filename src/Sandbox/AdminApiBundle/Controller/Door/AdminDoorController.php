@@ -428,11 +428,12 @@ class AdminDoorController extends DoorController
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
         $name = $building->getName();
+        $sessionId = null;
 
-        $sessionId = $this->getSessionId($base, $globals);
         try {
-            $data = $globals['door_api_session_id'].$sessionId;
+            $sessionId = $this->getSessionId($base, $globals);
 
+            $data = $globals['door_api_session_id'].$sessionId;
             $doorArray = $this->postDoorApi($base.$globals['door_api_get_doors'], $data);
             $this->logOut($sessionId, $base, $globals);
             if ($doorArray['ads_result']['result'] != self::RESULT_OK) {
@@ -458,6 +459,7 @@ class AdminDoorController extends DoorController
 
             return new View($updateDoors);
         } catch (\Exception $e) {
+            error_log('Get doors went wrong!');
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $base, $globals);
             }
@@ -539,9 +541,11 @@ class AdminDoorController extends DoorController
         }
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
+        $sessionId = null;
 
-        $sessionId = $this->getSessionId($base, $globals);
         try {
+            $sessionId = $this->getSessionId($base, $globals);
+
             $begin = $paramFetcher->get('begin_time');
             $end = $paramFetcher->get('end_time');
             if (is_null($end) || empty($end)) {
@@ -572,6 +576,7 @@ class AdminDoorController extends DoorController
 
             return new View($pagination);
         } catch (\Exception $e) {
+            error_log('Get swipe records went wrong!');
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $base, $globals);
             }
@@ -653,9 +658,11 @@ class AdminDoorController extends DoorController
         }
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
+        $sessionId = null;
 
-        $sessionId = $this->getSessionId($base, $globals);
         try {
+            $sessionId = $this->getSessionId($base, $globals);
+
             $begin = $paramFetcher->get('begin_time');
             $end = $paramFetcher->get('end_time');
             if (is_null($end) || empty($end)) {
@@ -686,6 +693,7 @@ class AdminDoorController extends DoorController
 
             return new View($pagination);
         } catch (\Exception $e) {
+            error_log('Get alarm records went wrong!');
             if (!is_null($sessionId) && !empty($sessionId)) {
                 $this->logOut($sessionId, $base, $globals);
             }
