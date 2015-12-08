@@ -104,7 +104,7 @@ class EventRegistrationRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('er')
             ->select('
-                count(er) as counts
+                COUNT(er) as counts
             ')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = er.eventId')
             ->where('e.verify = TRUE')
