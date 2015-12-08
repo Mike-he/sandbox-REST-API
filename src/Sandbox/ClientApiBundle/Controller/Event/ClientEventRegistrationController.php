@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
+use Sandbox\ApiBundle\Entity\Event\EventRegistrationCheck;
 use Sandbox\ApiBundle\Entity\Event\EventRegistrationForm;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPostType;
@@ -291,20 +292,34 @@ class ClientEventRegistrationController extends EventController
             return false;
         }
 
+        $check = new EventRegistrationCheck();
+        $check->setEventId($event->getId());
+
+        // in case of duplicate submits
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($check);
+        $em->flush();
+
+        $checkCounts = $this->getRepo('Event\EventRegistrationCheck')
+            ->getEventRegistrationCheckCount($event->getId());
+
         if ($event->getVerify()) {
-            $registrationCounts = $this->getRepo('Event\EventRegistration')
+            $registrations = $this->getRepo('Event\EventRegistration')
                 ->getAcceptedPersonNumber($event->getId());
         } else {
-            $registrationCounts = $this->getRepo('Event\EventRegistration')
+            $registrations = $this->getRepo('Event\EventRegistration')
                 ->getRegistrationCounts($event->getId());
         }
-        $registrationCounts = (int) $registrationCounts;
+        $totalCounts = (int) ($registrations + $checkCounts);
+
+        $em->remove($check);
+        $em->flush();
 
         // if not over limit number
-        if ($registrationCounts < $limitNumber) {
-            return false;
+        if ($limitNumber < $totalCounts) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 }
