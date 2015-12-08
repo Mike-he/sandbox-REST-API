@@ -87,7 +87,6 @@ class ClientUserLogoutController extends UserLogoutController
                 'token' => $token,
                 'enabled' => false,
                 'keepalive' => false,
-                'mute' => false,
             );
             $jsonData = json_encode($jsonDataArray);
 
