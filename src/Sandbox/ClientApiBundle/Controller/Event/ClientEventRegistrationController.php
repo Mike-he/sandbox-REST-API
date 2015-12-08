@@ -304,23 +304,19 @@ class ClientEventRegistrationController extends EventController
             ->getEventRegistrationCheckCount($event->getId());
 
         if ($event->getVerify()) {
-            $acceptedCounts = $this->getRepo('Event\EventRegistration')
+            $registrations = $this->getRepo('Event\EventRegistration')
                 ->getAcceptedPersonNumber($event->getId());
-
-            $registrationCounts = $acceptedCounts + $checkCounts;
         } else {
             $registrations = $this->getRepo('Event\EventRegistration')
                 ->getRegistrationCounts($event->getId());
-
-            $registrationCounts = $registrations + $checkCounts;
         }
-        $registrationCounts = (int) $registrationCounts;
+        $totalCounts = (int) ($registrations + $checkCounts);
 
         $em->remove($check);
         $em->flush();
 
         // if not over limit number
-        if ($limitNumber < $registrationCounts) {
+        if ($limitNumber < $totalCounts) {
             return true;
         }
 

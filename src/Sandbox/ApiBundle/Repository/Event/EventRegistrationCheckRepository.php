@@ -15,7 +15,7 @@ class EventRegistrationCheckRepository extends EntityRepository
         $eventId
     ) {
         $query = $this->createQueryBuilder('erc')
-            ->select('count(erc)')
+            ->select('COUNT(erc)')
             ->where('erc.eventId = :eventId')
             ->setParameter('eventId', $eventId);
 
