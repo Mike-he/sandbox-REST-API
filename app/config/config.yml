@@ -40,6 +40,7 @@ twig:
         openfire_plugin_bstgroupchat_room_member: "%openfire_plugin_bstgroupchat_room_member%"
         openfire_plugin_bstios: "%openfire_plugin_bstios%"
         openfire_plugin_bstios_chatconfig: "%openfire_plugin_bstios_chatconfig%"
+        openfire_plugin_bstios_apns: "%openfire_plugin_bstios_apns%"
         sms_api_url: "%sms_api_url%"
         sms_api_key: "%sms_api_key%"
         email_from_address: "%email_from_address%"
