@@ -318,7 +318,7 @@ class ChatGroupController extends SandboxRestController
             );
             $jsonData = json_encode($jsonDataArray);
 
-            // call openfire room api
+            // call openfire chat config api
             $this->callOpenfireChatConfigApi($jsonData);
         } catch (\Exception $e) {
             error_log('Update XMPP chat group went wrong!');
