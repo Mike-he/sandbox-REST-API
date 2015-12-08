@@ -189,7 +189,7 @@ class ClientFeedCommentController extends FeedCommentController
             $recvUsers[] = $owner;
         }
 
-        if (!is_null($replyToUser)) {
+        if (!is_null($replyToUser) && $replyToUser != $owner) {
             $recvUsers[] = $replyToUser;
         }
 
