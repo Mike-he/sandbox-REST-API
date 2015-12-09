@@ -280,6 +280,15 @@ class AdminOrderController extends OrderController
      *    description="payment channel"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    default="zh",
+     *    nullable=true,
+     *    requirements="(zh|en)",
+     *    strict=true,
+     *    description="export language"
+     * )
+     *
      * @Route("/orders/export")
      * @Method({"GET"})
      *
@@ -298,6 +307,7 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
 
+        $language = $paramFetcher->get('language');
         $channel = $paramFetcher->get('channel');
         $type = $paramFetcher->get('type');
         $cityId = $paramFetcher->get('city');
@@ -336,19 +346,28 @@ class AdminOrderController extends OrderController
             // set product type
             $productTypeKey = $productInfo['room']['type'];
             $productType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey
+                ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey,
+                array(),
+                null,
+                $language
             );
 
             // set unit price
             $unitPriceKey = $productInfo['unit_price'];
             $unitPrice = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey
+                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey,
+                array(),
+                null,
+                $language
             );
 
             // set status
             $statusKey = $order->getStatus();
             $status = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
             );
 
             // set leasing name
@@ -363,7 +382,10 @@ class AdminOrderController extends OrderController
             $paymentChannel = $order->getPayChannel();
             if (!is_null($paymentChannel) && !empty($paymentChannel)) {
                 $paymentChannel = $this->get('translator')->trans(
-                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel()
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
+                    array(),
+                    null,
+                    $language
                 );
             }
 
@@ -391,22 +413,22 @@ class AdminOrderController extends OrderController
         }
 
         $headers = [
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_NAME),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_PHONE),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_NAME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_PHONE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),
         ];
 
         //Fill data
