@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Traits\OpenfireApi;
 
 /**
  * Logout controller.
@@ -22,6 +23,8 @@ use FOS\RestBundle\View\View;
  */
 class ClientUserLogoutController extends UserLogoutController
 {
+    use OpenfireApi;
+
     /**
      * Logout.
      *
@@ -91,43 +94,9 @@ class ClientUserLogoutController extends UserLogoutController
             $jsonData = json_encode($jsonDataArray);
 
             // call openfire APNS api
-            $this->callOpenfireApnsApi($jsonData);
+            $this->callOpenfireApnsApi('POST', $jsonData);
         } catch (\Exception $e) {
             error_log('Disable APNS in XMPP went wrong!');
-        }
-    }
-
-    /**
-     * @param object $jsonData
-     *
-     * @return mixed|void
-     */
-    protected function callOpenfireApnsApi(
-        $jsonData
-    ) {
-        try {
-            // get globals
-            $globals = $this->getGlobals();
-
-            // openfire API URL
-            $apiURL = $globals['openfire_innet_url'].
-                $globals['openfire_plugin_bstios'].
-                $globals['openfire_plugin_bstios_apns'];
-
-            // init curl
-            $ch = curl_init($apiURL);
-
-            // get then response when post OpenFire API
-            $response = $this->get('curl_util')->callAPI($ch, 'POST', null, $jsonData);
-
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($httpCode != self::HTTP_STATUS_OK) {
-                return;
-            }
-
-            return $response;
-        } catch (\Exception $e) {
-            error_log('Call Openfire APNS API went wrong!');
         }
     }
 }

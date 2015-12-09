@@ -14,6 +14,7 @@ use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\Security\Acl\Exception\Exception;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Traits\OpenfireApi;
 
 /**
  * Login controller.
@@ -27,8 +28,13 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientUserLoginController extends UserLoginController
 {
+    use OpenfireApi;
+
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
     const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：xxx-xxxxxxx';
+
+    const PLATFORM_IPHONE = 'iphone';
+    const PLATFORM_ANDROID = 'android';
 
     /**
      * Login.
@@ -98,6 +104,9 @@ class ClientUserLoginController extends UserLoginController
                 $em->persist($userToken);
             }
             $em->flush();
+
+            // handle device
+            $this->handleDevice($request, $user);
 
             // response
             $view = new View();
@@ -211,5 +220,57 @@ class ClientUserLoginController extends UserLoginController
         $userToken->setOnline(true);
 
         return $userToken;
+    }
+
+    /**
+     * @param Request $request
+     * @param User    $user
+     */
+    private function handleDevice(
+        Request $request,
+        $user
+    ) {
+        try {
+            $requestContent = $request->getContent();
+            if (is_null($requestContent)) {
+                return;
+            }
+
+            // get device data from request payload
+            $payload = json_decode($requestContent, true);
+            $deviceData = $payload['device'];
+            $token = $deviceData['token'];
+            $platform = $deviceData['platform'];
+
+            if ($platform === self::PLATFORM_IPHONE) {
+                $jid = $this->constructXmppJid($user->getXmppUsername());
+                $this->disableXmppOtherApns($jid, $token);
+            }
+        } catch (\Exception $e) {
+            error_log('Login handle device went wrong!');
+        }
+    }
+
+    /**
+     * @param $jid
+     * @param $currentToken
+     */
+    private function disableXmppOtherApns(
+        $jid,
+        $currentToken
+    ) {
+        try {
+            // request json
+            $jsonDataArray = array(
+                'jid' => $jid,
+                'current_token' => $currentToken,
+            );
+            $jsonData = json_encode($jsonDataArray);
+
+            // call openfire APNS api
+            $this->callOpenfireApnsApi('DELETE', $jsonData);
+        } catch (\Exception $e) {
+            error_log('Disable XMPP other APNS went wrong!');
+        }
     }
 }
