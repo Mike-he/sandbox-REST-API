@@ -168,6 +168,7 @@ class AdminRoomController extends RoomController
             AdminType::KEY_PLATFORM,
             array(
                 AdminPermission::KEY_PLATFORM_ROOM,
+                AdminPermission::KEY_PLATFORM_PRODUCT,
                 AdminPermission::KEY_PLATFORM_EVENT,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
@@ -499,7 +500,16 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ROOM,
+                AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_EVENT,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // get room
         $room = $this->getRepo('Room\Room')->findOneBy(array(
