@@ -57,7 +57,6 @@ class AdminRoomController extends RoomController
      *  }
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="type",
      *    array=false,
@@ -164,7 +163,15 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ROOM,
+                AdminPermission::KEY_PLATFORM_EVENT,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         //filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -452,9 +459,6 @@ class AdminRoomController extends RoomController
     public function getRoomTypes(
         Request $request
     ) {
-        // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
-
         $roomKeys = array(Room::TYPE_OFFICE, Room::TYPE_MEETING, Room::TYPE_FLEXIBLE, Room::TYPE_FIXED);
 
         // get rooms types

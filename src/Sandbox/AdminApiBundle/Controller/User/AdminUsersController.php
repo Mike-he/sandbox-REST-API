@@ -256,24 +256,15 @@ class AdminUsersController extends DoorController
         $ids = $paramFetcher->get('id');
 
         // check user permission
-        if (!is_null($ids) || !empty($ids)) {
-            $this->throwAccessDeniedIfAdminNotAllowed(
-                $this->getAdminId(),
-                AdminType::KEY_PLATFORM,
-                array(
-                    AdminPermission::KEY_PLATFORM_USER,
-                    AdminPermission::KEY_PLATFORM_ORDER,
-                ),
-                AdminPermissionMap::OP_LEVEL_VIEW
-            );
-        } else {
-            $this->throwAccessDeniedIfAdminNotAllowed(
-                $this->getAdminId(),
-                AdminType::KEY_PLATFORM,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_USER,
                 AdminPermission::KEY_PLATFORM_ORDER,
-                AdminPermissionMap::OP_LEVEL_VIEW
-            );
-        }
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $banned = $paramFetcher->get('banned');
 
@@ -283,9 +274,9 @@ class AdminUsersController extends DoorController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
-        //return result according to ids
+        // return result according to ids
         if (is_null($ids) || empty($ids)) {
-            //ids is null
+            // ids is null
             return $this->getUsersNotByIds(
                 $banned,
                 $sortBy,
@@ -294,7 +285,7 @@ class AdminUsersController extends DoorController
                 $pageIndex
             );
         } else {
-            //ids is not null
+            // ids is not null
             return $this->getUsersByIds($ids);
         }
     }

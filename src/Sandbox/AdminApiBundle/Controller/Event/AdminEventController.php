@@ -66,7 +66,6 @@ class AdminEventController extends SandboxRestController
      *   }
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
@@ -109,7 +108,15 @@ class AdminEventController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_EVENT,
+                AdminPermission::KEY_PLATFORM_BANNER,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');

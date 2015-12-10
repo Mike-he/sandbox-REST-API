@@ -46,7 +46,6 @@ class AdminOrderController extends OrderController
      *  }
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="type",
      *    array=false,
@@ -468,6 +467,7 @@ class AdminOrderController extends OrderController
      * Get member order renter info.
      *
      * @param Request $request
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -490,7 +490,15 @@ class AdminOrderController extends OrderController
         $adminId = $this->getAdminId();
 
         // check user permission
-        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ORDER,
+                AdminPermission::KEY_PLATFORM_USER,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
