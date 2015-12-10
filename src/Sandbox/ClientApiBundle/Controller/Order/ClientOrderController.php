@@ -188,6 +188,7 @@ class ClientOrderController extends PaymentController
         Request $request
     ) {
         $em = $this->getDoctrine()->getManager();
+        $orderCheck = null;
 
         try {
             $userId = $this->getUserId();
@@ -431,6 +432,11 @@ class ClientOrderController extends PaymentController
 
             return $view;
         } catch (\Exception $exception) {
+            if (!is_null($orderCheck)) {
+                $em->remove($orderCheck);
+                $em->flush();
+            }
+
             throw $exception;
         }
     }
