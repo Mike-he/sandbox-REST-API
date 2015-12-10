@@ -376,7 +376,6 @@ class AdminOrderController extends OrderController
                 .$order->getEndDate()->format('Y-m-d H:i:s');
 
             $userId = $order->getUserId();
-            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
             $user = $this->getRepo('User\User')->find($userId);
 
             $paymentChannel = $order->getPayChannel();
@@ -403,7 +402,6 @@ class AdminOrderController extends OrderController
                 ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
                 ProductOrderExport::ORDER_STATUS => $status,
-                ProductOrderExport::USER_NAME => $userProfile->getName(),
                 ProductOrderExport::USER_PHONE => $user->getPhone(),
                 ProductOrderExport::USER_EMAIL => $user->getEmail(),
                 ProductOrderExport::PAYMENT_CHANNEL => $paymentChannel,
@@ -425,7 +423,6 @@ class AdminOrderController extends OrderController
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_NAME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_PHONE, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),

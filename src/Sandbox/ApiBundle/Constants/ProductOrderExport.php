@@ -16,7 +16,6 @@ class ProductOrderExport
     const ORDER_TIME = 'order_time';
     const PAYMENT_TIME = 'payment_time';
     const ORDER_STATUS = 'status';
-    const USER_NAME = 'name';
     const USER_PHONE = 'phone';
     const USER_EMAIL = 'email';
     const PAYMENT_CHANNEL = 'channel';
@@ -38,7 +37,6 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME = 'product_order.export_header.order_time';
     const TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME = 'product_order.export_header.payment_time';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS = 'product_order.export_header.status';
-    const TRANS_PRODUCT_ORDER_HEADER_USER_NAME = 'product_order.export_header.name';
     const TRANS_PRODUCT_ORDER_HEADER_USER_PHONE = 'product_order.export_header.phone';
     const TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL = 'product_order.export_header.email';
     const TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL = 'product_order.export_header.channel';

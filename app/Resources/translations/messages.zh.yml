@@ -59,7 +59,6 @@ product_order:
     order_time: 创建时间
     payment_time: 付款时间
     status: 订单状态
-    name: 租赁人
     phone: 租赁人手机
     email: 租赁人邮箱
     channel: 支付渠道
