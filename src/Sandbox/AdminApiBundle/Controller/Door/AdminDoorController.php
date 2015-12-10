@@ -414,7 +414,15 @@ class AdminDoorController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ACCESS,
+                AdminPermission::KEY_PLATFORM_ROOM,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $globals = $this->getGlobals();
         $buildingId = $paramFetcher->get('building');

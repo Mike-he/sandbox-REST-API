@@ -117,7 +117,15 @@ class AdminNewsController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_NEWS,
+                AdminPermission::KEY_PLATFORM_BANNER,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
