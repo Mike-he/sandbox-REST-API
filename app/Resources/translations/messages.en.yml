@@ -59,7 +59,6 @@ product_order:
     order_time: Order Creation
     payment_time: Payment Date
     status: Status
-    name: Renter Name
     phone: Renter Mobile
     email: Renter Email
     channel: Payment Channel
