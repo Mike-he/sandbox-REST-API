@@ -318,7 +318,10 @@ class AdminUsersController extends DoorController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_USER,
+            array(
+                AdminPermission::KEY_PLATFORM_USER,
+                AdminPermission::KEY_PLATFORM_ORDER,
+            ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
 
