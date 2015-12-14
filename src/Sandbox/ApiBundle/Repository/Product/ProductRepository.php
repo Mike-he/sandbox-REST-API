@@ -571,6 +571,7 @@ class ProductRepository extends EntityRepository
 
         $queryStr = $queryStr.' WHERE p.visible = :visible';
         $queryStr = $queryStr.' AND p.recommend = :recommend';
+        $queryStr = $queryStr.' AND (p.startDate <= :now AND p.endDate >= :now)';
 
         if (!is_null($city)) {
             $queryStr = $queryStr.' AND r.city = :city';
@@ -584,6 +585,7 @@ class ProductRepository extends EntityRepository
 
         $query = $this->getEntityManager()->createQuery($queryStr);
         $query->setParameter('visible', true);
+        $query->setParameter('now', new \DateTime('now'));
         $query->setParameter('recommend', $recommend);
 
         if (!is_null($city)) {
