@@ -293,11 +293,10 @@ class ClientBuddyRequestController extends BuddyRequestController
      * @Annotations\QueryParam(
      *    name="id",
      *    array=true,
-     *    default="1",
      *    nullable=false,
      *    requirements="\d+",
      *    strict=true,
-     *    description="event registration id"
+     *    description="buddy requests id"
      * )
      *
      * @Route("/requests")
