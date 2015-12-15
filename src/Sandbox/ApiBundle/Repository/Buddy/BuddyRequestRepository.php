@@ -24,6 +24,7 @@ class BuddyRequestRepository extends EntityRepository
                     WHERE
                      bq.recvUserId = :myUserId
                      AND u.banned = FALSE
+                    ORDER BY bq.creationDate DESC
                 '
             )
             ->setParameter('myUserId', $myUser->getId());
