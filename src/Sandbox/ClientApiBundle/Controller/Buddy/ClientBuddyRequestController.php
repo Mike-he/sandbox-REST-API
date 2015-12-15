@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Buddy;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Buddy\BuddyRequestController;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\Buddy\BuddyRequest;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
@@ -278,6 +280,53 @@ class ClientBuddyRequestController extends BuddyRequestController
 
             $em->flush();
         }
+
+        return new View();
+    }
+
+    /**
+     * Delete my buddy requests.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="buddy requests id"
+     * )
+     *
+     * @Route("/requests")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deleteBuddyRequestsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $ids = $paramFetcher->get('id');
+        foreach ($ids as $id) {
+            $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+                'id' => $id,
+                'recvUserId' => $userId,
+            ));
+
+            if (is_null($buddyRequest)) {
+                continue;
+            }
+
+            $em->remove($buddyRequest);
+        }
+
+        $em->flush();
 
         return new View();
     }
