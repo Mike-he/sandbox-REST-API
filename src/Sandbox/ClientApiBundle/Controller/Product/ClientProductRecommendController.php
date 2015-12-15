@@ -62,6 +62,9 @@ class ClientProductRecommendController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = $this->getUserId();
+
+        // get params
         $cityId = $paramFetcher->get('city');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -71,7 +74,7 @@ class ClientProductRecommendController extends ProductController
 
         // find recommend products
         $products = $this->getRepo('Product\Product')->getProductsRecommend(
-            $city, $limit, $offset, true
+            $userId, $city, $limit, $offset, true
         );
         $recommendCount = count($products);
 
@@ -88,7 +91,7 @@ class ClientProductRecommendController extends ProductController
             $limit = $limit - $recommendCount;
 
             $notRecommends = $this->getRepo('Product\Product')->getProductsRecommend(
-                $city, $limit, $offset, false
+                $userId, $city, $limit, $offset, false
             );
 
             $products = array_merge($products, $notRecommends);
