@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Company;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Sandbox\ApiBundle\Entity\Company\CompanyInvitation;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
@@ -112,6 +114,53 @@ class ClientCompanyInvitationController extends ClientCompanyMemberController
 
             $em->flush();
         }
+
+        return new View();
+    }
+
+    /**
+     * Delete my company invitations.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="company invitation id"
+     * )
+     *
+     * @Route("/invitations")
+     * @Method("DELETE")
+     *
+     * @return View
+     */
+    public function deleteCompanyInvitationsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $ids = $paramFetcher->get('id');
+        foreach ($ids as $id) {
+            $companyInvitation = $this->getRepo('Company\CompanyInvitation')->findOneBy(array(
+                'id' => $id,
+                'recvUserId' => $userId,
+            ));
+
+            if (is_null($companyInvitation)) {
+                continue;
+            }
+
+            $em->remove($companyInvitation);
+        }
+
+        $em->flush();
 
         return new View();
     }
