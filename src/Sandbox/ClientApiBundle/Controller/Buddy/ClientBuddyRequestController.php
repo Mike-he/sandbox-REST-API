@@ -314,16 +314,16 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         $ids = $paramFetcher->get('id');
         foreach ($ids as $id) {
-            $buddyRequests = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
+            $buddyRequest = $this->getRepo('Buddy\BuddyRequest')->findOneBy(array(
                 'id' => $id,
                 'recvUserId' => $userId,
             ));
 
-            if (is_null($buddyRequests)) {
+            if (is_null($buddyRequest)) {
                 continue;
             }
 
-            $em->remove($buddyRequests);
+            $em->remove($buddyRequest);
         }
 
         $em->flush();
