@@ -84,6 +84,7 @@ class ClientBuddyRequestController extends BuddyRequestController
                     'id' => $buddyRequest->getId(),
                     'ask_user_id' => $buddyRequest->getAskUserId(),
                     'message' => $buddyRequest->getMessage(),
+                    'creation_date' => $buddyRequest->getCreationDate(),
                     'profile' => $profile,
                 );
 

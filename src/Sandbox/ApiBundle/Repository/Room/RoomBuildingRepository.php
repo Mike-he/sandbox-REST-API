@@ -80,4 +80,16 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @return array
+     */
+    public function getDistinctServers()
+    {
+        $query = $this->createQueryBuilder('rb')
+            ->select('DISTINCT rb.server')
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }
