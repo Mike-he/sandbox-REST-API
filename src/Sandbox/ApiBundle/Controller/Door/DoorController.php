@@ -356,20 +356,19 @@ class DoorController extends SandboxRestController
         $cardNo,
         $method
     ) {
-        $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
-        if (is_null($buildings) || empty($buildings)) {
+        $servers = $this->getRepo('Room\RoomBuilding')->getDistinctServers();
+        if (is_null($servers) || empty($servers)) {
             return;
         }
 
-        foreach ($buildings as $oneBuilding) {
+        foreach ($servers as $server) {
             try {
-                $server = $oneBuilding->getServer();
-                if (is_null($server) || empty($server)) {
+                if (is_null($server['server']) || empty($server['server'])) {
                     continue;
                 }
 
                 $this->setEmployeeCard(
-                    $server,
+                    $server['server'],
                     $userId,
                     $userName,
                     $cardNo,
