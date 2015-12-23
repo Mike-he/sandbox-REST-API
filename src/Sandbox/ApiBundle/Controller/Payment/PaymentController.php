@@ -9,11 +9,13 @@ use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Sandbox\ApiBundle\Entity\Food\FoodOrder;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Sandbox\ApiBundle\Traits\StringUtil;
 
 /**
  * Payment Controller.
@@ -27,6 +29,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class PaymentController extends DoorController
 {
+    use StringUtil;
+
     const STATUS_PAID = 'paid';
     const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
     const INSUFFICIENT_FUNDS_CODE = 400001;
@@ -205,6 +209,9 @@ class PaymentController extends DoorController
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
+
+        // send order email
+        $this->sendOrderEmail($order);
 
         $userId = $order->getUserId();
         $globals = $this->getGlobals();
@@ -538,5 +545,59 @@ class PaymentController extends DoorController
 
         // update order status
         return $this->updateFoodOrderStatus($order);
+    }
+
+    /**
+     * @param ProductOrder $order
+     */
+    public function sendOrderEmail(
+        $order
+    ) {
+        try {
+            $email = $order->getProduct()->getRoom()->getBuilding()->getEmail();
+            if (is_null($email)) {
+                return;
+            }
+
+            $payChannel = $this->get('translator')->trans('product_order.channel.'.$order->getPayChannel());
+            if (is_null($payChannel)) {
+                return;
+            }
+
+            $orderStatus = $order->getStatus();
+            if ($orderStatus == ProductOrder::STATUS_PAID) {
+                $title = '新的订单';
+            } elseif ($orderStatus == ProductOrder::STATUS_CANCELLED) {
+                $title = '订单取消';
+            } else {
+                return;
+            }
+
+            $productInfo = json_decode($order->getProductInfo(), true);
+
+            $status = $this->get('translator')->trans('product_order.status.'.$orderStatus);
+            $roomType = $this->get('translator')->trans('room.type.'.$order->getProduct()->getRoom()->getType());
+            $unitPrice = $this->get('translator')->trans('room.unit.'.$productInfo['unit_price']);
+
+            $user = $this->getRepo('User\UserProfile')->find($order->getUserId());
+
+            // send email
+            $subject = '【展想创合】'.$title;
+            $this->sendEmail($subject, $email, $this->before('@', $email),
+                'Emails/order_email_notification.html.twig',
+                array(
+                    'title' => $title,
+                    'order' => $order,
+                    'product_info' => $productInfo,
+                    'status' => $status,
+                    'user' => $user,
+                    'pay_channel' => $payChannel,
+                    'room_type' => $roomType,
+                    'unit_price' => $unitPrice,
+                )
+            );
+        } catch (\Exception $e) {
+            error_log('Send order email went wrong!');
+        }
     }
 }
