@@ -578,6 +578,9 @@ class ClientOrderController extends PaymentController
         $em->persist($order);
         $em->flush();
 
+        // send order email
+        $this->sendOrderEmail($order);
+
         $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
@@ -745,6 +748,9 @@ class ClientOrderController extends PaymentController
             $order->setCancelledDate($now);
             $order->setModificationDate($now);
             $em->flush();
+
+            // send order email
+            $this->sendOrderEmail($order);
 
             // get appointed user
             $userArray = [];

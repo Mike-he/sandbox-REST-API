@@ -197,6 +197,13 @@ class RoomBuilding implements JsonSerializable
     private $roomAttachments;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", nullable=true)
+     */
+    private $email;
+
+    /**
      * Get id.
      *
      * @return int
@@ -514,6 +521,30 @@ class RoomBuilding implements JsonSerializable
     public function getRoomAttachments()
     {
         return $this->roomAttachments;
+    }
+
+    /**
+     * Set email.
+     *
+     * @param $email
+     *
+     * @return RoomBuilding
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email.
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 
     public function jsonSerialize()

@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>【展想创合】{{ title }}</title>
+    <style>
+        html{
+            font-family: arial;
+        }
+        body{
+            font-size: 14px;
+        }
+        html, body, div, h2, h4, h5,label, ul, li, span{
+            margin: 0px 0px;
+            padding: 0px 0px;
+        }
+        ul,li{
+            list-style-type: none;
+        }
+        .container{
+            margin-left: 5px;
+        }
+        .email_title{
+            margin: 14px 0;
+        }
+        .email_content{
+            padding-left: 30px;
+        }
+        .email_content ul li{
+            line-height: 20px;
+            padding-left: 20px;
+        }
+        .email_content .item{
+            margin: 14px 0;
+        }
+        .email_content .item .item_title{
+            font-size: 16px;
+            height: 21px;
+            line-height: 21px;
+        }
+        .email_content .item .item_name{
+            font-size: 14px;
+            display: inline-block;
+            height: 21px;
+            line-height: 21px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="email_title">{{ title }}：</h2>
+    <div class="email_content">
+        <label>您有一条{{ title }}，订单内容如下：</label>
+        <div class="item">
+            <h4 class="item_title">订单信息：</h4>
+            <ul>
+                <li><h5 class="item_name">订单号：</h5>{{ order.orderNumber }}</li>
+                <li><h5 class="item_name">下单时间：</h5>{{ order.creationDate|date('Y-m-d') }}</li>
+                <li><h5 class="item_name">订单状态：</h5>{{ status }}</li>
+            </ul>
+        </div>
+        <div class="item">
+            <h4 class="item_name">租赁人信息：</h4>
+            <ul>
+                <li><h5 class="item_name">会员姓名：</h5>{{ user.name }}</li>
+                <li><h5 class="item_name">会员ID：</h5>{{ user.userId }}</li>
+                <li><h5 class="item_name">邮箱：</h5>{{ order.user.email }}</li>
+                <li><h5 class="item_name">手机：</h5>{{ order.user.phone }}</li>
+                <li><h5 class="item_name">付款渠道：</h5>{{ pay_channel }}</li>
+            </ul>
+        </div>
+        <div class="item">
+            <h4 class="item_name">订单信息：</h4>
+            <ul>
+                <li><h5 class="item_name">创建时间：</h5>{{ order.creationDate|date('Y-m-d H:i:s') }}</li>
+                <li><h5 class="item_name">付款时间：</h5>{{ order.paymentDate|date('Y-m-d H:i:s') }}</li>
+                <li><h5 class="item_name">租赁时间：</h5>{{ order.startDate|date('Y-m-d H:i:s') }} - {{ order.endDate|date('Y-m-d H:i:s') }}</li>
+                <li><h5 class="item_name">商品：</h5>{{ order.product.room.city.name }},{{ order.product.room.building.name }},
+                    {{ order.product.room.number }},{{ order.product.room.name }}
+                </li>
+                <li><h5 class="item_name">房间类型：</h5>{{ room_type }}</li>
+                <li><h5 class="item_name">工位编号：</h5>{{ product_info.seat_number }}</li>
+                <li><h5 class="item_name">租赁人：</h5>{{ user.name }}</li>
+                <li><h5 class="item_name">单价：</h5>{{ product_info.base_price }}/{{ unit_price }}</li>
+            </ul>
+        </div>
+        <div class="item">
+            <h4 class="item_name">订单价格：</h4>
+            <ul>
+                <li><h5 class="item_name">订单原价：</h5>{{ order.price }}元</li>
+                <li><h5 class="item_name">价格模板：</h5>{{ order.ruleName }}</li>
+                <li><h5 class="item_name">实付款：</h5>{{ order.discountPrice }}元</li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>
