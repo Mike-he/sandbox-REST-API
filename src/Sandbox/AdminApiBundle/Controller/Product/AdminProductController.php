@@ -486,7 +486,7 @@ class AdminProductController extends ProductController
     /**
      * Check user permission.
      *
-     * @param Integer $OpLevel
+     * @param int $OpLevel
      */
     protected function checkAdminProductPermission(
         $OpLevel
@@ -500,10 +500,10 @@ class AdminProductController extends ProductController
     }
 
     /**
-     * @param Integer $roomNumber
-     * @param Integer $buildingId
-     * @param Array   $rule_include
-     * @param Array   $rule_exclude
+     * @param int   $roomNumber
+     * @param int   $buildingId
+     * @param array $rule_include
+     * @param array $rule_exclude
      */
     private function handleProductPost(
         $roomNumber,
@@ -521,10 +521,10 @@ class AdminProductController extends ProductController
     }
 
     /**
-     * @param Integer $roomNumber
-     * @param Integer $buildingId
-     * @param Array   $rule_include
-     * @param Array   $rule_exclude
+     * @param int   $roomNumber
+     * @param int   $buildingId
+     * @param array $rule_include
+     * @param array $rule_exclude
      */
     private function handleProductPut(
         $roomNumber,

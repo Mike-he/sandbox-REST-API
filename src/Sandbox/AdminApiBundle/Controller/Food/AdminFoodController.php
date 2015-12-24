@@ -387,7 +387,7 @@ class AdminFoodController extends FoodController
      *
      * @param EntityManager $em
      * @param Food          $food
-     * @param Array         $attachments
+     * @param array         $attachments
      */
     private function removeFoodProperties(
         $em,
@@ -407,7 +407,7 @@ class AdminFoodController extends FoodController
      *
      * @param EntityManager $em
      * @param Food          $food
-     * @param Array         $attachments
+     * @param array         $attachments
      */
     private function addFoodAttachment(
         $em,
@@ -429,7 +429,7 @@ class AdminFoodController extends FoodController
      *
      * @param EntityManager $em
      * @param Food          $food
-     * @param Array         $forms
+     * @param array         $forms
      */
     private function addFoodForms(
         $em,
@@ -512,7 +512,7 @@ class AdminFoodController extends FoodController
     /**
      * Check user permission.
      *
-     * @param Integer $OpLevel
+     * @param int $OpLevel
      */
     private function checkAdminFoodPermission(
         $OpLevel

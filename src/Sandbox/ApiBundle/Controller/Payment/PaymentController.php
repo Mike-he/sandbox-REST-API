@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Payment;
 
+use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
@@ -91,6 +92,46 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_WECHAT = 'wx';
 
     /**
+     * @param $userId
+     * @param $orderNo
+     * @param $amount
+     *
+     * @return \FOS\RestBundle\View\View
+     */
+    public function accountPayment(
+        $userId,
+        $orderNo,
+        $amount
+    ) {
+        $balance = $this->postBalanceChange(
+            $userId,
+            (-1) * $amount,
+            $orderNo,
+            self::PAYMENT_CHANNEL_ACCOUNT
+        );
+
+        if (is_null($balance)) {
+            return $this->customErrorView(
+                400,
+                self::INSUFFICIENT_FUNDS_CODE,
+                self::INSUFFICIENT_FUNDS_MESSAGE
+            );
+        }
+
+        $view = new View();
+        $view->setData(
+            [
+
+                'order_no' => $orderNo,
+                'paid' => true,
+                'channel' => self::PAYMENT_CHANNEL_ACCOUNT,
+            ]
+        );
+
+        return $view;
+    }
+
+    /**
      * @param object $order
      * @param string $channel
      */
@@ -153,7 +194,7 @@ class PaymentController extends DoorController
             return $ch;
         } catch (Base $e) {
             header('Status: '.$e->getHttpStatus());
-            echo($e->getHttpBody());
+            echo $e->getHttpBody();
         }
     }
 
@@ -174,7 +215,7 @@ class PaymentController extends DoorController
             return $ch;
         } catch (Base $e) {
             header('Status: '.$e->getHttpStatus());
-            echo($e->getHttpBody());
+            echo $e->getHttpBody();
         }
     }
 

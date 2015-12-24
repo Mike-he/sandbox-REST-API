@@ -63,10 +63,10 @@ class ProductController extends SandboxRestController
     }
 
     /**
-     * @param Integer $roomNumber
-     * @param Integer $buildingId
-     * @param Array   $ids
-     * @param String  $type
+     * @param int    $roomNumber
+     * @param int    $buildingId
+     * @param array  $ids
+     * @param string $type
      *
      * @throws BadRequestHttpException
      */

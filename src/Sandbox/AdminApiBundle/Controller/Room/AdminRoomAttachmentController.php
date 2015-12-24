@@ -232,7 +232,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
     /**
      * Check user permission.
      *
-     * @param Integer $OpLevel
+     * @param int $OpLevel
      */
     private function checkAdminRoomAttachmentPermission(
         $OpLevel

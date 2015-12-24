@@ -295,13 +295,13 @@ class ProductRepository extends EntityRepository
     /**
      * Get all products.
      *
-     * @param String       $type
+     * @param string       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
      * @param int          $visible
-     * @param String       $sortBy
-     * @param String       $direction
-     * @param String       $search
+     * @param string       $sortBy
+     * @param string       $direction
+     * @param string       $search
      * @param bool         $recommend
      *
      * @return \Doctrine\ORM\QueryBuilder
@@ -425,7 +425,7 @@ class ProductRepository extends EntityRepository
     /**
      * @param QueryBuilder $query
      * @param bool         $notFirst
-     * @param String       $where
+     * @param string       $where
      */
     private function addWhereQuery(
         $query,

@@ -51,7 +51,7 @@ class UserHobbyController extends SandboxRestController
      * Get a single hobby.
      *
      * @param Request $request the request object
-     * @param String  $id      the hobby Id
+     * @param string  $id      the hobby Id
      *
      * @ApiDoc(
      *   resource = true,
