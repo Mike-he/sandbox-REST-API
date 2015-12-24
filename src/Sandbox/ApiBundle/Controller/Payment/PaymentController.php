@@ -96,7 +96,7 @@ class PaymentController extends DoorController
      * @param $orderNo
      * @param $amount
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function accountPayment(
         $userId,
@@ -121,7 +121,6 @@ class PaymentController extends DoorController
         $view = new View();
         $view->setData(
             [
-
                 'order_no' => $orderNo,
                 'paid' => true,
                 'channel' => self::PAYMENT_CHANNEL_ACCOUNT,
