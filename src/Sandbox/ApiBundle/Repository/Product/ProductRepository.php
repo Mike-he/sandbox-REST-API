@@ -604,17 +604,25 @@ class ProductRepository extends EntityRepository
     }
 
     /**
-     * @param $recommend
+     * @param RoomCity $city
+     * @param bool     $recommend
      *
      * @return int
      */
     public function getProductsRecommendCount(
-      $recommend
+        $city,
+        $recommend
     ) {
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
             ->where('p.recommend = :recommend')
             ->setParameter('recommend', $recommend);
+
+        if (!is_null($city)) {
+            $queryBuilder->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+                ->andWhere('r.city = :city')
+                ->setParameter('city', $city);
+        }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
