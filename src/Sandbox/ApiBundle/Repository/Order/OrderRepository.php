@@ -532,14 +532,14 @@ class OrderRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
-     * @param String       $channel
-     * @param String       $type
+     * @param string       $channel
+     * @param string       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
      * @param int          $userId
      * @param DateTime     $startDate
      * @param DateTime     $endDate
-     * @param String       $search
+     * @param string       $search
      *
      * @return array
      */

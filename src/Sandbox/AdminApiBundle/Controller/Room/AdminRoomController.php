@@ -901,10 +901,10 @@ class AdminRoomController extends RoomController
 
     /**
      * @param Room   $room
-     * @param Object $meeting
-     * @param Object $fixed
-     * @param Object $attachments
-     * @param Object $office_supplies
+     * @param object $meeting
+     * @param object $fixed
+     * @param object $attachments
+     * @param object $office_supplies
      *
      * @return View
      */
@@ -1089,7 +1089,7 @@ class AdminRoomController extends RoomController
      *
      * @param EntityManager $em
      * @param Room          $room
-     * @param Array         $attachments_id
+     * @param array         $attachments_id
      */
     private function addRoomAttachment(
         $em,
@@ -1200,7 +1200,7 @@ class AdminRoomController extends RoomController
     /**
      * Check user permission.
      *
-     * @param Integer $OpLevel
+     * @param int $OpLevel
      */
     private function checkAdminRoomPermission(
         $OpLevel

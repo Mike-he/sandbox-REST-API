@@ -91,7 +91,7 @@ class AdminRoomSuppliesController extends RoomSuppliesController
     /**
      * Check user permission.
      *
-     * @param Integer $OpLevel
+     * @param int $OpLevel
      */
     private function checkAdminRoomSuppliesPermission(
         $OpLevel

@@ -536,7 +536,7 @@ class AdminEventController extends SandboxRestController
      * @param int       $buildingId
      * @param \DateTime $startDate
      * @param \DateTime $endDate
-     * @param Array     $dates
+     * @param array     $dates
      */
     private function modifyEvents(
         $event,
@@ -569,7 +569,7 @@ class AdminEventController extends SandboxRestController
      * Modify events attachments.
      *
      * @param Event $event
-     * @param Array $attachments
+     * @param array $attachments
      */
     private function modifyEventAttachments(
         $event,
@@ -595,7 +595,7 @@ class AdminEventController extends SandboxRestController
      * Modify event dates.
      *
      * @param Event $event
-     * @param Array $dates
+     * @param array $dates
      */
     private function modifyEventDates(
         $event,
@@ -620,7 +620,7 @@ class AdminEventController extends SandboxRestController
      * Modify event forms.
      *
      * @param Event $event
-     * @param Array $eventForms
+     * @param array $eventForms
      */
     private function modifyEventForms(
         $event,
@@ -652,7 +652,7 @@ class AdminEventController extends SandboxRestController
      * @param int       $buildingId
      * @param \DateTime $startDate
      * @param \DateTime $endDate
-     * @param Array     $dates
+     * @param array     $dates
      */
     private function addEvents(
         $event,
@@ -686,7 +686,7 @@ class AdminEventController extends SandboxRestController
      * Save eventAttachments to db.
      *
      * @param Event $event
-     * @param Array $attachments
+     * @param array $attachments
      */
     private function addEventAttachments(
         $event,
@@ -712,7 +712,7 @@ class AdminEventController extends SandboxRestController
      * Save eventDates to db.
      *
      * @param Event $event
-     * @param Array $dates
+     * @param array $dates
      */
     private function addEventDates(
         $event,
@@ -746,7 +746,7 @@ class AdminEventController extends SandboxRestController
      * Save eventForms to db.
      *
      * @param Event $event
-     * @param Array $forms
+     * @param array $forms
      */
     private function addEventForms(
         $event,

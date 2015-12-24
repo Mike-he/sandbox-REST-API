@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use FOS\RestBundle\View\View;
 
 /**
  * Rest controller for Client Orders.
@@ -112,13 +113,8 @@ class ClientPaymentController extends PaymentController
 
                 break;
             case 'F':
-                $orderId = $this->findAndSetFoodOrder($orderNumber);
-                $balance = $this->postBalanceChange(
-                    $userId,
-                    $price,
-                    $orderNumber,
-                    $channel
-                );
+                //TODO: return response
+
                 $amount = $this->postConsumeBalance(
                     $userId,
                     $price,
@@ -131,5 +127,58 @@ class ClientPaymentController extends PaymentController
         }
 
         return new Response();
+    }
+
+    /**
+     * @Post("/payment/create")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function createPaymentAction(
+        Request $request
+    ) {
+        $data = json_decode($request->getContent(), true);
+        $subject = $data['subject'];
+        $orderNo = $data['order_no'];
+        $amount = $data['amount'];
+        $channel = $data['channel'];
+        $userId = $this->getUserId();
+
+        if (
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
+            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+        ) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_CHANNEL_CODE,
+                self::WRONG_CHANNEL_MESSAGE
+            );
+        }
+
+        if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
+            return $this->accountPayment(
+                $userId,
+                $orderNo,
+                $amount
+            );
+        }
+
+        $chargeJson = $this->payForOrder(
+            $orderNo,
+            $amount,
+            $channel,
+            $subject,
+            "$userId"
+        );
+
+        $charge = json_decode($chargeJson, true);
+
+        return new View($charge);
     }
 }

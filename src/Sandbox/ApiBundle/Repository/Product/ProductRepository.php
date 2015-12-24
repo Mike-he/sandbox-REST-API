@@ -295,13 +295,13 @@ class ProductRepository extends EntityRepository
     /**
      * Get all products.
      *
-     * @param String       $type
+     * @param string       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
      * @param int          $visible
-     * @param String       $sortBy
-     * @param String       $direction
-     * @param String       $search
+     * @param string       $sortBy
+     * @param string       $direction
+     * @param string       $search
      * @param bool         $recommend
      *
      * @return \Doctrine\ORM\QueryBuilder
@@ -425,7 +425,7 @@ class ProductRepository extends EntityRepository
     /**
      * @param QueryBuilder $query
      * @param bool         $notFirst
-     * @param String       $where
+     * @param string       $where
      */
     private function addWhereQuery(
         $query,
@@ -604,17 +604,25 @@ class ProductRepository extends EntityRepository
     }
 
     /**
-     * @param $recommend
+     * @param RoomCity $city
+     * @param bool     $recommend
      *
      * @return int
      */
     public function getProductsRecommendCount(
-      $recommend
+        $city,
+        $recommend
     ) {
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
             ->where('p.recommend = :recommend')
             ->setParameter('recommend', $recommend);
+
+        if (!is_null($city)) {
+            $queryBuilder->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+                ->andWhere('r.city = :city')
+                ->setParameter('city', $city);
+        }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }

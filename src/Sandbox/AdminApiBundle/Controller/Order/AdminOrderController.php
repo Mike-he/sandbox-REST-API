@@ -534,8 +534,8 @@ class AdminOrderController extends OrderController
     /**
      * Check user permission.
      *
-     * @param Integer $opLevel
-     * @param Integer $adminId
+     * @param int $opLevel
+     * @param int $adminId
      */
     private function checkAdminOrderPermission(
         $adminId,

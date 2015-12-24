@@ -162,7 +162,7 @@ class CCPRestSDK
         // 生成授权：主帐号Id + 英文冒号 + 时间戳
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -215,7 +215,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -265,7 +265,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -325,7 +325,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -408,7 +408,7 @@ class CCPRestSDK
         // 生成授权：子帐号Id + 英文冒号 + 时间戳
         $authen = base64_encode($this->SubAccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发请求
         $result = $this->curl_post($url, $body, $header);
           $this->showlog('response body = '.$result);
@@ -479,7 +479,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -540,7 +540,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -586,7 +586,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array('Accept:application/xml','Content-Type:application/xml;charset=utf-8',"Authorization:$authen");
+        $header = array('Accept:application/xml', 'Content-Type:application/xml;charset=utf-8', "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -631,7 +631,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -667,7 +667,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, '', $header, 0);
        $this->showlog('response body = '.$result);
@@ -715,7 +715,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -765,7 +765,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->SubAccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -814,7 +814,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);
@@ -852,7 +852,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType","Content-Type:application/$this->BodyType;charset=utf-8","Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, '', $header, 0);
        $this->showlog('response body = '.$result);
@@ -894,7 +894,7 @@ class CCPRestSDK
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid.':'.$this->Batch);
         // 生成包头
-        $header = array("Accept:application/$this->BodyType",'Content-Type:application/octet-stream',"Authorization:$authen");
+        $header = array("Accept:application/$this->BodyType", 'Content-Type:application/octet-stream', "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
         $this->showlog('response body = '.$result);

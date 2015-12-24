@@ -9,7 +9,7 @@ use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 class EventRepository extends EntityRepository
 {
     /**
-     * @param String $status
+     * @param string $status
      *
      * @return array
      */

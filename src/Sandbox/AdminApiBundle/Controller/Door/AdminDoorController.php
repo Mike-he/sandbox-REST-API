@@ -706,7 +706,7 @@ class AdminDoorController extends DoorController
     /**
      * Check user permission.
      *
-     * @param Integer $OpLevel
+     * @param int $OpLevel
      */
     private function checkAdminDoorPermission(
         $OpLevel

@@ -355,7 +355,7 @@ class AdminNewsController extends SandboxRestController
      * Modify news attachments.
      *
      * @param News  $news
-     * @param Array $attachments
+     * @param array $attachments
      */
     private function modifyNewsAttachments(
         $news,
@@ -399,7 +399,7 @@ class AdminNewsController extends SandboxRestController
      * Save news attachments.
      *
      * @param News  $news
-     * @param Array $attachments
+     * @param array $attachments
      */
     private function addNewsAttachments(
         $news,

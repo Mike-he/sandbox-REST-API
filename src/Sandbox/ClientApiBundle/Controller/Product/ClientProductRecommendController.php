@@ -79,7 +79,9 @@ class ClientProductRecommendController extends ProductController
         $recommendCount = count($products);
 
         // get total of recommend products
-        $recommendTotal = (int) $this->getRepo('Product\Product')->getProductsRecommendCount(true);
+        $recommendTotal = (int) $this->getRepo('Product\Product')->getProductsRecommendCount(
+            $city, true
+        );
 
         // add up products that are not recommend
         if ($limit > $recommendCount) {

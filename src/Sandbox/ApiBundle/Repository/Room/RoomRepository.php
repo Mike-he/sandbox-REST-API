@@ -16,14 +16,14 @@ class RoomRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
-     * @param String       $type
+     * @param string       $type
      * @param RoomCity     $city
      * @param RoomBuilding $building
      * @param RoomFloor    $floor
-     * @param String       $status
-     * @param String       $sortBy
-     * @param String       $direction
-     * @param String       $search
+     * @param string       $status
+     * @param string       $sortBy
+     * @param string       $direction
+     * @param string       $search
      *
      * @return array
      */
@@ -195,7 +195,7 @@ class RoomRepository extends EntityRepository
 
     /**
      * @param RoomFloor $floor
-     * @param String    $type
+     * @param string    $type
      *
      * @return array
      *
@@ -244,11 +244,11 @@ class RoomRepository extends EntityRepository
     }
 
     /**
-     * @param Array        $types
+     * @param array        $types
      * @param RoomCity     $city
      * @param RoomBuilding $building
-     * @param String       $sortBy
-     * @param String       $direction
+     * @param string       $sortBy
+     * @param string       $direction
      *
      * @return array
      */

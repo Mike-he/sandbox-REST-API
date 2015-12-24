@@ -143,7 +143,7 @@ class AdminMessageController extends SandboxRestController
     /**
      * Check user permission.
      *
-     * @param Integer $OpLevel
+     * @param int $OpLevel
      */
     private function checkAdminMessagePermission(
         $OpLevel

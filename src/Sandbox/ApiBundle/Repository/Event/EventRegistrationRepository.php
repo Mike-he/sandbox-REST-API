@@ -10,7 +10,7 @@ class EventRegistrationRepository extends EntityRepository
 {
     /**
      * @param int    $eventId
-     * @param String $status
+     * @param string $status
      *
      * @return array
      */
