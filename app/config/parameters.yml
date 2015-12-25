@@ -14,6 +14,7 @@ parameters:
     database_path: null
     pingpp_key: sk_live_j2rM2ESCjctUTaWZ7frzjNFE
     pingpp_app_id: app_TSu14S5GKGeTfDWD
+    server_order_id: s
     load_more_limit: 20
     nearby_range_km: 100
     expired_verification_time: +10 minutes
