@@ -311,7 +311,7 @@ class ClientFeedController extends FeedController
             $lastId
         );
 
-        return $this->handleGetFeeds($feeds, $userId);
+        return $this->handleGetFeeds($feeds, $myUserId);
     }
 
     /**

@@ -67,7 +67,7 @@ class FeedView
      *
      * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
      *
-     * @Serializer\Groups({"main", "feed"})
+     * @Serializer\Groups({})
      */
     private $isDeleted;
 
