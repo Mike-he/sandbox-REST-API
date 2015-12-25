@@ -487,7 +487,9 @@ class PaymentController extends DoorController
             $em->persist($counter);
             $em->flush();
         }
-        $orderNumber = $letter."$date"."$count";
+
+        $serverId = $this->getGlobal('server_order_id');
+        $orderNumber = $letter."$date"."$count"."$serverId";
 
         return $orderNumber;
     }
@@ -503,7 +505,9 @@ class PaymentController extends DoorController
     ) {
         $date = round(microtime(true) * 1000);
         $checkId = $orderCheck->getId();
-        $orderNumber = $letter."$date"."$checkId";
+        $serverId = $this->getGlobal('server_order_id');
+
+        $orderNumber = $letter."$date"."$checkId"."$serverId";
 
         return $orderNumber;
     }

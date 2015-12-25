@@ -139,9 +139,10 @@ class ClientPaymentController extends PaymentController
     public function createPaymentAction(
         Request $request
     ) {
+        $serverId = $this->getGlobal('server_order_id');
         $data = json_decode($request->getContent(), true);
         $subject = $data['subject'];
-        $orderNo = $data['order_no'];
+        $orderNo = $data['order_no']."$serverId";
         $amount = $data['amount'];
         $channel = $data['channel'];
         $userId = $this->getUserId();
