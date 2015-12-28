@@ -113,7 +113,13 @@ class ClientPaymentController extends PaymentController
 
                 break;
             case 'F':
-                //TODO: return response
+                $data = $this->getJsonData(
+                    $orderNumber,
+                    $channel,
+                    $chargeId
+                );
+
+                $result = $this->foodPaymentCallback($data);
 
                 $amount = $this->postConsumeBalance(
                     $userId,
@@ -181,5 +187,27 @@ class ClientPaymentController extends PaymentController
         $charge = json_decode($chargeJson, true);
 
         return new View($charge);
+    }
+
+    /**
+     * @param string $orderNo
+     * @param string $channel
+     * @param string $chargeId
+     *
+     * @return string
+     */
+    private function getJsonData(
+        $orderNo,
+        $channel,
+        $chargeId
+    ) {
+        $dataArray = [
+            'order_no' => $orderNo,
+            'paid' => true,
+            'channel' => $channel,
+            'transaction_id' => $chargeId,
+        ];
+
+        return json_encode($dataArray);
     }
 }

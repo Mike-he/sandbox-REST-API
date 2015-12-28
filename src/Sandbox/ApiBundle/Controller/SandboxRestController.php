@@ -1128,4 +1128,41 @@ class SandboxRestController extends FOSRestController
             $em->persist($myBuddy);
         }
     }
+
+    //---------------------------------------- Food Payment ----------------------------------------//
+
+    /**
+     * @param $data
+     *
+     * @return mixed|void
+     */
+    protected function foodPaymentCallback(
+        $data
+    ) {
+        $globals = $this->getGlobals();
+        $key = sha1($globals['sandbox_auth_key']);
+
+        // CRM API URL
+        $apiUrl = $globals['food_api_url'].
+            $globals['food_api_payment_callback'];
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->get('curl_util')->callAPI(
+            $ch,
+            'POST',
+            array('Sandbox-Auth: '.$key),
+            $data
+        );
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result;
+    }
 }
