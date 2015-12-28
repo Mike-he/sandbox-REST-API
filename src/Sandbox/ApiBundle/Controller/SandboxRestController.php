@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Acl\Exception\Exception;
 
 //TODO there's certainly a way to get the
@@ -37,6 +38,14 @@ class SandboxRestController extends FOSRestController
     const VERIFICATION_CODE_LENGTH = 6;
 
     const HTTP_HEADER_AUTH = 'authorization';
+
+    const SANDBOX_CUSTOM_HEADER = 'Sandbox-Auth: ';
+
+    const UNAUTHED_API_CALL = 'Unauthorized Request';
+
+    const ENCODE_METHOD_MD5 = 'md5';
+
+    const ENCODE_METHOD_SHA1 = 'sha1';
 
     //-------------------- Global --------------------//
 
@@ -344,7 +353,7 @@ class SandboxRestController extends FOSRestController
         $response = $this->get('curl_util')->callAPI(
             $ch,
             'GET',
-            array('Sandbox-Auth: '.$contentMd5)
+            array(self::SANDBOX_CUSTOM_HEADER.$contentMd5)
         );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -367,12 +376,14 @@ class SandboxRestController extends FOSRestController
         $userId,
         $amount,
         $tradeId,
-        $channel
+        $channel,
+        $type = null
     ) {
         $json = $this->createJsonForCharge(
             $tradeId,
             $amount,
-            $channel
+            $channel,
+            $type
         );
         $auth = $this->authAuthMd5($json);
 
@@ -390,8 +401,9 @@ class SandboxRestController extends FOSRestController
         $response = $this->get('curl_util')->callAPI(
             $ch,
             'POST',
-            array('Sandbox-Auth: '.$auth),
-            $json);
+            array(self::SANDBOX_CUSTOM_HEADER.$auth),
+            $json
+        );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpCode != self::HTTP_STATUS_OK) {
@@ -435,7 +447,7 @@ class SandboxRestController extends FOSRestController
         $response = $this->get('curl_util')->callAPI(
             $ch,
             'POST',
-            array('Sandbox-Auth: '.$auth),
+            array(self::SANDBOX_CUSTOM_HEADER.$auth),
             $json);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -479,7 +491,7 @@ class SandboxRestController extends FOSRestController
         $response = $this->get('curl_util')->callAPI(
             $ch,
             'POST',
-            array('Sandbox-Auth: '.$auth),
+            array(self::SANDBOX_CUSTOM_HEADER.$auth),
             json_encode($content)
         );
 
@@ -513,13 +525,17 @@ class SandboxRestController extends FOSRestController
     protected function createJsonForCharge(
         $orderNumber,
         $amount,
-        $payType
+        $payType,
+        $type = null
     ) {
         $content = [
             'amount' => $amount,
             'pay_type' => $payType,
             'trade_id' => $orderNumber,
         ];
+        if (!is_null($type)) {
+            $content['type'] = $type;
+        }
 
         return json_encode($content);
     }
@@ -931,7 +947,7 @@ class SandboxRestController extends FOSRestController
         $response = $this->get('curl_util')->callAPI(
             $ch,
             'POST',
-            array('Sandbox-Auth: '.$contentMd5)
+            array(self::SANDBOX_CUSTOM_HEADER.$contentMd5)
         );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -970,7 +986,7 @@ class SandboxRestController extends FOSRestController
         $response = $this->get('curl_util')->callAPI(
             $ch,
             'GET',
-            array('Sandbox-Auth: '.$contentMd5)
+            array(self::SANDBOX_CUSTOM_HEADER.$contentMd5)
         );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1152,7 +1168,7 @@ class SandboxRestController extends FOSRestController
         $response = $this->get('curl_util')->callAPI(
             $ch,
             'POST',
-            array('Sandbox-Auth: '.$key),
+            array(self::SANDBOX_CUSTOM_HEADER.$key),
             $data
         );
 
@@ -1164,5 +1180,25 @@ class SandboxRestController extends FOSRestController
         $result = json_decode($response, true);
 
         return $result;
+    }
+
+    /**
+     * @param string $auth
+     * @param string $method
+     */
+    protected function encodedKeysComparison(
+        $auth,
+        $method = self::ENCODE_METHOD_SHA1
+    ) {
+        $globals = $this->getGlobals();
+        $key = sha1($globals['sandbox_auth_key']);
+
+        if ($method == self::ENCODE_METHOD_MD5) {
+            $key = md5($globals['sandbox_auth_key']);
+        }
+
+        if ($auth !== $key) {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
     }
 }

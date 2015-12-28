@@ -90,6 +90,30 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_ALIPAY = 'alipay';
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
+    const ORDER_REFUND = 'refund';
+
+    /**
+     * @param string $orderNo
+     * @param string $channel
+     * @param string $chargeId
+     *
+     * @return string
+     */
+    public function getJsonData(
+        $orderNo,
+        $channel,
+        $chargeId,
+        $status
+    ) {
+        $dataArray = [
+            'order_no' => $orderNo,
+            'paid' => $status,
+            'channel' => $channel,
+            'transaction_id' => $chargeId,
+        ];
+
+        return json_encode($dataArray);
+    }
 
     /**
      * @param $userId
