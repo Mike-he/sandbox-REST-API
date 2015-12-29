@@ -351,7 +351,8 @@ class ClientFoodOrderController extends PaymentController
             $order->getUserId(),
             (-1) * $order->getTotalPrice(),
             $order->getOrderNumber(),
-            self::PAYMENT_CHANNEL_ACCOUNT
+            self::PAYMENT_CHANNEL_ACCOUNT,
+            $order->getTotalPrice()
         );
 
         if (is_null($balance)) {

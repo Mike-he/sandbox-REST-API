@@ -554,7 +554,8 @@ class ClientOrderController extends PaymentController
             $order->getUserId(),
             (-1) * $price,
             $orderNumber,
-            self::PAYMENT_CHANNEL_ACCOUNT
+            self::PAYMENT_CHANNEL_ACCOUNT,
+            $price
         );
         if (is_null($balance)) {
             return $this->customErrorView(
@@ -741,6 +742,7 @@ class ClientOrderController extends PaymentController
             $price,
             $order->getOrderNumber(),
             self::PAYMENT_CHANNEL_ACCOUNT,
+            0,
             self::ORDER_REFUND
         );
         if (!is_null($balance)) {
