@@ -147,3 +147,9 @@ sandbox_admin_api_payment:
     resource: "@SandboxAdminApiBundle/Controller/Payment/AdminPaymentController.php"
     type:     annotation
     prefix:   /
+
+# Food /food/orders/{orderNo}/notification
+sandbox_admin_api_food_notification:
+    resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodNotificationController.php"
+    type:     annotation
+    prefix:   /
