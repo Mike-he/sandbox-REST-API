@@ -48,6 +48,7 @@ security:
             stateless:  true
 
     access_control:
+        - { path: ^/admin/food/orders, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }

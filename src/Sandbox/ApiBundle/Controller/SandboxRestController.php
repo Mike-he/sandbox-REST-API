@@ -1197,7 +1197,7 @@ class SandboxRestController extends FOSRestController
             $key = md5($globals['sandbox_auth_key']);
         }
 
-        if ($auth !== $key) {
+        if (strtoupper($auth) !== strtoupper($key)) {
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
         }
     }
