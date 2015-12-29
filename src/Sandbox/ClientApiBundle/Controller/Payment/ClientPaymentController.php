@@ -113,7 +113,14 @@ class ClientPaymentController extends PaymentController
 
                 break;
             case 'F':
-                //TODO: return response
+                $data = $this->getJsonData(
+                    $orderNumber,
+                    $channel,
+                    $chargeId,
+                    true
+                );
+
+                $result = $this->foodPaymentCallback($data);
 
                 $amount = $this->postConsumeBalance(
                     $userId,

@@ -141,3 +141,9 @@ sandbox_admin_api_verify_company:
     resource: "@SandboxAdminApiBundle/Controller/Verify/AdminVerifyCompanyController.php"
     type:     annotation
     prefix:   /verify
+
+# Payment /admin/payment
+sandbox_admin_api_payment:
+    resource: "@SandboxAdminApiBundle/Controller/Payment/AdminPaymentController.php"
+    type:     annotation
+    prefix:   /

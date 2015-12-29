@@ -739,8 +739,9 @@ class ClientOrderController extends PaymentController
         $balance = $this->postBalanceChange(
             $userId,
             $price,
-            $id,
-            self::PAYMENT_CHANNEL_ACCOUNT
+            $order->getOrderNumber(),
+            self::PAYMENT_CHANNEL_ACCOUNT,
+            self::ORDER_REFUND
         );
         if (!is_null($balance)) {
             $em = $this->getDoctrine()->getManager();

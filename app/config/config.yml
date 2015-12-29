@@ -54,6 +54,8 @@ twig:
         expired_verification_time: "%expired_verification_time%"
         time_for_half_hour_early: "%time_for_half_hour_early%"
         sandbox_auth_key: "%sandbox_auth_key%"
+        food_api_url: "%food_api_url%"
+        food_api_payment_callback: "%food_api_payment_callback%"
         crm_api_url: "%crm_api_url%"
         crm_api_client_user_account_authentication: "%crm_api_client_user_account_authentication%"
         crm_api_client_user_account_vip: "%crm_api_client_user_account_vip%"
