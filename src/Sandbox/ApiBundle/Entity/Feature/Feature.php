@@ -29,6 +29,20 @@ class Feature
     private $name;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="type", type="string", length=16)
+     */
+    private $type;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="url", type="string", length=512)
+     */
+    private $url;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="ready", type="boolean")
@@ -67,6 +81,54 @@ class Feature
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set type.
+     *
+     * @param string $type
+     *
+     * @return Feature
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type.
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set url.
+     *
+     * @param string $url
+     *
+     * @return Feature
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * Get url.
+     *
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
     }
 
     /**
