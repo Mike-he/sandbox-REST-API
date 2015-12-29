@@ -131,7 +131,8 @@ class PaymentController extends DoorController
             $userId,
             (-1) * $amount,
             $orderNo,
-            self::PAYMENT_CHANNEL_ACCOUNT
+            self::PAYMENT_CHANNEL_ACCOUNT,
+            $amount
         );
 
         if (is_null($balance)) {

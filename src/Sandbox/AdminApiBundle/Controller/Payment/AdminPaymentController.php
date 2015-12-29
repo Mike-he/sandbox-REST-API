@@ -49,6 +49,7 @@ class AdminPaymentController extends PaymentController
             $amount,
             $orderNo,
             self::PAYMENT_CHANNEL_ACCOUNT,
+            0,
             self::ORDER_REFUND
         );
 

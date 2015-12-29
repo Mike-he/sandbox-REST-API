@@ -153,7 +153,8 @@ class ClientMembershipOrderController extends PaymentController
             $userId,
             (-1) * $price,
             $orderNumber,
-            self::PAYMENT_CHANNEL_ACCOUNT
+            self::PAYMENT_CHANNEL_ACCOUNT,
+            $price
         );
         if (is_null($balance)) {
             return $this->customErrorView(
