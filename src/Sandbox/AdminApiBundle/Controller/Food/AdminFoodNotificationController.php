@@ -25,7 +25,7 @@ class AdminFoodNotificationController extends FoodController
     use FoodNotification;
 
     const FOOD_STATUS_COMPLETED = 'completed';
-    const FOOD_STATUS_REFUNDED = 'refunded';
+    const FOOD_STATUS_CANCELLED = 'cancelled';
     const FOOD_ORDER_COMPLETED_MESSAGE = '好吃的好喝的都已经准备好了哦，快来吧台领取吧~';
     const FOOD_ORDER_REFUNDED_MESSAGE = '您的订单好像有点问题，快来吧台询问一下吧~';
 

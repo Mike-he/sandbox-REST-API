@@ -67,7 +67,7 @@ trait FoodNotification
         $body = null;
         if ($action == AdminFoodNotificationController::FOOD_STATUS_COMPLETED) {
             $body = AdminFoodNotificationController::FOOD_ORDER_COMPLETED_MESSAGE;
-        } elseif ($action == AdminFoodNotificationController::FOOD_STATUS_REFUNDED) {
+        } elseif ($action == AdminFoodNotificationController::FOOD_STATUS_CANCELLED) {
             $body = AdminFoodNotificationController::FOOD_ORDER_REFUNDED_MESSAGE;
         }
 
