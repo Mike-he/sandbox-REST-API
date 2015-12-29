@@ -47,7 +47,7 @@ class AppInfo
     /**
      * @var string
      *
-     * @ORM\Column(name="url", type="string", length=128, nullable=false)
+     * @ORM\Column(name="url", type="string", length=512, nullable=false)
      * @Serializer\Groups({"main"})
      */
     private $url;
