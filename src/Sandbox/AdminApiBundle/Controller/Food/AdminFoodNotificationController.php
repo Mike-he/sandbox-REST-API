@@ -56,6 +56,7 @@ class AdminFoodNotificationController extends FoodController
             $userId = $requestData['user_id'];
 
             $user = $this->getRepo('User\User')->find($userId);
+            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
             $this->sendXmppFoodNotification($action, $user, $orderNo);
         }
