@@ -27,7 +27,7 @@ trait FoodNotification
             // send xmpp notification
             $this->sendXmppNotification($jsonData, false);
         } catch (Exception $e) {
-            error_log('Send event registration accept notification went wrong!');
+            error_log('Send food order notification went wrong!');
         }
     }
 
@@ -64,18 +64,21 @@ trait FoodNotification
 
         $jid = User::XMPP_SERVICE.'@'.$domainURL;
 
-        $body = '';
+        $body = null;
         if ($action == AdminFoodNotificationController::FOOD_STATUS_COMPLETED) {
             $body = AdminFoodNotificationController::FOOD_ORDER_COMPLETED_MESSAGE;
         } elseif ($action == AdminFoodNotificationController::FOOD_STATUS_REFUNDED) {
             $body = AdminFoodNotificationController::FOOD_ORDER_REFUNDED_MESSAGE;
         }
 
-        $messageArray = array(
-            'type' => 'chat',
-            'from' => $jid,
-            'body' => $body,
-        );
+        $messageArray = null;
+        if (!is_null($body)) {
+            $messageArray = array(
+                'type' => 'chat',
+                'from' => $jid,
+                'body' => $body,
+            );
+        }
 
         $data = $this->getNotificationJsonData(
             $receiversArray,
