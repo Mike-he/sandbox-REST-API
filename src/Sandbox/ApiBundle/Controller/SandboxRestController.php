@@ -377,12 +377,14 @@ class SandboxRestController extends FOSRestController
         $amount,
         $tradeId,
         $channel,
+        $paidAmount,
         $type = null
     ) {
         $json = $this->createJsonForCharge(
             $tradeId,
             $amount,
             $channel,
+            $paidAmount,
             $type
         );
         $auth = $this->authAuthMd5($json);
@@ -526,12 +528,14 @@ class SandboxRestController extends FOSRestController
         $orderNumber,
         $amount,
         $payType,
+        $paidAmount,
         $type = null
     ) {
         $content = [
             'amount' => $amount,
             'pay_type' => $payType,
             'trade_id' => $orderNumber,
+            'paid_amount' => $paidAmount,
         ];
         if (!is_null($type)) {
             $content['type'] = $type;
