@@ -433,7 +433,8 @@ class UserProfile
      *  {
      *      "profile",
      *      "profile_basic",
-     *      "buddy"
+     *      "buddy",
+     *      "chatgroup"
      *  }
      * )
      */
