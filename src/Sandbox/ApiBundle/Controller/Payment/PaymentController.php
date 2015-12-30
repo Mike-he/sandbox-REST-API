@@ -473,13 +473,16 @@ class PaymentController extends DoorController
 
     /**
      * @param $type
-     * @param $productId
+     * @param $id
      * @param $chargeId
      *
      * @return OrderMap
      */
-    public function createOrderMap($type, $id, $chargeId)
-    {
+    public function createOrderMap(
+        $type,
+        $id,
+        $chargeId
+    ) {
         $map = new OrderMap();
         $map->setType($type);
         $map->setOrderId($id);

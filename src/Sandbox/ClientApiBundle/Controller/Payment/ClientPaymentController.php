@@ -208,6 +208,13 @@ class ClientPaymentController extends PaymentController
         );
 
         $charge = json_decode($chargeJson, true);
+        $chargeId = $charge['id'];
+
+        $this->createOrderMap(
+            'food',
+            null,
+            $chargeId
+        );
 
         return new View($charge);
     }
