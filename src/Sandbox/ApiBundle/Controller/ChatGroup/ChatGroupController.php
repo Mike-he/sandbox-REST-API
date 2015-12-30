@@ -20,6 +20,38 @@ use Sandbox\ApiBundle\Entity\User\User;
 class ChatGroupController extends SandboxRestController
 {
     /**
+     * @param array $members
+     * 
+     * @return array
+     */
+    protected function getChatGroupMembersArray(
+        $members
+    ) {
+        $membersArray = array();
+
+        foreach ($members as $member) {
+            try {
+                $memberArray = array();
+                $memberArray['id'] = $member->getId();
+
+                $user = $member->getUser();
+                $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+
+                $jid = $this->constructXmppJid($user->getXmppUsername());
+                $profile->setJid($jid);
+
+                $memberArray['profile'] = $profile;
+                array_push($membersArray, $memberArray);
+            } catch (\Exception $e) {
+                error_log($e);
+                continue;
+            }
+        }
+
+        return $membersArray;
+    }
+
+    /**
      * @param $em
      * @param ChatGroup $chatGroup
      * @param User      $newUser

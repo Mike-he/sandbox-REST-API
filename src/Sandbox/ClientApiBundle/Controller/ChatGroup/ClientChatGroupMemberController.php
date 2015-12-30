@@ -2,7 +2,6 @@
 
 namespace Sandbox\ClientApiBundle\Controller\ChatGroup;
 
-use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\User\User;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -25,7 +24,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ClientChatGroupMemberController extends ChatGroupController
+class ClientChatGroupMemberController extends ClientChatGroupController
 {
     const ERROR_IS_CREATOR_CODE = 400001;
     const ERROR_IS_CREATOR_MESSAGE = 'You are the creator, cannot quit!';
@@ -52,35 +51,19 @@ class ClientChatGroupMemberController extends ChatGroupController
             return new View();
         }
 
-        // get not banned and authorized members
+        // get chat group and members
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->getChatGroupMembers($chatGroup);
-
         if (is_null($members) || empty($members)) {
             return new View();
         }
 
-        // get chat group members array
-        $membersArray = array();
+        // get chat group members array for response
+        $membersArray = $this->getChatGroupMembersArray($members);
 
-        foreach ($members as $member) {
-            try {
-                $memberArray = array();
-                $memberArray['id'] = $member->getId();
-
-                $profile = $this->getRepo('User\UserProfile')->findOneByUser($member->getUser());
-                $memberArray['profile'] = $profile;
-
-                array_push($membersArray, $memberArray);
-            } catch (\Exception $e) {
-                error_log($e);
-                continue;
-            }
-        }
-
-        // response
+        // set view
         $view = new View($membersArray);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('chatgroup'))
