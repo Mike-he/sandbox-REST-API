@@ -1384,7 +1384,7 @@ class ClientOrderController extends PaymentController
         $startDate = $order->getStartDate();
         $renewButton = false;
 
-        if ($type == Room::TYPE_OFFICE && $status == 'completed') {
+        if ($type == Room::TYPE_OFFICE && $status == ProductOrder::STATUS_COMPLETED) {
             $renewOrder = $this->getRepo('Order\ProductOrder')->getAlreadyRenewedOrder($userId, $productId);
             if (is_null($renewOrder) || empty($renewOrder)) {
                 $endDate = $order->getEndDate();
@@ -1395,28 +1395,11 @@ class ClientOrderController extends PaymentController
             }
         }
 
-        if ($status == 'paid') {
-            if ($now >= $startDate) {
-                $order->setStatus('completed');
-                $order->setModificationDate($now);
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($order);
-                $em->flush();
-
-                if (!is_null($order->getMembershipBindId())) {
-                    $this->postAccountUpgrade(
-                        $userId,
-                        $order->getMembershipBindId(),
-                        $order->getOrderNumber()
-                    );
-                }
-
-                $amount = $this->postConsumeBalance(
-                    $userId,
-                    $order->getDiscountPrice(),
-                    $order->getOrderNumber()
-                );
-            }
+        if ($status == ProductOrder::STATUS_PAID && $now >= $startDate) {
+            $order->setStatus(ProductOrder::STATUS_COMPLETED);
+            $order->setModificationDate($now);
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
         }
 
         $view = new View();
