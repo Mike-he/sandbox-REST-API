@@ -1395,13 +1395,11 @@ class ClientOrderController extends PaymentController
             }
         }
 
-        if ($status == ProductOrder::STATUS_PAID) {
-            if ($now >= $startDate) {
-                $order->setStatus(ProductOrder::STATUS_COMPLETED);
-                $order->setModificationDate($now);
-                $em = $this->getDoctrine()->getManager();
-                $em->flush();
-            }
+        if ($status == ProductOrder::STATUS_PAID && $now >= $startDate) {
+            $order->setStatus(ProductOrder::STATUS_COMPLETED);
+            $order->setModificationDate($now);
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
         }
 
         $view = new View();
