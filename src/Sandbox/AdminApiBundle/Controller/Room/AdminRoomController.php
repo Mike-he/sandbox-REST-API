@@ -1007,6 +1007,7 @@ class AdminRoomController extends RoomController
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
                 'building' => $roomBuilding,
                 'number' => $room->getNumber(),
+                'isDeleted' => false,
             )
         );
 
