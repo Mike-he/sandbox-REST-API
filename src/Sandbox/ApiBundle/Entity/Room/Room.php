@@ -10,10 +10,6 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @ORM\Table(
  *  name="Room",
- *  uniqueConstraints={
- *      @ORM\UniqueConstraint(name="buildingId_number_UNIQUE", columns={"buildingId", "number"}),
- *      @ORM\UniqueConstraint(name="floorId_number_UNIQUE", columns={"floorId", "number"})
- *  },
  *  indexes={
  *      @ORM\Index(name="fk_Room_cityId_idx", columns={"cityId"}),
  *      @ORM\Index(name="fk_Room_buildingId_idx", columns={"buildingId"}),
