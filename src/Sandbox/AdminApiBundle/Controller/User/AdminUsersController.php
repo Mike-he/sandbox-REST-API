@@ -18,6 +18,8 @@ use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Form\User\UserType;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\DoorAccessConstants;
+use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 
 /**
  * Admin controller.
@@ -31,6 +33,7 @@ use Rs\Json\Patch;
  */
 class AdminUsersController extends DoorController
 {
+    use DoorAccessTrait;
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
 
@@ -403,14 +406,14 @@ class AdminUsersController extends DoorController
             $id,
             $userName,
             $cardNo,
-            DoorController::METHOD_ADD
+            DoorAccessConstants::METHOD_ADD
         );
         sleep(1);
 
         // update card
-        $method = DoorController::METHOD_UNLOST;
+        $method = DoorAccessConstants::METHOD_UNLOST;
         if ($user->isBanned()) {
-            $method = DoorController::METHOD_LOST;
+            $method = DoorAccessConstants::METHOD_LOST;
         }
         $this->updateEmployeeCardStatus(
             $id,

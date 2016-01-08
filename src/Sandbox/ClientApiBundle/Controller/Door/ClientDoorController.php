@@ -6,6 +6,8 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
+use Sandbox\ApiBundle\Constants\DoorAccessConstants;
+use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 
 /**
  * Admin Door Controller.
@@ -19,6 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ClientDoorController extends DoorController
 {
+    use DoorAccessTrait;
+
     /**
      * @Post("/doors/permission/lost")
      *
@@ -44,22 +48,10 @@ class ClientDoorController extends DoorController
 
         // set card
         $cardNo = $result['card_no'];
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $userName = $userProfile->getName();
-        $this->updateEmployeeCardStatus(
+        $this->callUpdateCardStatusCommand(
             $userId,
-            $userName,
             $cardNo,
-            DoorController::METHOD_ADD
-        );
-        sleep(1);
-
-        // update card to lost
-        $this->updateEmployeeCardStatus(
-            $userId,
-            '',
-            $cardNo,
-            DoorController::METHOD_LOST
+            DoorAccessConstants::METHOD_LOST
         );
     }
 }

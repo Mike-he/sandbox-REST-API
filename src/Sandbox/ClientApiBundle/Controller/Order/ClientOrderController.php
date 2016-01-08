@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use Elastica\Exception\NotFoundException;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
@@ -20,7 +21,6 @@ use FOS\RestBundle\Controller\Annotations\Delete;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
@@ -576,54 +576,10 @@ class ClientOrderController extends PaymentController
         );
 
         $em = $this->getDoctrine()->getManager();
-        $em->persist($order);
         $em->flush();
 
-        // send order email
-        $this->sendOrderEmail($order);
-
-        $globals = $this->getGlobals();
-        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        $base = $building->getServer();
-        $roomId = $order->getProduct()->getRoom()->getId();
-        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-
-        if (empty($roomDoors)) {
-            throw new BadRequestHttpException('no doors');
-        }
-
-        $this->storeDoorAccess(
-            $order,
-            $order->getUserId(),
-            $buildingId,
-            $roomId,
-            $roomDoors
-        );
-
-        $result = $this->getCardNoIfUserAuthorized();
-        if (
-            !is_null($result) &&
-            $result['status'] === DoorController::STATUS_AUTHED
-        ) {
-            $userId = $order->getUserId();
-            $this->setEmployeeCardForOneBuilding(
-                $base,
-                $userId,
-                $result['card_no']
-            );
-
-            $userArray = [
-                ['empid' => "$userId"],
-            ];
-            $this->setRoomOrderAccessIfUserArray(
-                $base,
-                $userArray,
-                $roomDoors,
-                $order,
-                $globals
-            );
-        }
+        // set door access
+        $this->setDoorAccessForSingleOrder($order);
 
         $view = new View();
 
@@ -746,58 +702,7 @@ class ClientOrderController extends PaymentController
             self::ORDER_REFUND
         );
         if (!is_null($balance)) {
-            $em = $this->getDoctrine()->getManager();
-            $order->setStatus('cancelled');
-            $order->setCancelledDate($now);
-            $order->setModificationDate($now);
-            $em->flush();
-
-            // send order email
-            $this->sendOrderEmail($order);
-
-            // get appointed user
-            $userArray = [];
-            $type = $order->getProduct()->getRoom()->getType();
-            if ($type == Room::TYPE_OFFICE) {
-                $action = ProductOrder::ACTION_INVITE_REMOVE;
-                // get invited users
-                $people = $this->getRepo('Order\InvitedPeople')->findBy(['orderId' => $id]);
-                if (!empty($people)) {
-                    foreach ($people as $person) {
-                        array_push($userArray, $person->getUserId());
-                    }
-                }
-            } else {
-                $action = ProductOrder::ACTION_APPOINT_REMOVE;
-                $appointed = $order->getAppointed();
-                if (!is_null($appointed) && !empty($appointed)) {
-                    array_push($userArray, $appointed);
-                }
-            }
-
-            // send notification to invited and appointed users
-            if (!empty($userArray)) {
-                $this->sendXmppProductOrderNotification(
-                    $order,
-                    $userArray,
-                    $action,
-                    $order->getUserId(),
-                    [],
-                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
-                );
-            }
-
-            $globals = $this->getGlobals();
-            $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-            $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-            $base = $building->getServer();
-
-            $this->repealRoomOrder(
-                $base,
-                $order->getId(),
-                $globals
-            );
+            $this->removeAccessByOrder($order);
         }
         $view = new View();
 
@@ -834,7 +739,11 @@ class ClientOrderController extends PaymentController
         $status = $order->getStatus();
         $endDate = $order->getEndDate();
         $now = new \DateTime();
-        if ($status !== 'paid' && $status !== 'completed' || $now >= $endDate) {
+        if (
+            $status !== ProductOrder::STATUS_PAID &&
+            $status !== ProductOrder::STATUS_COMPLETED ||
+            $now >= $endDate
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_ORDER_STATUS_CODE,
@@ -842,116 +751,12 @@ class ClientOrderController extends PaymentController
             );
         }
 
-        $globals = $this->getGlobals();
-        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        $base = $building->getServer();
-        $roomId = $order->getProduct()->getRoom()->getId();
-        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-        if (empty($roomDoors)) {
-            return $this->customErrorView(
-                400,
-                self::NO_DOOR_CODE,
-                self::NO_DOOR_MESSAGE
-            );
-        }
         $people = json_decode($request->getContent(), true);
-        $users = $people['add'];
-        $removeUsers = $people['remove'];
-
-        $userArray = [];
-        $recvUsers = [];
-        if (!empty($users) && !is_null($users)) {
-            foreach ($users as $user) {
-                $userId = $user['user_id'];
-
-                // find user
-                $user = $this->getRepo('User\User')->find($userId);
-                $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
-
-                // find user in invitedPeople
-                $person = $this->getRepo('Order\InvitedPeople')->findOneBy(
-                    [
-                        'orderId' => $id,
-                        'userId' => $userId,
-                    ]
-                );
-                if (is_null($person)) {
-                    $people = new InvitedPeople();
-                    $people->setOrderId($order);
-                    $people->setUserId($userId);
-                    $people->setCreationDate(new \DateTime());
-
-                    $em = $this->getDoctrine()->getManager();
-                    $em->persist($people);
-                    $em->flush();
-
-                    // set user array for message
-                    array_push($recvUsers, $userId);
-                }
-
-                $this->storeDoorAccess(
-                    $order,
-                    $userId,
-                    $buildingId,
-                    $roomId,
-                    $roomDoors
-                );
-
-                $userArray = $this->getUserArrayIfAuthed(
-                    $base,
-                    $userId,
-                    $userArray
-                );
-            }
-
-            // set room access
-            if (!empty($userArray)) {
-                $this->setRoomOrderAccessIfUserArray(
-                    $base,
-                    $userArray,
-                    $roomDoors,
-                    $order,
-                    $globals
-                );
-            }
-
-            // send notification to invited users
-            if (!empty($recvUsers)) {
-                $this->sendXmppProductOrderNotification(
-                    $order,
-                    $recvUsers,
-                    ProductOrder::ACTION_INVITE_ADD,
-                    $order->getUserId(),
-                    [],
-                    ProductOrderMessage::APPOINT_MESSAGE_PART1,
-                    ProductOrderMessage::APPOINT_MESSAGE_PART2
-                );
-            }
-        }
-
-        if (!empty($removeUsers) && !is_null($removeUsers)) {
-            // remove user
-            $removedUserArray = $this->deletePeople(
-                $removeUsers,
-                $order->getId(),
-                $globals,
-                $base
-            );
-
-            // send notification to invited users
-            if (!empty($removedUserArray)) {
-                $this->sendXmppProductOrderNotification(
-                    $order,
-                    $removedUserArray,
-                    ProductOrder::ACTION_INVITE_REMOVE,
-                    $order->getUserId(),
-                    [],
-                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
-                );
-            }
-        }
+        $this->setDoorAccessForInvite(
+            $order,
+            $people['add'],
+            $people['remove']
+        );
     }
 
     /**
@@ -994,7 +799,6 @@ class ClientOrderController extends PaymentController
     private function deletePeople(
         $removeUsers,
         $orderId,
-        $globals,
         $base
     ) {
         $userArray = [];
@@ -1038,11 +842,10 @@ class ClientOrderController extends PaymentController
 
         // remove room access
         if (!empty($userArray)) {
-            $this->deleteEmployeeToOrder(
+            $this->callRemoveFromOrderCommand(
                 $base,
                 $orderId,
-                $userArray,
-                $globals
+                $userArray
             );
         }
 
@@ -1113,98 +916,19 @@ class ClientOrderController extends PaymentController
                 self::WRONG_ORDER_STATUS_MESSAGE
             );
         }
-        $globals = $this->getGlobals();
-        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        $base = $building->getServer();
-        $roomId = $order->getProduct()->getRoom()->getId();
-        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-        if (empty($roomDoors)) {
-            return $this->customErrorView(
-                400,
-                self::NO_DOOR_CODE,
-                self::NO_DOOR_MESSAGE
-            );
-        }
+
         $requestContent = json_decode($request->getContent(), true);
         $newUser = $requestContent['user_id'];
         $currentUser = $order->getAppointed();
         $orderUser = $order->getUserId();
 
         if (!is_null($newUser) && !empty($newUser)) {
-            // find user
-            $user = $this->getRepo('User\User')->find($newUser);
-            $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
-
-            $userArray = [];
-            $order->setAppointed($newUser);
-            $order->setModificationDate(new \DateTime());
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($order);
-            $em->flush();
-
-            $this->storeDoorAccess(
+            $this->setDoorAccessForAppoint(
                 $order,
                 $newUser,
-                $buildingId,
-                $roomId,
-                $roomDoors
+                $currentUser,
+                $orderUser
             );
-
-            $userArray = $this->getUserArrayIfAuthed(
-                $base,
-                $newUser,
-                $userArray
-            );
-
-            // set room access
-            if (!empty($userArray)) {
-                $this->setRoomOrderAccessIfUserArray(
-                    $base,
-                    $userArray,
-                    $roomDoors,
-                    $order,
-                    $globals
-                );
-            }
-
-            // send notification to new user
-            $this->sendXmppProductOrderNotification(
-                $order,
-                [$newUser],
-                ProductOrder::ACTION_APPOINT_ADD,
-                $orderUser,
-                [],
-                ProductOrderMessage::APPOINT_MESSAGE_PART1,
-                ProductOrderMessage::APPOINT_MESSAGE_PART2
-            );
-
-            if (!is_null($currentUser) && !empty($currentUser) && $currentUser != 0) {
-                $this->removeUserAccess(
-                    $id,
-                    $currentUser,
-                    $base,
-                    $globals
-                );
-
-                // send notification to old appointed user
-                $this->sendXmppProductOrderNotification(
-                    $order,
-                    [$currentUser],
-                    ProductOrder::ACTION_APPOINT_REMOVE,
-                    $orderUser,
-                    [],
-                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
-                );
-            } else {
-                $this->removeUserAccess(
-                    $id,
-                    $orderUser,
-                    $base,
-                    $globals
-                );
-            }
         }
     }
 
@@ -1244,69 +968,12 @@ class ClientOrderController extends PaymentController
         $currentUser = $order->getAppointed();
         $orderUser = $order->getUserId();
 
-        $globals = $this->getGlobals();
-        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        $base = $building->getServer();
-        $roomId = $order->getProduct()->getRoom()->getId();
-        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-        if (empty($roomDoors)) {
-            return $this->customErrorView(
-                400,
-                self::NO_DOOR_CODE,
-                self::NO_DOOR_MESSAGE
-            );
-        }
-
         if (!is_null($orderUser) && !empty($orderUser)) {
-            $userArray = [];
-            $order->setAppointed(null);
-            $order->setModificationDate(new \DateTime());
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($order);
-            $em->flush();
-
-            $this->storeDoorAccess(
+            $this->removeAppointed(
                 $order,
-                $orderUser,
-                $buildingId,
-                $roomId,
-                $roomDoors
+                $currentUser,
+                $orderUser
             );
-
-            $userArray = $this->getUserArrayIfAuthed(
-                $base,
-                $orderUser,
-                $userArray
-            );
-            if (!empty($userArray)) {
-                $this->setRoomOrderAccessIfUserArray(
-                    $base,
-                    $userArray,
-                    $roomDoors,
-                    $order,
-                    $globals
-                );
-            }
-            if (!is_null($currentUser) && !empty($currentUser) && $currentUser != 0) {
-                $this->removeUserAccess(
-                    $id,
-                    $currentUser,
-                    $base,
-                    $globals
-                );
-
-                // send notification to appointed user
-                $this->sendXmppProductOrderNotification(
-                    $order,
-                    [$currentUser],
-                    ProductOrder::ACTION_APPOINT_REMOVE,
-                    $orderUser,
-                    [],
-                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
-                );
-            }
         }
     }
 
@@ -1578,5 +1245,334 @@ class ClientOrderController extends PaymentController
         }
 
         return $orderCheck;
+    }
+
+    /**
+     * @param $order
+     * @param $users
+     * @param $removeUsers
+     */
+    private function setDoorAccessForInvite(
+        $order,
+        $users,
+        $removeUsers
+    ) {
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
+        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+        if (empty($roomDoors)) {
+            throw new NotFoundException(self::NO_DOOR_MESSAGE);
+        }
+
+        $userArray = [];
+        $recvUsers = [];
+        if (!empty($users) && !is_null($users)) {
+            foreach ($users as $user) {
+                $userId = $user['user_id'];
+
+                // find user
+                $user = $this->getRepo('User\User')->find($userId);
+                $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+
+                // find user in invitedPeople
+                $person = $this->getRepo('Order\InvitedPeople')->findOneBy(
+                    [
+                        'orderId' => $order->getId(),
+                        'userId' => $userId,
+                    ]
+                );
+                if (is_null($person)) {
+                    $people = new InvitedPeople();
+                    $people->setOrderId($order);
+                    $people->setUserId($userId);
+                    $people->setCreationDate(new \DateTime());
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->persist($people);
+                    $em->flush();
+
+                    // set user array for message
+                    array_push($recvUsers, $userId);
+                }
+
+                $this->storeDoorAccess(
+                    $order,
+                    $userId,
+                    $buildingId,
+                    $roomId,
+                    $roomDoors
+                );
+
+                $userArray = $this->getUserArrayIfAuthed(
+                    $base,
+                    $userId,
+                    $userArray
+                );
+            }
+
+            // set room access
+            if (!empty($userArray)) {
+                $this->callSetRoomOrderCommand(
+                    $base,
+                    $userArray,
+                    $roomDoors,
+                    $order
+                );
+            }
+
+            // send notification to invited users
+            if (!empty($recvUsers)) {
+                $this->sendXmppProductOrderNotification(
+                    $order,
+                    $recvUsers,
+                    ProductOrder::ACTION_INVITE_ADD,
+                    $order->getUserId(),
+                    [],
+                    ProductOrderMessage::APPOINT_MESSAGE_PART1,
+                    ProductOrderMessage::APPOINT_MESSAGE_PART2
+                );
+            }
+        }
+
+        if (!empty($removeUsers) && !is_null($removeUsers)) {
+            // remove user
+            $removedUserArray = $this->deletePeople(
+                $removeUsers,
+                $order->getId(),
+                $base
+            );
+
+            // send notification to invited users
+            if (!empty($removedUserArray)) {
+                $this->sendXmppProductOrderNotification(
+                    $order,
+                    $removedUserArray,
+                    ProductOrder::ACTION_INVITE_REMOVE,
+                    $order->getUserId(),
+                    [],
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                );
+            }
+        }
+    }
+
+    /**
+     * @param $order
+     */
+    private function removeAccessByOrder(
+        $order
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $order->setStatus(ProductOrder::STATUS_CANCELLED);
+        $order->setCancelledDate(new \DateTime());
+        $order->setModificationDate(new \DateTime());
+        $em->flush();
+
+        // send order email
+        $this->sendOrderEmail($order);
+
+        // get appointed user
+        $userArray = [];
+        $type = $order->getProduct()->getRoom()->getType();
+        if ($type == Room::TYPE_OFFICE) {
+            $action = ProductOrder::ACTION_INVITE_REMOVE;
+            // get invited users
+            $people = $this->getRepo('Order\InvitedPeople')->findBy(['orderId' => $order->getId()]);
+            if (!empty($people)) {
+                foreach ($people as $person) {
+                    array_push($userArray, $person->getUserId());
+                }
+            }
+        } else {
+            $action = ProductOrder::ACTION_APPOINT_REMOVE;
+            $appointed = $order->getAppointed();
+            if (!is_null($appointed) && !empty($appointed)) {
+                array_push($userArray, $appointed);
+            }
+        }
+
+        // send notification to invited and appointed users
+        if (!empty($userArray)) {
+            $this->sendXmppProductOrderNotification(
+                $order,
+                $userArray,
+                $action,
+                $order->getUserId(),
+                [],
+                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+            );
+        }
+
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
+
+        $this->callRepealRoomOrderCommand(
+            $base,
+            $order->getId()
+        );
+    }
+
+    /**
+     * @param $order
+     * @param $newUser
+     * @param $currentUser
+     * @param $orderUser
+     */
+    private function setDoorAccessForAppoint(
+        $order,
+        $newUser,
+        $currentUser,
+        $orderUser
+    ) {
+        $orderId = $order->getId();
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
+        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+        if (empty($roomDoors)) {
+            throw new NotFoundException(self::NO_DOOR_MESSAGE);
+        }
+
+        // find user
+        $user = $this->getRepo('User\User')->find($newUser);
+        $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+
+        $userArray = [];
+        $order->setAppointed($newUser);
+        $order->setModificationDate(new \DateTime());
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $this->storeDoorAccess(
+            $order,
+            $newUser,
+            $buildingId,
+            $roomId,
+            $roomDoors
+        );
+
+        $userArray = $this->getUserArrayIfAuthed(
+            $base,
+            $newUser,
+            $userArray
+        );
+
+        // set room access
+        if (!empty($userArray)) {
+            $this->callSetRoomOrderCommand(
+                $base,
+                $userArray,
+                $roomDoors,
+                $order
+            );
+        }
+
+        // send notification to new user
+        $this->sendXmppProductOrderNotification(
+            $order,
+            [$newUser],
+            ProductOrder::ACTION_APPOINT_ADD,
+            $orderUser,
+            [],
+            ProductOrderMessage::APPOINT_MESSAGE_PART1,
+            ProductOrderMessage::APPOINT_MESSAGE_PART2
+        );
+
+        if (!is_null($currentUser) && !empty($currentUser) && $currentUser != 0) {
+            $this->removeUserAccess(
+                $orderId,
+                $currentUser,
+                $base
+            );
+
+            // send notification to old appointed user
+            $this->sendXmppProductOrderNotification(
+                $order,
+                [$currentUser],
+                ProductOrder::ACTION_APPOINT_REMOVE,
+                $orderUser,
+                [],
+                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+            );
+        } else {
+            $this->removeUserAccess(
+                $orderId,
+                $orderUser,
+                $base
+            );
+        }
+    }
+
+    /**
+     * @param $order
+     * @param $currentUser
+     * @param $orderUser
+     */
+    private function removeAppointed(
+        $order,
+        $currentUser,
+        $orderUser
+    ) {
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $base = $building->getServer();
+        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+        if (empty($roomDoors)) {
+            throw new NotFoundException(self::NO_DOOR_MESSAGE);
+        }
+
+        $userArray = [];
+        $order->setAppointed(null);
+        $order->setModificationDate(new \DateTime());
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $this->storeDoorAccess(
+            $order,
+            $orderUser,
+            $buildingId,
+            $roomId,
+            $roomDoors
+        );
+
+        $userArray = $this->getUserArrayIfAuthed(
+            $base,
+            $orderUser,
+            $userArray
+        );
+        if (!empty($userArray)) {
+            $this->setRoomOrderAccessIfUserArray(
+                $base,
+                $userArray,
+                $roomDoors,
+                $order
+            );
+        }
+        if (!is_null($currentUser) && !empty($currentUser) && $currentUser != 0) {
+            $this->removeUserAccess(
+                $order->getId(),
+                $currentUser,
+                $base
+            );
+
+            // send notification to appointed user
+            $this->sendXmppProductOrderNotification(
+                $order,
+                [$currentUser],
+                ProductOrder::ACTION_APPOINT_REMOVE,
+                $orderUser,
+                [],
+                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+            );
+        }
     }
 }
