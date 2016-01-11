@@ -16,10 +16,7 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
-
-//TODO there's certainly a way to get the
-// current bundle name with a magic function
-const BUNDLE = 'SandboxApiBundle';
+use Sandbox\ApiBundle\Constants\BundleConstants;
 
 class SandboxRestController extends FOSRestController
 {
@@ -95,7 +92,7 @@ class SandboxRestController extends FOSRestController
         $repo
     ) {
         return $this->getDoctrine()->getRepository(
-            BUNDLE.':'.$repo
+            BundleConstants::BUNDLE.':'.$repo
         );
     }
 

@@ -8,11 +8,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
+use Sandbox\ApiBundle\Constants\BundleConstants;
 
 class UpdateCardStatusCommand extends ContainerAwareCommand
 {
     use DoorAccessTrait;
-    const BUNDLE = 'SandboxApiBundle';
 
     protected function configure()
     {
@@ -65,7 +65,7 @@ class UpdateCardStatusCommand extends ContainerAwareCommand
     ) {
         return $this->getContainer()
             ->get('doctrine')
-            ->getRepository(self::BUNDLE.':'.$repo);
+            ->getRepository(BundleConstants::BUNDLE.':'.$repo);
     }
 
     protected function getGlobals()

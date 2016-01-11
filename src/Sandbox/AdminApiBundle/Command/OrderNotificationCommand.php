@@ -9,11 +9,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use Sandbox\ApiBundle\Constants\BundleConstants;
 
 class OrderNotificationCommand extends ContainerAwareCommand
 {
     use ProductOrderNotification;
-    const BUNDLE = 'SandboxApiBundle';
 
     protected function configure()
     {
@@ -143,7 +143,7 @@ class OrderNotificationCommand extends ContainerAwareCommand
     ) {
         return $this->getContainer()
             ->get('doctrine')
-            ->getRepository(self::BUNDLE.':'.$repo);
+            ->getRepository(BundleConstants::BUNDLE.':'.$repo);
     }
 
     protected function getGlobals()
