@@ -7,7 +7,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
-use Sandbox\ApiBundle\Constants\BundleConstants;
 
 class SetCardAndRoomCommand extends ContainerAwareCommand
 {
@@ -52,21 +51,5 @@ class SetCardAndRoomCommand extends ContainerAwareCommand
         } catch (\Exception $e) {
             error_log('Set card and room door access went wrong!');
         }
-    }
-
-    protected function getRepo(
-        $repo
-    ) {
-        return $this->getContainer()
-            ->get('doctrine')
-            ->getRepository(BundleConstants::BUNDLE.':'.$repo);
-    }
-
-    protected function getGlobals()
-    {
-        // get globals
-        return $this->getContainer()
-            ->get('twig')
-            ->getGlobals();
     }
 }

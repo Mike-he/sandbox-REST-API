@@ -9,7 +9,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
-use Sandbox\ApiBundle\Constants\BundleConstants;
 
 class MeetingOrderNotificationCommand extends ContainerAwareCommand
 {
@@ -57,21 +56,5 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
                 ProductOrderMessage::MEETING_END_MESSAGE
             );
         }
-    }
-
-    protected function getRepo(
-        $repo
-    ) {
-        return $this->getContainer()
-            ->get('doctrine')
-            ->getRepository(BundleConstants::BUNDLE.':'.$repo);
-    }
-
-    protected function getGlobals()
-    {
-        // get globals
-        return $this->getContainer()
-            ->get('twig')
-            ->getGlobals();
     }
 }

@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
-use Sandbox\ApiBundle\Constants\BundleConstants;
 
 class UpdateCardStatusCommand extends ContainerAwareCommand
 {
@@ -58,21 +57,5 @@ class UpdateCardStatusCommand extends ContainerAwareCommand
         } catch (\Exception $e) {
             error_log('Set door access went wrong!');
         }
-    }
-
-    protected function getRepo(
-        $repo
-    ) {
-        return $this->getContainer()
-            ->get('doctrine')
-            ->getRepository(BundleConstants::BUNDLE.':'.$repo);
-    }
-
-    protected function getGlobals()
-    {
-        // get globals
-        return $this->getContainer()
-            ->get('twig')
-            ->getGlobals();
     }
 }
