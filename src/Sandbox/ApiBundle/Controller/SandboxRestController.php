@@ -764,37 +764,6 @@ class SandboxRestController extends FOSRestController
         return md5(uniqid(rand(), true));
     }
 
-    /**
-     * @param $userId
-     * @param null $currentToken
-     * @param null $em
-     */
-    protected function removeUserOtherTokens(
-        $userId,
-        $currentToken = null,
-        $em = null
-    ) {
-        $isEmNull = false;
-        if (is_null($em)) {
-            $isEmNull = true;
-            $em = $this->getDoctrine()->getManager();
-        }
-
-        $tokens = $this->getRepo('User\UserToken')->findByUserId($userId);
-        foreach ($tokens as $token) {
-            if (!is_null($currentToken)
-                && $token->getToken() === $currentToken) {
-                continue;
-            }
-
-            $em->remove($token);
-        }
-
-        if ($isEmNull) {
-            $em->flush();
-        }
-    }
-
     //--------------------throw customer http error --------------------//
     /**
      * Custom error view.

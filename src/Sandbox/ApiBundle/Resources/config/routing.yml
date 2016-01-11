@@ -57,3 +57,4 @@ sandbox_api_features:
     resource: "@SandboxApiBundle/Controller/Feature/FeatureController.php"
     type:     annotation
     prefix:   /
+

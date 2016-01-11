@@ -410,6 +410,14 @@ class ClientUserPasswordController extends UserPasswordController
     private function handlePasswordForgetReset(
         $reset
     ) {
+        // get auth
+        $auth = null;
+        $headers = apache_request_headers();
+        if (array_key_exists('Authorization', $headers)) {
+            $auth = $headers['Authorization'];
+        }
+
+        // get payload fields
         $token = $reset->getToken();
         $password = $reset->getPassword();
 
@@ -439,7 +447,7 @@ class ClientUserPasswordController extends UserPasswordController
             return $this->customErrorView(400, self::ERROR_SAME_PASSWORD_CODE, self::ERROR_SAME_PASSWORD_MESSAGE);
         }
 
-        $this->resetPassword($user, $password, $forgetPassword);
+        $this->resetPassword($user, $password, $forgetPassword, $auth);
 
         return new View();
     }
@@ -448,11 +456,13 @@ class ClientUserPasswordController extends UserPasswordController
      * @param User               $user
      * @param string             $password
      * @param UserForgetPassword $forgetPassword
+     * @param null               $auth
      */
     private function resetPassword(
         $user,
         $password,
-        $forgetPassword
+        $forgetPassword,
+        $auth = null
     ) {
         // update xmpp user password
         $result = $this->updateXmppUser($user->getXmppUsername(), $password);
@@ -466,10 +476,46 @@ class ClientUserPasswordController extends UserPasswordController
         $user->setPassword($password);
 
         // delete all other tokens of this user
-        $this->removeUserOtherTokens($user->getId(), null, $em);
+        $this->removeUserOtherAuth($user->getId(), $auth, $em);
 
         // remove forgetPassword
         $em->remove($forgetPassword);
         $em->flush();
+    }
+
+    /**
+     * @param int  $userId
+     * @param null $basicAuth
+     * @param null $em
+     */
+    protected function removeUserOtherAuth(
+        $userId,
+        $basicAuth = null,
+        $em = null
+    ) {
+        $isEmNull = false;
+        if (is_null($em)) {
+            $isEmNull = true;
+            $em = $this->getDoctrine()->getManager();
+        }
+
+        $currentToken = null;
+        if (!is_null($basicAuth)) {
+            $currentToken = $this->get('string_util')->getUsernameFromBasicAuth($basicAuth);
+        }
+
+        $tokens = $this->getRepo('User\UserToken')->findByUserId($userId);
+        foreach ($tokens as $token) {
+            if (!is_null($currentToken)
+                && $token->getToken() === $currentToken) {
+                continue;
+            }
+
+            $em->remove($token);
+        }
+
+        if ($isEmNull) {
+            $em->flush();
+        }
     }
 }
