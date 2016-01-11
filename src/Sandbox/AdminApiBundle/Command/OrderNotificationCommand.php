@@ -13,7 +13,6 @@ use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 class OrderNotificationCommand extends ContainerAwareCommand
 {
     use ProductOrderNotification;
-    const BUNDLE = 'SandboxApiBundle';
 
     protected function configure()
     {
@@ -136,21 +135,5 @@ class OrderNotificationCommand extends ContainerAwareCommand
                 ProductOrderMessage::WORKSPACE_END_MESSAGE
             );
         }
-    }
-
-    protected function getRepo(
-        $repo
-    ) {
-        return $this->getContainer()
-            ->get('doctrine')
-            ->getRepository(self::BUNDLE.':'.$repo);
-    }
-
-    protected function getGlobals()
-    {
-        // get globals
-        return $this->getContainer()
-            ->get('twig')
-            ->getGlobals();
     }
 }

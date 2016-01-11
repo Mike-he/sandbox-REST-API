@@ -2,6 +2,8 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
+
 /**
  * Common Method Trait.
  *
@@ -14,9 +16,29 @@ namespace Sandbox\ApiBundle\Traits;
  */
 trait CommonMethod
 {
-    abstract protected function getRepo($repo);
+    /**
+     * @param $repo
+     *
+     * @return mixed
+     */
+    protected function getRepo(
+        $repo
+    ) {
+        return $this->getContainer()
+            ->get('doctrine')
+            ->getRepository(BundleConstants::BUNDLE.':'.$repo);
+    }
 
-    abstract protected function getGlobals();
+    /**
+     * @return mixed
+     */
+    protected function getGlobals()
+    {
+        // get globals
+        return $this->getContainer()
+            ->get('twig')
+            ->getGlobals();
+    }
 
     abstract protected function getContainer();
 }

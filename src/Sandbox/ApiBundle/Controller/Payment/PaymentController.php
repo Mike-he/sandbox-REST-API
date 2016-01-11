@@ -17,6 +17,7 @@ use Pingpp\Error\Base;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
+use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 
 /**
  * Payment Controller.
@@ -31,6 +32,7 @@ use Sandbox\ApiBundle\Traits\StringUtil;
 class PaymentController extends DoorController
 {
     use StringUtil;
+    use DoorAccessTrait;
 
     const STATUS_PAID = 'paid';
     const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
@@ -272,14 +274,24 @@ class PaymentController extends DoorController
         );
 
         $em = $this->getDoctrine()->getManager();
-        $em->persist($order);
         $em->flush();
 
+        // set door access
+        $this->setDoorAccessForSingleOrder($order);
+
+        return $order;
+    }
+
+    /**
+     * @param ProductOrder $order
+     */
+    public function setDoorAccessForSingleOrder(
+        $order
+    ) {
         // send order email
         $this->sendOrderEmail($order);
 
         $userId = $order->getUserId();
-        $globals = $this->getGlobals();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
@@ -303,25 +315,14 @@ class PaymentController extends DoorController
             !is_null($result) &&
             $result['status'] === DoorController::STATUS_AUTHED
         ) {
-            $this->setEmployeeCardForOneBuilding(
+            $this->callSetCardAndRoomCommand(
                 $base,
                 $userId,
-                $result['card_no']
-            );
-
-            $userArray = [
-                ['empid' => "$userId"],
-            ];
-            $this->setRoomOrderAccessIfUserArray(
-                $base,
-                $userArray,
+                $result['card_no'],
                 $roomDoors,
-                $order,
-                $globals
+                $order
             );
         }
-
-        return $order;
     }
 
     /**
@@ -371,8 +372,7 @@ class PaymentController extends DoorController
     public function removeUserAccess(
         $orderId,
         $currentUser,
-        $base,
-        $globals
+        $base
     ) {
         $currentUserArray = [];
         $controls = $this->getRepo('Door\DoorAccess')->findBy(
@@ -394,11 +394,10 @@ class PaymentController extends DoorController
             array_push($currentUserArray, $empUser);
         }
         if (!empty($currentUserArray)) {
-            $this->deleteEmployeeToOrder(
+            $this->callRemoveFromOrderCommand(
                 $base,
                 $orderId,
-                $currentUserArray,
-                $globals
+                $currentUserArray
             );
         }
     }

@@ -13,10 +13,10 @@ use Sandbox\ApiBundle\Entity\Company\Company;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Acl\Exception\Exception;
-
-//TODO there's certainly a way to get the
-// current bundle name with a magic function
-const BUNDLE = 'SandboxApiBundle';
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
+use Sandbox\ApiBundle\Constants\BundleConstants;
 
 class SandboxRestController extends FOSRestController
 {
@@ -92,36 +92,8 @@ class SandboxRestController extends FOSRestController
         $repo
     ) {
         return $this->getDoctrine()->getRepository(
-            BUNDLE.':'.$repo
+            BundleConstants::BUNDLE.':'.$repo
         );
-    }
-
-    /**
-     * @param $userArray
-     * @param $orderId
-     */
-    protected function updateDoorAccess(
-        $userArray,
-        $orderId
-    ) {
-        foreach ($userArray as $user) {
-            $userId = (int) $user['empid'];
-            $doors = $this->getRepo('Door\DoorAccess')->findBy(
-                array(
-                    'userId' => $userId,
-                    'orderId' => $orderId,
-                    'access' => false,
-                )
-            );
-
-            if (!empty($doors)) {
-                foreach ($doors as $door) {
-                    $door->setAccess(true);
-                }
-                $em = $this->getDoctrine()->getManager();
-                $em->flush();
-            }
-        }
     }
 
     //--------------------get user's info--------------------//
@@ -1203,6 +1175,163 @@ class SandboxRestController extends FOSRestController
 
         if (strtoupper($auth) !== strtoupper($key)) {
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
+    }
+
+    //---------------------------------------- Door Access Command ----------------------------------------//
+
+    /**
+     * @param $base
+     * @param $userId
+     * @param $cardNo
+     * @param $roomDoors
+     * @param $order
+     *
+     * @throws \Exception
+     */
+    protected function callSetCardAndRoomCommand(
+        $base,
+        $userId,
+        $cardNo,
+        $roomDoors,
+        $order
+    ) {
+        try {
+            $kernel = $this->get('kernel');
+            $application = new Application($kernel);
+            $application->setAutoExit(false);
+
+            $input = new ArrayInput(array(
+                'command' => 'CardAndRoom:Set',
+                'base' => $base,
+                'userId' => $userId,
+                'cardNo' => $cardNo,
+                'roomDoors' => $roomDoors,
+                'order' => $order,
+            ));
+
+            $output = new NullOutput();
+            $application->run($input, $output);
+        } catch (\Exception $e) {
+            error_log('Door Access Set Card and Room Command Error');
+        }
+    }
+
+    /**
+     * @param $base
+     * @param $orderId
+     */
+    protected function callRepealRoomOrderCommand(
+        $base,
+        $orderId
+    ) {
+        try {
+            $kernel = $this->get('kernel');
+            $application = new Application($kernel);
+            $application->setAutoExit(false);
+
+            $input = new ArrayInput(array(
+                'command' => 'RoomOrder:Repeal',
+                'base' => $base,
+                'orderId' => $orderId,
+            ));
+
+            $output = new NullOutput();
+            $application->run($input, $output);
+        } catch (\Exception $e) {
+            error_log('Door Access Repeal Room Order Command Error');
+        }
+    }
+
+    /**
+     * @param $base
+     * @param $userArray
+     * @param $roomDoors
+     * @param $order
+     */
+    protected function callSetRoomOrderCommand(
+        $base,
+        $userArray,
+        $roomDoors,
+        $order
+    ) {
+        try {
+            $kernel = $this->get('kernel');
+            $application = new Application($kernel);
+            $application->setAutoExit(false);
+
+            $input = new ArrayInput(array(
+                'command' => 'RoomOrder:Set',
+                'base' => $base,
+                'userArray' => $userArray,
+                'roomDoors' => $roomDoors,
+                'order' => $order,
+            ));
+
+            $output = new NullOutput();
+            $application->run($input, $output);
+        } catch (\Exception $e) {
+            error_log('Door Access Set Room Order Command Error');
+        }
+    }
+
+    /**
+     * @param $base
+     * @param $orderId
+     * @param $userArray
+     */
+    protected function callRemoveFromOrderCommand(
+        $base,
+        $orderId,
+        $userArray
+    ) {
+        try {
+            $kernel = $this->get('kernel');
+            $application = new Application($kernel);
+            $application->setAutoExit(false);
+
+            $input = new ArrayInput(array(
+                'command' => 'RoomOrderUser:Remove',
+                'base' => $base,
+                'userArray' => $userArray,
+                'orderId' => $orderId,
+            ));
+
+            $output = new NullOutput();
+            $application->run($input, $output);
+        } catch (\Exception $e) {
+            error_log('Door Access Remove User From Room Order Command Error');
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $cardNo
+     * @param $method
+     */
+    protected function callUpdateCardStatusCommand(
+        $userId,
+        $cardNo,
+        $method,
+        $oldCardNo = null
+    ) {
+        try {
+            $kernel = $this->get('kernel');
+            $application = new Application($kernel);
+            $application->setAutoExit(false);
+
+            $input = new ArrayInput(array(
+                'command' => 'Card:Update',
+                'userId' => $userId,
+                'cardNo' => $cardNo,
+                'method' => $method,
+                'oldCardNo' => $oldCardNo,
+            ));
+
+            $output = new NullOutput();
+            $application->run($input, $output);
+        } catch (\Exception $e) {
+            error_log('Door Access Update Card Status Command Error');
         }
     }
 }

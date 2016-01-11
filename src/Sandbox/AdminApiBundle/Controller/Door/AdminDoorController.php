@@ -18,6 +18,8 @@ use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Constants\DoorAccessConstants;
+use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 
 /**
  * Admin Door Controller.
@@ -31,6 +33,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminDoorController extends DoorController
 {
+    use DoorAccessTrait;
     const DOOR_MODULE_USER = 'user';
     const DOOR_MODULE_ACCESS = 'access';
 
@@ -175,7 +178,7 @@ class AdminDoorController extends DoorController
             $userId,
             $name,
             $result['card_no'],
-            DoorController::METHOD_ADD
+            DoorAccessConstants::METHOD_ADD
         );
 
 //        }
@@ -197,7 +200,7 @@ class AdminDoorController extends DoorController
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
         $cardNo = $requestContent['card_no'];
-        $globals = $this->getGlobals();
+
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
@@ -205,7 +208,7 @@ class AdminDoorController extends DoorController
             $userId,
             $userName,
             $cardNo,
-            DoorController::METHOD_ADD
+            DoorAccessConstants::METHOD_ADD
         );
 
         $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
@@ -214,8 +217,7 @@ class AdminDoorController extends DoorController
             sleep(5);
             $this->checkIfAccessIsSet(
                 $buildingIds,
-                $userId,
-                $globals
+                $userId
             );
         }
     }
@@ -238,22 +240,10 @@ class AdminDoorController extends DoorController
         $cardNo = $requestContent['card_no'];
 
         // set card
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $userName = $userProfile->getName();
-        $this->updateEmployeeCardStatus(
+        $this->callUpdateCardStatusCommand(
             $userId,
-            $userName,
             $cardNo,
-            DoorController::METHOD_ADD
-        );
-        sleep(1);
-
-        // update card
-        $this->updateEmployeeCardStatus(
-            $userId,
-            '',
-            $cardNo,
-            DoorController::METHOD_UNLOST
+            DoorAccessConstants::METHOD_UNLOST
         );
 
         // set access
@@ -261,8 +251,7 @@ class AdminDoorController extends DoorController
         if (!is_null($buildingIds) && !empty($buildingIds)) {
             $this->checkIfAccessIsSet(
                 $buildingIds,
-                $userId,
-                $this->getGlobals()
+                $userId
             );
         }
     }
@@ -286,22 +275,11 @@ class AdminDoorController extends DoorController
         $oldCardNo = $requestContent['old_card_no'];
 
         // set card
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
-        $userName = $userProfile->getName();
-        $this->updateEmployeeCardStatus(
+        $this->callUpdateCardStatusCommand(
             $userId,
-            $userName,
-            $oldCardNo,
-            DoorController::METHOD_ADD
-        );
-        sleep(1);
-
-        // update card
-        $this->updateEmployeeCardStatus(
-            $userId,
-            '',
             $cardNo,
-            DoorController::METHOD_CHANGE_CARD
+            DoorAccessConstants::METHOD_CHANGE_CARD,
+            $oldCardNo
         );
 
         // set access
@@ -309,8 +287,7 @@ class AdminDoorController extends DoorController
         if (!is_null($buildingIds) && !empty($buildingIds)) {
             $this->checkIfAccessIsSet(
                 $buildingIds,
-                $userId,
-                $this->getGlobals()
+                $userId
             );
         }
     }
@@ -322,8 +299,7 @@ class AdminDoorController extends DoorController
      */
     public function checkIfAccessIsSet(
         $buildingIds,
-        $userId,
-        $globals
+        $userId
     ) {
         foreach ($buildingIds as $id) {
             try {
@@ -372,8 +348,7 @@ class AdminDoorController extends DoorController
                             $orderId['orderId'],
                             $startDate,
                             $endDate,
-                            $doorArray,
-                            $globals
+                            $doorArray
                         );
                     } catch (\Exception $e) {
                         error_log('Door Access Error, Set Card');
@@ -434,12 +409,12 @@ class AdminDoorController extends DoorController
         $sessionId = null;
 
         try {
-            $sessionId = $this->getSessionId($base, $globals);
+            $sessionId = $this->getSessionId($base);
 
             $data = $globals['door_api_session_id'].$sessionId;
             $doorArray = $this->postDoorApi($base.$globals['door_api_get_doors'], $data);
-            $this->logOut($sessionId, $base, $globals);
-            if ($doorArray['ads_result']['result'] != self::RESULT_OK) {
+            $this->logOut($sessionId, $base);
+            if ($doorArray['ads_result']['result'] !== DoorAccessConstants::RESULT_OK) {
                 return $this->customErrorView(
                     400,
                     self::RESPONSE_NOT_VALID_CODE,
@@ -464,7 +439,7 @@ class AdminDoorController extends DoorController
         } catch (\Exception $e) {
             error_log('Get doors went wrong!');
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $base, $globals);
+                $this->logOut($sessionId, $base);
             }
         }
     }
@@ -547,7 +522,7 @@ class AdminDoorController extends DoorController
         $sessionId = null;
 
         try {
-            $sessionId = $this->getSessionId($base, $globals);
+            $sessionId = $this->getSessionId($base);
 
             $begin = $paramFetcher->get('begin_time');
             $end = $paramFetcher->get('end_time');
@@ -560,9 +535,9 @@ class AdminDoorController extends DoorController
                 $globals['door_api_end_time'].$end;
 
             $recordArray = $this->postDoorApi($base.$globals['door_api_get_card_record'], $data);
-            $this->logOut($sessionId, $base, $globals);
+            $this->logOut($sessionId, $base);
 
-            if ($recordArray['ads_result']['result'] != self::RESULT_OK) {
+            if ($recordArray['ads_result']['result'] !== DoorAccessConstants::RESULT_OK) {
                 return $this->customErrorView(
                     400,
                     self::RESPONSE_NOT_VALID_CODE,
@@ -581,7 +556,7 @@ class AdminDoorController extends DoorController
         } catch (\Exception $e) {
             error_log('Get swipe records went wrong!');
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $base, $globals);
+                $this->logOut($sessionId, $base);
             }
         }
     }
@@ -664,7 +639,7 @@ class AdminDoorController extends DoorController
         $sessionId = null;
 
         try {
-            $sessionId = $this->getSessionId($base, $globals);
+            $sessionId = $this->getSessionId($base);
 
             $begin = $paramFetcher->get('begin_time');
             $end = $paramFetcher->get('end_time');
@@ -678,8 +653,8 @@ class AdminDoorController extends DoorController
                 $globals['door_api_end_time'].$end;
 
             $recordArray = $this->postDoorApi($base.$globals['door_api_get_alarm_record'], $data);
-            $this->logOut($sessionId, $base, $globals);
-            if ($recordArray['ads_result']['result'] != self::RESULT_OK) {
+            $this->logOut($sessionId, $base);
+            if ($recordArray['ads_result']['result'] !== DoorAccessConstants::RESULT_OK) {
                 return $this->customErrorView(
                     400,
                     self::RESPONSE_NOT_VALID_CODE,
@@ -698,7 +673,7 @@ class AdminDoorController extends DoorController
         } catch (\Exception $e) {
             error_log('Get alarm records went wrong!');
             if (!is_null($sessionId) && !empty($sessionId)) {
-                $this->logOut($sessionId, $base, $globals);
+                $this->logOut($sessionId, $base);
             }
         }
     }
