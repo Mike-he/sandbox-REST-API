@@ -345,6 +345,13 @@ class AdminBuildingController extends SandboxRestController
             $em
         );
 
+        // add floor number
+        $this->addFloors(
+            $building,
+            $floors,
+            $em
+        );
+
         // modify floors
         $this->modifyFloors(
             $building,
@@ -425,13 +432,6 @@ class AdminBuildingController extends SandboxRestController
             $roomFloor = $this->getRepo('Room\RoomFloor')->find($floor['id']);
             $roomFloor->setFloorNumber($floor['floor_number']);
         }
-
-        // add floor number
-        $this->addFloors(
-            $building,
-            $floors,
-            $em
-        );
     }
 
     /**
