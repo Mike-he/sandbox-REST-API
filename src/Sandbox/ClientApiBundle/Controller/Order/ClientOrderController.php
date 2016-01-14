@@ -1371,11 +1371,7 @@ class ClientOrderController extends PaymentController
 
         // set access action to cancelled
         $orderId = $order->getId();
-        $controls = $this->getRepo('Door\DoorAccess')->findBy(
-            [
-                'orderId' => $orderId,
-            ]
-        );
+        $controls = $this->getRepo('Door\DoorAccess')->findByOrderId($orderId);
         if (!empty($controls)) {
             foreach ($controls as $control) {
                 $control->setAction(ProductOrder::STATUS_CANCELLED);
@@ -1464,9 +1460,7 @@ class ClientOrderController extends PaymentController
         $em = $this->getDoctrine()->getManager();
 
         // set controller status to delete
-        $this->setControlToDelete(
-            $orderId
-        );
+        $this->setControlToDelete($orderId);
 
         // add new door access
         $this->storeDoorAccess(
@@ -1550,9 +1544,7 @@ class ClientOrderController extends PaymentController
         $order->setModificationDate(new \DateTime());
 
         // set controller status to delete
-        $this->setControlToDelete(
-            $orderId
-        );
+        $this->setControlToDelete($orderId);
 
         $em = $this->getDoctrine()->getManager();
         $this->storeDoorAccess(
