@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Door;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 
 /**
  * DoorAccess.
@@ -43,20 +44,6 @@ class DoorAccess
     private $roomId;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="doorId", type="string", length=64)
-     */
-    private $doorId;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="timeId", type="integer")
-     */
-    private $timeId;
-
-    /**
      * @var int
      *
      * @ORM\Column(name="orderId", type="integer")
@@ -90,6 +77,13 @@ class DoorAccess
      * @ORM\Column(name="access", type="boolean", nullable=false)
      */
     private $access = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="action", type="string", length=64)
+     */
+    private $action = DoorAccessConstants::METHOD_ADD;
 
     /**
      * Set access.
@@ -198,30 +192,6 @@ class DoorAccess
     }
 
     /**
-     * Set doorId.
-     *
-     * @param string $doorId
-     *
-     * @return DoorAccess
-     */
-    public function setDoorId($doorId)
-    {
-        $this->doorId = $doorId;
-
-        return $this;
-    }
-
-    /**
-     * Get doorId.
-     *
-     * @return string
-     */
-    public function getDoorId()
-    {
-        return $this->doorId;
-    }
-
-    /**
      * Set orderId.
      *
      * @param int $orderId
@@ -243,30 +213,6 @@ class DoorAccess
     public function getOrderId()
     {
         return $this->orderId;
-    }
-
-    /**
-     * Set timeId.
-     *
-     * @param int $timeId
-     *
-     * @return DoorAccess
-     */
-    public function setTimeId($timeId)
-    {
-        $this->timeId = $timeId;
-
-        return $this;
-    }
-
-    /**
-     * Get timeId.
-     *
-     * @return int
-     */
-    public function getTimeId()
-    {
-        return $this->timeId;
     }
 
     /**
@@ -339,6 +285,30 @@ class DoorAccess
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * Set action.
+     *
+     * @param string $action
+     *
+     * @return DoorAccess
+     */
+    public function setAction($action)
+    {
+        $this->action = $action;
+
+        return $this;
+    }
+
+    /**
+     * Get action.
+     *
+     * @return string
+     */
+    public function getAction()
+    {
+        return $this->action;
     }
 
     public function __construct()

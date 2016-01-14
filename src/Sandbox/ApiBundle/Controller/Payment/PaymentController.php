@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
@@ -302,14 +303,15 @@ class PaymentController extends DoorController
             throw new BadRequestHttpException('no doors');
         }
 
+        $em = $this->getDoctrine()->getManager();
         $this->storeDoorAccess(
+            $em,
             $order,
             $userId,
             $buildingId,
-            $roomId,
-            $roomDoors
+            $roomId
         );
-
+        $em->flush();
         $result = $this->getCardNoByUser($userId);
         if (
             !is_null($result) &&
@@ -330,36 +332,32 @@ class PaymentController extends DoorController
      * @param $roomDoors
      */
     public function storeDoorAccess(
+        $em,
         $order,
         $userId,
         $buildingId,
-        $roomId,
-        $roomDoors
+        $roomId
     ) {
-        foreach ($roomDoors as $roomDoor) {
-            $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
-                [
-                    'userId' => $userId,
-                    'orderId' => $order->getId(),
-                    'buildingId' => $buildingId,
-                    'doorId' => $roomDoor->getDoorControlId(),
-                ]
-            );
-            if (is_null($doorAccess)) {
-                $access = new DoorAccess();
-                $access->setBuildingId($buildingId);
-                $access->setDoorId($roomDoor->getDoorControlId());
-                $access->setUserId($userId);
-                $access->setRoomId($roomId);
-                $access->setOrderId($order->getId());
-                $access->setStartDate($order->getStartDate());
-                $access->setEndDate($order->getEndDate());
-                $access->setTimeId(0);
+        $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
+            [
+                'userId' => $userId,
+                'orderId' => $order->getId(),
+            ]
+        );
+        if (is_null($doorAccess)) {
+            $access = new DoorAccess();
+            $access->setBuildingId($buildingId);
+            $access->setUserId($userId);
+            $access->setRoomId($roomId);
+            $access->setOrderId($order->getId());
+            $access->setStartDate($order->getStartDate());
+            $access->setEndDate($order->getEndDate());
 
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($access);
-                $em->flush();
-            }
+            $em->persist($access);
+        } else {
+            $doorAccess->setAction(DoorAccessConstants::METHOD_ADD);
+            $doorAccess->isAccess() ?
+                $doorAccess->setAccess(false) : $doorAccess->setAccess(true);
         }
     }
 
@@ -371,34 +369,55 @@ class PaymentController extends DoorController
      */
     public function removeUserAccess(
         $orderId,
-        $currentUser,
         $base
     ) {
         $currentUserArray = [];
         $controls = $this->getRepo('Door\DoorAccess')->findBy(
             [
-                'userId' => $currentUser,
                 'orderId' => $orderId,
+                'action' => DoorAccessConstants::METHOD_DELETE,
+                'access' => false,
             ]
         );
         if (!empty($controls)) {
             foreach ($controls as $control) {
-                $em = $this->getDoctrine()->getManager();
-                $em->remove($control);
-                $em->flush();
+                $userId = $control->getUserId();
+                // get user cardNo and remove access from order
+                $result = $this->getCardNoByUser($userId);
+                if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
+                    $empUser = ['empid' => $userId];
+                    array_push($currentUserArray, $empUser);
+                }
             }
         }
-        $result = $this->getCardNoByUser($currentUser);
-        if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
-            $empUser = ['empid' => $currentUser];
-            array_push($currentUserArray, $empUser);
-        }
+
         if (!empty($currentUserArray)) {
             $this->callRemoveFromOrderCommand(
                 $base,
                 $orderId,
                 $currentUserArray
             );
+        }
+    }
+
+    /**
+     * @param $orderId
+     * @param $userId
+     */
+    public function setControlToDelete(
+        $orderId,
+        $userId = null
+    ) {
+        $controls = $this->getRepo('Door\DoorAccess')->getAddAccessByOrder(
+            $userId,
+            $orderId
+        );
+
+        if (!empty($controls)) {
+            foreach ($controls as $control) {
+                $control->setAction(DoorAccessConstants::METHOD_DELETE);
+                $control->isAccess() ? $control->setAccess(false) : $control->setAccess(true);
+            }
         }
     }
 

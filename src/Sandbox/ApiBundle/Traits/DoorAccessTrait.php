@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Proxies\__CG__\Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 
@@ -258,6 +259,14 @@ trait DoorAccessTrait
             $periodArray = $this->postDoorApi($base.$globals['door_api_repeal_room_order'], $data);
             $this->logOut($sessionId, $base);
 
+            if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
+                $this->updateDoorAccess(
+                    null,
+                    $orderId,
+                    ProductOrder::STATUS_CANCELLED
+                );
+            }
+
             if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
                 error_log('Door Access Error');
             }
@@ -339,6 +348,14 @@ trait DoorAccessTrait
 
             $periodArray = $this->postDoorApi($base.$globals['door_api_order_delete_emp'], $data);
             $this->logOut($sessionId, $base);
+
+            if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
+                $this->updateDoorAccess(
+                    $userArray,
+                    $orderId,
+                    DoorAccessConstants::METHOD_DELETE
+                );
+            }
 
             if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
                 error_log('Door Access Error');
@@ -445,25 +462,43 @@ trait DoorAccessTrait
      */
     protected function updateDoorAccess(
         $userArray,
-        $orderId
+        $orderId,
+        $status = DoorAccessConstants::METHOD_ADD
     ) {
-        foreach ($userArray as $user) {
-            $userId = (int) $user['empid'];
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        if (is_null($userArray)) {
             $doors = $this->getRepo('Door\DoorAccess')->findBy(
                 array(
-                    'userId' => $userId,
                     'orderId' => $orderId,
                     'access' => false,
+                    'action' => $status,
                 )
             );
-
             if (!empty($doors)) {
                 foreach ($doors as $door) {
                     $door->setAccess(true);
                 }
-                $em = $this->getContainer()->get('doctrine')->getManager();
-                $em->flush();
+            }
+        } else {
+            foreach ($userArray as $user) {
+                $userId = (int) $user['empid'];
+                $doors = $this->getRepo('Door\DoorAccess')->findBy(
+                    array(
+                        'userId' => $userId,
+                        'orderId' => $orderId,
+                        'access' => false,
+                        'action' => $status,
+                    )
+                );
+                if (!empty($doors)) {
+                    foreach ($doors as $door) {
+                        $door->setAccess(true);
+                    }
+                }
             }
         }
+
+        $em->flush();
     }
 }
