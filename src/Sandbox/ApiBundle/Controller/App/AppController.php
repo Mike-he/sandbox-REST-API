@@ -26,7 +26,8 @@ class AppController extends SandboxRestController
     /**
      * List all APP Info.
      *
-     * @param Request $request the request object
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
      *  @ApiDoc(
      *   resource = true,
