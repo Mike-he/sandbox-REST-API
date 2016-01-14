@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 
