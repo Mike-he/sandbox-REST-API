@@ -13,11 +13,11 @@ use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Entity\Menu\Menu;
 
 /**
- * Feature Controller.
+ * Menu Controller.
  *
  * @category Sandbox
  *
- * @author   Leo Xu <leox@gobeta.com.cn>
+ * @author   Yimo Zhang <yimozh@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
