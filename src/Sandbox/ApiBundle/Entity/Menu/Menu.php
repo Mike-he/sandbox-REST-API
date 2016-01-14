@@ -12,6 +12,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Menu
 {
+    const COMPONENT_CLIENT = 'client';
+    const COMPONENT_ADMIN = 'admin';
+
+    const POSITION_LEFT = 'left';
+    const POSITION_RIGHT = 'right';
+
     /**
      * @var int
      *
@@ -215,7 +221,7 @@ class Menu
      *
      * @return bool
      */
-    public function getReady()
+    public function isReady()
     {
         return $this->ready;
     }

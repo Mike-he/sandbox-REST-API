@@ -58,3 +58,8 @@ sandbox_api_features:
     type:     annotation
     prefix:   /
 
+# Menu Info /menus
+sandbox_api_menus:
+    resource: "@SandboxApiBundle/Controller/Menu/MenuController.php"
+    type:     annotation
+    prefix:   /
