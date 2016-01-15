@@ -21,6 +21,8 @@ use JsonSerializable;
  */
 class RoomBuilding implements JsonSerializable
 {
+    const BUILDING_NOT_FOUND_MESSAGE = 'Building Not Found';
+
     /**
      * @var int
      *

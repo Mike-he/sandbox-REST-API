@@ -763,37 +763,6 @@ class ClientOrderController extends PaymentController
     }
 
     /**
-     * @param $userId
-     * @param $userArray
-     *
-     * @return mixed
-     */
-    public function getUserArrayIfAuthed(
-        $base,
-        $userId,
-        $userArray
-    ) {
-        $userEntity = $this->getRepo('User\User')->find($userId);
-        $result = $this->getCardNoByUser($userId);
-        if (
-            !is_null($result) &&
-            $result['status'] === DoorController::STATUS_AUTHED &&
-            !$userEntity->isBanned()
-        ) {
-            $this->setEmployeeCardForOneBuilding(
-                $base,
-                $userId,
-                $result['card_no']
-            );
-
-            $empUser = ['empid' => $userId];
-            array_push($userArray, $empUser);
-        }
-
-        return $userArray;
-    }
-
-    /**
      * @param Request $request
      * @param $id
      * @param ParamFetcherInterface $paramFetcher

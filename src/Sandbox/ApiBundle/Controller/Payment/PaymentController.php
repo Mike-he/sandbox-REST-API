@@ -690,4 +690,113 @@ class PaymentController extends DoorController
             error_log('Send order email went wrong!');
         }
     }
+
+    /**
+     * @param $userId
+     * @param $userArray
+     *
+     * @return mixed
+     */
+    public function getUserArrayIfAuthed(
+        $base,
+        $userId,
+        $userArray
+    ) {
+        $userEntity = $this->getRepo('User\User')->find($userId);
+        $result = $this->getCardNoByUser($userId);
+        if (
+            !is_null($result) &&
+            $result['status'] === DoorController::STATUS_AUTHED &&
+            !$userEntity->isBanned()
+        ) {
+            $this->setEmployeeCardForOneBuilding(
+                $base,
+                $userId,
+                $result['card_no']
+            );
+
+            $empUser = ['empid' => $userId];
+            array_push($userArray, $empUser);
+        }
+
+        return $userArray;
+    }
+
+    /**
+     * @param $order
+     */
+    public function syncAccessByOrder(
+        $base,
+        $order
+    ) {
+        $orderId = $order->getId();
+        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomDoors = $this->getRepo('Room\RoomDoors')->findByRoomId($roomId);
+        if (empty($roomDoors)) {
+            throw new NotFoundHttpException(self::NO_DOOR_MESSAGE);
+        }
+
+        // check if order cancelled
+        if ($order->getStatus() == ProductOrder::STATUS_CANCELLED) {
+            // cancel order
+            $this->callRepealRoomOrderCommand(
+                $base,
+                $orderId
+            );
+        } else {
+            // get add action controls
+            $addControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
+                DoorAccessConstants::METHOD_ADD,
+                $orderId
+            );
+
+            // get delete action controls
+            $deleteControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
+                DoorAccessConstants::METHOD_DELETE,
+                $orderId
+            );
+
+            if (!empty($addControls)) {
+                $userArray = [];
+                foreach ($addControls as $addControl) {
+                    $userArray = $this->getUserArrayIfAuthed(
+                        $base,
+                        $addControl->getUserId(),
+                        $userArray
+                    );
+                }
+
+                // set room access
+                if (!empty($userArray)) {
+                    $this->callSetRoomOrderCommand(
+                        $base,
+                        $userArray,
+                        $roomDoors,
+                        $order
+                    );
+                }
+            }
+
+            if (!empty($deleteControls)) {
+                $removeUserArray = [];
+                foreach ($deleteControls as $deleteControl) {
+                    $userId = $deleteControl->getUserId();
+                    $result = $this->getCardNoByUser($userId);
+                    if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
+                        $empUser = ['empid' => $userId];
+                        array_push($removeUserArray, $empUser);
+                    }
+                }
+
+                // remove room access
+                if (!empty($removeUserArray)) {
+                    $this->callRemoveFromOrderCommand(
+                        $base,
+                        $orderId,
+                        $removeUserArray
+                    );
+                }
+            }
+        }
+    }
 }

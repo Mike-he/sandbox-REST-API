@@ -135,4 +135,49 @@ class DoorAccessRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @param $action
+     * @param $orderId
+     *
+     * @return array
+     */
+    public function getAllWithoutAccess(
+        $action,
+        $orderId
+    ) {
+        $query = $this->createQueryBuilder('d')
+            ->where('d.action = :action')
+            ->andWhere('d.access = :access')
+            ->andWhere('d.orderId = :orderId')
+            ->setParameter('orderId', $orderId)
+            ->setParameter('access', false)
+            ->setParameter('action', $action)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $buildingId
+     *
+     * @return array
+     */
+    public function getAccessByBuilding(
+        $buildingId
+    ) {
+        $now = new \DateTime();
+        $query = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.orderId')
+            ->where('d.buildingId = :buildingId')
+            ->andWhere('d.endDate > :now')
+            ->andWhere('d.access = :access')
+            ->groupBy('d.orderId')
+            ->setParameter('buildingId', $buildingId)
+            ->setParameter('now', $now)
+            ->setParameter('access', false)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }
