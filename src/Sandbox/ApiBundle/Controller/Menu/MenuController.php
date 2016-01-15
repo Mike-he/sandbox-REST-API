@@ -114,36 +114,18 @@ class MenuController extends SandboxRestController
     ) {
         $menuArray = array();
 
-        $preSection = 0;
-
         foreach ($menus as $menu) {
-            $position = $menu->getPosition();
-            $section = $menu->getSection();
-            $part = $menu->getPart();
-            $number = $menu->getNumber();
+            $sectionStr = strval($menu->getSection());
+            $partIdx = $menu->getPart() - 1;
+            $numberIdx = $menu->getNumber() - 1;
 
-            $sectionStr = strval($section);
-            $numberIdx = $number - 1;
-            $partIdx = $part - 1;
-
-            $menuData = array(
+            $menuArray[$sectionStr][$partIdx][$numberIdx] = array(
                 'key' => $menu->getKey(),
                 'type' => $menu->getType(),
                 'name' => '',
                 'url' => $menu->getUrl(),
                 'ready' => $menu->isReady(),
             );
-
-            if ($section > $preSection) {
-                $partArray = array();
-                $sectionArray = array();
-            }
-
-            $partArray[$numberIdx] = $menuData;
-            $sectionArray[$partIdx] = $partArray;
-            $menuArray[$sectionStr] = $sectionArray;
-
-            $preSection = $section;
         }
 
         return $menuArray;
