@@ -5,7 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Building;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
@@ -37,7 +37,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminBuildingController extends PaymentController
+class AdminBuildingController extends SandboxRestController
 {
     /**
      * @Route("/buildings/{id}/sync")
