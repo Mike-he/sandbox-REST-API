@@ -377,29 +377,41 @@ trait DoorAccessTrait
         $userId,
         $userName,
         $cardNo,
-        $method
+        $method,
+        $buildingIds = null
     ) {
-        $servers = $this->getRepo('Room\RoomBuilding')->getDistinctServers();
-        if (is_null($servers) || empty($servers)) {
-            return;
-        }
-
-        foreach ($servers as $server) {
-            try {
-                if (is_null($server['server']) || empty($server['server'])) {
+        $servers = [];
+        if (!is_null($buildingIds) && !empty($buildingIds)) {
+            foreach ($buildingIds as $buildingId) {
+                $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+                if (is_null($building)) {
                     continue;
                 }
+                $server['server'] = $building->getServer();
+                array_push($servers, $server);
+            }
+        } else {
+            $servers = $this->getRepo('Room\RoomBuilding')->getDistinctServers();
+        }
 
-                $this->setEmployeeCard(
-                    $server['server'],
-                    $userId,
-                    $userName,
-                    $cardNo,
-                    $method
-                );
-            } catch (\Exception $e) {
-                error_log('Door Access Error, Update Card');
-                continue;
+        if (!empty($servers)) {
+            foreach ($servers as $server) {
+                try {
+                    if (is_null($server['server']) || empty($server['server'])) {
+                        continue;
+                    }
+
+                    $this->setEmployeeCard(
+                        $server['server'],
+                        $userId,
+                        $userName,
+                        $cardNo,
+                        $method
+                    );
+                } catch (\Exception $e) {
+                    error_log('Door Access Error, Update Card');
+                    continue;
+                }
             }
         }
     }

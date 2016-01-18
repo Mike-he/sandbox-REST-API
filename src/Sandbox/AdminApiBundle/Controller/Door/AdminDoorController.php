@@ -204,15 +204,15 @@ class AdminDoorController extends DoorController
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
-        $this->updateEmployeeCardStatus(
-            $userId,
-            $userName,
-            $cardNo,
-            DoorAccessConstants::METHOD_ADD
-        );
-
         $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
         if (!is_null($buildingIds) && !empty($buildingIds)) {
+            $this->updateEmployeeCardStatus(
+                $userId,
+                $userName,
+                $cardNo,
+                DoorAccessConstants::METHOD_ADD,
+                $buildingIds
+            );
             // delay 5 seconds between api calls
             sleep(5);
             $this->checkIfAccessIsSet(
