@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Feed;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Sandbox\ApiBundle\Entity\User\User;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Feed.
@@ -27,6 +28,8 @@ class Feed
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
+     *     
+     * @Assert\NotBlank()
      */
     private $content;
 
