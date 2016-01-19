@@ -600,7 +600,7 @@ class OrderRepository extends EntityRepository
         //filter by start date
         if (!is_null($startDate)) {
             $startDate = new \DateTime($startDate);
-            $query->andWhere('o.startDate >= :startDate');
+            $query->andWhere('o.endDate > :startDate');
             $parameters['startDate'] = $startDate;
         }
 
@@ -608,7 +608,7 @@ class OrderRepository extends EntityRepository
         if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
-            $query->andWhere('o.endDate <= :endDate');
+            $query->andWhere('o.startDate <= :endDate');
             $parameters['endDate'] = $endDate;
         }
 
@@ -694,7 +694,7 @@ class OrderRepository extends EntityRepository
         // filter by start date
         if (!is_null($startDate)) {
             $startDate = new \DateTime($startDate);
-            $query->andWhere('o.startDate >= :startDate');
+            $query->andWhere('o.endDate > :startDate');
             $parameters['startDate'] = $startDate;
         }
 
@@ -702,7 +702,7 @@ class OrderRepository extends EntityRepository
         if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
-            $query->andWhere('o.endDate <= :endDate');
+            $query->andWhere('o.startDate <= :endDate');
             $parameters['endDate'] = $endDate;
         }
 
