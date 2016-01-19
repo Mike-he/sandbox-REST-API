@@ -31,6 +31,13 @@ class RoomDoors
     private $id;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="roomId", type="integer")
+     */
+    private $roomId;
+
+    /**
      * @var Room
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
@@ -167,6 +174,30 @@ class RoomDoors
     public function getRoom()
     {
         return $this->room;
+    }
+
+    /**
+     * Set roomId.
+     *
+     * @param int $roomId
+     *
+     * @return RoomDoors
+     */
+    public function setRoomId($roomId)
+    {
+        $this->roomId = $roomId;
+
+        return $this;
+    }
+
+    /**
+     * Get roomId.
+     *
+     * @return int
+     */
+    public function getRoomId()
+    {
+        return $this->roomId;
     }
 
     public function __construct()

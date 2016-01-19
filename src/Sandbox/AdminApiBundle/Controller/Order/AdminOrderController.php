@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Admin order controller.
@@ -33,6 +34,48 @@ use Sandbox\ApiBundle\Entity\Product\Product;
  */
 class AdminOrderController extends OrderController
 {
+    /**
+     * @Route("/orders/{id}/sync")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return Response
+     */
+    public function syncAccessByOrderAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+
+        // check if order exists
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        // check if order expired
+        $now = new \DateTime();
+        if ($order->getEndDate() <= $now) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_ORDER_STATUS_CODE,
+                self::WRONG_ORDER_STATUS_MESSAGE
+            );
+        }
+
+        $base = $order->getProduct()->getRoom()->getBuilding()->getServer();
+        $this->syncAccessByOrder($base, $order);
+
+        return new Response();
+    }
+
     /**
      * Order.
      *

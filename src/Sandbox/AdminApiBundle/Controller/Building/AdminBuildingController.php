@@ -24,6 +24,8 @@ use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Form\Form;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class AdminBuildingController.
@@ -37,6 +39,48 @@ use Symfony\Component\Form\Form;
  */
 class AdminBuildingController extends SandboxRestController
 {
+    /**
+     * @Route("/buildings/{id}/sync")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return Response
+     */
+    public function syncAccessByBuildingAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        if (is_null($building)) {
+            throw new NotFoundHttpException(RoomBuilding::BUILDING_NOT_FOUND_MESSAGE);
+        }
+
+        $orderControls = $this->getRepo('Door\DoorAccess')->getAccessByBuilding($id);
+        if (is_null($orderControls) || empty($orderControls)) {
+            return new Response();
+        }
+
+        $base = $building->getServer();
+        foreach ($orderControls as $orderControl) {
+            $orderId = $orderControl['orderId'];
+
+            // check if order exists
+            $order = $this->getRepo('Order\ProductOrder')->find($orderId);
+            if (is_null($order)) {
+                continue;
+            }
+
+            $this->syncAccessByOrder($base, $order);
+        }
+
+        return new Response();
+    }
+
     /**
      * Get Room Buildings.
      *

@@ -4,6 +4,8 @@ namespace Sandbox\ApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
@@ -17,9 +19,13 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Sandbox\ApiBundle\Constants\BundleConstants;
+use Sandbox\ApiBundle\Constants\DoorAccessConstants;
+use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 
 class SandboxRestController extends FOSRestController
 {
+    use DoorAccessTrait;
+
     // TODO move constants to constant folder
 
     const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
@@ -1301,6 +1307,115 @@ class SandboxRestController extends FOSRestController
             $application->run($input, $output);
         } catch (\Exception $e) {
             error_log('Door Access Update Card Status Command Error');
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $userArray
+     *
+     * @return mixed
+     */
+    public function getUserArrayIfAuthed(
+        $base,
+        $userId,
+        $userArray
+    ) {
+        $userEntity = $this->getRepo('User\User')->find($userId);
+        $result = $this->getCardNoByUser($userId);
+        if (
+            !is_null($result) &&
+            $result['status'] === DoorController::STATUS_AUTHED &&
+            !$userEntity->isBanned()
+        ) {
+            $this->setEmployeeCardForOneBuilding(
+                $base,
+                $userId,
+                $result['card_no']
+            );
+
+            $empUser = ['empid' => $userId];
+            array_push($userArray, $empUser);
+        }
+
+        return $userArray;
+    }
+
+    /**
+     * @param $order
+     */
+    public function syncAccessByOrder(
+        $base,
+        $order
+    ) {
+        $orderId = $order->getId();
+        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomDoors = $this->getRepo('Room\RoomDoors')->findByRoomId($roomId);
+        if (empty($roomDoors)) {
+            return;
+        }
+
+        // check if order cancelled
+        if ($order->getStatus() == ProductOrder::STATUS_CANCELLED) {
+            // cancel order
+            $this->callRepealRoomOrderCommand(
+                $base,
+                $orderId
+            );
+        } else {
+            // get add action controls
+            $addControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
+                DoorAccessConstants::METHOD_ADD,
+                $orderId
+            );
+
+            // get delete action controls
+            $deleteControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
+                DoorAccessConstants::METHOD_DELETE,
+                $orderId
+            );
+
+            if (!empty($addControls)) {
+                $userArray = [];
+                foreach ($addControls as $addControl) {
+                    $userArray = $this->getUserArrayIfAuthed(
+                        $base,
+                        $addControl->getUserId(),
+                        $userArray
+                    );
+                }
+
+                // set room access
+                if (!empty($userArray)) {
+                    $this->callSetRoomOrderCommand(
+                        $base,
+                        $userArray,
+                        $roomDoors,
+                        $order
+                    );
+                }
+            }
+
+            if (!empty($deleteControls)) {
+                $removeUserArray = [];
+                foreach ($deleteControls as $deleteControl) {
+                    $userId = $deleteControl->getUserId();
+                    $result = $this->getCardNoByUser($userId);
+                    if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
+                        $empUser = ['empid' => $userId];
+                        array_push($removeUserArray, $empUser);
+                    }
+                }
+
+                // remove room access
+                if (!empty($removeUserArray)) {
+                    $this->callRemoveFromOrderCommand(
+                        $base,
+                        $orderId,
+                        $removeUserArray
+                    );
+                }
+            }
         }
     }
 }

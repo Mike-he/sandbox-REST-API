@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Order;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 
@@ -16,7 +16,7 @@ use FOS\RestBundle\View\View;
  *
  * @link     http://www.Sandbox.cn/
  */
-class OrderController extends SandboxRestController
+class OrderController extends PaymentController
 {
     /**
      * @param Request $request

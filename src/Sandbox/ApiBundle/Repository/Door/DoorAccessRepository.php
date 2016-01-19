@@ -21,6 +21,8 @@ class DoorAccessRepository extends EntityRepository
             ->where('d.userId = :userId')
             ->andWhere('d.endDate > :now')
             ->andWhere('d.access = :access')
+            ->andWhere('d.action = :action')
+            ->setParameter('action', DoorAccessConstants::METHOD_ADD)
             ->setParameter('userId', $userId)
             ->setParameter('now', $now)
             ->setParameter('access', false)
@@ -46,7 +48,9 @@ class DoorAccessRepository extends EntityRepository
             ->andWhere('d.buildingId = :buildingId')
             ->andWhere('d.endDate > :now')
             ->andWhere('d.access = :access')
+            ->andWhere('d.action = :action')
             ->groupBy('d.orderId')
+            ->setParameter('action', DoorAccessConstants::METHOD_ADD)
             ->setParameter('userId', $userId)
             ->setParameter('buildingId', $buildingId)
             ->setParameter('now', $now)
@@ -132,6 +136,51 @@ class DoorAccessRepository extends EntityRepository
                 ->setParameter('userId', $userId);
         }
         $query = $query->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $action
+     * @param $orderId
+     *
+     * @return array
+     */
+    public function getAllWithoutAccess(
+        $action,
+        $orderId
+    ) {
+        $query = $this->createQueryBuilder('d')
+            ->where('d.action = :action')
+            ->andWhere('d.access = :access')
+            ->andWhere('d.orderId = :orderId')
+            ->setParameter('orderId', $orderId)
+            ->setParameter('access', false)
+            ->setParameter('action', $action)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $buildingId
+     *
+     * @return array
+     */
+    public function getAccessByBuilding(
+        $buildingId
+    ) {
+        $now = new \DateTime();
+        $query = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.orderId')
+            ->where('d.buildingId = :buildingId')
+            ->andWhere('d.endDate > :now')
+            ->andWhere('d.access = :access')
+            ->groupBy('d.orderId')
+            ->setParameter('buildingId', $buildingId)
+            ->setParameter('now', $now)
+            ->setParameter('access', false)
+            ->getQuery();
 
         return $query->getResult();
     }
