@@ -551,6 +551,8 @@ class OrderRepository extends EntityRepository
         $userId,
         $startDate,
         $endDate,
+        $payStart,
+        $payEnd,
         $search
     ) {
         $parameters = [];
@@ -612,6 +614,21 @@ class OrderRepository extends EntityRepository
             $parameters['endDate'] = $endDate;
         }
 
+        //filter by payStart
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('o.paymentDate >= :payStart');
+            $parameters['payStart'] = $payStart;
+        }
+
+        //filter by payEnd
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('o.paymentDate <= :payEnd');
+            $parameters['payEnd'] = $payEnd;
+        }
+
         //Search orders by order number and order owner name.
         if (!is_null($search)) {
             $query->andWhere('o.orderNumber LIKE :search OR up.name LIKE :search');
@@ -649,7 +666,9 @@ class OrderRepository extends EntityRepository
         $building,
         $userId,
         $startDate,
-        $endDate
+        $endDate,
+        $payStart,
+        $payEnd
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
@@ -704,6 +723,21 @@ class OrderRepository extends EntityRepository
             $endDate->setTime(23, 59, 59);
             $query->andWhere('o.startDate <= :endDate');
             $parameters['endDate'] = $endDate;
+        }
+
+        //filter by payStart
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('o.paymentDate >= :payStart');
+            $parameters['payStart'] = $payStart;
+        }
+
+        //filter by payEnd
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('o.paymentDate <= :payEnd');
+            $parameters['payEnd'] = $payEnd;
         }
 
         $query->orderBy('o.creationDate', 'DESC');

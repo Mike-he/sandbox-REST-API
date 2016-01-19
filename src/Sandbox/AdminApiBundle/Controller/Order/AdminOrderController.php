@@ -183,6 +183,26 @@ class AdminOrderController extends OrderController
      *    description="payment channel"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="payStart",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="payEnd",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -221,6 +241,8 @@ class AdminOrderController extends OrderController
         $buildingId = $paramFetcher->get('building');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
+        $payStart = $paramFetcher->get('payStart');
+        $payEnd = $paramFetcher->get('payEnd');
 
         //search by name and number
         $search = $paramFetcher->get('query');
@@ -236,6 +258,8 @@ class AdminOrderController extends OrderController
             $userId,
             $startDate,
             $endDate,
+            $payStart,
+            $payEnd,
             $search
         );
 
@@ -331,6 +355,26 @@ class AdminOrderController extends OrderController
      *    description="export language"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="payStart",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="payEnd",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders/export")
      * @Method({"GET"})
      *
@@ -357,6 +401,8 @@ class AdminOrderController extends OrderController
         $userId = $paramFetcher->get('user');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
+        $payStart = $paramFetcher->get('payStart');
+        $payEnd = $paramFetcher->get('payEnd');
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
@@ -371,7 +417,9 @@ class AdminOrderController extends OrderController
             $building,
             $userId,
             $startDate,
-            $endDate
+            $endDate,
+            $payStart,
+            $payEnd
         );
 
         $excelBody = array();
