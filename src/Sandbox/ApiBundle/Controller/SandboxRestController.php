@@ -1171,7 +1171,7 @@ class SandboxRestController extends FOSRestController
         }
 
         if (strtoupper($auth) !== strtoupper($key)) {
-            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
     }
 }
