@@ -59,6 +59,7 @@ security:
         - { path: ^/admin/payment/refund$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/auth/token$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/auth/login$, role: ROLE_USER }
+        - { path: ^/client/thirdparty/auth$, role: ROLE_USER }
         - { path: ^/client, role: ROLE_CLIENT_API }
         - { path: ^/admin/auth/login$, role: ROLE_ADMIN }
         - { path: ^/admin, role: ROLE_ADMIN_API }
