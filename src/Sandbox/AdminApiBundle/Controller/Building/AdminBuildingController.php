@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingPhones;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
@@ -311,6 +312,7 @@ class AdminBuildingController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
         $floors = $building->getFloors();
+        $phones = $building->getPhones();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -339,6 +341,15 @@ class AdminBuildingController extends SandboxRestController
             $em
         );
 
+        if (!is_null($phones) && !empty($phones)) {
+            // add admin phones
+            $this->addPhones(
+                $building,
+                $phones,
+                $em
+            );
+        }
+
         $em->flush();
 
         $response = array(
@@ -361,6 +372,7 @@ class AdminBuildingController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
         $floors = $building->getFloors();
+        $phones = $building->getPhones();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -402,6 +414,24 @@ class AdminBuildingController extends SandboxRestController
             $floors,
             $em
         );
+
+        if (!is_null($phones) && !empty($phones)) {
+            // add admin phones
+            $this->addPhones(
+                $building,
+                $phones,
+                $em
+            );
+
+            // modify admin phones
+            $this->modifyPhones($phones);
+
+            // remove admin phones
+            $this->removePhones(
+                $phones,
+                $em
+            );
+        }
 
         $em->flush();
 
@@ -556,6 +586,70 @@ class AdminBuildingController extends SandboxRestController
             $roomFloor->setFloorNumber($floor['floor_number']);
 
             $em->persist($roomFloor);
+        }
+    }
+
+    /**
+     * Add admin phones.
+     *
+     * @param $building
+     * @param $phones
+     * @param $em
+     */
+    private function addPhones(
+        $building,
+        $phones,
+        $em
+    ) {
+        if (!isset($phones['add']) || empty($phones['add'])) {
+            return;
+        }
+
+        foreach ($phones['add'] as $phone) {
+            $adminPhones = new RoomBuildingPhones();
+            $adminPhones->setBuilding($building);
+            $adminPhones->setPhone($phone['phone_number']);
+
+            $em->persist($adminPhones);
+        }
+    }
+
+    /**
+     * @param $phones
+     */
+    private function modifyPhones(
+        $phones
+    ) {
+        if (!isset($phones['modify']) || empty($phones['modify'])) {
+            return;
+        }
+
+        foreach ($phones['modify'] as $phone) {
+            $adminPhone = $this->getRepo('Room\RoomBuildingPhones')->find($phone['id']);
+            if (!is_null($adminPhone)) {
+                $adminPhone->setPhone($phone['phone_number']);
+                $adminPhone->setModificationDate(new \DateTime());
+            }
+        }
+    }
+
+    /**
+     * @param $phones
+     * @param $em
+     */
+    private function removePhones(
+        $phones,
+        $em
+    ) {
+        if (!isset($phones['remove']) || empty($phones['remove'])) {
+            return;
+        }
+
+        foreach ($phones['remove'] as $phone) {
+            $adminPhone = $this->getRepo('Room\RoomBuildingPhones')->find($phone['id']);
+            if (!is_null($adminPhone)) {
+                $em->remove($adminPhone);
+            }
         }
     }
 

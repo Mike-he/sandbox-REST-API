@@ -83,6 +83,8 @@ twig:
         door_api_order_add_emp: "%door_api_order_add_emp%"
         door_api_order_delete_emp: "%door_api_order_delete_emp%"
         door_api_repeal_room_order: "%door_api_repeal_room_order%"
+        door_api_get_last_sync_time: "%door_api_get_last_sync_time%"
+        door_api_sync_time_range: "%door_api_sync_time_range%"
         door_api_session_id: "%door_api_session_id%"
         door_api_begin_time: "%door_api_begin_time%"
         door_api_end_time: "%door_api_end_time%"

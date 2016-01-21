@@ -68,6 +68,8 @@ parameters:
     door_api_order_add_emp: /SetRoomOrder_AddEmp
     door_api_order_delete_emp: /SetRoomOrder_DeleteEmp
     door_api_repeal_room_order: /RepealRoomOrder
+    door_api_get_last_sync_time: /GetLastSyncRoomOrderTime
+    door_api_sync_time_range: 10
     door_api_session_id: SessionId=
     door_api_begin_time: BeginTime=
     door_api_end_time: EndTime=

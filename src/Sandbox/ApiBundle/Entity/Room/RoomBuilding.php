@@ -206,6 +206,13 @@ class RoomBuilding implements JsonSerializable
     private $email;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $phones;
+
+    /**
      * Get id.
      *
      * @return int
@@ -547,6 +554,30 @@ class RoomBuilding implements JsonSerializable
     public function getEmail()
     {
         return $this->email;
+    }
+
+    /**
+     * Get phones.
+     *
+     * @return array
+     */
+    public function getPhones()
+    {
+        return $this->phones;
+    }
+
+    /**
+     * Set phones.
+     *
+     * @param array $phones
+     *
+     * @return RoomBuilding
+     */
+    public function setPhones($phones)
+    {
+        $this->phones = $phones;
+
+        return $this;
     }
 
     public function jsonSerialize()

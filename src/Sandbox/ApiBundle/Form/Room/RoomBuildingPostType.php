@@ -25,6 +25,20 @@ class RoomBuildingPostType extends AbstractType
             ->add('floors')
             ->add('server')
             ->add('room_attachments')
+            ->add(
+                'email',
+                'email',
+                array(
+                    'required' => false,
+                )
+            )
+            ->add(
+                'phones',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
         ;
     }
 

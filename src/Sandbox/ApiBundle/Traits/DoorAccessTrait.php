@@ -82,13 +82,30 @@ trait DoorAccessTrait
      *
      * @return mixed
      */
-    public function postDoorApi($url, $data)
-    {
+    public function postDoorApi(
+        $url,
+        $data = null
+    ) {
         $ch = curl_init($url);
         $response = $this->callDoorApi($ch, 'POST', $data);
         $xmlArray = $this->getArray($response);
 
         return $xmlArray;
+    }
+
+    /**
+     * @param $base
+     *
+     * @return mixed
+     */
+    public function getLastSyncTime(
+        $base
+    ) {
+        $globals = $this->getGlobals();
+        $ch = curl_init($base.$globals['door_api_get_last_sync_time']);
+        $response = $this->callDoorApi($ch, 'POST', null);
+
+        return $response;
     }
 
     /**
