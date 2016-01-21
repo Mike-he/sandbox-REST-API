@@ -341,7 +341,7 @@ class AdminBuildingController extends SandboxRestController
             $em
         );
 
-        if (!empty($phones)) {
+        if (!is_null($phones) && !empty($phones)) {
             // add admin phones
             $this->addPhones(
                 $building,
@@ -415,7 +415,7 @@ class AdminBuildingController extends SandboxRestController
             $em
         );
 
-        if (!empty($phones)) {
+        if (!is_null($phones) && !empty($phones)) {
             // add admin phones
             $this->addPhones(
                 $building,
