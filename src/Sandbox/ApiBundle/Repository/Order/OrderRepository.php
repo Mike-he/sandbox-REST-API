@@ -617,7 +617,7 @@ class OrderRepository extends EntityRepository
         //filter by payStart
         if (!is_null($payStart)) {
             $payStart = new \DateTime($payStart);
-            $query->andWhere('o.paymentDate >= :payStart');
+            $query->andWhere('o.creationDate >= :payStart');
             $parameters['payStart'] = $payStart;
         }
 
@@ -625,7 +625,7 @@ class OrderRepository extends EntityRepository
         if (!is_null($payEnd)) {
             $payEnd = new \DateTime($payEnd);
             $payEnd->setTime(23, 59, 59);
-            $query->andWhere('o.paymentDate <= :payEnd');
+            $query->andWhere('o.creationDate <= :payEnd');
             $parameters['payEnd'] = $payEnd;
         }
 
@@ -728,7 +728,7 @@ class OrderRepository extends EntityRepository
         //filter by payStart
         if (!is_null($payStart)) {
             $payStart = new \DateTime($payStart);
-            $query->andWhere('o.paymentDate >= :payStart');
+            $query->andWhere('o.creationDate >= :payStart');
             $parameters['payStart'] = $payStart;
         }
 
@@ -736,7 +736,7 @@ class OrderRepository extends EntityRepository
         if (!is_null($payEnd)) {
             $payEnd = new \DateTime($payEnd);
             $payEnd->setTime(23, 59, 59);
-            $query->andWhere('o.paymentDate <= :payEnd');
+            $query->andWhere('o.creationDate <= :payEnd');
             $parameters['payEnd'] = $payEnd;
         }
 
