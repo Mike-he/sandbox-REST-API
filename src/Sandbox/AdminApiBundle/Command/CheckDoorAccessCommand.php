@@ -33,15 +33,22 @@ class CheckDoorAccessCommand extends ContainerAwareCommand
 
         foreach ($buildings as $building) {
             try {
-                $now = new \DateTime();
-                $minutesDiff = 0;
-                $globals = $this->getGlobals();
-                $range = $globals['door_api_sync_time_range'];
-
+                // check building server
                 $server = $building->getServer();
                 if (is_null($server) || empty($server)) {
                     continue;
                 }
+
+                // check if phones exist
+                $buildingPhones = $this->getRepo('Room\RoomBuildingPhones')->findByBuildingId($building->getId());
+                if (empty($buildingPhones)) {
+                    continue;
+                }
+
+                $now = new \DateTime();
+                $minutesDiff = 0;
+                $globals = $this->getGlobals();
+                $range = $globals['door_api_sync_time_range'];
 
                 $response = $this->getLastSyncTime($server);
                 if ($response !== false) {
@@ -49,18 +56,16 @@ class CheckDoorAccessCommand extends ContainerAwareCommand
                 }
 
                 if ($minutesDiff > $range || $response === false) {
-                    $buildingPhones = $this->getRepo('Room\RoomBuildingPhones')->findByBuildingId($building->getId());
-                    if (empty($buildingPhones)) {
-                        continue;
-                    }
-
                     $cityName = $building->getCity()->getName();
                     $buildingName = $building->getName();
 
                     //send text message to each phone number
                     $text = SMSConstants::HEAD_SANDBOX.$cityName.'，'.$buildingName.SMSConstants::DOOR_ACCESS_ALARM_SMS;
                     foreach ($buildingPhones as $buildingPhone) {
-                        $this->send_sms($buildingPhone->getPhone(), $text);
+                        $phone = $buildingPhone->getPhone();
+                        if (!is_null($phone) && !empty($phone)) {
+                            $this->send_sms($phone, $text);
+                        }
                     }
                 }
             } catch (\Exception $e) {
