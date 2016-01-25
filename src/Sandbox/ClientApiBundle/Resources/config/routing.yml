@@ -180,7 +180,6 @@ sandbox_client_api_auth:
     type:     annotation
     prefix:   /auth
 
-
 # Door /client/doors
 sandbox_client_api_doors:
     resource: "@SandboxClientApiBundle/Controller/Door/ClientDoorController.php"
@@ -240,3 +239,9 @@ sandbox_client_api_news:
     resource: "@SandboxClientApiBundle/Controller/News/ClientNewsController.php"
     type:     annotation
     prefix:   /
+
+# Third Party Auth /client/thirdparty/auth
+sandbox_client_third_party_auth_news:
+    resource: "@SandboxClientApiBundle/Controller/ThirdParty/ClientThirdPartyController.php"
+    type:     annotation
+    prefix:   /thirdparty

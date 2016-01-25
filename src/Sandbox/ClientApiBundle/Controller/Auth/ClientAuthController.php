@@ -50,7 +50,7 @@ class ClientAuthController extends AuthController
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
         if ($myUser->isBanned()) {
-            throw new UnauthorizedHttpException(null);
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
 
         $view = new View();
