@@ -39,6 +39,9 @@ class RoomBuildingPutType extends AbstractType
                     'required' => false,
                 )
             )
+            ->add('business_hour')
+            ->add('building_attachments')
+            ->add('building_company')
         ;
     }
 

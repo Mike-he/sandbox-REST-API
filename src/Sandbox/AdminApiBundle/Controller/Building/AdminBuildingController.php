@@ -11,10 +11,15 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingCompany;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingPhones;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
+use Sandbox\ApiBundle\Form\Room\RoomBuildingAttachmentPostType;
+use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPostType;
+use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPutType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPutType;
 use Symfony\Component\HttpFoundation\Request;
@@ -159,8 +164,8 @@ class AdminBuildingController extends SandboxRestController
             $query
         );
         foreach ($buildings as $building) {
-            $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
-            $building->setFloors($floors);
+            // set more information
+            $this->setRoomBuildingMoreInformation($building);
         }
 
         $paginator = new Paginator();
@@ -204,9 +209,8 @@ class AdminBuildingController extends SandboxRestController
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
-        // set floor numbers
-        $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
-        $building->setFloors($floors);
+        // set more information
+        $this->setRoomBuildingMoreInformation($building);
 
         // set view
         $view = new View($building);
@@ -313,6 +317,8 @@ class AdminBuildingController extends SandboxRestController
         $roomAttachments = $building->getRoomAttachments();
         $floors = $building->getFloors();
         $phones = $building->getPhones();
+        $buildingAttachments = $building->getBuildingAttachments();
+        $buildingCompany = $building->getBuildingCompany();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -350,6 +356,20 @@ class AdminBuildingController extends SandboxRestController
             );
         }
 
+        // add building company
+        $this->addBuildingCompany(
+            $building,
+            $buildingCompany,
+            $em
+        );
+
+        // add building attachments
+        $this->addBuildingAttachments(
+            $building,
+            $buildingAttachments,
+            $em
+        );
+
         $em->flush();
 
         $response = array(
@@ -373,6 +393,8 @@ class AdminBuildingController extends SandboxRestController
         $roomAttachments = $building->getRoomAttachments();
         $floors = $building->getFloors();
         $phones = $building->getPhones();
+        $buildingAttachments = $building->getBuildingAttachments();
+        $buildingCompany = $building->getBuildingCompany();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -401,15 +423,15 @@ class AdminBuildingController extends SandboxRestController
             $em
         );
 
-        // add floor number
-        $this->addFloors(
+        // modify floors
+        $this->modifyFloors(
             $building,
             $floors,
             $em
         );
 
-        // modify floors
-        $this->modifyFloors(
+        // add floor number
+        $this->addFloors(
             $building,
             $floors,
             $em
@@ -432,6 +454,27 @@ class AdminBuildingController extends SandboxRestController
                 $em
             );
         }
+
+        // remove room attachments
+        $this->removeBuildingAttachments(
+            $building,
+            $buildingAttachments,
+            $em
+        );
+
+        // add building attachments
+        $this->addBuildingAttachments(
+            $building,
+            $buildingAttachments,
+            $em
+        );
+
+        // modify building company
+        $this->modifyBuildingCompany(
+            $building,
+            $buildingCompany,
+            $em
+        );
 
         $em->flush();
 
@@ -487,6 +530,34 @@ class AdminBuildingController extends SandboxRestController
     }
 
     /**
+     * @param RoomBuilding $building
+     * @param array        $roomBuildingAttachments
+     * @param              $em
+     */
+    private function removeBuildingAttachments(
+        $building,
+        $roomBuildingAttachments,
+        $em
+    ) {
+        // check room attachments
+        if (!isset($roomBuildingAttachments['remove'])) {
+            return;
+        }
+
+        $attachments = $roomBuildingAttachments['remove'];
+
+        // check attachments is null
+        if (is_null($attachments)) {
+            return;
+        }
+
+        foreach ($attachments as $attachment) {
+            $attachment = $this->getRepo('Room\RoomBuildingAttachment')->find($attachment['id']);
+            $em->remove($attachment);
+        }
+    }
+
+    /**
      * Modify floor numbers.
      *
      * @param RoomBuilding $building
@@ -505,6 +576,8 @@ class AdminBuildingController extends SandboxRestController
         foreach ($floors['modify'] as $floor) {
             $roomFloor = $this->getRepo('Room\RoomFloor')->find($floor['id']);
             $roomFloor->setFloorNumber($floor['floor_number']);
+
+            $em->persist($roomFloor);
         }
     }
 
@@ -615,6 +688,84 @@ class AdminBuildingController extends SandboxRestController
     }
 
     /**
+     * Add admin building company.
+     *
+     * @param $building
+     * @param $buildingCompany
+     * @param $em
+     */
+    private function addBuildingCompany(
+        $building,
+        $buildingCompany,
+        $em
+    ) {
+        if (empty($buildingCompany)) {
+            return;
+        }
+
+        $company = new RoomBuildingCompany();
+        $form = $this->createForm(new RoomBuildingCompanyPostType(), $company);
+        $form->submit($buildingCompany);
+
+        $company->setBuilding($building);
+
+        $em->persist($company);
+    }
+
+    /**
+     * Modify building company.
+     *
+     * @param $building
+     * @param $buildingCompany
+     * @param $em
+     */
+    private function modifyBuildingCompany(
+        $building,
+        $buildingCompany,
+        $em
+    ) {
+        if (empty($buildingCompany)) {
+            return;
+        }
+
+        $company = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($building);
+        $form = $this->createForm(new RoomBuildingCompanyPutType(), $company);
+        $form->submit($buildingCompany);
+
+        $company->setBuilding($building);
+        $company->setModificationDate(new \DateTime('now'));
+
+        $em->persist($company);
+    }
+
+    /**
+     * Add building attachments.
+     *
+     * @param $building
+     * @param $buildingAttachments
+     * @param $em
+     */
+    private function addBuildingAttachments(
+        $building,
+        $buildingAttachments,
+        $em
+    ) {
+        if (empty($buildingAttachments['add'])) {
+            return;
+        }
+
+        foreach ($buildingAttachments['add'] as $attachment) {
+            $buildingAttachment = new RoomBuildingAttachment();
+            $form = $this->createForm(new RoomBuildingAttachmentPostType(), $buildingAttachment);
+            $form->submit($attachment);
+
+            $buildingAttachment->setBuilding($building);
+
+            $em->persist($buildingAttachment);
+        }
+    }
+
+    /**
      * @param $phones
      */
     private function modifyPhones(
@@ -651,6 +802,35 @@ class AdminBuildingController extends SandboxRestController
                 $em->remove($adminPhone);
             }
         }
+    }
+
+    /**
+     * Set room building more information.
+     *
+     * @param RoomBuilding $building
+     *
+     * @return RoomBuilding
+     */
+    private function setRoomBuildingMoreInformation(
+        $building
+    ) {
+        // set floor numbers
+        $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
+        $building->setFloors($floors);
+
+        // set building attachments
+        $buildingAttachments = $this->getRepo('Room\RoomBuildingAttachment')->findByBuilding($building);
+        $building->setBuildingAttachments($buildingAttachments);
+
+        // set building company
+        $buildingCompany = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($building);
+        $building->setBuildingCompany($buildingCompany);
+
+        // set phones
+        $phones = $this->getRepo('Room\RoomBuildingPhones')->findByBuilding($building);
+        $building->setPhones($phones);
+
+        return $building;
     }
 
     /**
