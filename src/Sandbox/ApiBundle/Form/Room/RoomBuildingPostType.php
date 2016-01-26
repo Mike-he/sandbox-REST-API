@@ -23,7 +23,13 @@ class RoomBuildingPostType extends AbstractType
             ->add('lat')
             ->add('lng')
             ->add('floors')
-            ->add('server')
+            ->add(
+                'server',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
             ->add('room_attachments')
             ->add(
                 'email',

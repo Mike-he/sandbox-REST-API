@@ -23,7 +23,13 @@ class RoomBuildingPutType extends AbstractType
             ->add('lat')
             ->add('lng')
             ->add('floors')
-            ->add('server')
+            ->add(
+                'server',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
             ->add('room_attachments')
             ->add(
                 'email',
@@ -39,7 +45,13 @@ class RoomBuildingPutType extends AbstractType
                     'required' => false,
                 )
             )
-            ->add('business_hour')
+            ->add(
+                'business_hour',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
             ->add('building_attachments')
             ->add('building_company')
         ;

@@ -167,7 +167,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="server", type="string", length=255, nullable=false)
+     * @ORM\Column(name="server", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"server", "admin_building"})
      */
