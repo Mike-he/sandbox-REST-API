@@ -5,7 +5,7 @@ CREATE TABLE `RoomBuildingCompany` (
   `website` varchar(255) DEFAULT NULL,
   `phone` varchar(64) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
-  `comment` longtext DEFAULT NULL,
+  `remark` longtext DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

@@ -76,10 +76,10 @@ class RoomBuildingCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="comment", type="text", nullable=true)
+     * @ORM\Column(name="remark", type="text", nullable=true)
      * @Serializer\Groups({"main", "admin_building"})
      */
-    private $comment;
+    private $remark;
 
     /**
      * @var \DateTime
@@ -238,13 +238,13 @@ class RoomBuildingCompany
     /**
      * Set comment.
      *
-     * @param string $comment
+     * @param string $remark
      *
      * @return RoomBuildingCompany
      */
-    public function setComment($comment)
+    public function setRemark($remark)
     {
-        $this->comment = $comment;
+        $this->remark = $remark;
 
         return $this;
     }
@@ -254,9 +254,9 @@ class RoomBuildingCompany
      *
      * @return string
      */
-    public function getComment()
+    public function getRemark()
     {
-        return $this->comment;
+        return $this->remark;
     }
 
     /**

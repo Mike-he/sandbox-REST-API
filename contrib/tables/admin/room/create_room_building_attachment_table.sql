@@ -3,7 +3,7 @@ CREATE TABLE `RoomBuildingAttachment` (
   `content` longtext  NOT NULL,
   `attachmentType` varchar(64) NOT NULL,
   `filename` varchar(64) NOT NULL,
-  `preview` longtext NOT NULL,
+  `preview` longtext DEFAULT NULL,
   `size` int(11) NOT NULL,
   `buildingId` int(11) NOT NULL,
   `creationDate` datetime NOT NULL,

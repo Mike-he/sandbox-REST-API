@@ -18,7 +18,13 @@ class RoomBuildingAttachmentPostType extends AbstractType
             ->add('content')
             ->add('attachment_type')
             ->add('filename')
-            ->add('preview')
+            ->add(
+                'preview',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
             ->add('size', 'integer')
         ;
     }

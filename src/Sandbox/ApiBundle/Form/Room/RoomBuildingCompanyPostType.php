@@ -38,7 +38,7 @@ class RoomBuildingCompanyPostType extends AbstractType
                 )
             )
             ->add(
-                'comment',
+                'remark',
                 null,
                 array(
                     'required' => false,
