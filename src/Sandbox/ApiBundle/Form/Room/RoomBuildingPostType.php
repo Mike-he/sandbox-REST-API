@@ -39,7 +39,13 @@ class RoomBuildingPostType extends AbstractType
                     'required' => false,
                 )
             )
-            ->add('business_hour')
+            ->add(
+                'business_hour',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
             ->add('building_attachments')
             ->add('building_company')
         ;

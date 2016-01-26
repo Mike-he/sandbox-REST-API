@@ -45,7 +45,7 @@ class RoomBuildingCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255)
+     * @ORM\Column(name="name", type="string", length=255, nullable=false)
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $name;
@@ -53,7 +53,7 @@ class RoomBuildingCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="website", type="string", length=255)
+     * @ORM\Column(name="website", type="string", length=255, nullable=true)
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $website;
@@ -61,7 +61,7 @@ class RoomBuildingCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="phone", type="string", length=64)
+     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $phone;
@@ -69,14 +69,14 @@ class RoomBuildingCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="email", type="string", length=255)
+     * @ORM\Column(name="email", type="string", length=255, nullable=true)
      */
     private $email;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="comment", type="text")
+     * @ORM\Column(name="comment", type="text", nullable=true)
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $comment;

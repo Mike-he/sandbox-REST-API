@@ -16,10 +16,34 @@ class RoomBuildingCompanyPostType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('website')
-            ->add('phone')
-            ->add('email')
-            ->add('comment')
+            ->add(
+                'website',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
+            ->add(
+                'phone',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
+            ->add(
+                'email',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
+            ->add(
+                'comment',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
         ;
     }
 

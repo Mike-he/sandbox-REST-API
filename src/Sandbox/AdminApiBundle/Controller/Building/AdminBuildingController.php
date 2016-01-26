@@ -707,6 +707,10 @@ class AdminBuildingController extends SandboxRestController
         $form = $this->createForm(new RoomBuildingCompanyPostType(), $company);
         $form->submit($buildingCompany);
 
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
         $company->setBuilding($building);
 
         $em->persist($company);

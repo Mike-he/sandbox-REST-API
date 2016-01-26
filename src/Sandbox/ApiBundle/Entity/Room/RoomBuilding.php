@@ -217,7 +217,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="businessHour", type="string", nullable=false)
+     * @ORM\Column(name="businessHour", type="string", nullable=true)
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $businessHour;
