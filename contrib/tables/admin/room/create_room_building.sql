@@ -7,6 +7,8 @@ CREATE TABLE `RoomBuilding` (
   `lng` FLOAT(9,6) NOT NULL,
   `cityId` int(11) NOT NULL,
   `server` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) DEFAULT NULL,
+  `businessHour` VARCHAR(255) DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
