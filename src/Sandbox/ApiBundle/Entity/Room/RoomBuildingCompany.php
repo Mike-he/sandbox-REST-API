@@ -20,7 +20,7 @@ class RoomBuildingCompany
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class RoomBuildingCompany
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main"})
      */
     private $buildingId;
 
@@ -38,7 +38,7 @@ class RoomBuildingCompany
      *
      * @ORM\ManyToOne(targetEntity="RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main"})
      */
     private $building;
 
@@ -86,7 +86,7 @@ class RoomBuildingCompany
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -94,7 +94,7 @@ class RoomBuildingCompany
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

@@ -20,7 +20,7 @@ class RoomBuildingAttachment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -92,7 +92,7 @@ class RoomBuildingAttachment
      *
      * @ORM\Column(name="creationDate", type="datetime")
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
