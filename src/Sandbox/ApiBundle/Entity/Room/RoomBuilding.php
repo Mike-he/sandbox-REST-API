@@ -58,7 +58,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=1024, nullable=false)
+     * @ORM\Column(name="description", type="text", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
@@ -167,7 +167,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="server", type="string", length=255, nullable=false)
+     * @ORM\Column(name="server", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"server", "admin_building"})
      */
@@ -202,6 +202,8 @@ class RoomBuilding implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="email", type="string", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
      */
     private $email;
 
@@ -211,6 +213,28 @@ class RoomBuilding implements JsonSerializable
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $phones;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="businessHour", type="string", nullable=true)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $businessHour;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $buildingAttachments;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $buildingCompany;
 
     /**
      * Get id.
@@ -578,6 +602,54 @@ class RoomBuilding implements JsonSerializable
         $this->phones = $phones;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBusinessHour()
+    {
+        return $this->businessHour;
+    }
+
+    /**
+     * @param string $businessHour
+     */
+    public function setBusinessHour($businessHour)
+    {
+        $this->businessHour = $businessHour;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingAttachments()
+    {
+        return $this->buildingAttachments;
+    }
+
+    /**
+     * @param array $buildingAttachments
+     */
+    public function setBuildingAttachments($buildingAttachments)
+    {
+        $this->buildingAttachments = $buildingAttachments;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingCompany()
+    {
+        return $this->buildingCompany;
+    }
+
+    /**
+     * @param array $buildingCompany
+     */
+    public function setBuildingCompany($buildingCompany)
+    {
+        $this->buildingCompany = $buildingCompany;
     }
 
     public function jsonSerialize()

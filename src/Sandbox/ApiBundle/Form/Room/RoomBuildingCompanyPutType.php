@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class RoomBuildingPostType extends AbstractType
+class RoomBuildingCompanyPutType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -16,44 +16,34 @@ class RoomBuildingPostType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('description')
-            ->add('avatar')
-            ->add('city_id')
-            ->add('address')
-            ->add('lat')
-            ->add('lng')
-            ->add('floors')
             ->add(
-                'server',
+                'website',
                 null,
                 array(
                     'required' => false,
                 )
             )
-            ->add('room_attachments')
+            ->add(
+                'phone',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
             ->add(
                 'email',
-                'email',
-                array(
-                    'required' => false,
-                )
-            )
-            ->add(
-                'phones',
                 null,
                 array(
                     'required' => false,
                 )
             )
             ->add(
-                'business_hour',
+                'remark',
                 null,
                 array(
                     'required' => false,
                 )
             )
-            ->add('building_attachments')
-            ->add('building_company')
         ;
     }
 
@@ -63,7 +53,7 @@ class RoomBuildingPostType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Room\RoomBuilding',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Room\RoomBuildingCompany',
         ));
     }
 
