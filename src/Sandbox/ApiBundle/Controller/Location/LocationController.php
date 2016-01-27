@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 
 /**
  * Location Controller.
@@ -254,10 +255,43 @@ class LocationController extends SandboxRestController
         $id
     ) {
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
+
+        // set more information
+        $this->setRoomBuildingMoreInformation($building);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
         $view->setData($building);
 
         return $view;
+    }
+
+    /**
+     * Set room building more information.
+     *
+     * @param RoomBuilding $building
+     *
+     * @return RoomBuilding
+     */
+    private function setRoomBuildingMoreInformation(
+        $building
+    ) {
+        // set floor numbers
+        $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
+        $building->setFloors($floors);
+
+        // set building attachments
+        $buildingAttachments = $this->getRepo('Room\RoomBuildingAttachment')->findByBuilding($building);
+        $building->setBuildingAttachments($buildingAttachments);
+
+        // set building company
+        $buildingCompany = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($building);
+        $building->setBuildingCompany($buildingCompany);
+
+        // set phones
+        $phones = $this->getRepo('Room\RoomBuildingPhones')->findByBuilding($building);
+        $building->setPhones($phones);
+
+        return $building;
     }
 }
