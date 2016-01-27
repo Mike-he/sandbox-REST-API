@@ -5,7 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Building;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
@@ -43,7 +43,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminBuildingController extends SandboxRestController
+class AdminBuildingController extends LocationController
 {
     /**
      * @Route("/buildings/{id}/sync")
@@ -806,35 +806,6 @@ class AdminBuildingController extends SandboxRestController
                 $em->remove($adminPhone);
             }
         }
-    }
-
-    /**
-     * Set room building more information.
-     *
-     * @param RoomBuilding $building
-     *
-     * @return RoomBuilding
-     */
-    private function setRoomBuildingMoreInformation(
-        $building
-    ) {
-        // set floor numbers
-        $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
-        $building->setFloors($floors);
-
-        // set building attachments
-        $buildingAttachments = $this->getRepo('Room\RoomBuildingAttachment')->findByBuilding($building);
-        $building->setBuildingAttachments($buildingAttachments);
-
-        // set building company
-        $buildingCompany = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($building);
-        $building->setBuildingCompany($buildingCompany);
-
-        // set phones
-        $phones = $this->getRepo('Room\RoomBuildingPhones')->findByBuilding($building);
-        $building->setPhones($phones);
-
-        return $building;
     }
 
     /**

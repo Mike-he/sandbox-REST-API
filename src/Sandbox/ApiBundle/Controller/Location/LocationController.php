@@ -273,7 +273,7 @@ class LocationController extends SandboxRestController
      *
      * @return RoomBuilding
      */
-    private function setRoomBuildingMoreInformation(
+    protected function setRoomBuildingMoreInformation(
         $building
     ) {
         // set floor numbers
