@@ -70,6 +70,7 @@ class RoomBuildingCompany
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=255, nullable=true)
+     * @Serializer\Groups({"main", "admin_building"})
      */
     private $email;
 
