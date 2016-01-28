@@ -733,6 +733,11 @@ class AdminBuildingController extends LocationController
         }
 
         $company = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($building);
+
+        // check if building company exist
+        if (is_null($company)) {
+            $company = new RoomBuildingCompany();
+        }
         $form = $this->createForm(new RoomBuildingCompanyPutType(), $company);
         $form->submit($buildingCompany);
 
