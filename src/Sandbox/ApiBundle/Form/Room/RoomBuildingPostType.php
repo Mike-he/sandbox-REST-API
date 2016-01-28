@@ -16,7 +16,7 @@ class RoomBuildingPostType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('description')
+            ->add('detail')
             ->add('avatar')
             ->add('city_id')
             ->add('address')

@@ -58,11 +58,20 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text", nullable=false)
+     * @ORM\Column(name="description", type="string", length=1024, nullable=true)
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $description;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="detail", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $detail;
 
     /**
      * @var int
@@ -268,6 +277,22 @@ class RoomBuilding implements JsonSerializable
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDetail()
+    {
+        return $this->detail;
+    }
+
+    /**
+     * @param string $detail
+     */
+    public function setDetail($detail)
+    {
+        $this->detail = $detail;
     }
 
     /**
