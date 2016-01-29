@@ -751,11 +751,11 @@ class AdminBuildingController extends LocationController
         $buildingAttachments,
         $em
     ) {
-        if (empty($buildingAttachments['add'])) {
+        if (empty($buildingAttachments)) {
             return;
         }
 
-        foreach ($buildingAttachments['add'] as $attachment) {
+        foreach ($buildingAttachments as $attachment) {
             $buildingAttachment = new RoomBuildingAttachment();
             $form = $this->createForm(new RoomBuildingAttachmentPostType(), $buildingAttachment);
             $form->submit($attachment);
