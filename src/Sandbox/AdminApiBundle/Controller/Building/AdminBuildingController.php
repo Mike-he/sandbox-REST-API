@@ -539,20 +539,12 @@ class AdminBuildingController extends LocationController
         $roomBuildingAttachments,
         $em
     ) {
-        // check room attachments
-        if (!isset($roomBuildingAttachments['remove'])) {
-            return;
-        }
-
-        $attachments = $roomBuildingAttachments['remove'];
-
-        // check attachments is null
-        if (is_null($attachments)) {
+        $attachments = $this->getRepo('Room\RoomBuildingAttachment')->findByBuilding($building);
+        if (empty($attachments)) {
             return;
         }
 
         foreach ($attachments as $attachment) {
-            $attachment = $this->getRepo('Room\RoomBuildingAttachment')->find($attachment['id']);
             $em->remove($attachment);
         }
     }
@@ -759,11 +751,11 @@ class AdminBuildingController extends LocationController
         $buildingAttachments,
         $em
     ) {
-        if (empty($buildingAttachments['add'])) {
+        if (empty($buildingAttachments)) {
             return;
         }
 
-        foreach ($buildingAttachments['add'] as $attachment) {
+        foreach ($buildingAttachments as $attachment) {
             $buildingAttachment = new RoomBuildingAttachment();
             $form = $this->createForm(new RoomBuildingAttachmentPostType(), $buildingAttachment);
             $form->submit($attachment);
