@@ -18,6 +18,7 @@ use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Form\User\UserType;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Traits\StringUtil;
 
 /**
  * Admin controller.
@@ -31,6 +32,8 @@ use Rs\Json\Patch;
  */
 class AdminUsersController extends DoorController
 {
+    use StringUtil;
+
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
 
@@ -553,6 +556,51 @@ class AdminUsersController extends DoorController
                 continue;
             }
         }
+
+        return new View();
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/users/profiles/set")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function setUserProfileAction(
+        Request $request
+    ) {
+        $profiles = $this->getRepo('User\UserProfile')->findByName('');
+
+        foreach ($profiles as $profile) {
+            try {
+                $name = $profile->getName();
+                if (!empty($name)) {
+                    // just to make sure name is not set
+                    continue;
+                }
+
+                $user = $profile->getUser();
+                $phone = $user->getPhone();
+                $email = $user->getEmail();
+
+                if (!is_null($phone)) {
+                    $name = substr($phone, strlen($phone) - 6);
+                } elseif (!is_null($email)) {
+                    $name = $this->before('@', $email);
+                }
+
+                $profile->setName($name);
+            } catch (\Exception $e) {
+                error_log('Sync user profile went wrong. User profile ID: '.$profile->getId());
+                continue;
+            }
+        }
+
+        // update to db
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
 
         return new View();
     }
