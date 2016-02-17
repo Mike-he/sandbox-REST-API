@@ -418,7 +418,6 @@ class AdminBuildingController extends LocationController
 
         // remove room attachments
         $this->removeRoomAttachments(
-            $building,
             $roomAttachments,
             $em
         );
@@ -502,17 +501,15 @@ class AdminBuildingController extends LocationController
     }
 
     /**
-     * @param RoomBuilding $building
-     * @param array        $roomAttachments
-     * @param              $em
+     * @param array $roomAttachments
+     * @param       $em
      */
     private function removeRoomAttachments(
-        $building,
         $roomAttachments,
         $em
     ) {
         // check room attachments
-        if (!isset($roomAttachments['remove'])) {
+        if (!isset($roomAttachments['remove']) || empty($roomAttachments['remove'])) {
             return;
         }
 
@@ -607,7 +604,7 @@ class AdminBuildingController extends LocationController
         $em
     ) {
         // check room attachments
-        if (!isset($roomAttachments['add'])) {
+        if (!isset($roomAttachments['add']) || empty($roomAttachments['add'])) {
             return;
         }
 
