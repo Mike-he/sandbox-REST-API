@@ -291,6 +291,10 @@ class PaymentController extends DoorController
 
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        if (is_null($building)) {
+            return;
+        }
+
         $base = $building->getServer();
         if (is_null($base) || empty($base)) {
             return;

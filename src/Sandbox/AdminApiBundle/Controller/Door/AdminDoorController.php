@@ -404,7 +404,13 @@ class AdminDoorController extends DoorController
             );
         }
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+        $this->throwNotFoundIfNull($building, self::BUILDING_NOT_FOUND_MESSAGE);
+
         $base = $building->getServer();
+        if (is_null($base) || empty($base)) {
+            return;
+        }
+
         $name = $building->getName();
         $sessionId = null;
 
