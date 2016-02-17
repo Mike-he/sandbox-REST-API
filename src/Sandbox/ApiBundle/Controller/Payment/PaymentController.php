@@ -15,7 +15,6 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
@@ -73,8 +72,6 @@ class PaymentController extends DoorController
     const WRONG_BOOKING_DATE_MESSAGE = 'Wrong Booking Date';
     const NO_VIP_PRODUCT_ID_CODE = 400018;
     const NO_VIP_PRODUCT_ID_CODE_MESSAGE = 'No VIP Product ID';
-    const NO_DOOR_CODE = 400019;
-    const NO_DOOR_MESSAGE = 'Room Has No Doors';
     const DISCOUNT_PRICE_MISMATCH_CODE = 400020;
     const DISCOUNT_PRICE_MISMATCH_MESSAGE = 'Discount Price Does Not Match';
     const ROOM_NOT_OPEN_CODE = 400021;
@@ -292,18 +289,22 @@ class PaymentController extends DoorController
         // send order email
         $this->sendOrderEmail($order);
 
-        $userId = $order->getUserId();
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         $base = $building->getServer();
+        if (is_null($base) || empty($base)) {
+            return;
+        }
+
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-
         if (empty($roomDoors)) {
-            throw new BadRequestHttpException('no doors');
+            return;
         }
 
         $em = $this->getDoctrine()->getManager();
+
+        $userId = $order->getUserId();
         $this->storeDoorAccess(
             $em,
             $order,
