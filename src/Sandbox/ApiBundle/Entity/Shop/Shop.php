@@ -1,0 +1,429 @@
+<?php
+
+namespace Sandbox\ApiBundle\Entity\Shop;
+
+use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use JsonSerializable;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+
+/**
+ * Shop.
+ *
+ * @ORM\Table(name="Shop")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopRepository")
+ */
+class Shop implements JsonSerializable
+{
+    const SHOP_CONFLICT = 'Shop already exists in this building';
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "drop_down", "admin_shop"})
+     */
+    private $id;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="buildingId", type="integer")
+     * @Serializer\Groups({"main"})
+     */
+    private $buildingId;
+
+    /**
+     * @var RoomBuilding
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $building;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=64)
+     * @Serializer\Groups({"main", "drop_down", "admin_shop"})
+     */
+    private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $description;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="startHour", type="time")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $startHour;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="endHour", type="time")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $endHour;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="online", type="boolean")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $online = false;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Shop\ShopAttachment",
+     *      mappedBy="shop",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="shopId")
+     * @ORM\OrderBy({"id" = "ASC"})
+     *
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $shopAttachments;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $shopMenu;
+
+    /**
+     * Get id.
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set name.
+     *
+     * @param string $name
+     *
+     * @return Shop
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set description.
+     *
+     * @param string $description
+     *
+     * @return Shop
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Set startHour.
+     *
+     * @param \DateTime $startHour
+     *
+     * @return Shop
+     */
+    public function setStartHour($startHour)
+    {
+        $this->startHour = $startHour;
+
+        return $this;
+    }
+
+    /**
+     * Get startHour.
+     *
+     * @return \DateTime
+     */
+    public function getStartHour()
+    {
+        return $this->startHour;
+    }
+
+    /**
+     * Set endHour.
+     *
+     * @param \DateTime $endHour
+     *
+     * @return Shop
+     */
+    public function setEndHour($endHour)
+    {
+        $this->endHour = $endHour;
+
+        return $this;
+    }
+
+    /**
+     * Get endHour.
+     *
+     * @return \DateTime
+     */
+    public function getEndHour()
+    {
+        return $this->endHour;
+    }
+
+    /**
+     * Set test.
+     *
+     * @param \DateTime $test
+     *
+     * @return Shop
+     */
+    public function setTest($test)
+    {
+        $this->test = $test;
+
+        return $this;
+    }
+
+    /**
+     * Get test.
+     *
+     * @return \DateTime
+     */
+    public function getTest()
+    {
+        return $this->test;
+    }
+
+    /**
+     * Set online status.
+     *
+     * @param bool $status
+     *
+     * @return Shop
+     */
+    public function setOnline($status)
+    {
+        $this->online = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get online status.
+     *
+     * @return bool
+     */
+    public function isOnline()
+    {
+        return $this->online;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param int $buildingId
+     *
+     * @return Shop
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+
+        return $this;
+    }
+
+    /**
+     * Set room building.
+     *
+     * @param RoomBuilding $building
+     *
+     * @return Shop
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+
+        return $this;
+    }
+
+    /**
+     * Get room building.
+     *
+     * @return RoomBuilding
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * @param \DateTime $creationDate
+     *
+     * @return Shop
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * Set modificationDate.
+     *
+     * @param \DateTime $modificationDate
+     *
+     * @return Shop
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modificationDate.
+     *
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * Set shop attachments.
+     *
+     * @param $shopAttachments
+     *
+     * @return Shop
+     */
+    public function setShopAttachments($shopAttachments)
+    {
+        $this->shopAttachments = $shopAttachments;
+
+        return $this;
+    }
+
+    /**
+     * Get shop attachments.
+     *
+     * @return array
+     */
+    public function getShopAttachments()
+    {
+        return $this->shopAttachments;
+    }
+
+    /**
+     * Set shop menu.
+     *
+     * @param $shopMenu
+     *
+     * @return Shop
+     */
+    public function setShopMenu($shopMenu)
+    {
+        $this->shopMenu = $shopMenu;
+
+        return $this;
+    }
+
+    /**
+     * Get shop menu.
+     *
+     * @return array
+     */
+    public function getShopMenu()
+    {
+        return $this->shopMenu;
+    }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'name' => $this->name,
+        );
+    }
+}

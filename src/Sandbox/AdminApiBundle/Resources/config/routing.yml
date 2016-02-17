@@ -153,3 +153,15 @@ sandbox_admin_api_food_notification:
     resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodNotificationController.php"
     type:     annotation
     prefix:   /
+
+# Shop /admin/shops
+sandbox_admin_api_shops:
+    resource: "@SandboxAdminApiBundle/Controller/Shop/AdminShopController.php"
+    type:     annotation
+    prefix:   /
+
+# ShopMenu /admin/shops/menu
+sandbox_admin_api_shops_menu:
+    resource: "@SandboxAdminApiBundle/Controller/Shop/AdminShopMenuController.php"
+    type:     annotation
+    prefix:   /
