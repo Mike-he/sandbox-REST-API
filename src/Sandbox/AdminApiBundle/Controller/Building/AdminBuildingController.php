@@ -32,6 +32,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Doctrine\ORM\EntityManager;
 
 /**
  * Class AdminBuildingController.
@@ -418,7 +419,6 @@ class AdminBuildingController extends LocationController
 
         // remove room attachments
         $this->removeRoomAttachments(
-            $building,
             $roomAttachments,
             $em
         );
@@ -502,37 +502,28 @@ class AdminBuildingController extends LocationController
     }
 
     /**
-     * @param RoomBuilding $building
-     * @param array        $roomAttachments
-     * @param              $em
+     * @param array         $roomAttachments
+     * @param EntityManager $em
      */
     private function removeRoomAttachments(
-        $building,
         $roomAttachments,
         $em
     ) {
         // check room attachments
-        if (!isset($roomAttachments['remove'])) {
+        if (!isset($roomAttachments['remove']) || empty($roomAttachments['remove'])) {
             return;
         }
 
-        $attachments = $roomAttachments['remove'];
-
-        // check attachments is null
-        if (is_null($attachments)) {
-            return;
-        }
-
-        foreach ($attachments as $attachment) {
+        foreach ($roomAttachments['remove'] as $attachment) {
             $attachment = $this->getRepo('Room\RoomAttachment')->find($attachment['id']);
             $em->remove($attachment);
         }
     }
 
     /**
-     * @param RoomBuilding $building
-     * @param array        $roomBuildingAttachments
-     * @param              $em
+     * @param RoomBuilding  $building
+     * @param array         $roomBuildingAttachments
+     * @param EntityManager $em
      */
     private function removeBuildingAttachments(
         $building,
@@ -552,9 +543,9 @@ class AdminBuildingController extends LocationController
     /**
      * Modify floor numbers.
      *
-     * @param RoomBuilding $building
-     * @param array        $floors
-     * @param              $em
+     * @param RoomBuilding  $building
+     * @param array         $floors
+     * @param EntityManager $em
      */
     private function modifyFloors(
         $building,
@@ -576,9 +567,9 @@ class AdminBuildingController extends LocationController
     /**
      * Add room building.
      *
-     * @param RoomBuilding $building
-     * @param RoomCity     $roomCity
-     * @param              $em
+     * @param RoomBuilding  $building
+     * @param RoomCity      $roomCity
+     * @param EntityManager $em
      */
     private function addAdminBuilding(
         $building,
@@ -597,9 +588,9 @@ class AdminBuildingController extends LocationController
     /**
      * Add room attachments.
      *
-     * @param RoomBuilding $building
-     * @param array        $roomAttachments
-     * @param              $em
+     * @param RoomBuilding  $building
+     * @param array         $roomAttachments
+     * @param EntityManager $em
      */
     private function addRoomAttachments(
         $building,
@@ -607,18 +598,11 @@ class AdminBuildingController extends LocationController
         $em
     ) {
         // check room attachments
-        if (!isset($roomAttachments['add'])) {
+        if (!isset($roomAttachments['add']) || empty($roomAttachments['add'])) {
             return;
         }
 
-        $attachments = $roomAttachments['add'];
-
-        // check if attachments null
-        if (is_null($attachments)) {
-            return;
-        }
-
-        foreach ($attachments as $attachment) {
+        foreach ($roomAttachments['add'] as $attachment) {
             $roomAttachment = new RoomAttachment();
             $form = $this->createForm(new RoomAttachmentPostType(), $roomAttachment);
             $form->submit($attachment, true);
@@ -632,9 +616,9 @@ class AdminBuildingController extends LocationController
     /**
      * Add floors.
      *
-     * @param RoomBuilding $building
-     * @param array        $floors
-     * @param              $em
+     * @param RoomBuilding  $building
+     * @param array         $floors
+     * @param EntityManager $em
      */
     private function addFloors(
         $building,
@@ -657,9 +641,9 @@ class AdminBuildingController extends LocationController
     /**
      * Add admin phones.
      *
-     * @param $building
-     * @param $phones
-     * @param $em
+     * @param RoomBuilding       $building
+     * @param RoomBuildingPhones $phones
+     * @param EntityManager      $em
      */
     private function addPhones(
         $building,
@@ -682,9 +666,9 @@ class AdminBuildingController extends LocationController
     /**
      * Add admin building company.
      *
-     * @param $building
-     * @param $buildingCompany
-     * @param $em
+     * @param RoomBuilding        $building
+     * @param RoomBuildingCompany $buildingCompany
+     * @param EntityManager       $em
      */
     private function addBuildingCompany(
         $building,
@@ -711,9 +695,9 @@ class AdminBuildingController extends LocationController
     /**
      * Modify building company.
      *
-     * @param $building
-     * @param $buildingCompany
-     * @param $em
+     * @param RoomBuilding        $building
+     * @param RoomBuildingCompany $buildingCompany
+     * @param EntityManager       $em
      */
     private function modifyBuildingCompany(
         $building,
@@ -742,9 +726,9 @@ class AdminBuildingController extends LocationController
     /**
      * Add building attachments.
      *
-     * @param $building
-     * @param $buildingAttachments
-     * @param $em
+     * @param RoomBuilding           $building
+     * @param RoomBuildingAttachment $buildingAttachments
+     * @param EntityManager          $em
      */
     private function addBuildingAttachments(
         $building,
@@ -767,7 +751,7 @@ class AdminBuildingController extends LocationController
     }
 
     /**
-     * @param $phones
+     * @param RoomBuildingPhones $phones
      */
     private function modifyPhones(
         $phones
@@ -786,8 +770,8 @@ class AdminBuildingController extends LocationController
     }
 
     /**
-     * @param $phones
-     * @param $em
+     * @param RoomBuildingPhones $phones
+     * @param EntityManager      $em
      */
     private function removePhones(
         $phones,
