@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class ShopPatchType extends AbstractType
+class ShopPatchOpenType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,7 +15,7 @@ class ShopPatchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('online');
+            ->add('open');
     }
 
     /**

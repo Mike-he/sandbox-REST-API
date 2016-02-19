@@ -6,16 +6,19 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class ShopMenuPostType extends AbstractType
+class ShopMenuModifyType extends AbstractType
 {
+    use HasMenuName;
+    use HasMenuId;
+
     /**
      * @param FormBuilderInterface $builder
      * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('name');
+        $this->addMenuId($builder);
+        $this->addMenuName($builder);
     }
 
     /**
@@ -24,7 +27,7 @@ class ShopMenuPostType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Shop\ShopMenu',
+            'data_class' => 'Sandbox\ShopApiBundle\Data\Shop\ShopMenuItem',
         ));
     }
 

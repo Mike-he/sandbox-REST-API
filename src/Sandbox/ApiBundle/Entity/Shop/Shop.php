@@ -15,8 +15,6 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
  */
 class Shop implements JsonSerializable
 {
-    const SHOP_CONFLICT = 'Shop already exists in this building';
-
     /**
      * @var int
      *
@@ -47,7 +45,7 @@ class Shop implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=64)
+     * @ORM\Column(name="name", type="string", length=64, nullable=true)
      * @Serializer\Groups({"main", "drop_down", "admin_shop"})
      */
     private $name;
@@ -55,7 +53,7 @@ class Shop implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text")
+     * @ORM\Column(name="description", type="text", nullable=true)
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $description;
@@ -63,7 +61,7 @@ class Shop implements JsonSerializable
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="startHour", type="time")
+     * @ORM\Column(name="startHour", type="time", nullable=true)
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $startHour;
@@ -71,18 +69,34 @@ class Shop implements JsonSerializable
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="endHour", type="time")
+     * @ORM\Column(name="endHour", type="time", nullable=true)
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $endHour;
 
     /**
-     * @var string
+     * @var bool
+     *
+     * @ORM\Column(name="open", type="boolean")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $open = true;
+
+    /**
+     * @var bool
      *
      * @ORM\Column(name="online", type="boolean")
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $online = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="active", type="boolean")
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $active = false;
 
     /**
      * @var \DateTime
@@ -114,6 +128,21 @@ class Shop implements JsonSerializable
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $shopAttachments;
+
+    /**
+     * @var array
+     */
+    private $attachments;
+
+    /**
+     * @var string
+     */
+    private $start;
+
+    /**
+     * @var string
+     */
+    private $end;
 
     /**
      * @var array
@@ -229,30 +258,6 @@ class Shop implements JsonSerializable
     }
 
     /**
-     * Set test.
-     *
-     * @param \DateTime $test
-     *
-     * @return Shop
-     */
-    public function setTest($test)
-    {
-        $this->test = $test;
-
-        return $this;
-    }
-
-    /**
-     * Get test.
-     *
-     * @return \DateTime
-     */
-    public function getTest()
-    {
-        return $this->test;
-    }
-
-    /**
      * Set online status.
      *
      * @param bool $status
@@ -274,6 +279,54 @@ class Shop implements JsonSerializable
     public function isOnline()
     {
         return $this->online;
+    }
+
+    /**
+     * Set active status.
+     *
+     * @param bool $active
+     *
+     * @return Shop
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active status.
+     *
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Set open status.
+     *
+     * @param bool $open
+     *
+     * @return Shop
+     */
+    public function setOpen($open)
+    {
+        $this->open = $open;
+
+        return $this;
+    }
+
+    /**
+     * Get open status.
+     *
+     * @return bool
+     */
+    public function isOpen()
+    {
+        return $this->open;
     }
 
     /**
@@ -389,6 +442,30 @@ class Shop implements JsonSerializable
     }
 
     /**
+     * Set attachments.
+     *
+     * @param $attachments
+     *
+     * @return Shop
+     */
+    public function setAttachments($attachments)
+    {
+        $this->attachments = $attachments;
+
+        return $this;
+    }
+
+    /**
+     * Get attachments.
+     *
+     * @return array
+     */
+    public function getAttachments()
+    {
+        return $this->attachments;
+    }
+
+    /**
      * Set shop menu.
      *
      * @param $shopMenu
@@ -410,6 +487,54 @@ class Shop implements JsonSerializable
     public function getShopMenu()
     {
         return $this->shopMenu;
+    }
+
+    /**
+     * set start string.
+     *
+     * @param $start
+     *
+     * @return Shop
+     */
+    public function setStart($start)
+    {
+        $this->start = $start;
+
+        return $this;
+    }
+
+    /**
+     * Get start string.
+     *
+     * @return string
+     */
+    public function getStart()
+    {
+        return $this->start;
+    }
+
+    /**
+     * set end string.
+     *
+     * @param $end
+     *
+     * @return Shop
+     */
+    public function setEnd($end)
+    {
+        $this->end = $end;
+
+        return $this;
+    }
+
+    /**
+     * Get end string.
+     *
+     * @return string
+     */
+    public function getEnd()
+    {
+        return $this->end;
     }
 
     public function __construct()

@@ -8,30 +8,15 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class ShopPutType extends AbstractType
 {
+    use HasShopField;
+
     /**
      * @param FormBuilderInterface $builder
      * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('name')
-            ->add('description', 'text')
-            ->add(
-                'start_hour',
-                'text',
-                array(
-                    'mapped' => false,
-                )
-            )
-            ->add(
-                'end_hour',
-                'text',
-                array(
-                    'mapped' => false,
-                )
-            )
-            ->add('shop_attachments');
+        $this->addShopField($builder);
     }
 
     /**

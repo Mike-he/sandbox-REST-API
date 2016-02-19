@@ -1,8 +1,8 @@
 <?php
 
-namespace Sandbox\AdminApiBundle\Controller\Shop;
+namespace Sandbox\ShopApiBundle\Controller\Shop;
 
-use Sandbox\AdminApiBundle\Data\Shop\ShopMenuPosition;
+use Sandbox\ShopApiBundle\Data\Shop\ShopMenuPosition;
 use Sandbox\ApiBundle\Entity\Shop\ShopMenu;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -11,8 +11,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Shop\ShopMenuController;
-use Sandbox\ApiBundle\Entity\Shop\Shop;
-use Sandbox\ApiBundle\Form\Shop\ShopMenuPostType;
+use Sandbox\ShopApiBundle\Data\Shop\ShopMenuData;
+use Sandbox\ShopApiBundle\Data\Shop\ShopMenuItem;
+use Sandbox\ApiBundle\Form\Shop\ShopMenuType;
+use Sandbox\ApiBundle\Form\Shop\ShopMenuAddType;
+use Sandbox\ApiBundle\Form\Shop\ShopMenuModifyType;
+use Sandbox\ApiBundle\Form\Shop\ShopMenuRemoveType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuPositionType;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -74,25 +78,35 @@ class AdminShopMenuController extends ShopMenuController
         $shop = $this->findShopById($id);
         $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
 
-        $content = json_decode($request->getContent(), true);
+        $menuData = new ShopMenuData();
+        $form = $this->createForm(new ShopMenuType(), $menuData);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
         $em = $this->getDoctrine()->getManager();
+        $addData = $menuData->getAdd();
+        $modifyData = $menuData->getModify();
+        $removeData = $menuData->getRemove();
 
         // add shop menu
         $this->addShopMenu(
-            $content,
+            $addData,
             $shop,
             $em
         );
 
         // modify shop menu
         $this->modifyShopMenu(
-            $content,
+            $modifyData,
             $id
         );
 
         // remove shop menu
         $this->removeShopMenu(
-            $content,
+            $removeData,
             $id,
             $em
         );
@@ -178,17 +192,17 @@ class AdminShopMenuController extends ShopMenuController
      * @param $em
      */
     private function addShopMenu(
-        $content,
+        $addData,
         $shop,
         $em
     ) {
-        if (!isset($content['add']) || empty($content['add'])) {
+        if (is_null($addData) || empty($addData)) {
             return;
         }
 
-        foreach ($content['add'] as $item) {
+        foreach ($addData as $item) {
             $menu = new ShopMenu();
-            $form = $this->createForm(new ShopMenuPostType(), $menu);
+            $form = $this->createForm(new ShopMenuAddType(), $menu);
             $form->submit($item, true);
 
             if (!$form->isValid()) {
@@ -205,24 +219,36 @@ class AdminShopMenuController extends ShopMenuController
      * @param $shopId
      */
     private function modifyShopMenu(
-        $content,
+        $modifyData,
         $shopId
     ) {
-        if (!isset($content['modify']) || empty($content['modify'])) {
+        if (is_null($modifyData) || empty($modifyData)) {
             return;
         }
 
-        foreach ($content['modify'] as $item) {
+        foreach ($modifyData as $item) {
+            $menuItem = new ShopMenuItem();
+            $form = $this->createForm(new ShopMenuModifyType(), $menuItem);
+            $form->submit($item, true);
+
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
             // check if menu exists
-            $menu = $this->getRepo('Shop\ShopMenu')->find($item['id']);
-            $this->throwNotFoundIfNull($menu, self::NOT_FOUND_MESSAGE);
+            $menu = $this->getRepo('Shop\ShopMenu')->findOneBy(
+                [
+                    'id' => $menuItem->getId(),
+                    'shopId' => $shopId,
+                ]
+            );
 
             // check menu belongs to current shop
-            if ($shopId != $menu->getShopId()) {
+            if (is_null($menu)) {
                 continue;
             }
 
-            $menu->setName($item['name']);
+            $menu->setName($menuItem->getName());
         }
     }
 
@@ -232,21 +258,33 @@ class AdminShopMenuController extends ShopMenuController
      * @param $em
      */
     private function removeShopMenu(
-        $content,
+        $removeData,
         $shopId,
         $em
     ) {
-        if (!isset($content['remove']) || empty($content['remove'])) {
+        if (is_null($removeData) || empty($removeData)) {
             return;
         }
 
-        foreach ($content['remove'] as $item) {
+        foreach ($removeData as $item) {
+            $menuItem = new ShopMenuItem();
+            $form = $this->createForm(new ShopMenuRemoveType(), $menuItem);
+            $form->submit($item, true);
+
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
             // check if menu exists
-            $menu = $this->getRepo('Shop\ShopMenu')->find($item['id']);
-            $this->throwNotFoundIfNull($menu, self::NOT_FOUND_MESSAGE);
+            $menu = $this->getRepo('Shop\ShopMenu')->findOneBy(
+                [
+                    'id' => $menuItem->getId(),
+                    'shopId' => $shopId,
+                ]
+            );
 
             // check menu belongs to current shop
-            if ($shopId != $menu->getShopId()) {
+            if (is_null($menu)) {
                 continue;
             }
 

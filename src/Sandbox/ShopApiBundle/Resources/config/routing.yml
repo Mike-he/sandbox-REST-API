@@ -1,0 +1,11 @@
+# Shop /shop/admin/shops
+sandbox_shop_admin_api_shops:
+    resource: "@SandboxShopApiBundle/Controller/Shop/AdminShopController.php"
+    type:     annotation
+    prefix:   /admin
+
+# ShopMenu /shop/admin/shops/menu
+sandbox_shop_admin_api_shops_menu:
+    resource: "@SandboxShopApiBundle/Controller/Shop/AdminShopMenuController.php"
+    type:     annotation
+    prefix:   /admin

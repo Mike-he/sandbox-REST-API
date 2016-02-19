@@ -74,6 +74,21 @@ class ShopMenu implements JsonSerializable
     private $creationDate;
 
     /**
+     * @var array
+     */
+    private $add;
+
+    /**
+     * @var array
+     */
+    private $modify;
+
+    /**
+     * @var array
+     */
+    private $remove;
+
+    /**
      * Get id.
      *
      * @return int
@@ -225,6 +240,78 @@ class ShopMenu implements JsonSerializable
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * Set add.
+     *
+     * @param array $add
+     *
+     * @return ShopMenu
+     */
+    public function setAdd($add)
+    {
+        $this->add = $add;
+
+        return $this;
+    }
+
+    /**
+     * Get add.
+     *
+     * @return array
+     */
+    public function getAdd()
+    {
+        return $this->add;
+    }
+
+    /**
+     * Set modify.
+     *
+     * @param array $modify
+     *
+     * @return ShopMenu
+     */
+    public function setModify($modify)
+    {
+        $this->modify = $modify;
+
+        return $this;
+    }
+
+    /**
+     * Get modify.
+     *
+     * @return array
+     */
+    public function getModify()
+    {
+        return $this->modify;
+    }
+
+    /**
+     * Set remove.
+     *
+     * @param array $remove
+     *
+     * @return ShopMenu
+     */
+    public function setRemove($remove)
+    {
+        $this->remove = $remove;
+
+        return $this;
+    }
+
+    /**
+     * Get remove.
+     *
+     * @return array
+     */
+    public function getRemove()
+    {
+        return $this->remove;
     }
 
     public function __construct()

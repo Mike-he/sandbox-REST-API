@@ -26,10 +26,10 @@ class ShopRepository extends EntityRepository
             ->where('s.buildingId = :buildingId')
             ->setParameter('buildingId', $buildingId);
 
-        // check if only can see shops currently online
+        // check if only can see shops currently open
         if (!$allowed) {
-            $query = $query->andWhere('s.online = :online')
-                ->setParameter('online', true);
+            $query = $query->andWhere('s.open = :open')
+                ->setParameter('open', true);
         }
 
         return $query->getQuery()->getSingleResult();
@@ -49,10 +49,10 @@ class ShopRepository extends EntityRepository
             ->where('s.id = :shopId')
             ->setParameter('shopId', $shopId);
 
-        // check if only can see shops currently online
+        // check if only can see shops currently open
         if (!$allowed) {
-            $query = $query->andWhere('s.online = :online')
-                ->setParameter('online', true);
+            $query = $query->andWhere('s.open = :open')
+                ->setParameter('open', true);
         }
 
         return $query->getQuery()->getSingleResult();

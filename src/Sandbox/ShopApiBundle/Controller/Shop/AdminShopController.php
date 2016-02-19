@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\AdminApiBundle\Controller\Shop;
+namespace Sandbox\ShopApiBundle\Controller\Shop;
 
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -13,9 +13,10 @@ use Sandbox\ApiBundle\Entity\Shop\Shop;
 use Sandbox\ApiBundle\Entity\Shop\ShopAttachment;
 use Sandbox\ApiBundle\Form\Shop\ShopPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopPutType;
-use Sandbox\ApiBundle\Form\Shop\ShopPatchType;
+use Sandbox\ApiBundle\Form\Shop\ShopPatchOnlineType;
+use Sandbox\ApiBundle\Form\Shop\ShopPatchOpenType;
+use Sandbox\ApiBundle\Form\Shop\ShopPatchActiveType;
 use Sandbox\ApiBundle\Form\Shop\ShopAttachmentPostType;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Rs\Json\Patch;
@@ -57,8 +58,7 @@ class AdminShopController extends ShopController
         }
 
         return $this->handleShopPost(
-            $shop,
-            $form
+            $shop
         );
     }
 
@@ -91,17 +91,18 @@ class AdminShopController extends ShopController
         }
 
         return $this->handleShopPut(
-            $shop,
-            $form
+            $shop
         );
     }
 
     /**
+     * patch Online status.
+     *
      * @param Request $request
      * @param $id
      *
      * @Method({"PATCH"})
-     * @Route("/shops/{id}")
+     * @Route("/shops/{id}/online")
      *
      * @return Response
      */
@@ -109,18 +110,59 @@ class AdminShopController extends ShopController
         Request $request,
         $id
     ) {
-        $shop = $this->findShopById($id);
+        $this->patchShop(
+            $request,
+            $id,
+            new ShopPatchOnlineType()
+        );
 
-        // bind data
-        $shopJson = $this->get('serializer')->serialize($shop, 'json');
-        $patch = new Patch($shopJson, $request->getContent());
-        $shopJson = $patch->apply();
+        return new Response();
+    }
 
-        $form = $this->createForm(new ShopPatchType(), $shop);
-        $form->submit(json_decode($shopJson, true));
+    /**
+     * patch Open/Close status (temporary).
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Method({"PATCH"})
+     * @Route("/shops/{id}/open")
+     *
+     * @return Response
+     */
+    public function patchShopOpenAction(
+        Request $request,
+        $id
+    ) {
+        $this->patchShop(
+            $request,
+            $id,
+            new ShopPatchOpenType()
+        );
 
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
+        return new Response();
+    }
+
+    /**
+     * patch active status for display and edit.
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Method({"PATCH"})
+     * @Route("/shops/{id}/active")
+     *
+     * @return Response
+     */
+    public function patchShopActiveAction(
+        Request $request,
+        $id
+    ) {
+        $this->patchShop(
+            $request,
+            $id,
+            new ShopPatchActiveType()
+        );
 
         return new Response();
     }
@@ -192,25 +234,22 @@ class AdminShopController extends ShopController
      * @return View
      */
     private function handleShopPost(
-        $shop,
-        $form
+        $shop
     ) {
         // check building
         $building = $this->getRepo('Room\RoomBuilding')->find($shop->getBuildingId());
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
-        $existShop = $this->getRepo('Shop\Shop')->findOneByBuilding($building);
-        if (!is_null($existShop)) {
-            throw new ConflictHttpException(Shop::SHOP_CONFLICT);
-        }
-
         $em = $this->getDoctrine()->getManager();
-        $shopAttachments = $form['shop_attachments']->getData();
+        $shopAttachments = $shop->getAttachments();
+        $startString = $shop->getStart();
+        $endString = $shop->getEnd();
 
         // set startHour and endHour
         $this->setHours(
             $shop,
-            $form
+            $startString,
+            $endString
         );
 
         // add building
@@ -238,16 +277,18 @@ class AdminShopController extends ShopController
      * @return Response
      */
     private function handleShopPut(
-        $shop,
-        $form
+        $shop
     ) {
         $em = $this->getDoctrine()->getManager();
-        $shopAttachments = $form['shop_attachments']->getData();
+        $shopAttachments = $shop->getAttachments();
+        $startString = $shop->getStart();
+        $endString = $shop->getEnd();
 
         // set startHour and endHour
         $this->setHours(
             $shop,
-            $form
+            $startString,
+            $endString
         );
 
         // delete shop attachments
@@ -289,16 +330,26 @@ class AdminShopController extends ShopController
      */
     private function setHours(
         $shop,
-        $form
+        $startString,
+        $endString
     ) {
+        if (
+            is_null($startString) ||
+            empty($startString) ||
+            is_null($endString) ||
+            empty($endString)
+        ) {
+            return;
+        }
+
         $start = \DateTime::createFromFormat(
             'H:i:s',
-            $form['start_hour']->getData()
+            $startString
         );
 
         $end = \DateTime::createFromFormat(
             'H:i:s',
-            $form['end_hour']->getData()
+            $endString
         );
 
         $shop->setStartHour($start);
@@ -315,7 +366,7 @@ class AdminShopController extends ShopController
         $shopAttachments,
         $em
     ) {
-        if (is_null($shopAttachments)) {
+        if (is_null($shopAttachments) || empty($shopAttachments)) {
             return;
         }
 
@@ -327,5 +378,34 @@ class AdminShopController extends ShopController
             $shopAttachment->setShop($shop);
             $em->persist($shopAttachment);
         }
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @param $type
+     *
+     * @throws Patch\FailedTestException
+     */
+    private function patchShop(
+        Request $request,
+        $id,
+        $type
+    ) {
+        $shop = $this->findShopById($id);
+
+        // bind data
+        $shopJson = $this->get('serializer')->serialize($shop, 'json');
+        $patch = new Patch($shopJson, $request->getContent());
+        $shopJson = $patch->apply();
+
+        $form = $this->createForm($type, $shop);
+        $form->submit(json_decode($shopJson, true));
+
+        if (!$shop->isActive()) {
+            $shop->setOnline(false);
+        }
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
     }
 }

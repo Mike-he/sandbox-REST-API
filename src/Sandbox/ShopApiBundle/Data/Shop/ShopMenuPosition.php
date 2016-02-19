@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\AdminApiBundle\Data\Shop;
+namespace Sandbox\ShopApiBundle\Data\Shop;
 
 /**
  * Shop Menu Position Incoming Data.
