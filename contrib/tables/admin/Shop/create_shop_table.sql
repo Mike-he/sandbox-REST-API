@@ -7,6 +7,7 @@ CREATE TABLE `Shop` (
   `endHour` time,
   `online` boolean DEFAULT FALSE NOT NULL,
   `active` boolean DEFAULT FALSE NOT NULL,
+  `close` boolean DEFAULT FALSE NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

@@ -77,10 +77,10 @@ class Shop implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="open", type="boolean")
+     * @ORM\Column(name="close", type="boolean")
      * @Serializer\Groups({"main", "admin_shop"})
      */
-    private $open = true;
+    private $close = false;
 
     /**
      * @var bool
@@ -143,13 +143,6 @@ class Shop implements JsonSerializable
      * @var string
      */
     private $end;
-
-    /**
-     * @var array
-     *
-     * @Serializer\Groups({"main", "admin_shop"})
-     */
-    private $shopMenu;
 
     /**
      * Get id.
@@ -306,27 +299,27 @@ class Shop implements JsonSerializable
     }
 
     /**
-     * Set open status.
+     * Set close status.
      *
-     * @param bool $open
+     * @param bool $close
      *
      * @return Shop
      */
-    public function setOpen($open)
+    public function setClose($close)
     {
-        $this->open = $open;
+        $this->close = $close;
 
         return $this;
     }
 
     /**
-     * Get open status.
+     * Get close status.
      *
      * @return bool
      */
-    public function isOpen()
+    public function isClose()
     {
-        return $this->open;
+        return $this->close;
     }
 
     /**
@@ -463,30 +456,6 @@ class Shop implements JsonSerializable
     public function getAttachments()
     {
         return $this->attachments;
-    }
-
-    /**
-     * Set shop menu.
-     *
-     * @param $shopMenu
-     *
-     * @return Shop
-     */
-    public function setShopMenu($shopMenu)
-    {
-        $this->shopMenu = $shopMenu;
-
-        return $this;
-    }
-
-    /**
-     * Get shop menu.
-     *
-     * @return array
-     */
-    public function getShopMenu()
-    {
-        return $this->shopMenu;
     }
 
     /**

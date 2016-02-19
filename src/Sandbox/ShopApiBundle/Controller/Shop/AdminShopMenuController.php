@@ -53,6 +53,8 @@ class AdminShopMenuController extends ShopMenuController
             ['sortTime' => 'DESC']
         );
 
+        //TODO: GET PRODUCT COUNT
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
         $view->setData($menu);

@@ -14,7 +14,7 @@ use Sandbox\ApiBundle\Entity\Shop\ShopAttachment;
 use Sandbox\ApiBundle\Form\Shop\ShopPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopPutType;
 use Sandbox\ApiBundle\Form\Shop\ShopPatchOnlineType;
-use Sandbox\ApiBundle\Form\Shop\ShopPatchOpenType;
+use Sandbox\ApiBundle\Form\Shop\ShopPatchCloseType;
 use Sandbox\ApiBundle\Form\Shop\ShopPatchActiveType;
 use Sandbox\ApiBundle\Form\Shop\ShopAttachmentPostType;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -126,18 +126,18 @@ class AdminShopController extends ShopController
      * @param $id
      *
      * @Method({"PATCH"})
-     * @Route("/shops/{id}/open")
+     * @Route("/shops/{id}/close")
      *
      * @return Response
      */
-    public function patchShopOpenAction(
+    public function patchShopCloseAction(
         Request $request,
         $id
     ) {
         $this->patchShop(
             $request,
             $id,
-            new ShopPatchOpenType()
+            new ShopPatchCloseType()
         );
 
         return new Response();
