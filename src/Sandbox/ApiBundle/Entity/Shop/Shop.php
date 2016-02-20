@@ -15,6 +15,10 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
  */
 class Shop implements JsonSerializable
 {
+    const PATH_ONLINE = '/online';
+    const PATH_CLOSE = '/close';
+    const PATH_ACTIVE = '/active';
+
     /**
      * @var int
      *

@@ -17,7 +17,7 @@ class ShopMenuPositionType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\AdminApiBundle\Data\Shop\ShopMenuPosition',
+            'data_class' => 'Sandbox\ShopApiBundle\Data\Shop\ShopMenuPosition',
         ));
     }
 

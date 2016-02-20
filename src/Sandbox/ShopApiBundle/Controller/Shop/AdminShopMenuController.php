@@ -123,7 +123,7 @@ class AdminShopMenuController extends ShopMenuController
      * @param $id
      *
      * @Method({"POST"})
-     * @Route("/shops/menus/{id}")
+     * @Route("/shops/menus/{id}/position")
      *
      * @return Response
      *

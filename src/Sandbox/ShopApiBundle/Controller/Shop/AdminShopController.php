@@ -96,72 +96,53 @@ class AdminShopController extends ShopController
     }
 
     /**
-     * patch Online status.
+     * patch shop status.
      *
      * @param Request $request
      * @param $id
      *
      * @Method({"PATCH"})
-     * @Route("/shops/{id}/online")
+     * @Route("/shops/{id}")
      *
      * @return Response
      */
-    public function patchShopOnlineAction(
+    public function patchShopAction(
         Request $request,
         $id
     ) {
+        $shop = $this->findShopById($id);
+
+        $type = null;
+        $contentJson = $request->getContent();
+        $content = json_decode($contentJson, true)[0];
+        switch ($content['path']) {
+            case Shop::PATH_ACTIVE:
+                //TODO: Check Sandbox Admin Perminsion
+                $type = new ShopPatchActiveType();
+                break;
+            case Shop::PATH_CLOSE:
+                //TODO: Check Coffee Admin Perminsion
+                $type = new ShopPatchCloseType();
+                break;
+            case Shop::PATH_ONLINE:
+                //TODO: Check Coffee/ThirdParty Admin Perminsion
+                $type = new ShopPatchOnlineType();
+                break;
+        }
+
+        if (is_null($type)) {
+            return;
+        }
+
+        // bind data
+        $shopJson = $this->get('serializer')->serialize($shop, 'json');
+        $patch = new Patch($shopJson, $contentJson);
+        $shopJson = $patch->apply();
+
         $this->patchShop(
-            $request,
-            $id,
-            new ShopPatchOnlineType()
-        );
-
-        return new Response();
-    }
-
-    /**
-     * patch Open/Close status (temporary).
-     *
-     * @param Request $request
-     * @param $id
-     *
-     * @Method({"PATCH"})
-     * @Route("/shops/{id}/close")
-     *
-     * @return Response
-     */
-    public function patchShopCloseAction(
-        Request $request,
-        $id
-    ) {
-        $this->patchShop(
-            $request,
-            $id,
-            new ShopPatchCloseType()
-        );
-
-        return new Response();
-    }
-
-    /**
-     * patch active status for display and edit.
-     *
-     * @param Request $request
-     * @param $id
-     *
-     * @Method({"PATCH"})
-     * @Route("/shops/{id}/active")
-     *
-     * @return Response
-     */
-    public function patchShopActiveAction(
-        Request $request,
-        $id
-    ) {
-        $this->patchShop(
-            $request,
-            $id,
-            new ShopPatchActiveType()
+            $shop,
+            $shopJson,
+            $type
         );
 
         return new Response();
@@ -388,17 +369,10 @@ class AdminShopController extends ShopController
      * @throws Patch\FailedTestException
      */
     private function patchShop(
-        Request $request,
-        $id,
+        $shop,
+        $shopJson,
         $type
     ) {
-        $shop = $this->findShopById($id);
-
-        // bind data
-        $shopJson = $this->get('serializer')->serialize($shop, 'json');
-        $patch = new Patch($shopJson, $request->getContent());
-        $shopJson = $patch->apply();
-
         $form = $this->createForm($type, $shop);
         $form->submit(json_decode($shopJson, true));
 
