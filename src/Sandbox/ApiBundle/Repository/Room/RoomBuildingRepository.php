@@ -11,12 +11,14 @@ class RoomBuildingRepository extends EntityRepository
      *
      * @param int    $cityId
      * @param string $query
+     * @param array  $myBuildingIds
      *
      * @return array
      */
     public function getRoomBuildings(
         $cityId,
-        $query
+        $query,
+        $myBuildingIds
     ) {
         $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -40,10 +42,29 @@ class RoomBuildingRepository extends EntityRepository
             $buildingsQuery->setParameter('cityId', $cityId);
         }
 
+        $buildingsQuery->andWhere('rb.id IN (:ids)');
+        $buildingsQuery->setParameter('ids', $myBuildingIds);
+
         // order by creation date
         $buildingsQuery->orderBy('rb.creationDate', 'DESC');
 
         return $buildingsQuery->getQuery()->getResult();
+    }
+
+    /**
+     * @param $companyId
+     *
+     * @return array
+     */
+    public function getMySalesBuildings(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->select('b.id as buildingId')
+            ->where('b.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        return $query->getQuery()->getResult();
     }
 
     /**

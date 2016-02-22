@@ -1,0 +1,29 @@
+# Admin User Login /sales/admin/auth/login
+sandbox_sales_admin_api_auth_login:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminUserLoginController.php"
+    type:     annotation
+    prefix:   /admin/auth
+
+# Admin Rooms /sales/admin/buildings
+sandbox_sales_admin_building:
+    resource: "@SandboxSalesApiBundle/Controller/Building/AdminBuildingController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Rooms /sales/admin/rooms/supplies
+sandbox_sales_admin_room_supplies:
+    resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomSuppliesController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Rooms /sales/admin/rooms
+sandbox_sales_admin_room:
+    resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Rooms /sales/admin/rooms/attachments
+sandbox_sales_admin_room_attachment:
+    resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomAttachmentController.php"
+    type:     annotation
+    prefix:   /admin

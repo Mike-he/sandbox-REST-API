@@ -35,7 +35,8 @@ class RoomRepository extends EntityRepository
         $status,
         $sortBy,
         $direction,
-        $search
+        $search,
+        $myBuildingIds
     ) {
         $notFirst = false;
         $parameters = [];
@@ -94,6 +95,10 @@ class RoomRepository extends EntityRepository
             $query->andWhere($where);
             $parameters['building'] = $building;
             $notFirst = true;
+        } else {
+            // filter by my sales buildings
+            $query->andWhere('r.building IN (:buildingIds)');
+            $query->setParameter('buildingIds', $myBuildingIds);
         }
 
         // filter by floor
@@ -104,7 +109,7 @@ class RoomRepository extends EntityRepository
             $notFirst = true;
         }
 
-        //search by
+        // search by
         if (!is_null($search)) {
             $where = 'r.name LIKE :search or r.number LIKE :search';
             $query->andWhere($where);
@@ -112,7 +117,7 @@ class RoomRepository extends EntityRepository
             $notFirst = true;
         }
 
-        //sort method
+        // sort method
         switch ($sortBy) {
             case 'floor':
                 $query->orderBy('rf.floorNumber', $direction);
@@ -122,7 +127,7 @@ class RoomRepository extends EntityRepository
                 break;
         }
 
-        //set all parameters
+        // set all parameters
         if ($notFirst) {
             $query->setParameters($parameters);
         }
@@ -134,11 +139,13 @@ class RoomRepository extends EntityRepository
      * Seek all users that rented one room.
      *
      * @param $roomId
+     * @param $myBuildingIds
      *
      * @return array
      */
     public function getRoomUsersUsage(
-        $roomId
+        $roomId,
+        $myBuildingIds
     ) {
         $query = $this->createQueryBuilder('r')
             ->select('
@@ -156,6 +163,10 @@ class RoomRepository extends EntityRepository
             ->andWhere('r.id = :roomId')
             ->andWhere('r.isDeleted = FALSE')
             ->setParameter('roomId', $roomId);
+
+        // filter by my buildings
+        $query->andWhere('r.buildingId IN (:buildingIds)');
+        $query->setParameter('buildingIds', $myBuildingIds);
 
         return $query->getQuery()->getResult();
     }
@@ -196,6 +207,7 @@ class RoomRepository extends EntityRepository
     /**
      * @param RoomFloor $floor
      * @param string    $type
+     * @param array     $myBuildingIds
      *
      * @return array
      *
@@ -203,7 +215,8 @@ class RoomRepository extends EntityRepository
      */
     public function getNotProductedRooms(
         $floor,
-        $type
+        $type,
+        $myBuildingIds
     ) {
         if (is_null($type)) {
             throw new BadRequestHttpException();
@@ -237,6 +250,10 @@ class RoomRepository extends EntityRepository
         $query = $query->andWhere('r.type = :type')
             ->andWhere('r.isDeleted = FALSE')
             ->setParameter('type', $type);
+
+        // filter by my buildings
+        $query->andWhere('r.buildingId IN (:buildingIds)');
+        $query->setParameter('buildingIds', $myBuildingIds);
 
         $query = $query->orderBy('r.id', 'ASC');
 

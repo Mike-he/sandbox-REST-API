@@ -232,6 +232,22 @@ class RoomBuilding implements JsonSerializable
     private $businessHour;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="visible", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $visible = true;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="companyId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $companyId;
+
+    /**
      * @var array
      *
      * @Serializer\Groups({"main", "admin_building"})
@@ -675,6 +691,38 @@ class RoomBuilding implements JsonSerializable
     public function setBuildingCompany($buildingCompany)
     {
         $this->buildingCompany = $buildingCompany;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
+     * @param bool $visible
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
     }
 
     public function jsonSerialize()

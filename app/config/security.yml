@@ -4,17 +4,21 @@ security:
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
         Sandbox\ApiBundle\Entity\Admin\Admin: plaintext
         Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
+        Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin: plaintext
+        Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth: plaintext
     role_hierarchy:
         ROLE_ADMIN:       ROLE_ADMIN
         ROLE_USER:        ROLE_USER
-        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_SALES_ADMIN: ROLE_SALES_ADMIN
+        ROLE_SALES_ADMIN_API: ROLE_SALES_ADMIN_API
+        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH, ROLE_SALES_ADMIN]
         ROLE_ADMIN_API:   ROLE_ADMIN_API
         ROLE_CLIENT_API:  ROLE_CLIENT_API
 
     providers:
         chain_provider:
             chain:
-                providers: [userEmail, userPhone, clientApi, adminUser, adminApi]
+                providers: [userEmail, userPhone, clientApi, adminUser, adminApi, salesAdminUser, salesAdminApi]
         userEmail:
             entity:
                 class: Sandbox\ApiBundle\Entity\User\User
@@ -34,6 +38,14 @@ security:
         adminApi:
             entity:
                 class: Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth
+                property: token
+        salesAdminUser:
+            entity:
+                class: Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin
+                property: username
+        salesAdminApi:
+            entity:
+                class: Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth
                 property: token
 
     firewalls:
@@ -65,4 +77,6 @@ security:
         - { path: ^/admin, role: ROLE_ADMIN_API }
         - { path: ^/user/background/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/user/avatar/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/sales/admin/auth/login$, role: ROLE_SALES_ADMIN }
+        - { path: ^/sales, role: ROLE_SALES_ADMIN_API }
 

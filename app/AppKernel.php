@@ -31,6 +31,7 @@ class AppKernel extends Kernel
             new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
             new FOS\ElasticaBundle\FOSElasticaBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
+            new Sandbox\SalesApiBundle\SandboxSalesApiBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
