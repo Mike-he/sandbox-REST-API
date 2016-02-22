@@ -145,7 +145,7 @@ class AdminShopController extends ShopController
             $type
         );
 
-        return new Response();
+        return new View();
     }
 
     /**
@@ -288,7 +288,7 @@ class AdminShopController extends ShopController
         $shop->setModificationDate(new \DateTime());
         $em->flush();
 
-        return new Response();
+        return new View();
     }
 
     private function deleteShopAttachments(

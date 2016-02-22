@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Shop;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\ShopRestController;
 use Sandbox\ApiBundle\Entity\Shop\Shop;
 
 /**
@@ -15,7 +15,7 @@ use Sandbox\ApiBundle\Entity\Shop\Shop;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ShopController extends SandboxRestController
+class ShopController extends ShopRestController
 {
     /**
      * @param $id

@@ -9,3 +9,9 @@ sandbox_shop_admin_api_shops_menu:
     resource: "@SandboxShopApiBundle/Controller/Shop/AdminShopMenuController.php"
     type:     annotation
     prefix:   /admin
+
+# Spec /shop/admin/shops/spec
+sandbox_shop_admin_api_spec:
+    resource: "@SandboxShopApiBundle/Controller/Shop/AdminSpecController.php"
+    type:     annotation
+    prefix:   /admin

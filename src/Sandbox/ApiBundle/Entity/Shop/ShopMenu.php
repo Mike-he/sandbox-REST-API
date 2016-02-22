@@ -66,6 +66,14 @@ class ShopMenu implements JsonSerializable
     private $creationDate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="invisible", type="boolean")
+     * @Serializer\Groups({"main"})
+     */
+    private $invisible = false;
+
+    /**
      * @var int
      *
      * @Serializer\Groups({"main", "admin_shop"})
@@ -224,6 +232,30 @@ class ShopMenu implements JsonSerializable
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * Set invisible.
+     *
+     * @param bool $invisible
+     *
+     * @return ShopMenu
+     */
+    public function setInvisible($invisible)
+    {
+        $this->invisible = $invisible;
+
+        return $this;
+    }
+
+    /**
+     * Get invisible.
+     *
+     * @return bool
+     */
+    public function isInvisible()
+    {
+        return $this->invisible;
     }
 
     public function __construct()

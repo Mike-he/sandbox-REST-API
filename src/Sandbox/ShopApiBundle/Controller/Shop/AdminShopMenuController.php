@@ -49,7 +49,10 @@ class AdminShopMenuController extends ShopMenuController
     ) {
         $shop = $this->findShopById($id);
         $menu = $this->getRepo('Shop\ShopMenu')->findBy(
-            ['shopId' => $shop->getId()],
+            [
+                'shopId' => $shop->getId(),
+                'invisible' => false,
+            ],
             ['sortTime' => 'DESC']
         );
 
@@ -109,21 +112,21 @@ class AdminShopMenuController extends ShopMenuController
         // remove shop menu
         $this->removeShopMenu(
             $removeData,
-            $id,
-            $em
+            $id
         );
 
         $em->flush();
 
-        return new Response();
+        return new View();
     }
 
     /**
      * @param Request $request
+     * @param $shopId
      * @param $id
      *
      * @Method({"POST"})
-     * @Route("/shops/menus/{id}/position")
+     * @Route("/shops/{shopId}/menus/{id}/position")
      *
      * @return Response
      *
@@ -131,6 +134,7 @@ class AdminShopMenuController extends ShopMenuController
      */
     public function changePositionAction(
         Request $request,
+        $shopId,
         $id
     ) {
         $menu = $this->findShopMenuById($id);
@@ -153,7 +157,7 @@ class AdminShopMenuController extends ShopMenuController
             $action
         );
 
-        return new Response();
+        return new View();
     }
 
     /**
@@ -189,7 +193,7 @@ class AdminShopMenuController extends ShopMenuController
     }
 
     /**
-     * @param $content
+     * @param $addData
      * @param $shop
      * @param $em
      */
@@ -217,7 +221,7 @@ class AdminShopMenuController extends ShopMenuController
     }
 
     /**
-     * @param $content
+     * @param $modifyData
      * @param $shopId
      */
     private function modifyShopMenu(
@@ -255,14 +259,13 @@ class AdminShopMenuController extends ShopMenuController
     }
 
     /**
-     * @param $content
+     * @param $removeData
      * @param $shopId
      * @param $em
      */
     private function removeShopMenu(
         $removeData,
-        $shopId,
-        $em
+        $shopId
     ) {
         if (is_null($removeData) || empty($removeData)) {
             return;
@@ -290,7 +293,7 @@ class AdminShopMenuController extends ShopMenuController
                 continue;
             }
 
-            $em->remove($menu);
+            $menu->setInvisible(true);
         }
     }
 }
