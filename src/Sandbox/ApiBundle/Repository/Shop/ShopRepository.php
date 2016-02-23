@@ -32,7 +32,7 @@ class ShopRepository extends EntityRepository
                 ->setParameter('active', true);
         }
 
-        return $query->getQuery()->getSingleResult();
+        return $query->getQuery()->getResult();
     }
 
     /**

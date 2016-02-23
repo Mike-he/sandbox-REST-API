@@ -3,9 +3,9 @@
 namespace Sandbox\ShopApiBundle\Data\Shop;
 
 /**
- * Spec Item Incoming Data.
+ * Shop Spec Item Incoming Data.
  */
-class SpecItemData
+class ShopSpecItemData
 {
     /**
      * @var int

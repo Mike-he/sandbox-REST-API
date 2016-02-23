@@ -2,9 +2,10 @@
 
 namespace Sandbox\ShopApiBundle\Controller\Shop;
 
-use Sandbox\ApiBundle\Entity\Shop\Specification;
-use Sandbox\ApiBundle\Entity\Shop\SpecificationItem;
-use Sandbox\ApiBundle\Form\Shop\SpecPostType;
+use Sandbox\ApiBundle\Entity\Shop\ShopSpec;
+use Sandbox\ApiBundle\Entity\Shop\ShopSpecItem;
+use Sandbox\ApiBundle\Form\Shop\ShopSpecPostType;
+use Sandbox\ApiBundle\Form\Shop\ShopSpecPutType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -13,10 +14,10 @@ use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Shop\SpecController;
 use Sandbox\ShopApiBundle\Data\Shop\ShopMenuData;
-use Sandbox\ShopApiBundle\Data\Shop\SpecItemData;
-use Sandbox\ApiBundle\Form\Shop\SpecItemPostType;
+use Sandbox\ShopApiBundle\Data\Shop\ShopSpecItemData;
+use Sandbox\ApiBundle\Form\Shop\ShopSpecItemPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuType;
-use Sandbox\ApiBundle\Form\Shop\SpecItemModifyType;
+use Sandbox\ApiBundle\Form\Shop\ShopSpecItemModifyType;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -47,7 +48,7 @@ class AdminSpecController extends SpecController
         $id
     ) {
         $shop = $this->findEntityById($id, 'Shop\Shop');
-        $specs = $this->getRepo('Shop\Specification')->findBy(
+        $specs = $this->getRepo('Shop\ShopSpec')->findBy(
             ['shopId' => $shop->getId()],
             ['id' => 'ASC']
         );
@@ -77,7 +78,7 @@ class AdminSpecController extends SpecController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
-        $spec = $this->getRepo('Shop\Specification')->find($id);
+        $spec = $this->getRepo('Shop\ShopSpec')->find($id);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
@@ -104,7 +105,7 @@ class AdminSpecController extends SpecController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
-        $spec = $this->findEntityById($id, 'Shop\Specification');
+        $spec = $this->findEntityById($id, 'Shop\ShopSpec');
 
         $em = $this->getDoctrine()->getManager();
         $em->remove($spec);
@@ -136,8 +137,8 @@ class AdminSpecController extends SpecController
         );
         $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
 
-        $spec = new Specification();
-        $form = $this->createForm(new SpecPostType(), $spec);
+        $spec = new ShopSpec();
+        $form = $this->createForm(new ShopSpecPostType(), $spec);
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -168,10 +169,10 @@ class AdminSpecController extends SpecController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
-        $spec = $this->findEntityById($id, 'Shop\Specification');
+        $spec = $this->findEntityById($id, 'Shop\ShopSpec');
 
         $form = $this->createForm(
-            new SpecPostType(),
+            new ShopSpecPutType(),
             $spec,
             array('method' => 'PUT')
         );
@@ -181,15 +182,40 @@ class AdminSpecController extends SpecController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $em = $this->getDoctrine()->getManager();
+        $this->handleSpecItemPut(
+            $spec,
+            $id,
+            $em
+        );
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param $spec
+     * @param $id
+     * @param $em
+     */
+    private function handleSpecItemPut(
+        $spec,
+        $id,
+        $em
+    ) {
+        $items = $spec->getItems();
+        if (is_null($items) || empty($items)) {
+            return;
+        }
+
         $menuData = new ShopMenuData();
         $form = $this->createForm(new ShopMenuType(), $menuData);
-        $form->submit($spec->getItems(), true);
+        $form->submit($items, true);
 
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $em = $this->getDoctrine()->getManager();
         $addData = $menuData->getAdd();
         $modifyData = $menuData->getModify();
         $removeData = $menuData->getRemove();
@@ -213,10 +239,6 @@ class AdminSpecController extends SpecController
             $id,
             $em
         );
-
-        $em->flush();
-
-        return new View();
     }
 
     /**
@@ -234,8 +256,8 @@ class AdminSpecController extends SpecController
         }
 
         foreach ($addData as $item) {
-            $specItem = new SpecificationItem();
-            $form = $this->createForm(new SpecItemPostType(), $specItem);
+            $specItem = new ShopSpecItem();
+            $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
             $form->submit($item, true);
 
             if (!$form->isValid()) {
@@ -260,8 +282,8 @@ class AdminSpecController extends SpecController
         }
 
         foreach ($modifyData as $item) {
-            $specData = new SpecItemData();
-            $form = $this->createForm(new SpecItemModifyType(), $specData);
+            $specData = new ShopSpecItemData();
+            $form = $this->createForm(new ShopSpecItemModifyType(), $specData);
             $form->submit($item, true);
 
             if (!$form->isValid()) {
@@ -269,7 +291,7 @@ class AdminSpecController extends SpecController
             }
 
             // check if item exists
-            $specItem = $this->getRepo('Shop\SpecificationItem')->findOneBy(
+            $specItem = $this->getRepo('Shop\ShopSpecItem')->findOneBy(
                 [
                     'id' => $specData->getId(),
                     'specId' => $specId,
@@ -282,9 +304,7 @@ class AdminSpecController extends SpecController
             }
 
             $specItem->setName($specData->getName());
-            if (!is_null($specData->getInventory())) {
-                $specItem->setInventory($specData->getInventory());
-            }
+            $specItem->setInventory($specData->getInventory());
         }
     }
 
@@ -303,8 +323,8 @@ class AdminSpecController extends SpecController
         }
 
         foreach ($removeData as $item) {
-            $specData = new SpecItemData();
-            $form = $this->createForm(new SpecItemModifyType(), $specData);
+            $specData = new ShopSpecItemData();
+            $form = $this->createForm(new ShopSpecItemModifyType(), $specData);
             $form->submit($item, true);
 
             if (!$form->isValid()) {
@@ -312,7 +332,7 @@ class AdminSpecController extends SpecController
             }
 
             // check if item exists
-            $specItem = $this->getRepo('Shop\SpecificationItem')->findOneBy(
+            $specItem = $this->getRepo('Shop\ShopSpecItem')->findOneBy(
                 [
                     'id' => $specData->getId(),
                     'specId' => $specId,
@@ -346,8 +366,8 @@ class AdminSpecController extends SpecController
 
         $em = $this->getDoctrine()->getManager();
         foreach ($items as $item) {
-            $specItem = new SpecificationItem();
-            $form = $this->createForm(new SpecItemPostType(), $specItem);
+            $specItem = new ShopSpecItem();
+            $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
             $form->submit($item, true);
 
             if (!$form->isValid()) {

@@ -196,14 +196,15 @@ class AdminShopController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         $buildingId = $paramFetcher->get('building');
-        $shop = $this->getRepo('Shop\Shop')->getShopByBuilding($buildingId);
-        if (empty($shop) || is_null($shop)) {
+        $shops = $this->getRepo('Shop\Shop')->getShopByBuilding($buildingId);
+
+        if (empty($shops) || is_null($shops)) {
             throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
         }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
-        $view->setData($shop);
+        $view->setData($shops);
 
         return $view;
     }

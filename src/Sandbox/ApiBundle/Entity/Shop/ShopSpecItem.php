@@ -7,12 +7,12 @@ use JsonSerializable;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * SpecificationItem.
+ * ShopSpecItem.
  *
- * @ORM\Table(name="SpecificationItem")
+ * @ORM\Table(name="ShopSpecItem")
  * @ORM\Entity
  */
-class SpecificationItem implements JsonSerializable
+class ShopSpecItem implements JsonSerializable
 {
     /**
      * @var int
@@ -33,9 +33,9 @@ class SpecificationItem implements JsonSerializable
     private $specId;
 
     /**
-     * @var Specification
+     * @var ShopSpec
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Shop\Specification")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Shop\ShopSpec")
      * @ORM\JoinColumn(name="specId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main"})
      */
@@ -88,7 +88,7 @@ class SpecificationItem implements JsonSerializable
      *
      * @param string $name
      *
-     * @return SpecificationItem
+     * @return ShopSpecItem
      */
     public function setName($name)
     {
@@ -112,7 +112,7 @@ class SpecificationItem implements JsonSerializable
      *
      * @param int $amount
      *
-     * @return SpecificationItem
+     * @return ShopSpecItem
      */
     public function setAmount($amount)
     {
@@ -136,7 +136,7 @@ class SpecificationItem implements JsonSerializable
      *
      * @param bool $inventory
      *
-     * @return SpecificationItem
+     * @return ShopSpecItem
      */
     public function setInventory($inventory)
     {
@@ -160,7 +160,7 @@ class SpecificationItem implements JsonSerializable
      *
      * @param string $price
      *
-     * @return SpecificationItem
+     * @return ShopSpecItem
      */
     public function setPrice($price)
     {
@@ -184,7 +184,7 @@ class SpecificationItem implements JsonSerializable
      *
      * @param $specId
      *
-     * @return SpecificationItem
+     * @return ShopSpecItem
      */
     public function setSpecId($specId)
     {
@@ -206,7 +206,7 @@ class SpecificationItem implements JsonSerializable
     /**
      * Get Spec.
      *
-     * @return Specification
+     * @return ShopSpec
      */
     public function getSpec()
     {
@@ -216,9 +216,9 @@ class SpecificationItem implements JsonSerializable
     /**
      * Set Spec.
      *
-     * @param Specification $spec
+     * @param ShopSpec $spec
      *
-     * @return Specification
+     * @return ShopSpec
      */
     public function setSpec($spec)
     {

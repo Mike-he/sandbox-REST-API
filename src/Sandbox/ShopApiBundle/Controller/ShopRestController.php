@@ -1,6 +1,8 @@
 <?php
 
-namespace Sandbox\ApiBundle\Controller;
+namespace Sandbox\ShopApiBundle\Controller;
+
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 class ShopRestController extends SandboxRestController
 {

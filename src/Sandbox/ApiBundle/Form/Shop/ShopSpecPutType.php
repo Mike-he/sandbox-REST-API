@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class SpecItemPostType extends AbstractType
+class ShopSpecPutType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,14 +15,20 @@ class SpecItemPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('multiple')
+            ->add('name')
             ->add(
-                'inventory',
+                'description',
+                'text',
+                array(
+                    'required' => false,
+                ))
+            ->add(
+                'items',
                 null,
                 array(
                     'required' => false,
-                )
-            )
-            ->add('name');
+                ));
     }
 
     /**
@@ -31,7 +37,7 @@ class SpecItemPostType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Shop\SpecificationItem',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Shop\ShopSpec',
         ));
     }
 
