@@ -110,6 +110,24 @@ class SalesAdmin implements UserInterface
     private $companyId;
 
     /**
+     * @var SalesCompany
+     *
+     * @ORM\ManyToOne(targetEntity="SalesCompany")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $salesCompany;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="defaultPasswordChanged", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     */
+    private $defaultPasswordChanged = false;
+
+    /**
      * @return int
      */
     public function getCompanyId()
@@ -123,6 +141,22 @@ class SalesAdmin implements UserInterface
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+    }
+
+    /**
+     * @return SalesCompany
+     */
+    public function getSalesCompany()
+    {
+        return $this->salesCompany;
+    }
+
+    /**
+     * @param SalesCompany $salesCompany
+     */
+    public function setSalesCompany($salesCompany)
+    {
+        $this->salesCompany = $salesCompany;
     }
 
     /**
@@ -221,6 +255,22 @@ class SalesAdmin implements UserInterface
     public function setTypeId($typeId)
     {
         $this->typeId = $typeId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDefaultPasswordChanged()
+    {
+        return $this->defaultPasswordChanged;
+    }
+
+    /**
+     * @param bool $defaultPasswordChanged
+     */
+    public function setDefaultPasswordChanged($defaultPasswordChanged)
+    {
+        $this->defaultPasswordChanged = $defaultPasswordChanged;
     }
 
     /**

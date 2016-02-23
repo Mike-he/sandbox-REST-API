@@ -82,16 +82,10 @@ class SalesAdminPermissionMap
     /**
      * @var int
      *
-     * @ORM\Column(name="buildingId", type="integer")
+     * @ORM\Column(name="buildingId", type="integer", nullable=true)
      * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $buildingId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
-     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
-     **/
-    private $building;
 
     /**
      * Get id.
@@ -252,7 +246,7 @@ class SalesAdminPermissionMap
      *
      * @param int $buildingId
      *
-     * @return SalesAdminBuildingBinding
+     * @return int
      */
     public function setBuildingId($buildingId)
     {
@@ -269,21 +263,5 @@ class SalesAdminPermissionMap
     public function getBuildingId()
     {
         return $this->buildingId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBuilding()
-    {
-        return $this->building;
-    }
-
-    /**
-     * @param mixed $building
-     */
-    public function setBuilding($building)
-    {
-        $this->building = $building;
     }
 }

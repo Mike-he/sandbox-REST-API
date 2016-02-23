@@ -2,9 +2,10 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Room;
 
-use Sandbox\ApiBundle\Controller\Room\RoomSuppliesController;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -22,7 +23,7 @@ use FOS\RestBundle\View\View;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminRoomSuppliesController extends RoomSuppliesController
+class AdminRoomSuppliesController extends SalesRestController
 {
     /**
      * Get a office supplies.
@@ -46,6 +47,9 @@ class AdminRoomSuppliesController extends RoomSuppliesController
     public function getOfficeSuppliesAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminRoomSuppliesPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+
         // get supplies
         $supplies = $this->getRepo('Room\Supplies')->findAll();
 
@@ -75,6 +79,9 @@ class AdminRoomSuppliesController extends RoomSuppliesController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomSuppliesPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+
         // get attachment
         $supplies = $this->getRepo('Room\Supplies')->find($id);
         $this->throwNotFoundIfNull($supplies, self::NOT_FOUND_MESSAGE);
@@ -86,18 +93,17 @@ class AdminRoomSuppliesController extends RoomSuppliesController
      * Check user permission.
      *
      * @param int $opLevel
-     * @param int $buildingId
      */
     private function checkAdminRoomSuppliesPermission(
-        $opLevel,
-        $buildingId
+        $opLevel
     ) {
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
             SalesAdminType::KEY_PLATFORM,
-            SalesAdminPermission::KEY_PLATFORM_ROOM,
-            $opLevel,
-            $buildingId
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
+            $opLevel
         );
     }
 }

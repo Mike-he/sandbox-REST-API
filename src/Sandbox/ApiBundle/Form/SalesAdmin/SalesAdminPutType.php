@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Form\Admin;
+namespace Sandbox\ApiBundle\Form\SalesAdmin;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -32,7 +32,13 @@ class SalesAdminPutType extends AbstractType
                     'mapped' => false,
                 )
             )
-        ;
+            ->add(
+                'company',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            );
     }
 
     /**
@@ -41,7 +47,7 @@ class SalesAdminPutType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Admin\Admin',
+            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin',
         ));
     }
 

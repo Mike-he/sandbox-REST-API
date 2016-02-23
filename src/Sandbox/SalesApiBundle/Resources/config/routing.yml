@@ -27,3 +27,9 @@ sandbox_sales_admin_room_attachment:
     resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomAttachmentController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Admins /sales/admin/admins
+sandbox_sales_admin_admins:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminAdminsController.php"
+    type:     annotation
+    prefix:   /admin

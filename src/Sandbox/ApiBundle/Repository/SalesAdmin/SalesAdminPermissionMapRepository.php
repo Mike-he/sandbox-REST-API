@@ -3,19 +3,20 @@
 namespace Sandbox\ApiBundle\Repository\SalesAdmin;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 
 class SalesAdminPermissionMapRepository extends EntityRepository
 {
     /**
      * @param $adminId
      * @param $permissions
+     * @param $opLevel
      *
      * @return array
      */
     public function getMySalesBuildings(
         $adminId,
-        $permissions
+        $permissions,
+        $opLevel
     ) {
         $query = $this->createQueryBuilder('spm')
             ->select('DISTINCT spm.buildingId')
@@ -23,7 +24,7 @@ class SalesAdminPermissionMapRepository extends EntityRepository
             ->andWhere('spm.opLevel >= :opLevel')
             ->andWhere('spm.permissionId IN (:permissions)')
             ->setParameter('adminId', $adminId)
-            ->setParameter('opLevel', AdminPermissionMap::OP_LEVEL_VIEW)
+            ->setParameter('opLevel', $opLevel)
             ->setParameter('permissions', $permissions);
 
         return $query->getQuery()->getResult();

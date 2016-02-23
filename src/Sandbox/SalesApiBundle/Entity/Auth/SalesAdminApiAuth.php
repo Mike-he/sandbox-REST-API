@@ -116,7 +116,7 @@ class SalesAdminApiAuth implements UserInterface
     /**
      * Get myAdmin.
      *
-     * @return Admin
+     * @return SalesAdmin
      */
     public function getMyAdmin()
     {

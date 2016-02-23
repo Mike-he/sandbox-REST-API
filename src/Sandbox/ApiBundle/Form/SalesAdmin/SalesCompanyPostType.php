@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class SalesAdminPostType extends AbstractType
+class SalesCompanyPostType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,30 +15,12 @@ class SalesAdminPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username')
-            ->add('password')
             ->add('name')
-            ->add(
-                'type_key',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
-            ->add(
-                'permission',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
-            ->add(
-                'company',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            );
+            ->add('applicant_name')
+            ->add('phone')
+            ->add('email')
+            ->add('address')
+            ->add('description');
     }
 
     /**
@@ -47,7 +29,7 @@ class SalesAdminPostType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin',
+            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany',
         ));
     }
 

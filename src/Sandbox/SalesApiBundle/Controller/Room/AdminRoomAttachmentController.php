@@ -3,11 +3,12 @@
 namespace Sandbox\SalesApiBundle\Controller\Room;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Sandbox\ApiBundle\Controller\Room\RoomAttachmentController;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentType;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -30,7 +31,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminRoomAttachmentController extends RoomAttachmentController
+class AdminRoomAttachmentController extends SalesRestController
 {
     /**
      * Get attachments.
@@ -82,7 +83,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
             )
         );
 
@@ -132,7 +133,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
             )
         );
 
@@ -180,7 +181,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
 
         // check user permission
         $this->checkAdminRoomAttachmentPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
             $roomBuilding
         );
 
@@ -223,7 +224,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
 
         // check user permission
         $this->checkAdminRoomAttachmentPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
             $attachment->getBuildingId()
         );
 

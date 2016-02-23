@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Building;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Proxies\__CG__\Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
@@ -16,6 +17,8 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuildingCompany;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingPhones;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPostType;
@@ -821,8 +824,8 @@ class AdminBuildingController extends LocationController
     ) {
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_BUILDING,
+            SalesAdminType::KEY_PLATFORM,
+            SalesAdminPermission::KEY_PLATFORM_BUILDING,
             $opLevel
         );
     }

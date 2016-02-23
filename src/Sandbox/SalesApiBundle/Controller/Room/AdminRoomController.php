@@ -6,23 +6,23 @@ use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomDoors;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
 use Sandbox\ApiBundle\Entity\Room\RoomSupplies;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Room\RoomPatchType;
 use Sandbox\ApiBundle\Form\Room\RoomType;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Sandbox\ApiBundle\Controller\Room\RoomController;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -39,7 +39,7 @@ use JMS\Serializer\SerializationContext;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminRoomController extends RoomController
+class AdminRoomController extends SalesRestController
 {
     const ALREADY_EXISTS_MESSAGE = 'This resource already exists';
     const LOCATION_CANNOT_NULL = 'City, Building or Floor cannot be null';
@@ -164,6 +164,16 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_PLATFORM_PRODUCT,
+                SalesAdminPermission::KEY_PLATFORM_EVENT,
+            )
+        );
+
         //filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -177,15 +187,14 @@ class AdminRoomController extends RoomController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_PLATFORM_ROOM,
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_EVENT,
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_PLATFORM_PRODUCT,
+                SalesAdminPermission::KEY_PLATFORM_EVENT,
             )
         );
 
-        // check user permission
-        if (empty($myBuildingIds) || !in_array((int) $buildingId, $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
+            return new View(array());
         }
 
         //sort by
@@ -199,7 +208,7 @@ class AdminRoomController extends RoomController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
         $floor = !is_null($floorId) ? $this->getRepo('Room\RoomFloor')->find($floorId) : null;
 
-        $query = $this->getRepo('Room\RoomView')->getRooms(
+        $query = $this->getRepo('Room\RoomView')->getSalesRooms(
             $type,
             $city,
             $building,
@@ -254,18 +263,21 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            )
+        );
+
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_PLATFORM_BUILDING,
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
             )
         );
-
-        // check user permission
-        if (empty($myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
 
         $roomIds = $paramFetcher->get('room_id');
         $statusArray = [];
@@ -340,18 +352,22 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            )
+        );
+
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
             )
         );
 
-        // check user permission
-        if (empty($myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
         $type = $paramFetcher->get('type');
         $floorId = $paramFetcher->get('floor');
 
@@ -409,6 +425,14 @@ class AdminRoomController extends RoomController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_PRICE,
+            )
+        );
+
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
         $types = $paramFetcher->get('type');
@@ -417,19 +441,18 @@ class AdminRoomController extends RoomController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_PLATFORM_PRICE,
+                SalesAdminPermission::KEY_PLATFORM_PRICE,
             )
         );
 
-        // check user permission
-        if (empty($myBuildingIds) || !in_array((int) $buildingId, $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
+            return new View(array());
         }
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getRepo('Room\RoomView')->getProductedRooms(
+        $query = $this->getRepo('Room\RoomView')->getSalesProductedRooms(
             $types,
             $city,
             $building,
@@ -464,11 +487,19 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            )
+        );
+
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_PLATFORM_PRICE,
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
             )
         );
 
@@ -477,7 +508,7 @@ class AdminRoomController extends RoomController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        $usage = $this->getRepo('Room\Room')->getRoomUsersUsage(
+        $usage = $this->getRepo('Room\Room')->getSalesRoomUsersUsage(
             $id,
             $myBuildingIds
         );
@@ -544,6 +575,16 @@ class AdminRoomController extends RoomController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_PLATFORM_PRODUCT,
+                SalesAdminPermission::KEY_PLATFORM_EVENT,
+            )
+        );
+
         // get room
         $room = $this->getRepo('Room\Room')->findOneBy(array(
             'id' => $id,
@@ -555,9 +596,9 @@ class AdminRoomController extends RoomController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_PLATFORM_ROOM,
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_EVENT,
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_PLATFORM_PRODUCT,
+                SalesAdminPermission::KEY_PLATFORM_EVENT,
             )
         );
 
@@ -600,13 +641,16 @@ class AdminRoomController extends RoomController
         $form = $this->createForm(new RoomType(), $room);
         $form->handleRequest($request);
 
-        if (!$form->isValid() || $room->getBuildingId()) {
+        if (!$form->isValid() || is_null($room->getBuildingId())) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // check user permission
         $this->checkAdminRoomPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
             $room->getBuildingId()
         );
 
@@ -659,7 +703,10 @@ class AdminRoomController extends RoomController
 
         // check user permission
         $this->checkAdminRoomPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
             $room->getBuildingId()
         );
 
@@ -720,13 +767,14 @@ class AdminRoomController extends RoomController
             'id' => $id,
             'isDeleted' => false,
         ));
-        if (is_null($room)) {
-            $this->createNotFoundException(self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // check user permission
         $this->checkAdminRoomPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
             $room->getBuildingId()
         );
 
@@ -787,7 +835,10 @@ class AdminRoomController extends RoomController
 
         // check user permission
         $this->checkAdminRoomPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
             $room->getBuildingId()
         );
 
@@ -845,7 +896,10 @@ class AdminRoomController extends RoomController
 
         // check user permission
         $this->checkAdminRoomPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
             $room->getBuildingId()
         );
 
@@ -902,7 +956,10 @@ class AdminRoomController extends RoomController
 
         // check user permission
         $this->checkAdminRoomPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
             $room->getBuildingId()
         );
 
@@ -947,7 +1004,10 @@ class AdminRoomController extends RoomController
 
         // check user permission
         $this->checkAdminRoomPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
             $room->getBuildingId()
         );
 
@@ -1270,17 +1330,19 @@ class AdminRoomController extends RoomController
     /**
      * Check user permission.
      *
-     * @param int $opLevel
-     * @param int $buildingId
+     * @param int   $opLevel
+     * @param array $permissions
+     * @param int   $buildingId
      */
     private function checkAdminRoomPermission(
         $opLevel,
+        $permissions,
         $buildingId = null
     ) {
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
             SalesAdminType::KEY_PLATFORM,
-            SalesAdminPermission::KEY_PLATFORM_ROOM,
+            $permissions,
             $opLevel,
             $buildingId
         );
@@ -1361,18 +1423,14 @@ class AdminRoomController extends RoomController
         $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
-        // get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_PLATFORM_ROOM,
-            )
-        );
-
         // check user permission
-        if (empty($myBuildingIds) || !in_array($product->getRoom()->getBuildingId(), $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
+            $product->getRoom()->getBuildingId()
+        );
 
         $yearString = $paramFetcher->get('year');
         $results = [];
@@ -1384,7 +1442,7 @@ class AdminRoomController extends RoomController
             $yearEnd = new \DateTime($yearString);
             $yearEnd = $yearEnd->modify('last day of December'.$yearString);
             $yearEnd->setTime(23, 59, 59);
-            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
                 $productId,
                 $yearStart,
                 $yearEnd
@@ -1442,21 +1500,14 @@ class AdminRoomController extends RoomController
             );
             $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
-            $room = $this->getRepo('Room\Room')->find($product->getRoomId());
-            $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
-
-            // get my buildings list
-            $myBuildingIds = $this->getMySalesBuildingIds(
-                $this->getAdminId(),
-                array(
-                    AdminPermission::KEY_PLATFORM_ROOM,
-                )
-            );
-
             // check user permission
-            if (empty($myBuildingIds) || !in_array($room->getBuildingId(), $myBuildingIds)) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-            }
+            $this->checkAdminRoomPermission(
+                SalesAdminPermissionMap::OP_LEVEL_VIEW,
+                array(
+                    SalesAdminPermission::KEY_PLATFORM_ROOM,
+                ),
+                $product->getRoom()->getBuildingId()
+            );
 
             $startString = $paramFetcher->get('start');
             $endString = $paramFetcher->get('end');
@@ -1473,7 +1524,7 @@ class AdminRoomController extends RoomController
                 $start->setTime(0, 0, 0);
                 $end = new \DateTime($endString);
                 $end->setTime(23, 59, 59);
-                $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
+                $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
                     $productId,
                     $start,
                     $end
@@ -1520,18 +1571,14 @@ class AdminRoomController extends RoomController
         );
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
-        // get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_PLATFORM_ROOM,
-            )
-        );
-
         // check user permission
-        if (empty($myBuildingIds) || !in_array($product->getRoom()->getBuildingId(), $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
+            $product->getRoom()->getBuildingId()
+        );
 
         $startString = $paramFetcher->get('start');
         $endString = $paramFetcher->get('end');
@@ -1550,7 +1597,7 @@ class AdminRoomController extends RoomController
             $start->setTime(0, 0, 0);
             $end = new \DateTime($endString);
             $end->setTime(23, 59, 59);
-            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
                 $productId,
                 $start,
                 $end
@@ -1612,18 +1659,14 @@ class AdminRoomController extends RoomController
         $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
-        // get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_PLATFORM_ROOM,
-            )
-        );
-
         // check user permission
-        if (empty($myBuildingIds) || !in_array($product->getRoom()->getBuildingId(), $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        $this->checkAdminRoomPermission(
+            SalesAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ROOM,
+            ),
+            $product->getRoom()->getBuildingId()
+        );
 
         $dayString = $paramFetcher->get('day');
         $results = [];
@@ -1634,7 +1677,7 @@ class AdminRoomController extends RoomController
             $end = new \DateTime($dayString);
             $end->setTime(23, 59, 59);
 
-            $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
                 $productId,
                 $start,
                 $end

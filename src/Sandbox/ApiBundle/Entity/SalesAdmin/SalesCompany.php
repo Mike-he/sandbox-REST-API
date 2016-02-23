@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * SalesCompany.
@@ -18,6 +19,8 @@ class SalesCompany
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $id;
 
@@ -25,6 +28,8 @@ class SalesCompany
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $name;
 
@@ -32,6 +37,8 @@ class SalesCompany
      * @var string
      *
      * @ORM\Column(name="applicantName", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $applicantName;
 
@@ -39,6 +46,8 @@ class SalesCompany
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $phone;
 
@@ -46,13 +55,26 @@ class SalesCompany
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $email;
 
     /**
      * @var string
      *
+     * @ORM\Column(name="address", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $address;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="description", type="text")
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $description;
 
@@ -60,6 +82,8 @@ class SalesCompany
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $creationDate;
 
@@ -67,6 +91,8 @@ class SalesCompany
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $modificationDate;
 
@@ -174,6 +200,22 @@ class SalesCompany
     public function getEmail()
     {
         return $this->email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
     }
 
     /**

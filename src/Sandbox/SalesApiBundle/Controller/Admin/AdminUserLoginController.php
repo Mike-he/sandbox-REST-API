@@ -2,10 +2,10 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Admin;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminClient;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminToken;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminClientType;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -26,7 +26,7 @@ use JMS\Serializer\SerializationContext;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminUserLoginController extends SandboxRestController
+class AdminUserLoginController extends SalesRestController
 {
     /**
      * Login.

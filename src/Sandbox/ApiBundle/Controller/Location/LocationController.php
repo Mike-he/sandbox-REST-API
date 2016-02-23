@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Location;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -26,7 +26,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
  *
  * @link     http://www.Sandbox.cn/
  */
-class LocationController extends SandboxRestController
+class LocationController extends SalesRestController
 {
     const LOCATION_CITY_PREFIX = 'location.city.';
 
