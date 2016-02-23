@@ -49,7 +49,8 @@ class RoomBuilding implements JsonSerializable
      *      "client_event",
      *      "current_order",
      *      "building_nearby",
-     *      "admin_building"
+     *      "admin_building",
+     *      "admin_shop"
      *  }
      * )
      */
@@ -85,7 +86,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "building_nearby", "admin_building"})
+     * @Serializer\Groups({"main", "building_nearby", "admin_building", "admin_shop"})
      **/
     private $city;
 
@@ -114,7 +115,8 @@ class RoomBuilding implements JsonSerializable
      *      "client_event",
      *      "current_order",
      *      "building_nearby",
-     *      "admin_building"
+     *      "admin_building",
+     *      "admin_shop"
      *  }
      * )
      */

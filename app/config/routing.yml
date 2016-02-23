@@ -16,3 +16,8 @@ sandbox_api:
     resource: "@SandboxApiBundle/Resources/config/routing.yml"
     type: rest
     prefix:
+
+sandbox_shop_api:
+    resource: "@SandboxShopApiBundle/Resources/config/routing.yml"
+    type: rest
+    prefix: /shop

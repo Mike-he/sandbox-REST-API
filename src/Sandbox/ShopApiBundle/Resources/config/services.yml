@@ -1,0 +1,7 @@
+parameters:
+#    sandbox_admin_api.example.class: Sandbox\AdminApiBundle\Example
+
+services:
+#    sandbox_admin_api.example:
+#        class: %sandbox_admin_api.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

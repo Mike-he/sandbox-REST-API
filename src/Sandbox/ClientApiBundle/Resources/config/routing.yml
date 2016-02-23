@@ -245,3 +245,15 @@ sandbox_client_third_party_auth_news:
     resource: "@SandboxClientApiBundle/Controller/ThirdParty/ClientThirdPartyController.php"
     type:     annotation
     prefix:   /thirdparty
+
+# Shop /client/shops
+sandbox_client_api_shops:
+    resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopController.php"
+    type:     annotation
+    prefix:   /
+
+# ShopMenu /client/shops/menu
+sandbox_client_api_shops_menu:
+    resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopMenuController.php"
+    type:     annotation
+    prefix:   /

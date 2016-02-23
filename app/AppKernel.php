@@ -25,6 +25,7 @@ class AppKernel extends Kernel
             new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
             new Hautelook\TemplatedUriBundle\HautelookTemplatedUriBundle(),
             new Bazinga\Bundle\RestExtraBundle\BazingaRestExtraBundle(),
+            new Sandbox\ShopApiBundle\SandboxShopApiBundle(),
             new Sandbox\ApiBundle\SandboxApiBundle(),
             new Sandbox\ClientApiBundle\SandboxClientApiBundle(),
             new Sandbox\AdminApiBundle\SandboxAdminApiBundle(),
