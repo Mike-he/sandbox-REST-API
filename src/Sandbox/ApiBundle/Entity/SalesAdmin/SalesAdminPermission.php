@@ -17,21 +17,17 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class SalesAdminPermission
 {
-    const KEY_PLATFORM_ORDER = 'platform.order';
-    const KEY_PLATFORM_USER = 'platform.user';
-    const KEY_PLATFORM_ROOM = 'platform.room';
-    const KEY_PLATFORM_PRODUCT = 'platform.product';
-    const KEY_PLATFORM_PRICE = 'platform.price';
-    const KEY_PLATFORM_ACCESS = 'platform.access';
-    const KEY_PLATFORM_ADMIN = 'platform.admin';
-    const KEY_PLATFORM_ANNOUNCEMENT = 'platform.announcement';
-    const KEY_PLATFORM_DASHBOARD = 'platform.dashboard';
-    const KEY_PLATFORM_EVENT = 'platform.event';
-    const KEY_PLATFORM_BANNER = 'platform.banner';
-    const KEY_PLATFORM_NEWS = 'platform.news';
-    const KEY_PLATFORM_MESSAGE = 'platform.message';
-    const KEY_PLATFORM_BUILDING = 'platform.building';
-    const KEY_PLATFORM_VERIFY = 'platform.verify';
+    const KEY_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
+    const KEY_PLATFORM_ADMIN = 'sales.platform.admin';
+    const KEY_PLATFORM_BUILDING = 'sales.platform.building';
+    const KEY_PLATFORM_PRICE = 'sales.platform.price';
+
+    const KEY_BUILDING_ORDER = 'sales.building.order';
+    const KEY_BUILDING_BUILDING = 'sales.building.building';
+    const KEY_BUILDING_USER = 'sales.building.user';
+    const KEY_BUILDING_ROOM = 'sales.building.room';
+    const KEY_BUILDING_PRODUCT = 'sales.building.product';
+    const KEY_BUILDING_ACCESS = 'sales.building.access';
 
     /**
      * @var int

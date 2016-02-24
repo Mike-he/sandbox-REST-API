@@ -18,8 +18,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 
 /**
  * Admin Room attachment controller.
@@ -83,7 +81,7 @@ class AdminRoomAttachmentController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             )
         );
 
@@ -133,7 +131,7 @@ class AdminRoomAttachmentController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             )
         );
 
@@ -271,7 +269,9 @@ class AdminRoomAttachmentController extends SalesRestController
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
             SalesAdminType::KEY_PLATFORM,
-            SalesAdminPermission::KEY_PLATFORM_ROOM,
+            array(
+                SalesAdminPermission::KEY_BUILDING_ROOM,
+            ),
             $opLevel,
             $buildingId
         );

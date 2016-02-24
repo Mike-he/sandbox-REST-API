@@ -128,6 +128,14 @@ class SalesAdmin implements UserInterface
     private $defaultPasswordChanged = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="banned", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     */
+    private $banned = false;
+
+    /**
      * @return int
      */
     public function getCompanyId()
@@ -271,6 +279,22 @@ class SalesAdmin implements UserInterface
     public function setDefaultPasswordChanged($defaultPasswordChanged)
     {
         $this->defaultPasswordChanged = $defaultPasswordChanged;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBanned()
+    {
+        return $this->banned;
+    }
+
+    /**
+     * @param bool $banned
+     */
+    public function setBanned($banned)
+    {
+        $this->banned = $banned;
     }
 
     /**

@@ -26,7 +26,7 @@ class SalesRestController extends SandboxRestController
         $adminId,
         $typeKey,
         $permissionKeys = null,
-        $opLevel = 0,
+        $opLevel = SalesAdminPermissionMap::OP_LEVEL_VIEW,
         $buildingId = null
     ) {
         $myPermission = null;
@@ -45,16 +45,10 @@ class SalesRestController extends SandboxRestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        if (is_null($permissionKeys) || empty($permissionKeys)) {
-            return;
-        }
-
         // check permission key array
-        if (!is_array($permissionKeys)) {
+        if (is_null($permissionKeys) || empty($permissionKeys) || !is_array($permissionKeys)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
-
-        $permissionFound = false;
 
         foreach ($permissionKeys as $permissionKey) {
             $permission = $this->getRepo('SalesAdmin\SalesAdminPermission')->findOneByKey($permissionKey);
@@ -63,31 +57,23 @@ class SalesRestController extends SandboxRestController
             }
 
             // judge by global permission and building permission
-            if (is_null($buildingId)) {
-                $filters = array(
-                    'adminId' => $adminId,
-                    'permissionId' => $permission->getId(),
-                );
-            } else {
-                $filters = array(
-                    'adminId' => $adminId,
-                    'permissionId' => $permission->getId(),
-                    'buildingId' => $buildingId,
-                );
+            $filters = array(
+                'adminId' => $adminId,
+                'permissionId' => $permission->getId(),
+            );
+            if (!is_null($buildingId)) {
+                $filters['buildingId'] = $buildingId;
             }
 
             // check user's permission
             $myPermission = $this->getRepo('SalesAdmin\SalesAdminPermissionMap')
                 ->findOneBy($filters);
             if (!is_null($myPermission) && $myPermission->getOpLevel() >= $opLevel) {
-                $permissionFound = true;
-                break;
+                return;
             }
         }
 
-        if (!$permissionFound) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
     }
 
     /**
@@ -124,7 +110,7 @@ class SalesRestController extends SandboxRestController
 
         if (SalesAdminType::KEY_SUPER === $type->getKey()) {
             // if user is super admin, get all buildings
-            $myBuildings = $this->getRepo('Room\RoomBuilding')->getMySalesBuildings($admin->getCompanyId());
+            $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($admin->getCompanyId());
         } else {
             // platform admin get binding buildings
             $myBuildings = $this->getRepo('SalesAdmin\SalesAdminPermissionMap')->getMySalesBuildings(

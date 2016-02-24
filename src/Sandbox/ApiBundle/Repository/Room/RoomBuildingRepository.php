@@ -52,22 +52,6 @@ class RoomBuildingRepository extends EntityRepository
     }
 
     /**
-     * @param $companyId
-     *
-     * @return array
-     */
-    public function getMySalesBuildings(
-        $companyId
-    ) {
-        $query = $this->createQueryBuilder('b')
-            ->select('b.id as buildingId')
-            ->where('b.companyId = :companyId')
-            ->setParameter('companyId', $companyId);
-
-        return $query->getQuery()->getResult();
-    }
-
-    /**
      * @param string $lat
      * @param string $lng
      * @param int    $range
@@ -112,5 +96,21 @@ class RoomBuildingRepository extends EntityRepository
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    /**
+     * @param $companyId
+     *
+     * @return array
+     */
+    public function getBuildingsByCompany(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->select('b.id as buildingId')
+            ->where('b.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        return $query->getQuery()->getResult();
     }
 }

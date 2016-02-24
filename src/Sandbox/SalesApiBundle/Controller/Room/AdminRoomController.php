@@ -5,7 +5,6 @@ namespace Sandbox\SalesApiBundle\Controller\Room;
 use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomDoors;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
@@ -168,9 +167,8 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
-                SalesAdminPermission::KEY_PLATFORM_PRODUCT,
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
             )
         );
 
@@ -187,9 +185,8 @@ class AdminRoomController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
-                SalesAdminPermission::KEY_PLATFORM_PRODUCT,
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
             )
         );
 
@@ -267,7 +264,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             )
         );
 
@@ -275,7 +272,7 @@ class AdminRoomController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             )
         );
 
@@ -291,7 +288,7 @@ class AdminRoomController extends SalesRestController
                 }
 
                 if (!$room->isDeleted()) {
-                    $usage = $this->getRepo('Room\Room')->getRoomUsageStatus($roomId);
+                    $usage = $this->getRepo('Room\Room')->getSalesRoomUsageStatus($roomId);
 
                     if (!is_null($usage) && !empty($usage)) {
                         $status = true;
@@ -356,7 +353,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             )
         );
 
@@ -364,7 +361,7 @@ class AdminRoomController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             )
         );
 
@@ -373,7 +370,7 @@ class AdminRoomController extends SalesRestController
 
         $floor = !is_null($floorId) ? $this->getRepo('Room\RoomFloor')->find($floorId) : null;
 
-        $query = $this->getRepo('Room\Room')->getNotProductedRooms(
+        $query = $this->getRepo('Room\Room')->getSalesNotProductedRooms(
             $floor,
             $type,
             $myBuildingIds
@@ -491,7 +488,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             )
         );
 
@@ -499,7 +496,7 @@ class AdminRoomController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             )
         );
 
@@ -579,9 +576,8 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
-                SalesAdminPermission::KEY_PLATFORM_PRODUCT,
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
             )
         );
 
@@ -596,9 +592,8 @@ class AdminRoomController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
-                SalesAdminPermission::KEY_PLATFORM_PRODUCT,
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
             )
         );
 
@@ -649,7 +644,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $room->getBuildingId()
         );
@@ -705,7 +700,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $room->getBuildingId()
         );
@@ -773,7 +768,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $room->getBuildingId()
         );
@@ -837,7 +832,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $room->getBuildingId()
         );
@@ -898,7 +893,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $room->getBuildingId()
         );
@@ -958,7 +953,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $room->getBuildingId()
         );
@@ -1006,7 +1001,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $room->getBuildingId()
         );
@@ -1427,7 +1422,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $product->getRoom()->getBuildingId()
         );
@@ -1504,7 +1499,7 @@ class AdminRoomController extends SalesRestController
             $this->checkAdminRoomPermission(
                 SalesAdminPermissionMap::OP_LEVEL_VIEW,
                 array(
-                    SalesAdminPermission::KEY_PLATFORM_ROOM,
+                    SalesAdminPermission::KEY_BUILDING_ROOM,
                 ),
                 $product->getRoom()->getBuildingId()
             );
@@ -1575,7 +1570,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $product->getRoom()->getBuildingId()
         );
@@ -1663,7 +1658,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $product->getRoom()->getBuildingId()
         );

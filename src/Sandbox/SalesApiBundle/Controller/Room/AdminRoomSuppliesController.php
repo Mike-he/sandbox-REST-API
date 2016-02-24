@@ -101,7 +101,7 @@ class AdminRoomSuppliesController extends SalesRestController
             $this->getAdminId(),
             SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_PLATFORM_ROOM,
+                SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
             $opLevel
         );

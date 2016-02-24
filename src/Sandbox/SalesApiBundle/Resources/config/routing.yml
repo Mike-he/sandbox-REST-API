@@ -4,6 +4,12 @@ sandbox_sales_admin_api_auth_login:
     type:     annotation
     prefix:   /admin/auth
 
+# Admin User Logout /sales/admin/auth/logout
+sandbox_sales_admin_api_auth_logout:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminUserLogoutController.php"
+    type:     annotation
+    prefix:   /admin/auth
+
 # Admin Rooms /sales/admin/buildings
 sandbox_sales_admin_building:
     resource: "@SandboxSalesApiBundle/Controller/Building/AdminBuildingController.php"
@@ -31,5 +37,17 @@ sandbox_sales_admin_room_attachment:
 # Admin Admins /sales/admin/admins
 sandbox_sales_admin_admins:
     resource: "@SandboxSalesApiBundle/Controller/Admin/AdminAdminsController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Permission /sales/admin/permission
+sandbox_sales_admin_permissions:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminPermissionsController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Type /sales/admin/types
+sandbox_sales_admin_types:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminTypesController.php"
     type:     annotation
     prefix:   /admin

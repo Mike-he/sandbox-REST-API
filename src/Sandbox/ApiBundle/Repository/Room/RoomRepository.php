@@ -538,4 +538,93 @@ class RoomRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * check room usage status.
+     *
+     * @param $roomId
+     *
+     * @return array
+     */
+    public function getSalesRoomUsageStatus(
+        $roomId
+    ) {
+        $now = new \DateTime();
+        $query = $this->createQueryBuilder('r')
+            ->select('
+                o.userId,
+                v.name,
+                v.email,
+                v.phone,
+                o.startDate,
+                o.endDate
+            ')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'v', 'WITH', 'o.userId = v.id')
+            ->where('o.startDate <= :now AND o.endDate >= :now')
+            ->andWhere('r.id = :roomId')
+            ->andWhere('o.status = :status')
+            ->setParameter('now', $now)
+            ->setParameter('roomId', $roomId)
+            ->setParameter('status', ProductOrder::STATUS_COMPLETED);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param RoomFloor $floor
+     * @param string    $type
+     * @param array     $myBuildingIds
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    public function getSalesNotProductedRooms(
+        $floor,
+        $type,
+        $myBuildingIds
+    ) {
+        if (is_null($type)) {
+            throw new BadRequestHttpException();
+        }
+
+        if ($type != 'fixed') {
+            $query = $this->createQueryBuilder('r')
+                ->where('r.floor = :floor')
+                ->andWhere('
+                    r.id NOT IN (
+                        SELECT p.roomId
+                        FROM SandboxApiBundle:Product\Product p
+                        WHERE p.roomId = r.id
+                        AND p.visible = true
+                    )
+                ')
+                ->setParameter('floor', $floor);
+        } else {
+            $query = $this->createQueryBuilder('r')
+                ->where('r.floor = :floor')
+                ->andWhere('
+                    r.id IN (
+                        SELECT f.roomId
+                        FROM SandboxApiBundle:Room\RoomFixed f
+                        WHERE f.roomId = r.id
+                        AND f.available = true
+                    )
+                ')
+                ->setParameter('floor', $floor);
+        }
+        $query = $query->andWhere('r.type = :type')
+            ->andWhere('r.isDeleted = FALSE')
+            ->setParameter('type', $type);
+
+        // filter by my buildings
+        $query->andWhere('r.buildingId IN (:buildingIds)');
+        $query->setParameter('buildingIds', $myBuildingIds);
+
+        $query = $query->orderBy('r.id', 'ASC');
+
+        return $query->getQuery()->getResult();
+    }
 }

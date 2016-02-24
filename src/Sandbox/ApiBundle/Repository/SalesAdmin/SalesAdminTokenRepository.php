@@ -10,7 +10,7 @@ class SalesAdminTokenRepository extends EntityRepository
      * @param int $adminId
      * @param int $clientId
      */
-    public function deleteAdminToken(
+    public function deleteSalesAdminToken(
         $adminId,
         $clientId
     ) {

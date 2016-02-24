@@ -262,6 +262,7 @@ class AdminSalesAdminsController extends SandboxRestController
         );
 
         $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($id);
+        $passwordOld = $admin->getPassword();
 
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
@@ -270,6 +271,11 @@ class AdminSalesAdminsController extends SandboxRestController
 
         $form = $this->createForm(new SalesAdminPutType(), $admin);
         $form->submit(json_decode($adminJson, true));
+
+        $passwordNew = $admin->getPassword();
+        if ($passwordOld != $passwordNew) {
+            $admin->setDefaultPasswordChanged(false);
+        }
 
         $type_key = $form['type_key']->getData();
         $permission = $form['permission']->getData();
@@ -579,7 +585,7 @@ class AdminSalesAdminsController extends SandboxRestController
                 self::ERROR_ADMIN_TYPE_CODE,
                 self::ERROR_ADMIN_TYPE_MESSAGE);
         } else {
-            $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
+            $type = $this->getRepo('SalesAdmin\SalesAdminType')->find($admin->getTypeId());
             if (is_null($type)) {
                 return $this->customErrorView(
                     400,

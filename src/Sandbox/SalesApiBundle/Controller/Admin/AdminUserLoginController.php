@@ -28,6 +28,9 @@ use JMS\Serializer\SerializationContext;
  */
 class AdminUserLoginController extends SalesRestController
 {
+    const ERROR_ACCOUNT_BANNED_CODE = 401001;
+    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：xxx-xxxxxxx';
+
     /**
      * Login.
      *
@@ -54,6 +57,13 @@ class AdminUserLoginController extends SalesRestController
         $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find(
             $this->getUser()->getId()
         );
+        if ($admin->isBanned()) {
+            // user is banned
+            return $this->customErrorView(
+                401,
+                self::ERROR_ACCOUNT_BANNED_CODE,
+                self::ERROR_ACCOUNT_BANNED_MESSAGE);
+        }
 
         return $this->handleAdminUserLogin($request, $admin);
     }
@@ -185,7 +195,7 @@ class AdminUserLoginController extends SalesRestController
         $admin,
         $adminClient
     ) {
-        $adminToken = $this->getRepo('Admin\AdminToken')->findOneBy(array(
+        $adminToken = $this->getRepo('SalesAdmin\SalesAdminToken')->findOneBy(array(
             'admin' => $admin,
             'client' => $adminClient,
         ));
