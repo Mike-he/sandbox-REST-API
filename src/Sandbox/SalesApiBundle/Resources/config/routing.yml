@@ -22,21 +22,15 @@ sandbox_sales_admin_room_supplies:
     type:     annotation
     prefix:   /admin
 
-# Admin Rooms /sales/admin/rooms
-sandbox_sales_admin_room:
-    resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomController.php"
-    type:     annotation
-    prefix:   /admin
-
 # Admin Rooms /sales/admin/rooms/attachments
 sandbox_sales_admin_room_attachment:
     resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomAttachmentController.php"
     type:     annotation
     prefix:   /admin
 
-# Admin Admins /sales/admin/admins
-sandbox_sales_admin_admins:
-    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminAdminsController.php"
+# Admin Rooms /sales/admin/rooms
+sandbox_sales_admin_room:
+    resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomController.php"
     type:     annotation
     prefix:   /admin
 
@@ -49,5 +43,41 @@ sandbox_sales_admin_permissions:
 # Admin Type /sales/admin/types
 sandbox_sales_admin_types:
     resource: "@SandboxSalesApiBundle/Controller/Admin/AdminTypesController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Admins /sales/admin/admins
+sandbox_sales_admin_admins:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminAdminsController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Product /sales/admin/products/recommend
+sandbox_sales_admin_products_recommend:
+    resource: "@SandboxSalesApiBundle/Controller/Product/AdminProductRecommendController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Product /sales/admin/products
+sandbox_sales_admin_products:
+    resource: "@SandboxSalesApiBundle/Controller/Product/AdminProductController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Order /sales/admin/orders
+sandbox_sales_admin_orders:
+    resource: "@SandboxSalesApiBundle/Controller/Order/AdminOrderController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin User /sales/admin/users
+sandbox_sales_admin_users:
+    resource: "@SandboxSalesApiBundle/Controller/User/AdminUsersController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Door /sales/admin/doors
+sandbox_sales_admin_doors:
+    resource: "@SandboxSalesApiBundle/Controller/Door/AdminDoorController.php"
     type:     annotation
     prefix:   /admin

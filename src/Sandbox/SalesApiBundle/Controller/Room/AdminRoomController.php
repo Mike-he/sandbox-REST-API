@@ -426,7 +426,7 @@ class AdminRoomController extends SalesRestController
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                SalesAdminPermission::KEY_PLATFORM_PRICE,
+                SalesAdminPermission::KEY_BUILDING_PRICE,
             )
         );
 
@@ -438,7 +438,7 @@ class AdminRoomController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_PLATFORM_PRICE,
+                SalesAdminPermission::KEY_BUILDING_PRICE,
             )
         );
 

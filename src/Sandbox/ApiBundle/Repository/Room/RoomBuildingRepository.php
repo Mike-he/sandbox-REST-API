@@ -11,14 +11,12 @@ class RoomBuildingRepository extends EntityRepository
      *
      * @param int    $cityId
      * @param string $query
-     * @param array  $myBuildingIds
      *
      * @return array
      */
     public function getRoomBuildings(
         $cityId,
-        $query,
-        $myBuildingIds
+        $query
     ) {
         $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -41,9 +39,6 @@ class RoomBuildingRepository extends EntityRepository
             }
             $buildingsQuery->setParameter('cityId', $cityId);
         }
-
-        $buildingsQuery->andWhere('rb.id IN (:ids)');
-        $buildingsQuery->setParameter('ids', $myBuildingIds);
 
         // order by creation date
         $buildingsQuery->orderBy('rb.creationDate', 'DESC');
@@ -112,5 +107,52 @@ class RoomBuildingRepository extends EntityRepository
             ->setParameter('companyId', $companyId);
 
         return $query->getQuery()->getResult();
+    }
+
+    //-------------------- sales room repository --------------------//
+
+    /**
+     * Get list of room buildings.
+     *
+     * @param int    $cityId
+     * @param string $query
+     * @param array  $myBuildingIds
+     *
+     * @return array
+     */
+    public function getSalesRoomBuildings(
+        $cityId,
+        $query,
+        $myBuildingIds
+    ) {
+        $notFirst = false;
+        $buildingsQuery = $this->createQueryBuilder('rb');
+
+        // query by key words
+        if (!is_null($query)) {
+            $buildingsQuery->where('rb.name LIKE :query')
+                ->andWhere('rb.address LIKE :query')
+                ->setParameter('query', $query.'%');
+
+            $notFirst = true;
+        }
+
+        // query by city id
+        if (!is_null($cityId)) {
+            if ($notFirst) {
+                $buildingsQuery->andWhere('rb.cityId = :cityId');
+            } else {
+                $buildingsQuery->where('rb.cityId = :cityId');
+            }
+            $buildingsQuery->setParameter('cityId', $cityId);
+        }
+
+        $buildingsQuery->andWhere('rb.id IN (:ids)');
+        $buildingsQuery->setParameter('ids', $myBuildingIds);
+
+        // order by creation date
+        $buildingsQuery->orderBy('rb.creationDate', 'DESC');
+
+        return $buildingsQuery->getQuery()->getResult();
     }
 }

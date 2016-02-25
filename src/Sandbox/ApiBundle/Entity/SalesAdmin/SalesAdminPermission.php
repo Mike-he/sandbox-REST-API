@@ -20,8 +20,8 @@ class SalesAdminPermission
     const KEY_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_PLATFORM_ADMIN = 'sales.platform.admin';
     const KEY_PLATFORM_BUILDING = 'sales.platform.building';
-    const KEY_PLATFORM_PRICE = 'sales.platform.price';
 
+    const KEY_BUILDING_PRICE = 'sales.building.price';
     const KEY_BUILDING_ORDER = 'sales.building.order';
     const KEY_BUILDING_BUILDING = 'sales.building.building';
     const KEY_BUILDING_USER = 'sales.building.user';

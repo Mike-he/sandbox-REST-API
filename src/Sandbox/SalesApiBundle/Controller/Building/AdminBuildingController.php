@@ -170,7 +170,7 @@ class AdminBuildingController extends LocationController
         $cityId = $paramFetcher->get('city');
         $query = $paramFetcher->get('query');
 
-        $buildings = $this->getRepo('Room\RoomBuilding')->getRoomBuildings(
+        $buildings = $this->getRepo('Room\RoomBuilding')->getSalesRoomBuildings(
             $cityId,
             $query,
             $myBuildingIds
