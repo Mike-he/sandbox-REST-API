@@ -1,11 +1,11 @@
 <?php
 
-namespace Sandbox\ShopApiBundle\Data\Shop;
+namespace Sandbox\AdminShopApiBundle\Data\Shop;
 
 /**
- * Shop Spec Item Incoming Data.
+ * Shop Menu Item Incoming Data.
  */
-class ShopSpecItemData
+class ShopMenuItem
 {
     /**
      * @var int
@@ -16,11 +16,6 @@ class ShopSpecItemData
      * @var string
      */
     private $name;
-
-    /**
-     * @var bool
-     */
-    private $inventory;
 
     /**
      * Get id.
@@ -60,25 +55,5 @@ class ShopSpecItemData
     public function setName($name)
     {
         $this->name = $name;
-    }
-
-    /**
-     * Get inventory.
-     *
-     * @return bool
-     */
-    public function getInventory()
-    {
-        return $this->inventory;
-    }
-
-    /**
-     * Set Inventory.
-     *
-     * @param bool $inventory
-     */
-    public function setInventory($inventory)
-    {
-        $this->inventory = $inventory;
     }
 }

@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Shop;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * ShopMenu.
@@ -20,7 +21,7 @@ class ShopMenu implements JsonSerializable
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $id;
 
@@ -28,7 +29,7 @@ class ShopMenu implements JsonSerializable
      * @var int
      *
      * @ORM\Column(name="shopId", type="integer")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main"})
      */
     private $shopId;
 
@@ -45,7 +46,9 @@ class ShopMenu implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
      */
     private $name;
 
@@ -72,13 +75,6 @@ class ShopMenu implements JsonSerializable
      * @Serializer\Groups({"main"})
      */
     private $invisible = false;
-
-    /**
-     * @var int
-     *
-     * @Serializer\Groups({"main", "admin_shop"})
-     */
-    private $count;
 
     /**
      * Get id.
@@ -160,30 +156,6 @@ class ShopMenu implements JsonSerializable
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set count.
-     *
-     * @param int $count
-     *
-     * @return ShopMenu
-     */
-    public function setCount($count)
-    {
-        $this->count = $count;
-
-        return $this;
-    }
-
-    /**
-     * Get count.
-     *
-     * @return int
-     */
-    public function getCount()
-    {
-        return $this->count;
     }
 
     /**

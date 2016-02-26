@@ -18,6 +18,8 @@ class Shop implements JsonSerializable
     const PATH_ONLINE = '/online';
     const PATH_CLOSE = '/close';
     const PATH_ACTIVE = '/active';
+    const SHOP_INACTIVE_CODE = 400001;
+    const SHOP_INACTIVE_MESSAGE = 'This Shop is Inactive';
 
     /**
      * @var int

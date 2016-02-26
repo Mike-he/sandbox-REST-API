@@ -257,3 +257,9 @@ sandbox_client_api_shops_menu:
     resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopMenuController.php"
     type:     annotation
     prefix:   /
+
+# ShopProduct /client/shops/product
+sandbox_client_api_shops_product:
+    resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopProductController.php"
+    type:     annotation
+    prefix:   /

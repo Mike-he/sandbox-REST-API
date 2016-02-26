@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ShopApiBundle\Controller\Shop;
+namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -17,11 +17,15 @@ use Sandbox\ApiBundle\Form\Shop\ShopPatchOnlineType;
 use Sandbox\ApiBundle\Form\Shop\ShopPatchCloseType;
 use Sandbox\ApiBundle\Form\Shop\ShopPatchActiveType;
 use Sandbox\ApiBundle\Form\Shop\ShopAttachmentPostType;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Rs\Json\Patch;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Shop\ShopSpec;
+use Sandbox\ApiBundle\Entity\Shop\ShopSpecItem;
+use Sandbox\ApiBundle\Form\Shop\ShopSpecPostType;
+use Sandbox\ApiBundle\Form\Shop\ShopSpecItemPostType;
 
 /**
  * Admin Shop Controller.
@@ -121,10 +125,24 @@ class AdminShopController extends ShopController
                 $type = new ShopPatchActiveType();
                 break;
             case Shop::PATH_CLOSE:
+                if (!$shop->isActive()) {
+                    return $this->customErrorView(
+                        400,
+                        Shop::SHOP_INACTIVE_CODE,
+                        Shop::SHOP_INACTIVE_MESSAGE
+                    );
+                }
                 //TODO: Check Coffee Admin Perminsion
                 $type = new ShopPatchCloseType();
                 break;
             case Shop::PATH_ONLINE:
+                if (!$shop->isActive()) {
+                    return $this->customErrorView(
+                        400,
+                        Shop::SHOP_INACTIVE_CODE,
+                        Shop::SHOP_INACTIVE_MESSAGE
+                    );
+                }
                 //TODO: Check Coffee/ThirdParty Admin Perminsion
                 $type = new ShopPatchOnlineType();
                 break;
@@ -162,9 +180,6 @@ class AdminShopController extends ShopController
         $id
     ) {
         $shop = $this->getRepo('Shop\Shop')->getShopById($id);
-        if (empty($shop) || is_null($shop)) {
-            throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
-        }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
@@ -198,15 +213,76 @@ class AdminShopController extends ShopController
         $buildingId = $paramFetcher->get('building');
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding($buildingId);
 
-        if (empty($shops) || is_null($shops)) {
-            throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
-        }
-
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
         $view->setData($shops);
 
         return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="Filter by city"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/buildings")
+     *
+     * @return View
+     */
+    public function getBuildingByCityAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $cityId = $paramFetcher->get('city');
+        $buildings = $this->getRepo('Room\RoomBuilding')->findByCityId($cityId);
+
+        $buildings = $this->get('serializer')->serialize(
+            $buildings,
+            'json',
+            SerializationContext::create()->setGroups(['admin_shop'])
+        );
+        $buildings = json_decode($buildings, true);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $buildings,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
@@ -244,6 +320,8 @@ class AdminShopController extends ShopController
             $em
         );
 
+        $this->createAutoSpec($shop, $em);
+
         $em->persist($shop);
         $em->flush();
 
@@ -251,6 +329,56 @@ class AdminShopController extends ShopController
         $view->setData(['id' => $shop->getId()]);
 
         return $view;
+    }
+
+    /**
+     * @param $shop
+     * @param $em
+     */
+    private function createAutoSpec(
+        $shop,
+        $em
+    ) {
+        $content = [
+            'name' => ShopSpec::AUTO_SPEC_NAME,
+            'items' => [
+                'name' => ShopSpecItem::AUTO_SPEC_ITEM_NAME,
+                'inventory' => true,
+            ],
+        ];
+
+        $spec = new ShopSpec();
+        $form = $this->createForm(new ShopSpecPostType(), $spec);
+        $form->submit($content, true);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $this->createAutoSpecItem($spec, $em);
+        $spec->setShop($shop);
+        $spec->setAuto(true);
+        $em->persist($spec);
+    }
+
+    /**
+     * @param $spec
+     * @param $em
+     */
+    private function createAutoSpecItem(
+        $spec,
+        $em
+    ) {
+        $specItem = new ShopSpecItem();
+        $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
+        $form->submit($spec->getItems(), true);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $specItem->setSpec($spec);
+        $em->persist($specItem);
     }
 
     /**

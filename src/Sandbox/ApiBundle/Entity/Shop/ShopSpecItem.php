@@ -14,13 +14,15 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ShopSpecItem implements JsonSerializable
 {
+    const AUTO_SPEC_ITEM_NAME = 'SPEC ITEM NONE';
+
     /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $id;
 
@@ -45,31 +47,15 @@ class ShopSpecItem implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $name;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="amount", type="integer")
-     * @Serializer\Groups({"main", "admin_shop"})
-     */
-    private $amount = 0;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="price", type="decimal", precision=10, scale=2)
-     * @Serializer\Groups({"main", "admin_shop"})
-     */
-    private $price = 0;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="inventory", type="boolean")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $inventory = false;
 
@@ -108,30 +94,6 @@ class ShopSpecItem implements JsonSerializable
     }
 
     /**
-     * Set amount.
-     *
-     * @param int $amount
-     *
-     * @return ShopSpecItem
-     */
-    public function setAmount($amount)
-    {
-        $this->amount = $amount;
-
-        return $this;
-    }
-
-    /**
-     * Get amount.
-     *
-     * @return int
-     */
-    public function getAmount()
-    {
-        return $this->amount;
-    }
-
-    /**
      * Set inventory.
      *
      * @param bool $inventory
@@ -153,30 +115,6 @@ class ShopSpecItem implements JsonSerializable
     public function hasInventory()
     {
         return $this->inventory;
-    }
-
-    /**
-     * Set price.
-     *
-     * @param string $price
-     *
-     * @return ShopSpecItem
-     */
-    public function setPrice($price)
-    {
-        $this->price = $price;
-
-        return $this;
-    }
-
-    /**
-     * Get price.
-     *
-     * @return string
-     */
-    public function getPrice()
-    {
-        return $this->price;
     }
 
     /**
@@ -232,7 +170,6 @@ class ShopSpecItem implements JsonSerializable
         return array(
             'id' => $this->id,
             'name' => $this->name,
-            'price' => $this->price,
         );
     }
 }

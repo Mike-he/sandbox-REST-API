@@ -1,8 +1,8 @@
 <?php
 
-namespace Sandbox\ShopApiBundle\Controller\Shop;
+namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
-use Sandbox\ShopApiBundle\Data\Shop\ShopMenuPosition;
+use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuPosition;
 use Sandbox\ApiBundle\Entity\Shop\ShopMenu;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -11,14 +11,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Shop\ShopMenuController;
-use Sandbox\ShopApiBundle\Data\Shop\ShopMenuData;
-use Sandbox\ShopApiBundle\Data\Shop\ShopMenuItem;
+use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuData;
+use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuItem;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuAddType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuModifyType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuRemoveType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuPositionType;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Admin Shop Menu Controller.
@@ -47,22 +46,24 @@ class AdminShopMenuController extends ShopMenuController
         Request $request,
         $id
     ) {
-        $shop = $this->findShopById($id);
-        $menu = $this->getRepo('Shop\ShopMenu')->findBy(
-            [
-                'shopId' => $shop->getId(),
-                'invisible' => false,
-            ],
-            ['sortTime' => 'DESC']
+        $this->findEntityById($id, 'Shop\Shop');
+        $menus = $this->getRepo('Shop\ShopMenu')->getShopMenuByShop($id);
+        $menus = $this->get('serializer')->serialize(
+            $menus,
+            'json',
+            SerializationContext::create()->setGroups(['admin_shop'])
         );
+        $menus = json_decode($menus, true);
 
-        //TODO: GET PRODUCT COUNT
+        // get product count for each menu item
+        $menuArray = [];
+        foreach ($menus as $menu) {
+            $count = $this->getRepo('Shop\ShopProduct')->countShopProductByMenu($menu['id']);
+            $menu['count'] = $count;
+            array_push($menuArray, $menu);
+        }
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
-        $view->setData($menu);
-
-        return $view;
+        return new View($menuArray);
     }
 
     /**
@@ -128,7 +129,7 @@ class AdminShopMenuController extends ShopMenuController
      * @Method({"POST"})
      * @Route("/shops/{shopId}/menus/{id}/position")
      *
-     * @return Response
+     * @return View
      *
      * @throws \Exception
      */
@@ -149,7 +150,7 @@ class AdminShopMenuController extends ShopMenuController
 
         $action = $position->getAction();
         if (empty($action) || is_null($action)) {
-            return new Response();
+            return new View();
         }
 
         $this->setMenuPosition(
@@ -171,17 +172,16 @@ class AdminShopMenuController extends ShopMenuController
         if ($action == ShopMenuPosition::ACTION_TOP) {
             $menu->setSortTime(round(microtime(true) * 1000));
         } elseif ($action == ShopMenuPosition::ACTION_UP || $action == ShopMenuPosition::ACTION_DOWN) {
-            $swapItemArray = $this->getRepo('Shop\ShopMenu')->findSwapShopMenu(
+            $swapItem = $this->getRepo('Shop\ShopMenu')->findSwapShopMenu(
                 $menu,
                 $action
             );
 
-            if (empty($swapItemArray)) {
+            if (empty($swapItem)) {
                 return;
             }
 
             // swap
-            $swapItem = $swapItemArray[0];
             $itemSortTime = $menu->getSortTime();
             $menu->setSortTime($swapItem->getSortTime());
             $swapItem->setSortTime($itemSortTime);

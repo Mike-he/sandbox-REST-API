@@ -20,16 +20,24 @@ class ShopRepository extends EntityRepository
      */
     public function getShopByBuilding(
         $buildingId,
-        $allowed = true
+        $active = false,
+        $online = false
     ) {
         $query = $this->createQueryBuilder('s')
             ->where('s.buildingId = :buildingId')
+            ->orderBy('s.creationDate', 'ASC')
             ->setParameter('buildingId', $buildingId);
 
-        // check if only can see shops currently active
-        if (!$allowed) {
+        // filter active shops
+        if ($active) {
             $query = $query->andWhere('s.active = :active')
                 ->setParameter('active', true);
+        }
+
+        // filter online shops
+        if ($online) {
+            $query = $query->andWhere('s.online = :online')
+                ->setParameter('online', true);
         }
 
         return $query->getQuery()->getResult();
@@ -43,18 +51,59 @@ class ShopRepository extends EntityRepository
      */
     public function getShopById(
         $shopId,
-        $allowed = true
+        $active = false,
+        $online = false
     ) {
         $query = $this->createQueryBuilder('s')
             ->where('s.id = :shopId')
             ->setParameter('shopId', $shopId);
 
         // check if only can see shops currently open
+        if ($active) {
+            $query = $query->andWhere('s.active = :active')
+                ->setParameter('active', true);
+        }
+
+        // filter online shops
+        if ($online) {
+            $query = $query->andWhere('s.online = :online')
+                ->setParameter('online', true);
+        }
+
+        return $query->getQuery()->getSingleResult();
+    }
+
+    /**
+     * @param $buildingId
+     * @param bool|true $allowed
+     *
+     * @return array
+     */
+    public function getShopByBuildingForPage(
+        $buildingId,
+        $allowed = true
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->select(
+                's.online',
+                's.close',
+                's.active',
+                's.description',
+                's.id',
+                's.name',
+                's.startHour',
+                's.endHour'
+            )
+            ->where('s.buildingId = :buildingId')
+            ->orderBy('s.creationDate', 'ASC')
+            ->setParameter('buildingId', $buildingId);
+
+        // check if only can see shops currently active
         if (!$allowed) {
             $query = $query->andWhere('s.active = :active')
                 ->setParameter('active', true);
         }
 
-        return $query->getQuery()->getSingleResult();
+        return $query->getQuery()->getResult();
     }
 }

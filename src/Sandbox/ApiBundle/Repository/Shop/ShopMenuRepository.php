@@ -3,7 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Shop;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\AdminApiBundle\Data\Shop\ShopMenuPosition;
+use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuPosition;
 
 /**
  * ShopMenuRepository.
@@ -13,12 +13,20 @@ use Sandbox\AdminApiBundle\Data\Shop\ShopMenuPosition;
  */
 class ShopMenuRepository extends EntityRepository
 {
+    /**
+     * @param $menu
+     * @param $action
+     *
+     * @return array
+     */
     public function findSwapShopMenu(
         $menu,
         $action
     ) {
         $query = $this->createQueryBuilder('m')
             ->where('m.shopId = :shopId')
+            ->andWhere('m.invisible = :invisible')
+            ->setParameter('invisible', false)
             ->setParameter('shopId', $menu->getShopId());
 
         // operator
@@ -35,6 +43,47 @@ class ShopMenuRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery();
 
+        return $query->getOneOrNullResult();
+    }
+
+    /**
+     * @param $shopId
+     *
+     * @return array
+     */
+    public function getShopMenuByShop(
+        $shopId
+    ) {
+        $query = $this->createQueryBuilder('m')
+            ->where('m.shopId = :shopId')
+            ->andWhere('m.invisible = :invisible')
+            ->setParameter('shopId', $shopId)
+            ->setParameter('invisible', false)
+            ->orderBy('m.sortTime', 'DESC')
+            ->getQuery();
+
         return $query->getResult();
+    }
+
+    /**
+     * @param $menuId
+     * @param $shopId
+     *
+     * @return array
+     */
+    public function getShopMenuById(
+        $menuId,
+        $shopId
+    ) {
+        $query = $this->createQueryBuilder('m')
+            ->where('m.id = :id')
+            ->andWhere('m.shopId = :shopId')
+            ->andWhere('m.invisible = :invisible')
+            ->setParameter('id', $menuId)
+            ->setParameter('shopId', $shopId)
+            ->setParameter('invisible', false)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
     }
 }

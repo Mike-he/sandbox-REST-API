@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Shop;
 
-use Sandbox\ShopApiBundle\Controller\ShopRestController;
+use Sandbox\AdminShopApiBundle\Controller\ShopRestController;
 use Sandbox\ApiBundle\Entity\Shop\Shop;
 
 /**

@@ -1,7 +1,8 @@
 <?php
 
-namespace Sandbox\ShopApiBundle\Controller\Shop;
+namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
+use Sandbox\ApiBundle\Entity\Shop\Shop;
 use Sandbox\ApiBundle\Entity\Shop\ShopSpec;
 use Sandbox\ApiBundle\Entity\Shop\ShopSpecItem;
 use Sandbox\ApiBundle\Form\Shop\ShopSpecPostType;
@@ -13,12 +14,15 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Shop\SpecController;
-use Sandbox\ShopApiBundle\Data\Shop\ShopMenuData;
-use Sandbox\ShopApiBundle\Data\Shop\ShopSpecItemData;
+use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuData;
+use Sandbox\AdminShopApiBundle\Data\Shop\ShopSpecItemData;
 use Sandbox\ApiBundle\Form\Shop\ShopSpecItemPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuType;
 use Sandbox\ApiBundle\Form\Shop\ShopSpecItemModifyType;
 use Symfony\Component\HttpFoundation\Response;
+use Knp\Component\Pager\Paginator;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Admin Spec Controller.
@@ -30,34 +34,97 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminSpecController extends SpecController
+class AdminShopSpecController extends SpecController
 {
     /**
      * @param Request $request
      * @param $id
      *
      * @Method({"GET"})
-     * @Route("/shops/{id}/specs")
+     * @Route("/shops/{id}/specs/dropdown")
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function getSpecByShopAction(
+    public function getShopSpecDropDownAction(
         Request $request,
         $id
     ) {
         $shop = $this->findEntityById($id, 'Shop\Shop');
         $specs = $this->getRepo('Shop\ShopSpec')->findBy(
-            ['shopId' => $shop->getId()],
+            [
+                'shopId' => $shop->getId(),
+                'invisible' => false,
+            ],
             ['id' => 'ASC']
         );
 
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop_spec_drop_down']));
         $view->setData($specs);
 
         return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Method({"GET"})
+     * @Route("/shops/{id}/specs")
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getShopSpecAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $this->findEntityById($id, 'Shop\Shop');
+        $specs = $this->getRepo('Shop\ShopSpec')->getSpecsByShop($id);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $specs = $this->get('serializer')->serialize(
+            $specs,
+            'json',
+            SerializationContext::create()->setGroups(['admin_shop'])
+        );
+        $specs = json_decode($specs, true);
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $specs,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
@@ -78,7 +145,13 @@ class AdminSpecController extends SpecController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
-        $spec = $this->getRepo('Shop\ShopSpec')->find($id);
+        $spec = $this->getRepo('Shop\ShopSpec')->findOneBy(
+            [
+                'id' => $id,
+                'invisible' => false,
+                'auto' => false,
+            ]
+        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
@@ -108,7 +181,7 @@ class AdminSpecController extends SpecController
         $spec = $this->findEntityById($id, 'Shop\ShopSpec');
 
         $em = $this->getDoctrine()->getManager();
-        $em->remove($spec);
+        $spec->setInvisible(true);
         $em->flush();
 
         return new View();
@@ -129,13 +202,14 @@ class AdminSpecController extends SpecController
         Request $request,
         $id
     ) {
-        $shop = $this->getRepo('Shop\Shop')->findOneBy(
-            [
-                'id' => $id,
-                'active' => true,
-            ]
-        );
-        $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
+        $shop = $this->findEntityById($id, 'Shop\SHop');
+        if (!$shop->isActive()) {
+            return $this->customErrorView(
+                400,
+                Shop::SHOP_INACTIVE_CODE,
+                Shop::SHOP_INACTIVE_MESSAGE
+            );
+        }
 
         $spec = new ShopSpec();
         $form = $this->createForm(new ShopSpecPostType(), $spec);

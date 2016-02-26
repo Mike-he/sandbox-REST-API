@@ -61,7 +61,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="description", type="string", length=1024, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "admin_shop"})
      */
     private $description;
 
@@ -70,7 +70,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="detail", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "admin_shop"})
      */
     private $detail;
 
@@ -136,7 +136,8 @@ class RoomBuilding implements JsonSerializable
      *  "client_event",
      *  "current_order",
      *  "building_nearby",
-     *  "admin_building"
+     *  "admin_building",
+     *  "admin_shop"
      * })
      */
     private $address;
@@ -201,6 +202,21 @@ class RoomBuilding implements JsonSerializable
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Shop\Shop",
+     *      mappedBy="building",
+     *      cascade={"persist"}
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="buildingId")
+     * @ORM\OrderBy({"id" = "ASC"})
+     *
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $shops;
 
     /**
      * @var array
@@ -319,6 +335,30 @@ class RoomBuilding implements JsonSerializable
     public function getCityId()
     {
         return $this->cityId;
+    }
+
+    /**
+     * Set shops.
+     *
+     * @param array $shops
+     *
+     * @return RoomBuilding
+     */
+    public function setShops($shops)
+    {
+        $this->shops = $shops;
+
+        return $this;
+    }
+
+    /**
+     * Get shops.
+     *
+     * @return array
+     */
+    public function getShops()
+    {
+        return $this->shops;
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ShopApiBundle\Controller;
+namespace Sandbox\AdminShopApiBundle\Controller;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 

@@ -10,17 +10,19 @@ use JMS\Serializer\Annotation as Serializer;
  * ShopSpec.
  *
  * @ORM\Table(name="ShopSpec")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopSpecRepository")
  */
 class ShopSpec implements JsonSerializable
 {
+    const AUTO_SPEC_NAME = 'SPEC NONE';
+
     /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_shop_spec_drop_down", "product_view"})
      */
     private $id;
 
@@ -28,7 +30,7 @@ class ShopSpec implements JsonSerializable
      * @var int
      *
      * @ORM\Column(name="shopId", type="integer")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main"})
      */
     private $shopId;
 
@@ -58,7 +60,7 @@ class ShopSpec implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_shop_spec_drop_down", "product_view"})
      */
     private $name;
 
@@ -66,7 +68,7 @@ class ShopSpec implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $description;
 
@@ -74,17 +76,25 @@ class ShopSpec implements JsonSerializable
      * @var bool
      *
      * @ORM\Column(name="multiple", type="boolean")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $multiple = false;
 
     /**
      * @var bool
      *
-     * @ORM\Column(name="optional", type="boolean")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @ORM\Column(name="invisible", type="boolean")
+     * @Serializer\Groups({"main"})
      */
-    private $optional = false;
+    private $invisible = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="auto", type="boolean")
+     * @Serializer\Groups({"main"})
+     */
+    private $auto = false;
 
     /**
      * @var array
@@ -171,30 +181,6 @@ class ShopSpec implements JsonSerializable
     public function getMultiple()
     {
         return $this->multiple;
-    }
-
-    /**
-     * Set optional.
-     *
-     * @param bool $optional
-     *
-     * @return ShopSpec
-     */
-    public function setOptional($optional)
-    {
-        $this->optional = $optional;
-
-        return $this;
-    }
-
-    /**
-     * Get optional.
-     *
-     * @return bool
-     */
-    public function getOptional()
-    {
-        return $this->optional;
     }
 
     /**
@@ -287,6 +273,54 @@ class ShopSpec implements JsonSerializable
     public function getItems()
     {
         return $this->items;
+    }
+
+    /**
+     * Set invisible.
+     *
+     * @param bool $invisible
+     *
+     * @return ShopSpec
+     */
+    public function setInvisible($invisible)
+    {
+        $this->invisible = $invisible;
+
+        return $this;
+    }
+
+    /**
+     * Get invisible.
+     *
+     * @return bool
+     */
+    public function isInvisible()
+    {
+        return $this->invisible;
+    }
+
+    /**
+     * Set auto.
+     *
+     * @param bool $auto
+     *
+     * @return ShopSpec
+     */
+    public function setAuto($auto)
+    {
+        $this->auto = $auto;
+
+        return $this;
+    }
+
+    /**
+     * Get auto.
+     *
+     * @return bool
+     */
+    public function isAuto()
+    {
+        return $this->auto;
     }
 
     public function jsonSerialize()
