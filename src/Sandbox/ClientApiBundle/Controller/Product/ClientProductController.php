@@ -439,6 +439,8 @@ class ClientProductController extends ProductController
      * @param Request $request
      * @param $id
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
      */
     public function getBookedDatesAction(
         Request $request,

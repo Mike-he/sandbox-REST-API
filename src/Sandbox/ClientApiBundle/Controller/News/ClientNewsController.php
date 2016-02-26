@@ -68,7 +68,7 @@ class ClientNewsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        //filters
+        // filters
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
