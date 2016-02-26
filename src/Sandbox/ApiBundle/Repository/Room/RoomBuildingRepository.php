@@ -123,7 +123,7 @@ class RoomBuildingRepository extends EntityRepository
     public function getSalesRoomBuildings(
         $cityId,
         $query,
-        $myBuildingIds
+        $myBuildingIds = null
     ) {
         $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -147,8 +147,14 @@ class RoomBuildingRepository extends EntityRepository
             $buildingsQuery->setParameter('cityId', $cityId);
         }
 
-        $buildingsQuery->andWhere('rb.id IN (:ids)');
-        $buildingsQuery->setParameter('ids', $myBuildingIds);
+        // filter by building id
+        if (!is_null($myBuildingIds)) {
+            $buildingsQuery->andWhere('rb.id IN (:ids)');
+            $buildingsQuery->setParameter('ids', $myBuildingIds);
+        }
+
+        // filter by building delete
+        $buildingsQuery->andWhere('rb.isDeleted = FALSE');
 
         // order by creation date
         $buildingsQuery->orderBy('rb.creationDate', 'DESC');

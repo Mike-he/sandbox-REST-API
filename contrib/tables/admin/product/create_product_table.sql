@@ -13,6 +13,7 @@ CREATE TABLE `Product` (
   `endDate` datetime,
   `recommend` boolean DEFAULT FALSE,
   `sortTime` varchar(15),
+  `isDeleted` tinyint(1) NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

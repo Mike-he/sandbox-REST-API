@@ -345,6 +345,7 @@ class ProductRepository extends EntityRepository
             // product off sale
             if ($visible == Product::OFF_SALE) {
                 $parameters['visible'] = false;
+                $query->andWhere('p.isDeleted = FALSE');
             }
             // product on sale and in the rent time
             elseif ($visible == Product::ON_SALE) {
@@ -764,5 +765,21 @@ class ProductRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param RoomBuilding $building
+     *
+     * @return array
+     */
+    public function getSalesProductsByBuilding(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('r.building = :building')
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getResult();
     }
 }

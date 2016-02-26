@@ -26,13 +26,6 @@ class SalesAdminPostType extends AbstractType
                 )
             )
             ->add(
-                'permission',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
-            ->add(
                 'company',
                 null,
                 array(

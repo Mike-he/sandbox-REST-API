@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Proxies\__CG__\Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
@@ -24,6 +25,7 @@ use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPutType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPutType;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesBuildingPatchVisibleType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -222,7 +224,10 @@ class AdminBuildingController extends LocationController
         );
 
         // get a building
-        $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         // set more information
@@ -308,7 +313,10 @@ class AdminBuildingController extends LocationController
             $id
         );
 
-        $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(
@@ -326,6 +334,164 @@ class AdminBuildingController extends LocationController
         return $this->handleAdminBuildingPut(
             $building
         );
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Route("/buildings/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchAdminBuildingVisibleAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminBuildingPermission(
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            null,
+            $id
+        );
+
+        $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        $statusOld = $building->getStatus();
+        $visibleOld = $building->getVisible();
+
+        // not allow change building that is refused
+        if ($statusOld == RoomBuilding::STATUS_REFUSE) {
+            return new View();
+        }
+
+        // bind data
+        $buildingJson = $this->container->get('serializer')->serialize($building, 'json');
+        $patch = new Patch($buildingJson, $request->getContent());
+        $adminJson = $patch->apply();
+
+        $form = $this->createForm(new SalesBuildingPatchVisibleType(), $building);
+        $form->submit(json_decode($adminJson, true));
+
+        // handle building status
+        $this->handleBuildingVisible(
+            $statusOld,
+            $visibleOld,
+            $building
+        );
+
+        return new View();
+    }
+
+    /**
+     * @param string       $statusOld
+     * @param string       $visibleOld
+     * @param RoomBuilding $building
+     */
+    private function handleBuildingVisible(
+        $statusOld,
+        $visibleOld,
+        $building
+    ) {
+        if ($statusOld != RoomBuilding::STATUS_ACCEPT) {
+            return;
+        }
+
+        $visible = $building->getVisible();
+        if ($visibleOld == $visible) {
+            return;
+        }
+
+        if (!$visible) {
+            // hide all of the products
+            $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
+
+            if (empty($products)) {
+                return;
+            }
+
+            foreach ($products as $product) {
+                $product->setVisible(false);
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Method({"DELETE"})
+     * @Route("/buildings/{id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function deleteAdminBuildingAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminBuildingPermission(
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            null,
+            $id
+        );
+
+        $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        if ($building->getStatus() == RoomBuilding::STATUS_BANNED) {
+            return new View();
+        }
+
+        $building->setIsDeleted(true);
+
+        // delete all of the rooms
+        $rooms = $this->getRepo('Room\Room')->findByBuilding($building);
+        if (!empty($rooms)) {
+            foreach ($rooms as $room) {
+                $room->setIsDeleted(true);
+            }
+        }
+
+        // delete all of the products
+        $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
+        if (!empty($products)) {
+            foreach ($products as $product) {
+                $product->setVisible(false);
+                $product->setIsDeleted(true);
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**

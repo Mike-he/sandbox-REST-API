@@ -6,8 +6,8 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminPostType;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminPutType;
@@ -18,7 +18,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -209,7 +208,6 @@ class AdminSalesAdminsController extends SandboxRestController
         $form->handleRequest($request);
 
         $type_key = $form['type_key']->getData();
-        $permission = $form['permission']->getData();
         $company = $form['company']->getData();
 
         if (is_null($company)) {
@@ -220,7 +218,6 @@ class AdminSalesAdminsController extends SandboxRestController
             return $this->handleAdminCreate(
                 $admin,
                 $type_key,
-                $permission,
                 $company
             );
         }
@@ -262,7 +259,10 @@ class AdminSalesAdminsController extends SandboxRestController
         );
 
         $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($id);
+        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
+
         $passwordOld = $admin->getPassword();
+        $bannedOld = $admin->isBanned();
 
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
@@ -278,73 +278,74 @@ class AdminSalesAdminsController extends SandboxRestController
         }
 
         $type_key = $form['type_key']->getData();
-        $permission = $form['permission']->getData();
         $company = $form['company']->getData();
 
+        // handle admin banned
+        $this->handleAdminBanned(
+            $bannedOld,
+            $admin
+        );
+
         return $this->handleAdminPatch(
-            $id,
             $admin,
             $type_key,
-            $permission,
             $company
         );
     }
 
     /**
-     * @param Request $request
-     * @param int     $id
-     *
-     * @Route("/admins/{id}")
-     * @Method({"DELETE"})
-     *
-     * @return View
+     * @param bool       $bannedOld
+     * @param SalesAdmin $admin
      */
-    public function deleteAdminAction(
-        Request $request,
-        $id
+    private function handleAdminBanned(
+        $bannedOld,
+        $admin
     ) {
-        $myAdminId = $this->getAdminId();
+        $companyId = $admin->getCompanyId();
+        $banned = $admin->isBanned();
+
+        if ($bannedOld == $banned) {
+            return;
+        }
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
             AdminPermission::KEY_PLATFORM_SALES_ADMIN,
-            AdminPermissionMap::OP_LEVEL_EDIT
+            AdminPermissionMap::OP_LEVEL_USER_BANNED
         );
 
-        // get admin
-        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($id);
-
-        if (!is_null($admin)) {
-            // check admin is myself
-            if ($myAdminId == $admin->getId()) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-            }
-
-            // remove from db
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($admin);
-            $em->flush();
+        if ($banned) {
+            $this->handleSalesByCompany(
+                $companyId,
+                true,
+                false,
+                RoomBuilding::STATUS_BANNED
+            );
+        } else {
+            $this->handleSalesByCompany(
+                $companyId,
+                false,
+                true,
+                RoomBuilding::STATUS_ACCEPT
+            );
         }
 
-        return new View();
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
     }
 
     /**
-     * @param SalesAdmin              $admin
-     * @param SalesAdmin              $id
-     * @param SalesAdminType          $type_key
-     * @param SalesAdminPermissionMap $permissionPuts
-     * @param SalesCompany            $company
+     * @param SalesAdmin     $admin
+     * @param SalesAdminType $type_key
+     * @param SalesCompany   $company
      *
      * @return View
      */
     private function handleAdminPatch(
-        $id,
         $admin,
         $type_key,
-        $permissionPuts,
         $company
     ) {
         $em = $this->getDoctrine()->getManager();
@@ -354,88 +355,15 @@ class AdminSalesAdminsController extends SandboxRestController
         }
         $em->persist($admin);
 
-        if (!is_null($permissionPuts)) {
-            //judge the value of permissions
-            $permissions = $this->getRepo('SalesAdmin\SalesAdminPermissionMap')
-                ->findBy(array('adminId' => $id));
-
-            $permissionSameId = array();
-            foreach ($permissions as $pOld) {
-                foreach ($permissionPuts as $pNew) {
-                    if ($pOld->getPermissionId() == $pNew['id']) {
-                        $permissionSameId[] = $pNew['id'];
-                        if ($pOld->getOpLevel() != $pNew['op_level']) {
-                            $permissionMap = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermissionMap')
-                                ->findOneBy(
-                                    array(
-                                        'adminId' => $id,
-                                        'permissionId' => $pOld->getPermissionId(),
-                                    )
-                                );
-                            $permissionMap->setOpLevel($pNew['op_level']);
-                        }
-                    }
-                }
-            }
-            //remove the useless permissions
-            foreach ($permissions as $permissionOld) {
-                $num = 0;
-                foreach ($permissionSameId as $pSameId) {
-                    if ($permissionOld->getPermissionId() == $pSameId) {
-                        $num = 1;
-                    }
-                }
-                if ($num == 0) {
-                    $pRemove = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermissionMap')
-                        ->findOneBy(
-                            array(
-                                'adminId' => $id,
-                                'permissionId' => $permissionOld->getPermissionId(),
-                            )
-                        );
-                    $em->remove($pRemove);
-                }
-            }
-
-            //set the new permissions
-            $now = new \DateTime('now');
-            foreach ($permissionPuts as $pNew) {
-                $num = 0;
-                foreach ($permissionSameId as $pSameId) {
-                    if ($pNew['id'] == $pSameId) {
-                        $num = 1;
-                    }
-                }
-                if ($num == 0) {
-                    // get permission
-                    $myPermission = $this->getRepo('SalesAdmin\SalesAdminPermission')->find($pNew['id']);
-                    if (is_null($myPermission)
-                        || $myPermission->getTypeId() != $admin->getTypeId()
-                    ) {
-                        // if permission's type is different
-                        // don't add the permission
-                        continue;
-                    }
-                    // save permission map
-                    $permissionMap = new SalesAdminPermissionMap();
-                    $permissionMap->setAdminId($id);
-                    $permissionMap->setPermissionId($pNew['id']);
-                    $permissionMap->setCreationDate($now);
-                    $permissionMap->setAdmin($admin);
-                    $permissionMap->setPermission($myPermission);
-                    $permissionMap->setOpLevel($pNew['op_level']);
-                    $em->persist($permissionMap);
-                }
-            }
-        }
-
         // set sales company
-        $salesCompany = $this->getRepo('SalesAdmin\SalesCompany')->find($admin->getCompanyId());
-        $form = $this->createForm(new SalesCompanyPostType(), $salesCompany);
-        $form->submit($company);
+        if (!is_null($company) || !empty($company)) {
+            $salesCompany = $this->getRepo('SalesAdmin\SalesCompany')->find($admin->getCompanyId());
+            $form = $this->createForm(new SalesCompanyPostType(), $salesCompany);
+            $form->submit($company);
 
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
         }
 
         //save data
@@ -445,17 +373,15 @@ class AdminSalesAdminsController extends SandboxRestController
     }
 
     /**
-     * @param SalesAdmin              $admin
-     * @param SalesAdminType          $type_key
-     * @param SalesAdminPermissionMap $permission
-     * @param SalesCompany            $company
+     * @param SalesAdmin     $admin
+     * @param SalesAdminType $type_key
+     * @param SalesCompany   $company
      *
      * @return View
      */
     private function handleAdminCreate(
         $admin,
         $type_key,
-        $permission,
         $company
     ) {
         $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($type_key);
@@ -468,7 +394,7 @@ class AdminSalesAdminsController extends SandboxRestController
         }
 
         // save admin to db
-        $admin = $this->saveAdmin($admin, $permission, $company);
+        $admin = $this->saveAdmin($admin, $company);
 
         // set view
         $view = new View();
@@ -480,44 +406,18 @@ class AdminSalesAdminsController extends SandboxRestController
     }
 
     /**
-     * @param SalesAdmin              $admin
-     * @param SalesAdminPermissionMap $permission
-     * @param SalesCompany            $company
+     * @param SalesAdmin   $admin
+     * @param SalesCompany $company
      *
      * @return SalesAdmin
      */
     private function saveAdmin(
         $admin,
-        $permission,
         $company
     ) {
         $em = $this->getDoctrine()->getManager();
 
         $now = new \DateTime('now');
-
-        // set permissions
-        if (!is_null($permission) && !empty($permission)) {
-            foreach ($permission as $permissionId) {
-                // get permission
-                $myPermission = $this->getRepo('SalesAdmin\SalesAdminPermission')
-                    ->find($permissionId['id']);
-                if (is_null($myPermission)
-                    || $myPermission->getTypeId() != $admin->getType()->getId()
-                ) {
-                    // if permission's type is different
-                    // don't add the permission
-                    continue;
-                }
-
-                // save permission map
-                $permissionMap = new SalesAdminPermissionMap();
-                $permissionMap->setAdmin($admin);
-                $permissionMap->setPermission($myPermission);
-                $permissionMap->setCreationDate($now);
-                $permissionMap->setOpLevel($permissionId['op_level']);
-                $em->persist($permissionMap);
-            }
-        }
 
         // set sales company
         $salesCompany = new SalesCompany();
@@ -592,6 +492,57 @@ class AdminSalesAdminsController extends SandboxRestController
                     self::ERROR_ADMIN_TYPE_CODE,
                     self::ERROR_ADMIN_TYPE_MESSAGE);
             }
+        }
+    }
+
+    private function handleSalesByCompany(
+        $companyId,
+        $platformAdminBanned,
+        $buildingVisible,
+        $buildingStatus
+    ) {
+        // set banned sales admins that belong to this company
+        $salesPlatformAdmins = $this->getRepo('SalesAdmin\SalesAdmin')->findByCompanyId($companyId);
+        if (!empty($salesPlatformAdmins)) {
+            foreach ($salesPlatformAdmins as $platformAdmin) {
+                $platformAdmin->setBanned($platformAdminBanned);
+            }
+        }
+
+        // set buildings visible and status
+        $buildings = $this->getRepo('Room\RoomBuilding')->findByCompanyId($companyId);
+
+        if (!empty($buildings)) {
+            foreach ($buildings as $building) {
+                // set buildings
+                $building->setVisible($buildingVisible);
+                $building->setStatus($buildingStatus);
+
+                // set products
+                if ($platformAdminBanned) {
+                    $this->hideAllProductsByBuilding(
+                        $building
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * @param RoomBuilding $building
+     */
+    private function hideAllProductsByBuilding(
+        $building
+    ) {
+        // hide all of the products
+        $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
+
+        if (empty($products)) {
+            return;
+        }
+
+        foreach ($products as $product) {
+            $product->setVisible(false);
         }
     }
 }

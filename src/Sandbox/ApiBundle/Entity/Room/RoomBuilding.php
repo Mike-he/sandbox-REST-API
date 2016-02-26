@@ -23,6 +23,11 @@ class RoomBuilding implements JsonSerializable
 {
     const BUILDING_NOT_FOUND_MESSAGE = 'Building Not Found';
 
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACCEPT = 'accept';
+    const STATUS_REFUSE = 'refuse';
+    const STATUS_BANNED = 'banned';
+
     /**
      * @var int
      *
@@ -246,6 +251,22 @@ class RoomBuilding implements JsonSerializable
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $companyId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", nullable=false)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $status;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $isDeleted;
 
     /**
      * @var array
@@ -723,6 +744,38 @@ class RoomBuilding implements JsonSerializable
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     */
+    public function setIsDeleted($isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
     }
 
     public function jsonSerialize()
