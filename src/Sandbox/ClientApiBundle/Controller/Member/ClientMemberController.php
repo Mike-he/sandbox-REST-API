@@ -445,6 +445,7 @@ class ClientMemberController extends MemberController
 
         return $view;
     }
+
     // elastica search members
 //    public function getMembersSearchAction(
 //        Request $request,
