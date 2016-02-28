@@ -62,7 +62,10 @@ class ClientProductRecommendController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
 
         // get params
         $cityId = $paramFetcher->get('city');

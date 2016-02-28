@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Controller\Product;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -38,7 +37,6 @@ class ProductController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
      * @param $id
      *
      * @return View

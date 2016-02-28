@@ -72,6 +72,7 @@ class ClientFeedController extends FeedController
             $userId = $this->getUserId();
         }
 
+        // get params
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
