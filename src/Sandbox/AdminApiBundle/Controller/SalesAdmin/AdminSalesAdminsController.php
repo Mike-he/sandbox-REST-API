@@ -62,13 +62,12 @@ class AdminSalesAdminsController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="type",
+     *    name="banned",
      *    array=false,
-     *    default="super",
+     *    default=null,
      *    nullable=true,
-     *    requirements="(super | platform)",
      *    strict=true,
-     *    description="sales admin types"
+     *    description="sales admin banned status"
      * )
      *
      * @Annotations\QueryParam(
@@ -102,7 +101,7 @@ class AdminSalesAdminsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $typeKey = $paramFetcher->get('type');
+        $banned = $paramFetcher->get('banned');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
@@ -114,13 +113,26 @@ class AdminSalesAdminsController extends SandboxRestController
             AdminPermissionMap::OP_LEVEL_VIEW
         );
 
-        // get all admins id and username
+        // get by admin type
+        $typeKey = SalesAdminType::KEY_SUPER;
         $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
-        $query = $this->getRepo('SalesAdmin\SalesAdmin')->findByTypeId($type->getId());
+
+        // set filters
+        $filters['typeId'] = $type->getId();
+        if (!is_null($banned)) {
+            $filters['banned'] = $banned;
+        }
+
+        $admins = $this->getRepo('SalesAdmin\SalesAdmin')->findBy($filters);
+        foreach ($admins as $admin) {
+            $buildingCounts = $this->getRepo('Room\RoomBuilding')->countSalesBuildings($admin->getCompanyId());
+
+            $admin->setBuildingCounts((int) $buildingCounts);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $admins,
             $pageIndex,
             $pageLimit
         );

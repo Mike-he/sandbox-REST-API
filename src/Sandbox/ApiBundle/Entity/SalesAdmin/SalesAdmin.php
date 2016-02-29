@@ -136,6 +136,13 @@ class SalesAdmin implements UserInterface
     private $banned = false;
 
     /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $buildingCounts;
+
+    /**
      * @return int
      */
     public function getCompanyId()
@@ -401,6 +408,22 @@ class SalesAdmin implements UserInterface
     public function setPermissionIds($permissionIds)
     {
         $this->permissionIds = $permissionIds;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBuildingCounts()
+    {
+        return $this->buildingCounts;
+    }
+
+    /**
+     * @param int $buildingCounts
+     */
+    public function setBuildingCounts($buildingCounts)
+    {
+        $this->buildingCounts = $buildingCounts;
     }
 
     /**

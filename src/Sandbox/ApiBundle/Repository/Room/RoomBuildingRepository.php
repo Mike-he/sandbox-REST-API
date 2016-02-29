@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Room;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 
 class RoomBuildingRepository extends EntityRepository
 {
@@ -102,11 +103,11 @@ class RoomBuildingRepository extends EntityRepository
         $companyId
     ) {
         $query = $this->createQueryBuilder('b')
-            ->select('b.id as buildingId')
+            ->select('b.id')
             ->where('b.companyId = :companyId')
             ->setParameter('companyId', $companyId);
 
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->getArrayResult();
     }
 
     //-------------------- sales room repository --------------------//
@@ -160,5 +161,65 @@ class RoomBuildingRepository extends EntityRepository
         $buildingsQuery->orderBy('rb.creationDate', 'DESC');
 
         return $buildingsQuery->getQuery()->getResult();
+    }
+
+    /**
+     * @param $cityId
+     * @param $myBuildingIds
+     *
+     * @return array
+     */
+    public function getLocationRoomBuildings(
+        $cityId = null,
+        $myBuildingIds = null
+    ) {
+        $notFirst = false;
+        $buildingsQuery = $this->createQueryBuilder('rb');
+
+        // query by city id
+        if (!is_null($cityId)) {
+            $buildingsQuery->where('rb.cityId = :cityId');
+            $buildingsQuery->setParameter('cityId', $cityId);
+
+            $notFirst = true;
+        }
+
+        // filter by building id
+        if (!is_null($myBuildingIds)) {
+            if ($notFirst) {
+                $buildingsQuery->andWhere('rb.id IN (:ids)');
+            } else {
+                $buildingsQuery->where('rb.id IN (:ids)');
+            }
+            $buildingsQuery->setParameter('ids', $myBuildingIds);
+        }
+
+        // filter by building delete
+        $buildingsQuery->andWhere('rb.isDeleted = FALSE');
+        $buildingsQuery->andWhere('rb.visible = TRUE');
+
+        // order by creation date
+        $buildingsQuery->orderBy('rb.creationDate', 'DESC');
+
+        return $buildingsQuery->getQuery()->getResult();
+    }
+
+    /**
+     * @param $adminCompanyId
+     *
+     * @return array
+     */
+    public function countSalesBuildings(
+        $adminCompanyId
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->select('COUNT (b.id)')
+            ->where('b.companyId = :companyId')
+            ->andWhere('b.isDeleted = FALSE')
+            ->andWhere('b.status = :accept')
+            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT)
+            ->setParameter('companyId', $adminCompanyId);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

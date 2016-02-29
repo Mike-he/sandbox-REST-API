@@ -8,7 +8,6 @@ use Knp\Component\Pager\Paginator;
 use Proxies\__CG__\Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
@@ -64,7 +63,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBuildingPermission(SalesAdminPermissionMap::OP_LEVEL_SYNC);
 
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
         if (is_null($building)) {
@@ -156,7 +155,7 @@ class AdminBuildingController extends LocationController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBuildingPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -777,6 +776,7 @@ class AdminBuildingController extends LocationController
 
         $building->setCompanyId($salesCompanyId);
         $building->setCity($roomCity);
+        $building->setStatus(RoomBuilding::STATUS_PENDING);
         $building->setCreationDate($now);
         $building->setModificationDate($now);
 

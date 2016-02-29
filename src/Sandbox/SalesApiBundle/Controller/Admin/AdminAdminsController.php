@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminPutType;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesMyAdminPutType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesPlatformAdminPostType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -295,6 +296,55 @@ class AdminAdminsController extends SalesRestController
             $type_key,
             $permission
         );
+    }
+
+    /**
+     * Update my admin.
+     *
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/admins/my")
+     * @Method({"PUT"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchMyAdminAction(
+        Request $request
+    ) {
+        $admin = $this->getUser()->getMyAdmin();
+
+        $passwordOld = $admin->getPassword();
+
+        // bind data
+        $adminData = json_decode($request->getContent(), true);
+
+        $form = $this->createForm(new SalesMyAdminPutType(), $admin);
+        $form->submit($adminData);
+
+        $passwordNew = $admin->getPassword();
+
+        $passwordOldPut = $form['old_password']->getData();
+        if ($passwordOldPut != $passwordOld || $passwordNew == $passwordOld || is_null($passwordNew)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_PASSWORD_INVALID_CODE,
+                self::ERROR_PASSWORD_INVALID_MESSAGE
+            );
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**

@@ -19,7 +19,7 @@ class SalesAdminPermissionMapRepository extends EntityRepository
         $opLevel
     ) {
         $query = $this->createQueryBuilder('spm')
-            ->select('DISTINCT spm.buildingId')
+            ->select('DISTINCT spm.buildingId as id')
             ->where('spm.adminId = :adminId')
             ->andWhere('spm.opLevel >= :opLevel')
             ->andWhere('spm.permissionId IN (:permissions)')

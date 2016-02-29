@@ -126,7 +126,7 @@ class SalesRestController extends SandboxRestController
 
         $ids = array();
         foreach ($myBuildings as $building) {
-            array_push($ids, $building['buildingId']);
+            array_push($ids, $building['id']);
         }
 
         return $ids;

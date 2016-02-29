@@ -27,6 +27,7 @@ class SalesAdminPermissionMap
 {
     const OP_LEVEL_VIEW = 1;
     const OP_LEVEL_EDIT = 2;
+    const OP_LEVEL_SYNC = 3;
 
     /**
      * @var int
