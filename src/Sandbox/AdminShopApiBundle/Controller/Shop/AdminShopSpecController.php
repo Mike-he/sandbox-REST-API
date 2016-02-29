@@ -202,7 +202,7 @@ class AdminShopSpecController extends SpecController
         Request $request,
         $id
     ) {
-        $shop = $this->findEntityById($id, 'Shop\SHop');
+        $shop = $this->findEntityById($id, 'Shop\Shop');
         if (!$shop->isActive()) {
             return $this->customErrorView(
                 400,
