@@ -26,52 +26,39 @@ class ClientProductController extends ProductController
     /**
      * @Get("/products/meeting")
      *
-     *
      * @Annotations\QueryParam(
      *    name="city",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        city id
-     *    "
+     *    description="city id"
      * )
      *
      * @Annotations\QueryParam(
      *    name="building",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        building id
-     *    "
+     *    description="building id"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="start",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        start time
-     *    "
+     *    description="start time"
      * )
      *
-     *  @Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="end",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        end time
-     *    "
+     *    description="end time"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="allowed_people",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        maximum allowed people
-     *    "
+     *    description="maximum allowed people"
      * )
      *
      * @Annotations\QueryParam(
@@ -103,6 +90,12 @@ class ClientProductController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
+
+        // get params
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
         $start = $paramFetcher->get('start');
@@ -115,15 +108,16 @@ class ClientProductController extends ProductController
         $endTime = null;
         $startHour = null;
         $endHour = null;
+
         if (!is_null($start) && !empty($start)) {
             $startTime = new \DateTime($start);
             $startHour = $startTime->format('H:i:s');
         }
+
         if (!is_null($end) && !empty($end)) {
             $endTime = new \DateTime($end);
             $endHour = $endTime->format('H:i:s');
         }
-        $userId = $this->getUserId();
 
         $productIds = $this->getRepo('Product\Product')->getMeetingProductsForClient(
             $userId,
@@ -154,51 +148,39 @@ class ClientProductController extends ProductController
     /**
      * @Get("/products/office")
      *
-     *
      * @Annotations\QueryParam(
      *    name="city",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        city id
-     *    "
+     *    description="city id"
      * )
      *
      * @Annotations\QueryParam(
      *    name="building",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        building id
-     *    "
+     *    description="building id"
      * )
      *
      * @Annotations\QueryParam(
      *    name="start",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        start time
-     *    "
+     *    description="start time"
      * )
      *
-     *  @Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="end",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        end time
-     *    "
+     *    description="end time"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="allowed_people",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        maximum allowed people
-     *    "
+     *    description="maximum allowed people"
      * )
      *
      * @Annotations\QueryParam(
@@ -230,6 +212,12 @@ class ClientProductController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
+
+        // get params
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
         $start = $paramFetcher->get('start');
@@ -240,12 +228,12 @@ class ClientProductController extends ProductController
 
         $startDate = null;
         $endDate = null;
+
         if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
             $startDate = new \DateTime($start);
             $endDate = new \DateTime($end);
             $endDate->setTime(23, 59, 59);
         }
-        $userId = $this->getUserId();
 
         $productIds = $this->getRepo('Product\Product')->getOfficeProductsForClient(
             $userId,
@@ -274,43 +262,33 @@ class ClientProductController extends ProductController
     /**
      * @Get("/products/workspace")
      *
-     *
      * @Annotations\QueryParam(
      *    name="city",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        city id
-     *    "
+     *    description="city id"
      * )
      *
      * @Annotations\QueryParam(
      *    name="building",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        building id
-     *    "
+     *    description="building id"
      * )
      *
      * @Annotations\QueryParam(
      *    name="start",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        start time
-     *    "
+     *    description="start time"
      * )
      *
-     *  @Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="end",
      *    default=null,
      *    nullable=true,
-     *    description="
-     *        end time
-     *    "
+     *    description="end time"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="allowed_people",
@@ -350,6 +328,12 @@ class ClientProductController extends ProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
+
+        // get params
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
         $start = $paramFetcher->get('start');
@@ -360,12 +344,12 @@ class ClientProductController extends ProductController
 
         $startDate = null;
         $endDate = null;
+
         if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
             $startDate = new \DateTime($start);
             $endDate = new \DateTime($end);
             $endDate->setTime(23, 59, 59);
         }
-        $userId = $this->getUserId();
 
         $productIds = $this->getRepo('Product\Product')->getWorkspaceProductsForClient(
             $userId,
@@ -439,6 +423,8 @@ class ClientProductController extends ProductController
      * @param Request $request
      * @param $id
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
      */
     public function getBookedDatesAction(
         Request $request,

@@ -13,7 +13,6 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Rs\Json\Patch;
-use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
@@ -56,58 +55,7 @@ class ClientUserBasicProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // my user
-        $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
-
-        // get user id
-        $userId = $paramFetcher->get('user_id');
-        if (is_null($userId)) {
-            $userId = $this->getUserId();
-        }
-
-        // get xmpp username
-        $xmppUsername = $paramFetcher->get('xmpp_username');
-
-        // get request user
-        $user = null;
-
-        if (is_null($xmppUsername)) {
-            $user = $this->getRepo('User\User')->find($userId);
-        } else {
-            $user = $this->getRepo('User\User')->findOneByXmppUsername($xmppUsername);
-        }
-
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
-
-        // check the other user is banned
-        if ($myUserId != $userId && $user->isBanned()) {
-            return new View();
-        }
-
-        // get profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
-        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-
-        $viewGroup = 'profile_basic';
-
-        // set profile with view group
-        if ($this->getUserId() != $userId) {
-            $viewGroup = $this->setProfileWithViewGroup(
-                $myUser,
-                $user,
-                $profile,
-                $viewGroup
-            );
-        }
-
-        // set view
-        $view = new View($profile);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array($viewGroup))
-        );
-
-        return $view;
+        return $this->handleGetUserProfile($paramFetcher, false);
     }
 
     /**
