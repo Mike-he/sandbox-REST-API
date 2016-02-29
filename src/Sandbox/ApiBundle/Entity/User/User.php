@@ -101,6 +101,14 @@ class User implements UserInterface
     private $credentialNo;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="weChatId", type="integer", nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $wechatId;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -314,6 +322,30 @@ class User implements UserInterface
     public function setCredentialNo($credentialNo)
     {
         $this->credentialNo = $credentialNo;
+
+        return $this;
+    }
+
+    /**
+     * Get wechatId.
+     *
+     * @return int
+     */
+    public function getWeChatId()
+    {
+        return $this->wechatId;
+    }
+
+    /**
+     * Set wechatId.
+     *
+     * @param int $wechatId
+     *
+     * @return User
+     */
+    public function setWeChatId($wechatId)
+    {
+        $this->wechatId = $wechatId;
 
         return $this;
     }
