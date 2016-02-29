@@ -45,7 +45,7 @@ class FeedController extends SandboxRestController
      */
     protected function handleGetFeeds(
         $feeds,
-        $userId
+        $userId = null
     ) {
         foreach ($feeds as $feed) {
             $this->setFeed($feed, $userId);
@@ -63,11 +63,15 @@ class FeedController extends SandboxRestController
      */
     protected function setFeed(
         $feed,
-        $userId
+        $userId = null
     ) {
         $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feed->getOwnerId());
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
         $feed->setOwner($profile);
+
+        if (is_null($userId)) {
+            return;
+        }
 
         $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
             'feedId' => $feed->getId(),

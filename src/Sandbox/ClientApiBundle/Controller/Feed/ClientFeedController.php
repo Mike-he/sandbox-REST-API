@@ -67,8 +67,12 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
 
+        // get params
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
@@ -338,7 +342,10 @@ class ClientFeedController extends FeedController
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
 
         $feed = $this->getRepo('Feed\FeedView')->findOneBy(array(
             'id' => $id,

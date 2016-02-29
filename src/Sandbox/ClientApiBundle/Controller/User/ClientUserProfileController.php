@@ -14,14 +14,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use JMS\Serializer\SerializationContext;
 
 /**
  * Rest controller for UserProfile.
  *
  * @category Sandbox
  *
- * @author   Josh Yang
+ * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
@@ -55,82 +54,7 @@ class ClientUserProfileController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // my user
-        $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
-
-        // get user id
-        $userId = $paramFetcher->get('user_id');
-        if (is_null($userId)) {
-            $userId = $this->getUserId();
-        }
-
-        // get xmpp username
-        $xmppUsername = $paramFetcher->get('xmpp_username');
-
-        // get request user
-        $user = null;
-
-        if (is_null($xmppUsername)) {
-            $user = $this->getRepo('User\User')->find($userId);
-        } else {
-            $user = $this->getRepo('User\User')->findOneByXmppUsername($xmppUsername);
-        }
-
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
-
-        // check the other user is banned
-        if ($myUserId != $userId && $user->isBanned()) {
-            return new View();
-        }
-
-        // get profile
-        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
-        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-
-        $viewGroup = 'profile';
-
-        // set profile with view group
-        if ($this->getUserId() != $userId) {
-            $viewGroup = $this->setProfileWithViewGroup(
-                $myUser,
-                $user,
-                $profile,
-                $viewGroup
-            );
-        }
-
-        // set user hobbies
-        $hobbies = $this->getRepo('User\UserHobbyMap')->findByUser($user);
-        if (!is_null($hobbies) && !empty($hobbies)) {
-            $profile->setHobbies($hobbies);
-        }
-
-        // set user educations
-        $educations = $this->getRepo('User\UserEducation')->findByUser($user);
-        if (!is_null($educations) && !empty($educations)) {
-            $profile->setEducations($educations);
-        }
-
-        // set user experiences
-        $experiences = $this->getRepo('User\UserExperience')->findByUser($user);
-        if (!is_null($experiences) && !empty($experiences)) {
-            $profile->setExperiences($experiences);
-        }
-
-        // set user portfolios
-        $portfolios = $this->getRepo('User\UserPortfolio')->findByUser($user);
-        if (!is_null($portfolios) && !empty($portfolios)) {
-            $profile->setPortfolios($portfolios);
-        }
-
-        // set view
-        $view = new View($profile);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array($viewGroup))
-        );
-
-        return $view;
+        return $this->handleGetUserProfile($paramFetcher, true);
     }
 
     /**

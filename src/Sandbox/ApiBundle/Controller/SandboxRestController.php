@@ -135,6 +135,28 @@ class SandboxRestController extends FOSRestController
         }
     }
 
+    //-------------------- check user auth provided --------------------//
+
+    /**
+     * @return bool
+     */
+    protected function isAuthProvided()
+    {
+        $headers = apache_request_headers();
+        $authHeaderKey = 'Authorization';
+
+        if (!array_key_exists($authHeaderKey, $headers)) {
+            return false;
+        }
+
+        $auth = $headers[$authHeaderKey];
+        if (is_null($auth) || empty($auth)) {
+            return false;
+        }
+
+        return true;
+    }
+
     //-------------------- check admin permission --------------------//
 
     /**
