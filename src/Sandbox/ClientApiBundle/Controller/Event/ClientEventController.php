@@ -69,6 +69,11 @@ class ClientEventController extends EventController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
+
         // filters
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -81,39 +86,11 @@ class ClientEventController extends EventController
             $offset
         );
 
-        if ($this->isAuthProvided()) {
-            $userId = $this->getUserId();
-
-            foreach ($events as $event) {
-                $eventId = $event->getId();
-                $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
-                $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
-                $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
-                $registrationCounts = $this->getRepo('Event\EventRegistration')
-                    ->getRegistrationCounts($eventId);
-
-                // check if user is registered
-                $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
-                    'eventId' => $eventId,
-                    'userId' => $userId,
-                ));
-
-                if (!is_null($registration)) {
-                    // set registration
-                    $event->setEventRegistration($registration);
-                }
-
-                $event->setAttachments($attachments);
-                $event->setDates($dates);
-                $event->setForms($forms);
-                $event->setRegisteredPersonNumber((int) $registrationCounts);
-
-                // set accepted person number
-                if ($event->getVerify()) {
-                    $acceptedCounts = $this->getRepo('Event\EventRegistration')
-                        ->getAcceptedPersonNumber($eventId);
-                    $event->setAcceptedPersonNumber((int) $acceptedCounts);
-                }
+        foreach ($events as $event) {
+            try {
+                $this->setEventExtra($event, $userId);
+            } catch (\Exception $e) {
+                continue;
             }
         }
 
@@ -176,43 +153,23 @@ class ClientEventController extends EventController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $eventsArray = array();
         $events = $this->getRepo('Event\Event')->getMyClientEvents(
             $userId,
             $limit,
             $offset
         );
+
+        $eventsArray = array();
+
         foreach ($events as $event) {
-            $eventId = $event->getId();
-            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
-            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
-            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
-            $registrationCounts = $this->getRepo('Event\EventRegistration')
-                ->getRegistrationCounts($eventId);
+            try {
+                // set event extra
+                $event = $this->setEventExtra($event, $userId);
 
-            // check if user is registered
-            $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
-                'eventId' => $eventId,
-                'userId' => $userId,
-            ));
-
-            if (!is_null($registration)) {
-                // set registration
-                $event->setEventRegistration($registration);
+                array_push($eventsArray, $event);
+            } catch (\Exception $e) {
+                continue;
             }
-            $event->setAttachments($attachments);
-            $event->setDates($dates);
-            $event->setForms($forms);
-            $event->setRegisteredPersonNumber((int) $registrationCounts);
-
-            // set accepted person number
-            if ($event->getVerify()) {
-                $acceptedCounts = $this->getRepo('Event\EventRegistration')
-                    ->getAcceptedPersonNumber($eventId);
-                $event->setAcceptedPersonNumber((int) $acceptedCounts);
-            }
-
-            array_push($eventsArray, $event);
         }
 
         $view = new View($eventsArray);
@@ -245,6 +202,11 @@ class ClientEventController extends EventController
         Request $request,
         $id
     ) {
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
+
         // get an event
         $event = $this->getRepo('Event\Event')->findOneBy(array(
             'id' => $id,
@@ -252,10 +214,52 @@ class ClientEventController extends EventController
         ));
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
-        if ($this->isAuthProvided()) {
-            $userId = $this->getUserId();
-            $eventId = $event->getId();
+        // set extra
+        $event = $this->setEventExtra($event, $userId);
 
+        // set view
+        $view = new View($event);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('client_event'))
+        );
+
+        return $view;
+    }
+
+    /**
+     * @param Event $event
+     * @param int   $userId
+     *
+     * @return Event
+     */
+    private function setEventExtra(
+        $event,
+        $userId = null
+    ) {
+        $eventId = $event->getId();
+
+        // get attachment, dates, forms, registrationCounts
+        $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+        $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+        $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+        $registrationCounts = $this->getRepo('Event\EventRegistration')
+            ->getRegistrationCounts($eventId);
+
+        // set attachment, dates, forms, registrationCounts
+        $event->setAttachments($attachments);
+        $event->setDates($dates);
+        $event->setForms($forms);
+        $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+        // set accepted person number
+        if ($event->isVerified()) {
+            $acceptedCounts = $this->getRepo('Event\EventRegistration')
+                ->getAcceptedPersonNumber($eventId);
+            $event->setAcceptedPersonNumber((int) $acceptedCounts);
+        }
+
+        // set my registration status
+        if (!is_null($userId)) {
             // check if user is registered
             $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
                 'eventId' => $eventId,
@@ -266,33 +270,8 @@ class ClientEventController extends EventController
                 // set registration
                 $event->setEventRegistration($registration);
             }
-
-            // set other array
-            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
-            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
-            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
-            $registrationCounts = $this->getRepo('Event\EventRegistration')
-                ->getRegistrationCounts($eventId);
-
-            $event->setAttachments($attachments);
-            $event->setDates($dates);
-            $event->setForms($forms);
-            $event->setRegisteredPersonNumber((int) $registrationCounts);
-
-            // set accepted person number
-            if ($event->getVerify()) {
-                $acceptedCounts = $this->getRepo('Event\EventRegistration')
-                    ->getAcceptedPersonNumber($eventId);
-                $event->setAcceptedPersonNumber((int) $acceptedCounts);
-            }
         }
 
-        // set view
-        $view = new View($event);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('client_event'))
-        );
-
-        return $view;
+        return $event;
     }
 }
