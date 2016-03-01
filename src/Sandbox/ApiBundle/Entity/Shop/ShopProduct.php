@@ -511,8 +511,11 @@ class ShopProduct implements JsonSerializable
     {
         return array(
             'id' => $this->id,
+            'menu' => array(
+                'menuId' => $this->menuId,
+                'name' => $this->menu->getName(),
+            ),
             'name' => $this->name,
-            'menuId' => $this->menuId,
         );
     }
 }

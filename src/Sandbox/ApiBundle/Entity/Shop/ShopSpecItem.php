@@ -52,14 +52,6 @@ class ShopSpecItem implements JsonSerializable
     private $name;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="inventory", type="boolean")
-     * @Serializer\Groups({"main", "admin_shop", "product_view"})
-     */
-    private $inventory = false;
-
-    /**
      * Get id.
      *
      * @return int
@@ -91,30 +83,6 @@ class ShopSpecItem implements JsonSerializable
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set inventory.
-     *
-     * @param bool $inventory
-     *
-     * @return ShopSpecItem
-     */
-    public function setInventory($inventory)
-    {
-        $this->inventory = $inventory;
-
-        return $this;
-    }
-
-    /**
-     * Get inventory.
-     *
-     * @return bool
-     */
-    public function hasInventory()
-    {
-        return $this->inventory;
     }
 
     /**

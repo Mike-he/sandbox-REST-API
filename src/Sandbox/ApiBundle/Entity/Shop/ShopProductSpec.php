@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
  * ShopProductSpec.
  *
  * @ORM\Table(name="ShopProductSpec")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopProductSpecRepository")
  */
 class ShopProductSpec implements JsonSerializable
 {
@@ -262,6 +262,11 @@ class ShopProductSpec implements JsonSerializable
     {
         return array(
             'id' => $this->id,
+            'spec' => array(
+                'id' => $this->shopSpec->getId(),
+                'name' => $this->shopSpec->getName(),
+                'unit' => $this->shopSpec->getUnit(),
+            ),
         );
     }
 }

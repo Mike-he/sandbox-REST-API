@@ -2,9 +2,9 @@
 
 namespace Sandbox\AdminShopApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 
-class ShopRestController extends SandboxRestController
+class ShopRestController extends PaymentController
 {
     //-------------------- Repo --------------------//
 

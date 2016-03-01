@@ -22,7 +22,7 @@ class ShopSpec implements JsonSerializable
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin_shop", "admin_shop_spec_drop_down", "product_view"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $id;
 
@@ -60,7 +60,7 @@ class ShopSpec implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
-     * @Serializer\Groups({"main", "admin_shop", "admin_shop_spec_drop_down", "product_view"})
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $name;
 
@@ -92,9 +92,25 @@ class ShopSpec implements JsonSerializable
      * @var bool
      *
      * @ORM\Column(name="auto", type="boolean")
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_shop"})
      */
     private $auto = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="inventory", type="boolean")
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
+     */
+    private $inventory = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="unit", type="string", length=15, nullable=true)
+     * @Serializer\Groups({"main", "admin_shop", "product_view"})
+     */
+    private $unit;
 
     /**
      * @var array
@@ -321,6 +337,54 @@ class ShopSpec implements JsonSerializable
     public function isAuto()
     {
         return $this->auto;
+    }
+
+    /**
+     * Set inventory.
+     *
+     * @param bool $inventory
+     *
+     * @return ShopSpec
+     */
+    public function setInventory($inventory)
+    {
+        $this->inventory = $inventory;
+
+        return $this;
+    }
+
+    /**
+     * Get inventory.
+     *
+     * @return bool
+     */
+    public function hasInventory()
+    {
+        return $this->inventory;
+    }
+
+    /**
+     * Set unit.
+     *
+     * @param string $unit
+     *
+     * @return ShopSpec
+     */
+    public function setUnit($unit)
+    {
+        $this->unit = $unit;
+
+        return $this;
+    }
+
+    /**
+     * Get unit.
+     *
+     * @return string
+     */
+    public function getUnit()
+    {
+        return $this->unit;
     }
 
     public function jsonSerialize()

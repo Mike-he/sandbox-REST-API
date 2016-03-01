@@ -127,7 +127,7 @@ class ShopProductSpecItem implements JsonSerializable
      *
      * @return int
      */
-    public function hasInventory()
+    public function getInventory()
     {
         return $this->inventory;
     }
@@ -233,6 +233,11 @@ class ShopProductSpecItem implements JsonSerializable
         return array(
             'id' => $this->id,
             'price' => $this->price,
+            'inventory' => $this->inventory,
+            'item' => array(
+                'id' => $this->shopSpecItem->getId(),
+                'name' => $this->shopSpecItem->getName(),
+            ),
         );
     }
 }
