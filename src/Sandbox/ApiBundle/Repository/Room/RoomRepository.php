@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Room;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
@@ -590,7 +591,7 @@ class RoomRepository extends EntityRepository
             throw new BadRequestHttpException();
         }
 
-        if ($type != 'fixed') {
+        if ($type != Room::TYPE_FIXED) {
             $query = $this->createQueryBuilder('r')
                 ->where('r.floor = :floor')
                 ->andWhere('

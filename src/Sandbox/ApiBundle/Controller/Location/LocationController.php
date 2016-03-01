@@ -85,11 +85,7 @@ class LocationController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $cityId = $paramFetcher->get('city');
-        if (!is_null($cityId)) {
-            $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
-        } else {
-            $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings();
-        }
+        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
@@ -153,17 +149,10 @@ class LocationController extends SalesRestController
             $opLevel
         );
 
-        if (!is_null($cityId)) {
-            $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
-                $cityId,
-                $myBuildingIds
-            );
-        } else {
-            $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
-                $cityId,
-                $myBuildingIds
-            );
-        }
+        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
+            $cityId,
+            $myBuildingIds
+        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));

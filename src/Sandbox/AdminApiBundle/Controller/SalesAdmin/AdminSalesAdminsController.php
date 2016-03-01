@@ -143,8 +143,8 @@ class AdminSalesAdminsController extends SandboxRestController
     /**
      * List definite id of admin.
      *
-     * @param Request $request  the request object
-     * @param int     $admin_id
+     * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -154,7 +154,7 @@ class AdminSalesAdminsController extends SandboxRestController
      * )
      *
      * @Method({"GET"})
-     * @Route("/admins/{admin_id}")
+     * @Route("/admins/{id}")
      *
      * @return View
      *
@@ -162,7 +162,7 @@ class AdminSalesAdminsController extends SandboxRestController
      */
     public function getAdminAction(
         Request $request,
-        $admin_id
+        $id
     ) {
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
@@ -173,7 +173,7 @@ class AdminSalesAdminsController extends SandboxRestController
         );
 
         // get all admins
-        $admins = $this->getRepo('SalesAdmin\SalesAdmin')->findOneBy(array('id' => $admin_id));
+        $admins = $this->getRepo('SalesAdmin\SalesAdmin')->findOneBy(array('id' => $id));
 
         // set view
         $view = new View($admins);
@@ -350,19 +350,19 @@ class AdminSalesAdminsController extends SandboxRestController
 
     /**
      * @param SalesAdmin     $admin
-     * @param SalesAdminType $type_key
+     * @param SalesAdminType $typeKey
      * @param SalesCompany   $company
      *
      * @return View
      */
     private function handleAdminPatch(
         $admin,
-        $type_key,
+        $typeKey,
         $company
     ) {
         $em = $this->getDoctrine()->getManager();
         if (!is_null($type_key)) {
-            $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($type_key);
+            $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
             $admin->setTypeId($type->getId());
         }
         $em->persist($admin);
@@ -386,17 +386,17 @@ class AdminSalesAdminsController extends SandboxRestController
 
     /**
      * @param SalesAdmin     $admin
-     * @param SalesAdminType $type_key
+     * @param SalesAdminType $typeKey
      * @param SalesCompany   $company
      *
      * @return View
      */
     private function handleAdminCreate(
         $admin,
-        $type_key,
+        $typeKey,
         $company
     ) {
-        $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($type_key);
+        $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
         $admin->setType($type);
         $admin->setTypeId($type->getId());
 
@@ -507,6 +507,12 @@ class AdminSalesAdminsController extends SandboxRestController
         }
     }
 
+    /**
+     * @param $companyId
+     * @param $platformAdminBanned
+     * @param $buildingVisible
+     * @param $buildingStatus
+     */
     private function handleSalesByCompany(
         $companyId,
         $platformAdminBanned,

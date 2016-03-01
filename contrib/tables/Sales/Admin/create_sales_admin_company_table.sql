@@ -5,8 +5,8 @@ CREATE TABLE `SalesCompany` (
   `phone` varchar(64) NOT NULL,
   `email` varchar(255) NOT NULL,
   `description` longtext NOT NULL,
+  `address` varchar(255) NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
-  `address` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 );

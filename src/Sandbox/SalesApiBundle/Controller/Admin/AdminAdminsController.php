@@ -7,9 +7,9 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
-use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminPutType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesMyAdminPutType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesPlatformAdminPostType;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesPlatformAdminPutType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -136,8 +136,8 @@ class AdminAdminsController extends SalesRestController
     /**
      * List definite id of admin.
      *
-     * @param Request $request  the request object
-     * @param int     $admin_id
+     * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -147,7 +147,7 @@ class AdminAdminsController extends SalesRestController
      * )
      *
      * @Method({"GET"})
-     * @Route("/admins/{admin_id}")
+     * @Route("/admins/{id}")
      *
      * @return View
      *
@@ -155,7 +155,7 @@ class AdminAdminsController extends SalesRestController
      */
     public function getAdminAction(
         Request $request,
-        $admin_id
+        $id
     ) {
         // check user permission
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
@@ -171,7 +171,7 @@ class AdminAdminsController extends SalesRestController
         $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey(AdminType::KEY_PLATFORM);
         $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
         $admins = $this->getRepo('SalesAdmin\SalesAdmin')->findOneBy(array(
-            'id' => $admin_id,
+            'id' => $id,
             'companyId' => $companyId,
             'typeId' => $type->getId(),
         ));
@@ -249,7 +249,6 @@ class AdminAdminsController extends SalesRestController
      *  }
      * )
      *
-     *
      * @Route("/admins/{id}")
      * @Method({"PATCH"})
      *
@@ -279,7 +278,7 @@ class AdminAdminsController extends SalesRestController
         $patch = new Patch($adminJson, $request->getContent());
         $adminJson = $patch->apply();
 
-        $form = $this->createForm(new SalesAdminPutType(), $admin);
+        $form = $this->createForm(new SalesPlatformAdminPutType(), $admin);
         $form->submit(json_decode($adminJson, true));
 
         $passwordNew = $admin->getPassword();
@@ -310,8 +309,8 @@ class AdminAdminsController extends SalesRestController
      *  }
      * )
      *
-     * @Route("/admins/my")
-     * @Method({"PUT"})
+     * @Route("/admins/password")
+     * @Method({"POST"})
      *
      * @return View
      *
@@ -340,6 +339,9 @@ class AdminAdminsController extends SalesRestController
                 self::ERROR_PASSWORD_INVALID_MESSAGE
             );
         }
+
+        // set default password change true
+        $admin->setDefaultPasswordChanged(true);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -393,102 +395,88 @@ class AdminAdminsController extends SalesRestController
     /**
      * @param SalesAdmin              $admin
      * @param SalesAdmin              $id
-     * @param SalesAdminType          $type_key
-     * @param SalesAdminPermissionMap $permissionPuts
+     * @param SalesAdminType          $typeKey
+     * @param SalesAdminPermissionMap $permissionInComing
      *
      * @return View
      */
     private function handleAdminPatch(
         $id,
         $admin,
-        $type_key,
-        $permissionPuts
+        $typeKey,
+        $permissionInComing
     ) {
         $em = $this->getDoctrine()->getManager();
-        if (!is_null($type_key)) {
-            $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($type_key);
+        $now = new \DateTime('now');
+
+        if (!is_null($typeKey)) {
+            $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
             $admin->setTypeId($type->getId());
         }
         $em->persist($admin);
 
-        if (!is_null($permissionPuts)) {
-            //judge the value of permissions
-            $permissions = $this->getRepo('SalesAdmin\SalesAdminPermissionMap')
-                ->findBy(array('adminId' => $id));
+        if (is_null($permissionInComing) || empty($permissionInComing)) {
+            // save data
+            $em->flush();
 
-            $permissionSame = array();
-            foreach ($permissions as $pOld) {
-                foreach ($permissionPuts as $pNew) {
-                    if ($pOld->getPermissionId() == $pNew['id'] && $pOld->getBuildingId() == $pNew['building_id']) {
-                        $permissionSame[] = $pNew;
-                        if ($pOld->getOpLevel() != $pNew['op_level']) {
-                            $permissionMap = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermissionMap')
-                                ->findOneBy(
-                                    array(
-                                        'adminId' => $id,
-                                        'permissionId' => $pOld->getPermissionId(),
-                                        'buildingId' => $pOld->getBuildingId(),
-                                    )
-                                );
-                            $permissionMap->setOpLevel($pNew['op_level']);
-                        }
-                    }
-                }
-            }
-            //remove the useless permissions
-            foreach ($permissions as $permissionOld) {
-                $num = 0;
-                foreach ($permissionSame as $pSame) {
-                    if ($permissionOld->getPermissionId() == $pSame['id']
-                        && $permissionOld->getBuildingId() == $pSame['building_id']) {
-                        $num = 1;
-                    }
-                }
-                if ($num == 0) {
-                    $pRemove = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermissionMap')
-                        ->findOneBy(
-                            array(
-                                'adminId' => $id,
-                                'permissionId' => $permissionOld->getPermissionId(),
-                            )
-                        );
-                    $em->remove($pRemove);
-                }
+            return new View();
+        }
+
+        $permissionInComingArray = array();
+
+        // check incoming permissions in db
+        foreach ($permissionInComing as $item) {
+            $buildingId = array_key_exists('building_id', $item) ? $item['building_id'] : null;
+
+            // get permission
+            $permission = $this->getRepo('SalesAdmin\SalesAdminPermission')->find($item['id']);
+            if (is_null($permission)) {
+                continue;
             }
 
-            //set the new permissions
-            $now = new \DateTime('now');
-            foreach ($permissionPuts as $pNew) {
-                $num = 0;
-                foreach ($permissionSame as $pSame) {
-                    if ($pNew['id'] == $pSame['id'] && $pNew['building_id'] == $pSame['building_id']) {
-                        $num = 1;
-                    }
-                }
-                if ($num == 0) {
-                    // get permission
-                    $myPermission = $this->getRepo('SalesAdmin\SalesAdminPermission')->find($pNew['id']);
-                    if (is_null($myPermission)
-                        || $myPermission->getTypeId() != $admin->getTypeId()
-                    ) {
-                        // if permission's type is different
-                        // don't add the permission
-                        continue;
-                    }
-                    // save permission map
-                    $permissionMap = new SalesAdminPermissionMap();
-                    $permissionMap->setAdminId($id);
-                    $permissionMap->setPermissionId($pNew['id']);
-                    $permissionMap->setCreationDate($now);
-                    $permissionMap->setAdmin($admin);
-                    $permissionMap->setPermission($myPermission);
-                    $permissionMap->setOpLevel($pNew['op_level']);
+            $permissionId = $permission->getId();
 
-                    if (isset($pNew['building_id']) && !is_null($pNew['building_id'])) {
-                        $permissionMap->setBuildingId($pNew['building_id']);
-                    }
-                    $em->persist($permissionMap);
-                }
+            // generate incoming permission id array
+            array_push($permissionInComingArray, array($permissionId, $buildingId));
+
+            // get from db
+            $permissionDb = $this->getRepo('SalesAdmin\SalesAdminPermissionMap')->findOneBy(array(
+                'adminId' => $id,
+                'permissionId' => $permissionId,
+                'buildingId' => $buildingId,
+            ));
+
+            // not in db
+            if (is_null($permissionDb)) {
+                // save permission map
+                $permissionMap = new SalesAdminPermissionMap();
+                $permissionMap->setCreationDate($now);
+                $permissionMap->setAdmin($admin);
+                $permissionMap->setPermission($permission);
+                $permissionMap->setOpLevel($item['op_level']);
+                $permissionMap->setBuildingId($buildingId);
+
+                $em->persist($permissionMap);
+
+                continue;
+            }
+
+            // opLevel change
+            if ($item['op_level'] != $permissionDb->getOpLevel()) {
+                $permissionDb->setOpLevel($item['op_level']);
+            }
+        }
+
+        // remove permissions from db
+        $permissionDbAll = $this->getRepo('SalesAdmin\SalesAdminPermissionMap')->findByAdminId($id);
+        foreach ($permissionDbAll as $item) {
+            $permissionArray = array(
+                $item->getPermissionId(),
+                $item->getBuildingId(),
+            );
+
+            if (!in_array($permissionArray, $permissionInComingArray)) {
+                $em->remove($item);
             }
         }
 
@@ -500,17 +488,17 @@ class AdminAdminsController extends SalesRestController
 
     /**
      * @param SalesAdmin     $admin
-     * @param SalesAdminType $type_key
+     * @param SalesAdminType $typeKey
      * @param array          $permission
      *
      * @return View
      */
     private function handleAdminCreate(
         $admin,
-        $type_key,
+        $typeKey,
         $permission
     ) {
-        $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($type_key);
+        $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
         $admin->setType($type);
         $admin->setTypeId($type->getId());
 
@@ -578,30 +566,32 @@ class AdminAdminsController extends SalesRestController
     ) {
         $now = new \DateTime('now');
         if (!is_null($permissions) && !empty($permissions)) {
-            foreach ($permissions as $permissionId) {
-                // get permission
-                $myPermission = $this->getRepo('SalesAdmin\SalesAdminPermission')
-                    ->find($permissionId['id']);
-                if (is_null($myPermission)
-                    || $myPermission->getTypeId() != $admin->getType()->getId()
-                ) {
-                    // if permission's type is different
-                    // don't add the permission
-                    continue;
-                }
+            return;
+        }
 
-                // save permission map
-                $permissionMap = new SalesAdminPermissionMap();
-                $permissionMap->setAdmin($admin);
-                $permissionMap->setPermission($myPermission);
-                $permissionMap->setCreationDate($now);
-                $permissionMap->setOpLevel($permissionId['op_level']);
-
-                if (isset($permissionId['building_id'])) {
-                    $permissionMap->setBuildingId($permissionId['building_id']);
-                }
-                $em->persist($permissionMap);
+        foreach ($permissions as $permissionId) {
+            // get permission
+            $myPermission = $this->getRepo('SalesAdmin\SalesAdminPermission')
+                ->find($permissionId['id']);
+            if (is_null($myPermission)
+                || $myPermission->getTypeId() != $admin->getType()->getId()
+            ) {
+                // if permission's type is different
+                // don't add the permission
+                continue;
             }
+
+            // save permission map
+            $permissionMap = new SalesAdminPermissionMap();
+            $permissionMap->setAdmin($admin);
+            $permissionMap->setPermission($myPermission);
+            $permissionMap->setCreationDate($now);
+            $permissionMap->setOpLevel($permissionId['op_level']);
+
+            if (isset($permissionId['building_id'])) {
+                $permissionMap->setBuildingId($permissionId['building_id']);
+            }
+            $em->persist($permissionMap);
         }
     }
 

@@ -271,7 +271,7 @@ class AdminProductController extends ProductController
             !is_null($fixed) ? $fixed->setAvailable(true) : null;
         }
 
-        $product->setVisible(Product::OFF_SALE);
+        $product->setVisible(false);
         $product->setIsDeleted(true);
 
         $em = $this->getDoctrine()->getManager();

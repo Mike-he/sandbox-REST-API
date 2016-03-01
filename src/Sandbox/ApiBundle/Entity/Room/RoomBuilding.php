@@ -258,7 +258,7 @@ class RoomBuilding implements JsonSerializable
      * @ORM\Column(name="status", type="string", nullable=false)
      * @Serializer\Groups({"main", "admin_building"})
      */
-    private $status;
+    private $status = self::STATUS_PENDING;
 
     /**
      * @var bool
@@ -266,7 +266,7 @@ class RoomBuilding implements JsonSerializable
      * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
      * @Serializer\Groups({"main", "admin_building"})
      */
-    private $isDeleted;
+    private $isDeleted = false;
 
     /**
      * @var array

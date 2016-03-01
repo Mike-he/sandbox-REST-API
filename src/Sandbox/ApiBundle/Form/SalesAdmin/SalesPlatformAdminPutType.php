@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class SalesAdminPutType extends AbstractType
+class SalesPlatformAdminPutType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -25,13 +25,12 @@ class SalesAdminPutType extends AbstractType
                 )
             )
             ->add(
-                'company',
+                'permission',
                 null,
                 array(
                     'mapped' => false,
                 )
-            )
-            ->add('banned');
+            );
     }
 
     /**
