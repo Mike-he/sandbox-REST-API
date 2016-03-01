@@ -3,12 +3,14 @@
 namespace Sandbox\ApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserToken;
 use Sandbox\ApiBundle\Form\User\UserClientType;
 use Symfony\Component\HttpFoundation\Request;
 use Sandbox\ApiBundle\Traits\OpenfireApi;
+use FOS\RestBundle\View\View;
 
 /**
  * User Login Controller.
@@ -26,6 +28,64 @@ class UserLoginController extends SandboxRestController
 
     const PLATFORM_IPHONE = 'iphone';
     const PLATFORM_ANDROID = 'android';
+
+    /**
+     * @param Request $request
+     * @param User    $user
+     * @param WeChat  $weChat
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    protected function handleClientUserLogin(
+        Request $request,
+        $user,
+        $weChat = null
+    ) {
+        try {
+            $data = array();
+
+            if (!is_null($user)) {
+                $em = $this->getDoctrine()->getManager();
+
+                // save or update user client
+                $userClient = $this->saveUserClient($request);
+                if (is_null($userClient->getId())) {
+                    $em->persist($userClient);
+                    $em->flush();
+                }
+
+                // force other client offline
+                $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
+                foreach ($userTokenAll as $token) {
+                    $token->setOnline(false);
+                }
+
+                // save or refresh user token
+                $userToken = $this->saveUserToken($user, $userClient);
+                if (is_null($userToken->getId())) {
+                    $em->persist($userToken);
+                }
+                $em->flush();
+
+                // handle device
+                $this->handleDevice($request, $user);
+
+                $data['user'] = $user;
+                $data['client'] = $userClient;
+                $data['token'] = $userToken;
+            }
+
+            if (!is_null($weChat)) {
+                $data['wechat'] = $weChat;
+            }
+
+            return $data;
+        } catch (\Exception $e) {
+            throw new \Exception('Something went wrong!');
+        }
+    }
 
     /**
      * @param Request $request

@@ -1,14 +1,20 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\OAuth;
+namespace Sandbox\ApiBundle\Entity\ThirdParty;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * WeChat.
  *
- * @ORM\Table(name = "WeChat")
+ * @ORM\Table(
+ *      name = "WeChat",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="openId_UNIQUE", columns={"openId"})
+ *      }
+ * )
  * @ORM\Entity()
  */
 class WeChat
@@ -25,29 +31,39 @@ class WeChat
     private $id;
 
     /**
-     * @var string
+     * @var User
      *
-     * @ORM\Column(name="openId", type="string", length=256, nullable=false)
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User"))
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      *
      * @Serializer\Groups({"main"})
+     **/
+    private $user;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="openId", type="string", length=128, nullable=false)
+     *
+     * @Serializer\Groups({"main", "login"})
      */
     private $openid;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="accessToken", type="string", length=512, nullable=true)
+     * @ORM\Column(name="accessToken", type="string", length=256, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "login"})
      */
     private $accessToken;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="refreshToken", type="string", length=512, nullable=true)
+     * @ORM\Column(name="refreshToken", type="string", length=256, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "login"})
      */
     private $refreshToken;
 
@@ -56,25 +72,25 @@ class WeChat
      *
      * @ORM\Column(name="expiresIn", type="string", length=16, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "login"})
      */
     private $expiresIn;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="scope", type="string", length=1024, nullable=true)
+     * @ORM\Column(name="scope", type="string", length=512, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "login"})
      */
     private $scope;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="unionId", type="string", length=512, nullable=true)
+     * @ORM\Column(name="unionId", type="string", length=256, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "login"})
      */
     private $unionid;
 
@@ -102,6 +118,22 @@ class WeChat
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     /**

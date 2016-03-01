@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\ThirdParty;
 
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthLoginData;
 use Sandbox\ClientApiBundle\Form\ThirdParty\ThirdPartyOAuthLoginType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Client Third Party OAuth controller.
@@ -44,7 +46,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
      *
      * @return View
      */
-    public function postOAuthLoginAction(
+    public function postThirdPartyOAuthLoginAction(
         Request $request
     ) {
         $login = new ThirdPartyOAuthLoginData();
@@ -57,51 +59,73 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         }
 
         // get third party resources
-        $weChat = $login->getWeChat();
+        $weChatData = $login->getWeChat();
 
         // for third party oauth login,
         // currently, we are supporting WeChat
-        if (!$this->isResourceAuthenticated($weChat)) {
+        $weChat = null;
+
+        if (!is_null($weChatData)) {
+            $weChat = $this->authenticateWithWeChat($weChatData);
+        }
+
+        if (is_null($weChat)) {
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
         }
 
-        // TODO $this->handleClientUserLogin ...
+        $responseArray = $this->handleClientUserLogin($request, null, $weChat);
 
-        return new View();
+        // response
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
+
+        return $view->setData($responseArray);
     }
 
     /**
-     * @param ThirdPartyOAuthWeChatData $weChat
+     * @param ThirdPartyOAuthWeChatData $weChatData
      *
-     * @return bool
+     * @return WeChat
      */
-    private function isResourceAuthenticated(
-        $weChat
+    private function authenticateWithWeChat(
+        $weChatData
     ) {
-        if (!is_null($weChat)) {
-            return $this->doOAuthWithWeChat($weChat);
-        }
-
-        return false;
-    }
-
-    /**
-     * @param ThirdPartyOAuthWeChatData $weChat
-     *
-     * @return bool
-     */
-    private function doOAuthWithWeChat(
-        $weChat
-    ) {
-        $code = $weChat->getCode();
+        $code = $weChatData->getCode();
         if (is_null($code) || empty($code)) {
-            return false;
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
         }
 
         // TODO do oauth with wechat api
+        $openId = 'test1';
+        $accessToken = 'accessToken1';
+        $refreshToken = 'refreshToken1';
+        $expiresIn = 'expiresIn1';
+        $scope = 'scope1';
+        $unionId = 'unionId1';
 
         // TODO save wechat auth info from response
+        $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByOpenid($openId);
 
-        return true;
+        $em = $this->getDoctrine()->getManager();
+        $now = new \DateTime();
+
+        if (is_null($weChat)) {
+            $weChat = new WeChat();
+            $weChat->setOpenId($openId);
+            $weChat->setCreationDate($now);
+
+            $em->persist($weChat);
+        }
+
+        $weChat->setAccessToken($accessToken);
+        $weChat->setRefreshToken($refreshToken);
+        $weChat->setExpiresIn($expiresIn);
+        $weChat->setScope($scope);
+        $weChat->setUnionId($unionId);
+        $weChat->setModificationDate($now);
+
+        $em->flush();
+
+        return $weChat;
     }
 }

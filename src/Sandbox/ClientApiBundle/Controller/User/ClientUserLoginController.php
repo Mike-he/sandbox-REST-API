@@ -9,7 +9,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use JMS\Serializer\SerializationContext;
 
 /**
@@ -42,7 +41,7 @@ class ClientUserLoginController extends UserLoginController
      * @Route("/login")
      * @Method({"POST"})
      *
-     * @return string
+     * @return View
      *
      * @throws \Exception
      */
@@ -58,58 +57,12 @@ class ClientUserLoginController extends UserLoginController
                 self::ERROR_ACCOUNT_BANNED_MESSAGE);
         }
 
-        return $this->handleClientUserLogin($request, $user);
-    }
+        $responseArray = $this->handleClientUserLogin($request, $user);
 
-    /**
-     * @param Request $request
-     * @param User    $user
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    private function handleClientUserLogin(
-        Request $request,
-        $user
-    ) {
-        try {
-            $em = $this->getDoctrine()->getManager();
+        // response
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
-            // save or update user client
-            $userClient = $this->saveUserClient($request);
-            if (is_null($userClient->getId())) {
-                $em->persist($userClient);
-                $em->flush();
-            }
-
-            // force other client offline
-            $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
-            foreach ($userTokenAll as $token) {
-                $token->setOnline(false);
-            }
-
-            // save or refresh user token
-            $userToken = $this->saveUserToken($user, $userClient);
-            if (is_null($userToken->getId())) {
-                $em->persist($userToken);
-            }
-            $em->flush();
-
-            // handle device
-            $this->handleDevice($request, $user);
-
-            // response
-            $view = new View();
-            $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
-
-            return $view->setData(array(
-                'user' => $user,
-                'client' => $userClient,
-                'token' => $userToken,
-            ));
-        } catch (Exception $e) {
-            throw new \Exception('Something went wrong!');
-        }
+        return $view->setData($responseArray);
     }
 }
