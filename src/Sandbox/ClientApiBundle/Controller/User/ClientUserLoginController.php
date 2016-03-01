@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\User;
 
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserToken;
@@ -31,7 +32,7 @@ class ClientUserLoginController extends UserLoginController
     use OpenfireApi;
 
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
-    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：xxx-xxxxxxx';
+    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：'.SandboxRestController::CUSTOMER_SERVICE_PHONE;
 
     const PLATFORM_IPHONE = 'iphone';
     const PLATFORM_ANDROID = 'android';

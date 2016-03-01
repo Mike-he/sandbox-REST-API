@@ -34,6 +34,7 @@ use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 class AdminDoorController extends DoorController
 {
     use DoorAccessTrait;
+
     const DOOR_MODULE_USER = 'user';
     const DOOR_MODULE_ACCESS = 'access';
 

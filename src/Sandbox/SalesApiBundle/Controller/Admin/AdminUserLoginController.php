@@ -2,6 +2,7 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Admin;
 
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminClient;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminToken;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminClientType;
@@ -29,7 +30,7 @@ use JMS\Serializer\SerializationContext;
 class AdminUserLoginController extends SalesRestController
 {
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
-    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：xxx-xxxxxxx';
+    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：'.SandboxRestController::CUSTOMER_SERVICE_PHONE;
 
     /**
      * Login.

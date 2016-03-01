@@ -53,6 +53,8 @@ class SandboxRestController extends FOSRestController
 
     const ENCODE_METHOD_SHA1 = 'sha1';
 
+    const CUSTOMER_SERVICE_PHONE = '';
+
     //-------------------- Global --------------------//
 
     /**
