@@ -429,36 +429,41 @@ class AdminAdminsController extends SandboxRestController
 
         $now = new \DateTime('now');
 
-        // set permissions
-        if (!is_null($permission) && !empty($permission)) {
-            foreach ($permission as $permissionId) {
-                // get permission
-                $myPermission = $this->getRepo('Admin\AdminPermission')
-                                ->find($permissionId['id']);
-                if (is_null($myPermission)
-                    || $myPermission->getTypeId() != $admin->getType()->getId()
-                ) {
-                    // if permission's type is different
-                    // don't add the permission
-                    continue;
-                }
-
-                // save permission map
-                $permissionMap = new AdminPermissionMap();
-                $permissionMap->setAdmin($admin);
-                $permissionMap->setPermission($myPermission);
-                $permissionMap->setCreationDate($now);
-                $permissionMap->setOpLevel($permissionId['op_level']);
-                $em->persist($permissionMap);
-            }
-        }
-
         // set dates
         $admin->setCreationDate($now);
         $admin->setModificationDate($now);
 
         // save admin
         $em->persist($admin);
+
+        if (is_null($permission) || empty($permission)) {
+            $em->flush();
+
+            return $admin;
+        }
+
+        // set permissions
+        foreach ($permission as $permissionId) {
+            // get permission
+            $myPermission = $this->getRepo('Admin\AdminPermission')
+                            ->find($permissionId['id']);
+            if (is_null($myPermission)
+                || $myPermission->getTypeId() != $admin->getType()->getId()
+            ) {
+                // if permission's type is different
+                // don't add the permission
+                continue;
+            }
+
+            // save permission map
+            $permissionMap = new AdminPermissionMap();
+            $permissionMap->setAdmin($admin);
+            $permissionMap->setPermission($myPermission);
+            $permissionMap->setCreationDate($now);
+            $permissionMap->setOpLevel($permissionId['op_level']);
+            $em->persist($permissionMap);
+        }
+
         $em->flush();
 
         return $admin;
