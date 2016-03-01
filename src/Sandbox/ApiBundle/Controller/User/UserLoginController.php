@@ -46,16 +46,17 @@ class UserLoginController extends SandboxRestController
         try {
             $data = array();
 
+            $em = $this->getDoctrine()->getManager();
+
+            // save or update user client
+            $userClient = $this->saveUserClient($request);
+            if (is_null($userClient->getId())) {
+                $em->persist($userClient);
+                $em->flush();
+            }
+            $data['client'] = $userClient;
+
             if (!is_null($user)) {
-                $em = $this->getDoctrine()->getManager();
-
-                // save or update user client
-                $userClient = $this->saveUserClient($request);
-                if (is_null($userClient->getId())) {
-                    $em->persist($userClient);
-                    $em->flush();
-                }
-
                 // force other client offline
                 $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
                 foreach ($userTokenAll as $token) {
@@ -67,19 +68,21 @@ class UserLoginController extends SandboxRestController
                 if (is_null($userToken->getId())) {
                     $em->persist($userToken);
                 }
-                $em->flush();
 
                 // handle device
                 $this->handleDevice($request, $user);
 
                 $data['user'] = $user;
-                $data['client'] = $userClient;
                 $data['token'] = $userToken;
             }
 
             if (!is_null($weChat)) {
+                $weChat->setUserClient($userClient);
+
                 $data['wechat'] = $weChat;
             }
+
+            $em->flush();
 
             return $data;
         } catch (\Exception $e) {
@@ -130,6 +133,10 @@ class UserLoginController extends SandboxRestController
 
         // get client data from request payload
         $payload = json_decode($requestContent, true);
+        if (!array_key_exists('client', $payload)) {
+            return $userClient;
+        }
+
         $clientData = $payload['client'];
 
         if (is_null($clientData)) {

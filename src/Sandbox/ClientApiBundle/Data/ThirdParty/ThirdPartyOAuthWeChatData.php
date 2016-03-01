@@ -13,6 +13,16 @@ class ThirdPartyOAuthWeChatData
     private $code;
 
     /**
+     * @var string
+     */
+    private $openId;
+
+    /**
+     * @var string
+     */
+    private $accessToken;
+
+    /**
      * @return string
      */
     public function getCode()
@@ -26,5 +36,37 @@ class ThirdPartyOAuthWeChatData
     public function setCode($code)
     {
         $this->code = $code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOpenId()
+    {
+        return $this->openId;
+    }
+
+    /**
+     * @param string $openId
+     */
+    public function setOpenId($openId)
+    {
+        $this->openId = $openId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccessToken()
+    {
+        return $this->accessToken;
+    }
+
+    /**
+     * @param string $accessToken
+     */
+    public function setAccessToken($accessToken)
+    {
+        $this->accessToken = $accessToken;
     }
 }

@@ -4,8 +4,11 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
+use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
+use Sandbox\ApiBundle\Entity\User\UserToken;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
@@ -45,14 +48,8 @@ class ClientUserRegistrationController extends UserRegistrationController
     const ERROR_INVALID_EMAIL_ADDRESS_CODE = 400002;
     const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'register.submit.invalid_email';
 
-    const ERROR_EMAIL_ALREADY_USED_CODE = 400003;
-    const ERROR_EMAIL_ALREADY_USED_MESSAGE = 'register.submit.used_email';
-
     const ERROR_INVALID_PHONE_CODE = 400004;
     const ERROR_INVALID_PHONE_MESSAGE = 'register.submit.invalid_phone';
-
-    const ERROR_PHONE_ALREADY_USED_CODE = 400005;
-    const ERROR_PHONE_ALREADY_USED_CODE_MESSAGE = 'register.submit.used_phone';
 
     const ERROR_INVALID_VERIFICATION_CODE = 400006;
     const ERROR_INVALID_VERIFICATION_MESSAGE = 'register.verify.invalid_verification';
@@ -162,16 +159,6 @@ class ClientUserRegistrationController extends UserRegistrationController
                     self::ERROR_INVALID_EMAIL_ADDRESS_MESSAGE
                 );
             }
-
-            // check email already used
-            $user = $this->getRepo('User\User')->findOneByEmail($email);
-            if (!is_null($user)) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_EMAIL_ALREADY_USED_CODE,
-                    self::ERROR_EMAIL_ALREADY_USED_MESSAGE
-                );
-            }
         } else {
             // check  and phone number valid
             if (is_null($phone)
@@ -180,16 +167,6 @@ class ClientUserRegistrationController extends UserRegistrationController
                     400,
                     self::ERROR_INVALID_PHONE_CODE,
                     self::ERROR_INVALID_PHONE_MESSAGE
-                );
-            }
-
-            // check phone number already used
-            $user = $this->getRepo('User\User')->findOneByPhone($phone);
-            if (!is_null($user)) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_PHONE_ALREADY_USED_CODE,
-                    self::ERROR_PHONE_ALREADY_USED_CODE_MESSAGE
                 );
             }
         }
@@ -222,10 +199,12 @@ class ClientUserRegistrationController extends UserRegistrationController
         $phone = $verify->getPhone();
         $password = $verify->getPassword();
         $code = $verify->getCode();
+        $weChatData = $verify->getWeChat();
 
-        if (is_null($password)
-            || is_null($code)
-            || (is_null($email) && is_null($phone)
+        // code is required
+        // email or phone, only one of them should be provided, not none, not both
+        if (is_null($code)
+            || ((is_null($email) && is_null($phone))
                 || (!is_null($email) && !is_null($phone)))) {
             return $this->customErrorView(
                 400,
@@ -251,7 +230,9 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // check token validation time
         $globals = $this->container->get('twig')->getGlobals();
-        if (new \DateTime('now') > $registration->getCreationDate()->modify($globals['expired_verification_time'])) {
+        $maxTokenTime = $globals['expired_verification_time'];
+
+        if (new \DateTime('now') > $registration->getCreationDate()->modify($maxTokenTime)) {
             return $this->customErrorView(
                 400,
                 self::ERROR_EXPIRED_VERIFICATION_CODE,
@@ -259,28 +240,84 @@ class ClientUserRegistrationController extends UserRegistrationController
             );
         }
 
-        // generate user entity
-        $user = $this->generateUser($email, $phone, $password, $registration->getId());
+        if (!is_null($password) && !empty($password)) {
+            // generate user entity
+            $user = $this->generateUser($email, $phone, $password, $registration->getId());
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($user);
 
-        //post user account to internal api
-        $this->postUserAccount($user->getId());
+            // post user account to internal api
+            $this->postUserAccount($user->getId());
 
-        // create default profile
-        $profile = new UserProfile();
-        $profile->setName('');
-        $profile->setUser($user);
-        $em->persist($profile);
+            // create default profile
+            $profile = new UserProfile();
+            $profile->setName('');
+            $profile->setUser($user);
+            $em->persist($profile);
 
-        // remove registration
-        $em->remove($registration);
-        $em->flush();
+            // remove registration
+            $em->remove($registration);
+            $em->flush();
 
-        // add service account to buddy list
-        $this->addBuddyToUser(array($user));
+            // add service account to buddy list
+            $this->addBuddyToUser(array($user));
+
+            if (!is_null($weChatData)) {
+                $openId = $weChatData->getOpenId();
+                $accessToken = $weChatData->getAccessToken();
+
+                // TODO do oauth with wechat api with openId and accessToken
+                $refreshToken = 'refreshToken01';
+                $expiresIn = 'expiresIn01';
+                $scope = 'scope01';
+                $unionId = 'unionId01';
+
+                // save WeChat auth info from response
+                $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByOpenid($openId);
+
+                $em = $this->getDoctrine()->getManager();
+                $now = new \DateTime();
+
+                if (is_null($weChat)) {
+                    $weChat = new WeChat();
+                    $weChat->setOpenId($openId);
+                    $weChat->setCreationDate($now);
+                    $weChat->setUser($user);
+
+                    $em->persist($weChat);
+                }
+
+                $weChat->setAccessToken($accessToken);
+                $weChat->setRefreshToken($refreshToken);
+                $weChat->setExpiresIn($expiresIn);
+                $weChat->setScope($scope);
+                $weChat->setUnionId($unionId);
+                $weChat->setModificationDate($now);
+
+                // create sandbox auth for user login with third party oauth
+                $userClient = $weChat->getUserClient();
+                if (is_null($userClient)) {
+                    $userClient = new UserClient();
+                    $userClient->setCreationDate($now);
+                    $userClient->setModificationDate($now);
+
+                    $em->persist($userClient);
+                }
+
+                $userToken = new UserToken();
+                $userToken->setUser($user);
+                $userToken->setUserId($user->getId());
+                $userToken->setClient($userClient);
+                $userToken->setClientId($userClient->getId());
+                $userToken->setToken($this->generateRandomToken());
+                $userToken->setOnline(true);
+                $userToken->setCreationDate(new \DateTime('now'));
+
+                $em->persist($userToken);
+                $em->flush();
+            }
+        }
 
         return new View();
     }

@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\ThirdParty;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserClient;
 
 /**
  * WeChat.
@@ -39,6 +40,16 @@ class WeChat
      * @Serializer\Groups({"main"})
      **/
     private $user;
+
+    /**
+     * @var UserClient
+     *
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserClient"))
+     * @ORM\JoinColumn(name="userClientId", referencedColumnName="id", onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main"})
+     **/
+    private $userClient;
 
     /**
      * @var string
@@ -134,6 +145,22 @@ class WeChat
     public function setUser($user)
     {
         $this->user = $user;
+    }
+
+    /**
+     * @return UserClient
+     */
+    public function getUserClient()
+    {
+        return $this->userClient;
+    }
+
+    /**
+     * @param UserClient $userClient
+     */
+    public function setUserClient($userClient)
+    {
+        $this->userClient = $userClient;
     }
 
     /**

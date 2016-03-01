@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Form\User;
 
+use Sandbox\ClientApiBundle\Form\ThirdParty\ThirdPartyOAuthLoginWeChatType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
@@ -15,6 +16,7 @@ class RegisterVerifyType extends AbstractType
             ->add('phone')
             ->add('password')
             ->add('code')
+            ->add('wechat', new ThirdPartyOAuthLoginWeChatType())
         ;
     }
 

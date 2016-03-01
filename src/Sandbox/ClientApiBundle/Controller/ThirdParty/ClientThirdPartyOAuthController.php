@@ -64,16 +64,19 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         // for third party oauth login,
         // currently, we are supporting WeChat
         $weChat = null;
+        $user = null;
 
         if (!is_null($weChatData)) {
             $weChat = $this->authenticateWithWeChat($weChatData);
+
+            if (is_null($weChat)) {
+                throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+            }
+
+            $user = $weChat->getUser();
         }
 
-        if (is_null($weChat)) {
-            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
-        }
-
-        $responseArray = $this->handleClientUserLogin($request, null, $weChat);
+        $responseArray = $this->handleClientUserLogin($request, $user, $weChat);
 
         // response
         $view = new View();
@@ -95,15 +98,15 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
         }
 
-        // TODO do oauth with wechat api
+        // TODO do oauth with wechat api with code
         $openId = 'test1';
-        $accessToken = 'accessToken1';
-        $refreshToken = 'refreshToken1';
-        $expiresIn = 'expiresIn1';
-        $scope = 'scope1';
-        $unionId = 'unionId1';
+        $accessToken = 'accessToken01';
+        $refreshToken = 'refreshToken01';
+        $expiresIn = 'expiresIn01';
+        $scope = 'scope01';
+        $unionId = 'unionId01';
 
-        // TODO save wechat auth info from response
+        // save WeChat auth info from response
         $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByOpenid($openId);
 
         $em = $this->getDoctrine()->getManager();
