@@ -2,13 +2,15 @@
 
 namespace Sandbox\ClientApiBundle\Data\User;
 
+use Sandbox\ApiBundle\Entity\User\UserClient;
+
 /**
  * User Login Incoming Data.
  */
 class UserLoginData
 {
     /**
-     * @var UserLoginClientData
+     * @var UserClient
      */
     private $client;
 
@@ -18,7 +20,7 @@ class UserLoginData
     private $device;
 
     /**
-     * @return UserLoginClientData
+     * @return UserClient
      */
     public function getClient()
     {
@@ -26,7 +28,7 @@ class UserLoginData
     }
 
     /**
-     * @param UserLoginClientData $client
+     * @param UserClient $client
      */
     public function setClient($client)
     {

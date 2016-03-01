@@ -3,13 +3,15 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
-use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ClientApiBundle\Data\User\UserLoginData;
+use Sandbox\ClientApiBundle\Form\User\UserLoginType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Login controller.
@@ -57,7 +59,20 @@ class ClientUserLoginController extends UserLoginController
                 self::ERROR_ACCOUNT_BANNED_MESSAGE);
         }
 
-        $responseArray = $this->handleClientUserLogin($request, $user);
+        $login = new UserLoginData();
+
+        $payload = json_decode($request->getContent(), true);
+
+        if (!is_null($payload)) {
+            $form = $this->createForm(new UserLoginType(), $login);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+        }
+
+        $responseArray = $this->handleClientUserLogin($request, $user, $login);
 
         // response
         $view = new View();

@@ -3,14 +3,16 @@
 namespace Sandbox\ApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ClientApiBundle\Data\User\UserLoginData;
+use Sandbox\ClientApiBundle\Data\User\UserLoginDeviceData;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserToken;
-use Sandbox\ApiBundle\Form\User\UserClientType;
 use Symfony\Component\HttpFoundation\Request;
 use Sandbox\ApiBundle\Traits\OpenfireApi;
 use FOS\RestBundle\View\View;
+use Doctrine\ORM\EntityManager;
 
 /**
  * User Login Controller.
@@ -30,9 +32,10 @@ class UserLoginController extends SandboxRestController
     const PLATFORM_ANDROID = 'android';
 
     /**
-     * @param Request $request
-     * @param User    $user
-     * @param WeChat  $weChat
+     * @param Request       $request
+     * @param User          $user
+     * @param UserLoginData $login
+     * @param WeChat        $weChat
      *
      * @return View
      *
@@ -41,36 +44,33 @@ class UserLoginController extends SandboxRestController
     protected function handleClientUserLogin(
         Request $request,
         $user,
+        $login,
         $weChat = null
     ) {
         try {
             $data = array();
 
+            $userClient = $login->getClient();
+            $deviceData = $login->getDevice();
+
             $em = $this->getDoctrine()->getManager();
 
             // save or update user client
-            $userClient = $this->saveUserClient($request);
-            if (is_null($userClient->getId())) {
-                $em->persist($userClient);
-                $em->flush();
-            }
+            $userClient = $this->saveUserClient($em, $request, $userClient);
             $data['client'] = $userClient;
 
             if (!is_null($user)) {
-                // force other client offline
+                // force to set other token offline
                 $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
                 foreach ($userTokenAll as $token) {
                     $token->setOnline(false);
                 }
 
                 // save or refresh user token
-                $userToken = $this->saveUserToken($user, $userClient);
-                if (is_null($userToken->getId())) {
-                    $em->persist($userToken);
-                }
+                $userToken = $this->saveUserToken($em, $user, $userClient);
 
                 // handle device
-                $this->handleDevice($request, $user);
+                $this->handleDevice($user, $deviceData);
 
                 $data['user'] = $user;
                 $data['token'] = $userToken;
@@ -78,7 +78,6 @@ class UserLoginController extends SandboxRestController
 
             if (!is_null($weChat)) {
                 $weChat->setUserClient($userClient);
-
                 $data['wechat'] = $weChat;
             }
 
@@ -91,85 +90,51 @@ class UserLoginController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param EntityManager $em
+     * @param Request       $request
+     * @param UserClient    $client
      *
      * @return UserClient
      */
     protected function saveUserClient(
-        Request $request
-    ) {
-        $userClient = new UserClient();
-
-        // set creation date for new object
-        $now = new \DateTime('now');
-        $userClient->setCreationDate($now);
-
-        // get user client if exist
-        $userClient = $this->getUserClientIfExist($request, $userClient);
-
-        // set ip address
-        $userClient->setIpAddress($request->getClientIp());
-
-        // set modification date
-        $userClient->setModificationDate($now);
-
-        return $userClient;
-    }
-
-    /**
-     * @param Request    $request
-     * @param UserClient $userClient
-     *
-     * @return UserClient
-     */
-    protected function getUserClientIfExist(
+        $em,
         Request $request,
-        $userClient
+        $client
     ) {
-        $requestContent = $request->getContent();
-        if (is_null($requestContent)) {
-            return $userClient;
+        $clientExist = null;
+
+        if (is_null($client)) {
+            $client = new UserClient();
         }
 
-        // get client data from request payload
-        $payload = json_decode($requestContent, true);
-        if (!array_key_exists('client', $payload)) {
-            return $userClient;
+        $id = $client->getId();
+        if (!is_null($id)) {
+            $clientExist = $this->getRepo('User\UserClient')->find($id);
         }
 
-        $clientData = $payload['client'];
+        $now = new \DateTime('now');
 
-        if (is_null($clientData)) {
-            return $userClient;
+        if (is_null($clientExist)) {
+            $client->setCreationDate($now);
+
+            $em->persist($client);
         }
 
-        if (array_key_exists('id', $clientData)) {
-            // get existing user client
-            $userClientExist = $this->getRepo('User\UserClient')->find($clientData['id']);
+        $client->setIpAddress($request->getClientIp());
+        $client->setModificationDate($now);
 
-            // if exist use the existing object
-            // else remove id from client data for further form binding
-            if (!is_null($userClientExist)) {
-                $userClient = $userClientExist;
-            } else {
-                unset($clientData['id']);
-            }
-        }
-
-        // bind client data
-        $form = $this->createForm(new UserClientType(), $userClient);
-        $form->submit($clientData, true);
-
-        return $userClient;
+        return $client;
     }
 
     /**
-     * @param User       $user
-     * @param UserClient $userClient
+     * @param EntityManager $em
+     * @param User          $user
+     * @param UserClient    $userClient
      *
      * @return UserToken
      */
     protected function saveUserToken(
+        $em,
         $user,
         $userClient
     ) {
@@ -185,6 +150,8 @@ class UserLoginController extends SandboxRestController
             $userToken->setClient($userClient);
             $userToken->setClientId($userClient->getId());
             $userToken->setToken($this->generateRandomToken());
+
+            $em->persist($userToken);
         }
 
         // refresh creation date
@@ -195,24 +162,20 @@ class UserLoginController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
-     * @param User    $user
+     * @param User                $user
+     * @param UserLoginDeviceData $deviceData
      */
     protected function handleDevice(
-        Request $request,
-        $user
+        $user,
+        $deviceData
     ) {
         try {
-            $requestContent = $request->getContent();
-            if (is_null($requestContent)) {
+            if (is_null($deviceData)) {
                 return;
             }
 
-            // get device data from request payload
-            $payload = json_decode($requestContent, true);
-            $deviceData = $payload['device'];
-            $token = $deviceData['token'];
-            $platform = $deviceData['platform'];
+            $token = $deviceData->getToken();
+            $platform = $deviceData->getPlatform();
 
             if ($platform === self::PLATFORM_IPHONE) {
                 $jid = $this->constructXmppJid($user->getXmppUsername());
@@ -224,8 +187,8 @@ class UserLoginController extends SandboxRestController
     }
 
     /**
-     * @param $jid
-     * @param $currentToken
+     * @param string $jid
+     * @param string $currentToken
      */
     protected function disableXmppOtherApns(
         $jid,
