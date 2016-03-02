@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Entity\User\UserToken;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Sandbox\ApiBundle\Traits\StringUtil;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
 use Sandbox\ClientApiBundle\Data\User\RegisterVerify;
 use Sandbox\ApiBundle\Entity\User\UserRegistration;
@@ -22,6 +23,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Doctrine\ORM\EntityManager;
+use JMS\Serializer\SerializationContext;
 
 /**
  * Registration controller.
@@ -195,31 +198,16 @@ class ClientUserRegistrationController extends UserRegistrationController
     private function handleRegisterVerify(
         $verify
     ) {
+        $em = $this->getDoctrine()->getManager();
+
         $email = $verify->getEmail();
         $phone = $verify->getPhone();
-        $password = $verify->getPassword();
         $code = $verify->getCode();
+        $password = $verify->getPassword();
         $weChatData = $verify->getWeChat();
 
-        // code is required
-        // email or phone, only one of them should be provided, not none, not both
-        if (is_null($code)
-            || ((is_null($email) && is_null($phone))
-                || (!is_null($email) && !is_null($phone)))) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_INVALID_VERIFICATION_CODE,
-                self::ERROR_INVALID_VERIFICATION_MESSAGE
-            );
-        }
-
-        // get registration entity
-        $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
-            'email' => $email,
-            'phone' => $phone,
-            'code' => $code,
-        ));
-
+        // get registration by (email / phone) with code
+        $registration = $this->getMyRegistration($email, $phone, $code);
         if (is_null($registration)) {
             return $this->customErrorView(
                 400,
@@ -228,11 +216,9 @@ class ClientUserRegistrationController extends UserRegistrationController
             );
         }
 
-        // check token validation time
-        $globals = $this->container->get('twig')->getGlobals();
-        $maxTokenTime = $globals['expired_verification_time'];
-
-        if (new \DateTime('now') > $registration->getCreationDate()->modify($maxTokenTime)) {
+        // check code validation time
+        $registration = $this->verifyRegistration($registration);
+        if (is_null($registration)) {
             return $this->customErrorView(
                 400,
                 self::ERROR_EXPIRED_VERIFICATION_CODE,
@@ -240,86 +226,126 @@ class ClientUserRegistrationController extends UserRegistrationController
             );
         }
 
-        if (!is_null($password) && !empty($password)) {
-            // generate user entity
-            $user = $this->generateUser($email, $phone, $password, $registration->getId());
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($user);
-
-            // post user account to internal api
-            $this->postUserAccount($user->getId());
-
-            // create default profile
-            $profile = new UserProfile();
-            $profile->setName('');
-            $profile->setUser($user);
-            $em->persist($profile);
-
-            // remove registration
-            $em->remove($registration);
+        // so far, code is verified
+        // if password not provided, stop here
+        if (is_null($password) || empty($password)) {
+            // update db
             $em->flush();
 
-            // add service account to buddy list
-            $this->addBuddyToUser(array($user));
-
-            if (!is_null($weChatData)) {
-                $openId = $weChatData->getOpenId();
-                $accessToken = $weChatData->getAccessToken();
-
-                // TODO do oauth with wechat api with openId and accessToken
-                $refreshToken = 'refreshToken01';
-                $expiresIn = 'expiresIn01';
-                $scope = 'scope01';
-                $unionId = 'unionId01';
-
-                // save WeChat auth info from response
-                $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByOpenid($openId);
-
-                $em = $this->getDoctrine()->getManager();
-                $now = new \DateTime();
-
-                if (is_null($weChat)) {
-                    $weChat = new WeChat();
-                    $weChat->setOpenId($openId);
-                    $weChat->setCreationDate($now);
-                    $weChat->setUser($user);
-
-                    $em->persist($weChat);
-                }
-
-                $weChat->setAccessToken($accessToken);
-                $weChat->setRefreshToken($refreshToken);
-                $weChat->setExpiresIn($expiresIn);
-                $weChat->setScope($scope);
-                $weChat->setUnionId($unionId);
-                $weChat->setModificationDate($now);
-
-                // create sandbox auth for user login with third party oauth
-                $userClient = $weChat->getUserClient();
-                if (is_null($userClient)) {
-                    $userClient = new UserClient();
-                    $userClient->setCreationDate($now);
-                    $userClient->setModificationDate($now);
-
-                    $em->persist($userClient);
-                }
-
-                $userToken = new UserToken();
-                $userToken->setUser($user);
-                $userToken->setUserId($user->getId());
-                $userToken->setClient($userClient);
-                $userToken->setClientId($userClient->getId());
-                $userToken->setToken($this->generateRandomToken());
-                $userToken->setOnline(true);
-                $userToken->setCreationDate(new \DateTime('now'));
-
-                $em->persist($userToken);
-                $em->flush();
-            }
+            // response
+            return new View();
         }
 
-        return new View();
+        $user = $this->finishRegistration($em, $email, $phone, $password, $registration);
+
+        // so far, user is created
+        // if third party login not provided, stop here
+        if (!$this->hasThirdPartyLogin($weChatData)) {
+            // update db
+            $em->flush();
+
+            // response
+            return new View();
+        }
+
+        // bind third party resource, handle it as a login
+        // and give authorization info in response
+        $responseArray = $this->finishRegistrationWithThirdPartyLogin($em, $user, $weChatData);
+
+        // update db
+        $em->flush();
+
+        // response
+        $view = new View($responseArray);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
+
+        return $view;
+    }
+
+    /**
+     * @param $email
+     * @param $phone
+     * @param $code
+     *
+     * @return UserRegistration
+     */
+    private function getMyRegistration(
+        $email,
+        $phone,
+        $code
+    ) {
+        // code is required
+        // email or phone, only one of them should be provided, not none, not both
+        if (is_null($code)
+            || ((is_null($email) && is_null($phone))
+                || (!is_null($email) && !is_null($phone)))) {
+            return;
+        }
+
+        return $this->getRepo('User\UserRegistration')->findOneBy(array(
+            'email' => $email,
+            'phone' => $phone,
+            'code' => $code,
+        ));
+    }
+
+    /**
+     * @param UserRegistration $registration
+     *
+     * @return UserRegistration
+     */
+    private function verifyRegistration(
+        $registration
+    ) {
+        $globals = $this->container->get('twig')->getGlobals();
+        $maxTokenTime = $globals['expired_verification_time'];
+
+        $now = new \DateTime('now');
+        if ($now > $registration->getCreationDate()->modify($maxTokenTime)) {
+            return;
+        }
+
+        $registration->setCreationDate($now);
+
+        return $registration;
+    }
+
+    /**
+     * @param EntityManager    $em
+     * @param string           $email
+     * @param string           $phone
+     * @param string           $password
+     * @param UserRegistration $registration
+     *
+     * @return User
+     */
+    private function finishRegistration(
+        $em,
+        $email,
+        $phone,
+        $password,
+        $registration
+    ) {
+        // generate user entity
+        $user = $this->generateUser($email, $phone, $password, $registration->getId());
+        $em->persist($user);
+
+        // post user account to internal api
+        $this->postUserAccount($user->getId());
+
+        // create default profile
+        $profile = new UserProfile();
+        $profile->setName('');
+        $profile->setUser($user);
+        $em->persist($profile);
+
+        // remove registration
+        $em->remove($registration);
+
+        // add service account to buddy list
+        $this->addBuddyToUser(array($user));
+
+        return $user;
     }
 
     /**
@@ -472,5 +498,95 @@ class ClientUserRegistrationController extends UserRegistrationController
 
             $this->send_sms($phone, $smsText);
         }
+    }
+
+    /**
+     * @param ThirdPartyOAuthWeChatData $weChatData
+     *
+     * @return bool
+     */
+    private function hasThirdPartyLogin(
+        $weChatData
+    ) {
+        // today, we only have WeChat login
+        if (is_null($weChatData)) {
+            return false;
+        }
+
+        if (is_null($weChatData->getOpenId()) || is_null($weChatData->getAccessToken())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param EntityManager             $em
+     * @param User                      $user
+     * @param ThirdPartyOAuthWeChatData $weChatData
+     *
+     * @return array
+     */
+    private function finishRegistrationWithThirdPartyLogin(
+        $em,
+        $user,
+        $weChatData
+    ) {
+        $openId = $weChatData->getOpenId();
+        $accessToken = $weChatData->getAccessToken();
+
+        $weChat = $this->getRepo('ThirdParty\WeChat')->findOneBy(array(
+            'openid' => $openId,
+            'accessToken' => $accessToken,
+        ));
+        if (is_null($weChat)) {
+            return array();
+        }
+
+        // TODO do oauth with wechat api with openId and accessToken
+        $refreshToken = 'refreshToken01';
+        $expiresIn = 'expiresIn01';
+        $scope = 'scope01';
+        $unionId = 'unionId01';
+
+        // update WeChat
+        $now = new \DateTime();
+
+        $weChat->setUser($user);
+        $weChat->setRefreshToken($refreshToken);
+        $weChat->setExpiresIn($expiresIn);
+        $weChat->setScope($scope);
+        $weChat->setUnionId($unionId);
+        $weChat->setModificationDate($now);
+
+        // create sandbox auth for user login with third party oauth
+        $userClient = $weChat->getUserClient();
+        if (is_null($userClient)) {
+            $userClient = new UserClient();
+            $userClient->setCreationDate($now);
+            $userClient->setModificationDate($now);
+
+            $em->persist($userClient);
+
+            $weChat->setUserClient($userClient);
+        }
+
+        $userToken = new UserToken();
+        $userToken->setUser($user);
+        $userToken->setUserId($user->getId());
+        $userToken->setClient($userClient);
+        $userToken->setClientId($userClient->getId());
+        $userToken->setToken($this->generateRandomToken());
+        $userToken->setOnline(true);
+        $userToken->setCreationDate(new \DateTime('now'));
+
+        $em->persist($userToken);
+
+        // response
+        return array(
+            'client' => $userClient,
+            'token' => $userToken,
+            'user' => $user,
+        );
     }
 }

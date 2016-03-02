@@ -36,8 +36,6 @@ class SandboxRestController extends FOSRestController
 
     const CONFLICT_MESSAGE = 'This resource already exists';
 
-    const SERVICE_ACCOUNT_NOT_FOUND = 'Sandbox Service Account Not Found';
-
     const HTTP_STATUS_OK = 200;
     const HTTP_STATUS_OK_NO_CONTENT = 204;
 
@@ -1071,7 +1069,9 @@ class SandboxRestController extends FOSRestController
     ) {
         // find service account as buddy
         $serviceUser = $this->getRepo('User\User')->findOneByXmppUsername(User::XMPP_SERVICE);
-        $this->throwNotFoundIfNull($serviceUser, self::SERVICE_ACCOUNT_NOT_FOUND);
+        if (is_null($serviceUser)) {
+            return;
+        }
 
         $em = $this->getDoctrine()->getManager();
 
