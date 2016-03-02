@@ -19,6 +19,8 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Shop\Shop;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Client ShopOrder Controller.
@@ -33,12 +35,64 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 class ClientShopOrderController extends ShopRestController
 {
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/shops/orders")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getShopOrdersByUserAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $order = $this->getRepo('Shop\ShopOrder')->findBy(
+            ['userId' => $userId],
+            ['modificationDate' => 'DESC'],
+            $limit,
+            $offset
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+        $view->setData($order);
+
+        return $view;
+    }
+
+    /**
      * @param Request $request
      * @param int     $shopId
      * @param int     $id
      *
      * @Method({"GET"})
-     * @Route("/shops/{shopId}/orders/{id}")
+     * @Route("/shops/orders/{id}")
      *
      * @return View
      *
@@ -54,7 +108,6 @@ class ClientShopOrderController extends ShopRestController
             [
                 'userId' => $userId,
                 'id' => $id,
-                'shopId' => $shopId,
             ]
         );
 
@@ -299,7 +352,12 @@ class ClientShopOrderController extends ShopRestController
             $item->setShopProductSpecItemInfo($info);
             $em->persist($item);
 
-            $calculatedPrice += $shopProductSpecItem->getPrice() * $item->getAmount();
+            $price = $shopProductSpecItem->getPrice();
+            if (is_null($price)) {
+                continue;
+            }
+
+            $calculatedPrice += $price * $item->getAmount();
         }
 
         return $calculatedPrice;

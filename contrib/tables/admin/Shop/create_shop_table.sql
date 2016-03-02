@@ -11,6 +11,7 @@ CREATE TABLE `Shop` (
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `buildingId_name_UNIQUE` (`buildingId`,`name`),
   KEY `fk_Shop_buildingId_idx` (`buildingId`),
   CONSTRAINT `fk_Shop_buildingId` FOREIGN KEY (`buildingId`) REFERENCES `RoomBuilding` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );

@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Admin Spec Controller.
@@ -256,6 +257,9 @@ class AdminShopSpecController extends SpecController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        // check conflict shop spec
+        $this->findConflictShopSpec($spec);
+
         $em = $this->getDoctrine()->getManager();
         $this->handleSpecItemPut(
             $spec,
@@ -340,6 +344,9 @@ class AdminShopSpecController extends SpecController
 
             $specItem->setSpec($spec);
             $em->persist($specItem);
+
+            // check spec item conflict
+            $this->findConflictShopSpecItem($specItem);
         }
     }
 
@@ -378,6 +385,9 @@ class AdminShopSpecController extends SpecController
             }
 
             $specItem->setName($specData->getName());
+
+            // check spec item conflict
+            $this->findConflictShopSpecItem($specItem);
         }
     }
 
@@ -438,6 +448,12 @@ class AdminShopSpecController extends SpecController
         }
 
         $em = $this->getDoctrine()->getManager();
+        $spec->setShop($shop);
+        $em->persist($spec);
+
+        // check conflict shop spec
+        $this->findConflictShopSpec($spec);
+
         foreach ($items as $item) {
             $specItem = new ShopSpecItem();
             $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
@@ -449,12 +465,49 @@ class AdminShopSpecController extends SpecController
 
             $specItem->setSpec($spec);
             $em->persist($specItem);
+
+            // check spec item conflict
+            $this->findConflictShopSpecItem($specItem);
         }
 
-        $spec->setShop($shop);
-        $em->persist($spec);
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param $spec
+     */
+    private function findConflictShopSpec(
+        $spec
+    ) {
+        $sameSpec = $this->getRepo('Shop\ShopSpec')->findOneBy(
+            [
+                'shop' => $spec->getShop(),
+                'name' => $spec->getName(),
+            ]
+        );
+
+        if (!is_null($sameSpec)) {
+            throw new ConflictHttpException(ShopSpec::SHOP_SPEC_CONFLICT_MESSAGE);
+        }
+    }
+
+    /**
+     * @param $shop
+     */
+    private function findConflictShopSpecItem(
+        $item
+    ) {
+        $sameItem = $this->getRepo('Shop\ShopSpecItem')->findOneBy(
+            [
+                'spec' => $item->getSpec(),
+                'name' => $item->getName(),
+            ]
+        );
+
+        if (!is_null($sameItem)) {
+            throw new ConflictHttpException(ShopSpecItem::SHOP_SPEC_ITEM_CONFLICT_MESSAGE);
+        }
     }
 }

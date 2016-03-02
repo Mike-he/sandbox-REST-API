@@ -29,6 +29,7 @@ use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Admin ShopProduct Controller.
@@ -244,6 +245,9 @@ class AdminShopProductController extends ShopProductController
         $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId($shopId, $id);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
+        $oldMenuId = $product->getMenuId();
+        $oldName = $product->getName();
+
         $form = $this->createForm(
             new ShopProductPostType(),
             $product,
@@ -257,7 +261,9 @@ class AdminShopProductController extends ShopProductController
 
         return $this->handleShopProductPut(
             $product,
-            $shopId
+            $shopId,
+            $oldMenuId,
+            $oldName
         );
     }
 
@@ -417,7 +423,9 @@ class AdminShopProductController extends ShopProductController
      */
     private function handleShopProductPut(
         $product,
-        $shopId
+        $shopId,
+        $oldMenuId,
+        $oldName
     ) {
         // check if menu is within shop
         $menu = $this->getRepo('Shop\ShopMenu')->findOneBy(
@@ -428,8 +436,15 @@ class AdminShopProductController extends ShopProductController
         );
         $this->throwNotFoundIfNull($menu, self::NOT_FOUND_MESSAGE);
 
-        // remove attachments
         $em = $this->getDoctrine()->getManager();
+        $product->setMenu($menu);
+
+        // check conflict shop product
+        if ($oldMenuId != $menu->getId() || $oldName != $product->getName()) {
+            $this->findConflictShopProduct($product);
+        }
+
+        // remove attachments
         $this->removeShopProductAttachments($product, $em);
 
         // add attachments
@@ -455,7 +470,6 @@ class AdminShopProductController extends ShopProductController
             $em
         );
 
-        $product->setMenu($menu);
         $em->flush();
 
         return new View();
@@ -472,7 +486,7 @@ class AdminShopProductController extends ShopProductController
         $em
     ) {
         // add specs
-        $this->addShopProductSpecs(
+        $this->addShopProductSpecsForProductModify(
             $product,
             $data->getAdd(),
             $em
@@ -567,6 +581,12 @@ class AdminShopProductController extends ShopProductController
 
         // add attachments
         $em = $this->getDoctrine()->getManager();
+        $product->setMenu($menu);
+        $em->persist($product);
+
+        // check conflict shop product
+        $this->findConflictShopProduct($product);
+
         $this->addShopProductAttachments(
             $product,
             $attachments,
@@ -580,8 +600,6 @@ class AdminShopProductController extends ShopProductController
             $em
         );
 
-        $product->setMenu($menu);
-        $em->persist($product);
         $em->flush();
 
         $view = new View();
@@ -596,6 +614,55 @@ class AdminShopProductController extends ShopProductController
      * @param $em
      */
     private function addShopProductSpecs(
+        $product,
+        $specs,
+        $em
+    ) {
+        if (is_null($specs)) {
+            return;
+        }
+
+        $duplicateSpecArray = [];
+        foreach ($specs as $spec) {
+            $productSpec = new ShopProductSpec();
+            $form = $this->createForm(new ShopProductSpecPostType(), $productSpec);
+            $form->submit($spec, true);
+
+            $shopSpec = $this->findEntityById($productSpec->getShopSpecId(), 'Shop\ShopSpec');
+            $items = $productSpec->getItems();
+            $this->addShopProductSpecItems(
+                $productSpec,
+                $items,
+                $em
+            );
+
+            $productSpec->setProduct($product);
+            $productSpec->setShopSpec($shopSpec);
+            $em->persist($productSpec);
+
+            array_push($duplicateSpecArray, $productSpec->getShopSpecId());
+        }
+
+        $this->checkDuplicateInArray($duplicateSpecArray);
+    }
+
+    /**
+     * @param $duplicateSpecArray
+     */
+    private function checkDuplicateInArray(
+        $duplicateSpecArray
+    ) {
+        if (array_unique($duplicateSpecArray) != $duplicateSpecArray) {
+            throw new ConflictHttpException(ShopProductSpec::SHOP_PRODUCT_SPEC_CONFLICT_MESSAGE);
+        }
+    }
+
+    /**
+     * @param $product
+     * @param $specs
+     * @param $em
+     */
+    private function addShopProductSpecsForProductModify(
         $product,
         $specs,
         $em
@@ -620,6 +687,9 @@ class AdminShopProductController extends ShopProductController
             $productSpec->setProduct($product);
             $productSpec->setShopSpec($shopSpec);
             $em->persist($productSpec);
+
+            // check conflict for product spec
+            $this->findConflictShopProductSpec($productSpec);
         }
     }
 
@@ -680,6 +750,42 @@ class AdminShopProductController extends ShopProductController
         $attachments = $this->getRepo('Shop\ShopProductAttachment')->findByProduct($product);
         foreach ($attachments as $attachment) {
             $em->remove($attachment);
+        }
+    }
+
+    /**
+     * @param $product
+     */
+    private function findConflictShopProduct(
+        $product
+    ) {
+        $sameProduct = $this->getRepo('Shop\ShopProduct')->findOneBy(
+            [
+                'menu' => $product->getMenu(),
+                'name' => $product->getName(),
+            ]
+        );
+
+        if (!is_null($sameProduct)) {
+            throw new ConflictHttpException(ShopProduct::SHOP_PRODUCT_CONFLICT_MESSAGE);
+        }
+    }
+
+    /**
+     * @param $product
+     */
+    private function findConflictShopProductSpec(
+        $spec
+    ) {
+        $sameSpec = $this->getRepo('Shop\ShopProductSpec')->findOneBy(
+            [
+                'shopSpec' => $spec->getShopSpec(),
+                'product' => $spec->getProduct(),
+            ]
+        );
+
+        if (!is_null($sameSpec)) {
+            throw new ConflictHttpException(ShopProductSpec::SHOP_PRODUCT_SPEC_CONFLICT_MESSAGE);
         }
     }
 }

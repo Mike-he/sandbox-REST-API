@@ -10,7 +10,12 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 /**
  * Shop.
  *
- * @ORM\Table(name="Shop")
+ * @ORM\Table(
+ *     name="Shop",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="buildingId_name_UNIQUE", columns={"buildingId", "name"})
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopRepository")
  */
 class Shop implements JsonSerializable
@@ -20,6 +25,7 @@ class Shop implements JsonSerializable
     const PATH_ACTIVE = '/active';
     const SHOP_INACTIVE_CODE = 400001;
     const SHOP_INACTIVE_MESSAGE = 'This Shop is Inactive';
+    const SHOP_CONFLICT_MESSAGE = 'Shop with this name already exist in this building';
 
     /**
      * @var int
@@ -83,7 +89,7 @@ class Shop implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="close", type="boolean")
+     * @ORM\Column(name="close", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $close = false;
@@ -91,7 +97,7 @@ class Shop implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="online", type="boolean")
+     * @ORM\Column(name="online", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $online = false;
@@ -99,7 +105,7 @@ class Shop implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="active", type="boolean")
+     * @ORM\Column(name="active", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $active = false;

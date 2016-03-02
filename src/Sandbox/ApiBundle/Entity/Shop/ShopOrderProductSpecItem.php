@@ -8,7 +8,12 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * ShopOrderProduct.
  *
- * @ORM\Table(name="ShopOrderProductSpecItem")
+ * @ORM\Table(
+ *     name="ShopOrderProductSpecItem",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="specId_itemId_UNIQUE", columns={"specId", "itemId"})
+ *     }
+ * )
  * @ORM\Entity
  */
 class ShopOrderProductSpecItem
@@ -43,14 +48,14 @@ class ShopOrderProductSpecItem
     /**
      * @var int
      *
-     * @ORM\Column(name="productId", type="integer")
+     * @ORM\Column(name="itemId", type="integer")
      * @Serializer\Groups({"main"})
      */
     private $itemId;
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Shop\ShopProductSpecItem")
-     * @ORM\JoinColumn(name="productId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="itemId", referencedColumnName="id")
      * @Serializer\Groups({"main"})
      **/
     private $item;

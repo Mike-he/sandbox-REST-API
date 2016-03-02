@@ -26,6 +26,7 @@ use Sandbox\ApiBundle\Entity\Shop\ShopSpec;
 use Sandbox\ApiBundle\Entity\Shop\ShopSpecItem;
 use Sandbox\ApiBundle\Form\Shop\ShopSpecPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopSpecItemPostType;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Admin Shop Controller.
@@ -82,6 +83,7 @@ class AdminShopController extends ShopController
         $id
     ) {
         $shop = $this->findShopById($id);
+        $shopName = $shop->getName();
 
         $form = $this->createForm(
             new ShopPutType(),
@@ -95,7 +97,8 @@ class AdminShopController extends ShopController
         }
 
         return $this->handleShopPut(
-            $shop
+            $shop,
+            $shopName
         );
     }
 
@@ -298,6 +301,9 @@ class AdminShopController extends ShopController
         $building = $this->getRepo('Room\RoomBuilding')->find($shop->getBuildingId());
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
+        // check for shop with same name
+        $this->findConflictShop($shop);
+
         $em = $this->getDoctrine()->getManager();
         $shopAttachments = $shop->getAttachments();
         $startString = $shop->getStart();
@@ -341,9 +347,9 @@ class AdminShopController extends ShopController
     ) {
         $content = [
             'name' => ShopSpec::AUTO_SPEC_NAME,
+            'inventory' => true,
             'items' => [
                 'name' => ShopSpecItem::AUTO_SPEC_ITEM_NAME,
-                'inventory' => true,
             ],
         ];
 
@@ -387,8 +393,14 @@ class AdminShopController extends ShopController
      * @return Response
      */
     private function handleShopPut(
-        $shop
+        $shop,
+        $shopName
     ) {
+        // check for shop with same name
+        if ($shopName != $shop->getName()) {
+            $this->findConflictShop($shop);
+        }
+
         $em = $this->getDoctrine()->getManager();
         $shopAttachments = $shop->getAttachments();
         $startString = $shop->getStart();
@@ -510,5 +522,23 @@ class AdminShopController extends ShopController
         }
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+    }
+
+    /**
+     * @param $shop
+     */
+    private function findConflictShop(
+        $shop
+    ) {
+        $sameShop = $this->getRepo('Shop\Shop')->findOneBy(
+            [
+                'buildingId' => $shop->getBuildingId(),
+                'name' => $shop->getName(),
+            ]
+        );
+
+        if (!is_null($sameShop)) {
+            throw new ConflictHttpException(Shop::SHOP_CONFLICT_MESSAGE);
+        }
     }
 }

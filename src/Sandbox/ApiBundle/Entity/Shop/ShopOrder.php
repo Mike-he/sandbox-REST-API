@@ -16,7 +16,10 @@ class ShopOrder
     const SHOP_ORDER_STATUS_UNPAID = 'unpaid';
     const SHOP_ORDER_STATUS_PAID = 'paid';
     const SHOP_ORDER_STATUS_READY = 'ready';
+    const SHOP_ORDER_STATUS_COMPLETED = 'completed';
     const SHOP_ORDER_STATUS_ISSUE = 'issue';
+    const SHOP_ORDER_STATUS_WAIT = 'wait';
+    const SHOP_ORDER_STATUS_REFUNDED = 'refunded';
     const SHOP_ORDER_STATUS_cancelled = 'cancelled';
     const SHOP_ORDER_LETTER_HEAD = 'S';
 
@@ -48,7 +51,7 @@ class ShopOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="orderNumber", type="string", length=255)
+     * @ORM\Column(name="orderNumber", type="string", length=255, unique=true)
      * @Serializer\Groups({"main", "admin_shop", "client_order"})
      */
     private $orderNumber;
@@ -129,6 +132,14 @@ class ShopOrder
      * @Serializer\Groups({"main", "admin_shop", "client_order"})
      */
     private $shopOrderProducts;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="linkedOrderId", type="integer", nullable=true)
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $linkedOrderId;
 
     /**
      * @var array
@@ -455,6 +466,30 @@ class ShopOrder
     public function getShopOrderProducts()
     {
         return $this->shopOrderProducts;
+    }
+
+    /**
+     * Set linkedOrderId.
+     *
+     * @param int $linkedOrderId
+     *
+     * @return ShopOrder
+     */
+    public function setLinkedOrderId($linkedOrderId)
+    {
+        $this->linkedOrderId = $linkedOrderId;
+
+        return $this;
+    }
+
+    /**
+     * Get linkedOrderId.
+     *
+     * @return int
+     */
+    public function getLinkedOrderId()
+    {
+        return $this->linkedOrderId;
     }
 
     public function __construct()

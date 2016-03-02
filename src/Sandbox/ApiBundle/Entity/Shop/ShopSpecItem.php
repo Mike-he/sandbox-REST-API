@@ -9,12 +9,18 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * ShopSpecItem.
  *
- * @ORM\Table(name="ShopSpecItem")
+ * @ORM\Table(
+ *     name="ShopSpecItem",
+ *     uniqueConstraints={
+ *      @ORM\UniqueConstraint(name="specId_name_UNIQUE", columns={"specId", "name"})
+ *     }
+ * )
  * @ORM\Entity
  */
 class ShopSpecItem implements JsonSerializable
 {
     const AUTO_SPEC_ITEM_NAME = 'SPEC ITEM NONE';
+    const SHOP_SPEC_ITEM_CONFLICT_MESSAGE = 'SpecItem with the same name already exist in this Spec';
 
     /**
      * @var int

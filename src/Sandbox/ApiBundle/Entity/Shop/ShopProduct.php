@@ -10,11 +10,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * ShopProduct.
  *
- * @ORM\Table(name="ShopProduct")
+ * @ORM\Table(
+ *     name="ShopProduct",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="menuId_name_UNIQUE", columns={"menuId", "name"})
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopProductRepository")
  */
 class ShopProduct implements JsonSerializable
 {
+    const SHOP_PRODUCT_CONFLICT_MESSAGE = 'Shop Product with this name already exist in this shop';
+
     /**
      * @var int
      *
@@ -75,7 +82,7 @@ class ShopProduct implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="online", type="boolean")
+     * @ORM\Column(name="online", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $online = false;
@@ -83,7 +90,7 @@ class ShopProduct implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="invisible", type="boolean")
+     * @ORM\Column(name="invisible", type="boolean", options={"default": false})
      * @Serializer\Groups({"main"})
      */
     private $invisible = false;

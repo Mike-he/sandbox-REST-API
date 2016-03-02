@@ -9,11 +9,18 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * ShopProductSpec.
  *
- * @ORM\Table(name="ShopProductSpec")
+ * @ORM\Table(
+ *     name="ShopProductSpec",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="productId_shopSpecId_UNIQUE", columns={"productId", "shopSpecId"})
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopProductSpecRepository")
  */
 class ShopProductSpec implements JsonSerializable
 {
+    const SHOP_PRODUCT_SPEC_CONFLICT_MESSAGE = 'ShopProduct with this spec already exist';
+
     /**
      * @var int
      *
@@ -57,7 +64,7 @@ class ShopProductSpec implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="optional", type="boolean")
+     * @ORM\Column(name="optional", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $optional = false;

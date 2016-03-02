@@ -9,6 +9,7 @@ CREATE TABLE `ShopProduct` (
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `menuId_name_UNIQUE` (`menuId`,`name`),
   KEY `fk_ShopProduct_menuId_idx` (`menuId`),
   CONSTRAINT `fk_ShopProduct_menuId` FOREIGN KEY (`menuId`) REFERENCES `ShopMenu` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );

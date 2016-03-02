@@ -18,6 +18,7 @@ use Sandbox\ApiBundle\Form\Shop\ShopMenuAddType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuModifyType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuRemoveType;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuPositionType;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Admin Shop Menu Controller.
@@ -217,6 +218,9 @@ class AdminShopMenuController extends ShopMenuController
 
             $menu->setShop($shop);
             $em->persist($menu);
+
+            // check menu conflict
+            $this->findConflictShopMenu($menu);
         }
     }
 
@@ -252,6 +256,11 @@ class AdminShopMenuController extends ShopMenuController
             // check menu belongs to current shop
             if (is_null($menu)) {
                 continue;
+            }
+
+            // check menu conflict
+            if ($menu->getName() != $menuItem->getName()) {
+                $this->findConflictShopMenu($menu);
             }
 
             $menu->setName($menuItem->getName());
@@ -294,6 +303,26 @@ class AdminShopMenuController extends ShopMenuController
             }
 
             $menu->setInvisible(true);
+        }
+    }
+
+    /**
+     * @param $menu
+     *
+     * @throws ConflictHttpException
+     */
+    private function findConflictShopMenu(
+        $menu
+    ) {
+        $sameMenu = $this->getRepo('Shop\ShopMenu')->findOneBy(
+            [
+                'shop' => $menu->getShop(),
+                'name' => $menu->getName(),
+            ]
+        );
+
+        if (!is_null($sameMenu)) {
+            throw new ConflictHttpException(ShopMenu::SHOP_MENU_CONFLICT_MESSAGE);
         }
     }
 }

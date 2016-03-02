@@ -9,12 +9,18 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * ShopSpec.
  *
- * @ORM\Table(name="ShopSpec")
+ * @ORM\Table(
+ *     name="ShopSpec",
+ *     uniqueConstraints={
+ *      @ORM\UniqueConstraint(name="shopId_name", columns={"shopId", "name"})
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopSpecRepository")
  */
 class ShopSpec implements JsonSerializable
 {
     const AUTO_SPEC_NAME = 'SPEC NONE';
+    const SHOP_SPEC_CONFLICT_MESSAGE = 'Spec with the same name already exist in this shop';
 
     /**
      * @var int
@@ -75,7 +81,7 @@ class ShopSpec implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="multiple", type="boolean")
+     * @ORM\Column(name="multiple", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $multiple = false;
@@ -83,7 +89,7 @@ class ShopSpec implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="invisible", type="boolean")
+     * @ORM\Column(name="invisible", type="boolean", options={"default": false})
      * @Serializer\Groups({"main"})
      */
     private $invisible = false;
@@ -91,7 +97,7 @@ class ShopSpec implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="auto", type="boolean")
+     * @ORM\Column(name="auto", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop"})
      */
     private $auto = false;
@@ -99,7 +105,7 @@ class ShopSpec implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="inventory", type="boolean")
+     * @ORM\Column(name="inventory", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
     private $inventory = false;

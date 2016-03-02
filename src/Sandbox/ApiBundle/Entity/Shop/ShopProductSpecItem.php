@@ -9,7 +9,12 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * ShopProductSpecItem.
  *
- * @ORM\Table(name="ShopProductSpecItem")
+ * @ORM\Table(
+ *     name="ShopProductSpecItem",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="productSpecId_shopSpecItemId_UNIQUE", columns={"productSpecId", "shopSpecItemId"})
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopProductSpecItemRepository")
  */
 class ShopProductSpecItem implements JsonSerializable
@@ -44,18 +49,18 @@ class ShopProductSpecItem implements JsonSerializable
     /**
      * @var decimal
      *
-     * @ORM\Column(name="price", type="decimal", precision=10, scale=2)
+     * @ORM\Column(name="price", type="decimal", precision=10, scale=2, nullable=true)
      * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
-    private $price = 0;
+    private $price;
 
     /**
      * @var bool
      *
-     * @ORM\Column(name="inventory", type="integer")
+     * @ORM\Column(name="inventory", type="integer", nullable=true)
      * @Serializer\Groups({"main", "admin_shop", "product_view"})
      */
-    private $inventory = 0;
+    private $inventory;
 
     /**
      * @var int
