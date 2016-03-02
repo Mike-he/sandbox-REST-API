@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Location;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -26,7 +27,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
  *
  * @link     http://www.Sandbox.cn/
  */
-class LocationController extends SandboxRestController
+class LocationController extends SalesRestController
 {
     const LOCATION_CITY_PREFIX = 'location.city.';
 
@@ -84,13 +85,74 @@ class LocationController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $cityId = $paramFetcher->get('city');
-        if (!is_null($cityId)) {
-            $buildings = $this->getRepo('Room\RoomBuilding')->findBy(
-                ['cityId' => $cityId]
-            );
-        } else {
-            $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
+        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData($buildings);
+
+        return $view;
+    }
+
+    /**
+     * @Get("/sales/buildings")
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="admin",
+     *    default=null,
+     *    nullable=false,
+     *    description="sales admin id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="permission",
+     *    default=null,
+     *    nullable=false,
+     *    description="permission key"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="op",
+     *    default=1,
+     *    nullable=true,
+     *    description="op level"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getSalesBuildingsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $cityId = $paramFetcher->get('city');
+        $adminId = $paramFetcher->get('admin');
+        $permissionKeyArray = $paramFetcher->get('permission');
+        $opLevel = $paramFetcher->get('op');
+
+        if (is_null($adminId) || is_null($permissionKeyArray) || empty($permissionKeyArray)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $adminId,
+            $permissionKeyArray,
+            $opLevel
+        );
+
+        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
+            $cityId,
+            $myBuildingIds
+        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));

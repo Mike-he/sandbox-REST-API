@@ -153,6 +153,15 @@ class Product
     private $sortTime;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $isDeleted = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -426,6 +435,22 @@ class Product
     public function getSortTime()
     {
         return $this->sortTime;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     */
+    public function setIsDeleted($isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
     }
 
     /**

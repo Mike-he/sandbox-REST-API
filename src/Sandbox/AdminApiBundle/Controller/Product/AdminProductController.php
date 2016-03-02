@@ -272,6 +272,7 @@ class AdminProductController extends ProductController
         }
 
         $product->setVisible(false);
+        $product->setIsDeleted(true);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

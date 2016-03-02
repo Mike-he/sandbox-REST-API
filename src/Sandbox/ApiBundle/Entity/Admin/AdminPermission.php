@@ -32,6 +32,7 @@ class AdminPermission
     const KEY_PLATFORM_MESSAGE = 'platform.message';
     const KEY_PLATFORM_BUILDING = 'platform.building';
     const KEY_PLATFORM_VERIFY = 'platform.verify';
+    const KEY_PLATFORM_SALES_ADMIN = 'platform.sales.admin';
 
     /**
      * @var int

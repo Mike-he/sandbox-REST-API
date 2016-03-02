@@ -31,7 +31,7 @@ class ClientUserLoginController extends UserLoginController
     use OpenfireApi;
 
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
-    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：xxx-xxxxxxx';
+    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：';
 
     const PLATFORM_IPHONE = 'iphone';
     const PLATFORM_ANDROID = 'android';

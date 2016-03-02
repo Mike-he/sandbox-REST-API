@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Product;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ProductController extends SandboxRestController
+class ProductController extends SalesRestController
 {
     const PRODUCT_NOT_FOUND_CODE = 400012;
     const PRODUCT_NOT_FOUND_MESSAGE = 'Product Not Found';
