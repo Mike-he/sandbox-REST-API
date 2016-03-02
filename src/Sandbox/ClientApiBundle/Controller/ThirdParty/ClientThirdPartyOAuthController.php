@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\ThirdParty;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
+use Sandbox\ApiBundle\Traits\WeChatApi;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthLoginData;
 use Sandbox\ClientApiBundle\Form\ThirdParty\ThirdPartyOAuthLoginType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -27,6 +28,8 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientThirdPartyOAuthController extends ClientThirdPartyController
 {
+    use WeChatApi;
+
     /**
      * Third party OAuth login.
      *
@@ -67,6 +70,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         $user = null;
 
         if (!is_null($weChatData)) {
+            // do oauth with WeChat API with code
             $weChat = $this->authenticateWithWeChat($weChatData);
 
             if (is_null($weChat)) {
@@ -98,20 +102,17 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
         }
 
-        // TODO do oauth with wechat api with code
-        $openId = 'test1';
-        $accessToken = 'accessToken1';
-        $refreshToken = 'refreshToken1';
-        $expiresIn = 'expiresIn1';
-        $scope = 'scope1';
-        $unionId = 'unionId1';
+        // call WeChat API to get access token
+        $result = $this->getWeChatAuthInfoByCode($code);
 
-        // save WeChat auth info from response
+        // get WeChat by openId
+        $openId = $result['openid'];
         $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByOpenid($openId);
 
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime();
 
+        // update existing WeChat
         if (is_null($weChat)) {
             $weChat = new WeChat();
             $weChat->setOpenId($openId);
@@ -120,12 +121,15 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             $em->persist($weChat);
         }
 
-        $weChat->setAccessToken($accessToken);
-        $weChat->setRefreshToken($refreshToken);
-        $weChat->setExpiresIn($expiresIn);
-        $weChat->setScope($scope);
-        $weChat->setUnionId($unionId);
+        $weChat->setAccessToken($result['access_token']);
+        $weChat->setRefreshToken($result['refresh_token']);
+        $weChat->setExpiresIn($result['expires_in']);
+        $weChat->setScope($result['scope']);
         $weChat->setModificationDate($now);
+
+        if (array_key_exists('unionid', $result)) {
+            $weChat->setUnionId($result['unionid']);
+        }
 
         $em->flush();
 

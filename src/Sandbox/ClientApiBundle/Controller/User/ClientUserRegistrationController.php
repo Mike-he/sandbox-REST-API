@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Entity\User\UserToken;
+use Sandbox\ApiBundle\Traits\WeChatApi;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
@@ -43,6 +44,7 @@ class ClientUserRegistrationController extends UserRegistrationController
     // Traits
     use StringUtil;
     use YunPianSms;
+    use WeChatApi;
 
     // Constants
     const ERROR_MISSING_PHONE_OR_EMAIL_CODE = 400001;
@@ -59,8 +61,6 @@ class ClientUserRegistrationController extends UserRegistrationController
 
     const ERROR_EXPIRED_VERIFICATION_CODE = 400007;
     const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'register.verify.expired_verification';
-
-    const PLUS_ONE_DAY = '+1 day';
 
     /**
      * Registration submit.
@@ -543,23 +543,31 @@ class ClientUserRegistrationController extends UserRegistrationController
             return array();
         }
 
-        // TODO do oauth with wechat api with openId and accessToken
-        $refreshToken = 'refreshToken01';
-        $expiresIn = 'expiresIn01';
-        $scope = 'scope01';
-        $unionId = 'unionId01';
+        // do oauth with WeChat api with openId and accessToken
+        $this->doWeChatAuthByOpenIdAccessToken($openId, $accessToken);
 
-        // update WeChat
+        return $this->saveAuthForThirdPartyLogin($em, $user, $weChat);
+    }
+
+    /**
+     * @param EntityManager $em
+     * @param User          $user
+     * @param WeChat        $weChat
+     *
+     * @return array
+     */
+    private function saveAuthForThirdPartyLogin(
+        $em,
+        $user,
+        $weChat
+    ) {
+        // bind WeChat with user
         $now = new \DateTime();
 
         $weChat->setUser($user);
-        $weChat->setRefreshToken($refreshToken);
-        $weChat->setExpiresIn($expiresIn);
-        $weChat->setScope($scope);
-        $weChat->setUnionId($unionId);
         $weChat->setModificationDate($now);
 
-        // create sandbox auth for user login with third party oauth
+        // create auth for user login with third party oauth
         $userClient = $weChat->getUserClient();
         if (is_null($userClient)) {
             $userClient = new UserClient();
