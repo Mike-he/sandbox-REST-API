@@ -76,7 +76,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             $user = $weChat->getUser();
         }
 
-        $responseArray = $this->handleClientUserLogin($request, $user, $weChat);
+        $responseArray = $this->handleClientUserLogin($request, $user, $login, $weChat);
 
         // response
         $view = new View();
@@ -100,11 +100,11 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
 
         // TODO do oauth with wechat api with code
         $openId = 'test1';
-        $accessToken = 'accessToken01';
-        $refreshToken = 'refreshToken01';
-        $expiresIn = 'expiresIn01';
-        $scope = 'scope01';
-        $unionId = 'unionId01';
+        $accessToken = 'accessToken1';
+        $refreshToken = 'refreshToken1';
+        $expiresIn = 'expiresIn1';
+        $scope = 'scope1';
+        $unionId = 'unionId1';
 
         // save WeChat auth info from response
         $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByOpenid($openId);
