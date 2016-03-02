@@ -39,7 +39,8 @@ class ShopProductRepository extends EntityRepository
      */
     public function getShopProductByShopId(
         $shopId,
-        $id
+        $id,
+        $online = false
     ) {
         $query = $this->createQueryBuilder('p')
             ->join('SandboxApiBundle:Shop\ShopMenu', 'm', 'WITH', 'm.id = p.menuId')
@@ -49,8 +50,14 @@ class ShopProductRepository extends EntityRepository
             ->andWhere('p.invisible = :invisible')
             ->setParameter('id', $id)
             ->setParameter('invisible', false)
-            ->setParameter('shopId', $shopId)
-            ->getQuery();
+            ->setParameter('shopId', $shopId);
+
+        if ($online) {
+            $query = $query->andWhere('p.online = :online')
+                ->setParameter('online', true);
+        }
+
+        $query = $query->getQuery();
 
         return $query->getOneOrNullResult();
     }

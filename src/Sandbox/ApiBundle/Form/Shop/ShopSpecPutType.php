@@ -17,6 +17,7 @@ class ShopSpecPutType extends AbstractType
         $builder
             ->add('multiple')
             ->add('name')
+            ->add('inventory')
             ->add(
                 'description',
                 'text',

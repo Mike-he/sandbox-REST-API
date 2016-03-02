@@ -16,7 +16,6 @@ class ShopSpecItemModifyType extends AbstractType
     {
         $builder
             ->add('id')
-            ->add('inventory', 'checkbox')
             ->add('name');
     }
 

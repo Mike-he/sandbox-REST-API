@@ -61,7 +61,7 @@ class AdminShopSpecController extends SpecController
         );
 
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop_spec_drop_down']));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
         $view->setData($specs);
 
         return $view;
@@ -378,7 +378,6 @@ class AdminShopSpecController extends SpecController
             }
 
             $specItem->setName($specData->getName());
-            $specItem->setInventory($specData->getInventory());
         }
     }
 

@@ -263,3 +263,9 @@ sandbox_client_api_shops_product:
     resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopProductController.php"
     type:     annotation
     prefix:   /
+
+# ShopOrder /client/shops/order
+sandbox_client_api_shops_order:
+    resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopOrderController.php"
+    type:     annotation
+    prefix:   /
