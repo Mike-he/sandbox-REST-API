@@ -18,6 +18,7 @@ class ShopSpecPutType extends AbstractType
             ->add('multiple')
             ->add('name')
             ->add('inventory')
+            ->add('unit')
             ->add(
                 'description',
                 'text',

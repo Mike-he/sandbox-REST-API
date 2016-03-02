@@ -24,6 +24,7 @@ class ShopSpecPostType extends AbstractType
             )
             ->add('name')
             ->add('inventory')
+            ->add('unit')
             ->add(
                 'description',
                 'text',
