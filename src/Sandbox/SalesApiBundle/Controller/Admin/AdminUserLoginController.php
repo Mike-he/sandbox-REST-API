@@ -57,12 +57,18 @@ class AdminUserLoginController extends SalesRestController
         $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find(
             $this->getUser()->getId()
         );
+
+        // get globals
+        $globals = $this->getGlobals();
+
+        $customerPhone = $globals['customer_service_phone'];
+
         if ($admin->isBanned()) {
             // user is banned
             return $this->customErrorView(
                 401,
                 self::ERROR_ACCOUNT_BANNED_CODE,
-                self::ERROR_ACCOUNT_BANNED_MESSAGE);
+                self::ERROR_ACCOUNT_BANNED_MESSAGE.$customerPhone);
         }
 
         return $this->handleAdminUserLogin($request, $admin);

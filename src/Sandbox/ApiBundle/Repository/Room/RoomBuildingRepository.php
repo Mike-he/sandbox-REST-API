@@ -197,6 +197,8 @@ class RoomBuildingRepository extends EntityRepository
         // filter by building delete
         $buildingsQuery->andWhere('rb.isDeleted = FALSE');
         $buildingsQuery->andWhere('rb.visible = TRUE');
+        $buildingsQuery->andWhere('rb.status = :accept');
+        $buildingsQuery->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
 
         // order by creation date
         $buildingsQuery->orderBy('rb.creationDate', 'DESC');
