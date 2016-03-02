@@ -80,3 +80,4 @@ parameters:
     door_api_add_emp: RoomOrderAddEmp=
     door_api_delete_emp: RoomOrderDelEmp=
     door_api_order_no: OrderNo=
+    customer_service_phone: xxx-xxx

@@ -95,6 +95,7 @@ twig:
         door_api_add_emp: "%door_api_add_emp%"
         door_api_delete_emp: "%door_api_delete_emp%"
         door_api_order_no: "%door_api_order_no%"
+        customer_service_phone: "%customer_service_phone%"
 
 # Assetic Configuration
 assetic:
