@@ -101,27 +101,40 @@ class UserLoginController extends SandboxRestController
         Request $request,
         $client
     ) {
-        $clientExist = null;
-
-        if (is_null($client)) {
-            $client = new UserClient();
-        }
-
-        $id = $client->getId();
-        if (!is_null($id)) {
-            $clientExist = $this->getRepo('User\UserClient')->find($id);
-        }
+        $name = $client->getName();
+        $os = $client->getOs();
+        $version = $client->getVersion();
+        $ipAddress = $request->getClientIp();
 
         $now = new \DateTime('now');
 
-        if (is_null($clientExist)) {
-            $client->setCreationDate($now);
+        $clientExist = null;
+        $id = $client->getId();
 
-            $em->persist($client);
+        if (!is_null($id)) {
+            $clientExist = $this->getRepo('User\UserClient')->find($id);
+
+            if (!is_null($clientExist)) {
+                // update existing client info
+                $clientExist->setName($name);
+                $clientExist->setOs($os);
+                $clientExist->setVersion($version);
+                $clientExist->setIpAddress($ipAddress);
+                $clientExist->setModificationDate($now);
+
+                return $clientExist;
+            }
         }
 
-        $client->setIpAddress($request->getClientIp());
+        $client = new UserClient();
+        $client->setName($name);
+        $client->setOs($os);
+        $client->setVersion($version);
+        $client->setIpAddress($ipAddress);
+        $client->setCreationDate($now);
         $client->setModificationDate($now);
+
+        $em->persist($client);
 
         return $client;
     }
