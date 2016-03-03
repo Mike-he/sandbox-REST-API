@@ -227,16 +227,15 @@ class ClientUserRegistrationController extends UserRegistrationController
         }
 
         // so far, code is verified
-        // if password not provided, stop here
-        if (is_null($password) || empty($password)) {
+        // get existing user or create a new user
+        $user = $this->finishRegistration($em, $email, $phone, $password, $registration);
+        if (is_null($user)) {
             // update db
             $em->flush();
 
             // response
             return new View();
         }
-
-        $user = $this->finishRegistration($em, $email, $phone, $password, $registration);
 
         // so far, user is created
         // if third party login not provided, stop here
@@ -326,13 +325,15 @@ class ClientUserRegistrationController extends UserRegistrationController
         $password,
         $registration
     ) {
+        $user = null;
+
         if (!is_null($email)) {
             $user = $this->getRepo('User\User')->findOneByEmail($email);
         } else {
             $user = $this->getRepo('User\User')->findOneByPhone($phone);
         }
 
-        if (is_null($user)) {
+        if (is_null($user) && !is_null($password)) {
             // generate user
             $user = $this->generateUser($email, $phone, $password, $registration->getId());
             $em->persist($user);
@@ -350,8 +351,10 @@ class ClientUserRegistrationController extends UserRegistrationController
             $this->addBuddyToUser(array($user));
         }
 
-        // remove registration
-        $em->remove($registration);
+        if (!is_null($user)) {
+            // remove registration
+            $em->remove($registration);
+        }
 
         return $user;
     }
