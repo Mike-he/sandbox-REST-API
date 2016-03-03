@@ -326,24 +326,32 @@ class ClientUserRegistrationController extends UserRegistrationController
         $password,
         $registration
     ) {
-        // generate user entity
-        $user = $this->generateUser($email, $phone, $password, $registration->getId());
-        $em->persist($user);
+        if (!is_null($email)) {
+            $user = $this->getRepo('User\User')->findOneByEmail($email);
+        } else {
+            $user = $this->getRepo('User\User')->findOneByPhone($phone);
+        }
 
-        // post user account to internal api
-        $this->postUserAccount($user->getId());
+        if (is_null($user)) {
+            // generate user
+            $user = $this->generateUser($email, $phone, $password, $registration->getId());
+            $em->persist($user);
 
-        // create default profile
-        $profile = new UserProfile();
-        $profile->setName('');
-        $profile->setUser($user);
-        $em->persist($profile);
+            // post user account to internal api
+            $this->postUserAccount($user->getId());
+
+            // create default profile
+            $profile = new UserProfile();
+            $profile->setName('');
+            $profile->setUser($user);
+            $em->persist($profile);
+
+            // add service account to buddy list
+            $this->addBuddyToUser(array($user));
+        }
 
         // remove registration
         $em->remove($registration);
-
-        // add service account to buddy list
-        $this->addBuddyToUser(array($user));
 
         return $user;
     }
@@ -362,16 +370,6 @@ class ClientUserRegistrationController extends UserRegistrationController
         $password,
         $registrationId
     ) {
-        if (!is_null($email)) {
-            $user = $this->getRepo('User\User')->findOneByEmail($email);
-        } else {
-            $user = $this->getRepo('User\User')->findOneByPhone($phone);
-        }
-
-        if (!is_null($user)) {
-            return $user;
-        }
-
         $user = new User();
         $user->setPassword($password);
 
