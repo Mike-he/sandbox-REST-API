@@ -4,6 +4,12 @@ sandbox_sales_admin_api_auth_login:
     type:     annotation
     prefix:   /admin/auth
 
+# Admin User Me /sales/admin/auth/me
+sandbox_sales_admin_api_auth_me:
+    resource: "@SandboxSalesApiBundle/Controller/Auth/AdminAuthController.php"
+    type:     annotation
+    prefix:   /admin/auth
+
 # Admin User Logout /sales/admin/auth/logout
 sandbox_sales_admin_api_auth_logout:
     resource: "@SandboxSalesApiBundle/Controller/Admin/AdminUserLogoutController.php"
