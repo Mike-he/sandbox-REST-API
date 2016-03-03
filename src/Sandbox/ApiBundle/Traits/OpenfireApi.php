@@ -28,7 +28,9 @@ trait OpenfireApi
     ) {
         try {
             // get globals
-            $globals = $this->getGlobals();
+            $globals = $this->getContainer()
+                            ->get('twig')
+                            ->getGlobals();
 
             // openfire API URL
             $apiURL = $globals['openfire_innet_url'].

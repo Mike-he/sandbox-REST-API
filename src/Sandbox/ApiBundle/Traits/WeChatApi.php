@@ -23,7 +23,10 @@ trait WeChatApi
         $code
     ) {
         try {
-            $globals = $this->getGlobals();
+            $globals = $this->getContainer()
+                            ->get('twig')
+                            ->getGlobals();
+
             $appId = $globals['wechat_app_id'];
             $secret = $globals['wechat_app_secret'];
 

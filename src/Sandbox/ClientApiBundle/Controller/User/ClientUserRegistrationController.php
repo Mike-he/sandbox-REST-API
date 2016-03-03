@@ -362,6 +362,16 @@ class ClientUserRegistrationController extends UserRegistrationController
         $password,
         $registrationId
     ) {
+        if (!is_null($email)) {
+            $user = $this->getRepo('User\User')->findOneByEmail($email);
+        } else {
+            $user = $this->getRepo('User\User')->findOneByPhone($phone);
+        }
+
+        if (!is_null($user)) {
+            return $user;
+        }
+
         $user = new User();
         $user->setPassword($password);
 
@@ -564,8 +574,11 @@ class ClientUserRegistrationController extends UserRegistrationController
         // bind WeChat with user
         $now = new \DateTime();
 
-        $weChat->setUser($user);
         $weChat->setModificationDate($now);
+
+        if (is_null($weChat->getUser())) {
+            $weChat->setUser($user);
+        }
 
         // create auth for user login with third party oauth
         $userClient = $weChat->getUserClient();
