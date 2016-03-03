@@ -2,6 +2,8 @@
 
 namespace Sandbox\ClientApiBundle\Data\User;
 
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
+
 /**
  * Register Verify Incoming Data.
  */
@@ -26,6 +28,11 @@ class RegisterVerify
      * @var string
      */
     private $password;
+
+    /**
+     * @var ThirdPartyOAuthWeChatData
+     */
+    private $weChat;
 
     /**
      * Set phone.
@@ -121,5 +128,21 @@ class RegisterVerify
     public function getPassword()
     {
         return $this->password;
+    }
+
+    /**
+     * @return ThirdPartyOAuthWeChatData
+     */
+    public function getWeChat()
+    {
+        return $this->weChat;
+    }
+
+    /**
+     * @param ThirdPartyOAuthWeChatData $weChat
+     */
+    public function setWeChat($weChat)
+    {
+        $this->weChat = $weChat;
     }
 }

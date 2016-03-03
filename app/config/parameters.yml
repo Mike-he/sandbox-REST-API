@@ -14,6 +14,8 @@ parameters:
     database_path: null
     pingpp_key: sk_live_j2rM2ESCjctUTaWZ7frzjNFE
     pingpp_app_id: app_TSu14S5GKGeTfDWD
+    wechat_app_id: wx5f5a4878763f5515
+    wechat_app_secret: 2f576c27bef3d5a83ac78a273712abe7
     server_order_id: s
     load_more_limit: 20
     nearby_range_km: 100

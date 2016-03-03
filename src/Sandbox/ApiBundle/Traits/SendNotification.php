@@ -56,7 +56,11 @@ trait SendNotification
     ) {
         $name = '';
 
-        $profile = $this->getRepo('User\UserProfile')->findOneByUser($fromUser);
+        $profile = $this->getContainer()
+                        ->get('doctrine')
+                        ->getRepository('User\UserProfile')
+                        ->findOneByUser($fromUser);
+
         if (!is_null($profile)) {
             $name = $profile->getName();
         }
@@ -145,7 +149,9 @@ trait SendNotification
     ) {
         try {
             // get globals
-            $globals = $this->getGlobals();
+            $globals = $this->getContainer()
+                            ->get('twig')
+                            ->getGlobals();
 
             // openfire API URL
             $apiURL = $globals['openfire_innet_url'].

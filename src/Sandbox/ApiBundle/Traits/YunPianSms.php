@@ -26,7 +26,9 @@ trait YunPianSms
      */
     public function send_sms($mobile, $text)
     {
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         $url = $globals['sms_api_url'];
         $key = $globals['sms_api_key'];

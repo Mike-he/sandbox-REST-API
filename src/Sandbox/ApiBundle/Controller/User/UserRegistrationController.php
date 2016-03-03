@@ -2,8 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller\User;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
-
 /**
  * User Registration Controller.
  *
@@ -14,6 +12,6 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
  *
  * @link     http://www.Sandbox.cn/
  */
-class UserRegistrationController extends SandboxRestController
+class UserRegistrationController extends UserLoginController
 {
 }

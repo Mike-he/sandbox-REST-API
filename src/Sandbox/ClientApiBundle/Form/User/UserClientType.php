@@ -2,28 +2,26 @@
 
 namespace Sandbox\ClientApiBundle\Form\User;
 
-use Sandbox\ClientApiBundle\Form\ThirdParty\ThirdPartyOAuthLoginWeChatType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class RegisterVerifyType extends AbstractType
+class UserClientType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('email')
-            ->add('phone')
-            ->add('password')
-            ->add('code')
-            ->add('wechat', new ThirdPartyOAuthLoginWeChatType())
+            ->add('id')
+            ->add('name')
+            ->add('os')
+            ->add('version')
         ;
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ClientApiBundle\Data\User\RegisterVerify',
+            'data_class' => 'Sandbox\ApiBundle\Entity\User\UserClient',
         ));
     }
 
