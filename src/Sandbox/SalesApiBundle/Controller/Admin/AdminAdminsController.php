@@ -565,7 +565,7 @@ class AdminAdminsController extends SalesRestController
         $em
     ) {
         $now = new \DateTime('now');
-        if (!is_null($permissions) && !empty($permissions)) {
+        if (is_null($permissions) || empty($permissions)) {
             return;
         }
 
