@@ -70,7 +70,7 @@ class ShopRepository extends EntityRepository
                 ->setParameter('online', true);
         }
 
-        return $query->getQuery()->getSingleResult();
+        return $query->getQuery()->getOneOrNullResult();
     }
 
     /**

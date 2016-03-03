@@ -21,3 +21,9 @@ sandbox_shop_admin_api_shops_product:
     resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopProductController.php"
     type:     annotation
     prefix:   /admin
+
+# Order /shop/admin/shops/order
+sandbox_shop_admin_api_shops_order:
+    resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopOrderController.php"
+    type:     annotation
+    prefix:   /admin
