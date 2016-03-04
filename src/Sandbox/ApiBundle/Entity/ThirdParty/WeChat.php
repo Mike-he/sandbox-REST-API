@@ -44,8 +44,8 @@ class WeChat
     /**
      * @var UserClient
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserClient"))
-     * @ORM\JoinColumn(name="userClientId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserClient"))
+     * @ORM\JoinColumn(name="userClientId", referencedColumnName="id")
      *
      * @Serializer\Groups({"main"})
      **/
