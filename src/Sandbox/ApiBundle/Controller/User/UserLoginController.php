@@ -56,7 +56,12 @@ class UserLoginController extends SandboxRestController
             $em = $this->getDoctrine()->getManager();
 
             // save or update user client
-            $userClient = $this->saveUserClient($em, $request, $userClient);
+            $userClient = $this->saveUserClient($em,
+                                                $userClient->getId(),
+                                                $userClient->getName(),
+                                                $userClient->getOs(),
+                                                $userClient->getVersion(),
+                                                $request->getClientIp());
             $data['client'] = $userClient;
 
             if (!is_null($user)) {
@@ -91,50 +96,42 @@ class UserLoginController extends SandboxRestController
 
     /**
      * @param EntityManager $em
-     * @param Request       $request
-     * @param UserClient    $client
+     * @param int           $id
+     * @param string        $name
+     * @param string        $os
+     * @param string        $version
+     * @param string        $ipAddress
      *
      * @return UserClient
      */
     protected function saveUserClient(
         $em,
-        Request $request,
-        $client
+        $id,
+        $name,
+        $os,
+        $version,
+        $ipAddress
     ) {
-        $name = $client->getName();
-        $os = $client->getOs();
-        $version = $client->getVersion();
-        $ipAddress = $request->getClientIp();
+        $client = null;
+
+        if (!is_null($id)) {
+            $client = $this->getRepo('User\UserClient')->find($id);
+        }
 
         $now = new \DateTime('now');
 
-        $clientExist = null;
-        $id = $client->getId();
+        if (is_null($client)) {
+            $client = new UserClient();
+            $client->setCreationDate($now);
 
-        if (!is_null($id)) {
-            $clientExist = $this->getRepo('User\UserClient')->find($id);
-
-            if (!is_null($clientExist)) {
-                // update existing client info
-                $clientExist->setName($name);
-                $clientExist->setOs($os);
-                $clientExist->setVersion($version);
-                $clientExist->setIpAddress($ipAddress);
-                $clientExist->setModificationDate($now);
-
-                return $clientExist;
-            }
+            $em->persist($client);
         }
 
-        $client = new UserClient();
         $client->setName($name);
         $client->setOs($os);
         $client->setVersion($version);
         $client->setIpAddress($ipAddress);
-        $client->setCreationDate($now);
         $client->setModificationDate($now);
-
-        $em->persist($client);
 
         return $client;
     }
