@@ -2,6 +2,9 @@
 
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
+use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Form\Shop\ShopOrderPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -24,6 +27,30 @@ use Knp\Component\Pager\Paginator;
  */
 class AdminShopOrderController extends ShopController
 {
+    /**
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Method({"GET"})
+     * @Route("/orders/{id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminShopOrderByIdAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderById($id);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setData($order);
+
+        return $view;
+    }
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -124,5 +151,107 @@ class AdminShopOrderController extends ShopController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * patch shop status.
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Method({"PATCH"})
+     * @Route("/orders/{id}/status")
+     *
+     * @return View
+     */
+    public function patchShopOrderStatusAction(
+        Request $request,
+        $id
+    ) {
+        //TODO: Check Coffee Admin Permission
+        $order = $this->findEntityById($id, 'Shop\ShopOrder');
+        $oldStatus = $order->getStatus();
+
+        // bind data
+        $orderJson = $this->get('serializer')->serialize($order, 'json');
+        $patch = new Patch($orderJson, $request->getContent());
+        $orderJson = $patch->apply();
+
+        $form = $this->createForm(new ShopOrderPatchType(), $order);
+        $form->submit(json_decode($orderJson, true));
+
+        $now = new \DateTime();
+        $status = $order->getStatus();
+        $em = $this->getDoctrine()->getManager();
+
+        switch ($status) {
+            case ShopOrder::STATUS_READY:
+                if ($oldStatus !== ShopOrder::STATUS_PAID) {
+                    return $this->customErrorView(
+                        400,
+                        ShopOrder::NOT_PAID_CODE,
+                        ShopOrder::NOT_PAID_MESSAGE
+                    );
+                }
+
+                break;
+            case ShopOrder::STATUS_COMPLETED:
+                if ($oldStatus !== ShopOrder::STATUS_READY) {
+                    return $this->customErrorView(
+                        400,
+                        ShopOrder::NOT_READY_CODE,
+                        ShopOrder::NOT_READY_MESSAGE
+                    );
+                }
+
+                break;
+            case ShopOrder::STATUS_ISSUE:
+                if ($oldStatus !== ShopOrder::STATUS_READY && $oldStatus !== ShopOrder::STATUS_PAID) {
+                    return $this->customErrorView(
+                        400,
+                        ShopOrder::NOT_READY_OR_PAID_CODE,
+                        ShopOrder::NOT_READY_OR_PAID_MESSAGE
+                    );
+                }
+
+                break;
+            case ShopOrder::STATUS_TO_BE_REFUNDED:
+                if ($oldStatus !== ShopOrder::STATUS_ISSUE) {
+                    return $this->customErrorView(
+                        400,
+                        ShopOrder::NOT_ISSUE_CODE,
+                        ShopOrder::NOT_ISSUE_MESSAGE
+                    );
+                }
+
+                // restock inventory
+                $inventoryData = $this->getRepo('Shop\ShopOrderProduct')
+                    ->getShopOrderProductInventory($order->getId());
+
+                foreach ($inventoryData as $data) {
+                    $data['item']->setInventory($data['inventory'] + $data['amount']);
+                }
+
+                break;
+            case ShopOrder::STATUS_REFUNDED:
+                //TODO: Check Coffee Admin Backend Permission
+                //TODO: Throw Exception If No Permission
+                if ($oldStatus !== ShopOrder::STATUS_TO_BE_REFUNDED) {
+                    return $this->customErrorView(
+                        400,
+                        ShopOrder::NOT_TO_BE_REFUNDED_CODE,
+                        ShopOrder::NOT_TO_BE_REFUNDED_MESSAGE
+                    );
+                }
+
+                //TODO: Refund
+
+                break;
+        }
+
+        $order->setModificationDate($now);
+        $em->flush();
+
+        return new View();
     }
 }
