@@ -47,51 +47,47 @@ class UserLoginController extends SandboxRestController
         $login,
         $weChat = null
     ) {
-        try {
-            $data = array();
+        $data = array();
 
-            $userClient = $login->getClient();
-            $deviceData = $login->getDevice();
+        $userClient = $login->getClient();
+        $deviceData = $login->getDevice();
 
-            $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
 
-            // save or update user client
-            $userClient = $this->saveUserClient($em,
-                                                $userClient->getId(),
-                                                $userClient->getName(),
-                                                $userClient->getOs(),
-                                                $userClient->getVersion(),
-                                                $request->getClientIp());
-            $data['client'] = $userClient;
+        // save or update user client
+        $userClient = $this->saveUserClient($em,
+                                            $userClient->getId(),
+                                            $userClient->getName(),
+                                            $userClient->getOs(),
+                                            $userClient->getVersion(),
+                                            $request->getClientIp());
+        $data['client'] = $userClient;
 
-            if (!is_null($user)) {
-                // force to set other token offline
-                $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
-                foreach ($userTokenAll as $token) {
-                    $token->setOnline(false);
-                }
-
-                // save or refresh user token
-                $userToken = $this->saveUserToken($em, $user, $userClient);
-
-                // handle device
-                $this->handleDevice($user, $deviceData);
-
-                $data['user'] = $user;
-                $data['token'] = $userToken;
+        if (!is_null($user)) {
+            // force to set other token offline
+            $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
+            foreach ($userTokenAll as $token) {
+                $token->setOnline(false);
             }
 
-            if (!is_null($weChat)) {
-                $weChat->setUserClient($userClient);
-                $data['wechat'] = $weChat;
-            }
+            // save or refresh user token
+            $userToken = $this->saveUserToken($em, $user, $userClient);
 
-            $em->flush();
+            // handle device
+            $this->handleDevice($user, $deviceData);
 
-            return $data;
-        } catch (\Exception $e) {
-            throw new \Exception('Something went wrong!');
+            $data['user'] = $user;
+            $data['token'] = $userToken;
         }
+
+        if (!is_null($weChat)) {
+            $weChat->setUserClient($userClient);
+            $data['wechat'] = $weChat;
+        }
+
+        $em->flush();
+
+        return $data;
     }
 
     /**
