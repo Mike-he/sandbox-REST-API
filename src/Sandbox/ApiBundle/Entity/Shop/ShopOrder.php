@@ -13,15 +13,17 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ShopOrder
 {
-    const SHOP_ORDER_STATUS_UNPAID = 'unpaid';
-    const SHOP_ORDER_STATUS_PAID = 'paid';
-    const SHOP_ORDER_STATUS_READY = 'ready';
-    const SHOP_ORDER_STATUS_COMPLETED = 'completed';
-    const SHOP_ORDER_STATUS_ISSUE = 'issue';
-    const SHOP_ORDER_STATUS_WAIT = 'wait';
-    const SHOP_ORDER_STATUS_REFUNDED = 'refunded';
-    const SHOP_ORDER_STATUS_cancelled = 'cancelled';
-    const SHOP_ORDER_LETTER_HEAD = 'S';
+    const STATUS_UNPAID = 'unpaid';
+    const STATUS_PAID = 'paid';
+    const STATUS_READY = 'ready';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_ISSUE = 'issue';
+    const STATUS_TO_BE_REFUNDED = 'wait';
+    const STATUS_REFUNDED = 'refunded';
+    const STATUS_CANCELLED = 'cancelled';
+    const LETTER_HEAD = 'S';
+    const PAYMENT_SUBJECT = 'SANDBOX3-店铺订单';
+    const PAYMENT_BODY = 'Shop Order';
 
     /**
      * @var int
@@ -497,6 +499,6 @@ class ShopOrder
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
-        $this->setStatus(self::SHOP_ORDER_STATUS_UNPAID);
+        $this->setStatus(self::STATUS_UNPAID);
     }
 }

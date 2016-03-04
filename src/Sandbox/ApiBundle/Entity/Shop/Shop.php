@@ -26,6 +26,8 @@ class Shop implements JsonSerializable
     const SHOP_INACTIVE_CODE = 400001;
     const SHOP_INACTIVE_MESSAGE = 'This Shop is Inactive';
     const SHOP_CONFLICT_MESSAGE = 'Shop with this name already exist in this building';
+    const CLOSED_CODE = 400002;
+    const CLOSED_MESSAGE = 'This Shop Is Closed Currently';
 
     /**
      * @var int

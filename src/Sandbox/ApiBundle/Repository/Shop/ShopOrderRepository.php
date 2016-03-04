@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Shop;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 
 /**
  * ShopOrderRepository.
@@ -12,4 +13,48 @@ use Doctrine\ORM\EntityRepository;
  */
 class ShopOrderRepository extends EntityRepository
 {
+    /**
+     * @param $shopId
+     * @param bool|true $allowed
+     *
+     * @return array
+     */
+    public function getAdminShopOrders(
+        $shopId,
+        $start,
+        $end,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status != :unpaid')
+            ->andWhere('o.status != :cancelled')
+            ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
+            ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED);
+
+        if (!is_null($shopId)) {
+            $query = $query->andWhere('o.shopId = :shopId')
+                ->setParameter('shopId', $shopId);
+        }
+
+        if (!is_null($start)) {
+            $start = new \DateTime($start);
+            $query = $query->andWhere('o.paymentDate >= :start')
+                ->setParameter('start', $start);
+        }
+
+        if (!is_null($end)) {
+            $end = new \DateTime($end);
+            $query = $query->andWhere('o.paymentDate <= :end')
+                ->setParameter('end', $end);
+        }
+
+        // Search products by product Id or product name.
+        if (!is_null($search)) {
+            $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
+                ->andWhere('o.orderNumber LIKE :search OR u.name LIKE :search')
+                ->setParameter('search', "%$search%");
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

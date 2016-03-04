@@ -15,6 +15,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
@@ -276,6 +277,33 @@ class PaymentController extends DoorController
 
         // set door access
         $this->setDoorAccessForSingleOrder($order);
+
+        return $order;
+    }
+
+    /**
+     * @param string $orderNumber
+     *
+     * @return ShopOrder
+     */
+    public function setShopOrderStatus(
+        $orderNumber
+    ) {
+        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'orderNumber' => $orderNumber,
+                'status' => ShopOrder::STATUS_UNPAID,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $now = new \DateTime();
+        $order->setStatus(ShopOrder::STATUS_PAID);
+        $order->setPaymentDate($now);
+        $order->setModificationDate($now);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
 
         return $order;
     }

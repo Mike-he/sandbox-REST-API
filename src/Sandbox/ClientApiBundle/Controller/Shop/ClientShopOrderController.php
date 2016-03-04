@@ -7,6 +7,8 @@ use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrderProduct;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrderProductSpec;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrderProductSpecItem;
+use Sandbox\ApiBundle\Entity\Shop\ShopProductSpecItem;
+use Sandbox\ApiBundle\Form\Shop\ShopOrderPayChannelType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecItemType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductType;
@@ -133,7 +135,31 @@ class ClientShopOrderController extends ShopRestController
         Request $request,
         $id
     ) {
-        $shop = $this->findEntityById($id, 'Shop\Shop');
+        $shop = $this->getRepo('Shop\Shop')->getShopById(
+            $id,
+            true,
+            true
+        );
+        $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
+
+        // check shop is closed
+        if ($shop->isClose()) {
+            return $this->customErrorView(
+                400,
+                Shop::CLOSED_CODE,
+                Shop::CLOSED_MESSAGE
+            );
+        }
+
+        // check shop opening hours
+        $now = new \DateTime();
+        if ($now < $shop->getStartHour()  || $now >= $shop->getEndHour()) {
+            return $this->customErrorView(
+                400,
+                Shop::CLOSED_CODE,
+                Shop::CLOSED_MESSAGE
+            );
+        }
 
         $order = new ShopOrder();
         $form = $this->createForm(new ShopOrderType(), $order);
@@ -144,7 +170,7 @@ class ClientShopOrderController extends ShopRestController
         }
 
         $em = $this->getDoctrine()->getManager();
-        $orderNumber = $this->getOrderNumber(ShopOrder::SHOP_ORDER_LETTER_HEAD);
+        $orderNumber = $this->getOrderNumber(ShopOrder::LETTER_HEAD);
         $userId = $this->getUserId();
         $order->setUserId($userId);
         $order->setShop($shop);
@@ -170,6 +196,127 @@ class ClientShopOrderController extends ShopRestController
         $em->flush();
 
         return new View(['id' => $order->getId()]);
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     *
+     * @Method({"POST"})
+     * @Route("/shops/orders/{id}")
+     *
+     * @return View
+     */
+    public function payShopOrderAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'id' => $id,
+                'userId' => $userId,
+                'status' => ShopOrder::STATUS_UNPAID,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $form = $this->createForm(new ShopOrderPayChannelType(), $order);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $channel = $order->getPayChannel();
+
+        if (
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP &&
+            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
+            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
+            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+        ) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_CHANNEL_CODE,
+                self::WRONG_CHANNEL_MESSAGE
+            );
+        }
+
+        if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
+            return $this->payByAccount(
+                $order
+            );
+        }
+
+        $orderNumber = $order->getOrderNumber();
+        $charge = $this->payForOrder(
+            $orderNumber,
+            $order->getPrice(),
+            $channel,
+            ShopOrder::PAYMENT_SUBJECT,
+            ShopOrder::PAYMENT_BODY
+        );
+
+        $charge = json_decode($charge, true);
+        $chargeId = $charge['id'];
+
+        $this->createOrderMap('shop', $order->getId(), $chargeId);
+
+        return new View($charge);
+    }
+
+    /**
+     * @param $order
+     *
+     * @return View
+     */
+    private function payByAccount(
+        $order
+    ) {
+        $price = $order->getPrice();
+        $orderNumber = $order->getOrderNumber();
+        $channel = $order->getPayChannel();
+        $balance = $this->postBalanceChange(
+            $order->getUserId(),
+            (-1) * $price,
+            $orderNumber,
+            self::PAYMENT_CHANNEL_ACCOUNT,
+            $price
+        );
+        if (is_null($balance)) {
+            return $this->customErrorView(
+                400,
+                self::INSUFFICIENT_FUNDS_CODE,
+                self::INSUFFICIENT_FUNDS_MESSAGE
+            );
+        }
+
+        $now = new \DateTime();
+        $order->setStatus(ShopOrder::STATUS_PAID);
+        $order->setPaymentDate($now);
+        $order->setModificationDate($now);
+
+        // store payment channel
+        $this->storePayChannel(
+            $order,
+            $channel
+        );
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $view = new View();
+
+        return $view->setData(
+            array(
+                'balance' => $balance,
+                'channel' => self::PAYMENT_CHANNEL_ACCOUNT,
+            )
+        );
     }
 
     /**
@@ -209,7 +356,6 @@ class ClientShopOrderController extends ShopRestController
             $this->throwNotFoundIfNull($shopProduct, self::NOT_FOUND_MESSAGE);
 
             $info = json_encode($shopProduct->jsonSerialize());
-
             $product->setOrder($order);
             $product->setProduct($shopProduct);
             $product->setShopProductInfo($info);
@@ -340,9 +486,15 @@ class ClientShopOrderController extends ShopRestController
             $shopProductSpecItem = $this->findEntityById($item->getItemId(), 'Shop\ShopProductSpecItem');
 
             // check inventory
-            if ($item->getAmount() > $shopProductSpecItem->getInventory()) {
-                // TODO: throw custom exception
-                throw new ConflictHttpException();
+            $inventory = $shopProductSpecItem->getInventory();
+            if (!is_null($inventory)) {
+                $amount = $item->getAmount();
+                if ($amount > $inventory) {
+                    // TODO: throw custom exception
+                    throw new ConflictHttpException(ShopProductSpecItem::INSUFFICIENT_INVENTORY);
+                }
+
+                $shopProductSpecItem->setInventory($inventory - $amount);
             }
 
             $info = json_encode($shopProductSpecItem->jsonSerialize());
