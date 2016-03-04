@@ -8,7 +8,6 @@ use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
-use Sandbox\ApiBundle\Entity\User\UserToken;
 use Sandbox\ApiBundle\Traits\WeChatApi;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Sandbox\ApiBundle\Traits\StringUtil;
@@ -227,20 +226,9 @@ class ClientUserRegistrationController extends UserRegistrationController
         }
 
         // so far, code is verified
-        // if password not provided, stop here
-        if (is_null($password) || empty($password)) {
-            // update db
-            $em->flush();
-
-            // response
-            return new View();
-        }
-
+        // get existing user or create a new user
         $user = $this->finishRegistration($em, $email, $phone, $password, $registration);
-
-        // so far, user is created
-        // if third party login not provided, stop here
-        if (!$this->hasThirdPartyLogin($weChatData)) {
+        if (is_null($user)) {
             // update db
             $em->flush();
 
@@ -250,7 +238,7 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // bind third party resource, handle it as a login
         // and give authorization info in response
-        $responseArray = $this->finishRegistrationWithThirdPartyLogin($em, $user, $weChatData);
+        $responseArray = $this->handleThirdPartyLogin($em, $user, $weChatData);
 
         // update db
         $em->flush();
@@ -326,13 +314,15 @@ class ClientUserRegistrationController extends UserRegistrationController
         $password,
         $registration
     ) {
+        $user = null;
+
         if (!is_null($email)) {
             $user = $this->getRepo('User\User')->findOneByEmail($email);
         } else {
             $user = $this->getRepo('User\User')->findOneByPhone($phone);
         }
 
-        if (is_null($user)) {
+        if (is_null($user) && !is_null($password)) {
             // generate user
             $user = $this->generateUser($email, $phone, $password, $registration->getId());
             $em->persist($user);
@@ -350,8 +340,10 @@ class ClientUserRegistrationController extends UserRegistrationController
             $this->addBuddyToUser(array($user));
         }
 
-        // remove registration
-        $em->remove($registration);
+        if (!is_null($user)) {
+            // remove registration
+            $em->remove($registration);
+        }
 
         return $user;
     }
@@ -535,26 +527,27 @@ class ClientUserRegistrationController extends UserRegistrationController
      *
      * @return array
      */
-    private function finishRegistrationWithThirdPartyLogin(
+    private function handleThirdPartyLogin(
         $em,
         $user,
-        $weChatData
+        $weChatData = null
     ) {
-        $openId = $weChatData->getOpenId();
-        $accessToken = $weChatData->getAccessToken();
+        $weChat = null;
 
-        $weChat = $this->getRepo('ThirdParty\WeChat')->findOneBy(array(
-            'openid' => $openId,
-            'accessToken' => $accessToken,
-        ));
-        if (is_null($weChat)) {
-            return array();
+        if ($this->hasThirdPartyLogin($weChatData)) {
+            $openId = $weChatData->getOpenId();
+            $accessToken = $weChatData->getAccessToken();
+
+            $weChat = $this->getRepo('ThirdParty\WeChat')->findOneBy(array(
+                'openid' => $openId,
+                'accessToken' => $accessToken,
+            ));
+
+            // do oauth with WeChat api with openId and accessToken
+            $this->doWeChatAuthByOpenIdAccessToken($openId, $accessToken);
         }
 
-        // do oauth with WeChat api with openId and accessToken
-        $this->doWeChatAuthByOpenIdAccessToken($openId, $accessToken);
-
-        return $this->saveAuthForThirdPartyLogin($em, $user, $weChat);
+        return $this->saveAuthForResponse($em, $user, $weChat);
     }
 
     /**
@@ -564,42 +557,43 @@ class ClientUserRegistrationController extends UserRegistrationController
      *
      * @return array
      */
-    private function saveAuthForThirdPartyLogin(
+    private function saveAuthForResponse(
         $em,
         $user,
-        $weChat
+        $weChat = null
     ) {
         // bind WeChat with user
         $now = new \DateTime();
 
-        $weChat->setModificationDate($now);
+        // create auth for user login with third party oauth
+        $userClient = null;
 
-        if (is_null($weChat->getUser())) {
-            $weChat->setUser($user);
+        if (!is_null($weChat)) {
+            $userClient = $weChat->getUserClient();
         }
 
-        // create auth for user login with third party oauth
-        $userClient = $weChat->getUserClient();
         if (is_null($userClient)) {
             $userClient = new UserClient();
             $userClient->setCreationDate($now);
             $userClient->setModificationDate($now);
 
             $em->persist($userClient);
-
-            $weChat->setUserClient($userClient);
         }
 
-        $userToken = new UserToken();
-        $userToken->setUser($user);
-        $userToken->setUserId($user->getId());
-        $userToken->setClient($userClient);
-        $userToken->setClientId($userClient->getId());
-        $userToken->setToken($this->generateRandomToken());
-        $userToken->setOnline(true);
-        $userToken->setCreationDate(new \DateTime('now'));
+        $userToken = $this->saveUserToken($em, $user, $userClient);
 
-        $em->persist($userToken);
+        // update WeChat if any
+        if (!is_null($weChat)) {
+            if (is_null($weChat->getUser())) {
+                $weChat->setUser($user);
+            }
+
+            if (is_null($weChat->getUserClient())) {
+                $weChat->setUserClient($userClient);
+            }
+
+            $weChat->setModificationDate($now);
+        }
 
         // response
         return array(

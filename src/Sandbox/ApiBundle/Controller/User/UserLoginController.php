@@ -56,7 +56,12 @@ class UserLoginController extends SandboxRestController
             $em = $this->getDoctrine()->getManager();
 
             // save or update user client
-            $userClient = $this->saveUserClient($em, $request, $userClient);
+            $userClient = $this->saveUserClient($em,
+                                                $userClient->getId(),
+                                                $userClient->getName(),
+                                                $userClient->getOs(),
+                                                $userClient->getVersion(),
+                                                $request->getClientIp());
             $data['client'] = $userClient;
 
             if (!is_null($user)) {
@@ -91,36 +96,41 @@ class UserLoginController extends SandboxRestController
 
     /**
      * @param EntityManager $em
-     * @param Request       $request
-     * @param UserClient    $client
+     * @param int           $id
+     * @param string        $name
+     * @param string        $os
+     * @param string        $version
+     * @param string        $ipAddress
      *
      * @return UserClient
      */
     protected function saveUserClient(
         $em,
-        Request $request,
-        $client
+        $id,
+        $name,
+        $os,
+        $version,
+        $ipAddress
     ) {
-        $clientExist = null;
+        $client = null;
 
-        if (is_null($client)) {
-            $client = new UserClient();
-        }
-
-        $id = $client->getId();
         if (!is_null($id)) {
-            $clientExist = $this->getRepo('User\UserClient')->find($id);
+            $client = $this->getRepo('User\UserClient')->find($id);
         }
 
         $now = new \DateTime('now');
 
-        if (is_null($clientExist)) {
+        if (is_null($client)) {
+            $client = new UserClient();
             $client->setCreationDate($now);
 
             $em->persist($client);
         }
 
-        $client->setIpAddress($request->getClientIp());
+        $client->setName($name);
+        $client->setOs($os);
+        $client->setVersion($version);
+        $client->setIpAddress($ipAddress);
         $client->setModificationDate($now);
 
         return $client;
