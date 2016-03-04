@@ -564,8 +564,13 @@ class AdminBuildingController extends LocationController
         $em->flush();
 
         $buildingId = $building->getId();
+
         // add building permission to sales admin
-        $this->addSalesAdminPermissionOfBuilding($buildingId, $em);
+        $adminKey = $this->getUser()->getMyAdmin()->getType()->getKey();
+
+        if ($adminKey == SalesAdminType::KEY_PLATFORM) {
+            $this->addSalesAdminPermissionOfBuilding($buildingId, $em);
+        }
 
         $response = array(
             'id' => $buildingId,

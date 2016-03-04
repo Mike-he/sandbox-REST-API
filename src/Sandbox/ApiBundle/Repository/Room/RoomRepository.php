@@ -343,7 +343,6 @@ class RoomRepository extends EntityRepository
         $search,
         $myBuildingIds
     ) {
-        $notFirst = false;
         $parameters = [];
 
         $query = $this->createQueryBuilder('r')
@@ -356,7 +355,6 @@ class RoomRepository extends EntityRepository
         if (!is_null($type) && !empty($type)) {
             $query->andwhere('r.type = :type');
             $parameters['type'] = $type;
-            $notFirst = true;
         }
 
         // filter by order status
@@ -383,7 +381,6 @@ class RoomRepository extends EntityRepository
             $query->andWhere($where);
             $now = new \DateTime();
             $parameters['now'] = $now;
-            $notFirst = true;
         }
 
         // filter by city
@@ -391,7 +388,6 @@ class RoomRepository extends EntityRepository
             $where = 'r.city = :city';
             $query->andWhere($where);
             $parameters['city'] = $city;
-            $notFirst = true;
         }
 
         // filter by building
@@ -399,11 +395,10 @@ class RoomRepository extends EntityRepository
             $where = 'r.building = :building';
             $query->andWhere($where);
             $parameters['building'] = $building;
-            $notFirst = true;
         } else {
             // filter by my sales buildings
             $query->andWhere('r.building IN (:buildingIds)');
-            $query->setParameter('buildingIds', $myBuildingIds);
+            $parameters['buildingIds'] = $myBuildingIds;
         }
 
         // filter by floor
@@ -411,7 +406,6 @@ class RoomRepository extends EntityRepository
             $where = 'r.floor = :floor';
             $query->andWhere($where);
             $parameters['floor'] = $floor;
-            $notFirst = true;
         }
 
         // search by
@@ -419,7 +413,6 @@ class RoomRepository extends EntityRepository
             $where = 'r.name LIKE :search or r.number LIKE :search';
             $query->andWhere($where);
             $parameters['search'] = "%$search%";
-            $notFirst = true;
         }
 
         // sort method
@@ -433,9 +426,7 @@ class RoomRepository extends EntityRepository
         }
 
         // set all parameters
-        if ($notFirst) {
-            $query->setParameters($parameters);
-        }
+        $query->setParameters($parameters);
 
         return $query->getQuery()->getResult();
     }
