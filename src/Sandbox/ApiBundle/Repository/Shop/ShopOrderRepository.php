@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Shop;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Shop\Shop;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 
 /**
@@ -56,5 +57,46 @@ class ShopOrderRepository extends EntityRepository
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * get unpaid shop orders.
+     */
+    public function getUnpaidShopOrders()
+    {
+        $now = new \DateTime();
+        $start = clone $now;
+        $start->modify('-15 minutes');
+
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = :unpaid')
+            ->andWhere('o.creationDate <= :start')
+            ->setParameter('start', $start)
+            ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $orderId
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getAdminShopOrderById(
+        $orderId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.id = :orderId')
+            ->andWhere('o.status != :unpaid')
+            ->andWhere('o.status != :cancelled')
+            ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
+            ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED)
+            ->setParameter('orderId', $orderId)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
     }
 }

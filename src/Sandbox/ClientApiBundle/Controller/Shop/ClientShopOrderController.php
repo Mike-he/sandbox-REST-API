@@ -280,6 +280,7 @@ class ClientShopOrderController extends ShopRestController
         $price = $order->getPrice();
         $orderNumber = $order->getOrderNumber();
         $channel = $order->getPayChannel();
+
         $balance = $this->postBalanceChange(
             $order->getUserId(),
             (-1) * $price,
@@ -287,6 +288,7 @@ class ClientShopOrderController extends ShopRestController
             self::PAYMENT_CHANNEL_ACCOUNT,
             $price
         );
+
         if (is_null($balance)) {
             return $this->customErrorView(
                 400,

@@ -18,12 +18,23 @@ class ShopOrder
     const STATUS_READY = 'ready';
     const STATUS_COMPLETED = 'completed';
     const STATUS_ISSUE = 'issue';
-    const STATUS_TO_BE_REFUNDED = 'wait';
+    const STATUS_TO_BE_REFUNDED = 'waiting';
     const STATUS_REFUNDED = 'refunded';
     const STATUS_CANCELLED = 'cancelled';
     const LETTER_HEAD = 'S';
     const PAYMENT_SUBJECT = 'SANDBOX3-店铺订单';
     const PAYMENT_BODY = 'Shop Order';
+
+    const NOT_PAID_CODE = 400003;
+    const NOT_PAID_MESSAGE = 'Order is not paid';
+    const NOT_READY_CODE = 400004;
+    const NOT_READY_MESSAGE = 'Order is not ready';
+    const NOT_READY_OR_PAID_CODE = 400005;
+    const NOT_READY_OR_PAID_MESSAGE = 'Order is not paid or not ready';
+    const NOT_ISSUE_CODE = 400006;
+    const NOT_ISSUE_MESSAGE = 'No issue with this order';
+    const NOT_TO_BE_REFUNDED_CODE = 400007;
+    const NOT_TO_BE_REFUNDED_MESSAGE = 'Can not refund this order';
 
     /**
      * @var int
