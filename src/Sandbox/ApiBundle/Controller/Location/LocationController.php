@@ -60,18 +60,20 @@ class LocationController extends SalesRestController
     ) {
         $user = $this->getUser();
 
-        if (is_null($user)) {
-            // get all cities
-            $cities = $this->getRepo('Room\RoomCity')->findAll();
-        } elseif ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
-            // get my building ids
-            $myBuildingIds = $this->generateLocationSalesBuildingIds(
-                $paramFetcher
-            );
+        // get all cities
+        $cities = $this->getRepo('Room\RoomCity')->findAll();
 
-            $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCity($myBuildingIds);
-        } else {
-            return new View();
+        if (!is_null($user)) {
+            if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
+                // get my building ids
+                $myBuildingIds = $this->generateLocationSalesBuildingIds(
+                    $paramFetcher
+                );
+
+                $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCity($myBuildingIds);
+            }
+
+            // TODO shop permission
         }
 
         // generate cities array
@@ -115,25 +117,27 @@ class LocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $cityId = $paramFetcher->get('city');
-
         $user = $this->getUser();
 
-        if (is_null($user)) {
-            // get all buildings
-            $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
-        } elseif ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
-            // get my building ids
-            $myBuildingIds = $this->generateLocationSalesBuildingIds(
-                $paramFetcher
-            );
+        $cityId = $paramFetcher->get('city');
 
-            $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
-                $cityId,
-                $myBuildingIds
-            );
-        } else {
-            return new View();
+        // get all buildings
+        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
+
+        if (!is_null($user)) {
+            if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
+                // get my building ids
+                $myBuildingIds = $this->generateLocationSalesBuildingIds(
+                    $paramFetcher
+                );
+
+                $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
+                    $cityId,
+                    $myBuildingIds
+                );
+            }
+
+            // TODO shop permission
         }
 
         $view = new View();
