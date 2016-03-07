@@ -18,6 +18,8 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
  */
 class SalesAdminApiAuth implements UserInterface
 {
+    const ROLE_SALES_ADMIN_API = 'ROLE_SALES_ADMIN_API';
+
     /**
      * @var int
      *

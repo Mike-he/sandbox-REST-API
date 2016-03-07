@@ -176,6 +176,23 @@ class AdminAdminsController extends SalesRestController
             'typeId' => $type->getId(),
         ));
 
+        // set building id and city id
+        $permissions = $admins->getPermissions();
+        foreach ($permissions as $permission) {
+            $buildingId = $permission->getBuildingId();
+            if (is_null($buildingId)) {
+                continue;
+            }
+
+            $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+
+            if (is_null($building)) {
+                continue;
+            }
+
+            $permission->setBuilding($building);
+        }
+
         // set view
         $view = new View($admins);
         $view->setSerializationContext(
