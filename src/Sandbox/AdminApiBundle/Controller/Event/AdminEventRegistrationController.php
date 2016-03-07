@@ -192,7 +192,7 @@ class AdminEventRegistrationController extends SandboxRestController
         $customParameters['registration_person_number'] = (int) $registrationCounts;
 
         // set accepted person number
-        if ($event->isVerified()) {
+        if ($event->isVerify()) {
             $acceptedCounts = $this->getRepo('Event\EventRegistration')
                 ->getAcceptedPersonNumber($event_id);
             $customParameters['accepted_person_number'] = (int) $acceptedCounts;

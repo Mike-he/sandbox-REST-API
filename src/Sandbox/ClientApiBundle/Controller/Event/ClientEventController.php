@@ -252,7 +252,7 @@ class ClientEventController extends EventController
         $event->setRegisteredPersonNumber((int) $registrationCounts);
 
         // set accepted person number
-        if ($event->isVerified()) {
+        if ($event->isVerify()) {
             $acceptedCounts = $this->getRepo('Event\EventRegistration')
                 ->getAcceptedPersonNumber($eventId);
             $event->setAcceptedPersonNumber((int) $acceptedCounts);
