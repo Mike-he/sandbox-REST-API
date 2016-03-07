@@ -174,7 +174,7 @@ class AdminShopProductController extends ShopProductController
      * @param $id
      *
      * @Method({"PATCH"})
-     * @Route("/shops/{shopId}/products/{id}/online")
+     * @Route("/shops/{shopId}/products/{id}")
      *
      * @return View
      */

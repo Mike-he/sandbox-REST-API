@@ -274,7 +274,7 @@ class AdminShopOrderController extends ShopController
      * @param int     $id
      *
      * @Method({"POST"})
-     * @Route("/orders/{id}")
+     * @Route("/orders/{id}/issue")
      *
      * @return View
      *
