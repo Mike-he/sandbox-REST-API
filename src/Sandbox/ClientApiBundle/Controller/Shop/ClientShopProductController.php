@@ -72,4 +72,35 @@ class ClientShopProductController extends ShopProductController
 
         return $view;
     }
+
+    /**
+     * @param Request $request
+     * @param int     $shopId
+     * @param int     $menuId
+     * @param int     $id
+     *
+     *
+     * @Method({"GET"})
+     * @Route("/shops/{shopId}/menus/{menuId}/products/{id}")
+     *
+     * @return View
+     */
+    public function getShopProductByIdAction(
+        Request $request,
+        $shopId,
+        $menuId,
+        $id
+    ) {
+        $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId(
+            $shopId,
+            $id,
+            true
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['product_view']));
+        $view->setData($product);
+
+        return $view;
+    }
 }

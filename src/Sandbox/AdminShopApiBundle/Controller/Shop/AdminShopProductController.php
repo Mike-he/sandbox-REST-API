@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
+use Rs\Json\Patch;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuPosition;
 use Sandbox\ApiBundle\Controller\Shop\ShopProductController;
 use Sandbox\ApiBundle\Entity\Shop\ShopProduct;
@@ -9,16 +10,13 @@ use Sandbox\ApiBundle\Entity\Shop\ShopProductAttachment;
 use Sandbox\ApiBundle\Entity\Shop\ShopProductSpec;
 use Sandbox\ApiBundle\Entity\Shop\ShopProductSpecItem;
 use Sandbox\ApiBundle\Form\Shop\ShopMenuPositionType;
-use Sandbox\ApiBundle\Form\Shop\ShopMenuType;
 use Sandbox\ApiBundle\Form\Shop\ShopProductAttachmentPostType;
+use Sandbox\ApiBundle\Form\Shop\ShopProductPatchOnlineType;
 use Sandbox\ApiBundle\Form\Shop\ShopProductPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopProductSpecInventoryPutType;
 use Sandbox\ApiBundle\Form\Shop\ShopProductSpecItemInventoryPutType;
 use Sandbox\ApiBundle\Form\Shop\ShopProductSpecItemPostType;
-use Sandbox\ApiBundle\Form\Shop\ShopProductSpecItemPutType;
 use Sandbox\ApiBundle\Form\Shop\ShopProductSpecPostType;
-use Sandbox\ApiBundle\Form\Shop\ShopProductSpecPutType;
-use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuData;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopProductSpecData;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -162,6 +160,41 @@ class AdminShopProductController extends ShopProductController
         $em = $this->getDoctrine()->getManager();
         $product->setInvisible(true);
         $product->setOnline(false);
+        $product->setModificationDate(new \DateTime());
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * patch shop product online status.
+     *
+     * @param Request $request
+     * @param $shopId
+     * @param $id
+     *
+     * @Method({"PATCH"})
+     * @Route("/shops/{shopId}/products/{id}/online")
+     *
+     * @return View
+     */
+    public function patchShopProductOnlineAction(
+        Request $request,
+        $shopId,
+        $id
+    ) {
+        $shop = $this->findEntityById($shopId, 'Shop\Shop');
+        $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId($shopId, $id);
+
+        $productJson = $this->get('serializer')->serialize($product, 'json');
+        $patch = new Patch($productJson, $request->getContent());
+        $productJson = $patch->apply();
+
+        $form = $this->createForm(new ShopProductPatchOnlineType(), $product);
+        $form->submit(json_decode($productJson, true));
+
+        $product->setModificationDate(new \DateTime());
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return new View();
@@ -455,18 +488,13 @@ class AdminShopProductController extends ShopProductController
             $em
         );
 
-        $data = new ShopMenuData();
-        $form = $this->createForm(new ShopMenuType(), $data);
-        $form->submit($product->getShopProductSpecs(), true);
+        // remove specs
+        $this->removeShopProductSpecs($product, $em);
 
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        // add, modify, remove specs
-        $this->handleShopProductItemPut(
+        // add specs
+        $this->addShopProductSpecs(
             $product,
-            $data,
+            $product->getSpecs(),
             $em
         );
 
@@ -476,95 +504,20 @@ class AdminShopProductController extends ShopProductController
     }
 
     /**
-     * @param $product
-     * @param $data
-     * @param $em
-     */
-    private function handleShopProductItemPut(
-        $product,
-        $data,
-        $em
-    ) {
-        // add specs
-        $this->addShopProductSpecsForProductModify(
-            $product,
-            $data->getAdd(),
-            $em
-        );
-
-        // modify specs
-        $this->modifyShopProductSpecs(
-            $data->getModify()
-        );
-
-        // remove specs
-        $this->removeShopProductSpecs(
-            $data->getRemove(),
-            $em
-        );
-    }
-
-    /**
      * @param $specs
      * @param $em
      */
     private function removeShopProductSpecs(
-        $specs,
+        $product,
         $em
     ) {
-        if (is_null($specs)) {
-            return;
-        }
+        $specs = $this->getRepo('Shop\ShopProductSpec')->findByProduct($product);
 
         foreach ($specs as $spec) {
-            $existSpec = $this->findEntityById($spec['id'], 'Shop\ShopProductSpec');
-            $em->remove($existSpec);
-        }
-    }
-
-    /**
-     * @param $specs
-     */
-    private function modifyShopProductSpecs(
-        $specs
-    ) {
-        if (is_null($specs)) {
-            return;
+            $em->remove($spec);
         }
 
-        foreach ($specs as $spec) {
-            $productSpecId = $spec['id'];
-            $existSpec = $this->findEntityById($productSpecId, 'Shop\ShopProductSpec');
-
-            $form = $this->createForm(new ShopProductSpecPutType(), $existSpec);
-            $form->submit($spec, true);
-
-            if (!$form->isValid()) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-
-            $items = $existSpec->getItems();
-            $this->modifyShopProductSpecItems($items);
-        }
-    }
-
-    /**
-     * @param $items
-     */
-    private function modifyShopProductSpecItems(
-        $items
-    ) {
-        if (is_null($items)) {
-            return;
-        }
-
-        foreach ($items as $item) {
-            $productSpecItemId = $item['id'];
-            $existSpecItem = $this->findEntityById($productSpecItemId, 'Shop\ShopProductSpecItem');
-
-            $form = $this->createForm(new ShopProductSpecItemPutType(), $existSpecItem);
-            $form->submit($item, true);
-        }
+        $em->flush();
     }
 
     /**
@@ -658,42 +611,6 @@ class AdminShopProductController extends ShopProductController
     }
 
     /**
-     * @param $product
-     * @param $specs
-     * @param $em
-     */
-    private function addShopProductSpecsForProductModify(
-        $product,
-        $specs,
-        $em
-    ) {
-        if (is_null($specs)) {
-            return;
-        }
-
-        foreach ($specs as $spec) {
-            $productSpec = new ShopProductSpec();
-            $form = $this->createForm(new ShopProductSpecPostType(), $productSpec);
-            $form->submit($spec, true);
-
-            $shopSpec = $this->findEntityById($productSpec->getShopSpecId(), 'Shop\ShopSpec');
-            $items = $productSpec->getItems();
-            $this->addShopProductSpecItems(
-                $productSpec,
-                $items,
-                $em
-            );
-
-            $productSpec->setProduct($product);
-            $productSpec->setShopSpec($shopSpec);
-            $em->persist($productSpec);
-
-            // check conflict for product spec
-            $this->findConflictShopProductSpec($productSpec);
-        }
-    }
-
-    /**
      * @param $productSpec
      * @param $items
      * @param $em
@@ -768,24 +685,6 @@ class AdminShopProductController extends ShopProductController
 
         if (!is_null($sameProduct)) {
             throw new ConflictHttpException(ShopProduct::SHOP_PRODUCT_CONFLICT_MESSAGE);
-        }
-    }
-
-    /**
-     * @param $product
-     */
-    private function findConflictShopProductSpec(
-        $spec
-    ) {
-        $sameSpec = $this->getRepo('Shop\ShopProductSpec')->findOneBy(
-            [
-                'shopSpec' => $spec->getShopSpec(),
-                'product' => $spec->getProduct(),
-            ]
-        );
-
-        if (!is_null($sameSpec)) {
-            throw new ConflictHttpException(ShopProductSpec::SHOP_PRODUCT_SPEC_CONFLICT_MESSAGE);
         }
     }
 }

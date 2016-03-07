@@ -31,7 +31,7 @@ class ShopOrderProductSpec
     /**
      * @var int
      *
-     * @ORM\Column(name="specId", type="integer")
+     * @ORM\Column(name="specId", type="integer", nullable=true)
      * @Serializer\Groups({"main"})
      */
     private $specId;
@@ -40,7 +40,7 @@ class ShopOrderProductSpec
      * @var ShopProductSpec
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Shop\ShopProductSpec")
-     * @ORM\JoinColumn(name="specId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="specId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups({"main"})
      */
     private $spec;

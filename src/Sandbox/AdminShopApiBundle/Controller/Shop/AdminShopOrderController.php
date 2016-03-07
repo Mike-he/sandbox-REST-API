@@ -5,6 +5,7 @@ namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderPatchType;
+use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -14,6 +15,7 @@ use Sandbox\ApiBundle\Controller\Shop\ShopController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin Shop Order Controller.
@@ -62,6 +64,16 @@ class AdminShopOrderController extends ShopController
      *    nullable=true,
      *    strict=true,
      *    description="Filter by shop"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="{ready|completed|issue|waiting|refunded}",
+     *    strict=true,
+     *    description="Filter by status"
      * )
      *
      * @Annotations\QueryParam(
@@ -123,6 +135,7 @@ class AdminShopOrderController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         $shopId = $paramFetcher->get('shop');
+        $status = $paramFetcher->get('status');
         $start = $paramFetcher->get('start');
         $end = $paramFetcher->get('end');
         $search = $paramFetcher->get('search');
@@ -131,6 +144,7 @@ class AdminShopOrderController extends ShopController
 
         $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrders(
             $shopId,
+            $status,
             $start,
             $end,
             $search
@@ -253,5 +267,72 @@ class AdminShopOrderController extends ShopController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Method({"POST"})
+     * @Route("/orders/{id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function postAdminShopOrderAction(
+        Request $request,
+        $id
+    ) {
+        $oldOrder = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ShopOrder::STATUS_ISSUE,
+            ]
+        );
+        $this->throwNotFoundIfNull($oldOrder, self::NOT_FOUND_MESSAGE);
+
+        $shop = $oldOrder->getShop();
+        $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
+
+        $order = new ShopOrder();
+        $form = $this->createForm(new ShopOrderType(), $order);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $orderNumber = $this->getOrderNumber(ShopOrder::LETTER_HEAD);
+        $userId = $this->getUserId();
+        $order->setUserId($userId);
+        $order->setShop($shop);
+        $order->setOrderNumber($orderNumber);
+        $order->setStatus(ShopOrder::STATUS_PAID);
+        $order->setUnoriginal(true);
+        $order->setLinkedOrder($oldOrder);
+        $em->persist($order);
+        $oldOrder->setLinkedOrder($order);
+
+        $calculatedPrice = 0;
+        $calculatedPrice = $this->handleShopOrderProductPost(
+            $order,
+            $shop,
+            $em,
+            $calculatedPrice
+        );
+
+        if ($order->getPrice() != $calculatedPrice) {
+            return $this->customErrorView(
+                400,
+                self::DISCOUNT_PRICE_MISMATCH_CODE,
+                self::DISCOUNT_PRICE_MISMATCH_MESSAGE
+            );
+        }
+
+        $em->flush();
+
+        return new View(['id' => $order->getId()]);
     }
 }
