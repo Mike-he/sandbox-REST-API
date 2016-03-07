@@ -60,6 +60,7 @@ class ClientShopProductController extends ShopProductController
     ) {
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+
         $products = $this->getRepo('Shop\ShopProduct')->getShopProductsByMenu(
             $id,
             $limit,

@@ -154,13 +154,16 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
+
         $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId($shopId, $id);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $em = $this->getDoctrine()->getManager();
+
         $product->setInvisible(true);
         $product->setOnline(false);
         $product->setModificationDate(new \DateTime());
+
         $em->flush();
 
         return new View();
@@ -184,6 +187,7 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         $shop = $this->findEntityById($shopId, 'Shop\Shop');
+
         $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId($shopId, $id);
 
         $productJson = $this->get('serializer')->serialize($product, 'json');
@@ -194,6 +198,7 @@ class AdminShopProductController extends ShopProductController
         $form->submit(json_decode($productJson, true));
 
         $product->setModificationDate(new \DateTime());
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
@@ -216,6 +221,7 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
+
         $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId($shopId, $id);
 
         $view = new View();
@@ -245,6 +251,7 @@ class AdminShopProductController extends ShopProductController
         $this->findEntityById($id, 'Shop\Shop');
 
         $product = new ShopProduct();
+
         $form = $this->createForm(new ShopProductPostType(), $product);
         $form->handleRequest($request);
 
@@ -275,6 +282,7 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
+
         $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId($shopId, $id);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
@@ -318,10 +326,12 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
+
         $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId($shopId, $id);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $data = new ShopProductSpecData();
+
         $form = $this->createForm(
             new ShopProductSpecInventoryPutType(),
             $data,
@@ -358,10 +368,12 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
+
         $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId($shopId, $id);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $position = new ShopMenuPosition();
+
         $form = $this->createForm(new ShopMenuPositionType(), $position);
         $form->handleRequest($request);
 
@@ -370,6 +382,7 @@ class AdminShopProductController extends ShopProductController
         }
 
         $action = $position->getAction();
+
         if (empty($action) || is_null($action)) {
             return new View();
         }
@@ -578,10 +591,12 @@ class AdminShopProductController extends ShopProductController
         $duplicateSpecArray = [];
         foreach ($specs as $spec) {
             $productSpec = new ShopProductSpec();
+
             $form = $this->createForm(new ShopProductSpecPostType(), $productSpec);
             $form->submit($spec, true);
 
             $shopSpec = $this->findEntityById($productSpec->getShopSpecId(), 'Shop\ShopSpec');
+
             $items = $productSpec->getItems();
             $this->addShopProductSpecItems(
                 $productSpec,
@@ -591,6 +606,7 @@ class AdminShopProductController extends ShopProductController
 
             $productSpec->setProduct($product);
             $productSpec->setShopSpec($shopSpec);
+
             $em->persist($productSpec);
 
             array_push($duplicateSpecArray, $productSpec->getShopSpecId());
@@ -626,12 +642,15 @@ class AdminShopProductController extends ShopProductController
 
         foreach ($items as $item) {
             $productSpecItem = new ShopProductSpecItem();
+
             $form = $this->createForm(new ShopProductSpecItemPostType(), $productSpecItem);
             $form->submit($item, true);
 
             $shopSpecItem = $this->findEntityById($productSpecItem->getShopSpecItemId(), 'Shop\ShopSpecItem');
+
             $productSpecItem->setProductSpec($productSpec);
             $productSpecItem->setShopSpecItem($shopSpecItem);
+
             $em->persist($productSpecItem);
         }
     }
@@ -648,10 +667,12 @@ class AdminShopProductController extends ShopProductController
     ) {
         foreach ($attachments as $attachment) {
             $productAttachment = new ShopProductAttachment();
+
             $form = $this->createForm(new ShopProductAttachmentPostType(), $productAttachment);
             $form->submit($attachment, true);
 
             $productAttachment->setProduct($product);
+
             $em->persist($productAttachment);
         }
     }
@@ -665,6 +686,7 @@ class AdminShopProductController extends ShopProductController
         $em
     ) {
         $attachments = $this->getRepo('Shop\ShopProductAttachment')->findByProduct($product);
+
         foreach ($attachments as $attachment) {
             $em->remove($attachment);
         }

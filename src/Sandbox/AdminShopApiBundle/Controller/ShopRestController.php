@@ -44,9 +44,9 @@ class ShopRestController extends PaymentController
      * @return int|void
      */
     protected function handleShopOrderProductPost(
+        $em,
         $order,
         $shop,
-        $em,
         $calculatedPrice
     ) {
         $productData = $order->getProducts();
@@ -57,6 +57,7 @@ class ShopRestController extends PaymentController
 
         foreach ($productData as $data) {
             $product = new ShopOrderProduct();
+
             $form = $this->createForm(new ShopOrderProductType(), $product);
             $form->submit($data, true);
 
@@ -72,14 +73,16 @@ class ShopRestController extends PaymentController
             $this->throwNotFoundIfNull($shopProduct, self::NOT_FOUND_MESSAGE);
 
             $info = json_encode($shopProduct->jsonSerialize());
+
             $product->setOrder($order);
             $product->setProduct($shopProduct);
             $product->setShopProductInfo($info);
+
             $em->persist($product);
 
             $calculatedPrice += $this->handleShopOrderProductSpecPost(
-                $product,
                 $em,
+                $product,
                 $calculatedPrice
             );
         }
@@ -95,8 +98,8 @@ class ShopRestController extends PaymentController
      * @return int|void
      */
     private function handleShopOrderProductSpecPost(
-        $product,
         $em,
+        $product,
         $calculatedPrice
     ) {
         $specData = $product->getSpecs();
@@ -109,6 +112,7 @@ class ShopRestController extends PaymentController
 
         foreach ($specData as $data) {
             $spec = new ShopOrderProductSpec();
+
             $form = $this->createForm(new ShopOrderProductSpecType(), $spec);
             $form->submit($data, true);
 
@@ -119,6 +123,7 @@ class ShopRestController extends PaymentController
             $shopProductSpec = $this->findEntityById($spec->getSpecId(), 'Shop\ShopProductSpec');
 
             $multiple = $shopProductSpec->getShopSpec()->getMultiple();
+
             if (!$multiple) {
                 $this->checkItemCount($spec->getItems());
             }
@@ -128,11 +133,12 @@ class ShopRestController extends PaymentController
             $spec->setProduct($product);
             $spec->setSpec($shopProductSpec);
             $spec->setShopProductSpecInfo($info);
+
             $em->persist($spec);
 
             $calculatedPrice = $this->handleShopOrderProductSpecItemPost(
-                $spec,
-                $em
+                $em,
+                $spec
             );
         }
 
@@ -150,6 +156,7 @@ class ShopRestController extends PaymentController
         // find required specs
         $requiredSpecs = $this->getRepo('Shop\ShopProductSpec')->findRequiredSpecsByProduct($product->getProductId());
         $requiredArray = [];
+
         foreach ($requiredSpecs as $requiredSpec) {
             array_push($requiredArray, $requiredSpec->getId());
         }
@@ -158,6 +165,7 @@ class ShopRestController extends PaymentController
         $givenArray = [];
         foreach ($specData as $data) {
             $spec = new ShopOrderProductSpec();
+
             $form = $this->createForm(new ShopOrderProductSpecType(), $spec);
             $form->submit($data, true);
 
@@ -170,6 +178,7 @@ class ShopRestController extends PaymentController
 
         // compare required and given specs
         $comparison = array_diff($requiredArray, $givenArray);
+
         if (!empty($comparison)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
@@ -180,8 +189,8 @@ class ShopRestController extends PaymentController
      * @param $em
      */
     private function handleShopOrderProductSpecItemPost(
-        $spec,
-        $em
+        $em,
+        $spec
     ) {
         $itemData = $spec->getItems();
 
@@ -192,6 +201,7 @@ class ShopRestController extends PaymentController
         $calculatedPrice = 0;
         foreach ($itemData as $data) {
             $item = new ShopOrderProductSpecItem();
+
             $form = $this->createForm(new ShopOrderProductSpecItemType(), $item);
             $form->submit($data, true);
 
@@ -203,6 +213,7 @@ class ShopRestController extends PaymentController
 
             // check inventory
             $inventory = $shopProductSpecItem->getInventory();
+
             if (!is_null($inventory)) {
                 $amount = $item->getAmount();
                 if ($amount > $inventory) {
@@ -218,9 +229,11 @@ class ShopRestController extends PaymentController
             $item->setSpec($spec);
             $item->setItem($shopProductSpecItem);
             $item->setShopProductSpecItemInfo($info);
+
             $em->persist($item);
 
             $price = $shopProductSpecItem->getPrice();
+
             if (is_null($price)) {
                 continue;
             }

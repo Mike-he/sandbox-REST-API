@@ -146,6 +146,7 @@ class AdminShopSpecController extends SpecController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
+
         $spec = $this->getRepo('Shop\ShopSpec')->findOneBy(
             [
                 'id' => $id,
@@ -179,10 +180,12 @@ class AdminShopSpecController extends SpecController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
+
         $spec = $this->findEntityById($id, 'Shop\ShopSpec');
 
-        $em = $this->getDoctrine()->getManager();
         $spec->setInvisible(true);
+
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return new View();
@@ -204,6 +207,7 @@ class AdminShopSpecController extends SpecController
         $id
     ) {
         $shop = $this->findEntityById($id, 'Shop\Shop');
+
         if (!$shop->isActive()) {
             return $this->customErrorView(
                 400,
@@ -213,6 +217,7 @@ class AdminShopSpecController extends SpecController
         }
 
         $spec = new ShopSpec();
+
         $form = $this->createForm(new ShopSpecPostType(), $spec);
         $form->handleRequest($request);
 
@@ -244,6 +249,7 @@ class AdminShopSpecController extends SpecController
         $id
     ) {
         $this->findEntityById($shopId, 'Shop\Shop');
+
         $spec = $this->findEntityById($id, 'Shop\ShopSpec');
 
         $form = $this->createForm(
@@ -261,11 +267,13 @@ class AdminShopSpecController extends SpecController
         $this->findConflictShopSpec($spec);
 
         $em = $this->getDoctrine()->getManager();
+
         $this->handleSpecItemPut(
             $spec,
             $id,
             $em
         );
+
         $em->flush();
 
         return new View();
@@ -282,11 +290,13 @@ class AdminShopSpecController extends SpecController
         $em
     ) {
         $items = $spec->getItems();
+
         if (is_null($items) || empty($items)) {
             return;
         }
 
         $menuData = new ShopMenuData();
+
         $form = $this->createForm(new ShopMenuType(), $menuData);
         $form->submit($items, true);
 
@@ -335,6 +345,7 @@ class AdminShopSpecController extends SpecController
 
         foreach ($addData as $item) {
             $specItem = new ShopSpecItem();
+
             $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
             $form->submit($item, true);
 
@@ -343,6 +354,7 @@ class AdminShopSpecController extends SpecController
             }
 
             $specItem->setSpec($spec);
+
             $em->persist($specItem);
 
             // check spec item conflict
@@ -364,6 +376,7 @@ class AdminShopSpecController extends SpecController
 
         foreach ($modifyData as $item) {
             $specData = new ShopSpecItemData();
+
             $form = $this->createForm(new ShopSpecItemModifyType(), $specData);
             $form->submit($item, true);
 
@@ -407,6 +420,7 @@ class AdminShopSpecController extends SpecController
 
         foreach ($removeData as $item) {
             $specData = new ShopSpecItemData();
+
             $form = $this->createForm(new ShopSpecItemModifyType(), $specData);
             $form->submit($item, true);
 
@@ -447,8 +461,9 @@ class AdminShopSpecController extends SpecController
             return;
         }
 
-        $em = $this->getDoctrine()->getManager();
         $spec->setShop($shop);
+
+        $em = $this->getDoctrine()->getManager();
         $em->persist($spec);
 
         // check conflict shop spec
@@ -456,6 +471,7 @@ class AdminShopSpecController extends SpecController
 
         foreach ($items as $item) {
             $specItem = new ShopSpecItem();
+
             $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
             $form->submit($item, true);
 
@@ -464,6 +480,7 @@ class AdminShopSpecController extends SpecController
             }
 
             $specItem->setSpec($spec);
+
             $em->persist($specItem);
 
             // check spec item conflict

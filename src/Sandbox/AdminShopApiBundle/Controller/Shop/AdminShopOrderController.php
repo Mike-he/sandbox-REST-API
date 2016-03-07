@@ -196,6 +196,7 @@ class AdminShopOrderController extends ShopController
 
         $now = new \DateTime();
         $status = $order->getStatus();
+
         $em = $this->getDoctrine()->getManager();
 
         switch ($status) {
@@ -264,6 +265,7 @@ class AdminShopOrderController extends ShopController
         }
 
         $order->setModificationDate($now);
+
         $em->flush();
 
         return new View();
@@ -296,6 +298,7 @@ class AdminShopOrderController extends ShopController
         $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
 
         $order = new ShopOrder();
+
         $form = $this->createForm(new ShopOrderType(), $order);
         $form->handleRequest($request);
 
@@ -305,21 +308,23 @@ class AdminShopOrderController extends ShopController
 
         $em = $this->getDoctrine()->getManager();
         $orderNumber = $this->getOrderNumber(ShopOrder::LETTER_HEAD);
-        $userId = $this->getUserId();
-        $order->setUserId($userId);
+
+        $order->setUserId($oldOrder->getUserId());
         $order->setShop($shop);
         $order->setOrderNumber($orderNumber);
         $order->setStatus(ShopOrder::STATUS_PAID);
         $order->setUnoriginal(true);
         $order->setLinkedOrder($oldOrder);
+
         $em->persist($order);
+
         $oldOrder->setLinkedOrder($order);
 
         $calculatedPrice = 0;
         $calculatedPrice = $this->handleShopOrderProductPost(
+            $em,
             $order,
             $shop,
-            $em,
             $calculatedPrice
         );
 

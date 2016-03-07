@@ -48,6 +48,7 @@ class AdminShopMenuController extends ShopMenuController
         $id
     ) {
         $this->findEntityById($id, 'Shop\Shop');
+
         $menus = $this->getRepo('Shop\ShopMenu')->getShopMenuByShop($id);
         $menus = $this->get('serializer')->serialize(
             $menus,
@@ -86,6 +87,7 @@ class AdminShopMenuController extends ShopMenuController
         $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
 
         $menuData = new ShopMenuData();
+
         $form = $this->createForm(new ShopMenuType(), $menuData);
         $form->handleRequest($request);
 
@@ -94,6 +96,7 @@ class AdminShopMenuController extends ShopMenuController
         }
 
         $em = $this->getDoctrine()->getManager();
+
         $addData = $menuData->getAdd();
         $modifyData = $menuData->getModify();
         $removeData = $menuData->getRemove();
@@ -142,6 +145,7 @@ class AdminShopMenuController extends ShopMenuController
         $menu = $this->findShopMenuById($id);
 
         $position = new ShopMenuPosition();
+
         $form = $this->createForm(new ShopMenuPositionType(), $position);
         $form->handleRequest($request);
 
@@ -150,6 +154,7 @@ class AdminShopMenuController extends ShopMenuController
         }
 
         $action = $position->getAction();
+
         if (empty($action) || is_null($action)) {
             return new View();
         }
@@ -209,6 +214,7 @@ class AdminShopMenuController extends ShopMenuController
 
         foreach ($addData as $item) {
             $menu = new ShopMenu();
+
             $form = $this->createForm(new ShopMenuAddType(), $menu);
             $form->submit($item, true);
 
@@ -217,6 +223,7 @@ class AdminShopMenuController extends ShopMenuController
             }
 
             $menu->setShop($shop);
+
             $em->persist($menu);
 
             // check menu conflict
@@ -238,6 +245,7 @@ class AdminShopMenuController extends ShopMenuController
 
         foreach ($modifyData as $item) {
             $menuItem = new ShopMenuItem();
+
             $form = $this->createForm(new ShopMenuModifyType(), $menuItem);
             $form->submit($item, true);
 
@@ -282,6 +290,7 @@ class AdminShopMenuController extends ShopMenuController
 
         foreach ($removeData as $item) {
             $menuItem = new ShopMenuItem();
+
             $form = $this->createForm(new ShopMenuRemoveType(), $menuItem);
             $form->submit($item, true);
 

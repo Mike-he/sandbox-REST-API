@@ -64,8 +64,10 @@ class ClientShopOrderController extends ShopRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $userId = $this->getUserId();
+
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+
         $order = $this->getRepo('Shop\ShopOrder')->findBy(
             [
                 'userId' => $userId,
@@ -101,6 +103,7 @@ class ClientShopOrderController extends ShopRestController
         $id
     ) {
         $userId = $this->getUserId();
+
         $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
             [
                 'userId' => $userId,
@@ -130,6 +133,8 @@ class ClientShopOrderController extends ShopRestController
         Request $request,
         $id
     ) {
+        $userId = $this->getUserId();
+
         $shop = $this->getRepo('Shop\Shop')->getShopById(
             $id,
             true,
@@ -157,6 +162,7 @@ class ClientShopOrderController extends ShopRestController
         }
 
         $order = new ShopOrder();
+
         $form = $this->createForm(new ShopOrderType(), $order);
         $form->handleRequest($request);
 
@@ -165,18 +171,20 @@ class ClientShopOrderController extends ShopRestController
         }
 
         $em = $this->getDoctrine()->getManager();
+
         $orderNumber = $this->getOrderNumber(ShopOrder::LETTER_HEAD);
-        $userId = $this->getUserId();
+
         $order->setUserId($userId);
         $order->setShop($shop);
         $order->setOrderNumber($orderNumber);
+
         $em->persist($order);
 
         $calculatedPrice = 0;
         $calculatedPrice = $this->handleShopOrderProductPost(
+            $em,
             $order,
             $shop,
-            $em,
             $calculatedPrice
         );
 
@@ -208,6 +216,7 @@ class ClientShopOrderController extends ShopRestController
         $id
     ) {
         $userId = $this->getUserId();
+
         $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
             [
                 'id' => $id,
@@ -248,6 +257,7 @@ class ClientShopOrderController extends ShopRestController
         }
 
         $orderNumber = $order->getOrderNumber();
+
         $charge = $this->payForOrder(
             $orderNumber,
             $order->getPrice(),
