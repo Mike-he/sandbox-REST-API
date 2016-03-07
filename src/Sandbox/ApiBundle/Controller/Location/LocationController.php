@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
+use Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -34,42 +35,8 @@ class LocationController extends SalesRestController
     /**
      * @Get("/cities")
      *
-     * @param Request $request
-     *
-     * @return View
-     */
-    public function getCitiesAction(
-        Request $request
-    ) {
-        $cities = $this->getRepo('Room\RoomCity')->findAll();
-
-        // generate cities array
-        $citiesArray = $this->generateCitiesArray(
-            $cities
-        );
-
-        return new View($citiesArray);
-    }
-    
-    /**
-     * @Get("/sales/cities")
-     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *    name="city",
-     *    default=null,
-     *    nullable=true,
-     *    description="city id"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="admin",
-     *    default=null,
-     *    nullable=false,
-     *    description="sales admin id"
-     * )
      *
      * @Annotations\QueryParam(
      *    name="permission",
@@ -87,25 +54,25 @@ class LocationController extends SalesRestController
      *
      * @return View
      */
-    public function getSalesCitiesAction(
+    public function getCitiesAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminId = $paramFetcher->get('admin');
-        $permissionKeyArray = $paramFetcher->get('permission');
-        $opLevel = $paramFetcher->get('op');
+        $user = $this->getUser();
 
-        if (is_null($adminId) || is_null($permissionKeyArray) || empty($permissionKeyArray)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        if (is_null($user)) {
+            // get all cities
+            $cities = $this->getRepo('Room\RoomCity')->findAll();
+        } elseif ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
+            // get my building ids
+            $myBuildingIds = $this->generateLocationSalesBuildingIds(
+                $paramFetcher
+            );
+
+            $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCity($myBuildingIds);
+        } else {
+            return new View();
         }
-
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $adminId,
-            $permissionKeyArray,
-            $opLevel
-        );
-
-        $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCity($myBuildingIds);
 
         // generate cities array
         $citiesArray = $this->generateCitiesArray(
@@ -113,36 +80,6 @@ class LocationController extends SalesRestController
         );
 
         return new View($citiesArray);
-    }
-
-    /**
-     * @param $cities
-     *
-     * @return array
-     */
-    private function generateCitiesArray(
-        $cities
-    ) {
-        $citiesArray = array();
-        foreach ($cities as $city) {
-            $name = $city->getName();
-            $key = $city->getKey();
-
-            $translatedKey = self::LOCATION_CITY_PREFIX.$key;
-            $translatedName = $this->get('translator')->trans($translatedKey);
-            if ($translatedName != $translatedKey) {
-                $name = $translatedName;
-            }
-
-            $cityArray = array(
-                'id' => $city->getId(),
-                'key' => $key,
-                'name' => $name,
-            );
-            array_push($citiesArray, $cityArray);
-        }
-
-        return $citiesArray;
     }
 
     /**
@@ -155,42 +92,6 @@ class LocationController extends SalesRestController
      *    description="city id"
      * )
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @return View
-     */
-    public function getBuildingsAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $cityId = $paramFetcher->get('city');
-        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
-        $view->setData($buildings);
-
-        return $view;
-    }
-
-    /**
-     * @Get("/sales/buildings")
-     *
-     * @Annotations\QueryParam(
-     *    name="city",
-     *    default=null,
-     *    nullable=true,
-     *    description="city id"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="admin",
-     *    default=null,
-     *    nullable=false,
-     *    description="sales admin id"
-     * )
-     *
      * @Annotations\QueryParam(
      *    name="permission",
      *    default=null,
@@ -210,29 +111,30 @@ class LocationController extends SalesRestController
      *
      * @return View
      */
-    public function getSalesBuildingsAction(
+    public function getBuildingsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
         $cityId = $paramFetcher->get('city');
-        $adminId = $paramFetcher->get('admin');
-        $permissionKeyArray = $paramFetcher->get('permission');
-        $opLevel = $paramFetcher->get('op');
 
-        if (is_null($adminId) || is_null($permissionKeyArray) || empty($permissionKeyArray)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        $user = $this->getUser();
+
+        if (is_null($user)) {
+            // get all buildings
+            $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
+        } elseif ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
+            // get my building ids
+            $myBuildingIds = $this->generateLocationSalesBuildingIds(
+                $paramFetcher
+            );
+
+            $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
+                $cityId,
+                $myBuildingIds
+            );
+        } else {
+            return new View();
         }
-
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $adminId,
-            $permissionKeyArray,
-            $opLevel
-        );
-
-        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
-            $cityId,
-            $myBuildingIds
-        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
@@ -435,5 +337,59 @@ class LocationController extends SalesRestController
         $building->setPhones($phones);
 
         return $building;
+    }
+
+    /**
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return array
+     */
+    private function generateLocationSalesBuildingIds(
+        $paramFetcher
+    ) {
+        $adminId = $this->getUser()->getAdminId();
+
+        $permissionKeyArray = $paramFetcher->get('permission');
+        $opLevel = $paramFetcher->get('op');
+
+        if (is_null($adminId) || is_null($permissionKeyArray) || empty($permissionKeyArray)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return $myBuildingIds = $this->getMySalesBuildingIds(
+            $adminId,
+            $permissionKeyArray,
+            $opLevel
+        );
+    }
+
+    /**
+     * @param $cities
+     *
+     * @return array
+     */
+    private function generateCitiesArray(
+        $cities
+    ) {
+        $citiesArray = array();
+        foreach ($cities as $city) {
+            $name = $city->getName();
+            $key = $city->getKey();
+
+            $translatedKey = self::LOCATION_CITY_PREFIX.$key;
+            $translatedName = $this->get('translator')->trans($translatedKey);
+            if ($translatedName != $translatedKey) {
+                $name = $translatedName;
+            }
+
+            $cityArray = array(
+                'id' => $city->getId(),
+                'key' => $key,
+                'name' => $name,
+            );
+            array_push($citiesArray, $cityArray);
+        }
+
+        return $citiesArray;
     }
 }
