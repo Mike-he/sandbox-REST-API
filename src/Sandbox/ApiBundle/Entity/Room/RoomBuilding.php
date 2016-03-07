@@ -56,7 +56,8 @@ class RoomBuilding implements JsonSerializable
      *      "building_nearby",
      *      "admin_building",
      *      "admin_shop",
-     *      "client_order"
+     *      "client_order",
+     *      "admin"
      *  }
      * )
      */
@@ -85,7 +86,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="cityId", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin"})
      */
     private $cityId;
 

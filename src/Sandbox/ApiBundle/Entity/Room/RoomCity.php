@@ -15,7 +15,7 @@ use JsonSerializable;
  *          @ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomCityRepository")
  */
 class RoomCity implements JsonSerializable
 {

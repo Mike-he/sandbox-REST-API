@@ -43,6 +43,85 @@ class LocationController extends SalesRestController
     ) {
         $cities = $this->getRepo('Room\RoomCity')->findAll();
 
+        // generate cities array
+        $citiesArray = $this->generateCitiesArray(
+            $cities
+        );
+
+        return new View($citiesArray);
+    }
+    /**
+     * @Get("/sales/cities")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="admin",
+     *    default=null,
+     *    nullable=false,
+     *    description="sales admin id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="permission",
+     *    default=null,
+     *    nullable=false,
+     *    description="permission key"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="op",
+     *    default=1,
+     *    nullable=true,
+     *    description="op level"
+     * )
+     *
+     * @return View
+     */
+    public function getSalesCitiesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminId = $paramFetcher->get('admin');
+        $permissionKeyArray = $paramFetcher->get('permission');
+        $opLevel = $paramFetcher->get('op');
+
+        if (is_null($adminId) || is_null($permissionKeyArray) || empty($permissionKeyArray)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $adminId,
+            $permissionKeyArray,
+            $opLevel
+        );
+
+        $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCity($myBuildingIds);
+
+        // generate cities array
+        $citiesArray = $this->generateCitiesArray(
+            $cities
+        );
+
+        return new View($citiesArray);
+    }
+
+    /**
+     * @param $cities
+     *
+     * @return array
+     */
+    private function generateCitiesArray(
+        $cities
+    ) {
         $citiesArray = array();
         foreach ($cities as $city) {
             $name = $city->getName();
@@ -62,7 +141,7 @@ class LocationController extends SalesRestController
             array_push($citiesArray, $cityArray);
         }
 
-        return new View($citiesArray);
+        return $citiesArray;
     }
 
     /**

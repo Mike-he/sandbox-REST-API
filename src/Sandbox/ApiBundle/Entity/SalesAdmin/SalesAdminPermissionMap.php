@@ -84,9 +84,16 @@ class SalesAdminPermissionMap
      * @var int
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=true)
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "auth"})
      */
     private $buildingId;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     */
+    private $building;
 
     /**
      * Get id.
@@ -264,5 +271,21 @@ class SalesAdminPermissionMap
     public function getBuildingId()
     {
         return $this->buildingId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param array $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
     }
 }
