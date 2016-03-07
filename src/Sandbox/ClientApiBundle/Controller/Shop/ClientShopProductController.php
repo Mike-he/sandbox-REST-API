@@ -60,6 +60,7 @@ class ClientShopProductController extends ShopProductController
     ) {
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+
         $products = $this->getRepo('Shop\ShopProduct')->getShopProductsByMenu(
             $id,
             $limit,
@@ -69,6 +70,37 @@ class ClientShopProductController extends ShopProductController
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['product_view']));
         $view->setData($products);
+
+        return $view;
+    }
+
+    /**
+     * @param Request $request
+     * @param int     $shopId
+     * @param int     $menuId
+     * @param int     $id
+     *
+     *
+     * @Method({"GET"})
+     * @Route("/shops/{shopId}/menus/{menuId}/products/{id}")
+     *
+     * @return View
+     */
+    public function getShopProductByIdAction(
+        Request $request,
+        $shopId,
+        $menuId,
+        $id
+    ) {
+        $product = $this->getRepo('Shop\ShopProduct')->getShopProductByShopId(
+            $shopId,
+            $id,
+            true
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['product_view']));
+        $view->setData($product);
 
         return $view;
     }

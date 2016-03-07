@@ -54,7 +54,9 @@ class ShopProductRepository extends EntityRepository
 
         if ($online) {
             $query = $query->andWhere('p.online = :online')
-                ->setParameter('online', true);
+                ->andWhere('s.online = :onlineStatus')
+                ->setParameter('online', true)
+                ->setParameter('onlineStatus', true);
         }
 
         $query = $query->getQuery();
@@ -78,6 +80,7 @@ class ShopProductRepository extends EntityRepository
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = m.shopId')
             ->where('p.invisible = :invisible')
             ->andWhere('s.id = :shopId')
+            ->orderBy('p.sortTime', 'DESC')
             ->setParameter('invisible', false)
             ->setParameter('shopId', $shopId);
 

@@ -22,6 +22,7 @@ class ShopOrderRepository extends EntityRepository
      */
     public function getAdminShopOrders(
         $shopId,
+        $status,
         $start,
         $end,
         $search
@@ -29,28 +30,35 @@ class ShopOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->where('o.status != :unpaid')
             ->andWhere('o.status != :cancelled')
+            ->andWhere('o.unoriginal = :unoriginal')
+            ->setParameter('unoriginal', false)
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
             ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED);
 
-        if (!is_null($shopId)) {
+        if (!is_null($shopId) && !empty($shopId)) {
             $query = $query->andWhere('o.shopId = :shopId')
                 ->setParameter('shopId', $shopId);
         }
 
-        if (!is_null($start)) {
+        if (!is_null($status) && !empty($status)) {
+            $query = $query->andWhere('o.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($start) && !empty($start)) {
             $start = new \DateTime($start);
             $query = $query->andWhere('o.paymentDate >= :start')
                 ->setParameter('start', $start);
         }
 
-        if (!is_null($end)) {
+        if (!is_null($end) && !empty($end)) {
             $end = new \DateTime($end);
             $query = $query->andWhere('o.paymentDate <= :end')
                 ->setParameter('end', $end);
         }
 
         // Search products by product Id or product name.
-        if (!is_null($search)) {
+        if (!is_null($search) && !empty($search)) {
             $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
                 ->andWhere('o.orderNumber LIKE :search OR u.name LIKE :search')
                 ->setParameter('search', "%$search%");
@@ -71,8 +79,10 @@ class ShopOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->where('o.status = :unpaid')
             ->andWhere('o.creationDate <= :start')
+            ->andWhere('o.unoriginal = :unoriginal')
             ->setParameter('start', $start)
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
+            ->setParameter('unoriginal', false)
             ->getQuery();
 
         return $query->getResult();

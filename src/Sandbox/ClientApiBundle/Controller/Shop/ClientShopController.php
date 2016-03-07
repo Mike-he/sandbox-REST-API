@@ -47,6 +47,7 @@ class ClientShopController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         $buildingId = $paramFetcher->get('building');
+
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(
             $buildingId,
             true,

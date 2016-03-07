@@ -147,12 +147,43 @@ class ShopOrder
     private $shopOrderProducts;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="unoriginal", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $unoriginal = false;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="linkedOrderId", type="integer", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     * @Serializer\Groups({"main"})
      */
     private $linkedOrderId;
+
+    /**
+     * @var ShopOrder
+     *
+     * @ORM\ManyToOne(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Shop\ShopOrder"
+     * )
+     * @ORM\JoinColumn(name="linkedOrderId", referencedColumnName="id")
+     * @Serializer\Groups({"main"})
+     */
+    private $linkedOrder;
+
+    /**
+     * @var array
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Shop\ShopOrder",
+     *      mappedBy="linkedOrder"
+     * )
+     * @ORM\JoinColumn(name="linkedOrderId", referencedColumnName="id")
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $linkedOrders;
 
     /**
      * @var array
@@ -482,6 +513,30 @@ class ShopOrder
     }
 
     /**
+     * Set unoriginal.
+     *
+     * @param bool $unoriginal
+     *
+     * @return ShopOrder
+     */
+    public function setUnoriginal($unoriginal)
+    {
+        $this->unoriginal = $unoriginal;
+
+        return $this;
+    }
+
+    /**
+     * Get unoriginal.
+     *
+     * @return bool
+     */
+    public function IsUnoriginal()
+    {
+        return $this->unoriginal;
+    }
+
+    /**
      * Set linkedOrderId.
      *
      * @param int $linkedOrderId
@@ -503,6 +558,54 @@ class ShopOrder
     public function getLinkedOrderId()
     {
         return $this->linkedOrderId;
+    }
+
+    /**
+     * Set linkedOrder.
+     *
+     * @param ShopOrder $linkedOrder
+     *
+     * @return ShopOrder
+     */
+    public function setLinkedOrder($linkedOrder)
+    {
+        $this->linkedOrder = $linkedOrder;
+
+        return $this;
+    }
+
+    /**
+     * Get linkedOrder.
+     *
+     * @return ShopOrder
+     */
+    public function getLinkedOrder()
+    {
+        return $this->linkedOrder;
+    }
+
+    /**
+     * Set linkedOrders.
+     *
+     * @param array $linkedOrders
+     *
+     * @return ShopOrder
+     */
+    public function setLinkedOrders($linkedOrders)
+    {
+        $this->linkedOrders = $linkedOrders;
+
+        return $this;
+    }
+
+    /**
+     * Get linkedOrders.
+     *
+     * @return array
+     */
+    public function getLinkedOrders()
+    {
+        return $this->linkedOrders;
     }
 
     public function __construct()

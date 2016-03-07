@@ -122,6 +122,7 @@ class AdminShopController extends ShopController
         $type = null;
         $contentJson = $request->getContent();
         $content = json_decode($contentJson, true)[0];
+
         switch ($content['path']) {
             case Shop::PATH_ACTIVE:
                 //TODO: Check Sandbox Admin Perminsion
@@ -305,6 +306,7 @@ class AdminShopController extends ShopController
         $this->findConflictShop($shop);
 
         $em = $this->getDoctrine()->getManager();
+
         $shopAttachments = $shop->getAttachments();
         $startString = $shop->getStart();
         $endString = $shop->getEnd();
@@ -354,6 +356,7 @@ class AdminShopController extends ShopController
         ];
 
         $spec = new ShopSpec();
+
         $form = $this->createForm(new ShopSpecPostType(), $spec);
         $form->submit($content, true);
 
@@ -364,6 +367,7 @@ class AdminShopController extends ShopController
         $this->createAutoSpecItem($spec, $em);
         $spec->setShop($shop);
         $spec->setAuto(true);
+
         $em->persist($spec);
     }
 
@@ -376,6 +380,7 @@ class AdminShopController extends ShopController
         $em
     ) {
         $specItem = new ShopSpecItem();
+
         $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
         $form->submit($spec->getItems(), true);
 
@@ -384,6 +389,7 @@ class AdminShopController extends ShopController
         }
 
         $specItem->setSpec($spec);
+
         $em->persist($specItem);
     }
 
@@ -402,6 +408,7 @@ class AdminShopController extends ShopController
         }
 
         $em = $this->getDoctrine()->getManager();
+
         $shopAttachments = $shop->getAttachments();
         $startString = $shop->getStart();
         $endString = $shop->getEnd();
@@ -427,6 +434,7 @@ class AdminShopController extends ShopController
         );
 
         $shop->setModificationDate(new \DateTime());
+
         $em->flush();
 
         return new View();
@@ -437,6 +445,7 @@ class AdminShopController extends ShopController
         $em
     ) {
         $shopAttachments = $this->getRepo('Shop\ShopAttachment')->findByShop($shop);
+
         if (is_null($shopAttachments) || empty($shopAttachments)) {
             return;
         }
@@ -494,10 +503,12 @@ class AdminShopController extends ShopController
 
         foreach ($shopAttachments as $attachment) {
             $shopAttachment = new ShopAttachment();
+
             $form = $this->createForm(new ShopAttachmentPostType(), $shopAttachment);
             $form->submit($attachment, true);
 
             $shopAttachment->setShop($shop);
+
             $em->persist($shopAttachment);
         }
     }
@@ -520,6 +531,7 @@ class AdminShopController extends ShopController
         if (!$shop->isActive()) {
             $shop->setOnline(false);
         }
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
     }
