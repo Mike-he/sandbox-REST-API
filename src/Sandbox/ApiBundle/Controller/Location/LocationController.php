@@ -50,6 +50,7 @@ class LocationController extends SalesRestController
 
         return new View($citiesArray);
     }
+    
     /**
      * @Get("/sales/cities")
      *
