@@ -52,6 +52,13 @@ class LocationController extends SalesRestController
      *    description="op level"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="all",
+     *    default=null,
+     *    nullable=true,
+     *    description="tag of all"
+     * )
+     *
      * @return View
      */
     public function getCitiesAction(
@@ -60,10 +67,12 @@ class LocationController extends SalesRestController
     ) {
         $user = $this->getUser();
 
+        $all = $paramFetcher->get('all');
+
         // get all cities
         $cities = $this->getRepo('Room\RoomCity')->findAll();
 
-        if (!is_null($user)) {
+        if (!is_null($user) && is_null($all)) {
             if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
                 // get my building ids
                 $myBuildingIds = $this->generateLocationSalesBuildingIds(
