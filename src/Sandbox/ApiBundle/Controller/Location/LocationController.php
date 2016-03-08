@@ -54,7 +54,7 @@ class LocationController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="all",
-     *    default=null,
+     *    default=false,
      *    nullable=true,
      *    description="tag of all"
      * )
@@ -72,7 +72,7 @@ class LocationController extends SalesRestController
         // get all cities
         $cities = $this->getRepo('Room\RoomCity')->findAll();
 
-        if (!is_null($user) && is_null($all)) {
+        if (!is_null($user) && !$all) {
             if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
                 // get my building ids
                 $myBuildingIds = $this->generateLocationSalesBuildingIds(
