@@ -35,6 +35,8 @@ class ShopOrder
     const NOT_ISSUE_MESSAGE = 'No issue with this order';
     const NOT_TO_BE_REFUNDED_CODE = 400007;
     const NOT_TO_BE_REFUNDED_MESSAGE = 'Can not refund this order';
+    const WRONG_STATUS_CODE = 400008;
+    const WRONG_STATUS_MESSAGE = 'Can not update order to this status';
 
     /**
      * @var int
@@ -158,7 +160,7 @@ class ShopOrder
      * @var int
      *
      * @ORM\Column(name="linkedOrderId", type="integer", nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
      */
     private $linkedOrderId;
 
