@@ -41,7 +41,7 @@ class ShopOrderRepository extends EntityRepository
         }
 
         if (!is_null($status) && !empty($status)) {
-            $query = $query->andWhere('o.status = :status')
+            $query = $query->andWhere('o.status IN (:status)')
                 ->setParameter('status', $status);
         }
 

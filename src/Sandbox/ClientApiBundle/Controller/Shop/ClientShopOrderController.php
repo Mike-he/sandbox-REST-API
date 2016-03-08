@@ -87,7 +87,6 @@ class ClientShopOrderController extends ShopRestController
 
     /**
      * @param Request $request
-     * @param int     $shopId
      * @param int     $id
      *
      * @Method({"GET"})
@@ -99,7 +98,6 @@ class ClientShopOrderController extends ShopRestController
      */
     public function getShopOrderByIdAction(
         Request $request,
-        $shopId,
         $id
     ) {
         $userId = $this->getUserId();

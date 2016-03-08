@@ -68,10 +68,10 @@ class AdminShopOrderController extends ShopController
      *
      * @Annotations\QueryParam(
      *    name="status",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
-     *    requirements="{ready|completed|issue|waiting|refunded}",
+     *    requirements="{|paid|ready|completed|issue|waiting|refunded|}",
      *    strict=true,
      *    description="Filter by status"
      * )
@@ -174,7 +174,7 @@ class AdminShopOrderController extends ShopController
      * @param $id
      *
      * @Method({"PATCH"})
-     * @Route("/orders/{id}/status")
+     * @Route("/orders/{id}")
      *
      * @return View
      */
@@ -259,7 +259,15 @@ class AdminShopOrderController extends ShopController
                     );
                 }
 
-                //TODO: Refund
+                $this->refundAdminShopOrder($order);
+
+                break;
+            default:
+                return $this->customErrorView(
+                    400,
+                    ShopOrder::WRONG_STATUS_CODE,
+                    ShopOrder::WRONG_STATUS_MESSAGE
+                );
 
                 break;
         }
@@ -339,5 +347,38 @@ class AdminShopOrderController extends ShopController
         $em->flush();
 
         return new View(['id' => $order->getId()]);
+    }
+
+    /**
+     * @param $oldOrder
+     */
+    private function refundAdminShopOrder(
+        $oldOrder
+    ) {
+        $userId = $oldOrder->getUserId();
+        $oldPrice = $oldOrder->getPrice();
+        $newOrderId = $oldOrder->getLinkedOrderId();
+
+        if (is_null($newOrderId)) {
+            $refund = $oldPrice;
+        } else {
+            $newOrder = $this->findEntityById($newOrderId, 'Shop\ShopOrder');
+            $newPrice = $newOrder->getPrice();
+
+            if ($oldPrice <= $newPrice) {
+                return;
+            } else {
+                $refund = $oldPrice - $newPrice;
+            }
+        }
+
+        $balance = $this->postBalanceChange(
+            $userId,
+            $refund,
+            $oldOrder->getOrderNumber(),
+            self::PAYMENT_CHANNEL_ACCOUNT,
+            0,
+            self::ORDER_REFUND
+        );
     }
 }
