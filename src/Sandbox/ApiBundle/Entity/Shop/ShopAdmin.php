@@ -1,24 +1,25 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Admin;
+namespace Sandbox\ApiBundle\Entity\Shop;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
 /**
  * Admin.
  *
  * @ORM\Table(
- *      name="Admin",
+ *      name="ShopAdmin",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"})
  *      }
  * )
  * @ORM\Entity
  */
-class Admin implements UserInterface
+class ShopAdmin implements UserInterface
 {
     /**
      * @var int
@@ -79,7 +80,7 @@ class Admin implements UserInterface
     private $modificationDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="AdminType")
+     * @ORM\ManyToOne(targetEntity="ShopAdminType")
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id")
      * @Serializer\Groups({"main", "login", "admin", "auth"})
      **/
@@ -89,7 +90,7 @@ class Admin implements UserInterface
      * @var array
      *
      * @ORM\OneToMany(
-     *      targetEntity="AdminPermissionMap",
+     *      targetEntity="ShopAdminPermissionMap",
      *      mappedBy="admin"
      * )
      * @Serializer\Groups({"main", "login", "admin", "auth"})
@@ -100,6 +101,79 @@ class Admin implements UserInterface
      * @var array
      */
     private $permissionIds;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="companyId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $companyId;
+
+    /**
+     * @var SalesCompany
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $salesCompany;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="defaultPasswordChanged", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     */
+    private $defaultPasswordChanged = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="banned", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     */
+    private $banned = false;
+
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $buildingCounts;
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+    }
+
+    /**
+     * @return SalesCompany
+     */
+    public function getSalesCompany()
+    {
+        return $this->salesCompany;
+    }
+
+    /**
+     * @param SalesCompany $salesCompany
+     */
+    public function setSalesCompany($salesCompany)
+    {
+        $this->salesCompany = $salesCompany;
+    }
 
     /**
      * Get id.
@@ -126,7 +200,7 @@ class Admin implements UserInterface
      *
      * @param string $username
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setUsername($username)
     {
@@ -148,7 +222,7 @@ class Admin implements UserInterface
      *
      * @param string $password
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setPassword($password)
     {
@@ -170,7 +244,7 @@ class Admin implements UserInterface
      *
      * @param string $name
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setName($name)
     {
@@ -192,11 +266,43 @@ class Admin implements UserInterface
      *
      * @param int $typeId
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setTypeId($typeId)
     {
         $this->typeId = $typeId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDefaultPasswordChanged()
+    {
+        return $this->defaultPasswordChanged;
+    }
+
+    /**
+     * @param bool $defaultPasswordChanged
+     */
+    public function setDefaultPasswordChanged($defaultPasswordChanged)
+    {
+        $this->defaultPasswordChanged = $defaultPasswordChanged;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBanned()
+    {
+        return $this->banned;
+    }
+
+    /**
+     * @param bool $banned
+     */
+    public function setBanned($banned)
+    {
+        $this->banned = $banned;
     }
 
     /**
@@ -214,7 +320,7 @@ class Admin implements UserInterface
      *
      * @param \DateTime $creationDate
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setCreationDate($creationDate)
     {
@@ -236,7 +342,7 @@ class Admin implements UserInterface
      *
      * @param \DateTime $modificationDate
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setModificationDate($modificationDate)
     {
@@ -246,7 +352,7 @@ class Admin implements UserInterface
     /**
      * Get type.
      *
-     * @return AdminType
+     * @return ShopAdmin
      */
     public function getType()
     {
@@ -256,9 +362,9 @@ class Admin implements UserInterface
     /**
      * Set type.
      *
-     * @param AdminType $type
+     * @param ShopAdminType $type
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setType($type)
     {
@@ -280,7 +386,7 @@ class Admin implements UserInterface
      *
      * @param array $permissions
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setPermissions($permissions)
     {
@@ -298,11 +404,27 @@ class Admin implements UserInterface
     /**
      * @param array $permissionIds
      *
-     * @return Admin
+     * @return ShopAdmin
      */
     public function setPermissionIds($permissionIds)
     {
         $this->permissionIds = $permissionIds;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBuildingCounts()
+    {
+        return $this->buildingCounts;
+    }
+
+    /**
+     * @param int $buildingCounts
+     */
+    public function setBuildingCounts($buildingCounts)
+    {
+        $this->buildingCounts = $buildingCounts;
     }
 
     /**
@@ -323,7 +445,7 @@ class Admin implements UserInterface
      */
     public function getRoles()
     {
-        return array('ROLE_ADMIN');
+        return array('ROLE_SHOP_ADMIN');
     }
 
     /**

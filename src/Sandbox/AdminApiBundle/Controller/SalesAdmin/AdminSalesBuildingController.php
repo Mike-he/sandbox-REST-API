@@ -371,7 +371,7 @@ class AdminSalesBuildingController extends LocationController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_SALES_ADMIN,
+            AdminPermission::KEY_PLATFORM_SALES,
             $opLevel
         );
     }

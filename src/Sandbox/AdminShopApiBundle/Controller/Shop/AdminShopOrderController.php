@@ -3,6 +3,9 @@
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderPatchType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
@@ -48,6 +51,15 @@ class AdminShopOrderController extends ShopController
         $id
     ) {
         $order = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderById($id);
+
+        // check user permission
+        $this->checkAdminOrderPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+            ),
+            $order->getShopId()
+        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
@@ -192,6 +204,22 @@ class AdminShopOrderController extends ShopController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminOrderPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+            )
+        );
+
+        // get my shop ids
+        $myShopIds = $this->getMyShopIds(
+            $this->getAdminId(),
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+            )
+        );
+
         $shopId = $paramFetcher->get('shop');
         $status = $paramFetcher->get('status');
         $start = $paramFetcher->get('start');
@@ -200,6 +228,10 @@ class AdminShopOrderController extends ShopController
         $search = $paramFetcher->get('search');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+
+        if (!is_null($shopId) && !in_array((int) $shopId, $myShopIds)) {
+            return new View();
+        }
 
         $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrders(
             $shopId,
@@ -242,8 +274,17 @@ class AdminShopOrderController extends ShopController
         Request $request,
         $id
     ) {
-        //TODO: Check Coffee Admin Permission
         $order = $this->findEntityById($id, 'Shop\ShopOrder');
+
+        // check user permission
+        $this->checkAdminOrderPermission(
+            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+            ),
+            $order->getShopId()
+        );
+
         $oldStatus = $order->getStatus();
 
         // bind data
@@ -379,6 +420,15 @@ class AdminShopOrderController extends ShopController
         );
         $this->throwNotFoundIfNull($oldOrder, self::NOT_FOUND_MESSAGE);
 
+        // check user permission
+        $this->checkAdminOrderPermission(
+            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+            ),
+            $oldOrder->getShopId()
+        );
+
         $shop = $oldOrder->getShop();
         $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
 
@@ -454,6 +504,25 @@ class AdminShopOrderController extends ShopController
             self::PAYMENT_CHANNEL_ACCOUNT,
             0,
             self::ORDER_REFUND
+        );
+    }
+
+    /**
+     * @param $opLevel
+     * @param $permissions
+     * @param $shopId
+     */
+    private function checkAdminOrderPermission(
+        $opLevel,
+        $permissions,
+        $shopId = null
+    ) {
+        $this->throwAccessDeniedIfShopAdminNotAllowed(
+            $this->getAdminId(),
+            ShopAdminType::KEY_PLATFORM,
+            $permissions,
+            $opLevel,
+            $shopId
         );
     }
 }

@@ -35,7 +35,7 @@ class Shop implements JsonSerializable
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "drop_down", "admin_shop", "client_order"})
+     * @Serializer\Groups({"main", "drop_down", "admin_shop", "client_order", "admin"})
      */
     private $id;
 
@@ -52,7 +52,7 @@ class Shop implements JsonSerializable
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     * @Serializer\Groups({"main", "admin_shop", "client_order", "admin"})
      */
     private $building;
 
@@ -60,7 +60,7 @@ class Shop implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "drop_down", "admin_shop", "client_order"})
+     * @Serializer\Groups({"main", "drop_down", "admin_shop", "client_order", "admin"})
      */
     private $name;
 

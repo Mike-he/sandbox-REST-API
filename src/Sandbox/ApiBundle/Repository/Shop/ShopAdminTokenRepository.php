@@ -1,23 +1,23 @@
 <?php
 
-namespace Sandbox\ApiBundle\Repository\SalesAdmin;
+namespace Sandbox\ApiBundle\Repository\Shop;
 
 use Doctrine\ORM\EntityRepository;
 
-class SalesAdminTokenRepository extends EntityRepository
+class ShopAdminTokenRepository extends EntityRepository
 {
     /**
      * @param int $adminId
      * @param int $clientId
      */
-    public function deleteSalesAdminToken(
+    public function deleteShopAdminToken(
         $adminId,
         $clientId
     ) {
         $query = $this->getEntityManager()
             ->createQuery(
                 '
-                    DELETE FROM SandboxApiBundle:SalesAdmin\SalesAdminToken at
+                    DELETE FROM SandboxApiBundle:Shop\ShopAdminToken at
                     WHERE at.adminId = :adminId
                     AND at.clientId = :clientId
                 '

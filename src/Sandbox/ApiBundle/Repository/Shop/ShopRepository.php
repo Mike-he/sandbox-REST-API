@@ -14,14 +14,17 @@ class ShopRepository extends EntityRepository
 {
     /**
      * @param $buildingId
-     * @param bool|true $allowed
+     * @param bool|true $active
+     * @param bool|true $online
+     * @param array     $shopIds
      *
      * @return array
      */
     public function getShopByBuilding(
         $buildingId,
         $active = false,
-        $online = false
+        $online = false,
+        $shopIds = null
     ) {
         $query = $this->createQueryBuilder('s')
             ->where('s.buildingId = :buildingId')
@@ -38,6 +41,12 @@ class ShopRepository extends EntityRepository
         if ($online) {
             $query = $query->andWhere('s.online = :online')
                 ->setParameter('online', true);
+        }
+
+        // filter by shop ids
+        if (!is_null($shopIds)) {
+            $query->andWhere('s.id IN (:shopIds)');
+            $query->setParameter('shopIds', $shopIds);
         }
 
         return $query->getQuery()->getResult();
@@ -103,6 +112,23 @@ class ShopRepository extends EntityRepository
             $query = $query->andWhere('s.active = :active')
                 ->setParameter('active', true);
         }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $buildingId
+     *
+     * @return array
+     */
+    public function getMyShopByBuilding(
+        $buildingId
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->select('s.id as shopId')
+            ->where('s.buildingId = :buildingId')
+            ->orderBy('s.creationDate', 'ASC')
+            ->setParameter('buildingId', $buildingId);
 
         return $query->getQuery()->getResult();
     }

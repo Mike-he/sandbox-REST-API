@@ -1,38 +1,23 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Admin;
+namespace Sandbox\ApiBundle\Entity\Shop;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * AdminPermission.
+ * AdminType.
  *
  * @ORM\Table(
- *      name="AdminPermission",
- *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})},
- *      indexes={@ORM\Index(name="fk_AdminPermission_typeId_idx", columns={"typeId"})}
+ *      name="ShopAdminType",
+ *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})}
  * )
  * @ORM\Entity
  */
-class AdminPermission
+class ShopAdminType
 {
-    const KEY_PLATFORM_ORDER = 'platform.order';
-    const KEY_PLATFORM_USER = 'platform.user';
-    const KEY_PLATFORM_ROOM = 'platform.room';
-    const KEY_PLATFORM_PRODUCT = 'platform.product';
-    const KEY_PLATFORM_PRICE = 'platform.price';
-    const KEY_PLATFORM_ACCESS = 'platform.access';
-    const KEY_PLATFORM_ADMIN = 'platform.admin';
-    const KEY_PLATFORM_ANNOUNCEMENT = 'platform.announcement';
-    const KEY_PLATFORM_DASHBOARD = 'platform.dashboard';
-    const KEY_PLATFORM_EVENT = 'platform.event';
-    const KEY_PLATFORM_BANNER = 'platform.banner';
-    const KEY_PLATFORM_NEWS = 'platform.news';
-    const KEY_PLATFORM_MESSAGE = 'platform.message';
-    const KEY_PLATFORM_BUILDING = 'platform.building';
-    const KEY_PLATFORM_VERIFY = 'platform.verify';
-    const KEY_PLATFORM_SALES = 'platform.sales';
+    const KEY_SUPER = 'super';
+    const KEY_PLATFORM = 'platform';
 
     /**
      * @var int
@@ -47,7 +32,7 @@ class AdminPermission
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=32, nullable=false)
+     * @ORM\Column(name="key", type="string", length=32, nullable=true)
      * @Serializer\Groups({"main", "login", "admin", "auth"})
      */
     private $key;
@@ -61,26 +46,9 @@ class AdminPermission
     private $name;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="typeId", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
-     */
-    private $typeId;
-
-    /**
-     * @var AdminType
-     *
-     * @ORM\ManyToOne(targetEntity="AdminType")
-     * @ORM\JoinColumn(name="typeId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main"})
-     **/
-    private $type;
-
-    /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @ORM\Column(name="creationDate", type="datetime", length=15, nullable=false)
      * @Serializer\Groups({"main"})
      */
     private $creationDate;
@@ -108,7 +76,7 @@ class AdminPermission
      *
      * @param string $key
      *
-     * @return AdminPermission
+     * @return ShopAdminType
      */
     public function setKey($key)
     {
@@ -132,7 +100,7 @@ class AdminPermission
      *
      * @param string $name
      *
-     * @return AdminPermission
+     * @return ShopAdminType
      */
     public function setName($name)
     {
@@ -152,35 +120,11 @@ class AdminPermission
     }
 
     /**
-     * Set typeId.
-     *
-     * @param int $typeId
-     *
-     * @return AdminPermission
-     */
-    public function setTypeId($typeId)
-    {
-        $this->typeId = $typeId;
-
-        return $this;
-    }
-
-    /**
-     * Get typeId.
-     *
-     * @return int
-     */
-    public function getTypeId()
-    {
-        return $this->typeId;
-    }
-
-    /**
      * Set creationDate.
      *
      * @param \DateTime $creationDate
      *
-     * @return AdminPermission
+     * @return ShopAdminType
      */
     public function setCreationDate($creationDate)
     {
@@ -204,7 +148,7 @@ class AdminPermission
      *
      * @param \DateTime $modificationDate
      *
-     * @return AdminPermission
+     * @return ShopAdminType
      */
     public function setModificationDate($modificationDate)
     {
@@ -221,15 +165,5 @@ class AdminPermission
     public function getModificationDate()
     {
         return $this->modificationDate;
-    }
-
-    /**
-     * Get type.
-     *
-     * @return AdminType
-     */
-    public function getType()
-    {
-        return $this->type;
     }
 }

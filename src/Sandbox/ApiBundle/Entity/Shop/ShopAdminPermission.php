@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Admin;
+namespace Sandbox\ApiBundle\Entity\Shop;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
@@ -9,30 +9,22 @@ use JMS\Serializer\Annotation as Serializer;
  * AdminPermission.
  *
  * @ORM\Table(
- *      name="AdminPermission",
+ *      name="ShopAdminPermission",
  *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})},
  *      indexes={@ORM\Index(name="fk_AdminPermission_typeId_idx", columns={"typeId"})}
  * )
  * @ORM\Entity
  */
-class AdminPermission
+class ShopAdminPermission
 {
-    const KEY_PLATFORM_ORDER = 'platform.order';
-    const KEY_PLATFORM_USER = 'platform.user';
-    const KEY_PLATFORM_ROOM = 'platform.room';
-    const KEY_PLATFORM_PRODUCT = 'platform.product';
-    const KEY_PLATFORM_PRICE = 'platform.price';
-    const KEY_PLATFORM_ACCESS = 'platform.access';
-    const KEY_PLATFORM_ADMIN = 'platform.admin';
-    const KEY_PLATFORM_ANNOUNCEMENT = 'platform.announcement';
-    const KEY_PLATFORM_DASHBOARD = 'platform.dashboard';
-    const KEY_PLATFORM_EVENT = 'platform.event';
-    const KEY_PLATFORM_BANNER = 'platform.banner';
-    const KEY_PLATFORM_NEWS = 'platform.news';
-    const KEY_PLATFORM_MESSAGE = 'platform.message';
-    const KEY_PLATFORM_BUILDING = 'platform.building';
-    const KEY_PLATFORM_VERIFY = 'platform.verify';
-    const KEY_PLATFORM_SALES = 'platform.sales';
+    const KEY_PLATFORM_DASHBOARD = 'shop.platform.dashboard';
+    const KEY_PLATFORM_ADMIN = 'shop.platform.admin';
+    const KEY_PLATFORM_SHOP = 'shop.platform.shop';
+
+    const KEY_SHOP_SHOP = 'shop.shop.shop';
+    const KEY_SHOP_ORDER = 'shop.shop.order';
+    const KEY_SHOP_PRODUCT = 'shop.shop.product';
+    const KEY_SHOP_SPEC = 'shop.shop.spec';
 
     /**
      * @var int
@@ -69,9 +61,9 @@ class AdminPermission
     private $typeId;
 
     /**
-     * @var AdminType
+     * @var ShopAdminType
      *
-     * @ORM\ManyToOne(targetEntity="AdminType")
+     * @ORM\ManyToOne(targetEntity="ShopAdminType")
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main"})
      **/
@@ -108,7 +100,7 @@ class AdminPermission
      *
      * @param string $key
      *
-     * @return AdminPermission
+     * @return ShopAdminPermission
      */
     public function setKey($key)
     {
@@ -132,7 +124,7 @@ class AdminPermission
      *
      * @param string $name
      *
-     * @return AdminPermission
+     * @return ShopAdminPermission
      */
     public function setName($name)
     {
@@ -156,7 +148,7 @@ class AdminPermission
      *
      * @param int $typeId
      *
-     * @return AdminPermission
+     * @return ShopAdminPermission
      */
     public function setTypeId($typeId)
     {
@@ -180,7 +172,7 @@ class AdminPermission
      *
      * @param \DateTime $creationDate
      *
-     * @return AdminPermission
+     * @return ShopAdminPermission
      */
     public function setCreationDate($creationDate)
     {
@@ -204,7 +196,7 @@ class AdminPermission
      *
      * @param \DateTime $modificationDate
      *
-     * @return AdminPermission
+     * @return ShopAdminPermission
      */
     public function setModificationDate($modificationDate)
     {
@@ -226,7 +218,7 @@ class AdminPermission
     /**
      * Get type.
      *
-     * @return AdminType
+     * @return ShopAdminType
      */
     public function getType()
     {

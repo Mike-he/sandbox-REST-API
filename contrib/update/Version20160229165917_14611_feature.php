@@ -26,6 +26,15 @@ class Version20160229165917_14611_feature extends AbstractMigration
         $this->addSql('CREATE TABLE SalesAdminToken (id INT AUTO_INCREMENT NOT NULL, adminId INT NOT NULL, clientId INT NOT NULL, token VARCHAR(64) NOT NULL, creationDate DATETIME NOT NULL, INDEX IDX_5580B8DE2D696931 (adminId), INDEX IDX_5580B8DEEA1CE9BE (clientId), UNIQUE INDEX token_UNIQUE (token), UNIQUE INDEX adminId_clientId_UNIQUE (adminId, clientId), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE `SalesAdminType` (`id` int(11) NOT NULL AUTO_INCREMENT,`key` varchar(32) NOT NULL,`name` varchar(64) NOT NULL,`creationDate` datetime NOT NULL,`modificationDate` datetime NOT NULL,PRIMARY KEY (`id`),UNIQUE KEY `key_UNIQUE` (`key`))');
         $this->addSql("CREATE VIEW `SalesAdminApiAuthView` AS select `t`.`id` AS `id`,`t`.`token` AS `token`,`t`.`clientId` AS `clientId`,`a`.`id` AS `adminId`,`a`.`username` AS `username` from (`SalesAdminToken` `t` join `SalesAdmin` `a` on((`t`.`adminId` = `a`.`id`))) where (`t`.`creationDate` > (now() - interval 5 day))");
+        $this->addSql('ALTER TABLE SalesAdmin ADD CONSTRAINT FK_A620BC6C9BF49490 FOREIGN KEY (typeId) REFERENCES SalesAdminType (id)');
+        $this->addSql('ALTER TABLE SalesAdmin ADD CONSTRAINT FK_A620BC6C2480E723 FOREIGN KEY (companyId) REFERENCES SalesCompany (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE SalesAdminPermissionMap ADD CONSTRAINT FK_4771ECD5605405B0 FOREIGN KEY (permissionId) REFERENCES SalesAdminPermission (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE SalesAdminPermissionMap ADD CONSTRAINT FK_4771ECD52D696931 FOREIGN KEY (adminId) REFERENCES SalesAdmin (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE SalesAdminPermission ADD CONSTRAINT FK_1792C20F9BF49490 FOREIGN KEY (typeId) REFERENCES SalesAdminType (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE SalesAdminToken ADD CONSTRAINT FK_5580B8DE2D696931 FOREIGN KEY (adminId) REFERENCES SalesAdmin (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE SalesAdminToken ADD CONSTRAINT FK_5580B8DEEA1CE9BE FOREIGN KEY (clientId) REFERENCES SalesAdminClient (id) ON DELETE CASCADE');
+        $this->addSql("ALTER TABLE RoomBuilding ADD visible TINYINT(1) NOT NULL, ADD companyId INT NOT NULL, ADD status ENUM('pending', 'accept', 'refuse', 'banned') NOT NULL, ADD isDeleted TINYINT(1) NOT NULL");
+        $this->addSql('ALTER TABLE Product ADD isDeleted TINYINT(1) NOT NULL');
         $this->addSql('INSERT INTO SalesAdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES(\'super\',\'超级管理员\',\'2016-03-01 00:00:00\',\'2016-03-01 00:00:00\')');
         $this->addSql('INSERT INTO SalesAdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES(\'platform\',\'平台管理员\',\'2016-03-01 00:00:00\',\'2016-03-01 00:00:00\')');
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.platform.admin','管理员管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
@@ -37,15 +46,7 @@ class Version20160229165917_14611_feature extends AbstractMigration
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.room','空间管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.product','商品管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.access','门禁管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
-        $this->addSql('ALTER TABLE SalesAdmin ADD CONSTRAINT FK_A620BC6C9BF49490 FOREIGN KEY (typeId) REFERENCES SalesAdminType (id)');
-        $this->addSql('ALTER TABLE SalesAdmin ADD CONSTRAINT FK_A620BC6C2480E723 FOREIGN KEY (companyId) REFERENCES SalesCompany (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE SalesAdminPermissionMap ADD CONSTRAINT FK_4771ECD5605405B0 FOREIGN KEY (permissionId) REFERENCES SalesAdminPermission (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE SalesAdminPermissionMap ADD CONSTRAINT FK_4771ECD52D696931 FOREIGN KEY (adminId) REFERENCES SalesAdmin (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE SalesAdminPermission ADD CONSTRAINT FK_1792C20F9BF49490 FOREIGN KEY (typeId) REFERENCES SalesAdminType (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE SalesAdminToken ADD CONSTRAINT FK_5580B8DE2D696931 FOREIGN KEY (adminId) REFERENCES SalesAdmin (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE SalesAdminToken ADD CONSTRAINT FK_5580B8DEEA1CE9BE FOREIGN KEY (clientId) REFERENCES SalesAdminClient (id) ON DELETE CASCADE');
-        $this->addSql("ALTER TABLE RoomBuilding ADD visible TINYINT(1) NOT NULL, ADD companyId INT NOT NULL, ADD status ENUM('pending', 'accept', 'refuse', 'banned') NOT NULL, ADD isDeleted TINYINT(1) NOT NULL");
-        $this->addSql('ALTER TABLE Product ADD isDeleted TINYINT(1) NOT NULL');
+        $this->addSql("INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.sales','销售方管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
     }
 
     /**
