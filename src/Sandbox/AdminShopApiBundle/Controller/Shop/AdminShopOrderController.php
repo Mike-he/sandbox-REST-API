@@ -6,6 +6,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderPatchType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
+use Sandbox\ApiBundle\Traits\ShopNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -29,6 +30,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminShopOrderController extends ShopController
 {
+    use ShopNotification;
+
     /**
      * @param Request $request
      * @param int     $id
@@ -49,6 +52,52 @@ class AdminShopOrderController extends ShopController
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
         $view->setData($order);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="time",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="Filter by time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="Filter by shop"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/orders/new/sync")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getShopOrderCountByTimeAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $shopId = $paramFetcher->get('shop');
+        $time = $paramFetcher->get('time');
+
+        $shop = $this->findEntityById($shopId, 'Shop\Shop');
+
+        $count = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderCount($shopId, $time);
+
+        $view = new View();
+        $view->setData(['count' => (int) $count]);
 
         return $view;
     }
@@ -95,6 +144,15 @@ class AdminShopOrderController extends ShopController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="sort",
+     *    array=false,
+     *    default="DESC",
+     *    nullable=false,
+     *    strict=true,
+     *    description="sort direction"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="search",
      *    array=false,
      *    default=null,
@@ -110,7 +168,7 @@ class AdminShopOrderController extends ShopController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many products to return "
+     *    description="How many orders to return "
      * )
      *
      * @Annotations\QueryParam(
@@ -138,6 +196,7 @@ class AdminShopOrderController extends ShopController
         $status = $paramFetcher->get('status');
         $start = $paramFetcher->get('start');
         $end = $paramFetcher->get('end');
+        $sort = $paramFetcher->get('sort');
         $search = $paramFetcher->get('search');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -147,6 +206,7 @@ class AdminShopOrderController extends ShopController
             $status,
             $start,
             $end,
+            $sort,
             $search
         );
 
@@ -199,6 +259,9 @@ class AdminShopOrderController extends ShopController
 
         $em = $this->getDoctrine()->getManager();
 
+        $userId = $order->getUserId();
+        $user = $this->findEntityById($userId, 'User\User');
+
         switch ($status) {
             case ShopOrder::STATUS_READY:
                 if ($oldStatus !== ShopOrder::STATUS_PAID) {
@@ -208,6 +271,13 @@ class AdminShopOrderController extends ShopController
                         ShopOrder::NOT_PAID_MESSAGE
                     );
                 }
+
+                $this->sendXmppShopNotification(
+                    ShopOrder::STATUS_READY,
+                    $user,
+                    $order->getOrderNumber(),
+                    $order->getId()
+                );
 
                 break;
             case ShopOrder::STATUS_COMPLETED:
@@ -260,6 +330,13 @@ class AdminShopOrderController extends ShopController
                 }
 
                 $this->refundAdminShopOrder($order);
+
+                $this->sendXmppShopNotification(
+                    ShopOrder::STATUS_REFUNDED,
+                    $user,
+                    $order->getOrderNumber(),
+                    $order->getId()
+                );
 
                 break;
             default:
