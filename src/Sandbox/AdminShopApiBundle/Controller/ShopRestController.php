@@ -3,6 +3,8 @@
 namespace Sandbox\AdminShopApiBundle\Controller;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\Shop\Shop;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrderProduct;
@@ -12,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Shop\ShopProductSpecItem;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecItemType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductType;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
@@ -254,5 +257,139 @@ class ShopRestController extends PaymentController
         if (count($itemData) > 1) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+    }
+
+    //-------------------- check sales admin permission --------------------//
+
+    /**
+     * Check sales admin's permission, is allowed to operate.
+     *
+     * @param int          $adminId
+     * @param string       $typeKey
+     * @param string|array $permissionKeys
+     * @param int          $opLevel
+     * @param int          $shopId
+     *
+     * @throws AccessDeniedHttpException
+     */
+    protected function throwAccessDeniedIfShopAdminNotAllowed(
+        $adminId,
+        $typeKey,
+        $permissionKeys = null,
+        $opLevel = ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $shopId = null
+    ) {
+        $myPermission = null;
+
+        // get admin
+        $admin = $this->getRepo('Shop\ShopAdmin')->find($adminId);
+        $type = $admin->getType();
+
+        // first check if user is super admin, no need to check others
+        if (ShopAdminType::KEY_SUPER === $type->getKey()) {
+            return;
+        }
+
+        // if admin type doesn't match, then throw exception
+        if ($typeKey != $type->getKey()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        // check permission key array
+        if (is_null($permissionKeys) || empty($permissionKeys) || !is_array($permissionKeys)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        foreach ($permissionKeys as $permissionKey) {
+            $permission = $this->getRepo('Shop\ShopAdminPermission')->findOneByKey($permissionKey);
+            if (is_null($permission)) {
+                continue;
+            }
+
+            // judge by global permission and building permission
+            $filters = array(
+                'adminId' => $adminId,
+                'permissionId' => $permission->getId(),
+            );
+            if (!is_null($shopId)) {
+                $filters['shopId'] = $shopId;
+            }
+
+            // check user's permission
+            $myPermission = $this->getRepo('Shop\ShopAdminPermissionMap')
+                ->findOneBy($filters);
+            if (!is_null($myPermission) && $myPermission->getOpLevel() >= $opLevel) {
+                return;
+            }
+        }
+
+        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+    }
+
+    /**
+     * @param $adminId
+     * @param $permissionKeyArray
+     * @param $opLevel
+     *
+     * @return array
+     */
+    protected function getMyShopIds(
+        $adminId,
+        $permissionKeyArray,
+        $opLevel = ShopAdminPermissionMap::OP_LEVEL_VIEW
+    ) {
+        // get admin
+        $admin = $this->getRepo('Shop\ShopAdmin')->find($adminId);
+        $type = $admin->getType();
+
+        // get permission
+        if (empty($permissionKeyArray)) {
+            return array();
+        }
+
+        $permissions = array();
+        if (is_array($permissionKeyArray)) {
+            foreach ($permissionKeyArray as $key) {
+                $permission = $this->getRepo('Shop\ShopAdminPermission')->findOneByKey($key);
+
+                if (!is_null($permission)) {
+                    array_push($permissions, $permission->getId());
+                }
+            }
+        }
+
+        if (ShopAdminType::KEY_SUPER === $type->getKey()) {
+            // if user is super admin, get all buildings
+            $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($admin->getCompanyId());
+
+            $shopsArray = array();
+            foreach ($myBuildings as $building) {
+                if (is_null($building)) {
+                    continue;
+                }
+
+                $shops = $this->getRepo('Shop\Shop')->getMyShopByBuilding($building['id']);
+
+                $shopsArray = array_merge($shopsArray, $shops);
+            }
+        } else {
+            // platform admin get binding buildings
+            $shopsArray = $this->getRepo('Shop\ShopAdminPermissionMap')->getMyShops(
+                $adminId,
+                $permissions,
+                $opLevel
+            );
+        }
+
+        if (empty($shopsArray)) {
+            return $shopsArray;
+        }
+
+        $ids = array();
+        foreach ($shopsArray as $shop) {
+            array_push($ids, $shop['shopId']);
+        }
+
+        return $ids;
     }
 }

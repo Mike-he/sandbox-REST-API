@@ -3,6 +3,9 @@
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Sandbox\ApiBundle\Entity\Shop\Shop;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopSpec;
 use Sandbox\ApiBundle\Entity\Shop\ShopSpecItem;
 use Sandbox\ApiBundle\Form\Shop\ShopSpecPostType;
@@ -52,6 +55,15 @@ class AdminShopSpecController extends SpecController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminSpecPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_SPEC,
+            ),
+            $id
+        );
+
         $shop = $this->findEntityById($id, 'Shop\Shop');
         $specs = $this->getRepo('Shop\ShopSpec')->findBy(
             [
@@ -105,6 +117,16 @@ class AdminShopSpecController extends SpecController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // check user permission
+        $this->checkAdminSpecPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_SPEC,
+                ShopAdminPermission::KEY_SHOP_PRODUCT,
+            ),
+            $id
+        );
+
         $this->findEntityById($id, 'Shop\Shop');
         $specs = $this->getRepo('Shop\ShopSpec')->getSpecsByShop($id);
 
@@ -145,6 +167,15 @@ class AdminShopSpecController extends SpecController
         $shopId,
         $id
     ) {
+        // check user permission
+        $this->checkAdminSpecPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_SPEC,
+            ),
+            $shopId
+        );
+
         $this->findEntityById($shopId, 'Shop\Shop');
 
         $spec = $this->getRepo('Shop\ShopSpec')->findOneBy(
@@ -179,6 +210,15 @@ class AdminShopSpecController extends SpecController
         $shopId,
         $id
     ) {
+        // check user permission
+        $this->checkAdminSpecPermission(
+            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                ShopAdminPermission::KEY_SHOP_SPEC,
+            ),
+            $shopId
+        );
+
         $this->findEntityById($shopId, 'Shop\Shop');
 
         $spec = $this->findEntityById($id, 'Shop\ShopSpec');
@@ -206,6 +246,15 @@ class AdminShopSpecController extends SpecController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminSpecPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_SPEC,
+            ),
+            $id
+        );
+
         $shop = $this->findEntityById($id, 'Shop\Shop');
 
         if (!$shop->isActive()) {
@@ -248,6 +297,15 @@ class AdminShopSpecController extends SpecController
         $shopId,
         $id
     ) {
+        // check user permission
+        $this->checkAdminSpecPermission(
+            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                ShopAdminPermission::KEY_SHOP_SPEC,
+            ),
+            $shopId
+        );
+
         $this->findEntityById($shopId, 'Shop\Shop');
 
         $spec = $this->findEntityById($id, 'Shop\ShopSpec');
@@ -526,5 +584,24 @@ class AdminShopSpecController extends SpecController
         if (!is_null($sameItem)) {
             throw new ConflictHttpException(ShopSpecItem::SHOP_SPEC_ITEM_CONFLICT_MESSAGE);
         }
+    }
+
+    /**
+     * @param $opLevel
+     * @param $permissions
+     * @param $shopId
+     */
+    private function checkAdminSpecPermission(
+        $opLevel,
+        $permissions,
+        $shopId = null
+    ) {
+        $this->throwAccessDeniedIfShopAdminNotAllowed(
+            $this->getAdminId(),
+            ShopAdminType::KEY_PLATFORM,
+            $permissions,
+            $opLevel,
+            $shopId
+        );
     }
 }

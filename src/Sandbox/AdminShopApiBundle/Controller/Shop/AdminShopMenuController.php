@@ -3,6 +3,9 @@
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuPosition;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopMenu;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -47,6 +50,15 @@ class AdminShopMenuController extends ShopMenuController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminShopMenuPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_PRODUCT,
+            ),
+            $id
+        );
+
         $this->findEntityById($id, 'Shop\Shop');
 
         $menus = $this->getRepo('Shop\ShopMenu')->getShopMenuByShop($id);
@@ -83,6 +95,15 @@ class AdminShopMenuController extends ShopMenuController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminShopMenuPermission(
+            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                ShopAdminPermission::KEY_SHOP_PRODUCT,
+            ),
+            $id
+        );
+
         $shop = $this->findShopById($id);
         $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
 
@@ -143,6 +164,15 @@ class AdminShopMenuController extends ShopMenuController
         $id
     ) {
         $menu = $this->findShopMenuById($id);
+
+        // check user permission
+        $this->checkAdminShopMenuPermission(
+            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+            array(
+                ShopAdminPermission::KEY_SHOP_PRODUCT,
+            ),
+            $menu->getShopId()
+        );
 
         $position = new ShopMenuPosition();
 
@@ -333,5 +363,24 @@ class AdminShopMenuController extends ShopMenuController
         if (!is_null($sameMenu)) {
             throw new ConflictHttpException(ShopMenu::SHOP_MENU_CONFLICT_MESSAGE);
         }
+    }
+
+    /**
+     * @param $opLevel
+     * @param $permissions
+     * @param $shopId
+     */
+    private function checkAdminShopMenuPermission(
+        $opLevel,
+        $permissions,
+        $shopId = null
+    ) {
+        $this->throwAccessDeniedIfShopAdminNotAllowed(
+            $this->getAdminId(),
+            ShopAdminType::KEY_PLATFORM,
+            $permissions,
+            $opLevel,
+            $shopId
+        );
     }
 }

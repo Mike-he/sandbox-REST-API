@@ -109,7 +109,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_SALES_ADMIN,
+            AdminPermission::KEY_PLATFORM_SALES,
             AdminPermissionMap::OP_LEVEL_VIEW
         );
 
@@ -168,7 +168,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_SALES_ADMIN,
+            AdminPermission::KEY_PLATFORM_SALES,
             AdminPermissionMap::OP_LEVEL_VIEW
         );
 
@@ -210,7 +210,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_SALES_ADMIN,
+            AdminPermission::KEY_PLATFORM_SALES,
             AdminPermissionMap::OP_LEVEL_EDIT
         );
 
@@ -266,7 +266,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_SALES_ADMIN,
+            AdminPermission::KEY_PLATFORM_SALES,
             AdminPermissionMap::OP_LEVEL_EDIT
         );
 
@@ -324,24 +324,30 @@ class AdminSalesAdminsController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_SALES_ADMIN,
+            AdminPermission::KEY_PLATFORM_SALES,
             AdminPermissionMap::OP_LEVEL_USER_BANNED
         );
 
-        if ($banned) {
-            $this->handleSalesByCompany(
-                $companyId,
-                true,
-                false,
-                RoomBuilding::STATUS_BANNED
-            );
-        } else {
-            $this->handleSalesByCompany(
-                $companyId,
-                false,
-                true,
-                RoomBuilding::STATUS_ACCEPT
-            );
+        try {
+            if ($banned) {
+                $this->handleSalesAndShopsByCompany(
+                    $companyId,
+                    true,
+                    false,
+                    RoomBuilding::STATUS_BANNED,
+                    false
+                );
+            } else {
+                $this->handleSalesAndShopsByCompany(
+                    $companyId,
+                    false,
+                    true,
+                    RoomBuilding::STATUS_ACCEPT,
+                    true
+                );
+            }
+        } catch (\Exception $e) {
+            error_log('Banned Error');
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -361,7 +367,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $company
     ) {
         $em = $this->getDoctrine()->getManager();
-        if (!is_null($type_key)) {
+        if (!is_null($typeKey)) {
             $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
             $admin->setTypeId($type->getId());
         }
@@ -512,12 +518,14 @@ class AdminSalesAdminsController extends SandboxRestController
      * @param $platformAdminBanned
      * @param $buildingVisible
      * @param $buildingStatus
+     * @param $shopOnline
      */
-    private function handleSalesByCompany(
+    private function handleSalesAndShopsByCompany(
         $companyId,
         $platformAdminBanned,
         $buildingVisible,
-        $buildingStatus
+        $buildingStatus,
+        $shopOnline
     ) {
         // set banned sales admins that belong to this company
         $salesPlatformAdmins = $this->getRepo('SalesAdmin\SalesAdmin')->findByCompanyId($companyId);
@@ -527,19 +535,51 @@ class AdminSalesAdminsController extends SandboxRestController
             }
         }
 
+        // set banned shop admins that belong to this company
+        $shopPlatformAdmins = $this->getRepo('Shop\ShopAdmin')->findByCompanyId($companyId);
+        if (!empty($shopPlatformAdmins)) {
+            foreach ($shopPlatformAdmins as $platformAdmin) {
+                $platformAdmin->setBanned($platformAdminBanned);
+            }
+        }
+
         // set buildings visible and status
         $buildings = $this->getRepo('Room\RoomBuilding')->findByCompanyId($companyId);
 
-        if (!empty($buildings)) {
-            foreach ($buildings as $building) {
-                // set buildings
-                $building->setVisible($buildingVisible);
-                $building->setStatus($buildingStatus);
+        if (empty($buildings)) {
+            return;
+        }
+
+        foreach ($buildings as $building) {
+            // set buildings
+            $building->setVisible($buildingVisible);
+            $building->setStatus($buildingStatus);
+
+            // set products
+            if ($platformAdminBanned) {
+                $this->hideAllProductsByBuilding(
+                    $building
+                );
+            }
+
+            // set shops
+            $shops = $this->getRepo('Shop\Shop')->findByBuilding($building);
+
+            if (empty($shops)) {
+                continue;
+            }
+
+            foreach ($shops as $shop) {
+                if (is_null($shop)) {
+                    continue;
+                }
+
+                $shop->setOnline($shopOnline);
 
                 // set products
                 if ($platformAdminBanned) {
-                    $this->hideAllProductsByBuilding(
-                        $building
+                    $this->hideAllShopProductsByShop(
+                        $shop->getId()
                     );
                 }
             }
@@ -561,6 +601,23 @@ class AdminSalesAdminsController extends SandboxRestController
 
         foreach ($products as $product) {
             $product->setVisible(false);
+        }
+    }
+
+    /**
+     * @param $shopId
+     */
+    private function hideAllShopProductsByShop(
+        $shopId
+    ) {
+        $shopProducts = $this->getRepo('Shop\ShopProduct')->getShopProductsByShopId($shopId);
+
+        if (empty($shopProducts)) {
+            return;
+        }
+
+        foreach ($shopProducts as $product) {
+            $product->setOnline(false);
         }
     }
 }

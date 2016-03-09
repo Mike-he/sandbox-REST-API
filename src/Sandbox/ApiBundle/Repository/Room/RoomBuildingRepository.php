@@ -218,8 +218,6 @@ class RoomBuildingRepository extends EntityRepository
             ->select('COUNT (b.id)')
             ->where('b.companyId = :companyId')
             ->andWhere('b.isDeleted = FALSE')
-            ->andWhere('b.status = :accept')
-            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT)
             ->setParameter('companyId', $adminCompanyId);
 
         return $query->getQuery()->getSingleScalarResult();
