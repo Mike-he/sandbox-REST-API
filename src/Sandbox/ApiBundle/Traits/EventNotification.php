@@ -3,6 +3,8 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Symfony\Component\Security\Acl\Exception\Exception;
+use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Event Notification Trait.
@@ -56,7 +58,9 @@ trait EventNotification
         $event
     ) {
         // get globals
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         $domainURL = $globals['xmpp_domain'];
 
