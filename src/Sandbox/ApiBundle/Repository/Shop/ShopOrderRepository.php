@@ -25,12 +25,14 @@ class ShopOrderRepository extends EntityRepository
         $status,
         $start,
         $end,
+        $sort,
         $search
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.status != :unpaid')
             ->andWhere('o.status != :cancelled')
             ->andWhere('o.unoriginal = :unoriginal')
+            ->orderBy('o.modificationDate', $sort)
             ->setParameter('unoriginal', false)
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
             ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED);
@@ -108,5 +110,32 @@ class ShopOrderRepository extends EntityRepository
             ->getQuery();
 
         return $query->getOneOrNullResult();
+    }
+
+    /**
+     * @param $shopId
+     * @param $time
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getAdminShopOrderCount(
+        $shopId,
+        $time
+    ) {
+        $time = new \DateTime($time);
+
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o)')
+            ->where('o.status = :paid')
+            ->andWhere('o.shopId = :shopId')
+            ->andWhere('o.modificationDate >= :time')
+            ->setParameter('paid', ShopOrder::STATUS_PAID)
+            ->setParameter('time', $time)
+            ->setParameter('shopId', $shopId)
+            ->getQuery();
+
+        return $query->getSingleScalarResult();
     }
 }

@@ -24,6 +24,8 @@ class ShopOrder
     const LETTER_HEAD = 'S';
     const PAYMENT_SUBJECT = 'SANDBOX3-店铺订单';
     const PAYMENT_BODY = 'Shop Order';
+    const READY_NOTIFICATION = '您的订单已做好, 请到柜台领取';
+    const REFUNDED_NOTIFICATION = '您的订单已退款, 点击查看';
 
     const NOT_PAID_CODE = 400003;
     const NOT_PAID_MESSAGE = 'Order is not paid';
