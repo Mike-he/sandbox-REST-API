@@ -93,7 +93,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "building_nearby", "admin_building", "admin_shop"})
+     * @Serializer\Groups({"main", "building_nearby", "admin_building", "admin_shop", "client_order"})
      **/
     private $city;
 

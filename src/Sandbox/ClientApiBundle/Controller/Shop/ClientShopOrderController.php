@@ -178,12 +178,10 @@ class ClientShopOrderController extends ShopRestController
 
         $em->persist($order);
 
-        $calculatedPrice = 0;
         $calculatedPrice = $this->handleShopOrderProductPost(
             $em,
             $order,
-            $shop,
-            $calculatedPrice
+            $shop
         );
 
         if ($order->getPrice() != $calculatedPrice) {

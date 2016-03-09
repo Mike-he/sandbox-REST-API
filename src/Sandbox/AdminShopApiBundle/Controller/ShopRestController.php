@@ -39,15 +39,13 @@ class ShopRestController extends PaymentController
      * @param ShopOrder     $order
      * @param Shop          $shop
      * @param EntityManager $em
-     * @param float         $calculatedPrice
      *
      * @return int|void
      */
     protected function handleShopOrderProductPost(
         $em,
         $order,
-        $shop,
-        $calculatedPrice
+        $shop
     ) {
         $productData = $order->getProducts();
 
@@ -55,6 +53,7 @@ class ShopRestController extends PaymentController
             return;
         }
 
+        $calculatedPrice = 0;
         foreach ($productData as $data) {
             $product = new ShopOrderProduct();
 
@@ -82,8 +81,7 @@ class ShopRestController extends PaymentController
 
             $calculatedPrice += $this->handleShopOrderProductSpecPost(
                 $em,
-                $product,
-                $calculatedPrice
+                $product
             );
         }
 
@@ -93,14 +91,12 @@ class ShopRestController extends PaymentController
     /**
      * @param ShopOrderProduct $product
      * @param EntityManager    $em
-     * @param float            $calculatedPrice
      *
      * @return int|void
      */
     private function handleShopOrderProductSpecPost(
         $em,
-        $product,
-        $calculatedPrice
+        $product
     ) {
         $specData = $product->getSpecs();
 
@@ -110,6 +106,7 @@ class ShopRestController extends PaymentController
 
         $this->compareSpecs($product, $specData);
 
+        $calculatedPrice = 0;
         foreach ($specData as $data) {
             $spec = new ShopOrderProductSpec();
 
@@ -136,7 +133,7 @@ class ShopRestController extends PaymentController
 
             $em->persist($spec);
 
-            $calculatedPrice = $this->handleShopOrderProductSpecItemPost(
+            $calculatedPrice += $this->handleShopOrderProductSpecItemPost(
                 $em,
                 $spec
             );
