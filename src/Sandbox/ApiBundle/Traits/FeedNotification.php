@@ -3,6 +3,9 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Symfony\Component\Security\Acl\Exception\Exception;
+use Sandbox\ApiBundle\Entity\Feed\Feed;
+use Sandbox\ApiBundle\Entity\Feed\FeedComment;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Feed Notification Trait.
@@ -62,7 +65,9 @@ trait FeedNotification
         $comment = null
     ) {
         // get globals
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         $domainURL = $globals['xmpp_domain'];
 

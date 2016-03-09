@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Symfony\Component\Security\Acl\Exception\Exception;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Buddy Notification Trait.
@@ -52,7 +53,9 @@ trait BuddyNotification
         $recvUser
     ) {
         // get globals
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         $domainURL = $globals['xmpp_domain'];
 

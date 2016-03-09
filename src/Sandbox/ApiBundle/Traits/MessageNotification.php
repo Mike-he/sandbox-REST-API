@@ -26,7 +26,10 @@ trait MessageNotification
         $body
     ) {
         try {
-            $globals = $this->getGlobals();
+            $globals = $this->getContainer()
+                            ->get('twig')
+                            ->getGlobals();
+
             $domainURL = $globals['xmpp_domain'];
             $jid = User::XMPP_SERVICE.'@'.$domainURL;
 

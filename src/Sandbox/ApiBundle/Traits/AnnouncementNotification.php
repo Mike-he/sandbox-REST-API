@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Symfony\Component\Security\Acl\Exception\Exception;
+use Sandbox\ApiBundle\Entity\Announcement\Announcement;
 
 /**
  * Announcement Notification Trait.
