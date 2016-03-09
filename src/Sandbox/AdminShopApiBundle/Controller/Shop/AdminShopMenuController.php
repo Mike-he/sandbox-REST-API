@@ -142,7 +142,14 @@ class AdminShopMenuController extends ShopMenuController
         $shopId,
         $id
     ) {
-        $menu = $this->findShopMenuById($id);
+        $menu = $this->getRepo('Shop\ShopMenu')->findOneBy(
+            [
+                'shopId' => $shopId,
+                'id' => $id,
+                'invisible' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($menu, self::NOT_FOUND_MESSAGE);
 
         $position = new ShopMenuPosition();
 

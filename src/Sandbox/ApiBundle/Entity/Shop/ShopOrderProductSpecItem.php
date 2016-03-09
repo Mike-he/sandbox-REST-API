@@ -63,7 +63,7 @@ class ShopOrderProductSpecItem
     /**
      * @var int
      *
-     * @ORM\Column(name="amount", type="integer")
+     * @ORM\Column(name="amount", type="integer", nullable=true)
      * @Serializer\Groups({"main", "admin_shop", "client_order"})
      */
     private $amount;

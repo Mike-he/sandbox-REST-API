@@ -79,10 +79,12 @@ class ShopRestController extends PaymentController
 
             $em->persist($product);
 
-            $calculatedPrice += $this->handleShopOrderProductSpecPost(
+            $specPrice = $this->handleShopOrderProductSpecPost(
                 $em,
                 $product
             );
+
+            $calculatedPrice = $calculatedPrice + $specPrice;
         }
 
         return $calculatedPrice;
@@ -133,10 +135,12 @@ class ShopRestController extends PaymentController
 
             $em->persist($spec);
 
-            $calculatedPrice += $this->handleShopOrderProductSpecItemPost(
+            $specItemPrice = $this->handleShopOrderProductSpecItemPost(
                 $em,
                 $spec
             );
+
+            $calculatedPrice = $calculatedPrice + $specItemPrice;
         }
 
         return $calculatedPrice;
@@ -235,7 +239,8 @@ class ShopRestController extends PaymentController
                 continue;
             }
 
-            $calculatedPrice += $price * $item->getAmount();
+            $itemPrice = $price * $item->getAmount();
+            $calculatedPrice = $calculatedPrice + $itemPrice;
         }
 
         return $calculatedPrice;
