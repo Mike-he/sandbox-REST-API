@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Location;
 
+use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,16 +74,25 @@ class LocationController extends SalesRestController
         $cities = $this->getRepo('Room\RoomCity')->findAll();
 
         if (!is_null($user) && is_null($all)) {
+            // sales bundle
             if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
                 // get my building ids
                 $myBuildingIds = $this->generateLocationSalesBuildingIds(
                     $paramFetcher
                 );
 
-                $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCity($myBuildingIds);
+                $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByBuilding($myBuildingIds);
             }
 
-            // TODO shop permission
+            // shop bundle
+            if ($user->getRoles() == array(ShopAdminApiAuth::ROLE_SHOP_ADMIN_API)) {
+                // get my shops ids
+                $myShopIds = $this->generateLocationShopIds(
+                    $paramFetcher
+                );
+
+                $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByShop($myShopIds);
+            }
         }
 
         // generate cities array
@@ -134,6 +144,7 @@ class LocationController extends SalesRestController
         $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
 
         if (!is_null($user)) {
+            // sales bundle
             if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
                 // get my building ids
                 $myBuildingIds = $this->generateLocationSalesBuildingIds(
@@ -146,7 +157,15 @@ class LocationController extends SalesRestController
                 );
             }
 
-            // TODO shop permission
+            // shop bundle
+            if ($user->getRoles() == array(ShopAdminApiAuth::ROLE_SHOP_ADMIN_API)) {
+                // get my shops ids
+                $myShopIds = $this->generateLocationShopIds(
+                    $paramFetcher
+                );
+
+                $buildings = $this->getRepo('Room\RoomBuilding')->getLocationBuildingByShop($myShopIds);
+            }
         }
 
         $view = new View();
@@ -370,6 +389,30 @@ class LocationController extends SalesRestController
         }
 
         return $myBuildingIds = $this->getMySalesBuildingIds(
+            $adminId,
+            $permissionKeyArray,
+            $opLevel
+        );
+    }
+
+    /**
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return array
+     */
+    private function generateLocationShopIds(
+        $paramFetcher
+    ) {
+        $adminId = $this->getUser()->getAdminId();
+
+        $permissionKeyArray = $paramFetcher->get('permission');
+        $opLevel = $paramFetcher->get('op');
+
+        if (is_null($adminId) || is_null($permissionKeyArray) || empty($permissionKeyArray)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return $myBuildingIds = $this->getMyShopIds(
             $adminId,
             $permissionKeyArray,
             $opLevel

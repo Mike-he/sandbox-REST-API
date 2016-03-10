@@ -1,4 +1,4 @@
-CREATE VIEW `SalesAdminApiAuthView` AS
+CREATE VIEW `ShopAdminApiAuthView` AS
 SELECT
 	`t`.`id` AS `id`,
 	`t`.`token` AS `token`,
@@ -6,8 +6,8 @@ SELECT
 	`a`.`id` AS `adminId`,
 	`a`.`username` AS `username`
 FORM (
-	`SalesAdminToken` `t`
-  JOIN `SalesAdmin` `a`
+	`ShopAdminToken` `t`
+  JOIN `ShopAdmin` `a`
 	ON((`t`.`adminId` = `a`.`id`))
 	)
 WHERE (
