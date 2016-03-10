@@ -368,6 +368,22 @@ class LocationController extends SalesRestController
         $phones = $this->getRepo('Room\RoomBuildingPhones')->findByBuilding($building);
         $building->setPhones($phones);
 
+        // set shop counts
+        $shopCounts = $this->getRepo('Shop\Shop')->countsShopByBuilding($building);
+        $building->setShopCounts((int) $shopCounts);
+
+        // set room counts
+        $roomCounts = $this->getRepo('Room\Room')->countsRoomByBuilding($building);
+        $building->setRoomCounts((int) $roomCounts);
+
+        // set product counts
+        $productCounts = $this->getRepo('Product\Product')->countsProductByBuilding($building);
+        $building->setProductCounts((int) $productCounts);
+
+        // set order counts
+        $orderCounts = $this->getRepo('Order\ProductOrder')->countsOrderByBuilding($building);
+        $building->setOrderCounts((int) $orderCounts);
+
         return $building;
     }
 

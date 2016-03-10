@@ -1002,4 +1002,22 @@ class OrderRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $building
+     *
+     * @return mixed
+     */
+    public function countsOrderByBuilding(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o)')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('r.building = :building')
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

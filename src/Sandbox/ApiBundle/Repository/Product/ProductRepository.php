@@ -835,4 +835,22 @@ class ProductRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $building
+     *
+     * @return mixed
+     */
+    public function countsProductByBuilding(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('COUNT(p)')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('r.building = :building')
+            ->andWhere('p.isDeleted = FALSE')
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

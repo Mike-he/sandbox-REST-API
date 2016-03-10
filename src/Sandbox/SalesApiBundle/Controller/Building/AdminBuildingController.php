@@ -694,6 +694,12 @@ class AdminBuildingController extends LocationController
     ) {
         $now = new \DateTime('now');
 
+        // change building status into pending while refused
+        $status = $building->getStatus();
+        if ($status == RoomBuilding::STATUS_REFUSE) {
+            $building->setStatus(RoomBuilding::STATUS_PENDING);
+        }
+
         $building->setCity($roomCity);
         $building->setModificationDate($now);
 

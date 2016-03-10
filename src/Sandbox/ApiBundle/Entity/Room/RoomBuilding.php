@@ -304,6 +304,26 @@ class RoomBuilding implements JsonSerializable
     private $buildingCompany;
 
     /**
+     * @var int
+     */
+    private $shopCounts;
+
+    /**
+     * @var int
+     */
+    private $roomCounts;
+
+    /**
+     * @var int
+     */
+    private $productCounts;
+
+    /**
+     * @var int
+     */
+    private $orderCounts;
+
+    /**
      * Get id.
      *
      * @return int
@@ -821,6 +841,70 @@ class RoomBuilding implements JsonSerializable
     public function setIsDeleted($isDeleted)
     {
         $this->isDeleted = $isDeleted;
+    }
+
+    /**
+     * @return int
+     */
+    public function getShopCounts()
+    {
+        return $this->shopCounts;
+    }
+
+    /**
+     * @param int $shopCounts
+     */
+    public function setShopCounts($shopCounts)
+    {
+        $this->shopCounts = $shopCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRoomCounts()
+    {
+        return $this->roomCounts;
+    }
+
+    /**
+     * @param int $roomCounts
+     */
+    public function setRoomCounts($roomCounts)
+    {
+        $this->roomCounts = $roomCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getProductCounts()
+    {
+        return $this->productCounts;
+    }
+
+    /**
+     * @param int $productCounts
+     */
+    public function setProductCounts($productCounts)
+    {
+        $this->productCounts = $productCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOrderCounts()
+    {
+        return $this->orderCounts;
+    }
+
+    /**
+     * @param int $orderCounts
+     */
+    public function setOrderCounts($orderCounts)
+    {
+        $this->orderCounts = $orderCounts;
     }
 
     public function jsonSerialize()

@@ -132,4 +132,20 @@ class ShopRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $building
+     *
+     * @return mixed
+     */
+    public function countsShopByBuilding(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->select('COUNT(s)')
+            ->where('s.building = :building')
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
