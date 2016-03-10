@@ -41,6 +41,7 @@ class Shop implements JsonSerializable
      *     "admin_shop",
      *     "client_order",
      *     "admin",
+     *     "admin_building",
      *     "shop_nearby",
      *     "client_shop"
      * })
@@ -80,6 +81,7 @@ class Shop implements JsonSerializable
      *     "admin_shop",
      *     "client_order",
      *     "admin",
+     *     "admin_building",
      *     "shop_nearby",
      *     "client_shop"
      * })
@@ -90,7 +92,7 @@ class Shop implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop"})
      */
     private $description;
 
@@ -98,7 +100,7 @@ class Shop implements JsonSerializable
      * @var \DateTime
      *
      * @ORM\Column(name="startHour", type="time", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop"})
      */
     private $startHour;
 
@@ -106,7 +108,7 @@ class Shop implements JsonSerializable
      * @var \DateTime
      *
      * @ORM\Column(name="endHour", type="time", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop"})
      */
     private $endHour;
 
@@ -122,7 +124,7 @@ class Shop implements JsonSerializable
      * @var bool
      *
      * @ORM\Column(name="online", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building"})
      */
     private $online = false;
 
@@ -130,7 +132,7 @@ class Shop implements JsonSerializable
      * @var bool
      *
      * @ORM\Column(name="active", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building"})
      */
     private $active = false;
 
@@ -138,7 +140,7 @@ class Shop implements JsonSerializable
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
-     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop"})
      */
     private $creationDate;
 
@@ -146,7 +148,7 @@ class Shop implements JsonSerializable
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
-     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop"})
      */
     private $modificationDate;
 

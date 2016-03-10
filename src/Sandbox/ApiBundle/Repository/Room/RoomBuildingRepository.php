@@ -258,4 +258,29 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $myShopIds
+     *
+     * @return array
+     */
+    public function getLocationBuildingByShop(
+        $myShopIds
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->leftJoin('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.building = b.id')
+            ->andWhere('s.id IN (:shopIds)')
+            ->setParameter('shopIds', $myShopIds);
+
+        // filter by building delete
+        $query->andWhere('b.isDeleted = FALSE');
+        $query->andWhere('b.visible = TRUE');
+        $query->andWhere('b.status = :accept');
+        $query->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
+
+        // order by creation date
+        $query->orderBy('b.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }
