@@ -53,6 +53,7 @@ twig:
         server_order_id: "%server_order_id%"
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"
+        nearby_shop_range_km: "%nearby_shop_range_km%"
         expired_verification_time: "%expired_verification_time%"
         time_for_half_hour_early: "%time_for_half_hour_early%"
         sandbox_auth_key: "%sandbox_auth_key%"

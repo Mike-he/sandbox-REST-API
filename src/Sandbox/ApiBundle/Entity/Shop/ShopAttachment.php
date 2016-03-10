@@ -19,7 +19,7 @@ class ShopAttachment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
      */
     private $id;
 
@@ -44,7 +44,7 @@ class ShopAttachment
      * @var string
      *
      * @ORM\Column(name="content", type="text")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
      */
     private $content;
 
@@ -52,7 +52,7 @@ class ShopAttachment
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64)
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
      */
     private $attachmentType;
 
@@ -60,7 +60,7 @@ class ShopAttachment
      * @var string
      *
      * @ORM\Column(name="filename", type="string", length=64)
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
      */
     private $filename;
 
@@ -68,7 +68,7 @@ class ShopAttachment
      * @var string
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
      */
     private $preview;
 
@@ -76,7 +76,7 @@ class ShopAttachment
      * @var int
      *
      * @ORM\Column(name="size", type="integer")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
      */
     private $size;
 
@@ -84,7 +84,7 @@ class ShopAttachment
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
      */
     private $creationDate;
 

@@ -57,7 +57,9 @@ class RoomBuilding implements JsonSerializable
      *      "admin_building",
      *      "admin_shop",
      *      "client_order",
-     *      "admin"
+     *      "admin",
+     *      "shop_nearby",
+     *      "client_shop"
      *  }
      * )
      */
@@ -68,7 +70,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="description", type="string", length=1024, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_building", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_building", "admin_shop", "client_shop"})
      */
     private $description;
 
@@ -77,7 +79,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="detail", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_building", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_building", "admin_shop", "client_shop"})
      */
     private $detail;
 
@@ -93,7 +95,15 @@ class RoomBuilding implements JsonSerializable
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "building_nearby", "admin_building", "admin_shop", "client_order"})
+     * @Serializer\Groups({
+     *     "main",
+     *     "building_nearby",
+     *     "admin_building",
+     *     "admin_shop",
+     *     "client_order",
+     *     "shop_nearby",
+     *     "client_shop"
+     * })
      **/
     private $city;
 
@@ -124,7 +134,9 @@ class RoomBuilding implements JsonSerializable
      *      "building_nearby",
      *      "admin_building",
      *      "admin_shop",
-     *      "client_order"
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
      *  }
      * )
      */
@@ -136,16 +148,17 @@ class RoomBuilding implements JsonSerializable
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
      * @Serializer\Groups({
-     *  "main",
-     *  "admin_room",
-     *  "client",
-     *  "admin_detail",
-     *  "admin_event",
-     *  "client_event",
-     *  "current_order",
-     *  "building_nearby",
-     *  "admin_building",
-     *  "admin_shop"
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "admin_detail",
+     *      "admin_event",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_shop"
      * })
      */
     private $address;
@@ -253,7 +266,7 @@ class RoomBuilding implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="businessHour", type="string", nullable=true)
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "client_shop"})
      */
     private $businessHour;
 
