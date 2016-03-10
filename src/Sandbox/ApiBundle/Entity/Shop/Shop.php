@@ -65,7 +65,6 @@ class Shop implements JsonSerializable
      *     "admin_shop",
      *     "client_order",
      *     "admin",
-     *     "shop_nearby",
      *     "client_shop"
      * })
      */

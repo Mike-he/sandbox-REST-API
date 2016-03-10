@@ -235,7 +235,7 @@ class RoomBuilding implements JsonSerializable
      * @ORM\JoinColumn(name="id", referencedColumnName="buildingId")
      * @ORM\OrderBy({"id" = "ASC"})
      *
-     * @Serializer\Groups({"main", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "shop_nearby"})
      */
     private $shops;
 

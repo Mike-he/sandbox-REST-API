@@ -62,61 +62,6 @@ class ClientShopController extends ShopController
     }
 
     /**
-     * Get nearby shops.
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *    name="lat",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    requirements="-?\d*(\.\d+)?$",
-     *    strict=true,
-     *    description="coordinate lat"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="lng",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    requirements="-?\d*(\.\d+)?$",
-     *    strict=true,
-     *    description="coordinate lng"
-     * )
-     *
-     * @Route("/shops/nearby")
-     * @Method({"GET"})
-     *
-     * @throws \Exception
-     *
-     * @return View
-     */
-    public function getNearByShopsAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $lat = $paramFetcher->get('lat');
-        $lng = $paramFetcher->get('lng');
-        $globals = $this->getGlobals();
-        $range = $globals['nearby_shop_range_km'];
-
-        $shops = $this->getRepo('Shop\Shop')->findNearByShops(
-            $lat,
-            $lng,
-            $range
-        );
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['shop_nearby']));
-        $view->setData($shops);
-
-        return $view;
-    }
-
-    /**
      * Get shop by Id.
      *
      * @param Request $request

@@ -83,6 +83,42 @@ class RoomBuildingRepository extends EntityRepository
     }
 
     /**
+     * @param string $lat
+     * @param string $lng
+     * @param float  $range
+     *
+     * @return array
+     */
+    public function findNearByBuildingsWithShops(
+        $lat,
+        $lng,
+        $range
+    ) {
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
+                  SELECT rb,
+                  (
+                    6371
+                    * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
+                    * cos(radians(rb.lng) - radians(:longitude))
+                    + sin(radians(:latitude)) * sin(radians(rb.lat)))
+                    ) as HIDDEN distance
+                    FROM SandboxApiBundle:Room\RoomBuilding rb
+                    JOIN SandboxApiBundle:Shop\Shop s WITH s.buildingId = rb.id
+                    WHERE s.online = TRUE AND s.active = TRUE
+                    HAVING distance < :range
+                    ORDER BY distance ASC
+                '
+            )
+            ->setParameter('latitude', $lat)
+            ->setParameter('longitude', $lng)
+            ->setParameter('range', $range);
+
+        return $query->getResult();
+    }
+
+    /**
      * @return array
      */
     public function getDistinctServers()

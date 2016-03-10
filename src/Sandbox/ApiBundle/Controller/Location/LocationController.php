@@ -256,6 +256,7 @@ class LocationController extends SalesRestController
      *    name="lat",
      *    array=false,
      *    default=null,
+     *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="coordinate lat"
@@ -265,9 +266,19 @@ class LocationController extends SalesRestController
      *    name="lng",
      *    array=false,
      *    default=null,
+     *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="coordinate lng"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="addon",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="shop addon"
      * )
      *
      * @Route("/buildings/nearby")
@@ -283,17 +294,31 @@ class LocationController extends SalesRestController
     ) {
         $lat = $paramFetcher->get('lat');
         $lng = $paramFetcher->get('lng');
+        $addon = $paramFetcher->get('addon');
+
         $globals = $this->getGlobals();
-        $range = $globals['nearby_range_km'];
 
-        $buildings = $this->getRepo('Room\RoomBuilding')->findNearbyBuildings(
-            $lat,
-            $lng,
-            $range
-        );
-
+        $buildings = [];
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['building_nearby']));
+
+        if (is_null($addon) || empty($addon)) {
+            $buildings = $this->getRepo('Room\RoomBuilding')->findNearbyBuildings(
+                $lat,
+                $lng,
+                $globals['nearby_range_km']
+            );
+
+            $view->setSerializationContext(SerializationContext::create()->setGroups(['building_nearby']));
+        } elseif ($addon == 'shop') {
+            $buildings = $this->getRepo('Room\RoomBuilding')->findNearByBuildingsWithShops(
+                $lat,
+                $lng,
+                $globals['nearby_shop_range_km']
+            );
+
+            $view->setSerializationContext(SerializationContext::create()->setGroups(['shop_nearby']));
+        }
+
         $view->setData($buildings);
 
         return $view;
