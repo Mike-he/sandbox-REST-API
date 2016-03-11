@@ -56,11 +56,8 @@ class UserLoginController extends SandboxRestController
 
         // save or update user client
         $userClient = $this->saveUserClient($em,
-                                            $userClient->getId(),
-                                            $userClient->getName(),
-                                            $userClient->getOs(),
-                                            $userClient->getVersion(),
-                                            $request->getClientIp());
+                                            $request,
+                                            $userClient);
         $data['client'] = $userClient;
 
         if (!is_null($user)) {
@@ -92,22 +89,30 @@ class UserLoginController extends SandboxRestController
 
     /**
      * @param EntityManager $em
-     * @param int           $id
-     * @param string        $name
-     * @param string        $os
-     * @param string        $version
-     * @param string        $ipAddress
+     * @param Request       $request
+     * @param UserClient    $userClient
      *
      * @return UserClient
      */
     protected function saveUserClient(
         $em,
-        $id,
-        $name,
-        $os,
-        $version,
-        $ipAddress
+        $request,
+        $userClient
     ) {
+        // get incoming data
+        $id = null;
+        $name = null;
+        $os = null;
+        $version = null;
+
+        if (!is_null($userClient)) {
+            $id = $userClient->getId();
+            $name = $userClient->getName();
+            $os = $userClient->getOs();
+            $version = $userClient->getVersion();
+        }
+
+        // save or update to db
         $client = null;
 
         if (!is_null($id)) {
@@ -126,7 +131,7 @@ class UserLoginController extends SandboxRestController
         $client->setName($name);
         $client->setOs($os);
         $client->setVersion($version);
-        $client->setIpAddress($ipAddress);
+        $client->setIpAddress($request->getClientIp());
         $client->setModificationDate($now);
 
         return $client;
