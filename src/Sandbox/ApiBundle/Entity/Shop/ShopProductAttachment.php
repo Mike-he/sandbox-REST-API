@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Shop;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use JsonSerializable;
 
 /**
  * ShopProductAttachment.
@@ -11,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(name="ShopProductAttachment")
  * @ORM\Entity
  */
-class ShopProductAttachment
+class ShopProductAttachment implements JsonSerializable
 {
     /**
      * @var int
@@ -293,5 +294,13 @@ class ShopProductAttachment
     public function __construct()
     {
         $this->setCreationDate(new \DateTime('now'));
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'content' => $this->content,
+        );
     }
 }

@@ -55,8 +55,39 @@ class ClientShopController extends ShopController
         );
 
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_shop']));
         $view->setData($shops);
+
+        return $view;
+    }
+
+    /**
+     * Get shop by Id.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/shops/{id}")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getShopByIdAction(
+        Request $request,
+        $id
+    ) {
+        $shop = $this->getRepo('Shop\Shop')->getShopById(
+            $id,
+            true,
+            true
+        );
+        $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_shop']));
+        $view->setData($shop);
 
         return $view;
     }

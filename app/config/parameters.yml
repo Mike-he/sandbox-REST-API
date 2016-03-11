@@ -19,6 +19,7 @@ parameters:
     server_order_id: s
     load_more_limit: 20
     nearby_range_km: 100
+    nearby_shop_range_km: 0.2
     expired_verification_time: +10 minutes
     time_for_half_hour_early: -30 minutes
     xmpp_domain: devxmpp.sandbox3.cn
