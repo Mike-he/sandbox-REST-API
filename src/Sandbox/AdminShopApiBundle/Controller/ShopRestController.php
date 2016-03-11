@@ -74,7 +74,16 @@ class ShopRestController extends PaymentController
             );
             $this->throwNotFoundIfNull($shopProduct, self::NOT_FOUND_MESSAGE);
 
-            $info = json_encode($shopProduct->jsonSerialize());
+            $attachmentArray = [];
+            $attachments = $shopProduct->getProductAttachments();
+            foreach ($attachments as $attachment) {
+                array_push($attachmentArray, $attachment->jsonSerialize());
+            }
+
+            $productInfo = $shopProduct->jsonSerialize();
+            $productInfo['attachments'] = $attachmentArray;
+
+            $info = json_encode($productInfo);
 
             $product->setOrder($order);
             $product->setProduct($shopProduct);

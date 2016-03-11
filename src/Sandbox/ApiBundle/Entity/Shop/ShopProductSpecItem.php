@@ -49,7 +49,7 @@ class ShopProductSpecItem implements JsonSerializable
     private $productSpec;
 
     /**
-     * @var decimal
+     * @var float
      *
      * @ORM\Column(name="price", type="decimal", precision=10, scale=2, nullable=true)
      * @Serializer\Groups({"main", "admin_shop", "product_view"})
@@ -94,7 +94,7 @@ class ShopProductSpecItem implements JsonSerializable
     /**
      * Set price.
      *
-     * @param decimal $price
+     * @param float $price
      *
      * @return ShopProductSpecItem
      */
@@ -108,7 +108,7 @@ class ShopProductSpecItem implements JsonSerializable
     /**
      * Get price.
      *
-     * @return decimal
+     * @return float
      */
     public function getPrice()
     {
@@ -239,7 +239,7 @@ class ShopProductSpecItem implements JsonSerializable
     {
         return array(
             'id' => $this->id,
-            'price' => $this->price,
+            'price' => (float) $this->price,
             'inventory' => $this->inventory,
             'item' => array(
                 'id' => $this->shopSpecItem->getId(),

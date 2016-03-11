@@ -316,29 +316,56 @@ class LocationController extends SalesRestController
         $addon = $paramFetcher->get('addon');
 
         $globals = $this->getGlobals();
+        $range = $globals['nearby_range_km'];
+        $viewGroup = 'building_nearby';
 
-        $buildings = [];
-        $view = new View();
-
-        if (is_null($addon) || empty($addon)) {
-            $buildings = $this->getRepo('Room\RoomBuilding')->findNearbyBuildings(
-                $lat,
-                $lng,
-                $globals['nearby_range_km']
-            );
-
-            $view->setSerializationContext(SerializationContext::create()->setGroups(['building_nearby']));
-        } elseif ($addon == 'shop') {
-            $buildings = $this->getRepo('Room\RoomBuilding')->findNearByBuildingsWithShops(
-                $lat,
-                $lng,
-                $globals['nearby_shop_range_km']
-            );
-
-            $view->setSerializationContext(SerializationContext::create()->setGroups(['shop_nearby']));
+        if ($addon == 'shop') {
+            $range = $globals['nearby_shop_range_km'];
+            $viewGroup = 'shop_nearby';
         }
 
-        $view->setData($buildings);
+        $buildings = $this->getRepo('Room\RoomBuilding')->findNearbyBuildings(
+            $lat,
+            $lng,
+            $range
+        );
+
+        $buildingArray = $buildings;
+
+        if ($addon == 'shop') {
+            $buildingArray = [];
+
+            foreach ($buildings as $building) {
+                $shops = $building->getShops();
+
+                $idx = 0;
+                $count = 0;
+
+                foreach ($shops as $shop) {
+                    $isActive = $shop->isActive();
+                    $isOnline = $shop->isOnline();
+
+                    // remove shop from array if unactive or offline
+                    if (!$isActive || !$isOnline) {
+                        unset($shops[$idx]);
+                    } else {
+                        ++$count;
+                    }
+
+                    ++$idx;
+                }
+
+                if ($count <= 0) {
+                    continue;
+                }
+
+                array_push($buildingArray, $building);
+            }
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups([$viewGroup]));
+        $view->setData($buildingArray);
 
         return $view;
     }
