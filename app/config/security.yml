@@ -2,9 +2,9 @@ security:
     encoders:
         Sandbox\ApiBundle\Entity\User\User: plaintext
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
-        Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
         Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth: plaintext
         Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth: plaintext
+        Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
     role_hierarchy:
         ROLE_USER:        ROLE_USER
         ROLE_SALES_ADMIN_API: ROLE_SALES_ADMIN_API
@@ -16,22 +16,10 @@ security:
     providers:
         chain_provider:
             chain:
-                providers: [userEmail, userPhone, clientApi, adminApi, salesAdminApi, shopAdminApi]
-        userEmail:
-            entity:
-                class: Sandbox\ApiBundle\Entity\User\User
-                property: email
-        userPhone:
-            entity:
-                class: Sandbox\ApiBundle\Entity\User\User
-                property: phone
+                providers: [clientApi, salesAdminApi, shopAdminApi, adminApi, userPhone, userEmail]
         clientApi:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth
-                property: token
-        adminApi:
-            entity:
-                class: Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth
                 property: token
         salesAdminApi:
             entity:
@@ -41,6 +29,18 @@ security:
             entity:
                 class: Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth
                 property: token
+        adminApi:
+            entity:
+                class: Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth
+                property: token
+        userPhone:
+            entity:
+                class: Sandbox\ApiBundle\Entity\User\User
+                property: phone
+        userEmail:
+            entity:
+                class: Sandbox\ApiBundle\Entity\User\User
+                property: email
 
     firewalls:
         dev:
@@ -54,9 +54,9 @@ security:
             stateless:  true
 
     access_control:
-        - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/shop/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
@@ -76,11 +76,11 @@ security:
         - { path: ^/client/thirdparty/oauth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/thirdparty/auth$, role: ROLE_USER }
         - { path: ^/client, role: ROLE_CLIENT_API }
+        - { path: ^/sales, role: ROLE_SALES_ADMIN_API }
+        - { path: ^/shop, role: ROLE_SHOP_ADMIN_API }
         - { path: ^/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/payment/refund$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, role: ROLE_ADMIN_API }
         - { path: ^/user/background/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/user/avatar/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sales, role: ROLE_SALES_ADMIN_API }
-        - { path: ^/shop, role: ROLE_SHOP_ADMIN_API }
 
