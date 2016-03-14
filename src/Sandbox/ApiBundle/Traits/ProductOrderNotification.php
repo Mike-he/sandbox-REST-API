@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\Security\Acl\Exception\Exception;
@@ -109,7 +110,7 @@ trait ProductOrderNotification
         if (!is_null($fromUserId)) {
             $fromUser = $this->getContainer()
                              ->get('doctrine')
-                             ->getRepository('User\User')
+                             ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
                              ->find($fromUserId);
         }
 
@@ -118,7 +119,7 @@ trait ProductOrderNotification
         foreach ($receivers as $receiverId) {
             $recevUser = $this->getContainer()
                               ->get('doctrine')
-                              ->getRepository('User\User')
+                              ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
                               ->find($receiverId);
 
             array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);

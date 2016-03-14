@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Symfony\Component\Security\Acl\Exception\Exception;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -76,13 +77,13 @@ trait CompanyNotification
         if ($memberSync) {
             $members = $this->getContainer()
                             ->get('doctrine')
-                            ->getRepository('Company\CompanyMember')
+                            ->getRepository(BundleConstants::BUNDLE.':'.'Company\CompanyMember')
                             ->findByCompany($company);
 
             foreach ($members as $member) {
                 $user = $this->getContainer()
                              ->get('doctrine')
-                             ->getRepository('User\User')
+                             ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
                              ->find($member->getUserId());
 
                 if (is_null($user)) {
