@@ -17,6 +17,8 @@ use Sandbox\ApiBundle\Form\Shop\ShopOrderProductType;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdmin;
 
 class ShopRestController extends PaymentController
 {
@@ -335,5 +337,26 @@ class ShopRestController extends PaymentController
         }
 
         throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+    }
+
+    /**
+     * @return ShopAdmin
+     *
+     * @throws UnauthorizedHttpException
+     */
+    protected function checkShopAdminLoginSecurity()
+    {
+        $auth = $this->getSandboxAuthorization();
+
+        $admin = $this->getRepo('Shop\ShopAdmin')->findOneBy(array(
+            'username' => $auth->getUsername(),
+            'password' => $auth->getPassword(),
+        ));
+
+        if (is_null($admin)) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
+        return $admin;
     }
 }

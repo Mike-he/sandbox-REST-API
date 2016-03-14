@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Auth\AdminAuth;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -52,6 +53,8 @@ class SandboxRestController extends FOSRestController
     const ENCODE_METHOD_MD5 = 'md5';
 
     const ENCODE_METHOD_SHA1 = 'sha1';
+
+    const Sandbox_ADMIN_LOGIN_HEADER = 'SandboxAdminAuthorization';
 
     //-------------------- Global --------------------//
 
@@ -1508,5 +1511,30 @@ class SandboxRestController extends FOSRestController
         }
 
         return $ids;
+    }
+
+    /**
+     * @return AdminAuth
+     */
+    protected function getSandboxAuthorization()
+    {
+        // get auth
+        $headers = apache_request_headers();
+        if (!array_key_exists(self::Sandbox_ADMIN_LOGIN_HEADER, $headers)) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+        $authHeader = $headers[self::Sandbox_ADMIN_LOGIN_HEADER];
+        $adminString = base64_decode($authHeader, true);
+        $adminArray = explode(':', $adminString);
+
+        if (count($adminArray) != 2) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
+        $auth = new AdminAuth();
+        $auth->setUsername($adminArray[0]);
+        $auth->setPassword($adminArray[1]);
+
+        return $auth;
     }
 }

@@ -6,6 +6,8 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 
 class SalesRestController extends SandboxRestController
 {
@@ -130,5 +132,26 @@ class SalesRestController extends SandboxRestController
         }
 
         return $ids;
+    }
+
+    /**
+     * @return SalesAdmin
+     *
+     * @throws UnauthorizedHttpException
+     */
+    protected function checkSalesAdminLoginSecurity()
+    {
+        $auth = $this->getSandboxAuthorization();
+
+        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->findOneBy(array(
+            'username' => $auth->getUsername(),
+            'password' => $auth->getPassword(),
+        ));
+
+        if (is_null($admin)) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
+        return $admin;
     }
 }

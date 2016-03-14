@@ -72,6 +72,9 @@ security:
             stateless:  true
 
     access_control:
+        - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/sales/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/shop/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
@@ -93,12 +96,9 @@ security:
         - { path: ^/client, role: ROLE_CLIENT_API }
         - { path: ^/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/payment/refund$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/auth/login$, role: ROLE_ADMIN }
         - { path: ^/admin, role: ROLE_ADMIN_API }
         - { path: ^/user/background/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/user/avatar/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sales/admin/auth/login$, role: ROLE_SALES_ADMIN }
         - { path: ^/sales, role: ROLE_SALES_ADMIN_API }
-        - { path: ^/shop/admin/auth/login$, role: ROLE_SHOP_ADMIN }
         - { path: ^/shop, role: ROLE_SHOP_ADMIN_API }
 

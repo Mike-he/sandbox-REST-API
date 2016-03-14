@@ -53,10 +53,8 @@ class AdminUserLoginController extends SalesRestController
     public function postAdminUserLoginAction(
         Request $request
     ) {
-        // get admin
-        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find(
-            $this->getUser()->getId()
-        );
+        // check security & get admin
+        $admin = $this->checkSalesAdminLoginSecurity();
 
         // get globals
         $globals = $this->getGlobals();

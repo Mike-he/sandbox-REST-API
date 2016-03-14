@@ -53,10 +53,8 @@ class AdminUserLoginController extends ShopRestController
     public function postAdminUserLoginAction(
         Request $request
     ) {
-        // get admin
-        $admin = $this->getRepo('Shop\ShopAdmin')->find(
-            $this->getUser()->getId()
-        );
+        // check security & get admin
+        $admin = $this->checkShopAdminLoginSecurity();
 
         // get globals
         $globals = $this->getGlobals();

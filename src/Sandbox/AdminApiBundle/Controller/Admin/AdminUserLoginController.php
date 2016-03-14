@@ -2,7 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Admin;
 
-use Sandbox\ApiBundle\Controller\Admin\AdminLoginController;
+use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\Admin\AdminClient;
 use Sandbox\ApiBundle\Entity\Admin\AdminToken;
@@ -25,7 +25,7 @@ use JMS\Serializer\SerializationContext;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminUserLoginController extends AdminLoginController
+class AdminUserLoginController extends AdminRestController
 {
     /**
      * Login.
@@ -49,10 +49,8 @@ class AdminUserLoginController extends AdminLoginController
     public function postAdminUserLoginAction(
         Request $request
     ) {
-        // get admin
-        $admin = $this->getRepo('Admin\Admin')->find(
-            $this->getUser()->getId()
-        );
+        // check security & get admin
+        $admin = $this->checkAdminLoginSecurity();
 
         return $this->handleAdminUserLogin($request, $admin);
     }
