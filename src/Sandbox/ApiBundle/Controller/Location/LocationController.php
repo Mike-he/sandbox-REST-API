@@ -441,13 +441,17 @@ class LocationController extends SalesRestController
 
     /**
      * @param ParamFetcherInterface $paramFetcher
+     * @param $adminId
      *
      * @return array
      */
-    private function generateLocationSalesBuildingIds(
-        $paramFetcher
+    protected function generateLocationSalesBuildingIds(
+        $paramFetcher,
+        $adminId = null
     ) {
-        $adminId = $this->getUser()->getAdminId();
+        if (is_null($adminId)) {
+            $adminId = $this->getUser()->getAdminId();
+        }
 
         $permissionKeyArray = $paramFetcher->get('permission');
         $opLevel = $paramFetcher->get('op');
@@ -492,7 +496,7 @@ class LocationController extends SalesRestController
      *
      * @return array
      */
-    private function generateCitiesArray(
+    protected function generateCitiesArray(
         $cities
     ) {
         $citiesArray = array();

@@ -13,6 +13,15 @@ use Doctrine\ORM\Mapping as ORM;
 class AdminAuth
 {
     /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=255)
@@ -25,6 +34,16 @@ class AdminAuth
      * @ORM\Column(name="password", type="string", length=255)
      */
     private $password;
+
+    /**
+     * Get id.
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * Set username.
