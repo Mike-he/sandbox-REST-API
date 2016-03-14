@@ -2,27 +2,21 @@ security:
     encoders:
         Sandbox\ApiBundle\Entity\User\User: plaintext
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
-        Sandbox\ApiBundle\Entity\Admin\Admin: plaintext
         Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
-        Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin: plaintext
         Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth: plaintext
-        Sandbox\ApiBundle\Entity\Shop\ShopAdmin: plaintext
         Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth: plaintext
     role_hierarchy:
-        ROLE_ADMIN:       ROLE_ADMIN
         ROLE_USER:        ROLE_USER
-        ROLE_SALES_ADMIN: ROLE_SALES_ADMIN
         ROLE_SALES_ADMIN_API: ROLE_SALES_ADMIN_API
-        ROLE_SHOP_ADMIN: ROLE_SHOP_ADMIN
         ROLE_SHOP_ADMIN_API: ROLE_SHOP_ADMIN_API
-        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH, ROLE_SALES_ADMIN, ROLE_SHOP_ADMIN]
+        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ALLOWED_TO_SWITCH]
         ROLE_ADMIN_API:   ROLE_ADMIN_API
         ROLE_CLIENT_API:  ROLE_CLIENT_API
 
     providers:
         chain_provider:
             chain:
-                providers: [userEmail, userPhone, clientApi, adminUser, adminApi, salesAdminUser, salesAdminApi, shopAdminUser, shopAdminApi]
+                providers: [userEmail, userPhone, clientApi, adminApi, salesAdminApi, shopAdminApi]
         userEmail:
             entity:
                 class: Sandbox\ApiBundle\Entity\User\User
@@ -35,26 +29,14 @@ security:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth
                 property: token
-        adminUser:
-            entity:
-                class: Sandbox\ApiBundle\Entity\Admin\Admin
-                property: username
         adminApi:
             entity:
                 class: Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth
                 property: token
-        salesAdminUser:
-            entity:
-                class: Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin
-                property: username
         salesAdminApi:
             entity:
                 class: Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth
                 property: token
-        shopAdminUser:
-            entity:
-                class: Sandbox\ApiBundle\Entity\Shop\ShopAdmin
-                property: username
         shopAdminApi:
             entity:
                 class: Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth
