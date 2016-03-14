@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
@@ -424,7 +425,7 @@ trait DoorAccessTrait
             foreach ($buildingIds as $buildingId) {
                 $building = $this->getContainer()
                                  ->get('doctrine')
-                                 ->getRepository('Room\RoomBuilding')
+                                 ->getRepository(BundleConstants::BUNDLE.':'.'Room\RoomBuilding')
                                  ->find($buildingId);
 
                 if (is_null($building)) {
@@ -437,7 +438,7 @@ trait DoorAccessTrait
         } else {
             $servers = $this->getContainer()
                             ->get('doctrine')
-                            ->getRepository('Room\RoomBuilding')
+                            ->getRepository(BundleConstants::BUNDLE.':'.'Room\RoomBuilding')
                             ->getDistinctServers();
         }
 
@@ -475,7 +476,7 @@ trait DoorAccessTrait
     ) {
         $userProfile = $this->getContainer()
                             ->get('doctrine')
-                            ->getRepository('User\UserProfile')
+                            ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
                             ->findOneByUserId($userId);
 
         $userName = $userProfile->getName();
@@ -534,7 +535,7 @@ trait DoorAccessTrait
         if (is_null($userArray)) {
             $doors = $this->getContainer()
                           ->get('doctrine')
-                          ->getRepository('Door\DoorAccess')
+                          ->getRepository(BundleConstants::BUNDLE.':'.'Door\DoorAccess')
                           ->findBy(
                               array(
                                   'orderId' => $orderId,
@@ -554,7 +555,7 @@ trait DoorAccessTrait
 
                 $doors = $this->getContainer()
                               ->get('doctrine')
-                              ->getRepository('Door\DoorAccess')
+                              ->getRepository(BundleConstants::BUNDLE.':'.'Door\DoorAccess')
                               ->findBy(
                                   array(
                                       'userId' => $userId,

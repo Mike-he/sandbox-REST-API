@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Symfony\Component\Security\Acl\Exception\Exception;
 use Sandbox\ApiBundle\Entity\User\User;
 
@@ -59,7 +60,7 @@ trait SendNotification
 
         $profile = $this->getContainer()
                         ->get('doctrine')
-                        ->getRepository('User\UserProfile')
+                        ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
                         ->findOneByUser($fromUser);
 
         if (!is_null($profile)) {
