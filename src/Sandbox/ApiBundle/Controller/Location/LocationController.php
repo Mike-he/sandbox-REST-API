@@ -330,42 +330,21 @@ class LocationController extends SalesRestController
             $range
         );
 
-        $buildingArray = $buildings;
-
         if ($addon == 'shop') {
-            $buildingArray = [];
-
             foreach ($buildings as $building) {
-                $shops = $building->getShops();
+                $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(
+                    $building->getId(),
+                    true,
+                    true
+                );
 
-                $idx = 0;
-                $count = 0;
-
-                foreach ($shops as $shop) {
-                    $isActive = $shop->isActive();
-                    $isOnline = $shop->isOnline();
-
-                    // remove shop from array if unactive or offline
-                    if (!$isActive || !$isOnline) {
-                        unset($shops[$idx]);
-                    } else {
-                        ++$count;
-                    }
-
-                    ++$idx;
-                }
-
-                if ($count <= 0) {
-                    continue;
-                }
-
-                array_push($buildingArray, $building);
+                $building->setShops($shops);
             }
         }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups([$viewGroup]));
-        $view->setData($buildingArray);
+        $view->setData($buildings);
 
         return $view;
     }
