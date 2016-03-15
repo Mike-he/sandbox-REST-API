@@ -238,7 +238,7 @@ class AdminShopController extends ShopController
      *    name="building",
      *    array=false,
      *    default=null,
-     *    nullable=false,
+     *    nullable=true,
      *    strict=true,
      *    description="Filter by building"
      * )

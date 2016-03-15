@@ -26,26 +26,38 @@ class ShopRepository extends EntityRepository
         $online = false,
         $shopIds = null
     ) {
+        $notFirst = false;
+
         $query = $this->createQueryBuilder('s')
-            ->where('s.buildingId = :buildingId')
-            ->orderBy('s.creationDate', 'ASC')
-            ->setParameter('buildingId', $buildingId);
+            ->orderBy('s.creationDate', 'ASC');
+
+        if (!is_null($buildingId) && !empty($buildingId)) {
+            $query = $query->where('s.buildingId = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+            $notFirst = true;
+        }
 
         // filter active shops
         if ($active) {
-            $query = $query->andWhere('s.active = :active')
-                ->setParameter('active', true);
+            $where = 's.active = :active';
+            $this->addWhereQuery($query, $notFirst, $where);
+
+            $query->setParameter('active', true);
         }
 
         // filter online shops
         if ($online) {
-            $query = $query->andWhere('s.online = :online')
-                ->setParameter('online', true);
+            $where = 's.online = :online';
+            $this->addWhereQuery($query, $notFirst, $where);
+
+            $query->setParameter('online', true);
         }
 
         // filter by shop ids
         if (!is_null($shopIds)) {
-            $query->andWhere('s.id IN (:shopIds)');
+            $where = 's.id IN (:shopIds)';
+            $this->addWhereQuery($query, $notFirst, $where);
+
             $query->setParameter('shopIds', $shopIds);
         }
 
@@ -147,5 +159,22 @@ class ShopRepository extends EntityRepository
             ->setParameter('building', $building);
 
         return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param QueryBuilder $query
+     * @param bool         $notFirst
+     * @param string       $where
+     */
+    private function addWhereQuery(
+        $query,
+        $notFirst,
+        $where
+    ) {
+        if ($notFirst) {
+            $query->andWhere($where);
+        } else {
+            $query->where($where);
+        }
     }
 }
