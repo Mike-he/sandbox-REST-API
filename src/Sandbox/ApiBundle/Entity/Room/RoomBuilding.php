@@ -227,15 +227,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var array
      *
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Shop\Shop",
-     *      mappedBy="building",
-     *      cascade={"persist"}
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="buildingId")
-     * @ORM\OrderBy({"id" = "ASC"})
-     *
-     * @Serializer\Groups({"main", "admin_building", "shop_nearby"})
+     * @Serializer\Groups({"main", "shop_nearby"})
      */
     private $shops;
 
