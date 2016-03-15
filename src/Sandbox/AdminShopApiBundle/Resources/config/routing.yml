@@ -64,7 +64,7 @@ sandbox_shop_admin_api_shops_order:
     type:     annotation
     prefix:   /admin
 
-# Cities /shop/admin/cities/all
+# Cities /shop/admin/cities
 sandbox_shop_admin_api_cities:
     resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopCitiesController.php"
     type:     annotation

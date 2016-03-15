@@ -19,7 +19,7 @@ class AdminShopCitiesController extends ShopRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/cities/all")
+     * @Route("/cities")
      * @Method({"GET"})
      *
      * @return View
