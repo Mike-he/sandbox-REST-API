@@ -10,15 +10,14 @@ use Sandbox\ApiBundle\Entity\Shop\Shop;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrderProduct;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrderProductSpec;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrderProductSpecItem;
-use Sandbox\ApiBundle\Entity\Shop\ShopProductSpecItem;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecItemType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductType;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdmin;
+use FOS\RestBundle\View\View;
 
 class ShopRestController extends PaymentController
 {
@@ -50,7 +49,8 @@ class ShopRestController extends PaymentController
     protected function handleShopOrderProductPost(
         $em,
         $order,
-        $shop
+        $shop,
+        $priceData
     ) {
         $productData = $order->getProducts();
 
@@ -59,6 +59,8 @@ class ShopRestController extends PaymentController
         }
 
         $calculatedPrice = 0;
+        $inventoryError = [];
+
         foreach ($productData as $data) {
             $product = new ShopOrderProduct();
 
@@ -93,15 +95,20 @@ class ShopRestController extends PaymentController
 
             $em->persist($product);
 
-            $specPrice = $this->handleShopOrderProductSpecPost(
+            $inventoryError = $this->handleShopOrderProductSpecPost(
                 $em,
-                $product
+                $product,
+                $priceData,
+                $shopProduct,
+                $inventoryError
             );
 
-            $calculatedPrice = $calculatedPrice + $specPrice;
+            $calculatedPrice = $calculatedPrice + $priceData->getSpecPrice();
         }
 
-        return $calculatedPrice;
+        $priceData->setProductPrice($calculatedPrice);
+
+        return $inventoryError;
     }
 
     /**
@@ -112,7 +119,10 @@ class ShopRestController extends PaymentController
      */
     private function handleShopOrderProductSpecPost(
         $em,
-        $product
+        $product,
+        $priceData,
+        $shopProduct,
+        $inventoryError
     ) {
         $specData = $product->getSpecs();
 
@@ -149,15 +159,20 @@ class ShopRestController extends PaymentController
 
             $em->persist($spec);
 
-            $specItemPrice = $this->handleShopOrderProductSpecItemPost(
+            $inventoryError = $this->handleShopOrderProductSpecItemPost(
                 $em,
-                $spec
+                $spec,
+                $priceData,
+                $shopProduct,
+                $inventoryError
             );
 
-            $calculatedPrice = $calculatedPrice + $specItemPrice;
+            $calculatedPrice = $calculatedPrice + $priceData->getItemPrice();
         }
 
-        return $calculatedPrice;
+        $priceData->setSpecPrice($calculatedPrice);
+
+        return $inventoryError;
     }
 
     /**
@@ -205,7 +220,10 @@ class ShopRestController extends PaymentController
      */
     private function handleShopOrderProductSpecItemPost(
         $em,
-        $spec
+        $spec,
+        $priceData,
+        $shopProduct,
+        $inventoryError
     ) {
         $itemData = $spec->getItems();
 
@@ -214,6 +232,7 @@ class ShopRestController extends PaymentController
         }
 
         $calculatedPrice = 0;
+
         foreach ($itemData as $data) {
             $item = new ShopOrderProductSpecItem();
 
@@ -231,9 +250,19 @@ class ShopRestController extends PaymentController
 
             if (!is_null($inventory)) {
                 $amount = $item->getAmount();
+
                 if ($amount > $inventory) {
-                    // TODO: throw custom exception
-                    throw new ConflictHttpException(ShopProductSpecItem::INSUFFICIENT_INVENTORY);
+                    $shopProductName = $shopProduct->getName();
+                    $shopSpecName = $shopProductSpecItem->getShopSpecItem()->getSpec()->getName();
+                    $shopSpecItemName = $shopProductSpecItem->getShopSpecItem()->getName();
+
+                    $productArray = [
+                        'product_name' => $shopProductName,
+                        'spec_name' => $shopSpecName,
+                        'item_name' => $shopSpecItemName,
+                    ];
+
+                    array_push($inventoryError, $productArray);
                 }
 
                 $shopProductSpecItem->setInventory($inventory - $amount);
@@ -257,7 +286,9 @@ class ShopRestController extends PaymentController
             $calculatedPrice = $calculatedPrice + $itemPrice;
         }
 
-        return $calculatedPrice;
+        $priceData->setItemPrice($calculatedPrice);
+
+        return $inventoryError;
     }
 
     /**
@@ -358,5 +389,36 @@ class ShopRestController extends PaymentController
         }
 
         return $admin;
+    }
+
+    //--------------------throw customer http error --------------------//
+    /**
+     * Custom error view for shop order.
+     *
+     * @param $statusCode
+     * @param $errorCode
+     * @param $errorMessage
+     * @param $errorArray
+     *
+     * @return View
+     */
+    protected function customShopOrderErrorView(
+        $statusCode,
+        $errorCode,
+        $errorMessage,
+        $errorArray
+    ) {
+        $translated = $this->get('translator')->trans($errorMessage);
+
+        $view = new View();
+        $view->setStatusCode($statusCode);
+        $view->setData(array(
+            'code' => $errorCode,
+            'message' => $translated,
+            'product_info' => $errorArray,
+        ));
+        $view->getData();
+
+        return $view;
     }
 }

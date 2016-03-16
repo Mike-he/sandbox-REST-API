@@ -455,13 +455,23 @@ class AdminShopOrderController extends ShopController
 
         $oldOrder->setLinkedOrder($order);
 
-        $calculatedPrice = $this->handleShopOrderProductPost(
+        $inventoryError = $this->handleShopOrderProductPost(
             $em,
             $order,
-            $shop
+            $shop,
+            $priceData
         );
 
-        if ($order->getPrice() != $calculatedPrice) {
+        if (!empty($inventoryError)) {
+            return $this->customShopOrderErrorView(
+                400,
+                ShopOrder::INSUFFICIENT_INVENTORY_CODE,
+                ShopOrder::INSUFFICIENT_INVENTORY_MESSAGE,
+                $inventoryError
+            );
+        }
+
+        if ($order->getPrice() != $priceData->getProductPrice()) {
             return $this->customErrorView(
                 400,
                 self::DISCOUNT_PRICE_MISMATCH_CODE,
