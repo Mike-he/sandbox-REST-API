@@ -35,6 +35,8 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
  */
 class UserProfileController extends SandboxRestController
 {
+    const USER_HOBBY_PREFIX = 'user.hobby.';
+
     /**
      * Get background attachments.
      *
@@ -144,7 +146,12 @@ class UserProfileController extends SandboxRestController
             // set user hobbies
             $hobbies = $this->getRepo('User\UserHobbyMap')->findByUser($user);
             if (!is_null($hobbies) && !empty($hobbies)) {
-                $profile->setHobbies($hobbies);
+                // translate hobby key
+                $hobbiesArray = $this->generateHobbyMapResult(
+                    $hobbies
+                );
+
+                $profile->setHobbies($hobbiesArray);
             }
 
             // set user educations
@@ -339,5 +346,32 @@ class UserProfileController extends SandboxRestController
         $userPortfolio->setUser($user);
 
         return $userPortfolio;
+    }
+
+    /**
+     * @param $hobbies
+     *
+     * @return array
+     */
+    protected function generateHobbyMapResult(
+        $hobbies
+    ) {
+        if (empty($hobbies)) {
+            return;
+        }
+
+        foreach ($hobbies as $hobbyMap) {
+            if (is_null($hobbyMap)) {
+                continue;
+            }
+
+            // translate hobby key
+            $hobby = $hobbyMap->getHobby();
+            $hobbyKey = $hobby->getKey();
+            $trans = $this->get('translator')->trans(self::USER_HOBBY_PREFIX.$hobbyKey);
+            $hobby->setName($trans);
+        }
+
+        return $hobbies;
     }
 }

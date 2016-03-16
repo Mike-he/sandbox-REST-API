@@ -62,3 +62,17 @@ product_order:
     phone: 租赁人手机
     email: 租赁人邮箱
     channel: 支付渠道
+
+user:
+  hobby:
+    sports: 运动
+    chess: 棋类
+    tourism: 旅游
+    mountaineering: 登山运动
+    musical_instruments: 乐器
+    music: 音乐
+    dancing: 舞蹈
+    tea: 饮茶
+    movie: 影视
+    reading: 阅读
+    social_activities: 社交

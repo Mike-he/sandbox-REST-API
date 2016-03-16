@@ -62,3 +62,17 @@ product_order:
     phone: Renter Mobile
     email: Renter Email
     channel: Payment Channel
+
+user:
+  hobby:
+    sports: Sports
+    chess: Chess
+    tourism: Tourism
+    mountaineering: Mountaineering
+    musical_instruments: Musical Instruments
+    music: Music
+    dancing: Dancing
+    tea: Tea
+    movie: Movie
+    reading: Reading
+    social_activities: Social Activities
