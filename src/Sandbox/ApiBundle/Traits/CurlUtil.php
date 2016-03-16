@@ -1,15 +1,8 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: josh
- * Date: 5/5/15
- * Time: 3:11 PM.
- */
+namespace Sandbox\ApiBundle\Traits;
 
-namespace Sandbox\ApiBundle\Utils;
-
-class CurlUtil
+trait CurlUtil
 {
     /**
      * @param $ch

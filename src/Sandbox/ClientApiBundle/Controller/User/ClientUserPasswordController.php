@@ -501,7 +501,7 @@ class ClientUserPasswordController extends UserPasswordController
 
         $currentToken = null;
         if (!is_null($basicAuth)) {
-            $currentToken = $this->get('string_util')->getUsernameFromBasicAuth($basicAuth);
+            $currentToken = $this->getUsernameFromBasicAuth($basicAuth);
         }
 
         $tokens = $this->getRepo('User\UserToken')->findByUserId($userId);

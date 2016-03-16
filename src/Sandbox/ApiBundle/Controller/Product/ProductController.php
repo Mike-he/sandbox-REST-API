@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller\Product;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Traits\CurlUtil;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -19,6 +20,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ProductController extends SandboxRestController
 {
+    use CurlUtil;
+
     const PRODUCT_NOT_FOUND_CODE = 400012;
     const PRODUCT_NOT_FOUND_MESSAGE = 'Product Not Found';
 
@@ -100,7 +103,7 @@ class ProductController extends SandboxRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $this->get('curl_util')->callAPI(
+        $this->callAPI(
             $ch,
             'POST',
             array('Authorization: '.$auth),

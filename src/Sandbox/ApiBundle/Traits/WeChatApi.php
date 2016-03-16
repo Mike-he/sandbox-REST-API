@@ -13,6 +13,8 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 trait WeChatApi
 {
     use CommonMethod;
+    use StringUtil;
+    use CurlUtil;
 
     /**
      * @param string $code
@@ -23,6 +25,8 @@ trait WeChatApi
         $code
     ) {
         try {
+            $code = $this->after('_', $code);
+
             $globals = $this->getContainer()
                             ->get('twig')
                             ->getGlobals();
@@ -36,7 +40,7 @@ trait WeChatApi
             $apiUrl = $url.$params;
 
             $ch = curl_init($apiUrl);
-            $response = $this->getContainer()->get('curl_util')->callAPI($ch, 'GET');
+            $response = $this->callAPI($ch, 'GET');
             $result = json_decode($response, true);
 
             if (is_null($result)
@@ -55,7 +59,7 @@ trait WeChatApi
      *
      * @return array
      */
-    public function doWeChatAuthByOpenIdAccessToken(
+    public function throwUnauthorizedIfWeChatAuthFail(
         $weChat
     ) {
         try {
@@ -67,7 +71,7 @@ trait WeChatApi
             $apiUrl = $url.$params;
 
             $ch = curl_init($apiUrl);
-            $response = $this->getContainer()->get('curl_util')->callAPI($ch, 'GET');
+            $response = $this->callAPI($ch, 'GET');
             $result = json_decode($response, true);
 
             $errCode = $result['errcode'];
@@ -98,7 +102,7 @@ trait WeChatApi
             $apiUrl = $url.$params;
 
             $ch = curl_init($apiUrl);
-            $response = $this->getContainer()->get('curl_util')->callAPI($ch, 'GET');
+            $response = $this->callAPI($ch, 'GET');
             $result = json_decode($response, true);
 
             if (is_null($result)

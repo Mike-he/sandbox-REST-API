@@ -197,10 +197,6 @@ doctrine:
                         uuid_short: DoctrineExtensions\Query\Mysql\UuidShort
                         
 services:
-    string_util:
-        class:        Sandbox\ApiBundle\Utils\StringUtil
-    curl_util:
-        class:        Sandbox\ApiBundle\Utils\CurlUtil
     app.locale_listener:
         class:        Sandbox\ApiBundle\EventListener\LocaleListener
         arguments: ["%kernel.default_locale%"]
