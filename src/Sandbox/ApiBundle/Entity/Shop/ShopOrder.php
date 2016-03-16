@@ -39,6 +39,8 @@ class ShopOrder
     const NOT_TO_BE_REFUNDED_MESSAGE = 'Can not refund this order';
     const WRONG_STATUS_CODE = 400008;
     const WRONG_STATUS_MESSAGE = 'Can not update order to this status';
+    const INSUFFICIENT_INVENTORY_CODE = 400009;
+    const INSUFFICIENT_INVENTORY_MESSAGE = 'Insufficient Inventory';
 
     /**
      * @var int

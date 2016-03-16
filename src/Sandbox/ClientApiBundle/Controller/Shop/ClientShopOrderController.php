@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Shop;
 
 use Sandbox\AdminShopApiBundle\Controller\ShopRestController;
+use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderPayChannelType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
@@ -178,13 +179,25 @@ class ClientShopOrderController extends ShopRestController
 
         $em->persist($order);
 
-        $calculatedPrice = $this->handleShopOrderProductPost(
+        $priceData = new ShopOrderPriceData();
+
+        $inventoryError = $this->handleShopOrderProductPost(
             $em,
             $order,
-            $shop
+            $shop,
+            $priceData
         );
 
-        if ($order->getPrice() != $calculatedPrice) {
+        if (!empty($inventoryError)) {
+            return $this->customShopOrderErrorView(
+                400,
+                ShopOrder::INSUFFICIENT_INVENTORY_CODE,
+                ShopOrder::INSUFFICIENT_INVENTORY_MESSAGE,
+                $inventoryError
+            );
+        }
+
+        if ($order->getPrice() != $priceData->getProductPrice()) {
             return $this->customErrorView(
                 400,
                 self::DISCOUNT_PRICE_MISMATCH_CODE,

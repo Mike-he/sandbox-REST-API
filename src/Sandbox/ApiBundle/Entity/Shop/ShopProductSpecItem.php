@@ -19,8 +19,6 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ShopProductSpecItem implements JsonSerializable
 {
-    const INSUFFICIENT_INVENTORY = 'Insufficient Inventory';
-
     /**
      * @var int
      *
