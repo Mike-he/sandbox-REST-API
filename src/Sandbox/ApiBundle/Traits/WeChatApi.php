@@ -51,16 +51,17 @@ trait WeChatApi
     }
 
     /**
-     * @param string $openId
-     * @param string $accessToken
+     * @param WeChat $weChat
      *
      * @return array
      */
     public function doWeChatAuthByOpenIdAccessToken(
-        $openId,
-        $accessToken
+        $weChat
     ) {
         try {
+            $openId = $weChat->getOpenId();
+            $accessToken = $weChat->getAccessToken();
+
             $url = WeChatConstants::URL_AUTH;
             $params = "access_token=$accessToken&openid=$openId";
             $apiUrl = $url.$params;

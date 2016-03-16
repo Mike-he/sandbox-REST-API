@@ -12,7 +12,8 @@ use Sandbox\ApiBundle\Entity\User\UserClient;
  * @ORM\Table(
  *      name = "WeChat",
  *      uniqueConstraints={
- *          @ORM\UniqueConstraint(name="openId_UNIQUE", columns={"openId"})
+ *          @ORM\UniqueConstraint(name="openId_UNIQUE", columns={"openId"}),
+ *          @ORM\UniqueConstraint(name="authCode_UNIQUE", columns={"authCode"})
  *      }
  * )
  * @ORM\Entity()
