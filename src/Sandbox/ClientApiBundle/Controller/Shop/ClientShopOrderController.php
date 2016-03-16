@@ -271,6 +271,60 @@ class ClientShopOrderController extends ShopRestController
     }
 
     /**
+     * @Method({"GET"})
+     * @Route("/shops/orders/{id}/remaining")
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getOrderRemainingTimeAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ShopOrder::STATUS_UNPAID,
+            ]
+        );
+
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $now = new \DateTime();
+        $creationDate = $order->getCreationDate();
+        $remainingTime = $now->diff($creationDate);
+
+        $minutes = $remainingTime->i;
+        $seconds = $remainingTime->s;
+        $minutes = 14 - $minutes;
+        $seconds = 59 - $seconds;
+
+        if ($minutes < 0) {
+            $minutes = 0;
+            $seconds = 0;
+
+            $order->setStatus('cancelled');
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+        }
+
+        $view = new View();
+        $view->setData(
+            [
+                'remainingMinutes' => $minutes,
+                'remainingSeconds' => $seconds,
+            ]
+        );
+
+        return $view;
+    }
+
+    /**
      * @param $order
      *
      * @return View

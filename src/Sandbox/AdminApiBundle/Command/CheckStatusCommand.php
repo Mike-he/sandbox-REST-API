@@ -79,7 +79,7 @@ class CheckStatusCommand extends ContainerAwareCommand
             }
 
             $order->setStatus(ShopOrder::STATUS_CANCELLED);
-            $order->setCancelDate($now);
+            $order->setCancelledDate($now);
             $order->setModificationDate($now);
             $em->flush();
         }
