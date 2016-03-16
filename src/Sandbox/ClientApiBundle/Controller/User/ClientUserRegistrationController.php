@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Traits\WeChatApi;
 use Sandbox\ApiBundle\Traits\YunPianSms;
-use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
 use Sandbox\ClientApiBundle\Data\User\RegisterVerify;
@@ -41,7 +40,6 @@ use JMS\Serializer\SerializationContext;
 class ClientUserRegistrationController extends UserRegistrationController
 {
     // Traits
-    use StringUtil;
     use YunPianSms;
     use WeChatApi;
 
