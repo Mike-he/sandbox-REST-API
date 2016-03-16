@@ -43,7 +43,10 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         $industries = $this->getRepo('Company\CompanyIndustryMap')->findByCompanyId($id);
         $this->throwNotFoundIfNull($industries, self::NOT_FOUND_MESSAGE);
 
-        $view = new View($industries);
+        // translate industry key
+        $industriesResult = $this->generateCompanyIndustriesArray($industries);
+
+        $view = new View($industriesResult);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('company_industry')));
 
         return $view;
@@ -135,5 +138,31 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         );
 
         return new View();
+    }
+
+    /**
+     * @param $industries
+     *
+     * @return array
+     */
+    private function generateCompanyIndustriesArray(
+        $industries
+    ) {
+        if (empty($industries)) {
+            return;
+        }
+
+        foreach ($industries as $industryMap) {
+            if (is_null($industryMap)) {
+                continue;
+            }
+
+            $industry = $industryMap->getIndustry();
+            $industryKey = $industry->getKey();
+            $industryTrans = $this->get('translator')->trans(self::COMPANY_INDUSTRY_PREFIX.$industryKey);
+            $industry->setName($industryTrans);
+        }
+
+        return $industries;
     }
 }
