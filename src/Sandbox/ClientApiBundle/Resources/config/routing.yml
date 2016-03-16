@@ -251,3 +251,9 @@ sandbox_client_third_party_oauth:
     resource: "@SandboxClientApiBundle/Controller/ThirdParty/ClientThirdPartyOAuthController.php"
     type:     annotation
     prefix:   /thirdparty/oauth
+
+# Third Party WeChat /client/thirdparty/wechat
+sandbox_client_third_party_wechat:
+    resource: "@SandboxClientApiBundle/Controller/ThirdParty/ClientThirdPartyWeChatController.php"
+    type:     annotation
+    prefix:   /thirdparty/wechat
