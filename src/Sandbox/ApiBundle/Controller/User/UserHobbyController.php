@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller\User;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -18,7 +17,7 @@ use JMS\Serializer\SerializationContext;
  *
  * @link     http://www.Sandbox.cn/
  */
-class UserHobbyController extends SandboxRestController
+class UserHobbyController extends UserProfileController
 {
     /**
      * Get all hobbies.
@@ -39,7 +38,9 @@ class UserHobbyController extends SandboxRestController
     ) {
         $hobbies = $this->getRepo('User\UserHobby')->findAll();
 
-        $view = new View($hobbies);
+        $hobbiesResults = $this->generateHobbyResult($hobbies);
+
+        $view = new View($hobbiesResults);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('hobbies'))
         );
@@ -69,5 +70,31 @@ class UserHobbyController extends SandboxRestController
         $hobby = $this->getRepo('User\UserHobby')->find($id);
 
         return new View($hobby);
+    }
+
+    /**
+     * @param $hobbies
+     *
+     * @return array
+     */
+    private function generateHobbyResult(
+        $hobbies
+    ) {
+        if (empty($hobbies)) {
+            return;
+        }
+
+        foreach ($hobbies as $hobby) {
+            if (is_null($hobby)) {
+                continue;
+            }
+
+            // translate hobby key
+            $hobbyKey = $hobby->getKey();
+            $trans = $this->get('translator')->trans(self::USER_HOBBY_PREFIX.$hobbyKey);
+            $hobby->setName($trans);
+        }
+
+        return $hobbies;
     }
 }
