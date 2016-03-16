@@ -80,7 +80,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             $user = $weChat->getUser();
         }
 
-        $responseArray = $this->handleClientUserLogin($request, $user, $login, $weChat);
+        $responseArray = $this->handleClientUserLogin($request, $user, $login);
 
         // response
         $view = new View();
@@ -125,6 +125,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         $weChat->setRefreshToken($result['refresh_token']);
         $weChat->setExpiresIn($result['expires_in']);
         $weChat->setScope($result['scope']);
+        $weChat->setAuthCode($code);
         $weChat->setModificationDate($now);
 
         if (array_key_exists('unionid', $result)) {

@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\Controller\User;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
 use Sandbox\ClientApiBundle\Data\User\UserLoginDeviceData;
-use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserToken;
@@ -35,7 +34,6 @@ class UserLoginController extends SandboxRestController
      * @param Request       $request
      * @param User          $user
      * @param UserLoginData $login
-     * @param WeChat        $weChat
      *
      * @return View
      *
@@ -44,8 +42,7 @@ class UserLoginController extends SandboxRestController
     protected function handleClientUserLogin(
         Request $request,
         $user,
-        $login,
-        $weChat = null
+        $login
     ) {
         $data = array();
 
@@ -75,11 +72,6 @@ class UserLoginController extends SandboxRestController
 
             $data['user'] = $user;
             $data['token'] = $userToken;
-        }
-
-        if (!is_null($weChat)) {
-            $weChat->setUserClient($userClient);
-            $data['wechat'] = $weChat;
         }
 
         $em->flush();

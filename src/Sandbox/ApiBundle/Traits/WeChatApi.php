@@ -51,16 +51,17 @@ trait WeChatApi
     }
 
     /**
-     * @param string $openId
-     * @param string $accessToken
+     * @param WeChat $weChat
      *
      * @return array
      */
     public function doWeChatAuthByOpenIdAccessToken(
-        $openId,
-        $accessToken
+        $weChat
     ) {
         try {
+            $openId = $weChat->getOpenId();
+            $accessToken = $weChat->getAccessToken();
+
             $url = WeChatConstants::URL_AUTH;
             $params = "access_token=$accessToken&openid=$openId";
             $apiUrl = $url.$params;
@@ -76,7 +77,38 @@ trait WeChatApi
 
             return $result;
         } catch (\Exception $e) {
-            throw new UnauthorizedHttpException('WeChat login failed!');
+            throw new UnauthorizedHttpException('WeChat auth failed!');
+        }
+    }
+
+    /**
+     * @param WeChat $weChat
+     *
+     * @return array
+     */
+    public function getWeChatSnsUserInfo(
+        $weChat
+    ) {
+        try {
+            $openId = $weChat->getOpenId();
+            $accessToken = $weChat->getAccessToken();
+
+            $url = WeChatConstants::URL_USER_INFO;
+            $params = "access_token=$accessToken&openid=$openId";
+            $apiUrl = $url.$params;
+
+            $ch = curl_init($apiUrl);
+            $response = $this->getContainer()->get('curl_util')->callAPI($ch, 'GET');
+            $result = json_decode($response, true);
+
+            if (is_null($result)
+                || array_key_exists('errcode', $result)) {
+                throw new UnauthorizedHttpException('WeChat login unauthorized!');
+            }
+
+            return $result;
+        } catch (\Exception $e) {
+            throw new UnauthorizedHttpException('WeChat get user info failed!');
         }
     }
 }

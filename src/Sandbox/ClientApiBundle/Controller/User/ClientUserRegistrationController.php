@@ -513,7 +513,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             return false;
         }
 
-        if (is_null($weChatData->getOpenId()) || is_null($weChatData->getAccessToken())) {
+        if (is_null($weChatData->getCode())) {
             return false;
         }
 
@@ -535,16 +535,10 @@ class ClientUserRegistrationController extends UserRegistrationController
         $weChat = null;
 
         if ($this->hasThirdPartyLogin($weChatData)) {
-            $openId = $weChatData->getOpenId();
-            $accessToken = $weChatData->getAccessToken();
-
-            $weChat = $this->getRepo('ThirdParty\WeChat')->findOneBy(array(
-                'openid' => $openId,
-                'accessToken' => $accessToken,
-            ));
+            $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByAuthCode($weChatData->getCode());
 
             // do oauth with WeChat api with openId and accessToken
-            $this->doWeChatAuthByOpenIdAccessToken($openId, $accessToken);
+            $this->doWeChatAuthByOpenIdAccessToken($weChat);
         }
 
         return $this->saveAuthForResponse($em, $user, $weChat);
