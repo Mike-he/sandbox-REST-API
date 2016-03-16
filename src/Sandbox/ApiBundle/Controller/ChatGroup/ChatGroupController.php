@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Traits\CurlUtil;
 
 /**
  * Chat Group Controller.
@@ -19,6 +20,8 @@ use Sandbox\ApiBundle\Entity\User\User;
  */
 class ChatGroupController extends SandboxRestController
 {
+    use CurlUtil;
+
     /**
      * @param array $members
      * 
@@ -307,7 +310,7 @@ class ChatGroupController extends SandboxRestController
             $ch = curl_init($apiURL);
 
             // get then response when post OpenFire API
-            $response = $this->get('curl_util')->callAPI($ch, $method, null, $jsonData);
+            $response = $this->callAPI($ch, $method, null, $jsonData);
 
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($httpCode != self::HTTP_STATUS_OK) {
@@ -379,7 +382,7 @@ class ChatGroupController extends SandboxRestController
             $ch = curl_init($apiURL);
 
             // get then response when post OpenFire API
-            $response = $this->get('curl_util')->callAPI($ch, 'POST', null, $jsonData);
+            $response = $this->callAPI($ch, 'POST', null, $jsonData);
 
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($httpCode != self::HTTP_STATUS_OK) {

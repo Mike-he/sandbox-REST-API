@@ -19,6 +19,7 @@ use Sandbox\ApiBundle\Entity\User\User;
 trait SendNotification
 {
     use CommonMethod;
+    use CurlUtil;
 
     /**
      * @param string $type
@@ -166,7 +167,7 @@ trait SendNotification
 
             // call OpenFire API
             $ch = curl_init($apiURL);
-            $this->getContainer()->get('curl_util')->callAPI($ch, 'POST', null, $jsonData);
+            $this->callAPI($ch, 'POST', null, $jsonData);
         } catch (Exception $e) {
             error_log('Send XMPP notification went wrong.');
         }

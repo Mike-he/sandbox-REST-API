@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+//use Sandbox\ApiBundle\Traits\CurlUtil;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -9,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckStatusCommand extends ContainerAwareCommand
 {
+    //    use CurlUtil;
+
     const HTTP_STATUS_OK = 200;
 
     protected function configure()
@@ -111,7 +114,7 @@ class CheckStatusCommand extends ContainerAwareCommand
 //
 //        // init curl
 //        $ch = curl_init($apiUrl);
-//        $response = $this->getContainer()->get('curl_util')->callAPI(
+//        $response = $this->callAPI(
 //            $ch,
 //            'POST',
 //            array('Sandbox-Auth: '.$contentMd5),

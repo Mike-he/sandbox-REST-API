@@ -7,6 +7,7 @@ use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Auth\AdminAuth;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Traits\CurlUtil;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
@@ -28,6 +29,7 @@ use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 class SandboxRestController extends FOSRestController
 {
     use DoorAccessTrait;
+    use CurlUtil;
 
     // TODO move constants to constant folder
 
@@ -298,7 +300,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'GET',
             array('Authorization: '.$auth)
@@ -353,7 +355,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'GET',
             array(self::SANDBOX_CUSTOM_HEADER.$contentMd5)
@@ -403,7 +405,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'POST',
             array(self::SANDBOX_CUSTOM_HEADER.$auth),
@@ -449,7 +451,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'POST',
             array(self::SANDBOX_CUSTOM_HEADER.$auth),
@@ -493,7 +495,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'POST',
             array(self::SANDBOX_CUSTOM_HEADER.$auth),
@@ -586,7 +588,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'GET',
             array('Authorization: '.$auth)
@@ -629,7 +631,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'GET',
             array('Authorization: '.$auth)
@@ -686,7 +688,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'POST',
             array('Authorization: '.$auth),
@@ -920,7 +922,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'POST',
             array(self::SANDBOX_CUSTOM_HEADER.$contentMd5)
@@ -959,7 +961,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'GET',
             array(self::SANDBOX_CUSTOM_HEADER.$contentMd5)
@@ -1016,7 +1018,7 @@ class SandboxRestController extends FOSRestController
         $ch = curl_init($apiUrl);
 
         // get then response when post OpenFire API
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'PUT',
             array('Authorization: '.$auth),
@@ -1143,7 +1145,7 @@ class SandboxRestController extends FOSRestController
         // init curl
         $ch = curl_init($apiUrl);
 
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'POST',
             array(self::SANDBOX_CUSTOM_HEADER.$key),

@@ -58,9 +58,7 @@ trait StringUtil
         $tag,
         $inthat
     ) {
-        if (!is_bool(strpos($inthat, $tag))) {
-            return substr($inthat, strpos($inthat, $tag) + strlen($tag));
-        }
+        return substr($inthat, strpos($inthat, $tag) + strlen($tag));
     }
 
     /**
@@ -89,5 +87,38 @@ trait StringUtil
         $inthat
     ) {
         return $this->before($end, $this->after($begin, $inthat));
+    }
+
+    /**
+     * @param string $basicAuth
+     *
+     * @return string
+     */
+    public function getUsernameFromBasicAuth(
+        $basicAuth
+    ) {
+        return $this->before(':', $this->getDecodedBasicAuth($basicAuth));
+    }
+
+    /**
+     * @param string $basicAuth
+     *
+     * @return string
+     */
+    public function getPasswordFromBasicAuth(
+        $basicAuth
+    ) {
+        return $this->after(':', $this->getDecodedBasicAuth($basicAuth));
+    }
+
+    /**
+     * @param string $basicAuth
+     *
+     * @return string
+     */
+    public function getDecodedBasicAuth(
+        $basicAuth
+    ) {
+        return base64_decode($this->after('Basic ', $basicAuth));
     }
 }

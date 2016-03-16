@@ -443,7 +443,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $ch = curl_init($apiUrl);
 
         // get then response when post OpenFire API
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'POST',
             array('Authorization: '.$basicAuth),
@@ -538,7 +538,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByAuthCode($weChatData->getCode());
 
             // do oauth with WeChat api with openId and accessToken
-            $this->doWeChatAuthByOpenIdAccessToken($weChat);
+            $this->throwUnauthorizedIfWeChatAuthFail($weChat);
         }
 
         return $this->saveAuthForResponse($em, $user, $weChat);
