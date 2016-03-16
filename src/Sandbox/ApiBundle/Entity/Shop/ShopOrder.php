@@ -116,10 +116,10 @@ class ShopOrder
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="cancelDate", type="datetime", nullable=true)
+     * @ORM\Column(name="cancelledDate", type="datetime", nullable=true)
      * @Serializer\Groups({"main", "admin_shop", "client_order"})
      */
-    private $cancelDate;
+    private $cancelledDate;
 
     /**
      * @var \DateTime
@@ -397,27 +397,27 @@ class ShopOrder
     }
 
     /**
-     * Set cancelDate.
+     * Set cancelledDate.
      *
-     * @param \DateTime $cancelDate
+     * @param \DateTime $cancelledDate
      *
      * @return ShopOrder
      */
-    public function setCancelDate($cancelDate)
+    public function setCancelledDate($cancelledDate)
     {
-        $this->cancelDate = $cancelDate;
+        $this->cancelledDate = $cancelledDate;
 
         return $this;
     }
 
     /**
-     * Get cancelDate.
+     * Get cancelledDate.
      *
      * @return \DateTime
      */
-    public function getCancelDate()
+    public function getCancelledDate()
     {
-        return $this->cancelDate;
+        return $this->cancelledDate;
     }
 
     /**

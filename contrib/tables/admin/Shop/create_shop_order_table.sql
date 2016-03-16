@@ -7,7 +7,7 @@ CREATE TABLE `ShopOrder` (
   `price` DECIMAL PRECISION 10 SCALE 2 NOT NULL,
   `status` varchar(64) NOT NULL,
   `paymentDate` datetime NOT NULL,
-  `cancelDate` datetime NOT NULL,
+  `cancelledDate` datetime NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   `linkedOrderId` int(11),

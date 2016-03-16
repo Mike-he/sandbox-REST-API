@@ -523,6 +523,7 @@ class ShopProduct implements JsonSerializable
                 'name' => $this->menu->getName(),
             ),
             'name' => $this->name,
+            'description' => $this->description,
         );
     }
 }
