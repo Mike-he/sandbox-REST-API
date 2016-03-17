@@ -76,8 +76,7 @@ class RoomBuildingRepository extends EntityRepository
             )
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
-            ->setParameter('range', $range)
-            ->setMaxResults(1);
+            ->setParameter('range', $range);
 
         return $query->getResult();
     }

@@ -3,6 +3,7 @@
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Rs\Json\Patch;
+use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
@@ -454,6 +455,8 @@ class AdminShopOrderController extends ShopController
         $em->persist($order);
 
         $oldOrder->setLinkedOrder($order);
+
+        $priceData = new ShopOrderPriceData();
 
         $inventoryError = $this->handleShopOrderProductPost(
             $em,
