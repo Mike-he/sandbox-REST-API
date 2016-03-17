@@ -99,7 +99,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
     ) {
         $code = $weChatData->getCode();
         if (is_null($code) || empty($code)) {
-            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // call WeChat API to get access token

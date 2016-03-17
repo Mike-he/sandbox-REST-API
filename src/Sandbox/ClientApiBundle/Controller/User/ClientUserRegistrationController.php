@@ -534,6 +534,9 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         if ($this->hasThirdPartyLogin($weChatData)) {
             $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByAuthCode($weChatData->getCode());
+            if (is_null($weChat)) {
+                $this->throwNotFoundIfNull($weChat, self::NOT_FOUND_MESSAGE);
+            }
 
             // do oauth with WeChat api with openId and accessToken
             $this->throwUnauthorizedIfWeChatAuthFail($weChat);
