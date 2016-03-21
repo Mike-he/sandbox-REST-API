@@ -25,6 +25,7 @@ class Version20160316112956_14885_feature extends AbstractMigration
         $this->addSql("UPDATE UserHobby SET `key` = 'tourism' WHERE `name` = '旅游'");
         $this->addSql("UPDATE UserHobby SET `key` = 'mountaineering' WHERE `name` = '登山运动'");
         $this->addSql("UPDATE UserHobby SET `key` = 'musical_instruments' WHERE `name` = '乐器'");
+        $this->addSql("UPDATE UserHobby SET `key` = 'music' WHERE `name` = '音乐'");
         $this->addSql("UPDATE UserHobby SET `key` = 'dancing' WHERE `name` = '舞蹈'");
         $this->addSql("UPDATE UserHobby SET `key` = 'tea' WHERE `name` = '饮茶'");
         $this->addSql("UPDATE UserHobby SET `key` = 'movie' WHERE `name` = '影视'");
