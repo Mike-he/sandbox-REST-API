@@ -557,7 +557,6 @@ class ClientUserRegistrationController extends UserRegistrationController
         $user,
         $weChat = null
     ) {
-        // bind WeChat with user
         $now = new \DateTime();
 
         // create auth for user login with third party oauth
@@ -579,17 +578,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $userToken = $this->saveUserToken($em, $user, $userClient);
 
         // update WeChat if any
-        if (!is_null($weChat)) {
-            if (is_null($weChat->getUser())) {
-                $weChat->setUser($user);
-            }
-
-            if (is_null($weChat->getUserClient())) {
-                $weChat->setUserClient($userClient);
-            }
-
-            $weChat->setModificationDate($now);
-        }
+        $this->updateWeChatBinding($weChat, $user, $userClient, $now);
 
         // response
         return array(
@@ -597,5 +586,35 @@ class ClientUserRegistrationController extends UserRegistrationController
             'token' => $userToken,
             'user' => $user,
         );
+    }
+
+    /**
+     * @param WeChat     $weChat
+     * @param User       $user
+     * @param UserClient $userClient
+     * @param \DateTime  $now
+     */
+    private function updateWeChatBinding(
+        $weChat,
+        $user,
+        $userClient,
+        $now
+    ) {
+        if (is_null($weChat)) {
+            return;
+        }
+
+        if (!is_null($weChat->getUser())) {
+            return;
+        }
+
+        $myWeChat = $this->getRepo('ThirdParty\WeChat')->findOneByUser($user);
+        if (!is_null($myWeChat)) {
+            $myWeChat->setUser(null);
+        }
+
+        $weChat->setUser($user);
+        $weChat->setUserClient($userClient);
+        $weChat->setModificationDate($now);
     }
 }
