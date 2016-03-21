@@ -48,7 +48,7 @@ class WeChat
     /**
      * @var string
      *
-     * @ORM\Column(name="openId", type="string", length=256, nullable=false)
+     * @ORM\Column(name="openId", type="string", length=128, nullable=false)
      */
     private $openid;
 
@@ -90,7 +90,7 @@ class WeChat
     /**
      * @var string
      *
-     * @ORM\Column(name="authCode", type="string", length=256, nullable=true)
+     * @ORM\Column(name="authCode", type="string", length=128, nullable=true)
      */
     private $authCode;
 
