@@ -573,6 +573,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             $userClient->setModificationDate($now);
 
             $em->persist($userClient);
+            $em->flush();
         }
 
         $userToken = $this->saveUserToken($em, $user, $userClient);
