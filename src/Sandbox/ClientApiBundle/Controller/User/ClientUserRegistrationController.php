@@ -578,7 +578,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $userToken = $this->saveUserToken($em, $user, $userClient);
 
         // update WeChat if any
-        $this->updateWeChatBinding($weChat, $user, $userClient, $now);
+        $this->updateWeChatBinding($em, $weChat, $user, $userClient, $now);
 
         // response
         return array(
@@ -589,12 +589,14 @@ class ClientUserRegistrationController extends UserRegistrationController
     }
 
     /**
-     * @param WeChat     $weChat
-     * @param User       $user
-     * @param UserClient $userClient
-     * @param \DateTime  $now
+     * @param EntityManager $em
+     * @param WeChat        $weChat
+     * @param User          $user
+     * @param UserClient    $userClient
+     * @param \DateTime     $now
      */
     private function updateWeChatBinding(
+        $em,
         $weChat,
         $user,
         $userClient,
@@ -611,6 +613,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $myWeChat = $this->getRepo('ThirdParty\WeChat')->findOneByUser($user);
         if (!is_null($myWeChat)) {
             $myWeChat->setUser(null);
+            $em->flush();
         }
 
         $weChat->setUser($user);
