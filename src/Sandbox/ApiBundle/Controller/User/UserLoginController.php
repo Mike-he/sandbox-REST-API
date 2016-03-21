@@ -126,6 +126,9 @@ class UserLoginController extends SandboxRestController
         $client->setIpAddress($request->getClientIp());
         $client->setModificationDate($now);
 
+        // save to db
+        $em->flush();
+
         return $client;
     }
 
