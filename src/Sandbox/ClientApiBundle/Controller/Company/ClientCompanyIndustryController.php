@@ -139,30 +139,4 @@ class ClientCompanyIndustryController extends CompanyIndustryController
 
         return new View();
     }
-
-    /**
-     * @param $industries
-     *
-     * @return array
-     */
-    private function generateCompanyIndustriesArray(
-        $industries
-    ) {
-        if (empty($industries)) {
-            return;
-        }
-
-        foreach ($industries as $industryMap) {
-            if (is_null($industryMap)) {
-                continue;
-            }
-
-            $industry = $industryMap->getIndustry();
-            $industryKey = $industry->getKey();
-            $industryTrans = $this->get('translator')->trans(self::COMPANY_INDUSTRY_PREFIX.$industryKey);
-            $industry->setName($industryTrans);
-        }
-
-        return $industries;
-    }
 }
