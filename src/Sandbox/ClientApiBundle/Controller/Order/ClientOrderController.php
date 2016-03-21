@@ -2,13 +2,11 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
-use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
-use Sandbox\ApiBundle\Entity\Order\ProductOrderCheck;
-use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +20,6 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Rest controller for Client Orders.
@@ -34,12 +31,12 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ClientOrderController extends PaymentController
+class ClientOrderController extends OrderController
 {
     use ProductOrderNotification;
+
     const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';
-    const PRODUCT_ORDER_LETTER_HEAD = 'P';
 
     /**
      * Get all orders for current user.
@@ -189,6 +186,7 @@ class ClientOrderController extends PaymentController
     ) {
         $em = $this->getDoctrine()->getManager();
         $orderCheck = null;
+        $now = new \DateTime();
 
         try {
             $userId = $this->getUserId();
@@ -210,45 +208,27 @@ class ClientOrderController extends PaymentController
             $productId = $order->getProductId();
             $product = $this->getRepo('Product\Product')->find($productId);
 
-            if (is_null($product)) {
-                return $this->customErrorView(
-                    400,
-                    self::PRODUCT_NOT_FOUND_CODE,
-                    self::PRODUCT_NOT_FOUND_MESSAGE
-                );
-            }
-            $productStart = $product->getStartDate();
-            $productEnd = $product->getEndDate();
-            $now = new \DateTime();
-            $type = $product->getRoom()->getType();
             $startDate = new \DateTime($order->getStartDate());
 
-            if (
-                $now < $productStart ||
-                $now > $productEnd ||
-                $startDate < $productStart ||
-                $startDate > $productEnd ||
-                $product->getVisible() == false
-            ) {
+            // check product
+            $error = $this->checkIfProductAvailable(
+                $product,
+                $now,
+                $startDate
+            );
+
+            if (!empty($error)) {
                 return $this->customErrorView(
                     400,
-                    self::PRODUCT_NOT_AVAILABLE_CODE,
-                    self::PRODUCT_NOT_AVAILABLE_MESSAGE
+                    $error['code'],
+                    $error['message']
                 );
             }
 
             $period = $form['rent_period']->getData();
             $timeUnit = $form['time_unit']->getData();
-            $basePrice = $product->getBasePrice();
-            $calculatedPrice = $basePrice * $period;
 
-            if ($order->getPrice() != $calculatedPrice) {
-                return $this->customErrorView(
-                    400,
-                    self::PRICE_MISMATCH_CODE,
-                    self::PRICE_MISMATCH_MESSAGE
-                );
-            }
+            $type = $product->getRoom()->getType();
 
             if ($type === Room::TYPE_OFFICE && $order->getIsRenew()) {
                 $myEnd = $now->modify('+ 7 days');
@@ -271,66 +251,35 @@ class ClientOrderController extends PaymentController
                 $diff = $startDate->diff($now)->days;
                 if ($diff > 7) {
                     return $this->customErrorView(
+
                         400,
                         self::NOT_WITHIN_DATE_RANGE_CODE,
                         self::NOT_WITHIN_DATE_RANGE_MESSAGE
                     );
                 }
-                $datePeriod = $period;
-                if ($timeUnit === 'hour') {
-                    $datePeriod = $period * 60;
-                    $timeUnit = 'min';
-                } elseif ($timeUnit === 'month') {
-                    $datePeriod = $period * 30;
-                    $timeUnit = 'days';
-                }
-                $endDate = clone $startDate;
-                $endDate->modify('+'.$datePeriod.$timeUnit);
+
+                $endDate = $this->getOrderEndDate(
+                    $period,
+                    $timeUnit,
+                    $startDate
+                );
             }
 
-            if ($type == Room::TYPE_OFFICE || $type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
-                $nowDate = $now->format('Y-m-d');
-                $startPeriod = $startDate->format('Y-m-d');
-                if ($nowDate > $startPeriod) {
-                    return $this->customErrorView(
-                        400,
-                        self::WRONG_BOOKING_DATE_CODE,
-                        self::WRONG_BOOKING_DATE_MESSAGE
-                    );
-                }
-                $endDate->modify('- 1 day');
-                $endDate->setTime(23, 59, 59);
-            } else {
-                $timeModify = $this->getGlobal('time_for_half_hour_early');
-                $halfHour = clone $now;
-                $halfHour->modify($timeModify);
+            // check booking dates
+            $error = $this->checkIfRoomOpen(
+                $type,
+                $now,
+                $startDate,
+                $endDate,
+                $product
+            );
 
-                // check to allow ordering half an hour early
-                if ($halfHour > $startDate) {
-                    return $this->customErrorView(
-                        400,
-                        self::WRONG_BOOKING_DATE_CODE,
-                        self::WRONG_BOOKING_DATE_MESSAGE
-                    );
-                }
-
-                $startHour = $startDate->format('H:i:s');
-                $endHour = $endDate->format('H:i:s');
-                $roomId = $product->getRoomId();
-                $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $roomId]);
-                if (!is_null($meeting)) {
-                    $allowedStart = $meeting->getStartHour();
-                    $allowedStart = $allowedStart->format('H:i:s');
-                    $allowedEnd = $meeting->getEndHour();
-                    $allowedEnd = $allowedEnd->format('H:i:s');
-                    if ($startHour < $allowedStart || $endHour > $allowedEnd) {
-                        return $this->customErrorView(
-                            400,
-                            self::ROOM_NOT_OPEN_CODE,
-                            self::ROOM_NOT_OPEN_MESSAGE
-                        );
-                    }
-                }
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
             }
 
             // check if it's same order from the same user
@@ -361,68 +310,46 @@ class ClientOrderController extends PaymentController
                 $endDate
             );
 
-            // check for discount rule and price
-            $ruleId = $form['rule_id']->getData();
-            if (!is_null($ruleId) && !empty($ruleId)) {
-                $order->setRuleId($ruleId);
-                $discountPrice = $order->getDiscountPrice();
-                $isRenew = $order->getIsRenew();
-                $result = $this->getDiscountPriceForOrder(
-                    $ruleId,
-                    $productId,
-                    $period,
-                    $startDate,
-                    $endDate,
-                    $isRenew
+            // check if price match
+            $error = $this->checkIfPriceMatch(
+                $order,
+                $productId,
+                $product,
+                $period,
+                $startDate,
+                $endDate
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
                 );
-
-                if (array_key_exists('bind_product_id', $result['rule'])) {
-                    $order->setMembershipBindId($result['rule']['bind_product_id']);
-                }
-
-                if ($discountPrice != $result['discount_price']) {
-                    return $this->customErrorView(
-                        400,
-                        self::DISCOUNT_PRICE_MISMATCH_CODE,
-                        self::DISCOUNT_PRICE_MISMATCH_MESSAGE
-                    );
-                }
-
-                if (array_key_exists('rule_name', $result['rule'])) {
-                    $order->setRuleName($result['rule']['rule_name']);
-                }
-
-                if (array_key_exists('rule_description', $result['rule'])) {
-                    $order->setRuleDescription($result['rule']['rule_description']);
-                }
             }
 
-            $orderNumber = $this->getOrderNumberForProductOrder(
-                self::PRODUCT_ORDER_LETTER_HEAD,
+            // set product order
+            $order = $this->setOrderFields(
+                $order,
+                $product,
+                $startDate,
+                $endDate,
+                $user,
                 $orderCheck
             );
-            $productInfo = $this->storeRoomInfo($product);
 
-            // set product order
-            $order->setOrderNumber($orderNumber);
-            $order->setProduct($product);
-            $order->setStartDate($startDate);
-            $order->setEndDate($endDate);
-            $order->setUser($user);
-            $order->setLocation('location');
-            $order->setStatus('unpaid');
-            $order->setProductInfo($productInfo);
+            $order->setStatus(ProductOrder::STATUS_UNPAID);
+
             $em->persist($order);
 
             // store order record
-            $room = $this->getRepo('Room\Room')->find($product->getRoomId());
-            $roomRecord = new ProductOrderRecord();
-            $roomRecord->setOrder($order);
-            $roomRecord->setCityId($room->getCityId());
-            $roomRecord->setBuildingId($room->getBuildingId());
-            $roomRecord->setRoomType($room->getType());
+            $this->storeRoomRecord(
+                $em,
+                $order,
+                $product
+            );
+
             $em->remove($orderCheck);
-            $em->persist($roomRecord);
             $em->flush();
 
             $view = new View();
@@ -439,104 +366,6 @@ class ClientOrderController extends PaymentController
 
             throw $exception;
         }
-    }
-
-    /**
-     * @param $product
-     *
-     * @return string
-     */
-    public function storeRoomInfo(
-        $product
-    ) {
-        $room = $this->getRepo('Room\Room')->find($product->getRoomId());
-        $city = $this->getRepo('Room\RoomCity')->find($room->getCityId());
-        $building = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
-        $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
-        $supplies = $this->getRepo('Room\RoomSupplies')->findBy(['room' => $room->getId()]);
-        $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $room->getId()]);
-        $bindings = $this->getRepo('Room\RoomAttachmentBinding')->findBy(
-            ['room' => $room->getId()],
-            ['id' => 'ASC']
-        );
-
-        $supplyArray = [];
-        $meetingArray = [];
-        $attachmentArray = [];
-        if (!is_null($supplies) && !empty($supplies)) {
-            foreach ($supplies as $supply) {
-                $eachSupply = [
-                    'supply' => [
-                        'id' => $supply->getSupply()->getId(),
-                        'name' => $supply->getSupply()->getName(),
-                    ],
-                    'quantity' => $supply->getQuantity(),
-                ];
-                array_push($supplyArray, $eachSupply);
-            }
-        }
-        if (!is_null($meeting)) {
-            $meetingArray = [
-                'id' => $meeting->getId(),
-                'start_hour' => $meeting->getStartHour(),
-                'end_hour' => $meeting->getEndHour(),
-            ];
-        }
-        if (!is_null($bindings) && !empty($bindings)) {
-            foreach ($bindings as $binding) {
-                $attachment = $binding->getAttachmentId();
-                $eachAttachment = [
-                    'attachment_id' => [
-                        'id' => $attachment->getId(),
-                        'content' => $attachment->getContent(),
-                        'attachment_type' => $attachment->getAttachmentType(),
-                        'filename' => $attachment->getFilename(),
-                        'preview' => $attachment->getPreview(),
-                        'size' => $attachment->getSize(),
-                    ],
-                ];
-                array_push($attachmentArray, $eachAttachment);
-            }
-        }
-
-        $productInfo = [
-            'id' => $product->getId(),
-            'description' => $product->getDescription(),
-            'base_price' => $product->getBasePrice(),
-            'unit_price' => $product->getUnitPrice(),
-            'renewable' => $product->getRenewable(),
-            'start_date' => $product->getStartDate(),
-            'end_date' => $product->getEndDate(),
-            'room' => [
-                'id' => $room->getId(),
-                'name' => $room->getName(),
-                'city' => [
-                    'id' => $city->getId(),
-                    'name' => $city->getName(),
-                ],
-                'building' => [
-                    'id' => $building->getId(),
-                    'name' => $building->getName(),
-                    'address' => $building->getAddress(),
-                    'lat' => $building->getLat(),
-                    'lng' => $building->getLng(),
-                ],
-                'floor' => [
-                    'id' => $floor->getId(),
-                    'floor_number' => $floor->getFloorNumber(),
-                ],
-                'number' => $room->getNumber(),
-                'area' => $room->getArea(),
-                'type' => $room->getType(),
-                'allowed_people' => $room->getAllowedPeople(),
-                'office_supplies' => $supplyArray,
-                'meeting' => $meetingArray,
-                'attachment' => $attachmentArray,
-            ],
-            'seat_number' => $product->getSeatNumber(),
-        ];
-
-        return json_encode($productInfo);
     }
 
     /**
@@ -1110,116 +939,6 @@ class ClientOrderController extends PaymentController
     }
 
     /**
-     * @param $productId
-     * @param $startDate
-     * @param $endDate
-     *
-     * @return ProductOrderCheck
-     */
-    private function setProductOrderCheck(
-        $productId,
-        $startDate,
-        $endDate
-    ) {
-        $em = $this->getDoctrine()->getManager();
-        $orderCheck = new ProductOrderCheck();
-        $orderCheck->setProductId($productId);
-        $orderCheck->setStartDate($startDate);
-        $orderCheck->setEndDate($endDate);
-        $em->persist($orderCheck);
-        $em->flush();
-
-        return $orderCheck;
-    }
-
-    /**
-     * @param $em
-     * @param $type
-     * @param $allowedPeople
-     * @param $productId
-     * @param $startDate
-     * @param $endDate
-     *
-     * @return View|ProductOrderCheck
-     */
-    private function orderDuplicationCheck(
-        $em,
-        $type,
-        $allowedPeople,
-        $productId,
-        $startDate,
-        $endDate
-    ) {
-        if ($type == Room::TYPE_FLEXIBLE) {
-            //check if flexible room is full before order creation
-            $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            if ($allowedPeople <= $orderCount) {
-                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
-            }
-
-            // check if flexible room is full after order check creation
-            // in case of duplicate submits
-            $orderCheck = $this->setProductOrderCheck(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkFlexibleForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            if ($allowedPeople < ($orderCount + $orderCheckCount)) {
-                $em->remove($orderCheck);
-                $em->flush();
-
-                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
-            }
-        } else {
-            // check for room conflict before order creation
-            $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            if (!empty($checkOrder) && !is_null($checkOrder)) {
-                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
-            }
-
-            // check for room conflict after order check creation
-            // in case of duplicate submits
-            $orderCheck = $this->setProductOrderCheck(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkProductForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            if ($orderCheckCount > 1) {
-                $em->remove($orderCheck);
-                $em->flush();
-
-                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
-            }
-        }
-
-        return $orderCheck;
-    }
-
-    /**
      * @param $order
      * @param $users
      * @param $removeUsers
@@ -1332,81 +1051,6 @@ class ClientOrderController extends PaymentController
                 ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
             );
         }
-    }
-
-    /**
-     * @param $order
-     */
-    private function removeAccessByOrder(
-        $order
-    ) {
-        $em = $this->getDoctrine()->getManager();
-        $order->setStatus(ProductOrder::STATUS_CANCELLED);
-        $order->setCancelledDate(new \DateTime());
-        $order->setModificationDate(new \DateTime());
-
-        // set access action to cancelled
-        $orderId = $order->getId();
-        $controls = $this->getRepo('Door\DoorAccess')->findByOrderId($orderId);
-        if (!empty($controls)) {
-            foreach ($controls as $control) {
-                $control->setAction(ProductOrder::STATUS_CANCELLED);
-                $control->setAccess(false);
-            }
-        }
-        $em->flush();
-
-        // send order email
-        $this->sendOrderEmail($order);
-
-        // get appointed user
-        $userArray = [];
-        $type = $order->getProduct()->getRoom()->getType();
-        if ($type == Room::TYPE_OFFICE) {
-            $action = ProductOrder::ACTION_INVITE_REMOVE;
-            // get invited users
-            $people = $this->getRepo('Order\InvitedPeople')->findBy(['orderId' => $order->getId()]);
-            if (!empty($people)) {
-                foreach ($people as $person) {
-                    array_push($userArray, $person->getUserId());
-                }
-            }
-        } else {
-            $action = ProductOrder::ACTION_APPOINT_REMOVE;
-            $appointed = $order->getAppointed();
-            if (!is_null($appointed) && !empty($appointed)) {
-                array_push($userArray, $appointed);
-            }
-        }
-
-        // send notification to invited and appointed users
-        $orderUser = $order->getUserId();
-        if (!empty($userArray)) {
-            $this->sendXmppProductOrderNotification(
-                $order,
-                $userArray,
-                $action,
-                $orderUser,
-                [],
-                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
-            );
-        }
-
-        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-        if (is_null($building)) {
-            return;
-        }
-        $base = $building->getServer();
-        if (is_null($base) || empty($base)) {
-            return;
-        }
-
-        $this->callRepealRoomOrderCommand(
-            $base,
-            $orderId
-        );
     }
 
     /**
