@@ -19,6 +19,8 @@ use Sandbox\ApiBundle\Entity\User\User;
  */
 class CompanyController extends SandboxRestController
 {
+    const COMPANY_INDUSTRY_PREFIX = 'company.industry.';
+
     /**
      * @param Company $company
      * @param int     $userId
@@ -47,6 +49,8 @@ class CompanyController extends SandboxRestController
         $industries = $this->getRepo('Company\CompanyIndustryMap')
             ->findByCompany($company);
         if (!is_null($industries) && !empty($industries)) {
+            // translate industry keys
+            $industries = $this->generateCompanyIndustriesArray($industries);
             $company->setIndustries($industries);
         }
 
@@ -118,5 +122,31 @@ class CompanyController extends SandboxRestController
         if (is_null($userCompany)) {
             $userProfile->setCompany($company);
         }
+    }
+
+    /**
+     * @param $industries
+     *
+     * @return array
+     */
+    protected function generateCompanyIndustriesArray(
+        $industries
+    ) {
+        if (empty($industries)) {
+            return;
+        }
+
+        foreach ($industries as $industryMap) {
+            if (is_null($industryMap)) {
+                continue;
+            }
+
+            $industry = $industryMap->getIndustry();
+            $industryKey = $industry->getKey();
+            $industryTrans = $this->get('translator')->trans(self::COMPANY_INDUSTRY_PREFIX.$industryKey);
+            $industry->setName($industryTrans);
+        }
+
+        return $industries;
     }
 }

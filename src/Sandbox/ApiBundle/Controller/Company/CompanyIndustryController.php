@@ -21,8 +21,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CompanyIndustryController extends CompanyController
 {
-    const COMPANY_INDUSTRY_PREFIX = 'company.industry.';
-
     /**
      * List all company industries.
      *
