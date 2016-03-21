@@ -56,7 +56,7 @@ class SandboxRestController extends FOSRestController
 
     const ENCODE_METHOD_SHA1 = 'sha1';
 
-    const Sandbox_ADMIN_LOGIN_HEADER = 'SandboxAdminAuthorization';
+    const SANDBOX_ADMIN_LOGIN_HEADER = 'sandboxadminauthorization';
 
     //-------------------- Global --------------------//
 
@@ -1522,10 +1522,10 @@ class SandboxRestController extends FOSRestController
     {
         // get auth
         $headers = apache_request_headers();
-        if (!array_key_exists(self::Sandbox_ADMIN_LOGIN_HEADER, $headers)) {
+        if (!array_key_exists(self::SANDBOX_ADMIN_LOGIN_HEADER, $headers)) {
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
-        $authHeader = $headers[self::Sandbox_ADMIN_LOGIN_HEADER];
+        $authHeader = $headers[self::SANDBOX_ADMIN_LOGIN_HEADER];
         $adminString = base64_decode($authHeader, true);
         $adminArray = explode(':', $adminString);
 
