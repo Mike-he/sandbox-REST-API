@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Traits\WeChatApi;
 use Sandbox\ApiBundle\Traits\YunPianSms;
-use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sandbox\ClientApiBundle\Data\User\RegisterSubmit;
 use Sandbox\ClientApiBundle\Data\User\RegisterVerify;
@@ -41,7 +40,6 @@ use JMS\Serializer\SerializationContext;
 class ClientUserRegistrationController extends UserRegistrationController
 {
     // Traits
-    use StringUtil;
     use YunPianSms;
     use WeChatApi;
 
@@ -443,7 +441,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $ch = curl_init($apiUrl);
 
         // get then response when post OpenFire API
-        $response = $this->get('curl_util')->callAPI(
+        $response = $this->callAPI(
             $ch,
             'POST',
             array('Authorization: '.$basicAuth),
@@ -536,9 +534,12 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         if ($this->hasThirdPartyLogin($weChatData)) {
             $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByAuthCode($weChatData->getCode());
+            if (is_null($weChat)) {
+                $this->throwNotFoundIfNull($weChat, self::NOT_FOUND_MESSAGE);
+            }
 
             // do oauth with WeChat api with openId and accessToken
-            $this->doWeChatAuthByOpenIdAccessToken($weChat);
+            $this->throwUnauthorizedIfWeChatAuthFail($weChat);
         }
 
         return $this->saveAuthForResponse($em, $user, $weChat);

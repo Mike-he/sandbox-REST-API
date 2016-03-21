@@ -13,6 +13,8 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 trait WeChatApi
 {
     use CommonMethod;
+    use StringUtil;
+    use CurlUtil;
 
     /**
      * @param string $code
@@ -22,32 +24,30 @@ trait WeChatApi
     public function getWeChatAuthInfoByCode(
         $code
     ) {
-        try {
-            $globals = $this->getContainer()
-                            ->get('twig')
-                            ->getGlobals();
+        $code = $this->after('_', $code);
 
-            $appId = $globals['wechat_app_id'];
-            $secret = $globals['wechat_app_secret'];
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
-            $url = WeChatConstants::URL_ACCESS_TOKEN;
-            $params = "appid=$appId&secret=$secret&code=$code";
-            $params = $params.'&grant_type=authorization_code';
-            $apiUrl = $url.$params;
+        $appId = $globals['wechat_app_id'];
+        $secret = $globals['wechat_app_secret'];
 
-            $ch = curl_init($apiUrl);
-            $response = $this->getContainer()->get('curl_util')->callAPI($ch, 'GET');
-            $result = json_decode($response, true);
+        $url = WeChatConstants::URL_ACCESS_TOKEN;
+        $params = "appid=$appId&secret=$secret&code=$code";
+        $params = $params.'&grant_type=authorization_code';
+        $apiUrl = $url.$params;
 
-            if (is_null($result)
-                || array_key_exists('errcode', $result)) {
-                throw new UnauthorizedHttpException('WeChat login unauthorized!');
-            }
+        $ch = curl_init($apiUrl);
+        $response = $this->callAPI($ch, 'GET');
+        $result = json_decode($response, true);
 
-            return $result;
-        } catch (\Exception $e) {
-            throw new UnauthorizedHttpException('WeChat login failed!');
+        if (is_null($result)
+            || array_key_exists('errcode', $result)) {
+            throw new UnauthorizedHttpException('WeChat login unauthorized!');
         }
+
+        return $result;
     }
 
     /**
@@ -55,30 +55,26 @@ trait WeChatApi
      *
      * @return array
      */
-    public function doWeChatAuthByOpenIdAccessToken(
+    public function throwUnauthorizedIfWeChatAuthFail(
         $weChat
     ) {
-        try {
-            $openId = $weChat->getOpenId();
-            $accessToken = $weChat->getAccessToken();
+        $openId = $weChat->getOpenId();
+        $accessToken = $weChat->getAccessToken();
 
-            $url = WeChatConstants::URL_AUTH;
-            $params = "access_token=$accessToken&openid=$openId";
-            $apiUrl = $url.$params;
+        $url = WeChatConstants::URL_AUTH;
+        $params = "access_token=$accessToken&openid=$openId";
+        $apiUrl = $url.$params;
 
-            $ch = curl_init($apiUrl);
-            $response = $this->getContainer()->get('curl_util')->callAPI($ch, 'GET');
-            $result = json_decode($response, true);
+        $ch = curl_init($apiUrl);
+        $response = $this->callAPI($ch, 'GET');
+        $result = json_decode($response, true);
 
-            $errCode = $result['errcode'];
-            if ($errCode != 0) {
-                throw new UnauthorizedHttpException('WeChat login unauthorized!');
-            }
-
-            return $result;
-        } catch (\Exception $e) {
-            throw new UnauthorizedHttpException('WeChat auth failed!');
+        $errCode = $result['errcode'];
+        if ($errCode != 0) {
+            throw new UnauthorizedHttpException('WeChat login unauthorized!');
         }
+
+        return $result;
     }
 
     /**
@@ -89,26 +85,22 @@ trait WeChatApi
     public function getWeChatSnsUserInfo(
         $weChat
     ) {
-        try {
-            $openId = $weChat->getOpenId();
-            $accessToken = $weChat->getAccessToken();
+        $openId = $weChat->getOpenId();
+        $accessToken = $weChat->getAccessToken();
 
-            $url = WeChatConstants::URL_USER_INFO;
-            $params = "access_token=$accessToken&openid=$openId";
-            $apiUrl = $url.$params;
+        $url = WeChatConstants::URL_USER_INFO;
+        $params = "access_token=$accessToken&openid=$openId";
+        $apiUrl = $url.$params;
 
-            $ch = curl_init($apiUrl);
-            $response = $this->getContainer()->get('curl_util')->callAPI($ch, 'GET');
-            $result = json_decode($response, true);
+        $ch = curl_init($apiUrl);
+        $response = $this->callAPI($ch, 'GET');
+        $result = json_decode($response, true);
 
-            if (is_null($result)
-                || array_key_exists('errcode', $result)) {
-                throw new UnauthorizedHttpException('WeChat login unauthorized!');
-            }
-
-            return $result;
-        } catch (\Exception $e) {
-            throw new UnauthorizedHttpException('WeChat get user info failed!');
+        if (is_null($result)
+            || array_key_exists('errcode', $result)) {
+            throw new UnauthorizedHttpException('WeChat login unauthorized!');
         }
+
+        return $result;
     }
 }
