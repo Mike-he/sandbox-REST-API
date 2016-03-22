@@ -288,12 +288,10 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $myUserId = $this->getUserId();
-
         // request user
         $userId = $paramFetcher->get('user_id');
         if (is_null($userId)) {
-            $userId = $myUserId;
+            $userId = $this->getUserId();
         }
 
         // get request user
@@ -301,7 +299,7 @@ class ClientFeedController extends FeedController
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         // check the other user is banned
-        if ($myUserId != $userId && $user->isBanned()) {
+        if ($user->isBanned()) {
             return new View();
         }
 
@@ -315,7 +313,7 @@ class ClientFeedController extends FeedController
             $lastId
         );
 
-        return $this->handleGetFeeds($feeds, $myUserId);
+        return $this->handleGetFeeds($feeds, $userId);
     }
 
     /**
