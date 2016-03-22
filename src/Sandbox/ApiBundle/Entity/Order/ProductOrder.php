@@ -26,6 +26,9 @@ class ProductOrder
     const ACTION_APPOINT_REMOVE = 'appoint_remove';
     const ACTION_START = 'start';
     const ACTION_END = 'end';
+    const LETTER_HEAD = 'P';
+
+    const RESERVE_TYPE = 'reserve';
 
     /**
      * @var int
@@ -123,7 +126,7 @@ class ProductOrder
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */
-    private $status;
+    private $status = self::STATUS_UNPAID;
 
     /**
      * @var InvitedPeople
@@ -256,6 +259,27 @@ class ProductOrder
      * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
      */
     private $productInfo;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="adminId", type="integer", nullable=true)
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $adminId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="type", type="string", nullable=true)
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $type;
+
+    /**
+     * @var int
+     */
+    private $rentPeriod;
 
     /**
      * Set isRenew.
@@ -807,26 +831,6 @@ class ProductOrder
         return $this->productInfo;
     }
 
-//    /**
-//     * @return User
-//     */
-//    public function getUser()
-//    {
-//        return $this->user;
-//    }
-//
-//    /**
-//     * @param User $user
-//     *
-//     * @return ProductOrder
-//     */
-//    public function setUser($user)
-//    {
-//        $this->user = $user;
-//
-//        return $this;
-//    }
-
     /**
      * Get orderNumber.
      *
@@ -859,6 +863,78 @@ class ProductOrder
     public function getPayChannel()
     {
         return $this->payChannel;
+    }
+
+    /**
+     * Set adminId.
+     *
+     * @param int $adminId
+     *
+     * @return ProductOrder
+     */
+    public function setAdminId($adminId)
+    {
+        $this->adminId = $adminId;
+
+        return $this;
+    }
+
+    /**
+     * Get adminId.
+     *
+     * @return int
+     */
+    public function getAdminId()
+    {
+        return $this->adminId;
+    }
+
+    /**
+     * Set type.
+     *
+     * @param string $type
+     *
+     * @return ProductOrder
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type.
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set rentPeriod.
+     *
+     * @param int $rentPeriod
+     *
+     * @return ProductOrder
+     */
+    public function setRentPeriod($rentPeriod)
+    {
+        $this->rentPeriod = $rentPeriod;
+
+        return $this;
+    }
+
+    /**
+     * Get rentPeriod.
+     *
+     * @return int
+     */
+    public function getRentPeriod()
+    {
+        return $this->rentPeriod;
     }
 
     public function __construct()

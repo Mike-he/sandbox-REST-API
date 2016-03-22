@@ -6,9 +6,11 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Form\Order\OrderReserveType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -642,6 +644,195 @@ class AdminOrderController extends OrderController
         $view->setData($order);
 
         return $view;
+    }
+
+    /**
+     * Create orders.
+     *
+     * @Route("/orders/reserve")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function reserveRoomAction(
+        Request $request
+    ) {
+        $now = new \DateTime();
+        $adminId = $this->getAdminId();
+        $orderCheck = null;
+
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+            $order = new ProductOrder();
+
+            $form = $this->createForm(new OrderReserveType(), $order);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
+                );
+            }
+
+            $user = $this->getRepo('User\User')->find($order->getUserId());
+            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+            $productId = $order->getProductId();
+            $product = $this->getRepo('Product\Product')->find($productId);
+            $buildingId = $product->getRoom()->getBuildingId();
+
+            // check user permission
+            $this->throwAccessDeniedIfSalesAdminNotAllowed(
+                $adminId,
+                SalesAdminType::KEY_PLATFORM,
+                array(
+                    SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                ),
+                SalesAdminPermissionMap::OP_LEVEL_EDIT,
+                $buildingId
+            );
+
+            $startDate = new \DateTime($order->getStartDate());
+
+            // check product
+            $error = $this->checkIfProductAvailable(
+                $product,
+                $now,
+                $startDate
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $timeUnit = $product->getUnitPrice();
+            $period = $order->getRentPeriod();
+
+            // get endDate
+            $endDate = $this->getOrderEndDate(
+                $period,
+                $timeUnit,
+                $startDate
+            );
+
+            // check booking dates and order duplication
+            $type = $product->getRoom()->getType();
+            $error = $this->checkIfOrderAllowed(
+                $em,
+                $order,
+                $product,
+                $productId,
+                $now,
+                $startDate,
+                $endDate,
+                $user,
+                $type
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $order->setStatus(ProductOrder::STATUS_PAID);
+            $order->setAdminId($adminId);
+            $order->setPaymentDate($now);
+            $order->setType(ProductOrder::RESERVE_TYPE);
+            $order->setPrice(0);
+            $order->setDiscountPrice(0);
+
+            $em->persist($order);
+
+            // store order record
+            $this->storeRoomRecord(
+                $em,
+                $order,
+                $product
+            );
+
+            $em->flush();
+
+            // set door access
+            $this->setDoorAccessForSingleOrder($order);
+
+            $view = new View();
+            $view->setData(
+                ['order_id' => $order->getId()]
+            );
+
+            return $view;
+        } catch (\Exception $exception) {
+            if (!is_null($orderCheck)) {
+                $em->remove($orderCheck);
+                $em->flush();
+            }
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * @Route("/orders/{id}/cancel")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function cancelReservedOrderAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $buildingId = $order->getProduct()->getRoom()->getBuildingId();
+        $adminId = $this->getAdminId();
+
+        // check user permission
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $adminId,
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            $buildingId
+        );
+
+        $now = new \DateTime();
+        if ($order->getStatus() !== 'paid' || $order->getStartDate() <= $now) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_PAYMENT_STATUS_CODE,
+                self::WRONG_PAYMENT_STATUS_MESSAGE
+            );
+        }
+
+        if ($adminId !== $order->getAdminId() || $order->getType() !== ProductOrder::RESERVE_TYPE) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $this->removeAccessByOrder($order);
+
+        return new View();
     }
 
     /**

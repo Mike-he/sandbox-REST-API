@@ -826,6 +826,24 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param $code
+     * @param $message
+     *
+     * @return array
+     */
+    protected function setErrorArray(
+        $code,
+        $message
+    ) {
+        $error = [
+            'code' => $code,
+            'message' => $message,
+        ];
+
+        return $error;
+    }
+
+    /**
      *
      */
     private function _throwHttpErrorIfNull(

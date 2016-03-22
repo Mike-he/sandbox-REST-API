@@ -15,6 +15,8 @@ INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificat
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.platform.building','项目管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.price','价格模板管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.order','订单管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
+INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.order.reserve','订单预留','2016-03-01 00:00:00','2016-03-01 00:00:00');
+INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.order.preorder','订单预订','2016-03-01 00:00:00','2016-03-01 00:00:00');
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.building','项目管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.user','用户管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.room','空间管理','2016-03-01 00:00:00','2016-03-01 00:00:00');

@@ -22,7 +22,9 @@ class Product
 
     const UNIT_HOUR = 'hour';
     const UNIT_DAY = 'day';
-    const Unit_MONTH = 'month';
+    const UNIT_MONTH = 'month';
+    const UNIT_DAYS = 'days';
+    const UNIT_MIN = 'min';
 
     /**
      * @var int
