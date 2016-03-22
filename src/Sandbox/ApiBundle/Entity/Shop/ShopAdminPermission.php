@@ -25,6 +25,7 @@ class ShopAdminPermission
     const KEY_SHOP_ORDER = 'shop.shop.order';
     const KEY_SHOP_PRODUCT = 'shop.shop.product';
     const KEY_SHOP_SPEC = 'shop.shop.spec';
+    const KEY_SHOP_KITCHEN = 'shop.shop.kitchen';
 
     /**
      * @var int
