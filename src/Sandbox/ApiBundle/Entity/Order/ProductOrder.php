@@ -126,7 +126,7 @@ class ProductOrder
      *
      * @Serializer\Groups({"main", "client", "admin_detail"})
      */
-    private $status;
+    private $status = self::STATUS_UNPAID;
 
     /**
      * @var InvitedPeople

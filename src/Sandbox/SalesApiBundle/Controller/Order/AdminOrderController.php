@@ -724,14 +724,18 @@ class AdminOrderController extends OrderController
                 $startDate
             );
 
-            // check booking dates
+            // check booking dates and order duplication
             $type = $product->getRoom()->getType();
-            $error = $this->checkIfRoomOpen(
-                $type,
+            $error = $this->checkIfOrderAllowed(
+                $em,
+                $order,
+                $product,
+                $productId,
                 $now,
                 $startDate,
                 $endDate,
-                $product
+                $user,
+                $type
             );
 
             if (!empty($error)) {
@@ -741,27 +745,6 @@ class AdminOrderController extends OrderController
                     $error['message']
                 );
             }
-
-            // check for duplicate orders
-            $allowedPeople = $product->getRoom()->getAllowedPeople();
-            $orderCheck = $this->orderDuplicationCheck(
-                $em,
-                $type,
-                $allowedPeople,
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            // set product order
-            $order = $this->setOrderFields(
-                $order,
-                $product,
-                $startDate,
-                $endDate,
-                $user,
-                $orderCheck
-            );
 
             $order->setStatus(ProductOrder::STATUS_PAID);
             $order->setAdminId($adminId);
@@ -779,7 +762,6 @@ class AdminOrderController extends OrderController
                 $product
             );
 
-            $em->remove($orderCheck);
             $em->flush();
 
             // set door access

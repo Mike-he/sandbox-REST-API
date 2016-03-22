@@ -265,23 +265,6 @@ class ClientOrderController extends OrderController
                 );
             }
 
-            // check booking dates
-            $error = $this->checkIfRoomOpen(
-                $type,
-                $now,
-                $startDate,
-                $endDate,
-                $product
-            );
-
-            if (!empty($error)) {
-                return $this->customErrorView(
-                    400,
-                    $error['code'],
-                    $error['message']
-                );
-            }
-
             // check if it's same order from the same user
             // return orderId if so
             if ($type !== Room::TYPE_FLEXIBLE) {
@@ -298,17 +281,6 @@ class ClientOrderController extends OrderController
                     );
                 }
             }
-
-            // check for duplicate orders
-            $allowedPeople = $product->getRoom()->getAllowedPeople();
-            $orderCheck = $this->orderDuplicationCheck(
-                $em,
-                $type,
-                $allowedPeople,
-                $productId,
-                $startDate,
-                $endDate
-            );
 
             // check if price match
             $error = $this->checkIfPriceMatch(
@@ -328,17 +300,26 @@ class ClientOrderController extends OrderController
                 );
             }
 
-            // set product order
-            $order = $this->setOrderFields(
+            // check booking dates and order duplication
+            $error = $this->checkIfOrderAllowed(
+                $em,
                 $order,
                 $product,
+                $productId,
+                $now,
                 $startDate,
                 $endDate,
                 $user,
-                $orderCheck
+                $type
             );
 
-            $order->setStatus(ProductOrder::STATUS_UNPAID);
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
 
             $em->persist($order);
 
@@ -349,7 +330,6 @@ class ClientOrderController extends OrderController
                 $product
             );
 
-            $em->remove($orderCheck);
             $em->flush();
 
             $view = new View();

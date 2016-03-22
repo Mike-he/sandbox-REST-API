@@ -300,8 +300,6 @@ class OrderController extends PaymentController
      * @param $endDate
      * @param $user
      * @param $orderCheck
-     *
-     * @return mixed
      */
     protected function setOrderFields(
         $order,
@@ -325,8 +323,6 @@ class OrderController extends PaymentController
         $order->setUser($user);
         $order->setLocation('location');
         $order->setProductInfo($productInfo);
-
-        return $order;
     }
 
     /**
@@ -605,5 +601,65 @@ class OrderController extends PaymentController
             $base,
             $orderId
         );
+    }
+
+    /**
+     * @param $em
+     * @param $order
+     * @param $product
+     * @param $productId
+     * @param $now
+     * @param $startDate
+     * @param $endDate
+     * @param $user
+     *
+     * @return array
+     */
+    protected function checkIfOrderAllowed(
+        $em,
+        $order,
+        $product,
+        $productId,
+        $now,
+        $startDate,
+        $endDate,
+        $user,
+        $type
+    ) {
+        // check booking dates
+        $error = $this->checkIfRoomOpen(
+            $type,
+            $now,
+            $startDate,
+            $endDate,
+            $product
+        );
+
+        if (!empty($error)) {
+            return $error;
+        }
+
+        // check for duplicate orders
+        $allowedPeople = $product->getRoom()->getAllowedPeople();
+        $orderCheck = $this->orderDuplicationCheck(
+            $em,
+            $type,
+            $allowedPeople,
+            $productId,
+            $startDate,
+            $endDate
+        );
+
+        // set product order
+        $this->setOrderFields(
+            $order,
+            $product,
+            $startDate,
+            $endDate,
+            $user,
+            $orderCheck
+        );
+
+        $em->remove($orderCheck);
     }
 }

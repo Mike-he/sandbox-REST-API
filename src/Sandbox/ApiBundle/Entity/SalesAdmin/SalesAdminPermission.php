@@ -24,6 +24,7 @@ class SalesAdminPermission
     const KEY_BUILDING_PRICE = 'sales.building.price';
     const KEY_BUILDING_ORDER = 'sales.building.order';
     const KEY_BUILDING_ORDER_RESERVE = 'sales.building.order.reserve';
+    const KEY_BUILDING_ORDER_PREORDER = 'sales.building.order.preorder';
     const KEY_BUILDING_BUILDING = 'sales.building.building';
     const KEY_BUILDING_USER = 'sales.building.user';
     const KEY_BUILDING_ROOM = 'sales.building.room';
