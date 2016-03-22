@@ -18,7 +18,6 @@ use Sandbox\ApiBundle\Form\Shop\ShopPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopPutType;
 use Sandbox\ApiBundle\Form\Shop\ShopPatchOnlineType;
 use Sandbox\ApiBundle\Form\Shop\ShopPatchCloseType;
-use Sandbox\ApiBundle\Form\Shop\ShopPatchActiveType;
 use Sandbox\ApiBundle\Form\Shop\ShopAttachmentPostType;
 use Symfony\Component\HttpFoundation\Response;
 use Rs\Json\Patch;
@@ -148,35 +147,23 @@ class AdminShopController extends ShopController
 
         $shop = $this->findShopById($id);
 
+        if (!$shop->isActive()) {
+            return $this->customErrorView(
+                400,
+                Shop::SHOP_INACTIVE_CODE,
+                Shop::SHOP_INACTIVE_MESSAGE
+            );
+        }
+
         $type = null;
         $contentJson = $request->getContent();
         $content = json_decode($contentJson, true)[0];
 
         switch ($content['path']) {
-            case Shop::PATH_ACTIVE:
-                //TODO: Check Sandbox Admin Perminsion
-                $type = new ShopPatchActiveType();
-                break;
             case Shop::PATH_CLOSE:
-                if (!$shop->isActive()) {
-                    return $this->customErrorView(
-                        400,
-                        Shop::SHOP_INACTIVE_CODE,
-                        Shop::SHOP_INACTIVE_MESSAGE
-                    );
-                }
-                //TODO: Check Coffee Admin Perminsion
                 $type = new ShopPatchCloseType();
                 break;
             case Shop::PATH_ONLINE:
-                if (!$shop->isActive()) {
-                    return $this->customErrorView(
-                        400,
-                        Shop::SHOP_INACTIVE_CODE,
-                        Shop::SHOP_INACTIVE_MESSAGE
-                    );
-                }
-                //TODO: Check Coffee/ThirdParty Admin Perminsion
                 $type = new ShopPatchOnlineType();
                 break;
         }

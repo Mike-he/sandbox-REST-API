@@ -58,6 +58,7 @@ class AdminShopOrderController extends ShopController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $order->getShopId()
         );
@@ -210,6 +211,7 @@ class AdminShopOrderController extends ShopController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             )
         );
 
@@ -282,6 +284,7 @@ class AdminShopOrderController extends ShopController
             ShopAdminPermissionMap::OP_LEVEL_EDIT,
             array(
                 ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $order->getShopId()
         );
@@ -361,8 +364,15 @@ class AdminShopOrderController extends ShopController
 
                 break;
             case ShopOrder::STATUS_REFUNDED:
-                //TODO: Check Coffee Admin Backend Permission
-                //TODO: Throw Exception If No Permission
+                // check user permission
+                $this->checkAdminOrderPermission(
+                    ShopAdminPermissionMap::OP_LEVEL_EDIT,
+                    array(
+                        ShopAdminPermission::KEY_SHOP_ORDER,
+                    ),
+                    $order->getShopId()
+                );
+
                 if ($oldStatus !== ShopOrder::STATUS_TO_BE_REFUNDED) {
                     return $this->customErrorView(
                         400,
@@ -426,6 +436,7 @@ class AdminShopOrderController extends ShopController
             ShopAdminPermissionMap::OP_LEVEL_EDIT,
             array(
                 ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $oldOrder->getShopId()
         );

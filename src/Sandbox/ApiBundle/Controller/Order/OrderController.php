@@ -505,6 +505,13 @@ class OrderController extends PaymentController
                 $isRenew
             );
 
+            if (is_null($result)) {
+                return $this->setErrorArray(
+                    self::PRICE_RULE_DOES_NOT_EXIST_CODE,
+                    self::PRICE_RULE_DOES_NOT_EXIST_MESSAGE
+                );
+            }
+
             if (array_key_exists('bind_product_id', $result['rule'])) {
                 $order->setMembershipBindId($result['rule']['bind_product_id']);
             }
@@ -523,6 +530,8 @@ class OrderController extends PaymentController
             if (array_key_exists('rule_description', $result['rule'])) {
                 $order->setRuleDescription($result['rule']['rule_description']);
             }
+        } else {
+            $order->setDiscountPrice($calculatedPrice);
         }
 
         return $error;

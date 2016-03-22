@@ -85,6 +85,8 @@ class PaymentController extends DoorController
     const FOOD_DOES_NOT_EXIST_MESSAGE = 'This Item Does Not Exist';
     const FOOD_OPTION_DOES_NOT_EXIST_CODE = 400026;
     const FOOD_OPTION_DOES_NOT_EXIST_MESSAGE = 'This Option Does Not Exist';
+    const PRICE_RULE_DOES_NOT_EXIST_CODE = 400027;
+    const PRICE_RULE_DOES_NOT_EXIST_MESSAGE = 'This price rule doees not exist';
     const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';

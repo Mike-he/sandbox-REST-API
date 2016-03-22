@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class OrderReserveType extends AbstractType
+class PreOrderType extends AbstractType
 {
     use HasOrderField;
 
@@ -17,6 +17,11 @@ class OrderReserveType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $this->addOrderField($builder);
+
+        $builder
+            ->add('rule_id')
+            ->add('price')
+            ->add('discount_price');
     }
 
     /**
