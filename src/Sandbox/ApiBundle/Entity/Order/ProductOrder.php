@@ -29,6 +29,7 @@ class ProductOrder
     const LETTER_HEAD = 'P';
 
     const RESERVE_TYPE = 'reserve';
+    const PREORDER_TYPE = 'preorder';
 
     /**
      * @var int

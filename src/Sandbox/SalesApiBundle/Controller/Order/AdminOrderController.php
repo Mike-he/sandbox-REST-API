@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
+use Sandbox\ApiBundle\Form\Order\PreOrderType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -647,7 +648,7 @@ class AdminOrderController extends OrderController
     }
 
     /**
-     * Create orders.
+     * Reserve order.
      *
      * @Route("/orders/reserve")
      * @Method({"POST"})
@@ -833,6 +834,154 @@ class AdminOrderController extends OrderController
         $this->removeAccessByOrder($order);
 
         return new View();
+    }
+
+    /**
+     * pre-order room.
+     *
+     * @Route("/orders/preorder")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function preorderRoomAction(
+        Request $request
+    ) {
+        $now = new \DateTime();
+        $adminId = $this->getAdminId();
+        $orderCheck = null;
+
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+            $order = new ProductOrder();
+
+            $form = $this->createForm(new PreOrderType(), $order);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
+                );
+            }
+
+            $user = $this->getRepo('User\User')->find($order->getUserId());
+            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+            $productId = $order->getProductId();
+            $product = $this->getRepo('Product\Product')->find($productId);
+            $buildingId = $product->getRoom()->getBuildingId();
+
+            // check user permission
+            $this->throwAccessDeniedIfSalesAdminNotAllowed(
+                $adminId,
+                SalesAdminType::KEY_PLATFORM,
+                array(
+                    SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                ),
+                SalesAdminPermissionMap::OP_LEVEL_EDIT,
+                $buildingId
+            );
+
+            $startDate = new \DateTime($order->getStartDate());
+
+            // check product
+            $error = $this->checkIfProductAvailable(
+                $product,
+                $now,
+                $startDate
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $timeUnit = $product->getUnitPrice();
+            $period = $order->getRentPeriod();
+
+            // get endDate
+            $endDate = $this->getOrderEndDate(
+                $period,
+                $timeUnit,
+                $startDate
+            );
+
+            // check if price match
+            $error = $this->checkIfPriceMatch(
+                $order,
+                $productId,
+                $product,
+                $period,
+                $startDate,
+                $endDate
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            // check booking dates and order duplication
+            $type = $product->getRoom()->getType();
+            $error = $this->checkIfOrderAllowed(
+                $em,
+                $order,
+                $product,
+                $productId,
+                $now,
+                $startDate,
+                $endDate,
+                $user,
+                $type
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $order->setAdminId($adminId);
+            $order->setType(ProductOrder::PREORDER_TYPE);
+
+            $em->persist($order);
+
+            // store order record
+            $this->storeRoomRecord(
+                $em,
+                $order,
+                $product
+            );
+
+            $em->flush();
+
+            $view = new View();
+            $view->setData(
+                ['order_id' => $order->getId()]
+            );
+
+            return $view;
+        } catch (\Exception $exception) {
+            if (!is_null($orderCheck)) {
+                $em->remove($orderCheck);
+                $em->flush();
+            }
+
+            throw $exception;
+        }
     }
 
     /**
