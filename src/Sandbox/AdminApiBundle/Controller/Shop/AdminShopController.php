@@ -1,0 +1,201 @@
+<?php
+
+namespace Sandbox\AdminApiBundle\Controller\Shop;
+
+use Sandbox\ApiBundle\Form\Shop\ShopPatchActiveType;
+use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use FOS\RestBundle\View\View;
+use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Controller\Shop\ShopController;
+use Sandbox\ApiBundle\Entity\Shop\Shop;
+use Symfony\Component\HttpFoundation\Response;
+use Rs\Json\Patch;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
+use Knp\Component\Pager\Paginator;
+
+/**
+ * Admin Shop Controller.
+ *
+ * @category Sandbox
+ *
+ * @author   Leo Xue <leox@gobeta.com.cn>
+ * @license  http://www.Sandbox.cn/ Proprietary
+ *
+ * @link     http://www.Sandbox.cn/
+ */
+class AdminShopController extends ShopController
+{
+    /**
+     * patch shop status.
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Method({"PATCH"})
+     * @Route("/shops/{id}")
+     *
+     * @return Response
+     */
+    public function patchShopAction(
+        Request $request,
+        $id
+    ) {
+        $shop = $this->findShopById($id);
+
+        // bind data
+        $shopJson = $this->get('serializer')->serialize($shop, 'json');
+        $patch = new Patch($shopJson, $request->getContent());
+        $shopJson = $patch->apply();
+
+        $this->patchShop(
+            $shop,
+            $shopJson,
+            new ShopPatchActiveType()
+        );
+
+        return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Method({"GET"})
+     * @Route("/shops/{id}")
+     *
+     * @return View
+     */
+    public function getShopByIdAction(
+        Request $request,
+        $id
+    ) {
+        $shop = $this->getRepo('Shop\Shop')->getShopById($id);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setData($shop);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by building"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/shops")
+     *
+     * @return View
+     */
+    public function getShopByBuildingAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $buildingId = $paramFetcher->get('building');
+        $shops = $this->getRepo('Shop\Shop')->getShopByBuilding($buildingId);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setData($shops);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="Filter by city"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/buildings")
+     *
+     * @return View
+     */
+    public function getBuildingByCityAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $cityId = $paramFetcher->get('city');
+        $buildings = $this->getRepo('Room\RoomBuilding')->findByCityId($cityId);
+
+        $buildings = $this->get('serializer')->serialize(
+            $buildings,
+            'json',
+            SerializationContext::create()->setGroups(['admin_shop'])
+        );
+        $buildings = json_decode($buildings, true);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $buildings,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * @param $shop
+     * @param $shopJson
+     * @param $type
+     */
+    private function patchShop(
+        $shop,
+        $shopJson,
+        $type
+    ) {
+        $form = $this->createForm($type, $shop);
+        $form->submit(json_decode($shopJson, true));
+
+        if (!$shop->isActive()) {
+            $shop->setOnline(false);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+    }
+}

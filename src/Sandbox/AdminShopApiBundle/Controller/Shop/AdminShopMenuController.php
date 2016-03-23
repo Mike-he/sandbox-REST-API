@@ -55,6 +55,7 @@ class AdminShopMenuController extends ShopMenuController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $id
         );

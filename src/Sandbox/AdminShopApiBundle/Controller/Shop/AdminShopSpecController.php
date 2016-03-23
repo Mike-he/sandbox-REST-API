@@ -123,6 +123,7 @@ class AdminShopSpecController extends SpecController
             array(
                 ShopAdminPermission::KEY_SHOP_SPEC,
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $id
         );

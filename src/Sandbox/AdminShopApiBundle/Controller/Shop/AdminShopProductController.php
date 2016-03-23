@@ -114,6 +114,7 @@ class AdminShopProductController extends ShopProductController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $id
         );
@@ -212,6 +213,7 @@ class AdminShopProductController extends ShopProductController
             ShopAdminPermissionMap::OP_LEVEL_EDIT,
             array(
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $shopId
         );
@@ -255,6 +257,7 @@ class AdminShopProductController extends ShopProductController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $shopId
         );
@@ -387,6 +390,7 @@ class AdminShopProductController extends ShopProductController
             ShopAdminPermissionMap::OP_LEVEL_EDIT,
             array(
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $shopId
         );
