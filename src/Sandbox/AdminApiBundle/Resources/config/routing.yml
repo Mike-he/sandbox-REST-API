@@ -177,3 +177,9 @@ sandbox_admin_api_sales_cities:
     resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesCityController.php"
     type:     annotation
     prefix:   /sales
+
+# Shop /admin/shops
+sandbox_admin_api_shops:
+    resource: "@SandboxAdminApiBundle/Controller/Shop/AdminShopController.php"
+    type:     annotation
+    prefix:   /

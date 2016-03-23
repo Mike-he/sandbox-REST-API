@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  *
  * @category Sandbox
  *
- * @author   Leo Xue <leox@gobeta.com.cn>
+ * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
@@ -55,6 +55,7 @@ class AdminShopMenuController extends ShopMenuController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $id
         );

@@ -33,7 +33,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  *
  * @category Sandbox
  *
- * @author   Leo Xue <leox@gobeta.com.cn>
+ * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
@@ -123,6 +123,7 @@ class AdminShopSpecController extends SpecController
             array(
                 ShopAdminPermission::KEY_SHOP_SPEC,
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $id
         );
