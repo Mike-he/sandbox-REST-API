@@ -113,3 +113,8 @@ company:
     animal_husbandry: 牧业
     fisheries: 渔业
     other: 其他
+
+client:
+  login:
+    account_banned: 您的账户已经被冻结，如有疑问请联系客服：
+    account_non_existent: 账户不存在

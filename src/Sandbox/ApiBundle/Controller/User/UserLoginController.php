@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Sandbox\ApiBundle\Traits\OpenfireApi;
 use FOS\RestBundle\View\View;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Sandbox\ApiBundle\Entity\Error\Error;
 
 /**
  * User Login Controller.
@@ -29,6 +31,12 @@ class UserLoginController extends SandboxRestController
 
     const PLATFORM_IPHONE = 'iphone';
     const PLATFORM_ANDROID = 'android';
+
+    const ERROR_ACCOUNT_BANNED_CODE = 401001;
+    const ERROR_ACCOUNT_BANNED_MESSAGE = 'client.login.account_banned';
+
+    const ERROR_ACCOUNT_NONEXISTENT_CODE = 401002;
+    const ERROR_ACCOUNT_NONEXISTENT_MESSAGE = 'client.login.account_non_existent';
 
     /**
      * @param Request       $request
@@ -213,5 +221,48 @@ class UserLoginController extends SandboxRestController
         } catch (\Exception $e) {
             error_log('Disable XMPP other APNS went wrong!');
         }
+    }
+
+    /**
+     * @param Error $error
+     *
+     * @return mixed
+     */
+    protected function getUserIfAuthenticated(
+        $error
+    ) {
+        $headerKey = self::SANDBOX_CLIENT_LOGIN_HEADER;
+
+        // get auth
+        $headers = apache_request_headers();
+        if (!array_key_exists($headerKey, $headers)) {
+            return $this->getUser();
+        }
+
+        $auth = $this->getSandboxAuthorization($headerKey);
+        if (is_null($auth)) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
+        // find user by email or phone
+        $username = $auth->getUsername();
+        if (is_null($username)) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
+        if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
+            $user = $this->getRepo('User\User')->findOneByEmail($username);
+        } else {
+            $user = $this->getRepo('User\User')->findOneByPhone($username);
+        }
+
+        if (is_null($user)) {
+            $error->setCode(self::ERROR_ACCOUNT_NONEXISTENT_CODE);
+            $error->setMessage(self::ERROR_ACCOUNT_NONEXISTENT_MESSAGE);
+
+            return;
+        }
+
+        return $user;
     }
 }

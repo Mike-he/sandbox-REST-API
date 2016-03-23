@@ -3,9 +3,9 @@
 namespace Sandbox\ApiBundle\Entity\Auth;
 
 /**
- * AdminAuth.
+ * Auth.
  */
-class AdminAuth
+class Auth
 {
     /**
      * @var string
@@ -22,7 +22,7 @@ class AdminAuth
      *
      * @param string $username
      *
-     * @return AdminAuth
+     * @return Auth
      */
     public function setUsername($username)
     {
@@ -46,7 +46,7 @@ class AdminAuth
      *
      * @param string $password
      *
-     * @return AdminAuth
+     * @return Auth
      */
     public function setPassword($password)
     {

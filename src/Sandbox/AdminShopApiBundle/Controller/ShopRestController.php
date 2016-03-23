@@ -377,7 +377,7 @@ class ShopRestController extends PaymentController
      */
     protected function checkShopAdminLoginSecurity()
     {
-        $auth = $this->getSandboxAuthorization();
+        $auth = $this->getSandboxAuthorization(self::SANDBOX_ADMIN_LOGIN_HEADER);
 
         $admin = $this->getRepo('Shop\ShopAdmin')->findOneBy(array(
             'username' => $auth->getUsername(),
