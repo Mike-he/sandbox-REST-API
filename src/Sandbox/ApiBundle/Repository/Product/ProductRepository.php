@@ -300,28 +300,28 @@ class ProductRepository extends EntityRepository
                 ->andWhere(
                     '(
                         p.id NOT IN (
-                            SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
-                            WHERE po.status != :status
+                            SELECT po1.productId FROM SandboxApiBundle:Order\ProductOrder po1
+                            WHERE po1.status != :status
                             AND
                             (
-                                (po.startDate <= :startDate AND po.endDate > :startDate) OR
-                                (po.startDate < :endDate AND po.endDate >= :endDate) OR
-                                (po.startDate >= :startDate AND po.endDate <= :endDate)
+                                (po1.startDate <= :startDate AND po1.endDate > :startDate) OR
+                                (po1.startDate < :endDate AND po1.endDate >= :endDate) OR
+                                (po1.startDate >= :startDate AND po1.endDate <= :endDate)
                             )
                         )
                         OR
                         p.id IN (
-                            SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
-                            WHERE po.status  != :status
+                            SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
+                            WHERE po2.status  != :status
                             AND r.type = :roomType
                             AND
                             (
-                                (po.startDate <= :startDate AND po.endDate > :startDate) OR
-                                (po.startDate < :endDate AND po.endDate >= :endDate) OR
-                                (po.startDate >= :startDate AND po.endDate <= :endDate)
+                                (po2.startDate <= :startDate AND po2.endDate > :startDate) OR
+                                (po2.startDate < :endDate AND po2.endDate >= :endDate) OR
+                                (po2.startDate >= :startDate AND po2.endDate <= :endDate)
                             )
-                            GROUP BY po.productId
-                            HAVING COUNT(po.productId) < r.allowedPeople
+                            GROUP BY po2.productId
+                            HAVING COUNT(po2.productId) < r.allowedPeople
                         )
                     )'
                 )
