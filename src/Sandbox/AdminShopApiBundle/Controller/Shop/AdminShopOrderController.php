@@ -195,6 +195,15 @@ class AdminShopOrderController extends ShopController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="platform",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter coffee backend or kitchen ipad"
+     * )
+     *
      * @Method({"GET"})
      * @Route("/orders")
      *
@@ -231,6 +240,7 @@ class AdminShopOrderController extends ShopController
         $search = $paramFetcher->get('search');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $platform = $paramFetcher->get('platform');
 
         if (!is_null($shopId) && !in_array((int) $shopId, $myShopIds)) {
             return new View();
@@ -242,7 +252,8 @@ class AdminShopOrderController extends ShopController
             $start,
             $end,
             $sort,
-            $search
+            $search,
+            $platform
         );
 
         $orders = $this->get('serializer')->serialize(
@@ -466,6 +477,7 @@ class AdminShopOrderController extends ShopController
         $em->persist($order);
 
         $oldOrder->setLinkedOrder($order);
+        $oldOrder->setStatus(ShopOrder::STATUS_TO_BE_REFUNDED);
 
         $priceData = new ShopOrderPriceData();
 
