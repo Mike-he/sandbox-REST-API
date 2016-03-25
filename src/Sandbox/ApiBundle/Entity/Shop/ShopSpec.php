@@ -398,6 +398,8 @@ class ShopSpec implements JsonSerializable
         return array(
             'id' => $this->id,
             'name' => $this->name,
+            'has_inventory' => $this->inventory,
+            'unit' => $this->unit,
         );
     }
 }
