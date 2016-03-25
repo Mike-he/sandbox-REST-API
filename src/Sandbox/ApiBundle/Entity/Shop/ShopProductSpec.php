@@ -269,11 +269,7 @@ class ShopProductSpec implements JsonSerializable
     {
         return array(
             'id' => $this->id,
-            'spec' => array(
-                'id' => $this->shopSpec->getId(),
-                'name' => $this->shopSpec->getName(),
-                'unit' => $this->shopSpec->getUnit(),
-            ),
+            'spec' => $this->shopSpec->jsonSerialize(),
         );
     }
 }
