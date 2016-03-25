@@ -41,7 +41,7 @@ class ShopOrderRepository extends EntityRepository
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
             ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED);
 
-        if ($platform == 'backend') {
+        if ($platform == ShopOrder::PLATFORM_BACKEND) {
             $query = $query->andWhere('o.unoriginal = :unoriginal')
                 ->setParameter('unoriginal', false);
         }
