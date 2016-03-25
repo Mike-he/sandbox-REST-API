@@ -47,18 +47,17 @@ class ProductRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'm', 'WITH', 'p.roomId = m.room')
             ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
-            ->andWhere('p.startDate <= :now AND p.endDate >= :now');
-
-        if (!is_null($userId)) {
-            $query->andWhere('p.visibleUserId = :userId OR p.private = :private');
-        }
-
-        $query->setParameter('type', Room::TYPE_MEETING)
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('type', Room::TYPE_MEETING)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
         if (!is_null($userId)) {
-            $query->setParameter('userId', $userId)
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('userId', $userId)
+                ->setParameter('private', false);
+        } else {
+            $query->andWhere('p.private = :private')
                 ->setParameter('private', false);
         }
 
@@ -176,18 +175,17 @@ class ProductRepository extends EntityRepository
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
-            ->andWhere('p.startDate <= :now AND p.endDate >= :now');
-
-        if (!is_null($userId)) {
-            $query->andWhere('p.visibleUserId = :userId OR p.private = :private');
-        }
-
-        $query->setParameter('type', Room::TYPE_OFFICE)
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('type', Room::TYPE_OFFICE)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
         if (!is_null($userId)) {
-            $query->setParameter('userId', $userId)
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('userId', $userId)
+                ->setParameter('private', false);
+        } else {
+            $query->andWhere('p.private = :private')
                 ->setParameter('private', false);
         }
 
@@ -263,19 +261,18 @@ class ProductRepository extends EntityRepository
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('r.type = :typeFixed OR r.type = :typeFlexible')
             ->andWhere('p.visible = :visible')
-            ->andWhere('p.startDate <= :now AND p.endDate >= :now');
-
-        if (!is_null($userId)) {
-            $query->andWhere('p.visibleUserId = :userId OR p.private = :private');
-        }
-
-        $query->setParameter('typeFixed', Room::TYPE_FIXED)
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('typeFixed', Room::TYPE_FIXED)
             ->setParameter('typeFlexible', Room::TYPE_FLEXIBLE)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
         if (!is_null($userId)) {
-            $query->setParameter('userId', $userId)
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('userId', $userId)
+                ->setParameter('private', false);
+        } else {
+            $query->andWhere('p.private = :private')
                 ->setParameter('private', false);
         }
 
@@ -612,46 +609,38 @@ class ProductRepository extends EntityRepository
         $offset,
         $recommend
     ) {
-        $queryStr = 'SELECT p FROM SandboxApiBundle:Product\Product p';
+        $query = $this->createQueryBuilder('p')
+            ->where('p.visible = :visible')
+            ->andWhere('p.recommend = :recommend')
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('visible', true)
+            ->setParameter('recommend', $recommend)
+            ->setParameter('now', new \DateTime('now'));
 
         if (!is_null($city)) {
-            $queryStr = $queryStr.' LEFT JOIN SandboxApiBundle:Room\Room r WITH p.roomId = r.id';
+            $query->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+                ->andWhere('r.city = :city')
+                ->setParameter('city', $city);
         }
-
-        $queryStr = $queryStr.' WHERE p.visible = :visible';
-        $queryStr = $queryStr.' AND p.recommend = :recommend';
-        $queryStr = $queryStr.' AND (p.startDate <= :now AND p.endDate >= :now)';
 
         if (!is_null($userId)) {
-            $queryStr = $queryStr.' AND (p.visibleUserId = :userId OR p.private = :private)';
-        }
-
-        if (!is_null($city)) {
-            $queryStr = $queryStr.' AND r.city = :city';
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('userId', $userId)
+                ->setParameter('private', false);
+        } else {
+            $query->andWhere('p.private = :private')
+                ->setParameter('private', false);
         }
 
         if ($recommend) {
-            $queryStr = $queryStr.' ORDER BY p.sortTime DESC';
+            $query->orderBy('p.sortTime', 'DESC');
         } else {
-            $queryStr = $queryStr.' ORDER BY p.creationDate DESC';
+            $query->orderBy('p.creationDate', 'DESC');
         }
 
-        $query = $this->getEntityManager()->createQuery($queryStr);
-        $query->setParameter('visible', true);
-        $query->setParameter('recommend', $recommend);
-        $query->setParameter('now', new \DateTime('now'));
-
-        if (!is_null($userId)) {
-            $query->setParameter('userId', $userId);
-            $query->setParameter('private', false);
-        }
-
-        if (!is_null($city)) {
-            $query->setParameter('city', $city);
-        }
-
-        $query->setFirstResult($offset);
-        $query->setMaxResults($limit);
+        $query = $query->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
 
         return $query->getResult();
     }
