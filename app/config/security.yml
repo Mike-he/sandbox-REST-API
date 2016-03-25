@@ -54,6 +54,7 @@ security:
             stateless:  true
 
     access_control:
+        - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/shop/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
@@ -72,7 +73,6 @@ security:
         - { path: ^/client/feeds, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/events, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/auth/token$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/auth/login$, role: ROLE_USER }
         - { path: ^/client/thirdparty/oauth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/thirdparty/auth$, role: ROLE_USER }
         - { path: ^/client, role: ROLE_CLIENT_API }
