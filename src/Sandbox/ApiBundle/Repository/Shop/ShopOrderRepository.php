@@ -16,7 +16,12 @@ class ShopOrderRepository extends EntityRepository
 {
     /**
      * @param $shopId
-     * @param bool|true $allowed
+     * @param $status
+     * @param $start
+     * @param $end
+     * @param $sort
+     * @param $search
+     * @param $platform
      *
      * @return array
      */
@@ -26,16 +31,20 @@ class ShopOrderRepository extends EntityRepository
         $start,
         $end,
         $sort,
-        $search
+        $search,
+        $platform
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.status != :unpaid')
             ->andWhere('o.status != :cancelled')
-            ->andWhere('o.unoriginal = :unoriginal')
             ->orderBy('o.modificationDate', $sort)
-            ->setParameter('unoriginal', false)
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
             ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED);
+
+        if ($platform == ShopOrder::PLATFORM_BACKEND) {
+            $query = $query->andWhere('o.unoriginal = :unoriginal')
+                ->setParameter('unoriginal', false);
+        }
 
         if (!is_null($shopId) && !empty($shopId)) {
             $query = $query->andWhere('o.shopId = :shopId')
