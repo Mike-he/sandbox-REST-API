@@ -433,7 +433,7 @@ class RoomRepository extends EntityRepository
     /**
      * @param array        $types
      * @param RoomCity     $city
-     * @param RoomBuilding $building
+     * @param array        $buildingIds
      * @param string       $sortBy
      * @param string       $direction
      *
@@ -442,7 +442,7 @@ class RoomRepository extends EntityRepository
     public function getSalesProductedRooms(
         $types,
         $city,
-        $building,
+        $buildingIds,
         $sortBy,
         $direction
     ) {
@@ -475,10 +475,10 @@ class RoomRepository extends EntityRepository
         }
 
         // filter by building
-        if (!is_null($building)) {
-            $where = 'r.building = :building';
+        if (!empty($buildingIds)) {
+            $where = 'r.building IN (:buildingIds)';
             $query->andWhere($where);
-            $parameters['building'] = $building;
+            $parameters['buildingIds'] = $buildingIds;
             $notFirst = true;
         }
 

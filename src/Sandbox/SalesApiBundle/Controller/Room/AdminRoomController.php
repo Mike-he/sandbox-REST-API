@@ -394,7 +394,7 @@ class AdminRoomController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="building",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
      *    strict=true,
@@ -431,7 +431,7 @@ class AdminRoomController extends SalesRestController
         );
 
         $cityId = $paramFetcher->get('city');
-        $buildingId = $paramFetcher->get('building');
+        $buildingIds = $paramFetcher->get('building');
         $types = $paramFetcher->get('type');
 
         // get my buildings list
@@ -442,17 +442,22 @@ class AdminRoomController extends SalesRestController
             )
         );
 
-        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
+        if (!empty($buildingIds)) {
             return new View(array());
         }
 
+        foreach ($buildingIds as $buildingId) {
+            if (!in_array((int) $buildingId, $myBuildingIds)) {
+                return new View(array());
+            }
+        }
+
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
-        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         $query = $this->getRepo('Room\RoomView')->getSalesProductedRooms(
             $types,
             $city,
-            $building,
+            $buildingIds,
             'creationDate',
             'DESC'
         );
