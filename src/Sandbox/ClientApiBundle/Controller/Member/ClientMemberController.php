@@ -66,75 +66,85 @@ class ClientMemberController extends MemberController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
-
-        $clientId = $this->getUser()->getClientId();
-
+        // get params
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $em = $this->getDoctrine()->getManager();
+        if (!$this->isAuthProvided()) {
+            // open to public
+            $users = $this->getRepo('User\User')->findBy(
+                array('banned' => false),
+                array('id' => 'DESC'),
+                $limit,
+                $offset
+            );
+        } else {
+            $userId = $this->getUserId();
+            $clientId = $this->getUser()->getClientId();
 
-        // get user's retrieved member IDs if any
-        $myRecords = $this->getRepo('Random\ClientRandomRecord')
-            ->findBy(array(
-                'userId' => $userId,
-                'clientId' => $clientId,
-                'entityName' => 'member',
-            ));
+            $em = $this->getDoctrine()->getManager();
 
-        $recordIds = array();
+            // get user's retrieved member IDs if any
+            $myRecords = $this->getRepo('Random\ClientRandomRecord')
+                ->findBy(array(
+                    'userId' => $userId,
+                    'clientId' => $clientId,
+                    'entityName' => 'member',
+                ));
 
-        foreach ($myRecords as $myRecord) {
-            // if offset is not provided, means user is trying to reload the page
-            // then we should remove user's retrieval records
-            // otherwise, we should exclude these records for the next page
-            if (is_null($offset) || $offset <= 0) {
-                $em->remove($myRecord);
-            } else {
-                array_push($recordIds, $myRecord->getEntityId());
+            $recordIds = array();
+
+            foreach ($myRecords as $myRecord) {
+                // if offset is not provided, means user is trying to reload the page
+                // then we should remove user's retrieval records
+                // otherwise, we should exclude these records for the next page
+                if (is_null($offset) || $offset <= 0) {
+                    $em->remove($myRecord);
+                } else {
+                    array_push($recordIds, $myRecord->getEntityId());
+                }
             }
-        }
 
-        // find random members
-        $users = $this->getRepo('User\User')->findRandomMembers(
-            $userId,
-            $recordIds,
-            $limit
-        );
-        if (is_null($users) || empty($users)) {
-            return new View(array());
+            // find random members
+            $users = $this->getRepo('User\User')->findRandomMembers(
+                $userId,
+                $recordIds,
+                $limit
+            );
+            if (is_null($users) || empty($users)) {
+                return new View(array());
+            }
+
+            foreach ($users as $user) {
+                // add user's retrieval record
+                $randomRecord = new ClientRandomRecord();
+                $randomRecord->setUserId($userId);
+                $randomRecord->setClientId($clientId);
+                $randomRecord->setEntityId($user->getId());
+                $randomRecord->setEntityName('member');
+                $em->persist($randomRecord);
+            }
+
+            $em->flush();
         }
 
         // members for response
         $members = array();
 
         foreach ($users as $user) {
-            $memberId = $user->getId();
-
-            // add user's retrieval record
-            $randomRecord = new ClientRandomRecord();
-            $randomRecord->setUserId($userId);
-            $randomRecord->setClientId($clientId);
-            $randomRecord->setEntityId($memberId);
-            $randomRecord->setEntityName('member');
-            $em->persist($randomRecord);
-
             // set profile
-            $profile = $this->getRepo('User\UserProfile')->findOneByUserId($memberId);
+            $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
 
             $member = array(
-                'id' => $memberId,
+                'id' => $user->getId(),
                 'profile' => $profile,
             );
 
             array_push($members, $member);
         }
-
-        $em->flush();
 
         // set view
         $view = new View($members);
@@ -435,6 +445,7 @@ class ClientMemberController extends MemberController
 
         return $view;
     }
+
     // elastica search members
 //    public function getMembersSearchAction(
 //        Request $request,

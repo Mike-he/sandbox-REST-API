@@ -62,3 +62,54 @@ product_order:
     phone: 租赁人手机
     email: 租赁人邮箱
     channel: 支付渠道
+
+user:
+  hobby:
+    sports: 运动
+    chess: 棋类
+    tourism: 旅游
+    mountaineering: 登山运动
+    musical_instruments: 乐器
+    music: 音乐
+    dancing: 舞蹈
+    tea: 饮茶
+    movie: 影视
+    reading: 阅读
+    social_activities: 社交
+
+company:
+  industry:
+    information_technology: IT
+    communication: 通信
+    electronic: 电子
+    internet: 互联网
+    financial: 金融业
+    estate: 房地产
+    architecture: 建筑业
+    business_services: 商业服务
+    trading: 贸易
+    wholesale: 批发
+    retail: 零售
+    leasing: 租赁业
+    stylistic_education: 文体教育
+    craft_art: 工艺美术
+    instrumentation_and_industrial_automation: 仪器仪表及工业自动化
+    traffic: 交通
+    transport: 运输
+    logistics: 物流
+    warehousing: 仓储
+    services: 服务业
+    culture: 文化
+    media: 传媒
+    entertainment: 娱乐
+    sports: 体育
+    energy: 能源
+    mineral: 矿产
+    environment_protection: 环保
+    government: 政府
+    non_profit_organizations: 非营利机构
+    agriculture: 农业
+    forestry: 林业
+    animal_husbandry: 牧业
+    fisheries: 渔业
+    other: 其他

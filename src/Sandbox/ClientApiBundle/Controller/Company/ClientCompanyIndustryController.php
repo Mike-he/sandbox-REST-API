@@ -43,7 +43,10 @@ class ClientCompanyIndustryController extends CompanyIndustryController
         $industries = $this->getRepo('Company\CompanyIndustryMap')->findByCompanyId($id);
         $this->throwNotFoundIfNull($industries, self::NOT_FOUND_MESSAGE);
 
-        $view = new View($industries);
+        // translate industry key
+        $industriesResult = $this->generateCompanyIndustriesArray($industries);
+
+        $view = new View($industriesResult);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('company_industry')));
 
         return $view;

@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
@@ -101,7 +102,10 @@ trait DoorAccessTrait
     public function getLastSyncTime(
         $base
     ) {
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
+
         $ch = curl_init($base.$globals['door_api_get_last_sync_time']);
         $response = $this->callDoorApi($ch, 'POST', null);
 
@@ -115,7 +119,9 @@ trait DoorAccessTrait
      */
     public function getSessionId($base)
     {
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         $data = 'Username='.$globals['door_api_username'].
             '&Password='.$globals['door_api_password'];
@@ -131,7 +137,9 @@ trait DoorAccessTrait
      */
     public function logOut($sessionId, $base)
     {
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         $data = $globals['door_api_session_id'].$sessionId;
         $this->postDoorApi($base.$globals['door_api_logout'], $data);
@@ -157,7 +165,10 @@ trait DoorAccessTrait
             return;
         }
 
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
+
         $sessionId = null;
 
         try {
@@ -211,7 +222,10 @@ trait DoorAccessTrait
         $startDate = (string) $start->format('Y-m-d');
         $endDate = (string) $end->format('Y-m-d');
         $sessionId = null;
-        $globals = $this->getGlobals();
+
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         try {
             $sessionId = $this->getSessionId($base);
@@ -266,7 +280,10 @@ trait DoorAccessTrait
         $orderId
     ) {
         $sessionId = null;
-        $globals = $this->getGlobals();
+
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         try {
             $sessionId = $this->getSessionId($base);
@@ -305,7 +322,10 @@ trait DoorAccessTrait
         $userArray
     ) {
         $sessionId = null;
-        $globals = $this->getGlobals();
+
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         try {
             $sessionId = $this->getSessionId($base);
@@ -349,7 +369,10 @@ trait DoorAccessTrait
         $userArray
     ) {
         $sessionId = null;
-        $globals = $this->getGlobals();
+
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         try {
             $sessionId = $this->getSessionId($base);
@@ -400,15 +423,23 @@ trait DoorAccessTrait
         $servers = [];
         if (!is_null($buildingIds) && !empty($buildingIds)) {
             foreach ($buildingIds as $buildingId) {
-                $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+                $building = $this->getContainer()
+                                 ->get('doctrine')
+                                 ->getRepository(BundleConstants::BUNDLE.':'.'Room\RoomBuilding')
+                                 ->find($buildingId);
+
                 if (is_null($building)) {
                     continue;
                 }
+
                 $server['server'] = $building->getServer();
                 array_push($servers, $server);
             }
         } else {
-            $servers = $this->getRepo('Room\RoomBuilding')->getDistinctServers();
+            $servers = $this->getContainer()
+                            ->get('doctrine')
+                            ->getRepository(BundleConstants::BUNDLE.':'.'Room\RoomBuilding')
+                            ->getDistinctServers();
         }
 
         if (!empty($servers)) {
@@ -443,8 +474,13 @@ trait DoorAccessTrait
         $userId,
         $cardNo
     ) {
-        $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+        $userProfile = $this->getContainer()
+                            ->get('doctrine')
+                            ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
+                            ->findOneByUserId($userId);
+
         $userName = $userProfile->getName();
+
         $this->setEmployeeCard(
             $base,
             $userId,
@@ -497,13 +533,17 @@ trait DoorAccessTrait
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         if (is_null($userArray)) {
-            $doors = $this->getRepo('Door\DoorAccess')->findBy(
-                array(
-                    'orderId' => $orderId,
-                    'access' => false,
-                    'action' => $status,
-                )
-            );
+            $doors = $this->getContainer()
+                          ->get('doctrine')
+                          ->getRepository(BundleConstants::BUNDLE.':'.'Door\DoorAccess')
+                          ->findBy(
+                              array(
+                                  'orderId' => $orderId,
+                                  'access' => false,
+                                  'action' => $status,
+                              )
+                          );
+
             if (!empty($doors)) {
                 foreach ($doors as $door) {
                     $door->setAccess(true);
@@ -512,14 +552,19 @@ trait DoorAccessTrait
         } else {
             foreach ($userArray as $user) {
                 $userId = (int) $user['empid'];
-                $doors = $this->getRepo('Door\DoorAccess')->findBy(
-                    array(
-                        'userId' => $userId,
-                        'orderId' => $orderId,
-                        'access' => false,
-                        'action' => $status,
-                    )
-                );
+
+                $doors = $this->getContainer()
+                              ->get('doctrine')
+                              ->getRepository(BundleConstants::BUNDLE.':'.'Door\DoorAccess')
+                              ->findBy(
+                                  array(
+                                      'userId' => $userId,
+                                      'orderId' => $orderId,
+                                      'access' => false,
+                                      'action' => $status,
+                                  )
+                              );
+
                 if (!empty($doors)) {
                     foreach ($doors as $door) {
                         $door->setAccess(true);

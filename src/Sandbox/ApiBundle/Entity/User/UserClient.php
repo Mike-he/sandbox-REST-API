@@ -82,6 +82,22 @@ class UserClient
     }
 
     /**
+     * For form binding.
+     *
+     * Set id.
+     *
+     * @param int $id
+     *
+     * @return UserClient
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    /**
      * Set name.
      *
      * @param string $name

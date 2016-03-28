@@ -2,7 +2,10 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Symfony\Component\Security\Acl\Exception\Exception;
+use Sandbox\ApiBundle\Entity\Company\Company;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Company Notification Trait.
@@ -62,7 +65,9 @@ trait CompanyNotification
         $memberSync
     ) {
         // get globals
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         $domainURL = $globals['xmpp_domain'];
 
@@ -70,15 +75,21 @@ trait CompanyNotification
         $receivers = array();
 
         if ($memberSync) {
-            $members = $this->getRepo('Company\CompanyMember')->findBy(array(
-                'company' => $company,
-            ));
+            $members = $this->getContainer()
+                            ->get('doctrine')
+                            ->getRepository(BundleConstants::BUNDLE.':'.'Company\CompanyMember')
+                            ->findByCompany($company);
 
             foreach ($members as $member) {
-                $user = $this->getRepo('User\User')->find($member->getUserId());
+                $user = $this->getContainer()
+                             ->get('doctrine')
+                             ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
+                             ->find($member->getUserId());
+
                 if (is_null($user)) {
                     continue;
                 }
+
                 $jid = $user->getXmppUsername().'@'.$domainURL;
                 $receivers[] = array('jid' => $jid);
             }

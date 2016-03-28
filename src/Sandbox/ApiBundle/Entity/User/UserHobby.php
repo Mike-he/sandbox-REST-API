@@ -32,6 +32,14 @@ class UserHobby
     private $name;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="key", type="string", length=64, nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $key;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -71,6 +79,22 @@ class UserHobby
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
     }
 
     /**

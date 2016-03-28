@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\Security\Acl\Exception\Exception;
@@ -21,11 +22,13 @@ trait ProductOrderNotification
     use SendNotification;
 
     /**
-     * @param int    $orderId
-     * @param string $orderNumber
-     * @param int    $fromUserId
-     * @param array  $receivers
-     * @param string $action
+     * @param ProductOrder $order
+     * @param array        $receivers
+     * @param string       $action
+     * @param null         $fromUserId
+     * @param array        $orders
+     * @param null         $first
+     * @param null         $second
      */
     protected function sendXmppProductOrderNotification(
         $order,
@@ -80,11 +83,12 @@ trait ProductOrderNotification
     }
 
     /**
-     * @param $orderId
-     * @param $orderNumber
-     * @param $fromUserId
-     * @param $receivers
-     * @param $action
+     * @param int    $orderId
+     * @param string $orderNumber
+     * @param int    $fromUserId
+     * @param array  $receivers
+     * @param string $action
+     * @param string $body
      *
      * @return mixed
      */
@@ -96,17 +100,28 @@ trait ProductOrderNotification
         $action,
         $body
     ) {
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
+
         $domainURL = $globals['xmpp_domain'];
+
         $fromUser = null;
         if (!is_null($fromUserId)) {
-            $fromUser = $this->getRepo('User\User')->find($fromUserId);
+            $fromUser = $this->getContainer()
+                             ->get('doctrine')
+                             ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
+                             ->find($fromUserId);
         }
 
         // get receivers array
         $receiversArray = [];
         foreach ($receivers as $receiverId) {
-            $recevUser = $this->getRepo('User\User')->find($receiverId);
+            $recevUser = $this->getContainer()
+                              ->get('doctrine')
+                              ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
+                              ->find($receiverId);
+
             array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
         }
 

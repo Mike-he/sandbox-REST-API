@@ -303,7 +303,7 @@ class ClientEventRegistrationController extends EventController
         $checkCounts = $this->getRepo('Event\EventRegistrationCheck')
             ->getEventRegistrationCheckCount($event->getId());
 
-        if ($event->getVerify()) {
+        if ($event->isVerify()) {
             $registrations = $this->getRepo('Event\EventRegistration')
                 ->getAcceptedPersonNumber($event->getId());
         } else {

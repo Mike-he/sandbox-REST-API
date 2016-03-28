@@ -45,7 +45,9 @@ class CompanyIndustryController extends CompanyController
     ) {
         $industries = $this->getRepo('Company\CompanyIndustry')->findAll();
 
-        return new View($industries);
+        $industriesResult = $this->generateCompanyIndustryResult($industries);
+
+        return new View($industriesResult);
     }
 
     /**
@@ -94,5 +96,30 @@ class CompanyIndustryController extends CompanyController
         $CompanyIndustryMap->setCreationDate(new \DateTime('now'));
 
         return $CompanyIndustryMap;
+    }
+
+    /**
+     * @param $industries
+     *
+     * @return array
+     */
+    private function generateCompanyIndustryResult(
+        $industries
+    ) {
+        if (empty($industries)) {
+            return;
+        }
+
+        foreach ($industries as $industry) {
+            if (is_null($industry)) {
+                continue;
+            }
+
+            $industryKey = $industry->getKey();
+            $industryTrans = $this->get('translator')->trans(self::COMPANY_INDUSTRY_PREFIX.$industryKey);
+            $industry->setName($industryTrans);
+        }
+
+        return $industries;
     }
 }

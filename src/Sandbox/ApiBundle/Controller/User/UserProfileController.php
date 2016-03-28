@@ -20,19 +20,23 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 
 /**
  * User Profile Controller.
  *
  * @category Sandbox
  *
- * @author   Josh Yang <josh.yang@Sandbox.cn>
+ * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
  */
 class UserProfileController extends SandboxRestController
 {
+    const USER_HOBBY_PREFIX = 'user.hobby.';
+
     /**
      * Get background attachments.
      *
@@ -78,6 +82,107 @@ class UserProfileController extends SandboxRestController
     }
 
     /**
+     * @param ParamFetcherInterface $paramFetcher
+     * @param bool                  $getAll
+     *
+     * @return View
+     *
+     * @throws BadRequestHttpException
+     */
+    protected function handleGetUserProfile(
+        $paramFetcher,
+        $getAll
+    ) {
+        // get params
+        $userId = $paramFetcher->get('user_id');
+        $xmppUsername = $paramFetcher->get('xmpp_username');
+
+        $myUser = null;
+        $user = null;
+
+        if (!$this->isAuthProvided()) {
+            if (is_null($userId) && is_null($xmppUsername)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+        } else {
+            // my user
+            $myUserId = $this->getUserId();
+            $myUser = $this->getRepo('User\User')->find($myUserId);
+
+            // get user id
+            if (is_null($userId)) {
+                $userId = $myUserId;
+            }
+        }
+
+        // get request user
+        if (is_null($xmppUsername)) {
+            $user = $this->getRepo('User\User')->find($userId);
+        } else {
+            $user = $this->getRepo('User\User')->findOneByXmppUsername($xmppUsername);
+        }
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        // check the user is banned
+        if ($user->isBanned()) {
+            return new View();
+        }
+
+        // get profile
+        $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+
+        $viewGroup = 'profile';
+
+        // set profile with view group
+        $viewGroup = $this->setProfileWithViewGroup(
+            $myUser,
+            $user,
+            $profile,
+            $viewGroup
+        );
+
+        if ($getAll) {
+            // set user hobbies
+            $hobbies = $this->getRepo('User\UserHobbyMap')->findByUser($user);
+            if (!is_null($hobbies) && !empty($hobbies)) {
+                // translate hobby key
+                $hobbiesArray = $this->generateHobbyMapResult(
+                    $hobbies
+                );
+
+                $profile->setHobbies($hobbiesArray);
+            }
+
+            // set user educations
+            $educations = $this->getRepo('User\UserEducation')->findByUser($user);
+            if (!is_null($educations) && !empty($educations)) {
+                $profile->setEducations($educations);
+            }
+
+            // set user experiences
+            $experiences = $this->getRepo('User\UserExperience')->findByUser($user);
+            if (!is_null($experiences) && !empty($experiences)) {
+                $profile->setExperiences($experiences);
+            }
+
+            // set user portfolios
+            $portfolios = $this->getRepo('User\UserPortfolio')->findByUser($user);
+            if (!is_null($portfolios) && !empty($portfolios)) {
+                $profile->setPortfolios($portfolios);
+            }
+        }
+
+        // set view
+        $view = new View($profile);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array($viewGroup))
+        );
+
+        return $view;
+    }
+
+    /**
      * @param User        $myUser
      * @param User        $requestUser
      * @param UserProfile $profile
@@ -91,6 +196,14 @@ class UserProfileController extends SandboxRestController
         $profile,
         $viewGroup
     ) {
+        if (is_null($myUser) || is_null($requestUser)) {
+            return $viewGroup.'_stranger';
+        }
+
+        if ($myUser == $requestUser) {
+            return $viewGroup;
+        }
+
         // get globals
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
@@ -233,5 +346,32 @@ class UserProfileController extends SandboxRestController
         $userPortfolio->setUser($user);
 
         return $userPortfolio;
+    }
+
+    /**
+     * @param $hobbies
+     *
+     * @return array
+     */
+    protected function generateHobbyMapResult(
+        $hobbies
+    ) {
+        if (empty($hobbies)) {
+            return;
+        }
+
+        foreach ($hobbies as $hobbyMap) {
+            if (is_null($hobbyMap)) {
+                continue;
+            }
+
+            // translate hobby key
+            $hobby = $hobbyMap->getHobby();
+            $hobbyKey = $hobby->getKey();
+            $trans = $this->get('translator')->trans(self::USER_HOBBY_PREFIX.$hobbyKey);
+            $hobby->setName($trans);
+        }
+
+        return $hobbies;
     }
 }

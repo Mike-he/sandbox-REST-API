@@ -15,6 +15,7 @@ namespace Sandbox\ApiBundle\Traits;
 trait OpenfireApi
 {
     use CommonMethod;
+    use CurlUtil;
 
     /**
      * @param string $method
@@ -28,7 +29,9 @@ trait OpenfireApi
     ) {
         try {
             // get globals
-            $globals = $this->getGlobals();
+            $globals = $this->getContainer()
+                            ->get('twig')
+                            ->getGlobals();
 
             // openfire API URL
             $apiURL = $globals['openfire_innet_url'].
@@ -58,7 +61,7 @@ trait OpenfireApi
             $ch = curl_init($apiURL);
 
             // get then response when post OpenFire API
-            $response = $this->getContainer()->get('curl_util')->callAPI($ch, $method, null, $jsonData);
+            $response = $this->callAPI($ch, $method, null, $jsonData);
 
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($httpCode != 200) {

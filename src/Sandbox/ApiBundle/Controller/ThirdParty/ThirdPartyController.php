@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\ThirdParty;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\User\UserLoginController;
 
 /**
  * Third Party Controller.
@@ -14,6 +14,6 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ThirdPartyController extends SandboxRestController
+class ThirdPartyController extends UserLoginController
 {
 }

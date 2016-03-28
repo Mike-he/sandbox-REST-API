@@ -2,7 +2,9 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Symfony\Component\Security\Acl\Exception\Exception;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * Send Notification Trait.
@@ -17,6 +19,7 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 trait SendNotification
 {
     use CommonMethod;
+    use CurlUtil;
 
     /**
      * @param string $type
@@ -56,7 +59,11 @@ trait SendNotification
     ) {
         $name = '';
 
-        $profile = $this->getRepo('User\UserProfile')->findOneByUser($fromUser);
+        $profile = $this->getContainer()
+                        ->get('doctrine')
+                        ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
+                        ->findOneByUser($fromUser);
+
         if (!is_null($profile)) {
             $name = $profile->getName();
         }
@@ -145,7 +152,9 @@ trait SendNotification
     ) {
         try {
             // get globals
-            $globals = $this->getGlobals();
+            $globals = $this->getContainer()
+                            ->get('twig')
+                            ->getGlobals();
 
             // openfire API URL
             $apiURL = $globals['openfire_innet_url'].
@@ -158,7 +167,7 @@ trait SendNotification
 
             // call OpenFire API
             $ch = curl_init($apiURL);
-            $this->getContainer()->get('curl_util')->callAPI($ch, 'POST', null, $jsonData);
+            $this->callAPI($ch, 'POST', null, $jsonData);
         } catch (Exception $e) {
             error_log('Send XMPP notification went wrong.');
         }

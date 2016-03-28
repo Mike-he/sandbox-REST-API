@@ -575,7 +575,7 @@ class Event
      *
      * @return bool
      */
-    public function getVerify()
+    public function isVerify()
     {
         return $this->verify;
     }

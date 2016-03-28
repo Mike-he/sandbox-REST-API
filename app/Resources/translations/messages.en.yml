@@ -62,3 +62,54 @@ product_order:
     phone: Renter Mobile
     email: Renter Email
     channel: Payment Channel
+
+user:
+  hobby:
+    sports: Sports
+    chess: Chess
+    tourism: Tourism
+    mountaineering: Mountaineering
+    musical_instruments: Musical Instruments
+    music: Music
+    dancing: Dancing
+    tea: Tea
+    movie: Movie
+    reading: Reading
+    social_activities: Social Activities
+
+company:
+  industry:
+    information_technology: Information Technology
+    communication: Communication
+    electronic: Electronic
+    internet: Internet
+    financial: Financial
+    estate: Estate
+    architecture: Architecture
+    business_services: Business Services
+    trading: Trading
+    wholesale: Wholesale
+    retail: Retail
+    leasing: Leasing
+    stylistic_education: Stylistic Education
+    craft_art: Craft Art
+    instrumentation_and_industrial_automation: Industrial Automation
+    traffic: Traffic
+    transport: Transport
+    logistics: Logistics
+    warehousing: Warehousing
+    services: Services
+    culture: Culture
+    media: Media
+    entertainment: Entertainment
+    sports: Sports
+    energy: Energy
+    mineral: Mineral
+    environment_protection: Environment Protection
+    government: Government
+    non_profit_organizations: NonProfit Organizations
+    agriculture: Agriculture
+    forestry: Forestry
+    animal_husbandry: Animal Husbandry
+    fisheries: Fisheries
+    other: Other

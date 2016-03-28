@@ -11,9 +11,9 @@ trait FoodNotification
     use SendNotification;
 
     /**
-     * @param $action
-     * @param $user
-     * @param $orderNo
+     * @param string $action
+     * @param User   $user
+     * @param string $orderNo
      */
     protected function sendXmppFoodNotification(
         $action,
@@ -32,9 +32,9 @@ trait FoodNotification
     }
 
     /**
-     * @param $action
-     * @param $recvUser
-     * @param $orderNo
+     * @param string $action
+     * @param User   $recvUser
+     * @param string $orderNo
      *
      * @return mixed
      */
@@ -44,7 +44,9 @@ trait FoodNotification
         $orderNo
     ) {
         // get globals
-        $globals = $this->getGlobals();
+        $globals = $this->getContainer()
+                        ->get('twig')
+                        ->getGlobals();
 
         $domainURL = $globals['xmpp_domain'];
 
