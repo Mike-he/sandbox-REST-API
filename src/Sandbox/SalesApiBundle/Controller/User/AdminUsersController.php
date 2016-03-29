@@ -520,11 +520,12 @@ class AdminUsersController extends DoorController
 
         if (is_null($salesUser)) {
             $salesUser = new SalesUser();
+
+            $salesUser->setUserId($salesUserId);
+            $salesUser->setCompanyId($companyId);
+            $salesUser->setBuildingId($buildingId);
         }
 
-        $salesUser->setUserId($salesUserId);
-        $salesUser->setCompanyId($companyId);
-        $salesUser->setBuildingId($buildingId);
         $salesUser->setIsAuthorized(true);
         $salesUser->setModificationDate(new \DateTime('now'));
 

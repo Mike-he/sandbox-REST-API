@@ -691,11 +691,12 @@ class OrderController extends PaymentController
 
         if (is_null($salesUser)) {
             $salesUser = new SalesUser();
+
+            $salesUser->setUserId($salesUserId);
+            $salesUser->setCompanyId($companyId);
+            $salesUser->setBuildingId($buildingId);
         }
 
-        $salesUser->setUserId($salesUserId);
-        $salesUser->setCompanyId($companyId);
-        $salesUser->setBuildingId($buildingId);
         $salesUser->setIsOrdered(true);
         $salesUser->setModificationDate(new \DateTime('now'));
 
