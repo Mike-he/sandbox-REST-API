@@ -222,8 +222,10 @@ class UserViewRepository extends EntityRepository
         }
 
         // filters by user ids
-        $queryResults->andWhere('u.id IN (:ids)');
-        $queryResults->setParameter('ids', $userIds);
+        if (is_null($query)) {
+            $queryResults->andWhere('u.id IN (:ids)');
+            $queryResults->setParameter('ids', $userIds);
+        }
 
         return $queryResults->getQuery()->getResult();
     }

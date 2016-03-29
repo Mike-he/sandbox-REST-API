@@ -11,6 +11,8 @@ use Sandbox\ApiBundle\Entity\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesUserType;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -24,6 +26,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\StringUtil;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin controller.
@@ -487,15 +490,20 @@ class AdminUsersController extends DoorController
             SalesAdminPermissionMap::OP_LEVEL_EDIT
         );
 
+        $data = json_decode($request->getContent(), true);
+        $em = $this->getDoctrine()->getManager();
+
+        // check building id
+        if (!array_key_exists('building_id', $data)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $building = $this->getRepo('Room\RoomBuilding')->find($data['building_id']);
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
         // get user Entity
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
-
-        // get sales users
-        $userIds = $this->getMySalesUserIds();
-        if (!in_array($user->getId(), $userIds)) {
-            return new View();
-        }
 
         $form = $this->createForm(new UserType(), $user);
         $form->handleRequest($request);
@@ -504,8 +512,20 @@ class AdminUsersController extends DoorController
         $user->setAuthorized(true);
         $user->setModificationDate(new \DateTime('now'));
 
+        // set sales user
+        $salesUserArray = array(
+            'user_id' => $user->getId(),
+            'company_id' => $this->getUser()->getMyAdmin()->getCompanyId(),
+            'building_id' => $building->getId(),
+        );
+
+        $salesUser = new SalesUser();
+        $salesUserForm = $this->createForm(new SalesUserType(),$salesUser);
+        $salesUserForm->submit($salesUserArray);
+
+        $em->persist($salesUser);
+
         // update to db
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return new View();
@@ -665,7 +685,7 @@ class AdminUsersController extends DoorController
             SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
 
-        $userIds = $this->getRepo('Order\ProductOrder')->getMySalesUsersByOrders($buildingIds);
+        $userIds = $this->getRepo('SalesAdmin\SalesUser')->getSalesUsers($buildingIds);
 
         $ids = array();
         foreach ($userIds as $user) {

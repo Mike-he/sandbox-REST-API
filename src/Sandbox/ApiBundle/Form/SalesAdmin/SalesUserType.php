@@ -1,12 +1,11 @@
 <?php
-
-namespace Sandbox\ApiBundle\Form\User;
+namespace Sandbox\ApiBundle\Form\SalesAdmin;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class UserType extends AbstractType
+class SalesUserType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,16 +14,9 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('banned')
-            ->add('card_no')
-            ->add('credential_no')
-            ->add(
-                'building_id',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
+            ->add('user_id')
+            ->add('company_id')
+            ->add('building_id')
         ;
     }
 
@@ -34,7 +26,7 @@ class UserType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\User\User',
+            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser',
         ));
     }
 
