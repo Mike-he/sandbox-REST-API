@@ -11,7 +11,6 @@ use Sandbox\ApiBundle\Entity\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Form\SalesAdmin\SalesUserType;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -514,33 +513,20 @@ class AdminUsersController extends DoorController
 
         // check sales user record
         $salesUserId = $user->getId();
-        $salesUserRecord = $this->getRepo('SalesAdmin\SalesUser')->findOneByUserId($salesUserId);
+        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneByUserId($salesUserId);
 
         $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
         $buildingId = $building->getId();
 
-        if (is_null($salesUserRecord)) {
+        if (is_null($salesUser)) {
             $salesUser = new SalesUser();
-
-            // set sales user
-            $salesUserArray = array(
-                'user_id' => $salesUserId,
-                'company_id' => $companyId,
-                'building_id' => $buildingId,
-                'is_authorized' => true,
-            );
-
-            $salesUserForm = $this->createForm(new SalesUserType(), $salesUser);
-            $salesUserForm->submit($salesUserArray);
-        } else {
-            $salesUser = $salesUserRecord;
-
-            $salesUser->setUserId($salesUserId);
-            $salesUser->setCompanyId($companyId);
-            $salesUser->setBuildingId($buildingId);
-            $salesUser->setIsAuthorized(true);
-            $salesUser->setModificationDate(new \DateTime('now'));
         }
+
+        $salesUser->setUserId($salesUserId);
+        $salesUser->setCompanyId($companyId);
+        $salesUser->setBuildingId($buildingId);
+        $salesUser->setIsAuthorized(true);
+        $salesUser->setModificationDate(new \DateTime('now'));
 
         $em->persist($salesUser);
 

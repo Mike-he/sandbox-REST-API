@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
-use Sandbox\ApiBundle\Form\SalesAdmin\SalesUserType;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -685,33 +684,20 @@ class OrderController extends PaymentController
         $product
     ) {
         // check sales user record
-        $salesUserRecord = $this->getRepo('SalesAdmin\SalesUser')->findOneByUserId($salesUserId);
+        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneByUserId($salesUserId);
 
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
         $buildingId = $product->getRoom()->getBuildingId();
 
-        if (is_null($salesUserRecord)) {
+        if (is_null($salesUser)) {
             $salesUser = new SalesUser();
-
-            // set sales user
-            $salesUserArray = array(
-                'user_id' => $salesUserId,
-                'company_id' => $companyId,
-                'building_id' => $buildingId,
-                'is_ordered' => true,
-            );
-
-            $salesUserForm = $this->createForm(new SalesUserType(), $salesUser);
-            $salesUserForm->submit($salesUserArray);
-        } else {
-            $salesUser = $salesUserRecord;
-
-            $salesUser->setUserId($salesUserId);
-            $salesUser->setCompanyId($companyId);
-            $salesUser->setBuildingId($buildingId);
-            $salesUser->setIsOrdered(true);
-            $salesUser->setModificationDate(new \DateTime('now'));
         }
+
+        $salesUser->setUserId($salesUserId);
+        $salesUser->setCompanyId($companyId);
+        $salesUser->setBuildingId($buildingId);
+        $salesUser->setIsOrdered(true);
+        $salesUser->setModificationDate(new \DateTime('now'));
 
         $em->persist($salesUser);
     }
