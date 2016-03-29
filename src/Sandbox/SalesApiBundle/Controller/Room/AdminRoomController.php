@@ -442,7 +442,7 @@ class AdminRoomController extends SalesRestController
             )
         );
 
-        if (!empty($buildingIds)) {
+        if (empty($buildingIds)) {
             return new View(array());
         }
 
