@@ -5,7 +5,7 @@ namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * SalesUser
+ * SalesUser.
  *
  * @ORM\Table(name="SalesUser")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\SalesAdmin\SalesUserRepository")
@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class SalesUser
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -22,25 +22,39 @@ class SalesUser
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="userId", type="integer")
      */
     private $userId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="companyId", type="integer")
      */
     private $companyId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="buildingId", type="integer")
      */
     private $buildingId;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isOrdered", type="boolean")
+     */
+    private $isOrdered = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isAuthorized", type="boolean")
+     */
+    private $isAuthorized = false;
 
     /**
      * @var \DateTime
@@ -49,11 +63,17 @@ class SalesUser
      */
     private $creationDate;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime")
+     */
+    private $modificationDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -61,9 +81,10 @@ class SalesUser
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return SalesUser
      */
     public function setUserId($userId)
@@ -74,9 +95,9 @@ class SalesUser
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -84,9 +105,10 @@ class SalesUser
     }
 
     /**
-     * Set companyId
+     * Set companyId.
      *
-     * @param integer $companyId
+     * @param int $companyId
+     *
      * @return SalesUser
      */
     public function setCompanyId($companyId)
@@ -97,9 +119,9 @@ class SalesUser
     }
 
     /**
-     * Get companyId
+     * Get companyId.
      *
-     * @return integer 
+     * @return int
      */
     public function getCompanyId()
     {
@@ -107,9 +129,10 @@ class SalesUser
     }
 
     /**
-     * Set buildingId
+     * Set buildingId.
      *
-     * @param integer $buildingId
+     * @param int $buildingId
+     *
      * @return SalesUser
      */
     public function setBuildingId($buildingId)
@@ -120,9 +143,9 @@ class SalesUser
     }
 
     /**
-     * Get buildingId
+     * Get buildingId.
      *
-     * @return integer 
+     * @return int
      */
     public function getBuildingId()
     {
@@ -130,9 +153,42 @@ class SalesUser
     }
 
     /**
-     * Set creationDate
+     * @return bool
+     */
+    public function isOrdered()
+    {
+        return $this->isOrdered;
+    }
+
+    /**
+     * @param bool $isOrdered
+     */
+    public function setIsOrdered($isOrdered)
+    {
+        $this->isOrdered = $isOrdered;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAuthorized()
+    {
+        return $this->isAuthorized;
+    }
+
+    /**
+     * @param bool $isAuthorized
+     */
+    public function setIsAuthorized($isAuthorized)
+    {
+        $this->isAuthorized = $isAuthorized;
+    }
+
+    /**
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return SalesUser
      */
     public function setCreationDate($creationDate)
@@ -143,13 +199,33 @@ class SalesUser
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * @param \DateTime $modificationDate
+     *
+     * @return SalesUser
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
     }
 
     /**
@@ -158,5 +234,6 @@ class SalesUser
     public function __construct()
     {
         $this->creationDate = new \DateTime('now');
+        $this->modificationDate = new \DateTime('now');
     }
 }

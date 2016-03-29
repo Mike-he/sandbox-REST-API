@@ -1,4 +1,5 @@
 <?php
+
 namespace Sandbox\ApiBundle\Repository\SalesAdmin;
 
 use Doctrine\ORM\EntityRepository;

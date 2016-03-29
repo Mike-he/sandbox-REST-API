@@ -512,16 +512,35 @@ class AdminUsersController extends DoorController
         $user->setAuthorized(true);
         $user->setModificationDate(new \DateTime('now'));
 
-        // set sales user
-        $salesUserArray = array(
-            'user_id' => $user->getId(),
-            'company_id' => $this->getUser()->getMyAdmin()->getCompanyId(),
-            'building_id' => $building->getId(),
-        );
+        // check sales user record
+        $salesUserId = $user->getId();
+        $salesUserRecord = $this->getRepo('SalesAdmin\SalesUser')->findOneByUserId($salesUserId);
 
-        $salesUser = new SalesUser();
-        $salesUserForm = $this->createForm(new SalesUserType(),$salesUser);
-        $salesUserForm->submit($salesUserArray);
+        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
+        $buildingId = $building->getId();
+
+        if (is_null($salesUserRecord)) {
+            $salesUser = new SalesUser();
+
+            // set sales user
+            $salesUserArray = array(
+                'user_id' => $salesUserId,
+                'company_id' => $companyId,
+                'building_id' => $buildingId,
+                'is_authorized' => true,
+            );
+
+            $salesUserForm = $this->createForm(new SalesUserType(), $salesUser);
+            $salesUserForm->submit($salesUserArray);
+        } else {
+            $salesUser = $salesUserRecord;
+
+            $salesUser->setUserId($salesUserId);
+            $salesUser->setCompanyId($companyId);
+            $salesUser->setBuildingId($buildingId);
+            $salesUser->setIsAuthorized(true);
+            $salesUser->setModificationDate(new \DateTime('now'));
+        }
 
         $em->persist($salesUser);
 

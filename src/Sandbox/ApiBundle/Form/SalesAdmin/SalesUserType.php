@@ -1,4 +1,5 @@
 <?php
+
 namespace Sandbox\ApiBundle\Form\SalesAdmin;
 
 use Symfony\Component\Form\AbstractType;
@@ -17,6 +18,8 @@ class SalesUserType extends AbstractType
             ->add('user_id')
             ->add('company_id')
             ->add('building_id')
+            ->add('is_ordered')
+            ->add('is_authorized')
         ;
     }
 

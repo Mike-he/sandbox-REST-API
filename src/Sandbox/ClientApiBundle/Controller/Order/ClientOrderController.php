@@ -3,8 +3,6 @@
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Order\OrderController;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
-use Sandbox\ApiBundle\Form\SalesAdmin\SalesUserType;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
@@ -333,17 +331,11 @@ class ClientOrderController extends OrderController
             );
 
             // set sales user
-            $salesUserArray = array(
-                'user_id' => $user->getId(),
-                'company_id' => $product->getRoom()->getBuilding()->getCompanyId(),
-                'building_id' => $product->getRoom()->getBuildingId(),
+            $this->setSalesUser(
+                $em,
+                $user->getId(),
+                $product
             );
-
-            $salesUser = new SalesUser();
-            $salesUserForm = $this->createForm(new SalesUserType(),$salesUser);
-            $salesUserForm->submit($salesUserArray);
-
-            $em->persist($salesUser);
 
             $em->flush();
 
