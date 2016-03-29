@@ -763,6 +763,13 @@ class AdminOrderController extends OrderController
                 $product
             );
 
+            // set sales user
+            $this->setSalesUser(
+                $em,
+                $user->getId(),
+                $product
+            );
+
             $em->flush();
 
             // set door access
@@ -963,6 +970,13 @@ class AdminOrderController extends OrderController
             $this->storeRoomRecord(
                 $em,
                 $order,
+                $product
+            );
+
+            // set sales user
+            $this->setSalesUser(
+                $em,
+                $user->getId(),
                 $product
             );
 

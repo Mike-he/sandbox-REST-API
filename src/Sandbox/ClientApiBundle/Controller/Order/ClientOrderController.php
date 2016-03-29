@@ -330,6 +330,13 @@ class ClientOrderController extends OrderController
                 $product
             );
 
+            // set sales user
+            $this->setSalesUser(
+                $em,
+                $user->getId(),
+                $product
+            );
+
             $em->flush();
 
             $view = new View();
