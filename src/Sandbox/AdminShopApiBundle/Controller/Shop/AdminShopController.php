@@ -255,7 +255,12 @@ class AdminShopController extends ShopController
         );
 
         $buildingId = $paramFetcher->get('building');
-        $shops = $this->getRepo('Shop\Shop')->getShopByBuilding($buildingId, $shopIds);
+        $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(
+            $buildingId,
+            false,
+            false,
+            $shopIds
+        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
