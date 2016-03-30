@@ -101,6 +101,38 @@ class CompanyRepository extends EntityRepository
     }
 
     /**
+     * @param $industryIds
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function findRandomCompaniesToPublic(
+        $industryIds,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'c.creatorId = u.id');
+
+        // filter by industry ids
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $query->leftJoin('SandboxApiBundle:Company\CompanyIndustryMap', 'cip', 'WITH', 'c.id = cip.companyId')
+                ->andWhere('cip.industryId IN (:industryIds)')
+                ->setParameter('industryIds', $industryIds);
+        }
+
+        $query->where('u.banned = FALSE')
+            ->andWhere('c.banned = FALSE')
+            ->orderBy('c.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param float $latitude
      * @param float $longitude
      * @param int   $limit

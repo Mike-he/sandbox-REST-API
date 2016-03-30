@@ -215,9 +215,8 @@ class ClientCompanyController extends CompanyController
 
         if (!$this->isAuthProvided()) {
             // open to public
-            $companies = $this->getRepo('Company\Company')->findBy(
-                array('banned' => false),
-                array('id' => 'DESC'),
+            $companies = $this->getRepo('Company\Company')->findRandomCompaniesToPublic(
+                $industryIds,
                 $limit,
                 $offset
             );
