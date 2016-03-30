@@ -113,18 +113,21 @@ class CompanyRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('c')
-            ->leftJoin('SandboxApiBundle:Company\CompanyIndustryMap', 'cip', 'WITH', 'c.id = cip.companyId')
-            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'c.creatorId = u.id')
-            ->where('u.banned = FALSE')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'c.creatorId = u.id');
+
+        // filter by industry ids
+        if (!is_null($industryIds) && !empty($industryIds)) {
+            $query->leftJoin('SandboxApiBundle:Company\CompanyIndustryMap', 'cip', 'WITH', 'c.id = cip.companyId')
+                ->andWhere('cip.industryId IN (:industryIds)')
+                ->setParameter('industryIds', $industryIds);
+        }
+
+        $query->where('u.banned = FALSE')
             ->andWhere('c.banned = FALSE')
             ->orderBy('c.modificationDate', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
-        if (!is_null($industryIds) && !empty($industryIds)) {
-            $query->andWhere('cip.industryId IN (:industryIds)')
-               ->setParameter('industryIds', $industryIds);
-        }
 
         return $query->getQuery()->getResult();
     }
