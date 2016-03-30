@@ -153,3 +153,33 @@ sandbox_admin_api_food_notification:
     resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodNotificationController.php"
     type:     annotation
     prefix:   /
+
+# SalesAdmin /admin/sales/admins
+sandbox_admin_api_sales_admins:
+    resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesAdminsController.php"
+    type:     annotation
+    prefix:   /sales
+
+# SalesBuilding /admin/sales/buildings
+sandbox_admin_api_sales_buildings:
+    resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesBuildingController.php"
+    type:     annotation
+    prefix:   /sales
+
+# ShopAdmin /admin/shop/admins
+sandbox_admin_api_shop_admins:
+    resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminShopAdminsController.php"
+    type:     annotation
+    prefix:   /shop
+
+# SalesCity /admin/sales/{id}/cities
+sandbox_admin_api_sales_cities:
+    resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesCityController.php"
+    type:     annotation
+    prefix:   /sales
+
+# Shop /admin/shops
+sandbox_admin_api_shops:
+    resource: "@SandboxAdminApiBundle/Controller/Shop/AdminShopController.php"
+    type:     annotation
+    prefix:   /

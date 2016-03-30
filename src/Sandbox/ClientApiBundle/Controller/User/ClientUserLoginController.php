@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientUserLoginController extends UserLoginController
 {
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
-    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：xxx-xxxxxxx';
+    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：';
 
     /**
      * Login.
@@ -51,12 +51,18 @@ class ClientUserLoginController extends UserLoginController
         Request $request
     ) {
         $user = $this->getUser();
+
+        // get globals
+        $globals = $this->getGlobals();
+
+        $customerPhone = $globals['customer_service_phone'];
+
         if ($user->isBanned()) {
             // user is banned
             return $this->customErrorView(
                 401,
                 self::ERROR_ACCOUNT_BANNED_CODE,
-                self::ERROR_ACCOUNT_BANNED_MESSAGE);
+                self::ERROR_ACCOUNT_BANNED_MESSAGE.$customerPhone);
         }
 
         $login = new UserLoginData();

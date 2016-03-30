@@ -389,6 +389,7 @@ class ProductRepository extends EntityRepository
             // product off sale
             if ($visible == Product::OFF_SALE) {
                 $parameters['visible'] = false;
+                $query->andWhere('p.isDeleted = FALSE');
             }
             // product on sale and in the rent time
             elseif ($visible == Product::ON_SALE) {
@@ -667,5 +668,178 @@ class ProductRepository extends EntityRepository
         }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+    //-------------------- sales repository --------------------//
+
+    /**
+     * Get all products.
+     *
+     * @param array        $myBuildingIds
+     * @param string       $type
+     * @param RoomCity     $city
+     * @param RoomBuilding $building
+     * @param int          $visible
+     * @param string       $sortBy
+     * @param string       $direction
+     * @param string       $search
+     * @param bool         $recommend
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getSalesAdminProducts(
+        $myBuildingIds,
+        $type,
+        $city,
+        $building,
+        $visible,
+        $sortBy,
+        $direction,
+        $search,
+        $recommend = false
+    ) {
+        $notFirst = false;
+        $parameters = [];
+
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
+
+        // only needed when searching products
+        if (!is_null($search)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'r.city = rc.id');
+            $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.building = rb.id');
+        }
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->where('r.type = :type');
+            $parameters['type'] = $type;
+            $notFirst = true;
+        }
+
+        // filter by visible
+        if (!is_null($visible)) {
+            $where = 'p.visible = :visible';
+            $this->addWhereQuery($query, $notFirst, $where);
+
+            $now = new \DateTime('now');
+
+            // product off sale
+            if ($visible == Product::OFF_SALE) {
+                $parameters['visible'] = false;
+            }
+            // product on sale and in the rent time
+            elseif ($visible == Product::ON_SALE) {
+                $parameters['visible'] = true;
+                $query->andWhere(':now BETWEEN p.startDate AND p.endDate');
+                $parameters['now'] = $now;
+            }
+            // product ready sale and before the rent time
+            elseif ($visible == Product::READY_SALE) {
+                $parameters['visible'] = true;
+                $query->andWhere(':now < p.startDate');
+                $parameters['now'] = $now;
+            }
+
+            $notFirst = true;
+        }
+
+        // filter by city
+        if (!is_null($city)) {
+            $where = 'r.city = :city';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['city'] = $city;
+            $notFirst = true;
+        }
+
+        // filter by building
+        if (!is_null($building)) {
+            $where = 'r.building = :building';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['building'] = $building;
+            $notFirst = true;
+        } else {
+            $where = 'r.buildingId IN (:buildingIds)';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['buildingIds'] = $myBuildingIds;
+            $notFirst = true;
+        }
+
+        //Search product by city, building, room name and room number.
+        if (!is_null($search)) {
+            $where = '
+                r.name LIKE :search OR
+                r.number LIKE :search OR
+                rc.name LIKE :search OR
+                rb.name LIKE :search
+            ';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['search'] = "%$search%";
+            $notFirst = true;
+        }
+
+        // get only recommend products
+        if ($recommend) {
+            $where = 'p.recommend = :recommend';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['recommend'] = $recommend;
+            $notFirst = true;
+        }
+
+        // sort by by method
+        switch ($sortBy) {
+            case 'area':
+                $query->orderBy('r.'.$sortBy, $direction);
+                break;
+            case 'basePrice':
+                $query->orderBy('p.'.$sortBy, $direction);
+                break;
+            default:
+                $query->orderBy('p.'.$sortBy, $direction);
+                break;
+        }
+
+        // set all parameters
+        if ($notFirst) {
+            $query->setParameters($parameters);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param RoomBuilding $building
+     *
+     * @return array
+     */
+    public function getSalesProductsByBuilding(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('r.building = :building')
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $building
+     *
+     * @return mixed
+     */
+    public function countsProductByBuilding(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('COUNT(p)')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('r.building = :building')
+            ->andWhere('p.isDeleted = FALSE')
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

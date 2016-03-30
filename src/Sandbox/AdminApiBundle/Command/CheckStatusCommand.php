@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 //use Sandbox\ApiBundle\Traits\CurlUtil;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,16 +24,21 @@ class CheckStatusCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->setShopOrderStatusCancelled();
+
+        // set product order status cancelled
         $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->setStatusCancelled();
 
+        // set room product status visible false
         $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Product\Product')
             ->setVisibleFalse();
 
+        // get paid product order and set status completed
         $orders = $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -51,6 +57,35 @@ class CheckStatusCommand extends ContainerAwareCommand
 //                    $this->postAccountUpgrade($order, $membershipBindId);
 //                }
             }
+        }
+    }
+
+    /**
+     * Set status cancelled and restock inventory.
+     */
+    private function setShopOrderStatusCancelled()
+    {
+        $orders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->getUnpaidShopOrders();
+
+        $now = new \DateTime();
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        foreach ($orders as $order) {
+            $inventoryData = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository('SandboxApiBundle:Shop\ShopOrderProduct')
+                ->getShopOrderProductInventory($order->getId());
+
+            foreach ($inventoryData as $data) {
+                $data['item']->setInventory($data['inventory'] + $data['amount']);
+            }
+
+            $order->setStatus(ShopOrder::STATUS_CANCELLED);
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
+            $em->flush();
         }
     }
 

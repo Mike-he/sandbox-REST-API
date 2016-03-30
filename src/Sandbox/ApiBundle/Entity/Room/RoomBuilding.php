@@ -23,6 +23,11 @@ class RoomBuilding implements JsonSerializable
 {
     const BUILDING_NOT_FOUND_MESSAGE = 'Building Not Found';
 
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACCEPT = 'accept';
+    const STATUS_REFUSE = 'refuse';
+    const STATUS_BANNED = 'banned';
+
     /**
      * @var int
      *
@@ -49,7 +54,12 @@ class RoomBuilding implements JsonSerializable
      *      "client_event",
      *      "current_order",
      *      "building_nearby",
-     *      "admin_building"
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "admin",
+     *      "shop_nearby",
+     *      "client_shop"
      *  }
      * )
      */
@@ -60,7 +70,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="description", type="string", length=1024, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "admin_shop", "client_shop"})
      */
     private $description;
 
@@ -69,7 +79,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="detail", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "admin_shop", "client_shop"})
      */
     private $detail;
 
@@ -78,14 +88,22 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="cityId", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin"})
      */
     private $cityId;
 
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "building_nearby", "admin_building"})
+     * @Serializer\Groups({
+     *     "main",
+     *     "building_nearby",
+     *     "admin_building",
+     *     "admin_shop",
+     *     "client_order",
+     *     "shop_nearby",
+     *     "client_shop"
+     * })
      **/
     private $city;
 
@@ -114,7 +132,11 @@ class RoomBuilding implements JsonSerializable
      *      "client_event",
      *      "current_order",
      *      "building_nearby",
-     *      "admin_building"
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
      *  }
      * )
      */
@@ -126,15 +148,17 @@ class RoomBuilding implements JsonSerializable
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
      * @Serializer\Groups({
-     *  "main",
-     *  "admin_room",
-     *  "client",
-     *  "admin_detail",
-     *  "admin_event",
-     *  "client_event",
-     *  "current_order",
-     *  "building_nearby",
-     *  "admin_building"
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "admin_detail",
+     *      "admin_event",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_shop"
      * })
      */
     private $address;
@@ -203,6 +227,13 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var array
      *
+     * @Serializer\Groups({"main", "shop_nearby"})
+     */
+    private $shops;
+
+    /**
+     * @var array
+     *
      * @Serializer\Groups({"main"})
      */
     private $roomAttachments;
@@ -227,9 +258,41 @@ class RoomBuilding implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="businessHour", type="string", nullable=true)
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "client_shop"})
      */
     private $businessHour;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="visible", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $visible = true;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="companyId", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $companyId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", nullable=false)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $status = self::STATUS_PENDING;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $isDeleted = false;
 
     /**
      * @var array
@@ -244,6 +307,26 @@ class RoomBuilding implements JsonSerializable
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $buildingCompany;
+
+    /**
+     * @var int
+     */
+    private $shopCounts;
+
+    /**
+     * @var int
+     */
+    private $roomCounts;
+
+    /**
+     * @var int
+     */
+    private $productCounts;
+
+    /**
+     * @var int
+     */
+    private $orderCounts;
 
     /**
      * Get id.
@@ -317,6 +400,30 @@ class RoomBuilding implements JsonSerializable
     public function getCityId()
     {
         return $this->cityId;
+    }
+
+    /**
+     * Set shops.
+     *
+     * @param array $shops
+     *
+     * @return RoomBuilding
+     */
+    public function setShops($shops)
+    {
+        $this->shops = $shops;
+
+        return $this;
+    }
+
+    /**
+     * Get shops.
+     *
+     * @return array
+     */
+    public function getShops()
+    {
+        return $this->shops;
     }
 
     /**
@@ -675,6 +782,134 @@ class RoomBuilding implements JsonSerializable
     public function setBuildingCompany($buildingCompany)
     {
         $this->buildingCompany = $buildingCompany;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
+     * @param bool $visible
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     */
+    public function setIsDeleted($isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
+    }
+
+    /**
+     * @return int
+     */
+    public function getShopCounts()
+    {
+        return $this->shopCounts;
+    }
+
+    /**
+     * @param int $shopCounts
+     */
+    public function setShopCounts($shopCounts)
+    {
+        $this->shopCounts = $shopCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRoomCounts()
+    {
+        return $this->roomCounts;
+    }
+
+    /**
+     * @param int $roomCounts
+     */
+    public function setRoomCounts($roomCounts)
+    {
+        $this->roomCounts = $roomCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getProductCounts()
+    {
+        return $this->productCounts;
+    }
+
+    /**
+     * @param int $productCounts
+     */
+    public function setProductCounts($productCounts)
+    {
+        $this->productCounts = $productCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOrderCounts()
+    {
+        return $this->orderCounts;
+    }
+
+    /**
+     * @param int $orderCounts
+     */
+    public function setOrderCounts($orderCounts)
+    {
+        $this->orderCounts = $orderCounts;
     }
 
     public function jsonSerialize()

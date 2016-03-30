@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Product;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Traits\CurlUtil;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ProductController extends SandboxRestController
+class ProductController extends SalesRestController
 {
     use CurlUtil;
 

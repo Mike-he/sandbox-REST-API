@@ -18,6 +18,13 @@ class UserType extends AbstractType
             ->add('banned')
             ->add('card_no')
             ->add('credential_no')
+            ->add(
+                'building_id',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
         ;
     }
 

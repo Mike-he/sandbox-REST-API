@@ -92,6 +92,14 @@ class RoomSupplies
     }
 
     /**
+     * @return Room
+     */
+    public function getRoom()
+    {
+        return $this->room;
+    }
+
+    /**
      * Get roomId.
      *
      * @return Room

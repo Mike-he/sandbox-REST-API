@@ -20,6 +20,8 @@ CREATE TABLE `ProductOrder` (
   `ruleName` varchar(255),
   `ruleDescription` varchar(255),
   `membershipBindId` int(11),
+  `adminId` int(11),
+  `type` VARCHAR(64),
   PRIMARY KEY (`id`),
   KEY `fk_ProductOrder_userId_idx` (`userId`),
   KEY `fk_ProductOrder_productId_idx` (`productId`),

@@ -137,4 +137,96 @@ class UserViewRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    //-------------------- sales repository --------------------//
+
+    /**
+     * @param $banned
+     * @param $sortBy
+     * @param $direction
+     * @param $userIds
+     *
+     * @return array
+     */
+    public function getSalesUsers(
+        $banned,
+        $sortBy,
+        $direction,
+        $userIds
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+            u.id,
+            u.phone,
+            u.email,
+            u.banned,
+            u.name,
+            u.gender
+            ');
+
+        // filter by user ids
+        $query->where('u.id IN (:ids)');
+        $query->setParameter('ids', $userIds);
+
+        if (!is_null($banned)) {
+            $query->andwhere('u.banned = :banned');
+            $query->setParameter('banned', $banned);
+        }
+        if (!is_null($sortBy)) {
+            $query->orderBy('u.'.$sortBy, $direction);
+        }
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $banned
+     * @param $authorized
+     * @param $query
+     * @param $sortBy
+     * @param $direction
+     * @param $userIds
+     *
+     * @return array
+     */
+    public function searchSalesUser(
+        $banned,
+        $authorized,
+        $query,
+        $sortBy,
+        $direction,
+        $userIds
+    ) {
+        $queryResults = $this->createQueryBuilder('u')
+            ->where('u.id LIKE :query')
+            ->orWhere('u.name LIKE :query')
+            ->orWhere('u.email LIKE :query')
+            ->orWhere('u.phone LIKE :query')
+            ->orWhere('u.cardNo LIKE :query')
+            ->orWhere('u.credentialNo LIKE :query')
+            ->setParameter('query', $query.'%');
+
+        if (!is_null($banned)) {
+            $queryResults->andWhere('u.banned = :banned')
+                ->setParameter('banned', $banned);
+        }
+
+        if (!is_null($authorized)) {
+            $queryResults->andWhere('u.authorized = :authorized')
+                ->setParameter('authorized', $authorized);
+        }
+
+        if (!is_null($sortBy)) {
+            $queryResults->orderBy('u.'.$sortBy, $direction);
+        }
+
+        // filters by user ids
+        if (is_null($query)) {
+            $queryResults->andWhere('u.id IN (:ids)');
+            $queryResults->setParameter('ids', $userIds);
+        }
+
+        return $queryResults->getQuery()->getResult();
+    }
 }

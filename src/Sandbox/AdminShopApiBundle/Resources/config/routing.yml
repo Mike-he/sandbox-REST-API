@@ -1,0 +1,77 @@
+# Login /shop/admin/auth/login
+sandbox_shop_admin_api_auth_login:
+    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminUserLoginController.php"
+    type:     annotation
+    prefix:   /admin/auth
+
+# Logout /shop/admin/auth/logout
+sandbox_shop_admin_api_auth_logout:
+    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminUserLogoutController.php"
+    type:     annotation
+    prefix:   /admin/auth
+
+# Auth Me /shop/admin/auth/me
+sandbox_shop_admin_api_auth_me:
+    resource: "@SandboxAdminShopApiBundle/Controller/Auth/AdminAuthController.php"
+    type:     annotation
+    prefix:   /admin/auth
+
+# Admin Type /shop/admin/types
+sandbox_shop_admin_api_admin_type:
+    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminTypesController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Permission /shop/admin/permissions
+sandbox_shop_admin_api_admin_permission:
+    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminPermissionsController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Admins /shop/admin/admins
+sandbox_shop_admin_api_admin_admins:
+    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminAdminsController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Shop /shop/admin/shops
+sandbox_admin_shop_api_shops:
+    resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopController.php"
+    type:     annotation
+    prefix:   /admin
+
+# ShopMenu /shop/admin/shops/menu
+sandbox_shop_admin_api_shops_menu:
+    resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopMenuController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Spec /shop/admin/shops/spec
+sandbox_shop_admin_api_shops_spec:
+    resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopSpecController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Product /shop/admin/shops/product
+sandbox_shop_admin_api_shops_product:
+    resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopProductController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Order /shop/admin/shops/order
+sandbox_shop_admin_api_shops_order:
+    resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopOrderController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Cities /shop/admin/cities
+sandbox_shop_admin_api_cities:
+    resource: "@SandboxAdminShopApiBundle/Controller/Shop/AdminShopCitiesController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Users /shop/admin/users
+sandbox_shop_admin_api_users:
+    resource: "@SandboxAdminShopApiBundle/Controller/User/AdminUsersController.php"
+    type:     annotation
+    prefix:   /admin

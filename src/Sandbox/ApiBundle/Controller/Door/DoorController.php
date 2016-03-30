@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Door;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 
 /**
  * Door Controller.
@@ -14,7 +14,7 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
  *
  * @link     http://www.Sandbox.cn/
  */
-class DoorController extends SandboxRestController
+class DoorController extends SalesRestController
 {
     const RESPONSE_NOT_VALID_CODE = 400005;
     const RESPONSE_NOT_VALID_MESSAGE = 'Response Not Valid';

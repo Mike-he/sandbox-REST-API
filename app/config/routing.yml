@@ -1,3 +1,8 @@
+sandbox_sales_api:
+    resource: "@SandboxSalesApiBundle/Resources/config/routing.yml"
+    type: rest
+    prefix: /sales
+
 sandbox_client_api:
     resource: "@SandboxClientApiBundle/Resources/config/routing.yml"
     type: rest
@@ -16,3 +21,8 @@ sandbox_api:
     resource: "@SandboxApiBundle/Resources/config/routing.yml"
     type: rest
     prefix:
+
+sandbox_admin_shop_api:
+    resource: "@SandboxAdminShopApiBundle/Resources/config/routing.yml"
+    type: rest
+    prefix: /shop

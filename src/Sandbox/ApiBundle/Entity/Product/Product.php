@@ -22,7 +22,9 @@ class Product
 
     const UNIT_HOUR = 'hour';
     const UNIT_DAY = 'day';
-    const Unit_MONTH = 'month';
+    const UNIT_MONTH = 'month';
+    const UNIT_DAYS = 'days';
+    const UNIT_MIN = 'min';
 
     /**
      * @var int
@@ -151,6 +153,15 @@ class Product
      * @Serializer\Groups({"main", "admin_room", "admin_detail"})
      */
     private $sortTime;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDeleted", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $isDeleted = false;
 
     /**
      * @var \DateTime
@@ -426,6 +437,22 @@ class Product
     public function getSortTime()
     {
         return $this->sortTime;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     */
+    public function setIsDeleted($isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
     }
 
     /**

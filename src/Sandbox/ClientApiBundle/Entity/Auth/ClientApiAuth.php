@@ -18,6 +18,8 @@ use Sandbox\ApiBundle\Entity\User\User;
  */
 class ClientApiAuth implements UserInterface
 {
+    const ROLE_CLIENT_API = 'ROLE_CLIENT_API';
+
     /**
      * @var int
      *

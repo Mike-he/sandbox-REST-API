@@ -15,6 +15,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
@@ -84,6 +85,8 @@ class PaymentController extends DoorController
     const FOOD_DOES_NOT_EXIST_MESSAGE = 'This Item Does Not Exist';
     const FOOD_OPTION_DOES_NOT_EXIST_CODE = 400026;
     const FOOD_OPTION_DOES_NOT_EXIST_MESSAGE = 'This Option Does Not Exist';
+    const PRICE_RULE_DOES_NOT_EXIST_CODE = 400027;
+    const PRICE_RULE_DOES_NOT_EXIST_MESSAGE = 'This price rule doees not exist';
     const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';
@@ -276,6 +279,33 @@ class PaymentController extends DoorController
 
         // set door access
         $this->setDoorAccessForSingleOrder($order);
+
+        return $order;
+    }
+
+    /**
+     * @param string $orderNumber
+     *
+     * @return ShopOrder
+     */
+    public function setShopOrderStatus(
+        $orderNumber
+    ) {
+        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'orderNumber' => $orderNumber,
+                'status' => ShopOrder::STATUS_UNPAID,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $now = new \DateTime();
+        $order->setStatus(ShopOrder::STATUS_PAID);
+        $order->setPaymentDate($now);
+        $order->setModificationDate($now);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
 
         return $order;
     }

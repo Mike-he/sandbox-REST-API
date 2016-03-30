@@ -53,6 +53,7 @@ twig:
         server_order_id: "%server_order_id%"
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"
+        nearby_shop_range_km: "%nearby_shop_range_km%"
         expired_verification_time: "%expired_verification_time%"
         time_for_half_hour_early: "%time_for_half_hour_early%"
         sandbox_auth_key: "%sandbox_auth_key%"
@@ -97,6 +98,7 @@ twig:
         door_api_add_emp: "%door_api_add_emp%"
         door_api_delete_emp: "%door_api_delete_emp%"
         door_api_order_no: "%door_api_order_no%"
+        customer_service_phone: "%customer_service_phone%"
 
 # Assetic Configuration
 assetic:
@@ -218,7 +220,7 @@ nelmio_cors:
     paths:
         '^/':
             allow_origin: ['*']
-            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization', 'Access-Control-Request-Headers']
+            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization', 'sandboxadminauthorization', 'Access-Control-Request-Headers']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'PATCH']
             max_age: 3600
 

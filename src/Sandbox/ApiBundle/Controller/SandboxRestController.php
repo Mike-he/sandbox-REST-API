@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Auth\AdminAuth;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\CurlUtil;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -22,6 +23,8 @@ use Symfony\Component\Console\Output\NullOutput;
 use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 
 class SandboxRestController extends FOSRestController
 {
@@ -52,6 +55,8 @@ class SandboxRestController extends FOSRestController
     const ENCODE_METHOD_MD5 = 'md5';
 
     const ENCODE_METHOD_SHA1 = 'sha1';
+
+    const SANDBOX_ADMIN_LOGIN_HEADER = 'sandboxadminauthorization';
 
     //-------------------- Global --------------------//
 
@@ -821,6 +826,24 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param $code
+     * @param $message
+     *
+     * @return array
+     */
+    protected function setErrorArray(
+        $code,
+        $message
+    ) {
+        $error = [
+            'code' => $code,
+            'message' => $message,
+        ];
+
+        return $error;
+    }
+
+    /**
      *
      */
     private function _throwHttpErrorIfNull(
@@ -1441,5 +1464,97 @@ class SandboxRestController extends FOSRestController
                 }
             }
         }
+    }
+
+    /**
+     * @param $adminId
+     * @param $permissionKeyArray
+     * @param $opLevel
+     *
+     * @return array
+     */
+    protected function getMyShopIds(
+        $adminId,
+        $permissionKeyArray,
+        $opLevel = ShopAdminPermissionMap::OP_LEVEL_VIEW
+    ) {
+        // get admin
+        $admin = $this->getRepo('Shop\ShopAdmin')->find($adminId);
+        $type = $admin->getType();
+
+        // get permission
+        if (empty($permissionKeyArray)) {
+            return array();
+        }
+
+        $permissions = array();
+        if (is_array($permissionKeyArray)) {
+            foreach ($permissionKeyArray as $key) {
+                $permission = $this->getRepo('Shop\ShopAdminPermission')->findOneByKey($key);
+
+                if (!is_null($permission)) {
+                    array_push($permissions, $permission->getId());
+                }
+            }
+        }
+
+        if (ShopAdminType::KEY_SUPER === $type->getKey()) {
+            // if user is super admin, get all buildings
+            $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($admin->getCompanyId());
+
+            $shopsArray = array();
+            foreach ($myBuildings as $building) {
+                if (is_null($building)) {
+                    continue;
+                }
+
+                $shops = $this->getRepo('Shop\Shop')->getMyShopByBuilding($building['id']);
+
+                $shopsArray = array_merge($shopsArray, $shops);
+            }
+        } else {
+            // platform admin get binding buildings
+            $shopsArray = $this->getRepo('Shop\ShopAdminPermissionMap')->getMyShops(
+                $adminId,
+                $permissions,
+                $opLevel
+            );
+        }
+
+        if (empty($shopsArray)) {
+            return $shopsArray;
+        }
+
+        $ids = array();
+        foreach ($shopsArray as $shop) {
+            array_push($ids, $shop['shopId']);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @return AdminAuth
+     */
+    protected function getSandboxAuthorization()
+    {
+        // get auth
+        $headers = apache_request_headers();
+        if (!array_key_exists(self::SANDBOX_ADMIN_LOGIN_HEADER, $headers)) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+        $authHeader = $headers[self::SANDBOX_ADMIN_LOGIN_HEADER];
+        $adminString = base64_decode($authHeader, true);
+        $adminArray = explode(':', $adminString);
+
+        if (count($adminArray) != 2) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
+        $auth = new AdminAuth();
+        $auth->setUsername($adminArray[0]);
+        $auth->setPassword($adminArray[1]);
+
+        return $auth;
     }
 }

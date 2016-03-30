@@ -246,6 +246,30 @@ sandbox_client_third_party:
     type:     annotation
     prefix:   /thirdparty
 
+# ShopOrder /client/shops/order
+sandbox_client_api_shops_order:
+    resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopOrderController.php"
+    type:     annotation
+    prefix:   /
+
+# Shop /client/shops
+sandbox_client_api_shops:
+    resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopController.php"
+    type:     annotation
+    prefix:   /
+
+# ShopMenu /client/shops/menu
+sandbox_client_api_shops_menu:
+    resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopMenuController.php"
+    type:     annotation
+    prefix:   /
+
+# ShopProduct /client/shops/product
+sandbox_client_api_shops_product:
+    resource: "@SandboxClientApiBundle/Controller/Shop/ClientShopProductController.php"
+    type:     annotation
+    prefix:   /
+
 # Third Party Auth /client/thirdparty/oauth
 sandbox_client_third_party_oauth:
     resource: "@SandboxClientApiBundle/Controller/ThirdParty/ClientThirdPartyOAuthController.php"

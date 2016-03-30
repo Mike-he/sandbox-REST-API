@@ -25,12 +25,14 @@ class AppKernel extends Kernel
             new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
             new Hautelook\TemplatedUriBundle\HautelookTemplatedUriBundle(),
             new Bazinga\Bundle\RestExtraBundle\BazingaRestExtraBundle(),
+            new Sandbox\AdminShopApiBundle\SandboxAdminShopApiBundle(),
             new Sandbox\ApiBundle\SandboxApiBundle(),
             new Sandbox\ClientApiBundle\SandboxClientApiBundle(),
             new Sandbox\AdminApiBundle\SandboxAdminApiBundle(),
             new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
             new FOS\ElasticaBundle\FOSElasticaBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
+            new Sandbox\SalesApiBundle\SandboxSalesApiBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

@@ -2,7 +2,9 @@
 
 namespace Sandbox\ApiBundle\Controller\Location;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
+use Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -12,6 +14,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -26,40 +29,76 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
  *
  * @link     http://www.Sandbox.cn/
  */
-class LocationController extends SandboxRestController
+class LocationController extends SalesRestController
 {
     const LOCATION_CITY_PREFIX = 'location.city.';
 
     /**
      * @Get("/cities")
      *
-     * @param Request $request
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="permission",
+     *    default=null,
+     *    nullable=false,
+     *    description="permission key"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="op",
+     *    default=1,
+     *    nullable=true,
+     *    description="op level"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="all",
+     *    default=null,
+     *    nullable=true,
+     *    description="tag of all"
+     * )
      *
      * @return View
      */
     public function getCitiesAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        $user = $this->getUser();
+
+        $all = $paramFetcher->get('all');
+
+        // get all cities
         $cities = $this->getRepo('Room\RoomCity')->findAll();
 
-        $citiesArray = array();
-        foreach ($cities as $city) {
-            $name = $city->getName();
-            $key = $city->getKey();
+        if (!is_null($user) && is_null($all)) {
+            // sales bundle
+            if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
+                // get my building ids
+                $myBuildingIds = $this->generateLocationSalesBuildingIds(
+                    $paramFetcher
+                );
 
-            $translatedKey = self::LOCATION_CITY_PREFIX.$key;
-            $translatedName = $this->get('translator')->trans($translatedKey);
-            if ($translatedName != $translatedKey) {
-                $name = $translatedName;
+                $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByBuilding($myBuildingIds);
             }
 
-            $cityArray = array(
-                'id' => $city->getId(),
-                'key' => $key,
-                'name' => $name,
-            );
-            array_push($citiesArray, $cityArray);
+            // shop bundle
+            if ($user->getRoles() == array(ShopAdminApiAuth::ROLE_SHOP_ADMIN_API)) {
+                // get my shops ids
+                $myShopIds = $this->generateLocationShopIds(
+                    $paramFetcher
+                );
+
+                $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByShop($myShopIds);
+            }
         }
+
+        // generate cities array
+        $citiesArray = $this->generateCitiesArray(
+            $cities
+        );
 
         return new View($citiesArray);
     }
@@ -74,6 +113,20 @@ class LocationController extends SandboxRestController
      *    description="city id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="permission",
+     *    default=null,
+     *    nullable=false,
+     *    description="permission key"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="op",
+     *    default=1,
+     *    nullable=true,
+     *    description="op level"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -83,13 +136,36 @@ class LocationController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $user = $this->getUser();
+
         $cityId = $paramFetcher->get('city');
-        if (!is_null($cityId)) {
-            $buildings = $this->getRepo('Room\RoomBuilding')->findBy(
-                ['cityId' => $cityId]
-            );
-        } else {
-            $buildings = $this->getRepo('Room\RoomBuilding')->findAll();
+
+        // get all buildings
+        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
+
+        if (!is_null($user)) {
+            // sales bundle
+            if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
+                // get my building ids
+                $myBuildingIds = $this->generateLocationSalesBuildingIds(
+                    $paramFetcher
+                );
+
+                $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
+                    $cityId,
+                    $myBuildingIds
+                );
+            }
+
+            // shop bundle
+            if ($user->getRoles() == array(ShopAdminApiAuth::ROLE_SHOP_ADMIN_API)) {
+                // get my shops ids
+                $myShopIds = $this->generateLocationShopIds(
+                    $paramFetcher
+                );
+
+                $buildings = $this->getRepo('Room\RoomBuilding')->getLocationBuildingByShop($myShopIds);
+            }
         }
 
         $view = new View();
@@ -199,6 +275,7 @@ class LocationController extends SandboxRestController
      *    name="lat",
      *    array=false,
      *    default=null,
+     *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="coordinate lat"
@@ -208,9 +285,19 @@ class LocationController extends SandboxRestController
      *    name="lng",
      *    array=false,
      *    default=null,
+     *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="coordinate lng"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="addon",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="shop addon"
      * )
      *
      * @Route("/buildings/nearby")
@@ -226,8 +313,16 @@ class LocationController extends SandboxRestController
     ) {
         $lat = $paramFetcher->get('lat');
         $lng = $paramFetcher->get('lng');
+        $addon = $paramFetcher->get('addon');
+
         $globals = $this->getGlobals();
         $range = $globals['nearby_range_km'];
+        $viewGroup = 'building_nearby';
+
+        if ($addon == 'shop') {
+            $range = $globals['nearby_shop_range_km'];
+            $viewGroup = 'shop_nearby';
+        }
 
         $buildings = $this->getRepo('Room\RoomBuilding')->findNearbyBuildings(
             $lat,
@@ -235,8 +330,20 @@ class LocationController extends SandboxRestController
             $range
         );
 
+        if ($addon == 'shop') {
+            foreach ($buildings as $building) {
+                $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(
+                    $building->getId(),
+                    true,
+                    true
+                );
+
+                $building->setShops($shops);
+            }
+        }
+
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['building_nearby']));
+        $view->setSerializationContext(SerializationContext::create()->setGroups([$viewGroup]));
         $view->setData($buildings);
 
         return $view;
@@ -292,6 +399,104 @@ class LocationController extends SandboxRestController
         $phones = $this->getRepo('Room\RoomBuildingPhones')->findByBuilding($building);
         $building->setPhones($phones);
 
+        // set shop counts
+        $shopCounts = $this->getRepo('Shop\Shop')->countsShopByBuilding($building);
+        $building->setShopCounts((int) $shopCounts);
+
+        // set room counts
+        $roomCounts = $this->getRepo('Room\Room')->countsRoomByBuilding($building);
+        $building->setRoomCounts((int) $roomCounts);
+
+        // set product counts
+        $productCounts = $this->getRepo('Product\Product')->countsProductByBuilding($building);
+        $building->setProductCounts((int) $productCounts);
+
+        // set order counts
+        $orderCounts = $this->getRepo('Order\ProductOrder')->countsOrderByBuilding($building);
+        $building->setOrderCounts((int) $orderCounts);
+
         return $building;
+    }
+
+    /**
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $adminId
+     *
+     * @return array
+     */
+    protected function generateLocationSalesBuildingIds(
+        $paramFetcher,
+        $adminId = null
+    ) {
+        if (is_null($adminId)) {
+            $adminId = $this->getUser()->getAdminId();
+        }
+
+        $permissionKeyArray = $paramFetcher->get('permission');
+        $opLevel = $paramFetcher->get('op');
+
+        if (is_null($adminId) || is_null($permissionKeyArray) || empty($permissionKeyArray)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return $myBuildingIds = $this->getMySalesBuildingIds(
+            $adminId,
+            $permissionKeyArray,
+            $opLevel
+        );
+    }
+
+    /**
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return array
+     */
+    private function generateLocationShopIds(
+        $paramFetcher
+    ) {
+        $adminId = $this->getUser()->getAdminId();
+
+        $permissionKeyArray = $paramFetcher->get('permission');
+        $opLevel = $paramFetcher->get('op');
+
+        if (is_null($adminId) || is_null($permissionKeyArray) || empty($permissionKeyArray)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return $myBuildingIds = $this->getMyShopIds(
+            $adminId,
+            $permissionKeyArray,
+            $opLevel
+        );
+    }
+
+    /**
+     * @param $cities
+     *
+     * @return array
+     */
+    protected function generateCitiesArray(
+        $cities
+    ) {
+        $citiesArray = array();
+        foreach ($cities as $city) {
+            $name = $city->getName();
+            $key = $city->getKey();
+
+            $translatedKey = self::LOCATION_CITY_PREFIX.$key;
+            $translatedName = $this->get('translator')->trans($translatedKey);
+            if ($translatedName != $translatedKey) {
+                $name = $translatedName;
+            }
+
+            $cityArray = array(
+                'id' => $city->getId(),
+                'key' => $key,
+                'name' => $name,
+            );
+            array_push($citiesArray, $cityArray);
+        }
+
+        return $citiesArray;
     }
 }

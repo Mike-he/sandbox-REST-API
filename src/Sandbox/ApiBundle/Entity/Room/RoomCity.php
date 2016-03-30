@@ -15,7 +15,7 @@ use JsonSerializable;
  *          @ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomCityRepository")
  */
 class RoomCity implements JsonSerializable
 {
@@ -35,7 +35,11 @@ class RoomCity implements JsonSerializable
      *      "client_event",
      *      "current_order",
      *      "building_nearby",
-     *      "admin_building"
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
      * })
      */
     private $id;
@@ -55,7 +59,11 @@ class RoomCity implements JsonSerializable
      *      "client_event",
      *      "current_order",
      *      "building_nearby",
-     *      "admin_building"
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
      * })
      */
     private $name;
