@@ -298,7 +298,7 @@ class ClientFeedController extends FeedController
 
         // get request user
         $assignUser = $this->getRepo('User\User')->find($assignUserId);
-        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($assignUser, self::NOT_FOUND_MESSAGE);
 
         // check the other user is banned
         if ($assignUser->isBanned()) {
