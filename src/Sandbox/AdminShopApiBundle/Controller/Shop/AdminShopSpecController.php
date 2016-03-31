@@ -258,14 +258,6 @@ class AdminShopSpecController extends SpecController
 
         $shop = $this->findEntityById($id, 'Shop\Shop');
 
-        if (!$shop->isActive()) {
-            return $this->customErrorView(
-                400,
-                Shop::SHOP_INACTIVE_CODE,
-                Shop::SHOP_INACTIVE_MESSAGE
-            );
-        }
-
         $spec = new ShopSpec();
 
         $form = $this->createForm(new ShopSpecPostType(), $spec);
