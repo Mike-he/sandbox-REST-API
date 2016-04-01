@@ -49,6 +49,60 @@ class AdminAdminsController extends SalesRestController
     const ERROR_ADMIN_TYPE_MESSAGE = 'Invalid admin type - 无效的管理员类型';
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="username",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="sales admin username"
+     * )
+     *
+     * @Route("/admins/check")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function checkAdminUsernameValidAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ADMIN,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $salesAdminUsername = $paramFetcher->get('username');
+
+        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->findOneByUsername($salesAdminUsername);
+
+        if (!is_null($salesAdmin)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_EXIST_CODE,
+                self::ERROR_USERNAME_EXIST_MESSAGE
+            );
+        }
+
+        return new View();
+    }
+
+    /**
      * List all admins.
      *
      * @param Request $request the request object
@@ -404,53 +458,6 @@ class AdminAdminsController extends SalesRestController
             $em = $this->getDoctrine()->getManager();
             $em->remove($admin);
             $em->flush();
-        }
-
-        return new View();
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     201 = "Returned when successful created"
-     *  }
-     * )
-     *
-     * @Route("/admins/check")
-     * @Method({"POST"})
-     *
-     * @return View
-     */
-    public function checkAdminUsernameValidAction(
-        Request $request
-    ) {
-        // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
-            array(
-                SalesAdminPermission::KEY_PLATFORM_ADMIN,
-            ),
-            SalesAdminPermissionMap::OP_LEVEL_EDIT
-        );
-
-        $data = json_decode($request->getContent(), true);
-
-        if (!array_key_exists('username', $data)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->findOneByUsername($data['username']);
-
-        if (!is_null($salesAdmin)) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_USERNAME_EXIST_CODE,
-                self::ERROR_USERNAME_EXIST_MESSAGE
-            );
         }
 
         return new View();
