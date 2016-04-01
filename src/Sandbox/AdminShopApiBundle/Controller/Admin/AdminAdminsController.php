@@ -49,6 +49,58 @@ class AdminAdminsController extends ShopRestController
     const ERROR_ADMIN_TYPE_MESSAGE = 'Invalid admin type - 无效的管理员类型';
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="username",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="sales admin username"
+     * )
+     *
+     * @Route("/admins/check")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function checkAdminUsernameValidAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminAdminsPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_PLATFORM_ADMIN,
+            )
+        );
+
+        $shopAdminUsername = $paramFetcher->get('username');
+
+        $shopAdmin = $this->getRepo('Shop\ShopAdmin')->findOneByUsername($shopAdminUsername);
+
+        if (!is_null($shopAdmin)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_EXIST_CODE,
+                self::ERROR_USERNAME_EXIST_MESSAGE
+            );
+        }
+
+        return new View();
+    }
+
+    /**
      * List all admins.
      *
      * @param Request $request the request object

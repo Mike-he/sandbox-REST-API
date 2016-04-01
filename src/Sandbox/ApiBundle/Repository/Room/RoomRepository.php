@@ -431,11 +431,11 @@ class RoomRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
     /**
-     * @param array        $types
-     * @param RoomCity     $city
-     * @param array        $buildingIds
-     * @param string       $sortBy
-     * @param string       $direction
+     * @param array    $types
+     * @param RoomCity $city
+     * @param array    $buildingIds
+     * @param string   $sortBy
+     * @param string   $direction
      *
      * @return array
      */

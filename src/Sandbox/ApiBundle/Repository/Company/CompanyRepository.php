@@ -128,7 +128,6 @@ class CompanyRepository extends EntityRepository
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
-
         return $query->getQuery()->getResult();
     }
 
