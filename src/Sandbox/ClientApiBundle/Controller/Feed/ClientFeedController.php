@@ -288,7 +288,10 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
 
         // request user
         $assignUserId = $paramFetcher->get('user_id');
