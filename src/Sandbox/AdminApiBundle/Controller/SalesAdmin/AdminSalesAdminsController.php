@@ -48,9 +48,9 @@ class AdminSalesAdminsController extends SandboxRestController
 
     const ERROR_ADMIN_TYPE_CODE = 400004;
     const ERROR_ADMIN_TYPE_MESSAGE = 'Invalid admin type - 无效的管理员类型';
-    
+
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @ApiDoc(
