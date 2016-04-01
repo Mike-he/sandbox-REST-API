@@ -410,6 +410,53 @@ class AdminAdminsController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/admins/check")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function checkAdminUsernameValidAction(
+        Request $request
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_ADMIN,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('username', $data)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->findOneByUsername($data['username']);
+
+        if (!is_null($salesAdmin)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_EXIST_CODE,
+                self::ERROR_USERNAME_EXIST_MESSAGE
+            );
+        }
+
+        return new View();
+    }
+
+    /**
      * @param SalesAdmin              $admin
      * @param SalesAdmin              $id
      * @param SalesAdminType          $typeKey

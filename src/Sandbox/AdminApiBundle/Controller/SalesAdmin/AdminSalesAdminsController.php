@@ -306,6 +306,51 @@ class AdminSalesAdminsController extends SandboxRestController
     }
 
     /**
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/admins/check")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function checkAdminUsernameValidAction(
+        Request $request
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_SALES,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('username', $data)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->findOneByUsername($data['username']);
+
+        if (!is_null($salesAdmin)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_EXIST_CODE,
+                self::ERROR_USERNAME_EXIST_MESSAGE
+            );
+        }
+
+        return new View();
+    }
+
+    /**
      * @param bool       $bannedOld
      * @param SalesAdmin $admin
      */
