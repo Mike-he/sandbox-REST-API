@@ -2,6 +2,8 @@
 
 namespace Sandbox\AdminApiBundle\Controller\SalesAdmin;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
@@ -44,6 +46,58 @@ class AdminShopAdminsController extends SandboxRestController
 
     const ERROR_ADMIN_TYPE_CODE = 400004;
     const ERROR_ADMIN_TYPE_MESSAGE = 'Invalid admin type - 无效的管理员类型';
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="username",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="sales admin username"
+     * )
+     *
+     * @Route("/admins/check")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function checkAdminUsernameValidAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_SALES,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $shopAdminUsername = $paramFetcher->get('username');
+
+        $shopAdmin = $this->getRepo('Shop\ShopAdmin')->findOneByUsername($shopAdminUsername);
+
+        if (!is_null($shopAdmin)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_USERNAME_EXIST_CODE,
+                self::ERROR_USERNAME_EXIST_MESSAGE
+            );
+        }
+
+        return new View();
+    }
 
     /**
      * List definite id of admin.
