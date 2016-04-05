@@ -165,12 +165,14 @@ class RoomBuildingRepository extends EntityRepository
     /**
      * @param $cityId
      * @param $myBuildingIds
+     * @param $companyId
      *
      * @return array
      */
     public function getLocationRoomBuildings(
         $cityId = null,
-        $myBuildingIds = null
+        $myBuildingIds = null,
+        $companyId = null
     ) {
         $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -191,6 +193,16 @@ class RoomBuildingRepository extends EntityRepository
                 $buildingsQuery->where('rb.id IN (:ids)');
             }
             $buildingsQuery->setParameter('ids', $myBuildingIds);
+        }
+
+        // filter by company id
+        if (!is_null($companyId)) {
+            if ($notFirst) {
+                $buildingsQuery->andWhere('rb.companyId = :companyId');
+            } else {
+                $buildingsQuery->where('rb.companyId = :companyId');
+            }
+            $buildingsQuery->setParameter('companyId', $companyId);
         }
 
         // filter by building delete
