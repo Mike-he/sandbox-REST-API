@@ -70,13 +70,18 @@ class RoomBuildingRepository extends EntityRepository
                     + sin(radians(:latitude)) * sin(radians(rb.lat)))
                     ) as HIDDEN distance
                     FROM SandboxApiBundle:Room\RoomBuilding rb
+                    WHERE rb.status = :accept
+                    AND rb.banned = FALSE
+                    AND rb.visible = TRUE
+                    AND rb.isDeleted = FALSE
                     HAVING distance < :range
                     ORDER BY distance ASC
                 '
             )
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
-            ->setParameter('range', $range);
+            ->setParameter('range', $range)
+            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
 
         return $query->getResult();
     }
