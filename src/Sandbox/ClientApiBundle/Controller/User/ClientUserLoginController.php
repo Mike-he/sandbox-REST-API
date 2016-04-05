@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
+use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
 use Sandbox\ClientApiBundle\Form\User\UserLoginType;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,9 +26,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserLoginController extends UserLoginController
 {
-    const ERROR_ACCOUNT_BANNED_CODE = 401001;
-    const ERROR_ACCOUNT_BANNED_MESSAGE = '您的账户已经被冻结，如有疑问请联系客服：';
-
     /**
      * Login.
      *
@@ -50,7 +48,17 @@ class ClientUserLoginController extends UserLoginController
     public function postClientUserLoginAction(
         Request $request
     ) {
-        $user = $this->getUser();
+        // check security & get client
+        $error = new Error();
+        $user = $this->getUserIfAuthenticated($error);
+
+        if (is_null($user)) {
+            return $this->customErrorView(
+                401,
+                $error->getCode(),
+                $error->getMessage()
+            );
+        }
 
         // get globals
         $globals = $this->getGlobals();
@@ -62,7 +70,8 @@ class ClientUserLoginController extends UserLoginController
             return $this->customErrorView(
                 401,
                 self::ERROR_ACCOUNT_BANNED_CODE,
-                self::ERROR_ACCOUNT_BANNED_MESSAGE.$customerPhone);
+                self::ERROR_ACCOUNT_BANNED_MESSAGE.$customerPhone
+            );
         }
 
         $login = new UserLoginData();
