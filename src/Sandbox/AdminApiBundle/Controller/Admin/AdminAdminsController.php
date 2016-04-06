@@ -398,7 +398,10 @@ class AdminAdminsController extends SandboxRestController
         $type_key,
         $permission
     ) {
-        $this->checkAdminValid($admin);
+        $checkAdminValid = $this->checkAdminValid($admin);
+        if (!is_null($checkAdminValid)) {
+            return $checkAdminValid;
+        }
 
         $type = $this->getRepo('Admin\AdminType')->findOneByKey($type_key);
         $admin->setType($type);
@@ -486,7 +489,7 @@ class AdminAdminsController extends SandboxRestController
         }
 
         // check username exist
-            $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
+        $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
         if (!is_null($adminExist)) {
             return $this->customErrorView(
                     400,
