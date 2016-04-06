@@ -400,6 +400,7 @@ class AdminAdminsController extends SandboxRestController
     ) {
         $type = $this->getRepo('Admin\AdminType')->findOneByKey($type_key);
         $admin->setType($type);
+        $admin->setTypeId($type->getId());
 
         $checkAdminValid = $this->checkAdminValid($admin);
         if (!is_null($checkAdminValid)) {
