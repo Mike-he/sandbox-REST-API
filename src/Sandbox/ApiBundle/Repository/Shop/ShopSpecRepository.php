@@ -17,15 +17,15 @@ class ShopSpecRepository extends EntityRepository
      *
      * @return array
      */
-    public function getSpecsByShop(
-        $shopId
+    public function getSpecsByCompany(
+        $companyId
     ) {
         $query = $this->createQueryBuilder('ss')
-            ->where('ss.shopId = :shopId')
+            ->where('ss.companyId = :companyId')
             ->andWhere('ss.invisible = :invisible')
             ->andWhere('ss.auto = :auto')
             ->orderBy('ss.id', 'ASC')
-            ->setParameter('shopId', $shopId)
+            ->setParameter('companyId', $companyId)
             ->setParameter('invisible', false)
             ->setParameter('auto', false);
 

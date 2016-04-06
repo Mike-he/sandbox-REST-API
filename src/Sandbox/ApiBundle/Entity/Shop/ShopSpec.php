@@ -12,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(
  *     name="ShopSpec",
  *     uniqueConstraints={
- *      @ORM\UniqueConstraint(name="shopId_name", columns={"shopId", "name"})
+ *      @ORM\UniqueConstraint(name="companyId_name", columns={"companyId", "name"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopSpecRepository")
@@ -35,19 +35,10 @@ class ShopSpec implements JsonSerializable
     /**
      * @var int
      *
-     * @ORM\Column(name="shopId", type="integer")
+     * @ORM\Column(name="companyId", type="integer")
      * @Serializer\Groups({"main"})
      */
-    private $shopId;
-
-    /**
-     * @var Shop
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Shop\Shop")
-     * @ORM\JoinColumn(name="shopId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main"})
-     */
-    private $shop;
+    private $companyId;
 
     /**
      * @var ShopSpecItem
@@ -226,51 +217,27 @@ class ShopSpec implements JsonSerializable
     }
 
     /**
-     * Set shopId.
+     * Set companyId.
      *
-     * @param int $shopId
+     * @param int $companyId
      *
      * @return ShopSpec
      */
-    public function setShopId($shopId)
+    public function setCompanyId($companyId)
     {
-        $this->shopId = $shopId;
+        $this->companyId = $companyId;
 
         return $this;
     }
 
     /**
-     * Get shopId.
+     * Get companyId.
      *
      * @return int
      */
-    public function getShopId()
+    public function getCompanyId()
     {
-        return $this->shopId;
-    }
-
-    /**
-     * Set Shop.
-     *
-     * @param Shop $shop
-     *
-     * @return ShopSpec
-     */
-    public function setShop($shop)
-    {
-        $this->shop = $shop;
-
-        return $this;
-    }
-
-    /**
-     * Get Shop.
-     *
-     * @return Shop
-     */
-    public function getShop()
-    {
-        return $this->shop;
+        return $this->companyId;
     }
 
     /**
