@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Repository\Room;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 
 class RoomCityRepository extends EntityRepository
 {
@@ -18,11 +17,8 @@ class RoomCityRepository extends EntityRepository
         $query = $this->createQueryBuilder('c')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'c.id = b.cityId')
             ->where('b.id IN (:buildingIds)')
-            ->andWhere('b.visible = TRUE')
             ->andWhere('b.isDeleted = FALSE')
-            ->andWhere('b.status = :accept')
-            ->setParameter('buildingIds', $myBuildingIds)
-            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
+            ->setParameter('buildingIds', $myBuildingIds);
 
         return $query->getQuery()->getResult();
     }
@@ -39,12 +35,8 @@ class RoomCityRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'c.id = b.cityId')
             ->leftJoin('SandboxApiBundle:Shop\Shop', 's', 'WITH', 'b.id = s.buildingId')
             ->where('s.id IN (:shopIds)')
-            ->andWhere('b.visible = TRUE')
             ->andWhere('b.isDeleted = FALSE')
-            ->andWhere('b.status = :accept')
-            ->andWhere('s.active = TRUE')
-            ->setParameter('shopIds', $myShopIds)
-            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
+            ->setParameter('shopIds', $myShopIds);
 
         return $query->getQuery()->getResult();
     }

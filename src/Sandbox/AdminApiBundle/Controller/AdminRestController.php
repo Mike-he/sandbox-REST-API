@@ -15,7 +15,7 @@ class AdminRestController extends SandboxRestController
      */
     protected function checkAdminLoginSecurity()
     {
-        $auth = $this->getSandboxAuthorization();
+        $auth = $this->getSandboxAuthorization(self::SANDBOX_ADMIN_LOGIN_HEADER);
 
         $admin = $this->getRepo('Admin\Admin')->findOneBy(array(
             'username' => $auth->getUsername(),

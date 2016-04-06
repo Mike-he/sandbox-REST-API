@@ -70,13 +70,18 @@ class RoomBuildingRepository extends EntityRepository
                     + sin(radians(:latitude)) * sin(radians(rb.lat)))
                     ) as HIDDEN distance
                     FROM SandboxApiBundle:Room\RoomBuilding rb
+                    WHERE rb.status = :accept
+                    AND rb.banned = FALSE
+                    AND rb.visible = TRUE
+                    AND rb.isDeleted = FALSE
                     HAVING distance < :range
                     ORDER BY distance ASC
                 '
             )
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
-            ->setParameter('range', $range);
+            ->setParameter('range', $range)
+            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
 
         return $query->getResult();
     }
@@ -165,12 +170,14 @@ class RoomBuildingRepository extends EntityRepository
     /**
      * @param $cityId
      * @param $myBuildingIds
+     * @param $companyId
      *
      * @return array
      */
     public function getLocationRoomBuildings(
         $cityId = null,
-        $myBuildingIds = null
+        $myBuildingIds = null,
+        $companyId = null
     ) {
         $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -191,6 +198,16 @@ class RoomBuildingRepository extends EntityRepository
                 $buildingsQuery->where('rb.id IN (:ids)');
             }
             $buildingsQuery->setParameter('ids', $myBuildingIds);
+        }
+
+        // filter by company id
+        if (!is_null($companyId)) {
+            if ($notFirst) {
+                $buildingsQuery->andWhere('rb.companyId = :companyId');
+            } else {
+                $buildingsQuery->where('rb.companyId = :companyId');
+            }
+            $buildingsQuery->setParameter('companyId', $companyId);
         }
 
         // filter by building delete

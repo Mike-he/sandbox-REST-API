@@ -86,7 +86,7 @@ class AdminBannerController extends BannerController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -276,7 +276,7 @@ class AdminBannerController extends BannerController
         $id
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get banner
         $banner = $this->getRepo('Banner\Banner')->find($id);

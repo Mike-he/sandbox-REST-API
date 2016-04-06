@@ -141,7 +141,7 @@ class SalesRestController extends SandboxRestController
      */
     protected function checkSalesAdminLoginSecurity()
     {
-        $auth = $this->getSandboxAuthorization();
+        $auth = $this->getSandboxAuthorization(self::SANDBOX_ADMIN_LOGIN_HEADER);
 
         $admin = $this->getRepo('SalesAdmin\SalesAdmin')->findOneBy(array(
             'username' => $auth->getUsername(),

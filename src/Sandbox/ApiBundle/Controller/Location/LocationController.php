@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth;
 use Symfony\Component\HttpFoundation\Request;
@@ -86,12 +87,22 @@ class LocationController extends SalesRestController
 
             // shop bundle
             if ($user->getRoles() == array(ShopAdminApiAuth::ROLE_SHOP_ADMIN_API)) {
-                // get my shops ids
-                $myShopIds = $this->generateLocationShopIds(
-                    $paramFetcher
-                );
+                $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
 
-                $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByShop($myShopIds);
+                // get cities by admin type
+                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER) {
+                    $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($admin->getCompanyId());
+                    $myBuildingIds = array_map('current', $myBuildings);
+
+                    $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByBuilding($myBuildingIds);
+                } else {
+                    // get my shops ids
+                    $myShopIds = $this->generateLocationShopIds(
+                        $paramFetcher
+                    );
+
+                    $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByShop($myShopIds);
+                }
             }
         }
 
@@ -159,12 +170,26 @@ class LocationController extends SalesRestController
 
             // shop bundle
             if ($user->getRoles() == array(ShopAdminApiAuth::ROLE_SHOP_ADMIN_API)) {
-                // get my shops ids
-                $myShopIds = $this->generateLocationShopIds(
-                    $paramFetcher
-                );
+                $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
 
-                $buildings = $this->getRepo('Room\RoomBuilding')->getLocationBuildingByShop($myShopIds);
+                // get buildings by admin type
+                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER) {
+                    $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
+                        $cityId,
+                        null,
+                        $admin->getCompanyId()
+                    );
+                } else {
+                    // get my shops ids
+                    $myShopIds = $this->generateLocationShopIds(
+                        $paramFetcher
+                    );
+
+                    $buildings = $this->getRepo('Room\RoomBuilding')->getLocationBuildingByShop(
+                        $cityId,
+                        $myShopIds
+                    );
+                }
             }
         }
 
