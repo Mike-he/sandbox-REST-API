@@ -42,32 +42,28 @@ class AdminShopSpecController extends SpecController
 {
     /**
      * @param Request $request
-     * @param $id
      *
      * @Method({"GET"})
-     * @Route("/shops/{id}/specs/dropdown")
+     * @Route("/specs/dropdown")
      *
      * @return View
      *
      * @throws \Exception
      */
     public function getShopSpecDropDownAction(
-        Request $request,
-        $id
+        Request $request
     ) {
         // check user permission
         $this->checkAdminSpecPermission(
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_SPEC,
-            ),
-            $id
+            )
         );
 
-        $shop = $this->findEntityById($id, 'Shop\Shop');
         $specs = $this->getRepo('Shop\ShopSpec')->findBy(
             [
-                'shopId' => $shop->getId(),
+                'companyId' => $this->getCompanyId(),
                 'invisible' => false,
             ],
             ['id' => 'ASC']
@@ -83,10 +79,9 @@ class AdminShopSpecController extends SpecController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     * @param $id
      *
      * @Method({"GET"})
-     * @Route("/shops/{id}/specs")
+     * @Route("/specs")
      *
      * @Annotations\QueryParam(
      *    name="pageLimit",
@@ -114,8 +109,7 @@ class AdminShopSpecController extends SpecController
      */
     public function getShopSpecAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
+        ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
         $this->checkAdminSpecPermission(
@@ -124,12 +118,10 @@ class AdminShopSpecController extends SpecController
                 ShopAdminPermission::KEY_SHOP_SPEC,
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
                 ShopAdminPermission::KEY_SHOP_KITCHEN,
-            ),
-            $id
+            )
         );
 
-        $this->findEntityById($id, 'Shop\Shop');
-        $specs = $this->getRepo('Shop\ShopSpec')->getSpecsByShop($id);
+        $specs = $this->getRepo('Shop\ShopSpec')->getSpecsByCompany($this->getCompanyId());
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -153,11 +145,10 @@ class AdminShopSpecController extends SpecController
 
     /**
      * @param Request $request
-     * @param $shopId
      * @param $id
      *
      * @Method({"GET"})
-     * @Route("/shops/{shopId}/specs/{id}")
+     * @Route("/specs/{id}")
      *
      * @return View
      *
@@ -165,7 +156,6 @@ class AdminShopSpecController extends SpecController
      */
     public function getSpecByIdAction(
         Request $request,
-        $shopId,
         $id
     ) {
         // check user permission
@@ -173,15 +163,13 @@ class AdminShopSpecController extends SpecController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_SPEC,
-            ),
-            $shopId
+            )
         );
-
-        $this->findEntityById($shopId, 'Shop\Shop');
 
         $spec = $this->getRepo('Shop\ShopSpec')->findOneBy(
             [
                 'id' => $id,
+                'companyId' => $this->getCompanyId(),
                 'invisible' => false,
                 'auto' => false,
             ]
@@ -196,11 +184,10 @@ class AdminShopSpecController extends SpecController
 
     /**
      * @param Request $request
-     * @param $shopId
      * @param $id
      *
      * @Method({"DELETE"})
-     * @Route("/shops/{shopId}/specs/{id}")
+     * @Route("/specs/{id}")
      *
      * @return View
      *
@@ -208,7 +195,6 @@ class AdminShopSpecController extends SpecController
      */
     public function deleteSpecAction(
         Request $request,
-        $shopId,
         $id
     ) {
         // check user permission
@@ -216,13 +202,18 @@ class AdminShopSpecController extends SpecController
             ShopAdminPermissionMap::OP_LEVEL_EDIT,
             array(
                 ShopAdminPermission::KEY_SHOP_SPEC,
-            ),
-            $shopId
+            )
         );
 
-        $this->findEntityById($shopId, 'Shop\Shop');
-
-        $spec = $this->findEntityById($id, 'Shop\ShopSpec');
+        $spec = $this->getRepo('Shop\ShopSpec')->findOneBy(
+            [
+                'id' => $id,
+                'companyId' => $this->getCompanyId(),
+                'invisible' => false,
+                'auto' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($spec, self::NOT_FOUND_MESSAGE);
 
         $spec->setInvisible(true);
 
@@ -234,29 +225,24 @@ class AdminShopSpecController extends SpecController
 
     /**
      * @param Request $request
-     * @param $id
      *
      * @Method({"POST"})
-     * @Route("/shops/{id}/specs")
+     * @Route("/specs")
      *
      * @return View
      *
      * @throws \Exception
      */
     public function postSpecAction(
-        Request $request,
-        $id
+        Request $request
     ) {
         // check user permission
         $this->checkAdminSpecPermission(
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_SPEC,
-            ),
-            $id
+            )
         );
-
-        $shop = $this->findEntityById($id, 'Shop\Shop');
 
         $spec = new ShopSpec();
 
@@ -268,18 +254,16 @@ class AdminShopSpecController extends SpecController
         }
 
         return $this->handleSpecPost(
-            $shop,
             $spec
         );
     }
 
     /**
      * @param Request $request
-     * @param $shopId
      * @param $id
      *
      * @Method({"PUT"})
-     * @Route("/shops/{shopId}/specs/{id}")
+     * @Route("/specs/{id}")
      *
      * @return View
      *
@@ -287,7 +271,6 @@ class AdminShopSpecController extends SpecController
      */
     public function putSpecAction(
         Request $request,
-        $shopId,
         $id
     ) {
         // check user permission
@@ -295,13 +278,19 @@ class AdminShopSpecController extends SpecController
             ShopAdminPermissionMap::OP_LEVEL_EDIT,
             array(
                 ShopAdminPermission::KEY_SHOP_SPEC,
-            ),
-            $shopId
+            )
         );
 
-        $this->findEntityById($shopId, 'Shop\Shop');
+        $companyId = $this->getCompanyId();
 
-        $spec = $this->findEntityById($id, 'Shop\ShopSpec');
+        $spec = $this->getRepo('Shop\ShopSpec')->findOneBy(
+            [
+                'id' => $id,
+                'companyId' => $companyId,
+                'auto' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($spec, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(
             new ShopSpecPutType(),
@@ -315,7 +304,7 @@ class AdminShopSpecController extends SpecController
         }
 
         // check conflict shop spec
-        $this->findConflictShopSpec($spec);
+        $this->findConflictCompanySpec($spec, $companyId);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -497,13 +486,11 @@ class AdminShopSpecController extends SpecController
     }
 
     /**
-     * @param $shop
      * @param $spec
      *
      * @return Response
      */
     private function handleSpecPost(
-        $shop,
         $spec
     ) {
         $items = $spec->getItems();
@@ -512,13 +499,14 @@ class AdminShopSpecController extends SpecController
             return;
         }
 
-        $spec->setShop($shop);
+        $companyId = $this->getCompanyId();
+        $spec->setCompanyId($companyId);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($spec);
 
         // check conflict shop spec
-        $this->findConflictShopSpec($spec);
+        $this->findConflictCompanySpec($spec, $companyId);
 
         foreach ($items as $item) {
             $specItem = new ShopSpecItem();
@@ -546,12 +534,13 @@ class AdminShopSpecController extends SpecController
     /**
      * @param $spec
      */
-    private function findConflictShopSpec(
-        $spec
+    private function findConflictCompanySpec(
+        $spec,
+        $companyId
     ) {
         $sameSpec = $this->getRepo('Shop\ShopSpec')->findOneBy(
             [
-                'shop' => $spec->getShop(),
+                'companyId' => $companyId,
                 'name' => $spec->getName(),
             ]
         );
@@ -596,5 +585,17 @@ class AdminShopSpecController extends SpecController
             $opLevel,
             $shopId
         );
+    }
+
+    /**
+     * @return int
+     */
+    private function getCompanyId()
+    {
+        $adminId = $this->getAdminId();
+        $admin = $this->getRepo('Shop\ShopAdmin')->find($adminId);
+        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
+
+        return $admin->getCompanyId();
     }
 }
