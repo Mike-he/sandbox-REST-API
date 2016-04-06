@@ -204,6 +204,7 @@ class AdminShopController extends ShopController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_SHOP,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             ),
             $id
         );
@@ -244,6 +245,7 @@ class AdminShopController extends ShopController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_SHOP,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             )
         );
 
@@ -381,7 +383,7 @@ class AdminShopController extends ShopController
             $em
         );
 
-        $this->createAutoSpec($shop, $em);
+//        $this->createAutoSpec($shop, $em);
 
         $em->persist($shop);
         $em->flush();
@@ -401,59 +403,59 @@ class AdminShopController extends ShopController
         return $view;
     }
 
-    /**
-     * @param $shop
-     * @param $em
-     */
-    private function createAutoSpec(
-        $shop,
-        $em
-    ) {
-        $content = [
-            'name' => ShopSpec::AUTO_SPEC_NAME,
-            'inventory' => true,
-            'items' => [
-                'name' => ShopSpecItem::AUTO_SPEC_ITEM_NAME,
-            ],
-        ];
-
-        $spec = new ShopSpec();
-
-        $form = $this->createForm(new ShopSpecPostType(), $spec);
-        $form->submit($content, true);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $this->createAutoSpecItem($spec, $em);
-        $spec->setShop($shop);
-        $spec->setAuto(true);
-
-        $em->persist($spec);
-    }
-
-    /**
-     * @param $spec
-     * @param $em
-     */
-    private function createAutoSpecItem(
-        $spec,
-        $em
-    ) {
-        $specItem = new ShopSpecItem();
-
-        $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
-        $form->submit($spec->getItems(), true);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $specItem->setSpec($spec);
-
-        $em->persist($specItem);
-    }
+//    /**
+//     * @param $shop
+//     * @param $em
+//     */
+//    private function createAutoSpec(
+//        $shop,
+//        $em
+//    ) {
+//        $content = [
+//            'name' => ShopSpec::AUTO_SPEC_NAME,
+//            'inventory' => true,
+//            'items' => [
+//                'name' => ShopSpecItem::AUTO_SPEC_ITEM_NAME,
+//            ],
+//        ];
+//
+//        $spec = new ShopSpec();
+//
+//        $form = $this->createForm(new ShopSpecPostType(), $spec);
+//        $form->submit($content, true);
+//
+//        if (!$form->isValid()) {
+//            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+//        }
+//
+//        $this->createAutoSpecItem($spec, $em);
+//        $spec->setShop($shop);
+//        $spec->setAuto(true);
+//
+//        $em->persist($spec);
+//    }
+//
+//    /**
+//     * @param $spec
+//     * @param $em
+//     */
+//    private function createAutoSpecItem(
+//        $spec,
+//        $em
+//    ) {
+//        $specItem = new ShopSpecItem();
+//
+//        $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
+//        $form->submit($spec->getItems(), true);
+//
+//        if (!$form->isValid()) {
+//            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+//        }
+//
+//        $specItem->setSpec($spec);
+//
+//        $em->persist($specItem);
+//    }
 
     /**
      * @param $shop
