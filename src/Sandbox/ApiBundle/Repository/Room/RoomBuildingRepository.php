@@ -71,7 +71,6 @@ class RoomBuildingRepository extends EntityRepository
                     ) as HIDDEN distance
                     FROM SandboxApiBundle:Room\RoomBuilding rb
                     WHERE rb.status = :accept
-                    AND rb.banned = FALSE
                     AND rb.visible = TRUE
                     AND rb.isDeleted = FALSE
                     HAVING distance < :range
