@@ -398,13 +398,13 @@ class AdminAdminsController extends SandboxRestController
         $type_key,
         $permission
     ) {
+        $type = $this->getRepo('Admin\AdminType')->findOneByKey($type_key);
+        $admin->setType($type);
+
         $checkAdminValid = $this->checkAdminValid($admin);
         if (!is_null($checkAdminValid)) {
             return $checkAdminValid;
         }
-
-        $type = $this->getRepo('Admin\AdminType')->findOneByKey($type_key);
-        $admin->setType($type);
 
         // save admin to db
         $admin = $this->saveAdmin($admin, $permission);
