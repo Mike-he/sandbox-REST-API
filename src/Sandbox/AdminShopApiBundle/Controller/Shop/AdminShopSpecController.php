@@ -292,6 +292,8 @@ class AdminShopSpecController extends SpecController
         );
         $this->throwNotFoundIfNull($spec, self::NOT_FOUND_MESSAGE);
 
+        $oldName = $spec->getName();
+
         $form = $this->createForm(
             new ShopSpecPutType(),
             $spec,
@@ -304,7 +306,9 @@ class AdminShopSpecController extends SpecController
         }
 
         // check conflict shop spec
-        $this->findConflictCompanySpec($spec, $companyId);
+        if ($oldName !== $spec->getName()) {
+            $this->findConflictCompanySpec($spec, $companyId);
+        }
 
         $em = $this->getDoctrine()->getManager();
 
