@@ -355,6 +355,13 @@ class AdminShopOrderController extends ShopController
                     );
                 }
 
+                $this->sendXmppShopNotification(
+                    ShopOrder::STATUS_ISSUE,
+                    $user,
+                    $order->getOrderNumber(),
+                    $order->getId()
+                );
+
                 break;
             case ShopOrder::STATUS_TO_BE_REFUNDED:
                 if ($oldStatus !== ShopOrder::STATUS_ISSUE) {
