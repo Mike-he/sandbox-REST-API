@@ -27,10 +27,14 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
         $meetingTime = clone $now;
         $meetingTime->modify('+15 minutes');
 
-        $startOrders = $this->getRepo('Order\ProductOrder')
+        $startOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getMeetingStartSoonOrders($now, $meetingTime);
 
-        $endOrders = $this->getRepo('Order\ProductOrder')
+        $endOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getMeetingEndSoonOrders($now, $meetingTime);
 
         if (!empty($startOrders)) {

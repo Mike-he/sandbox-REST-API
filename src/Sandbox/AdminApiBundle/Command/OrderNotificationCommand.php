@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -135,5 +136,18 @@ class OrderNotificationCommand extends ContainerAwareCommand
                 ProductOrderMessage::WORKSPACE_END_MESSAGE
             );
         }
+    }
+
+    /**
+     * @param $repo
+     *
+     * @return mixed
+     */
+    protected function getRepo(
+        $repo
+    ) {
+        return $this->getContainer()
+            ->get('doctrine')
+            ->getRepository(BundleConstants::BUNDLE.':'.$repo);
     }
 }
