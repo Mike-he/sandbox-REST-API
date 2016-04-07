@@ -138,6 +138,70 @@ class AdminProductController extends ProductController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="floor",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by floor id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_seat",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by seats minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_seat",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by seats maximum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_area",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by area minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_area",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by area maximum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_price",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by price minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_price",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by price maximum"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -159,6 +223,14 @@ class AdminProductController extends ProductController
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
         $visible = $paramFetcher->get('visible');
+
+        $floor = $paramFetcher->get('floor');
+        $minSeat = $paramFetcher->get('min_seat');
+        $maxSeat = $paramFetcher->get('max_seat');
+        $minArea = $paramFetcher->get('min_area');
+        $maxArea = $paramFetcher->get('max_area');
+        $minPrice = $paramFetcher->get('min_price');
+        $maxPrice = $paramFetcher->get('max_price');
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -190,7 +262,14 @@ class AdminProductController extends ProductController
             $visible,
             $sortBy,
             $direction,
-            $search
+            $search,
+            $floor,
+            $minSeat,
+            $maxSeat,
+            $minArea,
+            $maxArea,
+            $minPrice,
+            $maxPrice
         );
 
         $paginator = new Paginator();
