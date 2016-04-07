@@ -56,13 +56,17 @@ class OrderNotificationCommand extends ContainerAwareCommand
         $officeTime,
         $allowedTime
     ) {
-        $startOrders = $this->getRepo('Order\ProductOrder')
+        $startOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getOfficeStartSoonOrders(
                 $now,
                 $workspaceTime
             );
 
-        $endOrders = $this->getRepo('Order\ProductOrder')
+        $endOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getOfficeEndSoonOrders(
                 $now,
                 $officeTime,
@@ -102,13 +106,17 @@ class OrderNotificationCommand extends ContainerAwareCommand
         $now,
         $workspaceTime
     ) {
-        $startOrders = $this->getRepo('Order\ProductOrder')
+        $startOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getWorkspaceStartSoonOrders(
                 $now,
                 $workspaceTime
             );
 
-        $endOrders = $this->getRepo('Order\ProductOrder')
+        $endOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getWorkspaceEndSoonOrders(
                 $now,
                 $workspaceTime

@@ -37,7 +37,11 @@ class UpdateCardStatusCommand extends ContainerAwareCommand
         }
 
         try {
-            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
+            $userProfile = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneByUserId($userId);
+
             $userName = $userProfile->getName();
             $this->updateEmployeeCardStatus(
                 $userId,
