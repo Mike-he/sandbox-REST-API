@@ -2,7 +2,6 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
-use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -57,13 +56,17 @@ class OrderNotificationCommand extends ContainerAwareCommand
         $officeTime,
         $allowedTime
     ) {
-        $startOrders = $this->getRepo('Order\ProductOrder')
+        $startOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getOfficeStartSoonOrders(
                 $now,
                 $workspaceTime
             );
 
-        $endOrders = $this->getRepo('Order\ProductOrder')
+        $endOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getOfficeEndSoonOrders(
                 $now,
                 $officeTime,
@@ -103,13 +106,17 @@ class OrderNotificationCommand extends ContainerAwareCommand
         $now,
         $workspaceTime
     ) {
-        $startOrders = $this->getRepo('Order\ProductOrder')
+        $startOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getWorkspaceStartSoonOrders(
                 $now,
                 $workspaceTime
             );
 
-        $endOrders = $this->getRepo('Order\ProductOrder')
+        $endOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getWorkspaceEndSoonOrders(
                 $now,
                 $workspaceTime
@@ -136,18 +143,5 @@ class OrderNotificationCommand extends ContainerAwareCommand
                 ProductOrderMessage::WORKSPACE_END_MESSAGE
             );
         }
-    }
-
-    /**
-     * @param $repo
-     *
-     * @return mixed
-     */
-    protected function getRepo(
-        $repo
-    ) {
-        return $this->getContainer()
-            ->get('doctrine')
-            ->getRepository(BundleConstants::BUNDLE.':'.$repo);
     }
 }
