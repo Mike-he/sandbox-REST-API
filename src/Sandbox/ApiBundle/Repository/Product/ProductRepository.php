@@ -696,6 +696,13 @@ class ProductRepository extends EntityRepository
         $sortBy,
         $direction,
         $search,
+        $floor,
+        $minSeat,
+        $maxSeat,
+        $minArea,
+        $maxArea,
+        $minPrice,
+        $maxPrice,
         $recommend = false
     ) {
         $notFirst = false;
@@ -707,12 +714,63 @@ class ProductRepository extends EntityRepository
         // only needed when searching products
         if (!is_null($search)) {
             $query->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'r.city = rc.id');
-            $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.building = rb.id');
+            $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.buildingId = rb.id');
+        }
+
+        if (!is_null($floor)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomFloor', 'rf', 'WITH', 'r.floorId = rf.id');
+            $where = 'rf.floorNumber = :floor';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['floor'] = $floor;
+            $notFirst = true;
+        }
+
+        if (!is_null($minSeat)) {
+            $where = 'r.allowedPeople >= :minSeat';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['minSeat'] = $minSeat;
+            $notFirst = true;
+        }
+
+        if (!is_null($maxSeat)) {
+            $where = 'r.allowedPeople <= :maxSeat';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['maxSeat'] = $maxSeat;
+            $notFirst = true;
+        }
+
+        if (!is_null($minArea)) {
+            $where = 'r.area >= :minArea';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['minArea'] = $minArea;
+            $notFirst = true;
+        }
+
+        if (!is_null($maxArea)) {
+            $where = 'r.area <= :maxArea';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['maxArea'] = $maxArea;
+            $notFirst = true;
+        }
+
+        if (!is_null($minPrice)) {
+            $where = 'p.basePrice >= :minPrice';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['minPrice'] = $minPrice;
+            $notFirst = true;
+        }
+
+        if (!is_null($maxPrice)) {
+            $where = 'p.basePrice <= :maxPrice';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['maxPrice'] = $maxPrice;
+            $notFirst = true;
         }
 
         // filter by type
         if (!is_null($type)) {
-            $query->where('r.type = :type');
+            $where = 'r.type = :type';
+            $this->addWhereQuery($query, $notFirst, $where);
             $parameters['type'] = $type;
             $notFirst = true;
         }
