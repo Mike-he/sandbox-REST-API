@@ -418,11 +418,13 @@ class AdminUsersController extends DoorController
 
         // check if user banned status changed
         if ($banned !== $updateBanned) {
-            $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->throwAccessDeniedIfSalesAdminNotAllowed(
                 $this->getAdminId(),
-                AdminType::KEY_PLATFORM,
-                AdminPermission::KEY_PLATFORM_USER,
-                AdminPermissionMap::OP_LEVEL_USER_BANNED
+                SalesAdminType::KEY_PLATFORM,
+                array(
+                    SalesAdminPermission::KEY_BUILDING_USER,
+                ),
+                SalesAdminPermissionMap::OP_LEVEL_EDIT
             );
         }
 
