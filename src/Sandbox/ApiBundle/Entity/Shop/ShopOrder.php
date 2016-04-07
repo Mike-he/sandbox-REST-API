@@ -26,6 +26,7 @@ class ShopOrder
     const PAYMENT_BODY = 'Shop Order';
     const READY_NOTIFICATION = '您的订单已做好, 请到柜台领取';
     const REFUNDED_NOTIFICATION = '您的订单已退款, 点击查看';
+    const ISSUE_NOTIFICATION = '您的订单有问题, 请到柜台查看';
     const PLATFORM_BACKEND = 'backend';
 
     const NOT_PAID_CODE = 400003;

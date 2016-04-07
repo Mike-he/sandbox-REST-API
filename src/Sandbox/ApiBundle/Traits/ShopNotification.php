@@ -77,8 +77,10 @@ trait ShopNotification
         $body = null;
         if ($action == ShopOrder::STATUS_READY) {
             $body = ShopOrder::READY_NOTIFICATION;
+        } elseif ($action == ShopOrder::STATUS_ISSUE) {
+            $body = ShopOrder::ISSUE_NOTIFICATION;
         } elseif ($action == ShopOrder::STATUS_REFUNDED) {
-            $body = ShopOrder::READY_NOTIFICATION;
+            $body = ShopOrder::REFUNDED_NOTIFICATION;
         }
 
         $messageArray = null;
