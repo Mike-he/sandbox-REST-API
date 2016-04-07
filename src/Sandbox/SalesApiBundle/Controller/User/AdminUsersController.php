@@ -512,11 +512,14 @@ class AdminUsersController extends DoorController
         $user->setModificationDate(new \DateTime('now'));
 
         // check sales user record
-        $salesUserId = $user->getId();
-        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneByUserId($salesUserId);
-
         $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
         $buildingId = $building->getId();
+
+        $salesUserId = $user->getId();
+        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneBy(array(
+            'userId' => $salesUserId,
+            'buildingId' => $buildingId,
+        ));
 
         if (is_null($salesUser)) {
             $salesUser = new SalesUser();
