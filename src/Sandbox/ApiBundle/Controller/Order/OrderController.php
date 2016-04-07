@@ -684,10 +684,14 @@ class OrderController extends PaymentController
         $product
     ) {
         // check sales user record
-        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneByUserId($salesUserId);
-
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
         $buildingId = $product->getRoom()->getBuildingId();
+
+        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneBy(array(
+            'userId' => $salesUserId,
+            'buildingId' => $buildingId,
+        ));
+
 
         if (is_null($salesUser)) {
             $salesUser = new SalesUser();
