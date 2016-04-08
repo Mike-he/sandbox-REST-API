@@ -205,6 +205,13 @@ class ClientShopOrderController extends ShopRestController
             );
         }
 
+        // store shop user
+        $this->setShopUser(
+            $em,
+            $userId,
+            $shop
+        );
+
         $em->flush();
 
         return new View(['id' => $order->getId()]);
