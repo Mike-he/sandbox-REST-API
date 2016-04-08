@@ -612,6 +612,10 @@ class AdminSalesAdminsController extends SandboxRestController
                 $this->hideAllProductsByBuilding(
                     $building
                 );
+            } else {
+                $this->recoverValidProductsByBuilding(
+                    $building
+                );
             }
 
             // set shops
@@ -654,6 +658,16 @@ class AdminSalesAdminsController extends SandboxRestController
         foreach ($products as $product) {
             $product->setVisible(false);
         }
+    }
+
+    /**
+     * @param $building
+     */
+    private function recoverValidProductsByBuilding(
+        $building
+    ) {
+        // recover valid productions' visible status
+        $this->getRepo('Product\Product')->setVisibleTrue($building);
     }
 
     /**

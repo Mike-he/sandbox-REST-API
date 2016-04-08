@@ -34,6 +34,7 @@ class Version20160308160454_14801_feature extends AbstractMigration
         $this->addSql('ALTER TABLE ShopAdminToken ADD CONSTRAINT FK_35D8285AEA1CE9BE FOREIGN KEY (clientId) REFERENCES ShopAdminClient (id) ON DELETE CASCADE');
         $this->addSql('INSERT INTO ShopAdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES(\'super\',\'超级管理员\',\'2016-03-01 00:00:00\',\'2016-03-01 00:00:00\')');
         $this->addSql('INSERT INTO ShopAdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES(\'platform\',\'平台管理员\',\'2016-03-01 00:00:00\',\'2016-03-01 00:00:00\')');
+        $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.platform.dashboard','控制台管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.platform.admin','管理员管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.platform.shop','商店新增','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.shop.shop','商店管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");

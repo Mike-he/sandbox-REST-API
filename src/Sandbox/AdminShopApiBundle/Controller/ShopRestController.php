@@ -3,6 +3,7 @@
 namespace Sandbox\AdminShopApiBundle\Controller;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
@@ -37,6 +38,38 @@ class ShopRestController extends PaymentController
         $this->throwNotFoundIfNull($entity, self::NOT_FOUND_MESSAGE);
 
         return $entity;
+    }
+
+    /**
+     * @param $em
+     * @param $userId
+     * @param $shop
+     */
+    protected function setShopUser(
+        $em,
+        $userId,
+        $shop
+    ) {
+        // check shop user record
+        $companyId = $shop->getBuilding()->getCompanyId();
+
+        $shopUser = $this->getRepo('SalesAdmin\SalesUser')->findOneBy(array(
+            'userId' => $userId,
+            'shopId' => $shop->getId(),
+        ));
+
+        if (is_null($shopUser)) {
+            $shopUser = new SalesUser();
+
+            $shopUser->setUserId($userId);
+            $shopUser->setCompanyId($companyId);
+            $shopUser->setBuildingId($shop->getBuildingId());
+        }
+
+        $shopUser->setIsShopOrdered(true);
+        $shopUser->setModificationDate(new \DateTime('now'));
+
+        $em->persist($shopUser);
     }
 
     /**

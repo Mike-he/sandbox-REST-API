@@ -38,6 +38,13 @@ class SalesUser
     /**
      * @var int
      *
+     * @ORM\Column(name="shopId", type="integer", nullable=true)
+     */
+    private $shopId;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="buildingId", type="integer")
      */
     private $buildingId;
@@ -48,6 +55,13 @@ class SalesUser
      * @ORM\Column(name="isOrdered", type="boolean")
      */
     private $isOrdered = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isShopOrdered", type="boolean")
+     */
+    private $isShopOrdered = false;
 
     /**
      * @var bool
@@ -129,6 +143,30 @@ class SalesUser
     }
 
     /**
+     * Set shopId.
+     *
+     * @param int $shopId
+     *
+     * @return SalesUser
+     */
+    public function setShopId($shopId)
+    {
+        $this->shopId = $shopId;
+
+        return $this;
+    }
+
+    /**
+     * Get shopId.
+     *
+     * @return int
+     */
+    public function getShopId()
+    {
+        return $this->shopId;
+    }
+
+    /**
      * Set buildingId.
      *
      * @param int $buildingId
@@ -166,6 +204,24 @@ class SalesUser
     public function setIsOrdered($isOrdered)
     {
         $this->isOrdered = $isOrdered;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopOrdered()
+    {
+        return $this->isShopOrdered;
+    }
+
+    /**
+     * @param bool $isShopOrdered
+     */
+    public function setIsShopOrdered($isShopOrdered)
+    {
+        $this->isShopOrdered = $isShopOrdered;
+
+        return $this;
     }
 
     /**

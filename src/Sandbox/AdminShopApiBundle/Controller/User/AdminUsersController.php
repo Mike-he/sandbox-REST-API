@@ -85,8 +85,29 @@ class AdminUsersController extends ShopRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $shopIds = $this->getMyShopIds(
+            $this->getAdminId(),
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
+            ),
+            ShopAdminPermissionMap::OP_LEVEL_VIEW
+        );
+
+        $userIds = [];
+        foreach ($ids as $id) {
+            $user = $this->getRepo('SalesAdmin\SalesUser')->getShopUser(
+                $id,
+                $shopIds
+            );
+
+            if (!is_null($user)) {
+                array_push($userIds, $id);
+            }
+        }
+
         // ids is not null
-        return $this->getUsersByIds($ids);
+        return $this->getUsersByIds($userIds);
     }
 
     /**
