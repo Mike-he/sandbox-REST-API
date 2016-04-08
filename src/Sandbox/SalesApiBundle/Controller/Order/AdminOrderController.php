@@ -920,20 +920,13 @@ class AdminOrderController extends OrderController
             );
 
             // check if price match
-            $error = $this->checkIfPriceMatch(
-                $order,
-                $productId,
-                $product,
-                $period,
-                $startDate,
-                $endDate
-            );
+            $basePrice = $product->getBasePrice();
+            $calculatedPrice = $basePrice * $period;
 
-            if (!empty($error)) {
-                return $this->customErrorView(
-                    400,
-                    $error['code'],
-                    $error['message']
+            if ($order->getPrice() != $calculatedPrice) {
+                return $this->setErrorArray(
+                    self::PRICE_MISMATCH_CODE,
+                    self::PRICE_MISMATCH_MESSAGE
                 );
             }
 
