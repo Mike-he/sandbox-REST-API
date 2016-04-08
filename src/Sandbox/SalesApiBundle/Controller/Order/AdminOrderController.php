@@ -1036,7 +1036,9 @@ class AdminOrderController extends OrderController
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $adminId,
             SalesAdminType::KEY_PLATFORM,
-            SalesAdminPermission::KEY_BUILDING_ORDER,
+            array(
+                SalesAdminPermission::KEY_BUILDING_ORDER,
+            ),
             $opLevel,
             $buildingId
         );
