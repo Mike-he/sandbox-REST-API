@@ -539,11 +539,11 @@ class ProductRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('p')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
-            ->where('r.building = :building')
             ->update()
             ->set('p.visible', $valueTrue)
             ->set('p.modificationDate', $nowString)
             ->where('p.visible = :status')
+            ->andWhere('r.building = :building')
             ->andWhere('p.isDeleted = FALSE')
             ->andWhere('p.startDate <= :now')
             ->andWhere('p.endDate > :now')
