@@ -603,17 +603,14 @@ class AdminSalesAdminsController extends SandboxRestController
         }
 
         foreach ($buildings as $building) {
-            // set buildings
-            $building->setVisible($buildingVisible);
+            // set buildings status
             $building->setStatus($buildingStatus);
 
-            // set products
+            // set products & buildings visible
             if ($platformAdminBanned) {
+                $building->setVisible($buildingVisible);
+
                 $this->hideAllProductsByBuilding(
-                    $building
-                );
-            } else {
-                $this->recoverValidProductsByBuilding(
                     $building
                 );
             }
@@ -658,16 +655,6 @@ class AdminSalesAdminsController extends SandboxRestController
         foreach ($products as $product) {
             $product->setVisible(false);
         }
-    }
-
-    /**
-     * @param $building
-     */
-    private function recoverValidProductsByBuilding(
-        $building
-    ) {
-        // recover valid productions' visible status
-        $this->getRepo('Product\Product')->setVisibleTrue($building);
     }
 
     /**
