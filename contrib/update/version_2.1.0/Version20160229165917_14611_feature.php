@@ -37,6 +37,7 @@ class Version20160229165917_14611_feature extends AbstractMigration
         $this->addSql('ALTER TABLE Product ADD isDeleted TINYINT(1) NOT NULL');
         $this->addSql('INSERT INTO SalesAdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES(\'super\',\'超级管理员\',\'2016-03-01 00:00:00\',\'2016-03-01 00:00:00\')');
         $this->addSql('INSERT INTO SalesAdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES(\'platform\',\'平台管理员\',\'2016-03-01 00:00:00\',\'2016-03-01 00:00:00\')');
+        $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.platform.dashboard','控制台管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.platform.admin','管理员管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.platform.building','项目新增','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.price','价格模板管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
