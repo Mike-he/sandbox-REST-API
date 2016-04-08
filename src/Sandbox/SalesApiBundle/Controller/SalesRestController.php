@@ -16,11 +16,11 @@ class SalesRestController extends SandboxRestController
     /**
      * Check sales admin's permission, is allowed to operate.
      *
-     * @param int          $adminId
-     * @param string       $typeKey
-     * @param string|array $permissionKeys
-     * @param int          $opLevel
-     * @param int          $buildingId
+     * @param int    $adminId
+     * @param string $typeKey
+     * @param array  $permissionKeys
+     * @param int    $opLevel
+     * @param int    $buildingId
      *
      * @throws AccessDeniedHttpException
      */
