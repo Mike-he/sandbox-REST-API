@@ -328,11 +328,11 @@ class AdminSalesBuildingController extends LocationController
             foreach ($products as $product) {
                 $product->setVisible(false);
             }
-        } elseif ($status == RoomBuilding::STATUS_ACCEPT) {
+        } elseif (
+            $statusOld == RoomBuilding::STATUS_PENDING &&
+            $status == RoomBuilding::STATUS_ACCEPT
+        ) {
             $building->setVisible(true);
-
-            // recover valid productions' visible status
-            $this->getRepo('Product\Product')->setVisibleTrue($building);
         }
 
         $em->flush();
