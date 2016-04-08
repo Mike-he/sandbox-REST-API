@@ -527,6 +527,35 @@ class ProductRepository extends EntityRepository
     }
 
     /**
+     * @param $building
+     */
+    public function setVisibleTrue(
+        $building
+    ) {
+        $now = new \DateTime();
+        $nowString = (string) $now->format('Y-m-d H:i:s');
+        $nowString = "'$nowString'";
+        $valueFalse = 'true';
+
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('r.building = :building')
+            ->update()
+            ->set('p.visible', $valueFalse)
+            ->set('p.modificationDate', $nowString)
+            ->where('p.visible = :status')
+            ->andWhere('p.isDeleted = FALSE')
+            ->andWhere('p.startDate <= :now')
+            ->andWhere('p.endDate > :now')
+            ->setParameter('now', $now)
+            ->setParameter('status', false)
+            ->setParameter('building', $building)
+            ->getQuery();
+
+        $query->execute();
+    }
+
+    /**
      * @param Product      $product
      * @param string       $action
      * @param RoomCity     $city
