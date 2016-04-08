@@ -256,8 +256,7 @@ class AdminOrderController extends OrderController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_BUILDING_ROOM,
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                SalesAdminPermission::KEY_BUILDING_ORDER,
             )
         );
 
@@ -434,8 +433,7 @@ class AdminOrderController extends OrderController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_BUILDING_ROOM,
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                SalesAdminPermission::KEY_BUILDING_ORDER,
             )
         );
 
