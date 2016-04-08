@@ -330,6 +330,9 @@ class AdminSalesBuildingController extends LocationController
             }
         } elseif ($status == RoomBuilding::STATUS_ACCEPT) {
             $building->setVisible(true);
+
+            // recover valid productions' visible status
+            $this->getRepo('Product\Product')->setVisibleTrue($building);
         }
 
         $em->flush();

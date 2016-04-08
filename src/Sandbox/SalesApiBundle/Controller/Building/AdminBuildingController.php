@@ -5,7 +5,6 @@ namespace Sandbox\SalesApiBundle\Controller\Building;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
@@ -426,6 +425,9 @@ class AdminBuildingController extends LocationController
             foreach ($products as $product) {
                 $product->setVisible(false);
             }
+        } else {
+            // recover valid productions' visible status
+            $this->getRepo('Product\Product')->setVisibleTrue($building);
         }
 
         $em = $this->getDoctrine()->getManager();
