@@ -313,24 +313,10 @@ class AdminSalesBuildingController extends LocationController
         }
 
         if ($status == RoomBuilding::STATUS_BANNED) {
-            // check user permission
-            $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_USER_BANNED);
-
-            $building->setVisible(false);
-
-            // hide all shops
-            $this->getRepo('Shop\Shop')->setShopOffline($building);
-
-            // hide all of the products
-            $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
-
-            if (empty($products)) {
-                return;
-            }
-
-            foreach ($products as $product) {
-                $product->setVisible(false);
-            }
+            // banned all staff under this building
+            $this->bannedAllUnderBuilding(
+                $building
+            );
         } elseif (
             $statusOld == RoomBuilding::STATUS_PENDING &&
             $status == RoomBuilding::STATUS_ACCEPT
@@ -380,5 +366,54 @@ class AdminSalesBuildingController extends LocationController
             AdminPermission::KEY_PLATFORM_SALES,
             $opLevel
         );
+    }
+
+    /**
+     * @param RoomBuilding $building
+     */
+    private function bannedAllUnderBuilding(
+        $building
+    ) {
+        // check user permission
+        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_USER_BANNED);
+
+        $building->setVisible(false);
+
+        // hide all shops
+        $this->getRepo('Shop\Shop')->setShopOffline($building);
+
+        // hide all of the products
+        $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
+
+        if (empty($products)) {
+            return;
+        }
+
+        foreach ($products as $product) {
+            $product->setVisible(false);
+        }
+
+        // set shops
+        $shops = $this->getRepo('Shop\Shop')->findByBuilding($building);
+
+        if (empty($shops)) {
+            return;
+        }
+
+        foreach ($shops as $shop) {
+            if (is_null($shop)) {
+                return;
+            }
+
+            // set shop & shop products offline
+            if (!$shop->isOnline()) {
+                $shop->setClose(true);
+
+                // set shop products offline
+                $this->getRepo('Shop\ShopProduct')->setShopProductsOfflineByShopId(
+                    $shop->getId()
+                );
+            }
+        }
     }
 }

@@ -594,6 +594,16 @@ class AdminShopController extends ShopController
 
         if (!$shop->isOnline()) {
             $shop->setClose(true);
+
+            // set shop products offline
+            $this->getRepo('Shop\ShopProduct')->setShopProductsOfflineByShopId(
+                $shop->getId()
+            );
+        } else {
+            // set shop products online
+            $this->getRepo('Shop\ShopProduct')->setShopProductsOnlineByShopId(
+                $shop->getId()
+            );
         }
 
         $em = $this->getDoctrine()->getManager();

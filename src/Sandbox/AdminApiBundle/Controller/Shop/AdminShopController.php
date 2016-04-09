@@ -179,9 +179,9 @@ class AdminShopController extends ShopController
     }
 
     /**
-     * @param $shop
-     * @param $shopJson
-     * @param $type
+     * @param Shop   $shop
+     * @param string $shopJson
+     * @param string $type
      */
     private function patchShop(
         $shop,
@@ -193,6 +193,12 @@ class AdminShopController extends ShopController
 
         if (!$shop->isActive()) {
             $shop->setOnline(false);
+            $shop->setClose(true);
+
+            // set shop products offline
+            $this->getRepo('Shop\ShopProduct')->setShopProductsOfflineByShopId(
+                $shop->getId()
+            );
         }
 
         $em = $this->getDoctrine()->getManager();

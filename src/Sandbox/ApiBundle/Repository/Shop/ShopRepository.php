@@ -186,8 +186,8 @@ class ShopRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('s')
             ->update()
-            ->set('s.online', false)
-            ->set('s.close', true)
+            ->set('s.online', 'FALSE')
+            ->set('s.close', 'TRUE')
             ->where('s.building = :building')
             ->setParameter('building', $building)
             ->getQuery();
