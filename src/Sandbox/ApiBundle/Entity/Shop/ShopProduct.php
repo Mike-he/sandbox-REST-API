@@ -96,6 +96,14 @@ class ShopProduct implements JsonSerializable
     private $invisible = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isOfflineByShop", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main"})
+     */
+    private $isOfflineByShop;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -504,6 +512,22 @@ class ShopProduct implements JsonSerializable
     public function getShopProductSpecs()
     {
         return $this->shopProductSpecs;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOfflineByShop()
+    {
+        return $this->isOfflineByShop;
+    }
+
+    /**
+     * @param bool $isOfflineByShop
+     */
+    public function setIsOfflineByShop($isOfflineByShop)
+    {
+        $this->isOfflineByShop = $isOfflineByShop;
     }
 
     public function __construct()

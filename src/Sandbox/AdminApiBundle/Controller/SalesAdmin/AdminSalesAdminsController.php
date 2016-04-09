@@ -629,8 +629,14 @@ class AdminSalesAdminsController extends SandboxRestController
 
                 $shop->setOnline($shopOnline);
 
+                // set shop & shop products offline
                 if (!$shopOnline) {
                     $shop->setClose(true);
+
+                    // set shop products offline
+                    $this->getRepo('Shop\ShopProduct')->setShopProductsOfflineByShopId(
+                        $shop->getId()
+                    );
                 }
             }
         }

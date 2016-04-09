@@ -366,7 +366,7 @@ class AdminBuildingController extends LocationController
         $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
             'id' => $id,
             'isDeleted' => false,
-            'status' => RoomBuilding::STATUS_ACCEPT
+            'status' => RoomBuilding::STATUS_ACCEPT,
         ));
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 

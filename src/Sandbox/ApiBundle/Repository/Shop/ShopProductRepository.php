@@ -164,4 +164,65 @@ class ShopProductRepository extends EntityRepository
 
         return $query->getOneOrNullResult();
     }
+
+    /**
+     * @param $shopId
+     */
+    public function setShopProductsOfflineByShopId(
+        $shopId
+    ) {
+        // get valid products
+        $queryProducts = $this->createQueryBuilder('p')
+            ->join('SandboxApiBundle:Shop\ShopMenu', 'm', 'WITH', 'm.id = p.menuId')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = m.shopId')
+            ->select('p.id')
+            ->where('s.id = :shopId')
+            ->andWhere('p.invisible = FALSE')
+            ->andWhere('p.online = TRUE')
+            ->setParameter('shopId', $shopId);
+
+        $productIds = $queryProducts->getQuery()->getResult();
+        $productIds = array_map('current', $productIds);
+
+        $query = $this->createQueryBuilder('p')
+            ->update()
+            ->set('p.online', 'FALSE')
+            ->set('p.isOfflineByShop', 'TRUE')
+            ->where('p.id IN (:ids)')
+            ->setParameter('ids', $productIds)
+            ->getQuery();
+
+        $query->execute();
+    }
+
+    /**
+     * @param $shopId
+     */
+    public function setShopProductsOnlineByShopId(
+        $shopId
+    ) {
+        // get valid products
+        $queryProducts = $this->createQueryBuilder('p')
+            ->join('SandboxApiBundle:Shop\ShopMenu', 'm', 'WITH', 'm.id = p.menuId')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = m.shopId')
+            ->select('p.id')
+            ->where('s.id = :shopId')
+            ->andWhere('s.active = TRUE')
+            ->andWhere('p.invisible = FALSE')
+            ->andWhere('p.online = FALSE')
+            ->andWhere('p.isOfflineByShop = TRUE')
+            ->setParameter('shopId', $shopId);
+
+        $productIds = $queryProducts->getQuery()->getResult();
+        $productIds = array_map('current', $productIds);
+
+        $query = $this->createQueryBuilder('p')
+            ->update()
+            ->set('p.online', 'TRUE')
+            ->set('p.isOfflineByShop', 'FALSE')
+            ->where('p.id IN (:ids)')
+            ->setParameter('ids', $productIds);
+
+        $query->getQuery()->execute();
+    }
 }
