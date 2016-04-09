@@ -57,7 +57,7 @@ class AdminShopSpecController extends SpecController
         $this->checkAdminSpecPermission(
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                ShopAdminPermission::KEY_SHOP_SPEC,
+                ShopAdminPermission::KEY_PLATFORM_SPEC,
             )
         );
 
@@ -115,7 +115,7 @@ class AdminShopSpecController extends SpecController
         $this->checkAdminSpecPermission(
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                ShopAdminPermission::KEY_SHOP_SPEC,
+                ShopAdminPermission::KEY_PLATFORM_SPEC,
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
                 ShopAdminPermission::KEY_SHOP_KITCHEN,
             )
@@ -162,7 +162,7 @@ class AdminShopSpecController extends SpecController
         $this->checkAdminSpecPermission(
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                ShopAdminPermission::KEY_SHOP_SPEC,
+                ShopAdminPermission::KEY_PLATFORM_SPEC,
             )
         );
 
@@ -201,7 +201,7 @@ class AdminShopSpecController extends SpecController
         $this->checkAdminSpecPermission(
             ShopAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                ShopAdminPermission::KEY_SHOP_SPEC,
+                ShopAdminPermission::KEY_PLATFORM_SPEC,
             )
         );
 
@@ -240,7 +240,7 @@ class AdminShopSpecController extends SpecController
         $this->checkAdminSpecPermission(
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
-                ShopAdminPermission::KEY_SHOP_SPEC,
+                ShopAdminPermission::KEY_PLATFORM_SPEC,
             )
         );
 
@@ -277,7 +277,7 @@ class AdminShopSpecController extends SpecController
         $this->checkAdminSpecPermission(
             ShopAdminPermissionMap::OP_LEVEL_EDIT,
             array(
-                ShopAdminPermission::KEY_SHOP_SPEC,
+                ShopAdminPermission::KEY_PLATFORM_SPEC,
             )
         );
 
