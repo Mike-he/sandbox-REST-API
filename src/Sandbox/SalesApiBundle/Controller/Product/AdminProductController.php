@@ -214,7 +214,16 @@ class AdminProductController extends ProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminProductPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -315,7 +324,15 @@ class AdminProductController extends ProductController
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminProductPermission(
+
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+            ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             $buildingId
         );
