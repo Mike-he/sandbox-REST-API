@@ -535,24 +535,32 @@ class ProductRepository extends EntityRepository
     public function setVisibleTrue(
         $building
     ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('r.building = :building')
+            ->setParameter('building', $building);
+
+        $productIds = $query->getQuery()->getResult();
+        $productIds = array_map('current', $productIds);
+
         $now = new \DateTime();
         $nowString = (string) $now->format('Y-m-d H:i:s');
         $nowString = "'$nowString'";
         $valueTrue = 'true';
 
         $query = $this->createQueryBuilder('p')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->update()
             ->set('p.visible', $valueTrue)
             ->set('p.modificationDate', $nowString)
             ->where('p.visible = :status')
-            ->andWhere('r.building = :building')
             ->andWhere('p.isDeleted = FALSE')
             ->andWhere('p.startDate <= :now')
             ->andWhere('p.endDate > :now')
+            ->andWhere('p.id IN (:ids)')
             ->setParameter('now', $now)
             ->setParameter('status', false)
-            ->setParameter('building', $building)
+            ->setParameter('ids', $productIds)
             ->getQuery();
 
         $query->execute();
