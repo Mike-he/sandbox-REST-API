@@ -366,16 +366,12 @@ class AdminBuildingController extends LocationController
         $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
             'id' => $id,
             'isDeleted' => false,
+            'status' => RoomBuilding::STATUS_ACCEPT
         ));
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         $statusOld = $building->getStatus();
         $visibleOld = $building->isVisible();
-
-        // not allow change building that is refused
-        if ($statusOld == RoomBuilding::STATUS_REFUSE) {
-            return new View();
-        }
 
         // bind data
         $buildingJson = $this->container->get('serializer')->serialize($building, 'json');
