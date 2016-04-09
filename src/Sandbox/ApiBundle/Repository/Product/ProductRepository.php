@@ -389,7 +389,6 @@ class ProductRepository extends EntityRepository
             // product off sale
             if ($visible == Product::OFF_SALE) {
                 $parameters['visible'] = false;
-                $query->andWhere('p.isDeleted = FALSE');
             }
             // product on sale and in the rent time
             elseif ($visible == Product::ON_SALE) {
@@ -443,6 +442,10 @@ class ProductRepository extends EntityRepository
             $parameters['recommend'] = $recommend;
             $notFirst = true;
         }
+
+        // get not deleted products
+        $where = 'p.isDeleted = FALSE';
+        $this->addWhereQuery($query, $notFirst, $where);
 
         // sort by by method
         switch ($sortBy) {
@@ -872,6 +875,10 @@ class ProductRepository extends EntityRepository
             $parameters['recommend'] = $recommend;
             $notFirst = true;
         }
+
+        // get not deleted products
+        $where = 'p.isDeleted = FALSE';
+        $this->addWhereQuery($query, $notFirst, $where);
 
         // sort by by method
         switch ($sortBy) {

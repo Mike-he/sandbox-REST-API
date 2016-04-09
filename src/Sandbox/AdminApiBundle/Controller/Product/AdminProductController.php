@@ -217,7 +217,10 @@ class AdminProductController extends ProductController
         // check user permission
         $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
-        $product = $this->getRepo('Product\Product')->find($id);
+        $product = $this->getRepo('Product\Product')->find(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
@@ -434,7 +437,10 @@ class AdminProductController extends ProductController
         // check user permission
         $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        $product = $this->getRepo('Product\Product')->find($id);
+        $product = $this->getRepo('Product\Product')->find(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
 
         $form = $this->createForm(
             new ProductType(),

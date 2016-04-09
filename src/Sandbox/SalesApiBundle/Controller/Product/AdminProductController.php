@@ -306,7 +306,10 @@ class AdminProductController extends ProductController
         Request $request,
         $id
     ) {
-        $product = $this->getRepo('Product\Product')->find($id);
+        $product = $this->getRepo('Product\Product')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $buildingId = $product->getRoom()->getBuildingId();
@@ -375,6 +378,7 @@ class AdminProductController extends ProductController
         }
 
         $product->setVisible(false);
+        $product->setIsDeleted(true);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -539,7 +543,10 @@ class AdminProductController extends ProductController
         Request $request,
         $id
     ) {
-        $product = $this->getRepo('Product\Product')->find($id);
+        $product = $this->getRepo('Product\Product')->find(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
 
         $form = $this->createForm(
             new ProductType(),

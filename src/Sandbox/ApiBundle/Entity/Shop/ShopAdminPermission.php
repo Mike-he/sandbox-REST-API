@@ -20,11 +20,11 @@ class ShopAdminPermission
     const KEY_PLATFORM_DASHBOARD = 'shop.platform.dashboard';
     const KEY_PLATFORM_ADMIN = 'shop.platform.admin';
     const KEY_PLATFORM_SHOP = 'shop.platform.shop';
+    const KEY_PLATFORM_SPEC = 'shop.platform.spec';
 
     const KEY_SHOP_SHOP = 'shop.shop.shop';
     const KEY_SHOP_ORDER = 'shop.shop.order';
     const KEY_SHOP_PRODUCT = 'shop.shop.product';
-    const KEY_SHOP_SPEC = 'shop.shop.spec';
     const KEY_SHOP_KITCHEN = 'shop.shop.kitchen';
 
     /**

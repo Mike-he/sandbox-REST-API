@@ -37,10 +37,10 @@ class Version20160308160454_14801_feature extends AbstractMigration
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.platform.dashboard','控制台管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.platform.admin','管理员管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.platform.shop','商店新增','2016-03-01 00:00:00','2016-03-01 00:00:00')");
+        $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.platform.spec','规格管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.shop.shop','商店管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.shop.order','订单管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.shop.product','商品管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
-        $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.shop.spec','规格管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO ShopAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'shop.shop.kitchen','传菜系统管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
 
     }
