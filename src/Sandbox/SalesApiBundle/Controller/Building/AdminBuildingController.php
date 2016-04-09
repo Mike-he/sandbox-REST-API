@@ -370,7 +370,7 @@ class AdminBuildingController extends LocationController
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         $statusOld = $building->getStatus();
-        $visibleOld = $building->getVisible();
+        $visibleOld = $building->isVisible();
 
         // not allow change building that is refused
         if ($statusOld == RoomBuilding::STATUS_REFUSE) {
@@ -409,7 +409,7 @@ class AdminBuildingController extends LocationController
             return;
         }
 
-        $visible = $building->getVisible();
+        $visible = $building->isVisible();
         if ($visibleOld == $visible) {
             return;
         }
