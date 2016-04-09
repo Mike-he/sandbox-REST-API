@@ -318,6 +318,9 @@ class AdminSalesBuildingController extends LocationController
 
             $building->setVisible(false);
 
+            // hide all shops
+            $this->getRepo('Shop\Shop')->setShopOffline($building);
+
             // hide all of the products
             $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
 
