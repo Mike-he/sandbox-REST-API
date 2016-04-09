@@ -177,4 +177,21 @@ class ShopRepository extends EntityRepository
             $query->where($where);
         }
     }
+
+    /**
+     * @param $building
+     */
+    public function setShopOffline(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->update()
+            ->set('s.online', false)
+            ->set('s.close', true)
+            ->where('s.building = :building')
+            ->setParameter('building', $building)
+            ->getQuery();
+
+        $query->execute();
+    }
 }

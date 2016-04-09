@@ -629,11 +629,8 @@ class AdminSalesAdminsController extends SandboxRestController
 
                 $shop->setOnline($shopOnline);
 
-                // set products
-                if ($platformAdminBanned) {
-                    $this->hideAllShopProductsByShop(
-                        $shop->getId()
-                    );
+                if (!$shopOnline) {
+                    $shop->setClose(true);
                 }
             }
         }
@@ -654,23 +651,6 @@ class AdminSalesAdminsController extends SandboxRestController
 
         foreach ($products as $product) {
             $product->setVisible(false);
-        }
-    }
-
-    /**
-     * @param $shopId
-     */
-    private function hideAllShopProductsByShop(
-        $shopId
-    ) {
-        $shopProducts = $this->getRepo('Shop\ShopProduct')->getShopProductsByShopId($shopId);
-
-        if (empty($shopProducts)) {
-            return;
-        }
-
-        foreach ($shopProducts as $product) {
-            $product->setOnline(false);
         }
     }
 }

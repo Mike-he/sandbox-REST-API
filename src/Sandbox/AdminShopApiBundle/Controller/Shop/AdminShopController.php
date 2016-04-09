@@ -578,9 +578,9 @@ class AdminShopController extends ShopController
     }
 
     /**
-     * @param Request $request
-     * @param $id
-     * @param $type
+     * @param Shop   $shop
+     * @param string $shopJson
+     * @param string $type
      *
      * @throws Patch\FailedTestException
      */
@@ -592,8 +592,8 @@ class AdminShopController extends ShopController
         $form = $this->createForm($type, $shop);
         $form->submit(json_decode($shopJson, true));
 
-        if (!$shop->isActive()) {
-            $shop->setOnline(false);
+        if (!$shop->isOnline()) {
+            $shop->setClose(true);
         }
 
         $em = $this->getDoctrine()->getManager();
