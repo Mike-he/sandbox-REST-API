@@ -431,7 +431,7 @@ class AdminOrderController extends OrderController
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
+            $adminId,
             array(
                 SalesAdminPermission::KEY_BUILDING_ORDER,
             )
