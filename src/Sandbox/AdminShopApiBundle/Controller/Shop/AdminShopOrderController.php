@@ -253,7 +253,8 @@ class AdminShopOrderController extends ShopController
             $end,
             $sort,
             $search,
-            $platform
+            $platform,
+            $myShopIds
         );
 
         $orders = $this->get('serializer')->serialize(
