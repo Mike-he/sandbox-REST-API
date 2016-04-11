@@ -22,6 +22,7 @@ class ShopOrderRepository extends EntityRepository
      * @param $sort
      * @param $search
      * @param $platform
+     * @param $$myShopIds
      *
      * @return array
      */
@@ -32,12 +33,15 @@ class ShopOrderRepository extends EntityRepository
         $end,
         $sort,
         $search,
-        $platform
+        $platform,
+        $myShopIds
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.status != :unpaid')
             ->andWhere('o.status != :cancelled')
+            ->andWhere('o.shopId IN (:shopIds)')
             ->orderBy('o.modificationDate', $sort)
+            ->setParameter('shopIds', $myShopIds)
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
             ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED);
 

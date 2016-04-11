@@ -67,6 +67,7 @@ class ShopRestController extends PaymentController
         }
 
         $shopUser->setIsShopOrdered(true);
+        $shopUser->setShopId($shop->getId());
         $shopUser->setModificationDate(new \DateTime('now'));
 
         $em->persist($shopUser);
