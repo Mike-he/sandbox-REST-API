@@ -401,6 +401,8 @@ class AdminBuildingController extends LocationController
         $visibleOld,
         $building
     ) {
+        $em = $this->getDoctrine()->getManager();
+        
         if ($statusOld != RoomBuilding::STATUS_ACCEPT) {
             return;
         }
@@ -418,7 +420,7 @@ class AdminBuildingController extends LocationController
             $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
 
             if (empty($products)) {
-                return;
+                $em->flush();
             }
 
             foreach ($products as $product) {
@@ -429,7 +431,6 @@ class AdminBuildingController extends LocationController
             $this->getRepo('Product\Product')->setVisibleTrue($building);
         }
 
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
     }
 
