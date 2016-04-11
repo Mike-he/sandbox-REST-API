@@ -402,7 +402,7 @@ class AdminBuildingController extends LocationController
         $building
     ) {
         $em = $this->getDoctrine()->getManager();
-        
+
         if ($statusOld != RoomBuilding::STATUS_ACCEPT) {
             return;
         }
