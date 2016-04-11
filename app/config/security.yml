@@ -76,6 +76,7 @@ security:
         - { path: ^/client/thirdparty/oauth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/thirdparty/auth$, role: ROLE_USER }
         - { path: ^/client, role: ROLE_CLIENT_API }
+        - { path: ^/sales/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales, role: ROLE_SALES_ADMIN_API }
         - { path: ^/shop, role: ROLE_SHOP_ADMIN_API }
         - { path: ^/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
