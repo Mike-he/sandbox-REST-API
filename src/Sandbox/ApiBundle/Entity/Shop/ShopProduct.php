@@ -101,7 +101,7 @@ class ShopProduct implements JsonSerializable
      * @ORM\Column(name="isOfflineByShop", type="boolean", options={"default": false})
      * @Serializer\Groups({"main"})
      */
-    private $isOfflineByShop;
+    private $isOfflineByShop = false;
 
     /**
      * @var \DateTime
