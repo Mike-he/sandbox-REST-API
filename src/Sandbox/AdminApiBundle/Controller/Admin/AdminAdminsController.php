@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Form\Admin\AdminPutType;
+use Sandbox\ApiBundle\Form\Admin\MyAdminPutType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -297,6 +298,55 @@ class AdminAdminsController extends SandboxRestController
             $em->remove($admin);
             $em->flush();
         }
+
+        return new View();
+    }
+
+    /**
+     * Update my admin.
+     *
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/admins/password")
+     * @Method({"POST"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchMyAdminAction(
+        Request $request
+    ) {
+        $admin = $this->getUser()->getMyAdmin();
+
+        $passwordOld = $admin->getPassword();
+
+        // bind data
+        $adminData = json_decode($request->getContent(), true);
+
+        $form = $this->createForm(new MyAdminPutType(), $admin);
+        $form->submit($adminData);
+
+        $passwordNew = $admin->getPassword();
+
+        $passwordOldPut = $form['old_password']->getData();
+        if ($passwordOldPut != $passwordOld || $passwordNew == $passwordOld || is_null($passwordNew)) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_PASSWORD_INVALID_CODE,
+                self::ERROR_PASSWORD_INVALID_MESSAGE
+            );
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
 
         return new View();
     }
