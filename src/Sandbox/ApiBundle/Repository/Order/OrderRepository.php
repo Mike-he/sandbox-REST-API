@@ -943,7 +943,7 @@ class OrderRepository extends EntityRepository
             $query->andWhere('r.building = :building');
             $parameters['building'] = $building;
         } else {
-            $query->andWhere('r.buildingId = :buildingIds');
+            $query->andWhere('r.buildingId IN (:buildingIds)');
             $parameters['buildingIds'] = $myBuildingIds;
         }
 

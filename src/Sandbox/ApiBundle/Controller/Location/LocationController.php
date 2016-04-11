@@ -152,7 +152,12 @@ class LocationController extends SalesRestController
         $cityId = $paramFetcher->get('city');
 
         // get all buildings
-        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings($cityId);
+        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
+            $cityId,
+            null,
+            null,
+            RoomBuilding::STATUS_ACCEPT
+        );
 
         if (!is_null($user)) {
             // sales bundle

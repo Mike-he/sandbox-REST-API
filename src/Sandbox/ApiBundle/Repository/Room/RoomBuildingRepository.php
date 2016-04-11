@@ -170,13 +170,15 @@ class RoomBuildingRepository extends EntityRepository
      * @param $cityId
      * @param $myBuildingIds
      * @param $companyId
+     * @param $status
      *
      * @return array
      */
     public function getLocationRoomBuildings(
         $cityId = null,
         $myBuildingIds = null,
-        $companyId = null
+        $companyId = null,
+        $status = null
     ) {
         $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -211,6 +213,12 @@ class RoomBuildingRepository extends EntityRepository
 
         // filter by building delete
         $buildingsQuery->andWhere('rb.isDeleted = FALSE');
+
+        // filter by building status
+        if (!is_null($status)) {
+            $buildingsQuery->andWhere('rb.status = :status');
+            $buildingsQuery->setParameter('status', $status);
+        }
 
         // order by creation date
         $buildingsQuery->orderBy('rb.creationDate', 'DESC');
