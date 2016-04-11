@@ -1000,7 +1000,7 @@ class AdminOrderController extends OrderController
         }
 
         $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('Admin\AdminToken')->findOneByToken($token);
+        $adminToken = $this->getRepo('SalesAdmin\SalesAdminToken')->findOneByToken($token);
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
