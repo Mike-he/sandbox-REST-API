@@ -171,6 +171,7 @@ class RoomBuildingRepository extends EntityRepository
      * @param $myBuildingIds
      * @param $companyId
      * @param $status
+     * @param $visible
      *
      * @return array
      */
@@ -178,7 +179,8 @@ class RoomBuildingRepository extends EntityRepository
         $cityId = null,
         $myBuildingIds = null,
         $companyId = null,
-        $status = null
+        $status = null,
+        $visible = null
     ) {
         $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -218,6 +220,12 @@ class RoomBuildingRepository extends EntityRepository
         if (!is_null($status)) {
             $buildingsQuery->andWhere('rb.status = :status');
             $buildingsQuery->setParameter('status', $status);
+        }
+
+        // filter by building visible
+        if (!is_null($visible)) {
+            $buildingsQuery->andWhere('rb.visible = :visible');
+            $buildingsQuery->setParameter('visible', $visible);
         }
 
         // order by creation date
