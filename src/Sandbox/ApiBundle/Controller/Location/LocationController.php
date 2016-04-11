@@ -156,7 +156,8 @@ class LocationController extends SalesRestController
             $cityId,
             null,
             null,
-            RoomBuilding::STATUS_ACCEPT
+            RoomBuilding::STATUS_ACCEPT,
+            true
         );
 
         if (!is_null($user)) {
