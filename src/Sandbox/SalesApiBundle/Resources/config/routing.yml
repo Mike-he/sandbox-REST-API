@@ -87,3 +87,9 @@ sandbox_sales_admin_doors:
     resource: "@SandboxSalesApiBundle/Controller/Door/AdminDoorController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Door /sales/admin/shops
+sandbox_sales_admin_shops:
+    resource: "@SandboxSalesApiBundle/Controller/Shop/AdminShopController.php"
+    type:     annotation
+    prefix:   /admin
