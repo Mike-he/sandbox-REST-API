@@ -556,7 +556,7 @@ class AdminEventController extends SandboxRestController
         $eventEndDate = $this->getEventEndDate($dates);
 
         $event->setCity($city);
-        $event->setBuilding($building);
+        $event->setBuildingId($building->getId());
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
         $event->setEventEndDate($eventEndDate);
@@ -672,7 +672,7 @@ class AdminEventController extends SandboxRestController
         $eventEndDate = $this->getEventEndDate($dates);
 
         $event->setCity($city);
-        $event->setBuilding($building);
+        $event->setBuildingId($building->getId());
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
         $event->setEventEndDate($eventEndDate);
