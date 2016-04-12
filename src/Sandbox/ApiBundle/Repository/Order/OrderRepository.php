@@ -631,7 +631,7 @@ class OrderRepository extends EntityRepository
 
         //Search orders by order number and order owner name.
         if (!is_null($search)) {
-            $query->andWhere('o.orderNumber LIKE :search OR up.name LIKE :search');
+            $query->andWhere('(o.orderNumber LIKE :search OR up.name LIKE :search)');
             $parameters['search'] = "%$search%";
         }
 
@@ -861,7 +861,7 @@ class OrderRepository extends EntityRepository
 
         //Search orders by order number and order owner name.
         if (!is_null($search)) {
-            $query->andWhere('o.orderNumber LIKE :search OR up.name LIKE :search');
+            $query->andWhere('(o.orderNumber LIKE :search OR up.name LIKE :search)');
             $parameters['search'] = "%$search%";
         }
 
