@@ -142,6 +142,14 @@ class AdminSalesAdminsController extends SandboxRestController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
      * @Method({"GET"})
      * @Route("/admins")
      *
@@ -156,6 +164,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $banned = $paramFetcher->get('banned');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $search = $paramFetcher->get('query');
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
@@ -169,27 +178,31 @@ class AdminSalesAdminsController extends SandboxRestController
         $typeKey = SalesAdminType::KEY_SUPER;
         $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
 
-        // set filters
-        $filters['typeId'] = $type->getId();
-        if (!is_null($banned)) {
-            $filters['banned'] = $banned;
-        }
+        // get type id
+        $typeId = $type->getId();
 
-        $admins = $this->getRepo('SalesAdmin\SalesAdmin')->findBy($filters);
-        foreach ($admins as $admin) {
-            $buildingCounts = $this->getRepo('Room\RoomBuilding')->countSalesBuildings($admin->getCompanyId());
-            $shopAdminCounts = $this->getRepo('Shop\ShopAdmin')->countShopAdmins($admin->getCompanyId());
+        $admins = $this->getRepo('SalesAdmin\SalesAdmin')->getSalesAdmins(
+            $typeId,
+            $banned,
+            $search
+        );
 
-            $admin->setShopAdminCounts((int) $shopAdminCounts);
-            $admin->setBuildingCounts((int) $buildingCounts);
+        if (!is_null($admins) && !empty($admins)) {
+            foreach ($admins as $admin) {
+                $buildingCounts = $this->getRepo('Room\RoomBuilding')->countSalesBuildings($admin->getCompanyId());
+                $shopAdminCounts = $this->getRepo('Shop\ShopAdmin')->countShopAdmins($admin->getCompanyId());
 
-            // new pending building
-            $pendingBuilding = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
-                'companyId' => $admin->getCompanyId(),
-                'status' => RoomBuilding::STATUS_PENDING,
-            ));
-            if (!is_null($pendingBuilding)) {
-                $admin->setHasPendingBuilding(true);
+                $admin->setShopAdminCounts((int) $shopAdminCounts);
+                $admin->setBuildingCounts((int) $buildingCounts);
+
+                // new pending building
+                $pendingBuilding = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
+                    'companyId' => $admin->getCompanyId(),
+                    'status' => RoomBuilding::STATUS_PENDING,
+                ));
+                if (!is_null($pendingBuilding)) {
+                    $admin->setHasPendingBuilding(true);
+                }
             }
         }
 
