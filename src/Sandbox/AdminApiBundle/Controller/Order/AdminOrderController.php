@@ -608,7 +608,7 @@ class AdminOrderController extends OrderController
      */
     private function authenticateAdminCookie()
     {
-        $cookie_name = 'sandbox_admin_token';
+        $cookie_name = self::ADMIN_COOKIE_NAME;
         if (!isset($_COOKIE[$cookie_name])) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }

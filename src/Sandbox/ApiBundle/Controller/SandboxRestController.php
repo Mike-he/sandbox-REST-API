@@ -60,6 +60,12 @@ class SandboxRestController extends FOSRestController
 
     const SANDBOX_CLIENT_LOGIN_HEADER = 'sandboxclientauthorization';
 
+    const ADMIN_COOKIE_NAME = 'sandbox_admin_token';
+
+    const SALES_COOKIE_NAME = 'sandbox_sales_admin_token';
+
+    const SHOP_COOKIE_NAME = 'sandbox_shop_admin_token';
+
     //-------------------- Global --------------------//
 
     /**
