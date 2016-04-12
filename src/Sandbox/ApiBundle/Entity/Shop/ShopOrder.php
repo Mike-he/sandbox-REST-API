@@ -104,6 +104,14 @@ class ShopOrder
     /**
      * @var string
      *
+     * @ORM\Column(name="refundAmount", type="decimal", precision=10, scale=2)
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $refundAmount = 0;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="status", type="string", length=64)
      * @Serializer\Groups({"main", "admin_shop", "client_order"})
      */
@@ -350,6 +358,30 @@ class ShopOrder
     public function getPrice()
     {
         return $this->price;
+    }
+
+    /**
+     * Set refund amount.
+     *
+     * @param string $amount
+     *
+     * @return ShopOrder
+     */
+    public function setRefundAmount($amount)
+    {
+        $this->refundAmount = $amount;
+
+        return $this;
+    }
+
+    /**
+     * Get refund amount.
+     *
+     * @return string
+     */
+    public function getRefundAmount()
+    {
+        return $this->refundAmount;
     }
 
     /**
