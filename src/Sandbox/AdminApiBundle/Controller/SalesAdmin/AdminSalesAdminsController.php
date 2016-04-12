@@ -618,13 +618,17 @@ class AdminSalesAdminsController extends SandboxRestController
             $building->setStatus($buildingStatus);
 
             // set products & buildings visible
-            if ($platformAdminBanned) {
-                $building->setVisible($buildingVisible);
-
-                $this->hideAllProductsByBuilding(
-                    $building
-                );
+            if (!$platformAdminBanned) {
+                continue;
             }
+
+            // building offline
+            $building->setVisible($buildingVisible);
+
+            // hide all products by buildings
+            $this->hideAllProductsByBuilding(
+                $building
+            );
 
             // set shops
             $shops = $this->getRepo('Shop\Shop')->findByBuilding($building);
