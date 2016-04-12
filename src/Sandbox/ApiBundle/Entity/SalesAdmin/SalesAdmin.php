@@ -143,6 +143,20 @@ class SalesAdmin implements UserInterface
     private $buildingCounts;
 
     /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $shopAdminCounts;
+
+    /**
+     * @var bool
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $hasPendingBuilding;
+
+    /**
      * @return int
      */
     public function getCompanyId()
@@ -424,6 +438,38 @@ class SalesAdmin implements UserInterface
     public function setBuildingCounts($buildingCounts)
     {
         $this->buildingCounts = $buildingCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getShopAdminCounts()
+    {
+        return $this->shopAdminCounts;
+    }
+
+    /**
+     * @param int $shopAdminCounts
+     */
+    public function setShopAdminCounts($shopAdminCounts)
+    {
+        $this->shopAdminCounts = $shopAdminCounts;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPendingBuilding()
+    {
+        return $this->hasPendingBuilding;
+    }
+
+    /**
+     * @param bool $hasPendingBuilding
+     */
+    public function setHasPendingBuilding($hasPendingBuilding)
+    {
+        $this->hasPendingBuilding = $hasPendingBuilding;
     }
 
     /**
