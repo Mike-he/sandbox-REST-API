@@ -588,12 +588,13 @@ class AdminShopOrderController extends ShopController
 
         // check user permission
         $this->checkAdminOrderPermission(
-            $adminId,
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_SHOP_ORDER,
                 ShopAdminPermission::KEY_SHOP_KITCHEN,
-            )
+            ),
+            null,
+            $adminId
         );
 
         // get my shop ids
@@ -926,11 +927,15 @@ class AdminShopOrderController extends ShopController
      * @param $shopId
      */
     private function checkAdminOrderPermission(
-        $adminId,
         $opLevel,
         $permissions,
-        $shopId = null
+        $shopId = null,
+        $adminId = null
     ) {
+        if (is_null($adminId)) {
+            $adminId = $this->getAdminId();
+        }
+
         $this->throwAccessDeniedIfShopAdminNotAllowed(
             $adminId,
             ShopAdminType::KEY_PLATFORM,
