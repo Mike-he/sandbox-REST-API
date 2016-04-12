@@ -108,7 +108,7 @@ class AdminUserLoginController extends SalesRestController
             );
 
             // set admin cookie
-            setrawcookie('sandbox_sales_admin_token', $adminToken->getToken(), null, '/', $request->getHost());
+            setrawcookie(self::SALES_COOKIE_NAME, $adminToken->getToken(), null, '/', $request->getHost());
 
             return $view->setData(array(
                 'admin' => $admin,
