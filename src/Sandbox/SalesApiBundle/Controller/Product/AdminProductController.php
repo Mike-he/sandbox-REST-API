@@ -7,6 +7,7 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
@@ -18,6 +19,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -446,6 +448,14 @@ class AdminProductController extends ProductController
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             $buildingId
         );
+
+        $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
+            'id' => $buildingId,
+            'status' => RoomBuilding::STATUS_ACCEPT,
+        ));
+        if (is_null($building)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
 
         $type = $room->getType();
         $allowedPeople = $room->getAllowedPeople();
