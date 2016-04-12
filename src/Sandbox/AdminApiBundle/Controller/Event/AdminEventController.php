@@ -551,12 +551,18 @@ class AdminEventController extends SandboxRestController
         $now = new \DateTime('now');
 
         $city = $this->getRepo('Room\RoomCity')->find($cityId);
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+
+        if (!is_null($buildingId)) {
+            $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+            if (!is_null($building)) {
+                $buildingId = $building->getId();
+            }
+        }
 
         $eventEndDate = $this->getEventEndDate($dates);
 
         $event->setCity($city);
-        $event->setBuildingId($building->getId());
+        $event->setBuildingId($buildingId);
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
         $event->setEventEndDate($eventEndDate);
@@ -667,12 +673,18 @@ class AdminEventController extends SandboxRestController
         $now = new \DateTime('now');
 
         $city = $this->getRepo('Room\RoomCity')->find($cityId);
-        $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+
+        if (!is_null($buildingId)) {
+            $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
+            if (!is_null($building)) {
+                $buildingId = $building->getId();
+            }
+        }
 
         $eventEndDate = $this->getEventEndDate($dates);
 
         $event->setCity($city);
-        $event->setBuildingId($building->getId());
+        $event->setBuildingId($buildingId);
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
         $event->setEventEndDate($eventEndDate);
