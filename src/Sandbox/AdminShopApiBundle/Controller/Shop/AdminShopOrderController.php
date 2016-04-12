@@ -4,6 +4,7 @@ namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Rs\Json\Patch;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
+use Sandbox\ApiBundle\Constants\ShopOrderExport;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
@@ -20,6 +21,8 @@ use Sandbox\ApiBundle\Controller\Shop\ShopController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -35,40 +38,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminShopOrderController extends ShopController
 {
     use ShopNotification;
-
-    /**
-     * @param Request $request
-     * @param int     $id
-     *
-     * @Method({"GET"})
-     * @Route("/orders/{id}")
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function getAdminShopOrderByIdAction(
-        Request $request,
-        $id
-    ) {
-        $order = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderById($id);
-
-        // check user permission
-        $this->checkAdminOrderPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
-            array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
-            ),
-            $order->getShopId()
-        );
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
-        $view->setData($order);
-
-        return $view;
-    }
 
     /**
      * @param Request               $request
@@ -479,6 +448,8 @@ class AdminShopOrderController extends ShopController
         $order->setShop($shop);
         $order->setOrderNumber($orderNumber);
         $order->setStatus(ShopOrder::STATUS_PAID);
+        $order->setPaymentDate(new \DateTime());
+        $order->setPayChannel($oldOrder->getPayChannel());
         $order->setUnoriginal(true);
         $order->setLinkedOrder($oldOrder);
 
@@ -486,6 +457,12 @@ class AdminShopOrderController extends ShopController
 
         $oldOrder->setLinkedOrder($order);
         $oldOrder->setStatus(ShopOrder::STATUS_TO_BE_REFUNDED);
+
+        $newPrice = $order->getPrice();
+        $oldPrice = $oldOrder->getPrice();
+        if ($newPrice < $oldPrice) {
+            $oldOrder->setRefundAmount($oldPrice - $newPrice);
+        }
 
         $priceData = new ShopOrderPriceData();
 
@@ -505,7 +482,7 @@ class AdminShopOrderController extends ShopController
             );
         }
 
-        if ($order->getPrice() != $priceData->getProductPrice()) {
+        if ($newPrice != $priceData->getProductPrice()) {
             return $this->customErrorView(
                 400,
                 self::DISCOUNT_PRICE_MISMATCH_CODE,
@@ -519,31 +496,379 @@ class AdminShopOrderController extends ShopController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by shop"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="{|paid|ready|completed|issue|waiting|refunded|}",
+     *    strict=true,
+     *    description="Filter by status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by payment date start"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by payment date end"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort",
+     *    array=false,
+     *    default="DESC",
+     *    nullable=false,
+     *    strict=true,
+     *    description="sort direction"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search by order orderNumber, username"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="platform",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter coffee backend or kitchen ipad"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    default="zh",
+     *    nullable=true,
+     *    requirements="(zh|en)",
+     *    strict=true,
+     *    description="export language"
+     * )
+     *
+     * @Route("/orders/export")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getExcelOrders(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        //authenticate with web browser cookie
+        $adminId = $this->authenticateAdminCookie();
+
+        // check user permission
+        $this->checkAdminOrderPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
+            )
+        );
+
+        // get my shop ids
+        $myShopIds = $this->getMyShopIds(
+            $adminId,
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+            )
+        );
+
+        $language = $paramFetcher->get('language');
+        $shopId = $paramFetcher->get('shop');
+        $status = $paramFetcher->get('status');
+        $start = $paramFetcher->get('start');
+        $end = $paramFetcher->get('end');
+        $sort = $paramFetcher->get('sort');
+        $search = $paramFetcher->get('search');
+        $platform = $paramFetcher->get('platform');
+
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Sandbox Shop Orders');
+
+        $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrders(
+            $shopId,
+            $status,
+            $start,
+            $end,
+            $sort,
+            $search,
+            $platform,
+            $myShopIds
+        );
+
+        $excelBody = array();
+        $orderCount = 0;
+        $total = 0;
+        $refundOrderCount = 0;
+        $totalRefund = 0;
+
+        // set excel body
+        foreach ($orders as $order) {
+            $amountString = '';
+            $menuString = '';
+            $productString = '';
+
+            $orderNumber = $order->getOrderNumber();
+            $shopName = $order->getShop()->getName();
+            $orderTime = $order->getPaymentDate()->format('Y-m-d H:i:s');
+
+            $orderProducts = $order->getShopOrderProducts();
+            foreach ($orderProducts as $orderProduct) {
+                $shopProductInfo = json_decode($orderProduct->getShopProductInfo(), true);
+
+                $menuName = $shopProductInfo['menu']['name'];
+                $productName = $shopProductInfo['name'];
+
+                $orderProductSpecs = $orderProduct->getShopOrderProductSpecs();
+                foreach ($orderProductSpecs as $orderProductSpec) {
+                    $shopProductSpecInfo = json_decode($orderProductSpec->getShopProductSpecInfo(), true);
+
+                    if ($shopProductSpecInfo['spec']['has_inventory']) {
+                        $orderProductSpecItem = $this->getRepo('Shop\ShopOrderProductSpecItem')
+                            ->findOneBySpecId($orderProductSpec->getId());
+
+                        $amount = $orderProductSpecItem->getAmount();
+
+                        $amountString .= $amount."\n";
+                    }
+                }
+
+                $menuString .= $menuName."\n";
+                $productString .= $productName."\n";
+            }
+
+            $user = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+            $userName = $user->getName();
+
+            $price = $order->getPrice();
+            $refund = $order->getRefundAmount();
+
+            // set status
+            $statusKey = $order->getStatus();
+            $status = $this->get('translator')->trans(
+                ShopOrderExport::TRANS_SHOP_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
+            );
+
+            if ($statusKey == ShopOrder::STATUS_COMPLETED) {
+                ++$orderCount;
+
+                if ($order->IsUnoriginal()) {
+                    $oldOrder = $order->getLinkedOrder();
+                    $oldPrice = $oldOrder->getPrice();
+
+                    if ($oldPrice >= $price) {
+                        $total += $price;
+                    } else {
+                        $total += $oldPrice;
+                    }
+                } else {
+                    $total += $price;
+                }
+            } elseif ($statusKey == ShopOrder::STATUS_REFUNDED) {
+                ++$refundOrderCount;
+
+                $totalRefund += $refund;
+            }
+
+            $paymentChannel = $order->getPayChannel();
+            if (!is_null($paymentChannel) && !empty($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ShopOrderExport::TRANS_SHOP_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
+            // set excel body
+            $body = array(
+                ShopOrderExport::ORDER_NUMBER => $orderNumber,
+                ShopOrderExport::SHOP_NAME => $shopName,
+                ShopOrderExport::ORDER_TIME => $orderTime,
+                ShopOrderExport::PRODUCT_NAME => $productString,
+                ShopOrderExport::PRODUCT_TYPE => $menuString,
+                ShopOrderExport::USER_NAME => $userName,
+                ShopOrderExport::TOTAL_AMOUNT => $amountString,
+                ShopOrderExport::TOTAL_PRICE => $price,
+                ShopOrderExport::TOTAL_REFUND => $refund,
+                ShopOrderExport::ORDER_STATUS => $status,
+                ShopOrderExport::PAY_CHANNEL => $paymentChannel,
+            );
+
+            $excelBody[] = $body;
+        }
+
+        $headers = [
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_ORDER_NO, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_SHOP, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_ORDER_TIME, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_PRODUCT_TYPE, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_USER, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_TOTAL_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_REFUND, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_STATUS, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_CHANNEL, array(), null, $language),
+        ];
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, null, 'A2');
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:K1')->getFont()->setBold(true);
+        $phpExcelObject->getActiveSheet()->getStyle('D2:D'.$phpExcelObject->getActiveSheet()->getHighestRow())
+            ->getAlignment()->setWrapText(true);
+        $phpExcelObject->getActiveSheet()->getStyle('E2:E'.$phpExcelObject->getActiveSheet()->getHighestRow())
+            ->getAlignment()->setWrapText(true);
+        $phpExcelObject->getActiveSheet()->getStyle('G2:G'.$phpExcelObject->getActiveSheet()->getHighestRow())
+            ->getAlignment()->setWrapText(true);
+
+        $phpExcelObject->getActiveSheet()->insertNewRowBefore($phpExcelObject->getActiveSheet()->getHighestRow() + 1, 1);
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '统计-----');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '日期');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $start.' - '.$end);
+
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '总订单数量');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $orderCount);
+
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '总金销售额');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $total);
+
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '退款订单数量');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $refundOrderCount);
+
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '退款总金额');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $totalRefund);
+
+        $phpExcelObject->getActiveSheet()->insertNewRowBefore($phpExcelObject->getActiveSheet()->getHighestRow() + 1, 1);
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '销售商品数表');
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('o'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('Shop Orders');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $date = new \DateTime('now');
+        $stringDate = $date->format('Y-m-d');
+
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'shop_orders_'.$stringDate.'.xls'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Method({"GET"})
+     * @Route("/orders/{id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminShopOrderByIdAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderById($id);
+
+        // check user permission
+        $this->checkAdminOrderPermission(
+            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+            array(
+                ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
+            ),
+            $order->getShopId()
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setData($order);
+
+        return $view;
+    }
+
+    /**
+     * authenticate with web browser cookie.
+     */
+    private function authenticateAdminCookie()
+    {
+        $cookie_name = 'sandbox_admin_token';
+        if (!isset($_COOKIE[$cookie_name])) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $token = $_COOKIE[$cookie_name];
+        $adminToken = $this->getRepo('Shop\ShopAdminToken')->findOneByToken($token);
+        if (is_null($adminToken)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        return $adminToken->getAdminId();
+    }
+
+    /**
      * @param $oldOrder
      */
     private function refundAdminShopOrder(
         $oldOrder
     ) {
-        $userId = $oldOrder->getUserId();
-        $oldPrice = $oldOrder->getPrice();
-        $newOrderId = $oldOrder->getLinkedOrderId();
-
-        if (is_null($newOrderId)) {
-            $refund = $oldPrice;
-        } else {
-            $newOrder = $this->findEntityById($newOrderId, 'Shop\ShopOrder');
-            $newPrice = $newOrder->getPrice();
-
-            if ($oldPrice <= $newPrice) {
-                return;
-            } else {
-                $refund = $oldPrice - $newPrice;
-            }
-        }
-
         $balance = $this->postBalanceChange(
-            $userId,
-            $refund,
+            $oldOrder->getUserId(),
+            $oldOrder->getRefundAmount(),
             $oldOrder->getOrderNumber(),
             self::PAYMENT_CHANNEL_ACCOUNT,
             0,

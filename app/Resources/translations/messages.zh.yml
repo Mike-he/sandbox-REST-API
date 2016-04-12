@@ -63,6 +63,34 @@ product_order:
     email: 租赁人邮箱
     channel: 支付渠道
 
+shop_order:
+  channel:
+    wx: 微信支付
+    upacp: 银联支付
+    alipay: 支付宝支付
+    account: 余额支付
+  status:
+    unpaid: 未付款
+    paid: 已付款
+    completed: 已完成
+    cancelled: 已取消
+    ready: 可领取
+    issue: 问题订单
+    waiting: 待退款
+    refunded: 已退款
+  export_header:
+    order_number: 订单号
+    shop: 店铺
+    order_time: 下单时间
+    product_name: 商品名
+    product_type: 商品类型
+    user: 购买者
+    amount: 数量
+    total_price: 订单价格
+    refund: 退款金额
+    status: 订单状态
+    channel: 支付渠道
+
 user:
   hobby:
     sports: 运动

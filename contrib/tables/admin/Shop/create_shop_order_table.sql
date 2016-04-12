@@ -5,6 +5,7 @@ CREATE TABLE `ShopOrder` (
   `payChannel` varchar(16),
   `userId` int(11) NOT NULL,
   `price` DECIMAL PRECISION 10 SCALE 2 NOT NULL,
+  `refundAmount` DECIMAL PRECISION 10 SCALE 2 NOT NULL,
   `status` varchar(64) NOT NULL,
   `paymentDate` datetime NOT NULL,
   `cancelledDate` datetime NOT NULL,
