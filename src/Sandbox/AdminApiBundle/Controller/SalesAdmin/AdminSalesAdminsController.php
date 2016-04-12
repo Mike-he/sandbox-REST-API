@@ -178,8 +178,19 @@ class AdminSalesAdminsController extends SandboxRestController
         $admins = $this->getRepo('SalesAdmin\SalesAdmin')->findBy($filters);
         foreach ($admins as $admin) {
             $buildingCounts = $this->getRepo('Room\RoomBuilding')->countSalesBuildings($admin->getCompanyId());
+            $shopAdminCounts = $this->getRepo('Shop\ShopAdmin')->countShopAdmins($admin->getCompanyId());
 
+            $admin->setShopAdminCounts((int) $shopAdminCounts);
             $admin->setBuildingCounts((int) $buildingCounts);
+
+            // new pending building
+            $pendingBuilding = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
+                'companyId' => $admin->getCompanyId(),
+                'status' => RoomBuilding::STATUS_PENDING,
+            ));
+            if (!is_null($pendingBuilding)) {
+                $admin->setHasPendingBuilding(true);
+            }
         }
 
         $paginator = new Paginator();
@@ -607,13 +618,17 @@ class AdminSalesAdminsController extends SandboxRestController
             $building->setStatus($buildingStatus);
 
             // set products & buildings visible
-            if ($platformAdminBanned) {
-                $building->setVisible($buildingVisible);
-
-                $this->hideAllProductsByBuilding(
-                    $building
-                );
+            if (!$platformAdminBanned) {
+                continue;
             }
+
+            // building offline
+            $building->setVisible($buildingVisible);
+
+            // hide all products by buildings
+            $this->hideAllProductsByBuilding(
+                $building
+            );
 
             // set shops
             $shops = $this->getRepo('Shop\Shop')->findByBuilding($building);

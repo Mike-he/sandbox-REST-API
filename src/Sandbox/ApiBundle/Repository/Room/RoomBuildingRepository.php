@@ -24,8 +24,10 @@ class RoomBuildingRepository extends EntityRepository
 
         // query by key words
         if (!is_null($query)) {
-            $buildingsQuery->where('rb.name LIKE :query')
-                ->andWhere('rb.address LIKE :query')
+            $buildingsQuery->where('
+                (rb.name LIKE :query OR
+                rb.address LIKE :query)
+            ')
                 ->setParameter('query', $query.'%');
 
             $notFirst = true;
@@ -134,8 +136,10 @@ class RoomBuildingRepository extends EntityRepository
 
         // query by key words
         if (!is_null($query)) {
-            $buildingsQuery->where('rb.name LIKE :query')
-                ->andWhere('rb.address LIKE :query')
+            $buildingsQuery->where('
+                (rb.name LIKE :query OR
+                rb.address LIKE :query)
+            ')
                 ->setParameter('query', $query.'%');
 
             $notFirst = true;

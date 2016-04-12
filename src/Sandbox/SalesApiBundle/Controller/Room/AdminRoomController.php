@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomDoors;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
 use Sandbox\ApiBundle\Entity\Room\RoomMeeting;
@@ -645,14 +646,24 @@ class AdminRoomController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $buildingId = $room->getBuildingId();
+
         // check user permission
         $this->checkAdminRoomPermission(
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             array(
                 SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
-            $room->getBuildingId()
+            $buildingId
         );
+
+        $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
+            'id' => $buildingId,
+            'status' => RoomBuilding::STATUS_ACCEPT,
+        ));
+        if (is_null($building)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
 
         $meeting = $form['room_meeting']->getData();
         $fixed = $form['room_fixed']->getData();

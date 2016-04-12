@@ -17,7 +17,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
  *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopAdminRepository")
  */
 class ShopAdmin implements UserInterface
 {

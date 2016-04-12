@@ -425,10 +425,10 @@ class ProductRepository extends EntityRepository
         //Search product by city, building, room name and room number.
         if (!is_null($search)) {
             $where = '
-                r.name LIKE :search OR
+                (r.name LIKE :search OR
                 r.number LIKE :search OR
                 rc.name LIKE :search OR
-                rb.name LIKE :search
+                rb.name LIKE :search)
             ';
             $this->addWhereQuery($query, $notFirst, $where);
             $parameters['search'] = "%$search%";
@@ -866,10 +866,10 @@ class ProductRepository extends EntityRepository
         //Search product by city, building, room name and room number.
         if (!is_null($search)) {
             $where = '
-                r.name LIKE :search OR
+                (r.name LIKE :search OR
                 r.number LIKE :search OR
                 rc.name LIKE :search OR
-                rb.name LIKE :search
+                rb.name LIKE :search)
             ';
             $this->addWhereQuery($query, $notFirst, $where);
             $parameters['search'] = "%$search%";
