@@ -105,7 +105,7 @@ class Event
     /**
      * @var string
      *
-     * @ORM\Column(name="address", type="integer", nullable=true)
+     * @ORM\Column(name="address", type="string", length=255, nullable=true)
      * @Serializer\Groups({
      *      "main",
      *      "admin_event",
