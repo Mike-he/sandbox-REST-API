@@ -661,6 +661,10 @@ class AdminShopOrderController extends ShopController
                         $orderProductSpecItem = $this->getRepo('Shop\ShopOrderProductSpecItem')
                             ->findOneBySpecId($orderProductSpec->getId());
 
+                        if (is_null($orderProductSpecItem)) {
+                            continue;
+                        }
+
                         $amount = $orderProductSpecItem->getAmount();
                         $itemInfo = json_decode($orderProductSpecItem->getShopProductSpecItemInfo(), true);
 
