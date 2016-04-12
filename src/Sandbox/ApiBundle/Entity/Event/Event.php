@@ -84,26 +84,11 @@ class Event
     /**
      * @var int
      *
-     * @ORM\Column(name="buildingId", type="integer", nullable=false)
+     * @ORM\Column(name="buildingId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */
     private $buildingId;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="buildingId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
-     * })
-     * @Serializer\Groups({
-     *      "main",
-     *      "admin_event",
-     *      "client_event"
-     * })
-     */
-    private $building;
 
     /**
      * @var int
@@ -116,6 +101,18 @@ class Event
      * })
      */
     private $roomId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address", type="integer", nullable=true)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event",
+     *      "client_event"
+     * })
+     */
+    private $address;
 
     /**
      * @var int
@@ -413,30 +410,6 @@ class Event
     }
 
     /**
-     * Set building.
-     *
-     * @param $building
-     *
-     * @return \Sandbox\ApiBundle\Entity\Room\RoomBuilding
-     */
-    public function setBuilding($building)
-    {
-        $this->building = $building;
-
-        return $this;
-    }
-
-    /**
-     * Get building.
-     *
-     * @return Event
-     */
-    public function getBuilding()
-    {
-        return $this->building;
-    }
-
-    /**
      * Set roomId.
      *
      * @param int $roomId
@@ -458,6 +431,22 @@ class Event
     public function getRoomId()
     {
         return $this->roomId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
     }
 
     /**

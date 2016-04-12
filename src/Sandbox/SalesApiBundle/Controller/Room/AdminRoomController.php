@@ -660,6 +660,7 @@ class AdminRoomController extends SalesRestController
         $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
             'id' => $buildingId,
             'status' => RoomBuilding::STATUS_ACCEPT,
+            'visible' => true,
         ));
         if (is_null($building)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
