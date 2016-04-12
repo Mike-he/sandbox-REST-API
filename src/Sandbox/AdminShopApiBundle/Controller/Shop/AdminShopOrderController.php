@@ -592,7 +592,9 @@ class AdminShopOrderController extends ShopController
             array(
                 ShopAdminPermission::KEY_SHOP_ORDER,
                 ShopAdminPermission::KEY_SHOP_KITCHEN,
-            )
+            ),
+            null,
+            $adminId
         );
 
         // get my shop ids
@@ -626,17 +628,19 @@ class AdminShopOrderController extends ShopController
             $myShopIds
         );
 
-        $excelBody = array();
+        $excelBody = [];
         $orderCount = 0;
         $total = 0;
         $refundOrderCount = 0;
         $totalRefund = 0;
+        $productArray = [];
 
         // set excel body
         foreach ($orders as $order) {
             $amountString = '';
             $menuString = '';
             $productString = '';
+            $productTemp = [];
 
             $orderNumber = $order->getOrderNumber();
             $shopName = $order->getShop()->getName();
@@ -658,9 +662,34 @@ class AdminShopOrderController extends ShopController
                             ->findOneBySpecId($orderProductSpec->getId());
 
                         $amount = $orderProductSpecItem->getAmount();
+                        $itemInfo = json_decode($orderProductSpecItem->getShopProductSpecItemInfo(), true);
+
+                        $price = $amount * $itemInfo['price'];
 
                         $amountString .= $amount."\n";
                     }
+                }
+
+                $productId = $shopProductInfo['id'];
+
+                $productInfo = [
+                    'id' => $productId,
+                    'name' => $productName,
+                    'amount' => $amount,
+                    'price' => $price,
+                ];
+
+                for ($i = 0; $i < count($productTemp); ++$i) {
+                    if ($productTemp[$i]['id'] == $productId) {
+                        $productTemp[$i]['amount'] = $productTemp[$i]['amount'] + $amount;
+                        $productTemp[$i]['price'] = $productTemp[$i]['price'] + $price;
+                    } else {
+                        array_push($productTemp, $productInfo);
+                    }
+                }
+
+                if (empty($productTemp)) {
+                    array_push($productTemp, $productInfo);
                 }
 
                 $menuString .= $menuName."\n";
@@ -697,6 +726,8 @@ class AdminShopOrderController extends ShopController
                 } else {
                     $total += $price;
                 }
+
+                $productArray = array_merge($productArray, $productTemp);
             } elseif ($statusKey == ShopOrder::STATUS_REFUNDED) {
                 ++$refundOrderCount;
 
@@ -776,6 +807,19 @@ class AdminShopOrderController extends ShopController
 
         $phpExcelObject->getActiveSheet()->insertNewRowBefore($phpExcelObject->getActiveSheet()->getHighestRow() + 1, 1);
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '销售商品数表');
+
+        $bodyArray = [];
+        foreach ($productArray as $item) {
+            $body = array(
+                'name' => $item['name'],
+                'amount' => $item['amount'],
+                'price' => $item['price'],
+            );
+
+            $bodyArray[] = $body;
+        }
+
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($bodyArray, null, 'B'.($phpExcelObject->getActiveSheet()->getHighestRow() + 1));
 
         //set column dimension
         for ($col = ord('a'); $col <= ord('o'); ++$col) {
@@ -877,6 +921,7 @@ class AdminShopOrderController extends ShopController
     }
 
     /**
+     * @param $adminId
      * @param $opLevel
      * @param $permissions
      * @param $shopId
@@ -884,10 +929,15 @@ class AdminShopOrderController extends ShopController
     private function checkAdminOrderPermission(
         $opLevel,
         $permissions,
-        $shopId = null
+        $shopId = null,
+        $adminId = null
     ) {
+        if (is_null($adminId)) {
+            $adminId = $this->getAdminId();
+        }
+
         $this->throwAccessDeniedIfShopAdminNotAllowed(
-            $this->getAdminId(),
+            $adminId,
             ShopAdminType::KEY_PLATFORM,
             $permissions,
             $opLevel,
