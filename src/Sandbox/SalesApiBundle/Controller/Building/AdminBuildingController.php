@@ -413,25 +413,63 @@ class AdminBuildingController extends LocationController
         }
 
         if (!$visible) {
-            // hide all shops
-            $this->getRepo('Shop\Shop')->setShopOffline($building);
+            // hide products
+            $this->hideProductsByBuilding(
+                $building
+            );
 
-            // hide all of the products
-            $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
-
-            if (empty($products)) {
-                $em->flush();
-            }
-
-            foreach ($products as $product) {
-                $product->setVisible(false);
-            }
+            // hide shops
+            $this->hideShopByBuilding(
+                $building
+            );
         } else {
             // recover valid productions' visible status
             $this->getRepo('Product\Product')->setVisibleTrue($building);
         }
 
         $em->flush();
+    }
+
+    /**
+     * @param $building
+     */
+    private function hideProductsByBuilding(
+        $building
+    ) {
+        // hide all of the products
+        $products = $this->getRepo('Product\Product')->getSalesProductsByBuilding($building);
+
+        if (empty($products)) {
+            return;
+        }
+
+        foreach ($products as $product) {
+            $product->setVisible(false);
+        }
+    }
+
+    /**
+     * @param $building
+     */
+    private function hideShopByBuilding(
+        $building
+    ) {
+        // hide all shops
+        $this->getRepo('Shop\Shop')->setShopOffline($building);
+
+        // set shops
+        $shops = $this->getRepo('Shop\Shop')->findByBuilding($building);
+
+        if (empty($shops)) {
+            return;
+        }
+
+        foreach ($shops as $shop) {
+            // set shop products offline
+            $this->getRepo('Shop\ShopProduct')->setShopProductsOfflineByShopId(
+                $shop->getId()
+            );
+        }
     }
 
     /**
