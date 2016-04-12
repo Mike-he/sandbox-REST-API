@@ -20,8 +20,6 @@ class EventPutType extends AbstractType
             ->add('description')
             ->add('dates')
             ->add('city_id')
-            ->add('building_id')
-            ->add('room_id')
             ->add('address')
             ->add('limit_number')
             ->add(
