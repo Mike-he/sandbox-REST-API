@@ -644,7 +644,13 @@ class AdminShopOrderController extends ShopController
 
             $orderNumber = $order->getOrderNumber();
             $shopName = $order->getShop()->getName();
-            $orderTime = $order->getPaymentDate()->format('Y-m-d H:i:s');
+
+            $orderTime = null;
+            $paymentDate = $order->getPaymentDate();
+
+            if (!is_null($paymentDate)) {
+                $orderTime = $order->getPaymentDate()->format('Y-m-d H:i:s');
+            }
 
             $orderProducts = $order->getShopOrderProducts();
             foreach ($orderProducts as $orderProduct) {
@@ -660,6 +666,10 @@ class AdminShopOrderController extends ShopController
                     if ($shopProductSpecInfo['spec']['has_inventory']) {
                         $orderProductSpecItem = $this->getRepo('Shop\ShopOrderProductSpecItem')
                             ->findOneBySpecId($orderProductSpec->getId());
+
+                        if (is_null($orderProductSpecItem)) {
+                            continue;
+                        }
 
                         $amount = $orderProductSpecItem->getAmount();
                         $itemInfo = json_decode($orderProductSpecItem->getShopProductSpecItemInfo(), true);
