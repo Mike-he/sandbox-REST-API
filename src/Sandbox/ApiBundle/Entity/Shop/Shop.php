@@ -115,10 +115,10 @@ class Shop implements JsonSerializable
     /**
      * @var bool
      *
-     * @ORM\Column(name="close", type="boolean", options={"default": false})
+     * @ORM\Column(name="close", type="boolean", options={"default": true})
      * @Serializer\Groups({"main", "admin_shop", "client_shop"})
      */
-    private $close = false;
+    private $close = true;
 
     /**
      * @var bool
