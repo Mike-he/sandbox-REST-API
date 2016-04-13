@@ -25,7 +25,10 @@ class ShopController extends ShopRestController
     public function findShopById(
         $id
     ) {
-        $shop = $this->getRepo('Shop\Shop')->find($id);
+        $shop = $this->getRepo('Shop\Shop')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
         $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
 
         return $shop;
