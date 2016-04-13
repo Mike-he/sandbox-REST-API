@@ -231,6 +231,16 @@ class AdminShopController extends ShopController
      *    description="Filter by building"
      * )
      *
+     *  @Annotations\QueryParam(
+     *    name="platform",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    requirements="(kitchen)",
+     *    description="Filter by platform"
+     * )
+     *
      * @Method({"GET"})
      * @Route("/shops")
      *
@@ -249,12 +259,23 @@ class AdminShopController extends ShopController
             )
         );
 
-        $shopIds = $this->getMyShopIds(
-            $this->getAdminId(),
-            array(
-                ShopAdminPermission::KEY_SHOP_SHOP,
-            )
-        );
+        $platform = $paramFetcher->get('platform');
+
+        if ($platform == Shop::PLATFORM_KITCHEN) {
+            $shopIds = $this->getMyShopIds(
+                $this->getAdminId(),
+                array(
+                    ShopAdminPermission::KEY_SHOP_KITCHEN,
+                )
+            );
+        } else {
+            $shopIds = $this->getMyShopIds(
+                $this->getAdminId(),
+                array(
+                    ShopAdminPermission::KEY_SHOP_SHOP,
+                )
+            );
+        }
 
         $buildingId = $paramFetcher->get('building');
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(

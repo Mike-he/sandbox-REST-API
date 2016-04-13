@@ -29,6 +29,8 @@ class Shop implements JsonSerializable
     const CLOSED_CODE = 400002;
     const CLOSED_MESSAGE = 'This Shop Is Closed Currently';
 
+    const PLATFORM_KITCHEN = 'kitchen';
+
     /**
      * @var int
      *
