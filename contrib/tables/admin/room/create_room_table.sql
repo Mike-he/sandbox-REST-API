@@ -12,7 +12,6 @@ CREATE TABLE `Room` (
   `isDeleted` tinyint(1) NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
-  `RoomDoorsId` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `buildingId_number_UNIQUE` (`buildingId`,`number`),
   UNIQUE KEY `floorId_number_UNIQUE` (`floorId`,`number`),
