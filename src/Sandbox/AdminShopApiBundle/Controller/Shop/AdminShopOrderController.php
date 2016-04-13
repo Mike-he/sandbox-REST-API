@@ -693,25 +693,16 @@ class AdminShopOrderController extends ShopController
                 if ($statusKey == ShopOrder::STATUS_COMPLETED) {
                     $productId = $shopProductInfo['id'];
 
-                    $productInfo = [
-                        'id' => $productId,
-                        'menu_name' => $menuName,
-                        'name' => $productName,
-                        'amount' => $amount,
-                        'price' => $price,
-                    ];
-
-                    for ($i = 0; $i < count($productArray); ++$i) {
-                        if ($productArray[$i]['id'] == $productId) {
-                            $productArray[$i]['amount'] = $productArray[$i]['amount'] + $amount;
-                            $productArray[$i]['price'] = $productArray[$i]['price'] + $price;
-                        } else {
-                            array_push($productArray, $productInfo);
-                        }
-                    }
-
-                    if (empty($productArray)) {
-                        array_push($productArray, $productInfo);
+                    if (array_key_exists("$productId", $productArray)) {
+                        $productArray[$productId]['amount'] += $amount;
+                        $productArray[$productId]['price'] += $price;
+                    } else {
+                        $productArray["$productId"] = [
+                            'menu_name' => $menuName,
+                            'name' => $productName,
+                            'amount' => $amount,
+                            'price' => $price,
+                        ];
                     }
                 }
 
@@ -821,6 +812,7 @@ class AdminShopOrderController extends ShopController
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '销售商品数表');
 
         $bodyArray = [];
+
         foreach ($productArray as $item) {
             $body = array(
                 'menu_name' => $item['menu_name'],
