@@ -154,6 +154,7 @@ class LocationController extends SalesRestController
         $user = $this->getUser();
 
         $cityId = $paramFetcher->get('city');
+        $permissionArray = $paramFetcher->get('permission');
 
         // get all buildings
         $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
@@ -183,7 +184,9 @@ class LocationController extends SalesRestController
                 $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
 
                 // get buildings by admin type
-                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER) {
+                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER ||
+                    in_array(ShopAdminPermission::KEY_PLATFORM_SHOP, $permissionArray)
+                ) {
                     $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
                         $cityId,
                         null,
