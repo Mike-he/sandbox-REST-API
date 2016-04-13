@@ -43,6 +43,7 @@ class ShopRepository extends EntityRepository
             $this->addWhereQuery($query, $notFirst, $where);
 
             $query->setParameter('active', true);
+            $notFirst = true;
         }
 
         // filter online shops
@@ -51,6 +52,7 @@ class ShopRepository extends EntityRepository
             $this->addWhereQuery($query, $notFirst, $where);
 
             $query->setParameter('online', true);
+            $notFirst = true;
         }
 
         // filter by shop ids
@@ -59,14 +61,20 @@ class ShopRepository extends EntityRepository
             $this->addWhereQuery($query, $notFirst, $where);
 
             $query->setParameter('shopIds', $shopIds);
+            $notFirst = true;
         }
+
+        // filter by shop deleted
+        $where = 's.isDeleted = FALSE';
+        $this->addWhereQuery($query, $notFirst, $where);
 
         return $query->getQuery()->getResult();
     }
 
     /**
      * @param $shopId
-     * @param bool|true $allowed
+     * @param bool|true $active
+     * @param bool|true $online
      *
      * @return array
      */
@@ -77,6 +85,7 @@ class ShopRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('s')
             ->where('s.id = :shopId')
+            ->andWhere('s.isDeleted = FALSE')
             ->setParameter('shopId', $shopId);
 
         // check if only can see shops currently open
@@ -188,6 +197,24 @@ class ShopRepository extends EntityRepository
             ->update()
             ->set('s.online', 'FALSE')
             ->set('s.close', 'TRUE')
+            ->where('s.building = :building')
+            ->setParameter('building', $building)
+            ->getQuery();
+
+        $query->execute();
+    }
+
+    /**
+     * @param $building
+     */
+    public function setShopDeleted(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->update()
+            ->set('s.online', 'FALSE')
+            ->set('s.close', 'TRUE')
+            ->set('s.isDeleted', 'TRUE')
             ->where('s.building = :building')
             ->setParameter('building', $building)
             ->getQuery();

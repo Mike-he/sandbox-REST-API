@@ -139,6 +139,14 @@ class Shop implements JsonSerializable
     private $active = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDeleted", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building"})
+     */
+    private $isDeleted = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -404,6 +412,22 @@ class Shop implements JsonSerializable
     public function getBuilding()
     {
         return $this->building;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     */
+    public function setIsDeleted($isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
     }
 
     /**

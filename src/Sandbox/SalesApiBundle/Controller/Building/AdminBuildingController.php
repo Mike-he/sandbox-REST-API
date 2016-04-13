@@ -527,6 +527,16 @@ class AdminBuildingController extends LocationController
             }
         }
 
+        // delete all of the shops
+        $this->getRepo('Shop\Shop')->setShopDeleted(
+            $building
+        );
+
+        // delete all of the shop products
+        $this->getRepo('Shop\ShopProduct')->setShopProductsDeletedByBuilding(
+            $building
+        );
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
