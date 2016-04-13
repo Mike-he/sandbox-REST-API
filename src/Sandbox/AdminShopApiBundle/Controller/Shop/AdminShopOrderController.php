@@ -640,7 +640,6 @@ class AdminShopOrderController extends ShopController
             $amountString = '';
             $menuString = '';
             $productString = '';
-            $productTemp = [];
 
             $orderNumber = $order->getOrderNumber();
             $shopName = $order->getShop()->getName();
@@ -651,6 +650,15 @@ class AdminShopOrderController extends ShopController
             if (!is_null($paymentDate)) {
                 $orderTime = $order->getPaymentDate()->format('Y-m-d H:i:s');
             }
+
+            // set status
+            $statusKey = $order->getStatus();
+            $status = $this->get('translator')->trans(
+                ShopOrderExport::TRANS_SHOP_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
+            );
 
             $orderProducts = $order->getShopOrderProducts();
             foreach ($orderProducts as $orderProduct) {
@@ -680,26 +688,29 @@ class AdminShopOrderController extends ShopController
                     }
                 }
 
-                $productId = $shopProductInfo['id'];
+                if ($statusKey == ShopOrder::STATUS_COMPLETED) {
+                    $productId = $shopProductInfo['id'];
 
-                $productInfo = [
-                    'id' => $productId,
-                    'name' => $productName,
-                    'amount' => $amount,
-                    'price' => $price,
-                ];
+                    $productInfo = [
+                        'id' => $productId,
+                        'menu_name' => $menuName,
+                        'name' => $productName,
+                        'amount' => $amount,
+                        'price' => $price,
+                    ];
 
-                for ($i = 0; $i < count($productTemp); ++$i) {
-                    if ($productTemp[$i]['id'] == $productId) {
-                        $productTemp[$i]['amount'] = $productTemp[$i]['amount'] + $amount;
-                        $productTemp[$i]['price'] = $productTemp[$i]['price'] + $price;
-                    } else {
-                        array_push($productTemp, $productInfo);
+                    for ($i = 0; $i < count($productArray); ++$i) {
+                        if ($productArray[$i]['id'] == $productId) {
+                            $productArray[$i]['amount'] = $productArray[$i]['amount'] + $amount;
+                            $productArray[$i]['price'] = $productArray[$i]['price'] + $price;
+                        } else {
+                            array_push($productArray, $productInfo);
+                        }
                     }
-                }
 
-                if (empty($productTemp)) {
-                    array_push($productTemp, $productInfo);
+                    if (empty($productArray)) {
+                        array_push($productArray, $productInfo);
+                    }
                 }
 
                 $menuString .= $menuName."\n";
@@ -711,15 +722,6 @@ class AdminShopOrderController extends ShopController
 
             $price = $order->getPrice();
             $refund = $order->getRefundAmount();
-
-            // set status
-            $statusKey = $order->getStatus();
-            $status = $this->get('translator')->trans(
-                ShopOrderExport::TRANS_SHOP_ORDER_STATUS.$statusKey,
-                array(),
-                null,
-                $language
-            );
 
             if ($statusKey == ShopOrder::STATUS_COMPLETED) {
                 ++$orderCount;
@@ -736,8 +738,6 @@ class AdminShopOrderController extends ShopController
                 } else {
                     $total += $price;
                 }
-
-                $productArray = array_merge($productArray, $productTemp);
             } elseif ($statusKey == ShopOrder::STATUS_REFUNDED) {
                 ++$refundOrderCount;
 
@@ -804,16 +804,16 @@ class AdminShopOrderController extends ShopController
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $start.' - '.$end);
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '总订单数量');
-        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $orderCount);
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $orderCount.'笔');
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '总金销售额');
-        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $total);
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $total.'元');
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '退款订单数量');
-        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $refundOrderCount);
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $refundOrderCount.'笔');
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '退款总金额');
-        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $totalRefund);
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $totalRefund.'元');
 
         $phpExcelObject->getActiveSheet()->insertNewRowBefore($phpExcelObject->getActiveSheet()->getHighestRow() + 1, 1);
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '销售商品数表');
@@ -821,15 +821,16 @@ class AdminShopOrderController extends ShopController
         $bodyArray = [];
         foreach ($productArray as $item) {
             $body = array(
+                'menu_name' => $item['menu_name'],
                 'name' => $item['name'],
-                'amount' => $item['amount'],
-                'price' => $item['price'],
+                'amount' => $item['amount'].'个',
+                'price' => $item['price'].'元',
             );
 
             $bodyArray[] = $body;
         }
 
-        $phpExcelObject->setActiveSheetIndex(0)->fromArray($bodyArray, null, 'B'.($phpExcelObject->getActiveSheet()->getHighestRow() + 1));
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($bodyArray, null, 'A'.($phpExcelObject->getActiveSheet()->getHighestRow() + 1));
 
         //set column dimension
         for ($col = ord('a'); $col <= ord('o'); ++$col) {
