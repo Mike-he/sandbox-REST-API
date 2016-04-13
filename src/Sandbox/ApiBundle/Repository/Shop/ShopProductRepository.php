@@ -66,6 +66,9 @@ class ShopProductRepository extends EntityRepository
 
     /**
      * @param $shopId
+     * @param $menuId
+     * @param $online
+     * @param $search
      *
      * @return array
      */
@@ -80,6 +83,8 @@ class ShopProductRepository extends EntityRepository
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = m.shopId')
             ->where('p.invisible = :invisible')
             ->andWhere('s.id = :shopId')
+            ->andWhere('s.isDeleted = FALSE')
+            ->andWhere('p.isDeleted = FALSE')
             ->orderBy('p.sortTime', 'DESC')
             ->setParameter('invisible', false)
             ->setParameter('shopId', $shopId);
@@ -220,6 +225,34 @@ class ShopProductRepository extends EntityRepository
             ->update()
             ->set('p.online', 'TRUE')
             ->set('p.isOfflineByShop', 'FALSE')
+            ->where('p.id IN (:ids)')
+            ->setParameter('ids', $productIds);
+
+        $query->getQuery()->execute();
+    }
+
+    /**
+     * @param $building
+     */
+    public function setShopProductsDeletedByBuilding(
+        $building
+    ) {
+        // get valid products
+        $queryProducts = $this->createQueryBuilder('p')
+            ->join('SandboxApiBundle:Shop\ShopMenu', 'm', 'WITH', 'm.id = p.menuId')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = m.shopId')
+            ->select('p.id')
+            ->where('s.building = :building')
+            ->setParameter('building', $building);
+
+        $productIds = $queryProducts->getQuery()->getResult();
+        $productIds = array_map('current', $productIds);
+
+        $query = $this->createQueryBuilder('p')
+            ->update()
+            ->set('p.isDeleted', 'TRUE')
+            ->set('p.online', 'FALSE')
+            ->set('p.invisible', 'TRUE')
             ->where('p.id IN (:ids)')
             ->setParameter('ids', $productIds);
 
