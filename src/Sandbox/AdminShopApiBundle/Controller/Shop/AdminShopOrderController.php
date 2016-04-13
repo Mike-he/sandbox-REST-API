@@ -350,6 +350,8 @@ class AdminShopOrderController extends ShopController
                     $data['item']->setInventory($data['inventory'] + $data['amount']);
                 }
 
+                $order->setRefundAmount($order->getPrice());
+
                 break;
             case ShopOrder::STATUS_REFUNDED:
                 // check user permission

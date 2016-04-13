@@ -50,6 +50,7 @@ class Version20160229165917_14611_feature extends AbstractMigration
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.product','商品管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.access','门禁管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
         $this->addSql("INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.sales','销售方管理','2016-03-01 00:00:00','2016-03-01 00:00:00')");
+        $this->addSql("INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.finance','财务管理','2016-03-01 00:00:00','2016-03-01 00:00:00');");
     }
 
     /**
