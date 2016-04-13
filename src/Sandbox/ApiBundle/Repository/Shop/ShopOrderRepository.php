@@ -68,6 +68,7 @@ class ShopOrderRepository extends EntityRepository
 
         if (!is_null($end) && !empty($end)) {
             $end = new \DateTime($end);
+            $end->setTime(23, 59, 59);
             $query = $query->andWhere('o.paymentDate <= :end')
                 ->setParameter('end', $end);
         }
