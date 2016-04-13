@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
+use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth;
@@ -70,6 +71,7 @@ class LocationController extends SalesRestController
         $user = $this->getUser();
 
         $all = $paramFetcher->get('all');
+        $permissionArray = $paramFetcher->get('permission');
 
         // get all cities
         $cities = $this->getRepo('Room\RoomCity')->findAll();
@@ -90,7 +92,9 @@ class LocationController extends SalesRestController
                 $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
 
                 // get cities by admin type
-                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER) {
+                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER || 
+                    in_array(ShopAdminPermission::KEY_PLATFORM_SHOP, $permissionArray)
+                ) {
                     $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($admin->getCompanyId());
                     $myBuildingIds = array_map('current', $myBuildings);
 
