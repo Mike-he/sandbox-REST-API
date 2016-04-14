@@ -116,4 +116,61 @@ class ProductController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
     }
+
+
+    /**
+     * @param int    $roomNumber
+     * @param int    $buildingId
+     * @param array  $ids
+     * @param string $type
+     *
+     * @throws BadRequestHttpException
+     */
+    protected function postSalesPriceRule(
+        $roomNumber,
+        $buildingId,
+        $ids,
+        $type
+    ) {
+        // get auth
+        $headers = apache_request_headers();
+        $auth = $headers['Authorization'];
+
+        $globals = $this->container->get('twig')->getGlobals();
+
+        $typeUrl = null;
+
+        switch ($type) {
+            case 'include':
+                $typeUrl = $globals['crm_api_sales_admin_price_rule_include'];
+                break;
+            case 'exclude':
+                $typeUrl = $globals['crm_api_sales_admin_price_rule_exclude'];
+                break;
+            default:
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].$typeUrl;
+        $apiUrl = preg_replace('/{buildingId}.*?/', "$buildingId", $apiUrl);
+        $apiUrl = preg_replace('/{roomNo}.*?/', "$roomNumber", $apiUrl);
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $this->callAPI(
+            $ch,
+            'POST',
+            array('Authorization: '.$auth),
+            json_encode($ids)
+        );
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if ($httpCode != self::HTTP_STATUS_OK_NO_CONTENT) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        curl_close($ch);
+    }
 }
