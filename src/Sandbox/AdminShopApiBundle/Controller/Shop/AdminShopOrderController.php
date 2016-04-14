@@ -460,6 +460,14 @@ class AdminShopOrderController extends ShopController
         $oldOrder->setLinkedOrder($order);
         $oldOrder->setStatus(ShopOrder::STATUS_TO_BE_REFUNDED);
 
+        // restock inventory
+        $inventoryData = $this->getRepo('Shop\ShopOrderProduct')
+            ->getShopOrderProductInventory($id);
+
+        foreach ($inventoryData as $data) {
+            $data['item']->setInventory($data['inventory'] + $data['amount']);
+        }
+
         $newPrice = $order->getPrice();
         $oldPrice = $oldOrder->getPrice();
         if ($newPrice < $oldPrice) {
