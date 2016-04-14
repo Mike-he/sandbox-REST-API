@@ -658,7 +658,7 @@ class AdminShopController extends ShopController
         $em
     ) {
         $permission = $this->getRepo('Shop\ShopAdminPermission')->findOneByKey(
-            ShopAdminPermission::KEY_PLATFORM_SHOP
+            ShopAdminPermission::KEY_SHOP_SHOP
         );
 
         // add permissions
