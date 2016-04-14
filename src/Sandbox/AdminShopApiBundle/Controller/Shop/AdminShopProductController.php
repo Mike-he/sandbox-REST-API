@@ -727,6 +727,16 @@ class AdminShopProductController extends ShopProductController
 
             $shopSpecItem = $this->findEntityById($productSpecItem->getShopSpecItemId(), 'Shop\ShopSpecItem');
 
+            // set inventory to zero if negative
+            if ($productSpecItem->getInventory() < 0) {
+                $productSpecItem->setInventory(0);
+            }
+
+            // set price to zero if negative
+            if ($productSpecItem->getPrice() < 0) {
+                $productSpecItem->setPrice(0);
+            }
+
             $productSpecItem->setProductSpec($productSpec);
             $productSpecItem->setShopSpecItem($shopSpecItem);
 
