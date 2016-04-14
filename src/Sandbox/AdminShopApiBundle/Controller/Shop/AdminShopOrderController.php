@@ -512,10 +512,9 @@ class AdminShopOrderController extends ShopController
      *
      * @Annotations\QueryParam(
      *    name="status",
-     *    array=true,
+     *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="{|paid|ready|completed|issue|waiting|refunded|}",
      *    strict=true,
      *    description="Filter by status"
      * )
