@@ -71,10 +71,10 @@ shop_order:
     account: 余额支付
   status:
     unpaid: 未付款
-    paid: 已付款
+    paid: 待处理
     completed: 已完成
     cancelled: 已取消
-    ready: 可领取
+    ready: 待领取
     issue: 问题订单
     waiting: 待退款
     refunded: 已退款
