@@ -618,6 +618,10 @@ class AdminShopOrderController extends ShopController
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Sandbox Shop Orders');
 
+        if (!is_null($status) && !empty($status)) {
+            $status = explode(',', $status);
+        }
+
         $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrders(
             $shopId,
             $status,
