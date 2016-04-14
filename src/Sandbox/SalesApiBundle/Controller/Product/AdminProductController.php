@@ -667,10 +667,10 @@ class AdminProductController extends ProductController
     ) {
         //add price rules
         if (!is_null($rule_include) && !empty($rule_include)) {
-            self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
+            self::postSalesPriceRule($roomNumber, $buildingId, $rule_include, 'include');
         }
         if (!is_null($rule_exclude) && !empty($rule_exclude)) {
-            self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
+            self::postSalesPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
         }
     }
 
@@ -687,7 +687,7 @@ class AdminProductController extends ProductController
         $rule_exclude
     ) {
         //edit price rules
-        self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
-        self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
+        self::postSalesPriceRule($roomNumber, $buildingId, $rule_include, 'include');
+        self::postSalesPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
     }
 }
