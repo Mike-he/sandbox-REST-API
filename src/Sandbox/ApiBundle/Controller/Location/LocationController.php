@@ -92,7 +92,7 @@ class LocationController extends SalesRestController
                 $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
 
                 // get cities by admin type
-                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER || 
+                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER ||
                     in_array(ShopAdminPermission::KEY_PLATFORM_SHOP, $permissionArray)
                 ) {
                     $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($admin->getCompanyId());
@@ -369,15 +369,23 @@ class LocationController extends SalesRestController
         );
 
         if ($addon == 'shop') {
-            foreach ($buildings as $building) {
+            $count = count($buildings);
+
+            for ($i = 0; $i < $count; ++$i) {
                 $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(
-                    $building->getId(),
+                    $buildings[$i]->getId(),
                     true,
                     true
                 );
 
-                $building->setShops($shops);
+                if (empty($shops)) {
+                    unset($buildings[$i]);
+                } else {
+                    $buildings[$i]->setShops($shops);
+                }
             }
+
+            $buildings = array_values($buildings);
         }
 
         $view = new View();

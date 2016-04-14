@@ -117,7 +117,6 @@ class ProductController extends SalesRestController
         }
     }
 
-
     /**
      * @param int    $roomNumber
      * @param int    $buildingId
