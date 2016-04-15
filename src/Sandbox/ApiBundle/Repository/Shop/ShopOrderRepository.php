@@ -141,15 +141,14 @@ class ShopOrderRepository extends EntityRepository
         $time = new \DateTime($time);
 
         $query = $this->createQueryBuilder('o')
-            ->select('COUNT(o)')
             ->where('o.status = :paid')
             ->andWhere('o.shopId = :shopId')
-            ->andWhere('o.modificationDate >= :time')
+            ->andWhere('o.paymentDate >= :time')
             ->setParameter('paid', ShopOrder::STATUS_PAID)
             ->setParameter('time', $time)
             ->setParameter('shopId', $shopId)
             ->getQuery();
 
-        return $query->getSingleScalarResult();
+        return $query->getResult();
     }
 }

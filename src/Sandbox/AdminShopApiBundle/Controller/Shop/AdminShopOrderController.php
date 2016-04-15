@@ -77,10 +77,11 @@ class AdminShopOrderController extends ShopController
 
         $shop = $this->findEntityById($shopId, 'Shop\Shop');
 
-        $count = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderCount($shopId, $time);
+        $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderCount($shopId, $time);
 
         $view = new View();
-        $view->setData(['count' => (int) $count]);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setData($orders);
 
         return $view;
     }
