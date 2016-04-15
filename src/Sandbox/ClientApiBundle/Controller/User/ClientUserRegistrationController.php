@@ -241,6 +241,9 @@ class ClientUserRegistrationController extends UserRegistrationController
         // update db
         $em->flush();
 
+        // post user account to internal api
+        $this->postUserAccount($user->getId());
+
         // response
         $view = new View($responseArray);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
@@ -324,9 +327,6 @@ class ClientUserRegistrationController extends UserRegistrationController
             // generate user
             $user = $this->generateUser($email, $phone, $password, $registration->getId());
             $em->persist($user);
-
-            // post user account to internal api
-            $this->postUserAccount($user->getId());
 
             // create default profile
             $profile = new UserProfile();
