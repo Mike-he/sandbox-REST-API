@@ -400,9 +400,6 @@ class AdminShopSpecController extends SpecController
             $specItem->setSpec($spec);
 
             $em->persist($specItem);
-
-            // check spec item conflict
-            $this->findConflictShopSpecItem($specItem);
         }
     }
 
@@ -442,9 +439,6 @@ class AdminShopSpecController extends SpecController
             }
 
             $specItem->setName($specData->getName());
-
-            // check spec item conflict
-            $this->findConflictShopSpecItem($specItem);
         }
     }
 
@@ -525,9 +519,6 @@ class AdminShopSpecController extends SpecController
             $specItem->setSpec($spec);
 
             $em->persist($specItem);
-
-            // check spec item conflict
-            $this->findConflictShopSpecItem($specItem);
         }
 
         $em->flush();
@@ -546,29 +537,12 @@ class AdminShopSpecController extends SpecController
             [
                 'companyId' => $companyId,
                 'name' => $spec->getName(),
+                'invisible' => false,
             ]
         );
 
         if (!is_null($sameSpec)) {
             throw new ConflictHttpException(ShopSpec::SHOP_SPEC_CONFLICT_MESSAGE);
-        }
-    }
-
-    /**
-     * @param $shop
-     */
-    private function findConflictShopSpecItem(
-        $item
-    ) {
-        $sameItem = $this->getRepo('Shop\ShopSpecItem')->findOneBy(
-            [
-                'spec' => $item->getSpec(),
-                'name' => $item->getName(),
-            ]
-        );
-
-        if (!is_null($sameItem)) {
-            throw new ConflictHttpException(ShopSpecItem::SHOP_SPEC_ITEM_CONFLICT_MESSAGE);
         }
     }
 
