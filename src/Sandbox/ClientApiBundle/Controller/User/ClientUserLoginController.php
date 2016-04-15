@@ -64,13 +64,15 @@ class ClientUserLoginController extends UserLoginController
         $globals = $this->getGlobals();
 
         $customerPhone = $globals['customer_service_phone'];
+        $translated = $this->get('translator')->trans(self::ERROR_ACCOUNT_BANNED_MESSAGE);
+        $bannedMessage = $translated.$customerPhone;
 
         if ($user->isBanned()) {
             // user is banned
             return $this->customErrorView(
                 401,
                 self::ERROR_ACCOUNT_BANNED_CODE,
-                self::ERROR_ACCOUNT_BANNED_MESSAGE.$customerPhone
+                $bannedMessage
             );
         }
 
