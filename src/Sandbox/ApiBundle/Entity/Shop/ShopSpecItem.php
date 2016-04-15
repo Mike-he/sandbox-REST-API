@@ -9,12 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * ShopSpecItem.
  *
- * @ORM\Table(
- *     name="ShopSpecItem",
- *     uniqueConstraints={
- *      @ORM\UniqueConstraint(name="specId_name_UNIQUE", columns={"specId", "name"})
- *     }
- * )
+ * @ORM\Table(name="ShopSpecItem")
  * @ORM\Entity
  */
 class ShopSpecItem implements JsonSerializable
