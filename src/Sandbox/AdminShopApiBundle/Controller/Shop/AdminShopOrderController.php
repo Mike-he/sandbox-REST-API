@@ -68,7 +68,7 @@ class AdminShopOrderController extends ShopController
      *
      * @throws \Exception
      */
-    public function getShopOrderCountByTimeAction(
+    public function getShopOrdersByTimeAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -77,7 +77,10 @@ class AdminShopOrderController extends ShopController
 
         $shop = $this->findEntityById($shopId, 'Shop\Shop');
 
-        $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderCount($shopId, $time);
+        $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrdersByTime(
+            $shopId,
+            $time
+        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));

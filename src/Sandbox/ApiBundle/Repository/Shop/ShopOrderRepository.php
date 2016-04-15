@@ -134,7 +134,7 @@ class ShopOrderRepository extends EntityRepository
      *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getAdminShopOrderCount(
+    public function getAdminShopOrdersByTime(
         $shopId,
         $time
     ) {
