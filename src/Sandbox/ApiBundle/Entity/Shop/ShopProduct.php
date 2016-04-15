@@ -10,12 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * ShopProduct.
  *
- * @ORM\Table(
- *     name="ShopProduct",
- *     uniqueConstraints={
- *         @ORM\UniqueConstraint(name="menuId_name_UNIQUE", columns={"menuId", "name"})
- *     }
- * )
+ * @ORM\Table(name="ShopProduct")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopProductRepository")
  */
 class ShopProduct implements JsonSerializable
