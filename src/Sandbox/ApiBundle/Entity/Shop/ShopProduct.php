@@ -99,14 +99,6 @@ class ShopProduct implements JsonSerializable
     private $isOfflineByShop = false;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="isDeleted", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main"})
-     */
-    private $isDeleted = false;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -531,22 +523,6 @@ class ShopProduct implements JsonSerializable
     public function setIsOfflineByShop($isOfflineByShop)
     {
         $this->isOfflineByShop = $isOfflineByShop;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDeleted()
-    {
-        return $this->isDeleted;
-    }
-
-    /**
-     * @param bool $isDeleted
-     */
-    public function setIsDeleted($isDeleted)
-    {
-        $this->isDeleted = $isDeleted;
     }
 
     public function __construct()

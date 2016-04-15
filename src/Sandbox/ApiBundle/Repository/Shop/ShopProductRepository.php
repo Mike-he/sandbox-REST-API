@@ -84,7 +84,6 @@ class ShopProductRepository extends EntityRepository
             ->where('p.invisible = :invisible')
             ->andWhere('s.id = :shopId')
             ->andWhere('s.isDeleted = FALSE')
-            ->andWhere('p.isDeleted = FALSE')
             ->orderBy('p.sortTime', 'DESC')
             ->setParameter('invisible', false)
             ->setParameter('shopId', $shopId);
@@ -250,7 +249,6 @@ class ShopProductRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('p')
             ->update()
-            ->set('p.isDeleted', 'TRUE')
             ->set('p.online', 'FALSE')
             ->set('p.invisible', 'TRUE')
             ->where('p.id IN (:ids)')
