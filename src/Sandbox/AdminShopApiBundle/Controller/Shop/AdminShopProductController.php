@@ -791,6 +791,7 @@ class AdminShopProductController extends ShopProductController
             [
                 'menu' => $product->getMenu(),
                 'name' => $product->getName(),
+                'invisible' => false,
             ]
         );
 
