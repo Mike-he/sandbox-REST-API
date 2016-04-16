@@ -294,7 +294,7 @@ class AdminShopOrderController extends ShopController
 
         switch ($status) {
             case ShopOrder::STATUS_READY:
-                if ($oldStatus !== ShopOrder::STATUS_PAID) {
+                if ($oldStatus != ShopOrder::STATUS_PAID) {
                     return $this->customErrorView(
                         400,
                         ShopOrder::NOT_PAID_CODE,
@@ -311,7 +311,7 @@ class AdminShopOrderController extends ShopController
 
                 break;
             case ShopOrder::STATUS_COMPLETED:
-                if ($oldStatus !== ShopOrder::STATUS_READY) {
+                if ($oldStatus != ShopOrder::STATUS_READY) {
                     return $this->customErrorView(
                         400,
                         ShopOrder::NOT_READY_CODE,
@@ -321,7 +321,7 @@ class AdminShopOrderController extends ShopController
 
                 break;
             case ShopOrder::STATUS_ISSUE:
-                if ($oldStatus !== ShopOrder::STATUS_READY && $oldStatus !== ShopOrder::STATUS_PAID) {
+                if ($oldStatus != ShopOrder::STATUS_READY && $oldStatus !== ShopOrder::STATUS_PAID) {
                     return $this->customErrorView(
                         400,
                         ShopOrder::NOT_READY_OR_PAID_CODE,
@@ -338,7 +338,7 @@ class AdminShopOrderController extends ShopController
 
                 break;
             case ShopOrder::STATUS_TO_BE_REFUNDED:
-                if ($oldStatus !== ShopOrder::STATUS_ISSUE) {
+                if ($oldStatus != ShopOrder::STATUS_ISSUE) {
                     return $this->customErrorView(
                         400,
                         ShopOrder::NOT_ISSUE_CODE,
@@ -355,7 +355,6 @@ class AdminShopOrderController extends ShopController
                 }
 
                 $refund = $order->getPrice();
-                $order->setRefundAmount($refund);
 
                 if ($order->IsUnoriginal()) {
                     $originalOrder = $this->getRepo('Shop\ShopOrder')->findOneBy(
@@ -365,9 +364,13 @@ class AdminShopOrderController extends ShopController
                         ]
                     );
 
-                    $originalRefund = $originalOrder->getRefundAmount();
+                    if (!is_null($originalOrder)) {
+                        $originalRefund = $originalOrder->getRefundAmount();
 
-                    $originalOrder->setRefundAmount($refund + $originalRefund);
+                        $originalOrder->setRefundAmount($refund + $originalRefund);
+                    }
+                } else {
+                    $order->setRefundAmount($refund);
                 }
 
                 break;
@@ -381,7 +384,7 @@ class AdminShopOrderController extends ShopController
                     $order->getShopId()
                 );
 
-                if ($oldStatus !== ShopOrder::STATUS_TO_BE_REFUNDED) {
+                if ($oldStatus != ShopOrder::STATUS_TO_BE_REFUNDED) {
                     return $this->customErrorView(
                         400,
                         ShopOrder::NOT_TO_BE_REFUNDED_CODE,
