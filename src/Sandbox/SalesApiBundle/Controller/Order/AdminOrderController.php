@@ -924,7 +924,8 @@ class AdminOrderController extends OrderController
             $calculatedPrice = $basePrice * $period;
 
             if ($order->getPrice() != $calculatedPrice) {
-                return $this->setErrorArray(
+                return $this->customErrorView(
+                    400,
                     self::PRICE_MISMATCH_CODE,
                     self::PRICE_MISMATCH_MESSAGE
                 );
@@ -950,6 +951,41 @@ class AdminOrderController extends OrderController
                     $error['code'],
                     $error['message']
                 );
+            }
+
+            // check for discount rule and price
+            $ruleId = $order->getRuleId();
+
+            if (!is_null($ruleId) && !empty($ruleId)) {
+                $isRenew = $order->getIsRenew();
+                $result = $this->getDiscountPriceForOrder(
+                    $ruleId,
+                    $productId,
+                    $period,
+                    $startDate,
+                    $endDate,
+                    $isRenew
+                );
+
+                if (is_null($result)) {
+                    return $this->customErrorView(
+                        400,
+                        self::PRICE_RULE_DOES_NOT_EXIST_CODE,
+                        self::PRICE_RULE_DOES_NOT_EXIST_MESSAGE
+                    );
+                }
+
+                if (array_key_exists('bind_product_id', $result['rule'])) {
+                    $order->setMembershipBindId($result['rule']['bind_product_id']);
+                }
+
+                if (array_key_exists('rule_name', $result['rule'])) {
+                    $order->setRuleName($result['rule']['rule_name']);
+                }
+
+                if (array_key_exists('rule_description', $result['rule'])) {
+                    $order->setRuleDescription($result['rule']['rule_description']);
+                }
             }
 
             $order->setAdminId($adminId);
