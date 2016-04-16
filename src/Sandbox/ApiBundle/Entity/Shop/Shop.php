@@ -102,7 +102,7 @@ class Shop implements JsonSerializable
      * @var \DateTime
      *
      * @ORM\Column(name="startHour", type="time", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop", "shop_nearby"})
      */
     private $startHour;
 
@@ -110,7 +110,7 @@ class Shop implements JsonSerializable
      * @var \DateTime
      *
      * @ORM\Column(name="endHour", type="time", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop", "shop_nearby"})
      */
     private $endHour;
 
@@ -118,7 +118,7 @@ class Shop implements JsonSerializable
      * @var bool
      *
      * @ORM\Column(name="close", type="boolean", options={"default": true})
-     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop", "shop_nearby"})
      */
     private $close = true;
 

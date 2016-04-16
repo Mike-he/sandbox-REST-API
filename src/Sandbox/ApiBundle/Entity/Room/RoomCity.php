@@ -83,7 +83,8 @@ class RoomCity implements JsonSerializable
      *      "client_event",
      *      "current_order",
      *      "building_nearby",
-     *      "admin_building"
+     *      "admin_building",
+     *      "shop_nearby"
      * })
      */
     private $key;
