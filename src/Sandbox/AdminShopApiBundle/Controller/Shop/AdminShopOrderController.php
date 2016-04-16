@@ -354,7 +354,21 @@ class AdminShopOrderController extends ShopController
                     $data['item']->setInventory($data['inventory'] + $data['amount']);
                 }
 
-                $order->setRefundAmount($order->getPrice());
+                $refund = $order->getPrice();
+                $order->setRefundAmount($refund);
+
+                if ($order->IsUnoriginal()) {
+                    $originalOrder = $this->getRepo('Shop\ShopOrder')->findOneBy(
+                        [
+                            'unoriginal' => false,
+                            'linkedOrderId' => $id,
+                        ]
+                    );
+
+                    $originalRefund = $originalOrder->getRefundAmount();
+
+                    $originalOrder->setRefundAmount($refund + $originalRefund);
+                }
 
                 break;
             case ShopOrder::STATUS_REFUNDED:
@@ -375,14 +389,16 @@ class AdminShopOrderController extends ShopController
                     );
                 }
 
-                $this->refundAdminShopOrder($order);
+                if ($order->getRefundAmount() > 0) {
+                    $this->refundAdminShopOrder($order);
 
-                $this->sendXmppShopNotification(
-                    ShopOrder::STATUS_REFUNDED,
-                    $user,
-                    $order->getOrderNumber(),
-                    $order->getId()
-                );
+                    $this->sendXmppShopNotification(
+                        ShopOrder::STATUS_REFUNDED,
+                        $user,
+                        $order->getOrderNumber(),
+                        $order->getId()
+                    );
+                }
 
                 break;
             default:
