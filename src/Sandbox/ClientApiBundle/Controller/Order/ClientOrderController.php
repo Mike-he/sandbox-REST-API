@@ -496,8 +496,11 @@ class ClientOrderController extends OrderController
             );
         }
 
+        $price = $order->getDiscountPrice();
+        $userId = $order->getUserId();
+
         // check if request user is the same as order user
-        $this->throwAccessDeniedIfNotSameUser($order->getUserId());
+        $this->throwAccessDeniedIfNotSameUser($userId);
 
         $now = new \DateTime();
         if ($order->getStatus() !== 'paid' || $order->getStartDate() <= $now) {
@@ -507,27 +510,21 @@ class ClientOrderController extends OrderController
                 self::WRONG_PAYMENT_STATUS_MESSAGE
             );
         }
-        $price = $order->getDiscountPrice();
-        $userId = $order->getUserId();
-        $balance = $this->postBalanceChange(
-            $userId,
-            $price,
-            $order->getOrderNumber(),
-            self::PAYMENT_CHANNEL_ACCOUNT,
-            0,
-            self::ORDER_REFUND
-        );
-        if (!is_null($balance)) {
-            $this->removeAccessByOrder($order);
-        }
-        $view = new View();
 
-        return $view->setData(
-            array(
-                'balance' => $balance,
-                'channel' => self::PAYMENT_CHANNEL_ACCOUNT,
-            )
-        );
+        if ($price > 0) {
+            $balance = $this->postBalanceChange(
+                $userId,
+                $price,
+                $order->getOrderNumber(),
+                self::PAYMENT_CHANNEL_ACCOUNT,
+                0,
+                self::ORDER_REFUND
+            );
+        }
+
+        $this->removeAccessByOrder($order);
+
+        return new View();
     }
 
     /**
@@ -833,6 +830,9 @@ class ClientOrderController extends OrderController
 
         $now = new \DateTime();
         $userId = $order->getUserId();
+
+        $this->throwAccessDeniedIfNotSameUser($userId);
+
         $type = $order->getProduct()->getRoom()->getType();
         $productId = $order->getProductId();
         $status = $order->getStatus();
