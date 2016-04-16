@@ -13,12 +13,14 @@ use Doctrine\ORM\EntityRepository;
 class ShopSpecRepository extends EntityRepository
 {
     /**
-     * @param $shopId
+     * @param $companyId
+     * @param $search
      *
      * @return array
      */
     public function getSpecsByCompany(
-        $companyId
+        $companyId,
+        $search
     ) {
         $query = $this->createQueryBuilder('ss')
             ->where('ss.companyId = :companyId')
@@ -28,6 +30,11 @@ class ShopSpecRepository extends EntityRepository
             ->setParameter('companyId', $companyId)
             ->setParameter('invisible', false)
             ->setParameter('auto', false);
+
+        if (!is_null($search)) {
+            $query->andWhere('ss.name LIKE :search')
+                ->setParameter('search', "%$search%");
+        }
 
         return $query->getQuery()->getResult();
     }
