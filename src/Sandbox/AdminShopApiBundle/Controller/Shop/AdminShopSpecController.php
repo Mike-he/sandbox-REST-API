@@ -103,6 +103,15 @@ class AdminShopSpecController extends SpecController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search spec by name"
+     * )
+     *
      * @return View
      *
      * @throws \Exception
@@ -121,7 +130,12 @@ class AdminShopSpecController extends SpecController
             )
         );
 
-        $specs = $this->getRepo('Shop\ShopSpec')->getSpecsByCompany($this->getCompanyId());
+        $search = $paramFetcher->get('search');
+
+        $specs = $this->getRepo('Shop\ShopSpec')->getSpecsByCompany(
+            $this->getCompanyId(),
+            $search
+        );
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
