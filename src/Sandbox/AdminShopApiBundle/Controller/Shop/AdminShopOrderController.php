@@ -440,6 +440,7 @@ class AdminShopOrderController extends ShopController
             [
                 'id' => $id,
                 'status' => ShopOrder::STATUS_ISSUE,
+                'unoriginal' => false,
             ]
         );
         $this->throwNotFoundIfNull($oldOrder, self::NOT_FOUND_MESSAGE);
