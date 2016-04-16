@@ -352,14 +352,8 @@ class AdminUsersController extends DoorController
             SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
 
-        // check sales users
-        $userIds = $this->getMySalesUserIds();
-        if (!in_array($id, $userIds)) {
-            return new View();
-        }
-
         // get user
-        $user = $this->getRepo('User\UserView')->find($id);
+        $user = $this->getRepo('User\User')->getUserInfo($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         // set view

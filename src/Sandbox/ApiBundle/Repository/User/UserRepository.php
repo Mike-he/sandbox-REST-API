@@ -160,4 +160,32 @@ class UserRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @param $userId
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getUserInfo(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                u.id,
+                u.phone,
+                u.email,
+                u.banned,
+                u.authorized,
+                u.cardNo,
+                up.name,
+                up.gender
+            ')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = u.id')
+            ->where('u.id = :userId')
+            ->setParameter('userId', $userId);
+
+        return $query->getQuery()->getOneOrNullResult();
+    }
 }
