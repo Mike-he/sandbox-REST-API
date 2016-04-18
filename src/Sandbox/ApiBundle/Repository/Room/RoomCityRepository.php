@@ -40,4 +40,21 @@ class RoomCityRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $companyId
+     *
+     * @return array
+     */
+    public function getSalesRoomCityByCompanyId(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'c.id = b.cityId')
+            ->where('b.companyId = :companyId')
+            ->andWhere('b.isDeleted = FALSE')
+            ->setParameter('companyId', $companyId);
+
+        return $query->getQuery()->getResult();
+    }
 }
