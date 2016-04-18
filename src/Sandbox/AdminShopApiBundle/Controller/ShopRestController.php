@@ -281,10 +281,9 @@ class ShopRestController extends PaymentController
 
             // check inventory
             $inventory = $shopProductSpecItem->getInventory();
+            $amount = $item->getAmount();
 
             if (!is_null($inventory)) {
-                $amount = $item->getAmount();
-
                 if ($amount > $inventory) {
                     $shopProductName = $shopProduct->getName();
                     $shopSpecName = $shopProductSpecItem->getShopSpecItem()->getSpec()->getName();
@@ -316,7 +315,11 @@ class ShopRestController extends PaymentController
                 continue;
             }
 
-            $itemPrice = $price * $item->getAmount();
+            if (is_null($amount) || empty($amount)) {
+                $amount = 1;
+            }
+
+            $itemPrice = $price * $amount;
             $calculatedPrice = $calculatedPrice + $itemPrice;
         }
 
