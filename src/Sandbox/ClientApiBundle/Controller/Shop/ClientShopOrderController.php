@@ -200,8 +200,8 @@ class ClientShopOrderController extends ShopRestController
         if ($order->getPrice() != $priceData->getProductPrice()) {
             return $this->customErrorView(
                 400,
-                self::DISCOUNT_PRICE_MISMATCH_CODE,
-                self::DISCOUNT_PRICE_MISMATCH_MESSAGE
+                self::PRICE_MISMATCH_CODE,
+                self::PRICE_MISMATCH_MESSAGE
             );
         }
 
