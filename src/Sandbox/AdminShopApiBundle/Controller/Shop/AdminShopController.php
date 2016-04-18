@@ -232,13 +232,12 @@ class AdminShopController extends ShopController
      * )
      *
      *  @Annotations\QueryParam(
-     *    name="platform",
+     *    name="permission",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    requirements="(kitchen)",
-     *    description="Filter by platform"
+     *    description="Filter by permission"
      * )
      *
      * @Method({"GET"})
