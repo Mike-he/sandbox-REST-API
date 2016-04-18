@@ -261,13 +261,16 @@ class AdminShopController extends ShopController
             )
         );
 
-        $platform = $paramFetcher->get('platform');
+        $permission = $paramFetcher->get('permission');
 
-        if ($platform == Shop::PLATFORM_KITCHEN) {
+        if (ShopAdminPermission::KEY_SHOP_ORDER == $permission ||
+            ShopAdminPermission::KEY_SHOP_PRODUCT == $permission ||
+            ShopAdminPermission::KEY_SHOP_KITCHEN == $permission
+        ) {
             $shopIds = $this->getMyShopIds(
                 $this->getAdminId(),
                 array(
-                    ShopAdminPermission::KEY_SHOP_KITCHEN,
+                    $permission,
                 )
             );
         } else {
