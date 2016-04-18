@@ -96,12 +96,12 @@ class AdminUsersController extends ShopRestController
 
         $userIds = [];
         foreach ($ids as $id) {
-            $user = $this->getRepo('SalesAdmin\SalesUser')->getShopUser(
+            $users = $this->getRepo('SalesAdmin\SalesUser')->getShopUser(
                 $id,
                 $shopIds
             );
 
-            if (!is_null($user)) {
+            if (!empty($users)) {
                 array_push($userIds, $id);
             }
         }
