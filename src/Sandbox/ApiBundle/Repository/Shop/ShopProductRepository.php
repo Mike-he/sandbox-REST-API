@@ -76,7 +76,9 @@ class ShopProductRepository extends EntityRepository
         $shopId,
         $menuId = null,
         $online = null,
-        $search = null
+        $search = null,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('p')
             ->join('SandboxApiBundle:Shop\ShopMenu', 'm', 'WITH', 'm.id = p.menuId')
@@ -102,6 +104,11 @@ class ShopProductRepository extends EntityRepository
         if (!is_null($search)) {
             $query->andWhere('p.id LIKE :search OR p.name LIKE :search')
                 ->setParameter('search', "%$search%");
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
         }
 
         $query = $query->getQuery();
