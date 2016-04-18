@@ -221,4 +221,25 @@ class ShopRepository extends EntityRepository
 
         $query->execute();
     }
+
+    /**
+     * @param $companyId
+     * 
+     * @return array
+     */
+    public function getShopIdsByCompany(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->select('s.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->where('b.companyId = :companyId')
+            ->andWhere('s.isDeleted = FALSE')
+            ->setParameter('companyId', $companyId);
+
+        $ids = $query->getQuery()->getResult();
+        $ids = array_map('current', $ids);
+
+        return $ids;
+    }
 }
