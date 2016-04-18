@@ -26,9 +26,7 @@ class SalesUserRepository extends EntityRepository
      * @param $userId
      * @param $shopIds
      *
-     * @return mixed
-     *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @return array
      */
     public function getShopUser(
         $userId,
@@ -40,6 +38,6 @@ class SalesUserRepository extends EntityRepository
             ->setParameter('userId', $userId)
             ->setParameter('shopIds', $shopIds);
 
-        return $query->getQuery()->getOneOrNullResult();
+        return $query->getQuery()->getResult();
     }
 }
