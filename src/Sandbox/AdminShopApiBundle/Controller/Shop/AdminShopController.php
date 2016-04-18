@@ -234,7 +234,7 @@ class AdminShopController extends ShopController
      *  @Annotations\QueryParam(
      *    name="permission",
      *    array=false,
-     *    default=""shop.shop.shop"",
+     *    default="shop.shop.shop",
      *    nullable=true,
      *    strict=true,
      *    description="Filter by permission"
