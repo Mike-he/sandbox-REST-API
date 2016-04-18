@@ -697,25 +697,6 @@ class AdminUsersController extends DoorController
             $salesUser->setModificationDate($now);
         }
 
-        // sync users by shop orders
-        $shopOrders = $this->getRepo('Shop\ShopOrder')->findAll();
-
-        foreach ($shopOrders as $order) {
-            $userId = $order->getUserId();
-            $buildingId = $order->getShop()->getBuildingId();
-            $companyId = $order->getShop()->getBuilding()->getCompanyId();
-
-            $salesUser = $this->checkSalesUser(
-                $em,
-                $userId,
-                $companyId,
-                $buildingId
-            );
-
-            $salesUser->setIsShopOrdered(true);
-            $salesUser->setModificationDate($now);
-        }
-
         $em->flush();
 
         return new View();
