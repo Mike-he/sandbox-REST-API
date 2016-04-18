@@ -2,8 +2,10 @@
 
 namespace Sandbox\AdminApiBundle\Controller\User;
 
+use Elastica\Param;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Entity\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -21,6 +23,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\StringUtil;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin controller.
@@ -609,5 +612,145 @@ class AdminUsersController extends DoorController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="building id"
+     * )
+     *
+     * @Route("/users/sync")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function syncSalesUsersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $now = new \DateTime('now');
+
+        $adminCompanyId = $paramFetcher->get('company');
+        $buildingId = $paramFetcher->get('building');
+
+        if (is_null($buildingId) || is_null($adminCompanyId)) {
+            throw new BadRequestHttpException();
+        }
+
+        // sync users by orders
+        $orders = $this->getRepo('Order\ProductOrder')->findAll();
+
+        foreach ($orders as $order) {
+            if (is_null($order)) {
+                continue;
+            }
+
+            $product = $this->getRepo('Product\Product')->find($order->getProductId());
+            $companyId = $product->getRoom()->getBuilding()->getCompanyId();
+            $buildingId = $product->getRoom()->getBuildingId();
+
+            $userId = $order->getUserId();
+
+            $salesUser = $this->checkSalesUser(
+                $em,
+                $userId,
+                $companyId,
+                $buildingId
+            );
+
+            $salesUser->setIsOrdered(true);
+            $salesUser->setModificationDate($now);
+        }
+
+        // sync users by authorization
+        $users = $this->getRepo('User\User')->findByAuthorized(true);
+
+        foreach ($users as $user) {
+            $userId = $user->getId();
+            $companyId = $adminCompanyId;
+
+            $salesUser = $this->checkSalesUser(
+                $em,
+                $userId,
+                $companyId,
+                $buildingId
+            );
+
+            $salesUser->setIsAuthorized(true);
+            $salesUser->setModificationDate($now);
+        }
+
+        // sync users by shop orders
+        $shopOrders = $this->getRepo('Shop\ShopOrder')->findAll();
+
+        foreach ($shopOrders as $order) {
+            $userId = $order->getUserId();
+            $buildingId = $order->getShop()->getBuildingId();
+            $companyId = $order->getShop()->getBuilding()->getCompanyId();
+
+            $salesUser = $this->checkSalesUser(
+                $em,
+                $userId,
+                $companyId,
+                $buildingId
+            );
+
+            $salesUser->setIsShopOrdered(true);
+            $salesUser->setModificationDate($now);
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param $em
+     * @param $userId
+     * @param $companyId
+     * @param $buildingId
+     *
+     * @return SalesUser
+     */
+    private function checkSalesUser(
+        $em,
+        $userId,
+        $companyId,
+        $buildingId
+    ) {
+        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneBy(array(
+            'userId' => $userId,
+            'companyId' => $companyId,
+            'buildingId' => $buildingId,
+        ));
+
+        if (is_null($salesUser)) {
+            $salesUser = new SalesUser();
+
+            $salesUser->setUserId($userId);
+            $salesUser->setCompanyId($companyId);
+            $salesUser->setBuildingId($buildingId);
+
+            $em->persist($salesUser);
+        }
+
+        return $salesUser;
     }
 }
