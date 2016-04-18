@@ -225,7 +225,7 @@ class AdminShopController extends ShopController
      * @Annotations\QueryParam(
      *    name="building",
      *    array=false,
-     *    default=null,
+     *    default="shop.shop.shop",
      *    nullable=true,
      *    strict=true,
      *    description="Filter by building"
@@ -262,24 +262,12 @@ class AdminShopController extends ShopController
 
         $permission = $paramFetcher->get('permission');
 
-        if (ShopAdminPermission::KEY_SHOP_ORDER == $permission ||
-            ShopAdminPermission::KEY_SHOP_PRODUCT == $permission ||
-            ShopAdminPermission::KEY_SHOP_KITCHEN == $permission
-        ) {
-            $shopIds = $this->getMyShopIds(
-                $this->getAdminId(),
-                array(
-                    $permission,
-                )
-            );
-        } else {
-            $shopIds = $this->getMyShopIds(
-                $this->getAdminId(),
-                array(
-                    ShopAdminPermission::KEY_SHOP_SHOP,
-                )
-            );
-        }
+        $shopIds = $this->getMyShopIds(
+            $this->getAdminId(),
+            array(
+                $permission,
+            )
+        );
 
         $buildingId = $paramFetcher->get('building');
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(
