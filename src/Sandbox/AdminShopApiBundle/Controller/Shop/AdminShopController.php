@@ -257,17 +257,24 @@ class AdminShopController extends ShopController
                 ShopAdminPermission::KEY_SHOP_KITCHEN,
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
                 ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_PLATFORM_ADMIN
             )
         );
+
+        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
 
         $permission = $paramFetcher->get('permission');
 
-        $shopIds = $this->getMyShopIds(
-            $this->getAdminId(),
-            array(
-                $permission,
-            )
-        );
+        if (ShopAdminPermission::KEY_PLATFORM_ADMIN == $permission) {
+            $shopIds = $this->getShopIdsByCompany($companyId);
+        } else {
+            $shopIds = $this->getMyShopIds(
+                $this->getAdminId(),
+                array(
+                    $permission,
+                )
+            );
+        }
 
         $buildingId = $paramFetcher->get('building');
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(
