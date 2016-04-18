@@ -256,6 +256,8 @@ class AdminShopController extends ShopController
             array(
                 ShopAdminPermission::KEY_SHOP_SHOP,
                 ShopAdminPermission::KEY_SHOP_KITCHEN,
+                ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_ORDER,
             )
         );
 
