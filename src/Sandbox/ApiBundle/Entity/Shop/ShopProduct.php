@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ShopProduct implements JsonSerializable
 {
     const SHOP_PRODUCT_CONFLICT_MESSAGE = 'Shop Product with this name already exist in this shop';
+    const PLATFORM_KITCHEN = 'kitchen';
 
     /**
      * @var int

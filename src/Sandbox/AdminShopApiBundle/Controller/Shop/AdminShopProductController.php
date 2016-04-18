@@ -100,6 +100,35 @@ class AdminShopProductController extends ShopProductController
      *    description="product online status true/false"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="platform",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="platform filter"
+     * )
+     *
      * @return View
      *
      * @throws \Exception
@@ -123,16 +152,22 @@ class AdminShopProductController extends ShopProductController
         $search = $paramFetcher->get('search');
         $menuId = $paramFetcher->get('menu');
         $online = $paramFetcher->get('online');
+        $platform = $paramFetcher->get('platform');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        if (ShopProduct::PLATFORM_KITCHEN == $platform) {
+            $online = true;
+        }
 
         $products = $this->getRepo('Shop\ShopProduct')->getShopProductsByShopId(
             $id,
             $menuId,
             $online,
-            $search
+            $search,
+            $limit,
+            $offset
          );
-
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
 
         $products = $this->get('serializer')->serialize(
             $products,
@@ -140,6 +175,13 @@ class AdminShopProductController extends ShopProductController
             SerializationContext::create()->setGroups(['product_view'])
         );
         $products = json_decode($products, true);
+
+        if (ShopProduct::PLATFORM_KITCHEN == $platform) {
+            return new View($products);
+        }
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
