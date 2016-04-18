@@ -355,6 +355,7 @@ class AdminRoomController extends SalesRestController
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 SalesAdminPermission::KEY_BUILDING_ROOM,
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
             )
         );
 
@@ -363,7 +364,9 @@ class AdminRoomController extends SalesRestController
             $this->getAdminId(),
             array(
                 SalesAdminPermission::KEY_BUILDING_ROOM,
-            )
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_EDIT
         );
 
         $type = $paramFetcher->get('type');
