@@ -636,7 +636,7 @@ class AdminUsersController extends DoorController
      * )
      *
      * @Route("/users/sync")
-     * @Method({"POST"})
+     * @Method({"GET"})
      *
      * @return View
      */
