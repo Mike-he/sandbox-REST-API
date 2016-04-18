@@ -86,9 +86,9 @@ class AdminUsersController extends DoorController
         $now = new \DateTime('now');
 
         $adminCompanyId = $paramFetcher->get('company');
-        $buildingId = $paramFetcher->get('building');
+        $adminBuildingId = $paramFetcher->get('building');
 
-        if (is_null($buildingId) || is_null($adminCompanyId)) {
+        if (is_null($adminBuildingId) || is_null($adminCompanyId)) {
             throw new BadRequestHttpException();
         }
 
@@ -128,7 +128,7 @@ class AdminUsersController extends DoorController
                 $em,
                 $userId,
                 $companyId,
-                $buildingId
+                $adminBuildingId
             );
 
             $salesUser->setIsAuthorized(true);
