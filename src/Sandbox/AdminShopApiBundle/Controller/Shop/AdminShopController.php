@@ -257,7 +257,7 @@ class AdminShopController extends ShopController
                 ShopAdminPermission::KEY_SHOP_KITCHEN,
                 ShopAdminPermission::KEY_SHOP_PRODUCT,
                 ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_PLATFORM_ADMIN
+                ShopAdminPermission::KEY_PLATFORM_ADMIN,
             )
         );
 

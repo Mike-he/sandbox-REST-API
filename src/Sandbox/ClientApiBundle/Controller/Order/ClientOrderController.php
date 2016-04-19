@@ -20,6 +20,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Rest controller for Client Orders.
@@ -824,14 +825,33 @@ class ClientOrderController extends OrderController
     ) {
         $appointed = $order->getAppointed();
         $appointedPerson = [];
+        $users = [];
+
         if (!is_null($appointed) && !empty($appointed)) {
+            array_push($users, $appointed);
             $appointedPerson = $this->getRepo('User\UserView')->find($appointed);
         }
 
         $now = new \DateTime();
         $userId = $order->getUserId();
+        $this->throwNotFoundIfNull($userId, self::NOT_FOUND_MESSAGE);
+        array_push($users, $userId);
 
-        $this->throwAccessDeniedIfNotSameUser($userId);
+        $currentUserId = $this->getUserId();
+
+        // find all invited
+        $invited = $this->getRepo('Order\InvitedPeople')->findOneBy(
+            [
+                'orderId' => $order->getId(),
+                'userId' => $currentUserId,
+            ]
+        );
+
+        if (is_null($invited)) {
+            if (!in_array($currentUserId, $users)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+        }
 
         $type = $order->getProduct()->getRoom()->getType();
         $productId = $order->getProductId();

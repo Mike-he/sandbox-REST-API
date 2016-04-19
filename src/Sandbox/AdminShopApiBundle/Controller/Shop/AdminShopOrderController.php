@@ -365,9 +365,7 @@ class AdminShopOrderController extends ShopController
                     );
 
                     if (!is_null($originalOrder)) {
-                        $originalRefund = $originalOrder->getRefundAmount();
-
-                        $originalOrder->setRefundAmount($refund + $originalRefund);
+                        $originalOrder->setRefundAmount($originalOrder->getPrice());
                     }
                 } else {
                     $order->setRefundAmount($refund);
