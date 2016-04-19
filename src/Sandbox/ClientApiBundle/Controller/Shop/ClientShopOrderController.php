@@ -325,9 +325,17 @@ class ClientShopOrderController extends ShopRestController
             $minutes = 0;
             $seconds = 0;
 
-            $order->setStatus('cancelled');
+            $order->setStatus(ShopOrder::STATUS_CANCELLED);
             $order->setCancelledDate($now);
             $order->setModificationDate($now);
+
+            // restock inventory
+            $inventoryData = $this->getRepo('Shop\ShopOrderProduct')
+                ->getShopOrderProductInventory($id);
+
+            foreach ($inventoryData as $data) {
+                $data['item']->setInventory($data['inventory'] + $data['amount']);
+            }
 
             $em = $this->getDoctrine()->getManager();
             $em->flush();
