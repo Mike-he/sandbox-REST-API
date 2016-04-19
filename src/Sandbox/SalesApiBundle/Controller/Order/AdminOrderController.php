@@ -957,15 +957,7 @@ class AdminOrderController extends OrderController
             $ruleId = $order->getRuleId();
 
             if (!is_null($ruleId) && !empty($ruleId)) {
-                $isRenew = $order->getIsRenew();
-                $result = $this->getDiscountPriceForOrder(
-                    $ruleId,
-                    $productId,
-                    $period,
-                    $startDate,
-                    $endDate,
-                    $isRenew
-                );
+                $result = $this->getSalesPriceRuleForOrder($ruleId);
 
                 if (is_null($result)) {
                     return $this->customErrorView(
@@ -975,16 +967,12 @@ class AdminOrderController extends OrderController
                     );
                 }
 
-                if (array_key_exists('bind_product_id', $result['rule'])) {
-                    $order->setMembershipBindId($result['rule']['bind_product_id']);
+                if (array_key_exists('rule_name', $result)) {
+                    $order->setRuleName($result['rule_name']);
                 }
 
-                if (array_key_exists('rule_name', $result['rule'])) {
-                    $order->setRuleName($result['rule']['rule_name']);
-                }
-
-                if (array_key_exists('rule_description', $result['rule'])) {
-                    $order->setRuleDescription($result['rule']['rule_description']);
+                if (array_key_exists('rule_description', $result)) {
+                    $order->setRuleDescription($result['rule_description']);
                 }
             }
 

@@ -712,6 +712,48 @@ class SandboxRestController extends FOSRestController
         return $result;
     }
 
+    /**
+     * @param $ruleId
+     * @param null $auth
+     *
+     * @return mixed|void
+     */
+    protected function getSalesPriceRuleForOrder(
+        $ruleId,
+        $auth = null
+    ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = apache_request_headers();
+            $auth = $headers['Authorization'];
+        }
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_sales_admin_price_rule_info'];
+        $apiUrl = preg_replace('/{rule_id}.*?/', "$ruleId", $apiUrl);
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: '.$auth)
+        );
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result;
+    }
+
     //--------------------common functions--------------------//
 
     /**
