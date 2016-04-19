@@ -143,7 +143,7 @@ class SandboxRestController extends FOSRestController
     protected function throwAccessDeniedIfNotSameUser(
         $userId
     ) {
-        if ($this->getUserId() !== $userId) {
+        if ($this->getUserId() != $userId) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
     }
