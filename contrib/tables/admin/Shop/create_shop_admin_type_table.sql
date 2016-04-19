@@ -7,3 +7,6 @@ CREATE TABLE `ShopAdminType` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `key_UNIQUE` (`key`)
 );
+
+INSERT INTO ShopAdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES('super','超级管理员','2016-03-01 00:00:00','2016-03-01 00:00:00');
+INSERT INTO ShopAdminType(`key`,`name`,`creationDate`,`modificationDate`) VALUES('platform','平台管理员','2016-03-01 00:00:00','2016-03-01 00:00:00');
