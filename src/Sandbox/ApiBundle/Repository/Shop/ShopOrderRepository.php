@@ -45,7 +45,8 @@ class ShopOrderRepository extends EntityRepository
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
             ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED);
 
-        if ($platform == ShopOrder::PLATFORM_BACKEND) {
+        if ($platform == ShopOrder::PLATFORM_BACKEND
+            && (is_null($search) || empty($search))) {
             $query = $query->andWhere('o.unoriginal = :unoriginal')
                 ->setParameter('unoriginal', false);
         }
@@ -77,11 +78,6 @@ class ShopOrderRepository extends EntityRepository
         if (!is_null($search) && !empty($search)) {
             $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
                 ->andWhere('o.orderNumber LIKE :search OR u.name LIKE :search')
-                ->andWhere('
-                    (o.unoriginal = TRUE)
-                    OR
-                    (o.unoriginal = FALSE)
-                ')
                 ->setParameter('search', "%$search%");
         }
 
