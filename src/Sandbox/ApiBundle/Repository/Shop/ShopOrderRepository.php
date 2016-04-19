@@ -91,7 +91,7 @@ class ShopOrderRepository extends EntityRepository
     {
         $now = new \DateTime();
         $start = clone $now;
-        $start->modify('-15 minutes');
+        $start->modify('-5 minutes');
 
         $query = $this->createQueryBuilder('o')
             ->where('o.status = :unpaid')
