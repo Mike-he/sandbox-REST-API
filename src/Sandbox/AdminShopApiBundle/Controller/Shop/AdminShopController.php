@@ -266,7 +266,7 @@ class AdminShopController extends ShopController
         $permission = $paramFetcher->get('permission');
 
         if (ShopAdminPermission::KEY_PLATFORM_ADMIN == $permission) {
-            $shopIds = $this->getShopIdsByCompany($companyId);
+            $shopIds = $this->getRepo('Shop\Shop')->getShopIdsByCompany($companyId);
         } else {
             $shopIds = $this->getMyShopIds(
                 $this->getAdminId(),
