@@ -202,6 +202,7 @@ class AdminShopOrderController extends ShopController
             $this->getAdminId(),
             array(
                 ShopAdminPermission::KEY_SHOP_ORDER,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             )
         );
 
