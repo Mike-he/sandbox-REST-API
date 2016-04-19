@@ -84,7 +84,8 @@ shop_order:
     order_time: 下单时间
     product_name: 商品名
     product_type: 商品类型
-    user: 购买者
+    phone: 购买者手机
+    email: 购买者邮箱
     amount: 数量
     total_price: 订单价格
     refund: 退款金额
