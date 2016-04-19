@@ -9,7 +9,8 @@ class ShopOrderExport
     const ORDER_TIME = 'order_time';
     const PRODUCT_NAME = 'product_name';
     const PRODUCT_TYPE = 'product_type';
-    const USER_NAME = 'user';
+    const USER_PHONE = 'phone';
+    const USER_EMAIL = 'email';
     const TOTAL_AMOUNT = 'amount';
     const TOTAL_PRICE = 'price';
     const TOTAL_REFUND = 'refund';
@@ -27,7 +28,8 @@ class ShopOrderExport
     const TRANS_SHOP_ORDER_HEADER_ORDER_TIME = 'shop_order.export_header.order_time';
     const TRANS_SHOP_ORDER_HEADER_PRODUCT_NAME = 'shop_order.export_header.product_name';
     const TRANS_SHOP_ORDER_HEADER_PRODUCT_TYPE = 'shop_order.export_header.product_type';
-    const TRANS_SHOP_ORDER_HEADER_USER = 'shop_order.export_header.user';
+    const TRANS_SHOP_ORDER_HEADER_USER_PHONE = 'shop_order.export_header.phone';
+    const TRANS_SHOP_ORDER_HEADER_USER_EMAIL = 'shop_order.export_header.email';
     const TRANS_SHOP_ORDER_HEADER_AMOUNT = 'shop_order.export_header.amount';
     const TRANS_SHOP_ORDER_HEADER_TOTAL_PRICE = 'shop_order.export_header.total_price';
     const TRANS_SHOP_ORDER_HEADER_REFUND = 'shop_order.export_header.refund';

@@ -63,6 +63,35 @@ product_order:
     email: Renter Email
     channel: Payment Channel
 
+shop_order:
+  channel:
+    wx: WechatPay
+    upacp: UnionPay
+    alipay: Alipay
+    account: Balance
+  status:
+    unpaid: Unpaid
+    paid: Paid
+    completed: Completed
+    cancelled: Cancelled
+    ready: Ready
+    issue: Issue
+    waiting: To be refunded
+    refunded: Refunded
+  export_header:
+    order_number: Order Number
+    shop: Shop
+    order_time: Order Time
+    product_name: Product Name
+    product_type: Product Category
+    phone: Consumer Phone
+    email: Consumer Email
+    amount: Amount
+    total_price: Price
+    refund: Refund
+    status: Status
+    channel: Payment Channel
+
 user:
   hobby:
     sports: Sports

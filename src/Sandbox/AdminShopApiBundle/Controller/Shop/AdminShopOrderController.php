@@ -755,8 +755,14 @@ class AdminShopOrderController extends ShopController
                 $productString .= $productName."\n";
             }
 
-            $user = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
-            $userName = $user->getName();
+            $user = $this->getRepo('User\User')->find($order->getUserId());
+
+            $phone = null;
+            $email = null;
+            if (!is_null($user)) {
+                $phone = $user->getPhone();
+                $email = $user->getEmail();
+            }
 
             $price = $order->getPrice();
             $refund = $order->getRefundAmount();
@@ -799,7 +805,8 @@ class AdminShopOrderController extends ShopController
                 ShopOrderExport::ORDER_TIME => $orderTime,
                 ShopOrderExport::PRODUCT_NAME => $productString,
                 ShopOrderExport::PRODUCT_TYPE => $menuString,
-                ShopOrderExport::USER_NAME => $userName,
+                ShopOrderExport::USER_PHONE => $phone,
+                ShopOrderExport::USER_EMAIL => $email,
                 ShopOrderExport::TOTAL_AMOUNT => $amountString,
                 ShopOrderExport::TOTAL_PRICE => $price,
                 ShopOrderExport::TOTAL_REFUND => $refund,
@@ -816,7 +823,8 @@ class AdminShopOrderController extends ShopController
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_ORDER_TIME, array(), null, $language),
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_PRODUCT_TYPE, array(), null, $language),
-            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_USER, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_USER_PHONE, array(), null, $language),
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_USER_EMAIL, array(), null, $language),
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_TOTAL_PRICE, array(), null, $language),
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_REFUND, array(), null, $language),
