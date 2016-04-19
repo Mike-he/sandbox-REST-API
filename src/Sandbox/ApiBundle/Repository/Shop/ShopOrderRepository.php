@@ -77,6 +77,11 @@ class ShopOrderRepository extends EntityRepository
         if (!is_null($search) && !empty($search)) {
             $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
                 ->andWhere('o.orderNumber LIKE :search OR u.name LIKE :search')
+                ->andWhere('
+                    (o.unoriginal = TRUE)
+                    OR
+                    (o.unoriginal = FALSE)
+                ')
                 ->setParameter('search', "%$search%");
         }
 

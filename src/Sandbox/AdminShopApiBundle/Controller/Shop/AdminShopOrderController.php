@@ -391,6 +391,17 @@ class AdminShopOrderController extends ShopController
                     );
                 }
 
+                $linkedOrder = $this->getRepo('Shop\ShopOrder')->findOneBy(
+                    [
+                        'unoriginal' => true,
+                        'linkedOrderId' => $id,
+                    ]
+                );
+
+                if (!is_null($linkedOrder) && ShopOrder::STATUS_TO_BE_REFUNDED == $linkedOrder->getStatus()) {
+                    $linkedOrder->setStatus(ShopOrder::STATUS_REFUNDED);
+                }
+
                 if ($order->getRefundAmount() > 0) {
                     $this->refundAdminShopOrder($order);
 
