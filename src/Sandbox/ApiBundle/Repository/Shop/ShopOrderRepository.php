@@ -85,6 +85,69 @@ class ShopOrderRepository extends EntityRepository
     }
 
     /**
+     * @param $shopId
+     * @param $status
+     * @param $start
+     * @param $end
+     * @param $sort
+     * @param $search
+     * @param $user
+     *
+     * @return array
+     */
+    public function getAdminShopOrdersForBackend(
+        $shopId,
+        $status,
+        $start,
+        $end,
+        $sort,
+        $search,
+        $user
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->orderBy('o.modificationDate', $sort);
+
+        if (is_null($search) || empty($search)) {
+            $query->where('o.unoriginal = :unoriginal')
+                ->setParameter('unoriginal', false);
+        } else {
+            $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
+                ->where('o.orderNumber LIKE :search OR u.name LIKE :search')
+                ->setParameter('search', "%$search%");
+        }
+
+        if (!is_null($shopId) && !empty($shopId)) {
+            $query = $query->andWhere('o.shopId = :shopId')
+                ->setParameter('shopId', $shopId);
+        }
+
+        if (!is_null($user) && !empty($user)) {
+            $query = $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $user);
+        }
+
+        if (!is_null($status) && !empty($status)) {
+            $query = $query->andWhere('o.status IN (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($start) && !empty($start)) {
+            $start = new \DateTime($start);
+            $query = $query->andWhere('o.paymentDate >= :start')
+                ->setParameter('start', $start);
+        }
+
+        if (!is_null($end) && !empty($end)) {
+            $end = new \DateTime($end);
+            $end->setTime(23, 59, 59);
+            $query = $query->andWhere('o.paymentDate <= :end')
+                ->setParameter('end', $end);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * get unpaid shop orders.
      */
     public function getUnpaidShopOrders()

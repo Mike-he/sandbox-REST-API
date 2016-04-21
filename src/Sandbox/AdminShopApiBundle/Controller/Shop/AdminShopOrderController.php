@@ -232,6 +232,7 @@ class AdminShopOrderController extends ShopController
         );
 
         $orders = $this->get('serializer')->serialize(
+
             $orders,
             'json',
             SerializationContext::create()->setGroups(['admin_shop'])
