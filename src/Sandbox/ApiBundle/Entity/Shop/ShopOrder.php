@@ -25,7 +25,7 @@ class ShopOrder
     const PAYMENT_SUBJECT = 'SANDBOX3-店铺订单';
     const PAYMENT_BODY = 'Shop Order';
     const READY_NOTIFICATION = '您的订单已做好, 请到柜台领取';
-    const REFUNDED_NOTIFICATION = '您的订单已退款, 点击查看';
+    const REFUNDED_NOTIFICATION = '您的订单已退款, 请查看您的创合账户';
     const ISSUE_NOTIFICATION = '您的订单有问题, 请到柜台查看';
     const PLATFORM_BACKEND = 'backend';
 
