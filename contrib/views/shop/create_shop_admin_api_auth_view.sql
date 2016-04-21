@@ -5,7 +5,7 @@ SELECT
 	`t`.`clientId` AS `clientId`,
 	`a`.`id` AS `adminId`,
 	`a`.`username` AS `username`
-FORM (
+FROM (
 	`ShopAdminToken` `t`
   JOIN `ShopAdmin` `a`
 	ON((`t`.`adminId` = `a`.`id`))

@@ -11,6 +11,7 @@ CREATE TABLE `SalesAdminPermission` (
   CONSTRAINT `fk_SalesAdminPermission_typeId` FOREIGN KEY (`typeId`) REFERENCES `SalesAdminType` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
+INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.platform.dashboard','控制台管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.platform.admin','管理员管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.platform.building','项目管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
 INSERT INTO SalesAdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'sales.building.price','价格模板管理','2016-03-01 00:00:00','2016-03-01 00:00:00');
