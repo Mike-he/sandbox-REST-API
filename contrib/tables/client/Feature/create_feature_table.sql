@@ -7,3 +7,4 @@ CREATE TABLE `Feature` (
 
 INSERT INTO Feature(`name`,`ready`) VALUES('food', false);
 INSERT INTO Feature(`name`,`ready`) VALUES('print', false);
+INSERT INTO Feature(`name`,`ready`) VALUES('coffee', false);
