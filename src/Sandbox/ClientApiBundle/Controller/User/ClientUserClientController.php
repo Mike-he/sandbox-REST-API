@@ -46,7 +46,6 @@ class ClientUserClientController extends SandboxRestController
 
         // insert data
         $em = $this->getDoctrine()->getManager();
-        $em->persist($client);
         $em->flush();
 
         return new View();
