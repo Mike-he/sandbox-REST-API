@@ -12,6 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Feature
 {
+    const FEATURE_FOOD = 'food';
+    const FEATURE_COFFEE = 'coffee';
+    const FEATURE_FORWARD = 'forward';
+
     /**
      * @var int
      *
