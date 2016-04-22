@@ -253,6 +253,13 @@ class AdminProductController extends ProductController
         $maxPrice = $paramFetcher->get('max_price');
         $permissions = $paramFetcher->get('permission');
 
+        // set default permission
+        if (is_null($permissions)) {
+            $permissions = array(
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+            );
+        }
+
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
