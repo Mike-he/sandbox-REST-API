@@ -204,6 +204,15 @@ class AdminProductController extends ProductController
      *    description="Filter by price maximum"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="permission",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="permission array"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -242,13 +251,12 @@ class AdminProductController extends ProductController
         $maxArea = $paramFetcher->get('max_area');
         $minPrice = $paramFetcher->get('min_price');
         $maxPrice = $paramFetcher->get('max_price');
+        $permissions = $paramFetcher->get('permission');
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
-            array(
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
-            )
+            $permissions
         );
 
         if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
