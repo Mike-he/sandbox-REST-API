@@ -8,3 +8,4 @@ CREATE TABLE `Feature` (
 INSERT INTO Feature(`name`,`ready`) VALUES('food', false);
 INSERT INTO Feature(`name`,`ready`) VALUES('print', false);
 INSERT INTO Feature(`name`,`ready`) VALUES('coffee', false);
+INSERT INTO Feature(`name`,`type`,`url`,`ready`) VALUES('coffee', 'web', 'https://cafe.sandbox3.cn', false);

@@ -13,6 +13,9 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class UserClient
 {
+    const CLIENT_IOS = 'sandbox ios';
+    const CLIENT_ANDROID = 'sandbox android';
+
     /**
      * @var int
      *
