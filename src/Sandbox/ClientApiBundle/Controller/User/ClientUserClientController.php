@@ -1,4 +1,5 @@
 <?php
+
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;

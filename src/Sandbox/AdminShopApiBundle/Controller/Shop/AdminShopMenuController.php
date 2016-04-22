@@ -265,7 +265,10 @@ class AdminShopMenuController extends ShopMenuController
             $em->persist($menu);
 
             // check menu conflict
-            $this->findConflictShopMenu($menu);
+            $this->findConflictShopMenu(
+                $shop->getId(),
+                $menu->getName()
+            );
         }
     }
 
@@ -306,7 +309,10 @@ class AdminShopMenuController extends ShopMenuController
 
             // check menu conflict
             if ($menu->getName() != $menuItem->getName()) {
-                $this->findConflictShopMenu($menu);
+                $this->findConflictShopMenu(
+                    $shopId,
+                    $menuItem->getName()
+                );
             }
 
             $menu->setName($menuItem->getName());
@@ -359,12 +365,13 @@ class AdminShopMenuController extends ShopMenuController
      * @throws ConflictHttpException
      */
     private function findConflictShopMenu(
-        $menu
+        $shopId,
+        $menuName
     ) {
         $sameMenu = $this->getRepo('Shop\ShopMenu')->findOneBy(
             [
-                'shop' => $menu->getShop(),
-                'name' => $menu->getName(),
+                'shopId' => $shopId,
+                'name' => $menuName,
             ]
         );
 
