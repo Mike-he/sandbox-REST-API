@@ -46,6 +46,13 @@ class FeatureController extends SandboxRestController
     public function getFeaturesAction(
         Request $request
     ) {
+        // get features
+        $features = $this->getRepo('Feature\Feature')->findAll();
+
+        if (!$this->isAuthProvided()) {
+            return new View($features);
+        }
+
         $user = $this->getUser();
         $role = $user->getRoles();
         $clientId = $user->getClientId();
@@ -77,8 +84,6 @@ class FeatureController extends SandboxRestController
             $currentClientVersion,
             $standardClientVersion
         );
-
-        $features = $this->getRepo('Feature\Feature')->findAll();
 
         foreach ($features as $feature) {
             if (Feature::FEATURE_FOOD == $feature->getName()) {
