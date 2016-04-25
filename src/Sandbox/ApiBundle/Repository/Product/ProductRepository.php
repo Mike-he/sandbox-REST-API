@@ -699,9 +699,11 @@ class ProductRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
             ->where('p.visible = :visible')
+            ->andWhere('p.private = :private')
             ->andWhere('p.recommend = :recommend')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('visible', true)
+            ->setParameter('private', false)
             ->setParameter('recommend', $recommend)
             ->setParameter('now', new \DateTime('now'));
 
