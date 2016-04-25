@@ -687,25 +687,34 @@ class ProductRepository extends EntityRepository
     }
 
     /**
+     * @param int      $userId
      * @param RoomCity $city
      * @param bool     $recommend
      *
      * @return int
      */
     public function getProductsRecommendCount(
+        $userId,
         $city,
         $recommend
     ) {
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
             ->where('p.visible = :visible')
-            ->andWhere('p.private = :private')
             ->andWhere('p.recommend = :recommend')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('visible', true)
-            ->setParameter('private', false)
             ->setParameter('recommend', $recommend)
             ->setParameter('now', new \DateTime('now'));
+
+        if (!is_null($userId)) {
+            $queryBuilder->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('userId', $userId)
+                ->setParameter('private', false);
+        } else {
+            $queryBuilder->andWhere('p.private = :private')
+                ->setParameter('private', false);
+        }
 
         if (!is_null($city)) {
             $queryBuilder->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
@@ -729,9 +738,16 @@ class ProductRepository extends EntityRepository
      * @param string       $sortBy
      * @param string       $direction
      * @param string       $search
+     * @param int          $floor
+     * @param int          $minSeat
+     * @param int          $maxSeat
+     * @param int          $minArea
+     * @param int          $maxArea
+     * @param float        $minPrice
+     * @param float        $maxPrice
      * @param bool         $recommend
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return array
      */
     public function getSalesAdminProducts(
         $myBuildingIds,
