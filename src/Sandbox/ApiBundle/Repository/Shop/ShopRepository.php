@@ -242,4 +242,21 @@ class ShopRepository extends EntityRepository
 
         return $ids;
     }
+
+    /**
+     * @param $companyId
+     *
+     * @return array
+     */
+    public function getShopsByCompany(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->where('b.companyId = :companyId')
+            ->andWhere('s.isDeleted = FALSE')
+            ->setParameter('companyId', $companyId);
+
+        return $query->getQuery()->getResult();
+    }
 }

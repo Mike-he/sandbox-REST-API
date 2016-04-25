@@ -191,9 +191,12 @@ class AdminSalesAdminsController extends SandboxRestController
             foreach ($admins as $admin) {
                 $buildingCounts = $this->getRepo('Room\RoomBuilding')->countSalesBuildings($admin->getCompanyId());
                 $shopAdminCounts = $this->getRepo('Shop\ShopAdmin')->countShopAdmins($admin->getCompanyId());
+                $shops = $this->getRepo('Shop\Shop')->getShopsByCompany($admin->getCompanyId());
+                $shopCounts = count($shops);
 
                 $admin->setShopAdminCounts((int) $shopAdminCounts);
                 $admin->setBuildingCounts((int) $buildingCounts);
+                $admin->setShopCounts((int) $shopCounts);
 
                 // new pending building
                 $pendingBuilding = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
@@ -202,6 +205,13 @@ class AdminSalesAdminsController extends SandboxRestController
                 ));
                 if (!is_null($pendingBuilding)) {
                     $admin->setHasPendingBuilding(true);
+                }
+
+                // new pending shop
+                foreach ($shops as $shop) {
+                    if (!$shop->isActive()) {
+                        $admin->setHasPendingShop(true);
+                    }
                 }
             }
         }
