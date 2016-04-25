@@ -702,7 +702,8 @@ class ProductRepository extends EntityRepository
             ->andWhere('p.recommend = :recommend')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('visible', true)
-            ->setParameter('recommend', $recommend);
+            ->setParameter('recommend', $recommend)
+            ->setParameter('now', new \DateTime('now'));
 
         if (!is_null($city)) {
             $queryBuilder->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
