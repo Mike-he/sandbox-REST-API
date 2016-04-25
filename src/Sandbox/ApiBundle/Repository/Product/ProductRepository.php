@@ -698,7 +698,10 @@ class ProductRepository extends EntityRepository
     ) {
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
-            ->where('p.recommend = :recommend')
+            ->where('p.visible = :visible')
+            ->andWhere('p.recommend = :recommend')
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('visible', true)
             ->setParameter('recommend', $recommend);
 
         if (!is_null($city)) {

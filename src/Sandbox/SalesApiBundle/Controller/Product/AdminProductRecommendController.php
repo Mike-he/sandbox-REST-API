@@ -134,6 +134,13 @@ class AdminProductRecommendController extends AdminProductController
             'sortTime',
             'DESC',
             $search,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             true
         );
 
