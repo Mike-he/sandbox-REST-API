@@ -31,15 +31,15 @@ class ClientShopMenuController extends ShopMenuController
      *
      * @return View
      */
-    public function getShopsByBuildingAction(
+    public function getShopMenuByShopAction(
         Request $request,
         $id
     ) {
-        $shops = $this->getRepo('Shop\ShopMenu')->getShopMenuByShop($id);
+        $menu = $this->getRepo('Shop\ShopMenu')->getShopMenuByShop($id);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
-        $view->setData($shops);
+        $view->setData($menu);
 
         return $view;
     }

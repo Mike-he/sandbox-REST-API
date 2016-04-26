@@ -1,3 +1,9 @@
+# Shopping Cart /frontdesk
+sandbox_api_frontdesk:
+    resource: "@SandboxApiBundle/Controller/Shop/ShopCartController.php"
+    type:     annotation
+    prefix:   /frontdesk
+
 # Location /location
 sandbox_api_location:
     resource: "@SandboxApiBundle/Controller/Location/LocationController.php"
