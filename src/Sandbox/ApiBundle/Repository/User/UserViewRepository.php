@@ -199,13 +199,13 @@ class UserViewRepository extends EntityRepository
         $userIds
     ) {
         $queryResults = $this->createQueryBuilder('u')
-            ->where('u.id LIKE :query')
-            ->orWhere('u.name LIKE :query')
-            ->orWhere('u.email LIKE :query')
-            ->orWhere('u.phone LIKE :query')
-            ->orWhere('u.cardNo LIKE :query')
-            ->orWhere('u.credentialNo LIKE :query')
-            ->setParameter('query', $query.'%');
+            ->where('u.id = :query')
+            ->orWhere('u.name = :query')
+            ->orWhere('u.email = :query')
+            ->orWhere('u.phone = :query')
+            ->orWhere('u.cardNo = :query')
+            ->orWhere('u.credentialNo = :query')
+            ->setParameter('query', $query);
 
         if (!is_null($banned)) {
             $queryResults->andWhere('u.banned = :banned')
