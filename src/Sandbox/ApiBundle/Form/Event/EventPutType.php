@@ -35,6 +35,15 @@ class EventPutType extends AbstractType
                     'widget' => 'single_text',
                 ))
             ->add('forms')
+            ->add('publish_company')
+            ->add('price')
+            ->add(
+                'submit',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
         ;
     }
 

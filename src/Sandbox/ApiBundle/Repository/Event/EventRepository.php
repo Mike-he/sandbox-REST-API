@@ -28,11 +28,13 @@ class EventRepository extends EntityRepository
         // filter by status
         $now = new \DateTime('now');
         if ($status == Event::STATUS_ONGOING) {
-            $query = $query->andwhere('e.eventEndDate >= :now')
+            $query->andwhere('e.eventEndDate >= :now')
                 ->setParameter('now', $now);
         } elseif ($status == Event::STATUS_END) {
-            $query = $query->andwhere('e.eventEndDate < :now')
+            $query->andwhere('e.eventEndDate < :now')
                 ->setParameter('now', $now);
+        } elseif ($status == Event::STATUS_SAVED) {
+            $query->andWhere('e.isSaved = TRUE');
         }
 
         $query->orderBy('e.creationDate', 'DESC');

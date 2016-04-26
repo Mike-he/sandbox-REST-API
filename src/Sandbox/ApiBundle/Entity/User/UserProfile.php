@@ -63,7 +63,8 @@ class UserProfile
      *      "company_member_basic",
      *      "company_info",
      *      "chatgroup",
-     *      "verify"
+     *      "verify",
+     *      "client_event"
      *  }
      * )
      */
@@ -88,7 +89,8 @@ class UserProfile
      *      "company_info",
      *      "client",
      *      "chatgroup",
-     *      "verify"
+     *      "verify",
+     *      "client_event"
      *  }
      * )
      */
@@ -107,7 +109,8 @@ class UserProfile
      *      "profile_basic_stranger",
      *      "buddy",
      *      "member",
-     *      "feed"
+     *      "feed",
+     *      "client_event"
      *  }
      * )
      */
@@ -329,7 +332,8 @@ class UserProfile
      *      "profile_basic_stranger",
      *      "buddy",
      *      "member",
-     *      "feed"
+     *      "feed",
+     *      "client_event"
      *  }
      * )
      **/

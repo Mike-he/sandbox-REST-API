@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
@@ -15,6 +16,7 @@ use Sandbox\ApiBundle\Entity\Event\EventDate;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventFormOption;
 use Sandbox\ApiBundle\Entity\Event\EventTime;
+use Sandbox\ApiBundle\Form\Event\EventPatchType;
 use Sandbox\ApiBundle\Form\Event\EventPostType;
 use Sandbox\ApiBundle\Form\Event\EventPutType;
 use Symfony\Component\HttpFoundation\Request;
@@ -91,7 +93,7 @@ class AdminEventController extends SandboxRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(ongoing|end)",
+     *    requirements="(ongoing|end|saved)",
      *    strict=true,
      *    description="event status"
      * )
@@ -228,12 +230,15 @@ class AdminEventController extends SandboxRestController
         $form = $this->createForm(new EventPostType(), $event);
         $form->handleRequest($request);
 
-        if (!$form->isValid()) {
+        $submit = $request->get('submit');
+
+        if (!$form->isValid() || is_null($submit)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         return $this->handleEventPost(
-            $event
+            $event,
+            $submit
         );
     }
 
@@ -262,16 +267,11 @@ class AdminEventController extends SandboxRestController
         // check user permission
         $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        $event = $this->getRepo('Event\Event')->find($id);
-
-        // check if is valid to modify
-        if (new \DateTime('now') >= $event->getRegistrationStartDate()) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_NOT_ALLOWED_MODIFY_CODE,
-                self::ERROR_NOT_ALLOWED_MODIFY_MESSAGE
-            );
-        }
+        $event = $this->getRepo('Event\Event')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
         // bind form
         $form = $this->createForm(
@@ -281,14 +281,67 @@ class AdminEventController extends SandboxRestController
         );
         $form->handleRequest($request);
 
-        if (!$form->isValid()) {
+        $submit = $request->get('submit');
+
+        if (!$form->isValid() || is_null($submit)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // handle event form
         return $this->handleEventPut(
-            $event
+            $event,
+            $submit
         );
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/events/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchEventAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $event = $this->getRepo('Event\Event')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $eventJson = $this->container->get('serializer')->serialize($event, 'json');
+        $patch = new Patch($eventJson, $request->getContent());
+        $eventJson = $patch->apply();
+
+        $form = $this->createForm(new EventPatchType(), $event);
+        $form->submit(json_decode($eventJson, true));
+
+        // change save status
+        if ($event->isVisible()) {
+            $event->setIsSaved(false);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -342,11 +395,13 @@ class AdminEventController extends SandboxRestController
      * Save event to db.
      *
      * @param Event $event
+     * @param bool  $submit
      *
      * @return View
      */
     private function handleEventPost(
-        $event
+        $event,
+        $submit
     ) {
         // check room is valid
         if (!is_null($event->getRoomId())) {
@@ -421,7 +476,8 @@ class AdminEventController extends SandboxRestController
             $buildingId,
             $registrationStartDate,
             $registrationEndDate,
-            $dates
+            $dates,
+            $submit
         );
 
         // add events attachments
@@ -453,11 +509,13 @@ class AdminEventController extends SandboxRestController
      * Save event modification to db.
      *
      * @param Event $event
+     * @param       $submit
      *
      * @return View
      */
     private function handleEventPut(
-        $event
+        $event,
+        $submit
     ) {
         // check room is valid
         if (!is_null($event->getRoomId())) {
@@ -504,7 +562,8 @@ class AdminEventController extends SandboxRestController
             $buildingId,
             $registrationStartDate,
             $registrationEndDate,
-            $dates
+            $dates,
+            $submit
         );
 
         // modify event attachments
@@ -518,7 +577,6 @@ class AdminEventController extends SandboxRestController
             $event,
             $dates
         );
-
         // modify event forms
         $this->modifyEventForms(
             $event,
@@ -537,6 +595,7 @@ class AdminEventController extends SandboxRestController
      * @param \DateTime $startDate
      * @param \DateTime $endDate
      * @param array     $dates
+     * @param           $submit
      */
     private function modifyEvents(
         $event,
@@ -544,7 +603,8 @@ class AdminEventController extends SandboxRestController
         $buildingId,
         $startDate,
         $endDate,
-        $dates
+        $dates,
+        $submit
     ) {
         $em = $this->getDoctrine()->getManager();
 
@@ -567,6 +627,15 @@ class AdminEventController extends SandboxRestController
         $event->setRegistrationEndDate($endDate);
         $event->setEventEndDate($eventEndDate);
         $event->setModificationDate($now);
+
+        // set visible & isSaved
+        if ($submit) {
+            $event->setVisible(true);
+            $event->setIsSaved(false);
+        } else {
+            $event->setVisible(false);
+            $event->setIsSaved(true);
+        }
 
         $em->flush();
     }
@@ -634,6 +703,13 @@ class AdminEventController extends SandboxRestController
     ) {
         $em = $this->getDoctrine()->getManager();
 
+        // check if is valid to modify
+        if (new \DateTime('now') >= $event->getRegistrationStartDate()) {
+            $em->flush();
+
+            return;
+        }
+
         if (
             $event->getRegistrationMethod() == Event::REGISTRATION_METHOD_ONLINE
             && (!is_null($eventForms) || !empty($eventForms))
@@ -648,6 +724,8 @@ class AdminEventController extends SandboxRestController
                 $eventForms
             );
         }
+
+        $em->flush();
     }
 
     /**
@@ -659,6 +737,7 @@ class AdminEventController extends SandboxRestController
      * @param \DateTime $startDate
      * @param \DateTime $endDate
      * @param array     $dates
+     * @param           $submit
      */
     private function addEvents(
         $event,
@@ -666,7 +745,8 @@ class AdminEventController extends SandboxRestController
         $buildingId,
         $startDate,
         $endDate,
-        $dates
+        $dates,
+        $submit
     ) {
         $em = $this->getDoctrine()->getManager();
 
@@ -690,6 +770,20 @@ class AdminEventController extends SandboxRestController
         $event->setEventEndDate($eventEndDate);
         $event->setCreationDate($now);
         $event->setModificationDate($now);
+
+        // set visible & isSaved
+        if ($submit) {
+            $event->setVisible(true);
+            $event->setIsSaved(false);
+        } else {
+            $event->setVisible(false);
+            $event->setIsSaved(true);
+        }
+
+        // no verify if price is set
+        if (!is_null($event->getPrice())) {
+            $event->setVerify(false);
+        }
 
         $em->persist($event);
     }

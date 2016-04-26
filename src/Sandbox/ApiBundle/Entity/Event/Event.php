@@ -18,6 +18,7 @@ class Event
 
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
+    const STATUS_SAVED = 'saved';
 
     /**
      * @var int
@@ -184,6 +185,56 @@ class Event
      * })
      */
     private $verify;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="publishCompany", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event",
+     *      "client_event"
+     * })
+     */
+    private $publishCompany;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="price", type="decimal", nullable=true)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event",
+     *      "client_event"
+     * })
+     */
+    private $price;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="visible", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
+     */
+    private $visible = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isSaved", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
+     */
+    private $isSaved = false;
 
     /**
      * @var bool
@@ -795,5 +846,69 @@ class Event
     public function getAcceptedPersonNumber()
     {
         return $this->acceptedPersonNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublishCompany()
+    {
+        return $this->publishCompany;
+    }
+
+    /**
+     * @param string $publishCompany
+     */
+    public function setPublishCompany($publishCompany)
+    {
+        $this->publishCompany = $publishCompany;
+    }
+
+    /**
+     * @return float
+     */
+    public function getPrice()
+    {
+        return $this->price;
+    }
+
+    /**
+     * @param float $price
+     */
+    public function setPrice($price)
+    {
+        $this->price = $price;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
+     * @param bool $visible
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSaved()
+    {
+        return $this->isSaved;
+    }
+
+    /**
+     * @param bool $isSaved
+     */
+    public function setIsSaved($isSaved)
+    {
+        $this->isSaved = $isSaved;
     }
 }
