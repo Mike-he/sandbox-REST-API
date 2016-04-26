@@ -130,10 +130,13 @@ class AdminEventController extends SandboxRestController
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+            $registrationCounts = $this->getRepo('Event\EventRegistration')
+                ->getRegistrationCounts($event->getId());
 
             $event->setAttachments($attachments);
             $event->setDates($dates);
             $event->setForms($forms);
+            $event->setRegisteredPersonNumber((int) $registrationCounts);
 
             array_push($eventsArray, $event);
         }
@@ -186,10 +189,13 @@ class AdminEventController extends SandboxRestController
         $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
         $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
         $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+        $registrationCounts = $this->getRepo('Event\EventRegistration')
+            ->getRegistrationCounts($event->getId());
 
         $event->setAttachments($attachments);
         $event->setDates($dates);
         $event->setForms($forms);
+        $event->setRegisteredPersonNumber((int) $registrationCounts);
 
         // set view
         $view = new View($event);
