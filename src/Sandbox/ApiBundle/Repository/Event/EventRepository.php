@@ -53,7 +53,8 @@ class EventRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('e')
-            ->where('e.isDeleted = FALSE');
+            ->where('e.isDeleted = FALSE')
+            ->andWhere('e.visible = TRUE');
 
         $query->orderBy('e.creationDate', 'DESC')
             ->setFirstResult($offset)
@@ -79,6 +80,7 @@ class EventRepository extends EntityRepository
                 FROM SandboxApiBundle:Event\Event e
                 LEFT JOIN SandboxApiBundle:Event\EventRegistration er WITH er.eventId = e.id
                 WHERE e.isDeleted = FALSE
+                AND e.visible = TRUE
                 AND er.userId = :userId
                 AND
                 (
