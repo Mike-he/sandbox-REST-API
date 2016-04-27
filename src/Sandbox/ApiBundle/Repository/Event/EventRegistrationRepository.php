@@ -116,4 +116,35 @@ class EventRegistrationRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    public function deleteEventRegistrations()
+    {
+        $now = new \DateTime();
+        $start = clone $now;
+        $start->modify('-15 minutes');
+
+        $query = $this->createQueryBuilder('r')
+            ->select('r.id')
+            ->leftJoin('SandboxApiBundle:Event\EventOrder', 'o', 'WITH', 'r.eventId = o.eventId')
+            ->where('r.userId = o.userId')
+            ->andWhere('o.status = \'cancelled\'')
+            ->andWhere('o.creationDate <= :start')
+            ->setParameter('start', $start)
+            ->getQuery();
+
+        $registrations = $query->getResult();
+        $registrationIds = array_map('current', $registrations);
+
+        // delete event registrations
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
+                    DELETE FROM SandboxApiBundle:Event\EventRegistration r
+                    WHERE r.id IN (:ids)
+                '
+            )
+            ->setParameter('ids', $registrationIds);
+
+        $query->execute();
+    }
 }

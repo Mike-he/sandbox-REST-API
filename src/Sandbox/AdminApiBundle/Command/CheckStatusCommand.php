@@ -58,6 +58,23 @@ class CheckStatusCommand extends ContainerAwareCommand
 //                }
             }
         }
+
+        // set event order status cancelled & delete event registrations
+        $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->setStatusCancelled();
+
+        $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->deleteEventRegistrations();
+
+        // set event order status completed
+        $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->setStatusCompleted();
     }
 
     /**

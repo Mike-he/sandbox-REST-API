@@ -230,10 +230,14 @@ class AdminEventController extends SandboxRestController
         $form = $this->createForm(new EventPostType(), $event);
         $form->handleRequest($request);
 
-        $submit = $request->get('submit');
-
-        if (!$form->isValid() || is_null($submit)) {
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // set default submit value
+        $submit = $request->get('submit');
+        if (is_null($submit)) {
+            $submit = true;
         }
 
         return $this->handleEventPost(
@@ -281,10 +285,14 @@ class AdminEventController extends SandboxRestController
         );
         $form->handleRequest($request);
 
-        $submit = $request->get('submit');
-
-        if (!$form->isValid() || is_null($submit)) {
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // set default submit value
+        $submit = $request->get('submit');
+        if (is_null($submit)) {
+            $submit = true;
         }
 
         // handle event form
