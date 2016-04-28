@@ -342,7 +342,7 @@ class ClientEventOrderController extends PaymentController
         $charge = json_decode($charge, true);
         $chargeId = $charge['id'];
 
-        $this->createOrderMap('product', $order->getId(), $chargeId);
+        $this->createOrderMap('event', $order->getId(), $chargeId);
 
         return new View($charge);
     }

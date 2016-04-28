@@ -234,8 +234,10 @@ class AdminEventController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $requestContent = json_decode($request->getContent(), true);
+
         // set default submit value
-        $submit = $request->get('submit');
+        $submit = $requestContent['submit'];
         if (is_null($submit)) {
             $submit = true;
         }
@@ -289,11 +291,10 @@ class AdminEventController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $requestContent = json_decode($request->getContent(), true);
+
         // set default submit value
-        $submit = $request->get('submit');
-        if (is_null($submit)) {
-            $submit = true;
-        }
+        $submit = $requestContent['submit'];
 
         // handle event form
         return $this->handleEventPut(
