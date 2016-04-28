@@ -200,6 +200,18 @@ class Event
     private $publishCompany;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isCharge", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
+     */
+    private $isCharge = false;
+
+    /**
      * @var float
      *
      * @ORM\Column(name="price", type="decimal", nullable=true)
@@ -910,5 +922,21 @@ class Event
     public function setIsSaved($isSaved)
     {
         $this->isSaved = $isSaved;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isCharge()
+    {
+        return $this->isCharge;
+    }
+
+    /**
+     * @param boolean $isCharge
+     */
+    public function setIsCharge($isCharge)
+    {
+        $this->isCharge = $isCharge;
     }
 }

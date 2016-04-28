@@ -36,6 +36,7 @@ class EventPutType extends AbstractType
                 ))
             ->add('forms')
             ->add('publish_company')
+            ->add('is_charge')
             ->add('price')
             ->add(
                 'submit',

@@ -410,6 +410,7 @@ class ClientEventOrderController extends PaymentController
         if (
             $now < $registrationStart ||
             $now > $registrationEnd ||
+            !$event->isCharge() ||
             is_null($event->getPrice()) ||
             $event->isDeleted() == true ||
             $event->isVisible() == false
