@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Order;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Symfony\Component\Validator\Constraints\DateTime;
@@ -12,6 +13,33 @@ class OrderRepository extends EntityRepository
 {
     const COMPLETED = "'completed'";
     const CANCELLED = "'cancelled'";
+
+    /**
+     * @param $id
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getOrderByIdAndStatus(
+        $id
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('o.id = :id')
+            ->andWhere('o.endDate > :now')
+            ->andWhere('r.type = :type')
+            ->andWhere('(o.status = :paid) OR (o.status = :completed)')
+            ->setParameter('id', $id)
+            ->setParameter('now', new \DateTime())
+            ->setParameter('type', Room::TYPE_OFFICE)
+            ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
 
     /**
      * @param $productId

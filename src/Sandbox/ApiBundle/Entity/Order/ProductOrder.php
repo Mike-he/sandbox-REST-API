@@ -19,6 +19,11 @@ class ProductOrder
     const STATUS_UNPAID = 'unpaid';
     const STATUS_COMPLETED = 'completed';
 
+    const CHANNEL_ACCOUNT = 'account';
+    const CHANNEL_ALIPAY = 'alipay';
+
+    const PRODUCT_MAP = 'product';
+
     const ACTION_TYPE = 'product_order';
     const ACTION_INVITE_ADD = 'invite_add';
     const ACTION_APPOINT_ADD = 'appoint_add';
@@ -26,6 +31,8 @@ class ProductOrder
     const ACTION_APPOINT_REMOVE = 'appoint_remove';
     const ACTION_START = 'start';
     const ACTION_END = 'end';
+    const ACTION_ACCEPTED = 'accepted';
+    const ACTION_REJECTED = 'rejected';
     const LETTER_HEAD = 'P';
 
     const RESERVE_TYPE = 'reserve';
@@ -265,7 +272,7 @@ class ProductOrder
      * @var int
      *
      * @ORM\Column(name="adminId", type="integer", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
      */
     private $adminId;
 
@@ -273,9 +280,25 @@ class ProductOrder
      * @var string
      *
      * @ORM\Column(name="type", type="string", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
      */
     private $type;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="rejected", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     */
+    private $rejected = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="manualRefund", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     */
+    private $manualRefund = false;
 
     /**
      * @var int
@@ -888,6 +911,54 @@ class ProductOrder
     public function getAdminId()
     {
         return $this->adminId;
+    }
+
+    /**
+     * Set rejected.
+     *
+     * @param bool $rejected
+     *
+     * @return ProductOrder
+     */
+    public function setRejected($rejected)
+    {
+        $this->rejected = $rejected;
+
+        return $this;
+    }
+
+    /**
+     * Get rejected.
+     *
+     * @return bool
+     */
+    public function isRejected()
+    {
+        return $this->rejected;
+    }
+
+    /**
+     * Set manualRefund.
+     *
+     * @param bool $manualRefund
+     *
+     * @return ProductOrder
+     */
+    public function setManualRefund($manualRefund)
+    {
+        $this->manualRefund = $manualRefund;
+
+        return $this;
+    }
+
+    /**
+     * Get manualRefund.
+     *
+     * @return bool
+     */
+    public function isManualRefund()
+    {
+        return $this->manualRefund;
     }
 
     /**

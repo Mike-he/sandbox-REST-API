@@ -322,6 +322,10 @@ class ClientOrderController extends OrderController
                 );
             }
 
+            if (Room::TYPE_OFFICE == $type) {
+                $order->setRejected(true);
+            }
+
             $em->persist($order);
 
             // store order record
@@ -473,7 +477,7 @@ class ClientOrderController extends OrderController
         $charge = json_decode($charge, true);
         $chargeId = $charge['id'];
 
-        $this->createOrderMap('product', $order->getId(), $chargeId);
+        $this->createOrderMap(ProductOrder::PRODUCT_MAP, $order->getId(), $chargeId);
 
         return new View($charge);
     }
@@ -512,20 +516,33 @@ class ClientOrderController extends OrderController
             );
         }
 
+        $charge = [];
+        $channel = $order->getPayChannel();
+
         if ($price > 0) {
-            $balance = $this->postBalanceChange(
-                $userId,
-                $price,
-                $order->getOrderNumber(),
-                self::PAYMENT_CHANNEL_ACCOUNT,
-                0,
-                self::ORDER_REFUND
-            );
+            if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                $balance = $this->postBalanceChange(
+                    $userId,
+                    $price,
+                    $order->getOrderNumber(),
+                    self::PAYMENT_CHANNEL_ACCOUNT,
+                    0,
+                    self::ORDER_REFUND
+                );
+            } elseif (ProductOrder::CHANNEL_ALIPAY == $channel) {
+                //TODO: add to be refunded
+            } else {
+                $this->refundToPayChannel(
+                    $order,
+                    $price,
+                    ProductOrder::PRODUCT_MAP
+                );
+            }
         }
 
         $this->removeAccessByOrder($order);
 
-        return new View();
+        return new View($charge);
     }
 
     /**
@@ -554,9 +571,10 @@ class ClientOrderController extends OrderController
         $endDate = $order->getEndDate();
         $now = new \DateTime();
         if (
-            $status !== ProductOrder::STATUS_PAID &&
-            $status !== ProductOrder::STATUS_COMPLETED ||
-            $now >= $endDate
+            ($status !== ProductOrder::STATUS_PAID &&
+            $status !== ProductOrder::STATUS_COMPLETED) ||
+            $now >= $endDate ||
+            $order->isRejected()
         ) {
             return $this->customErrorView(
                 400,

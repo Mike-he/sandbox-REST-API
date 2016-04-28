@@ -25,9 +25,12 @@ class ShopOrder
     const PAYMENT_SUBJECT = 'SANDBOX3-店铺订单';
     const PAYMENT_BODY = 'Shop Order';
     const READY_NOTIFICATION = '您的订单已做好, 请到柜台领取';
-    const REFUNDED_NOTIFICATION = '您的订单已退款, 请查看您的创合账户';
+    const REFUNDED_NOTIFICATION = '您的订单已退款, 钱款将在1~3个工作日内退回到您的支付账户下';
     const ISSUE_NOTIFICATION = '您的订单有问题, 请到柜台查看';
     const PLATFORM_BACKEND = 'backend';
+    const CHANNEL_ACCOUNT = 'account';
+    const CHANNEL_ALIPAY = 'alipay';
+    const SHOP_MAP = 'shop';
 
     const NOT_PAID_CODE = 400003;
     const NOT_PAID_MESSAGE = 'Order is not paid';
@@ -207,6 +210,14 @@ class ShopOrder
     private $products;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="manualRefund", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $manualRefund = false;
+
+    /**
      * Get id.
      *
      * @return int
@@ -262,6 +273,30 @@ class ShopOrder
     public function getShop()
     {
         return $this->shop;
+    }
+
+    /**
+     * Set manualRefund.
+     *
+     * @param bool $manualRefund
+     *
+     * @return ShopOrder
+     */
+    public function setManualRefund($manualRefund)
+    {
+        $this->manualRefund = $manualRefund;
+
+        return $this;
+    }
+
+    /**
+     * Get manualRefund.
+     *
+     * @return bool
+     */
+    public function isManualRefund()
+    {
+        return $this->manualRefund;
     }
 
     /**

@@ -97,6 +97,48 @@ class PaymentController extends DoorController
     const ORDER_REFUND = 'refund';
 
     /**
+     * @param object $order
+     * 
+     * @return Charge
+     */
+    public function refundToPayChannel(
+        $order,
+        $amount,
+        $type
+    ) {
+        $map = $this->getRepo('Order\OrderMap')->findOneBy(
+            [
+                'orderId' => $order->getId(),
+                'type' => $type,
+            ]
+        );
+        $this->throwNotFoundIfNull($map, self::NOT_FOUND_MESSAGE);
+
+        $chargeId = $map->getChargeId();
+        if (is_null($chargeId) || empty($chargeId)) {
+            return array();
+        }
+
+        $globals = $this->get('twig')->getGlobals();
+        $key = $globals['pingpp_key'];
+
+        Pingpp::setApiKey($key);
+        try {
+            $ch = \Pingpp\Charge::retrieve("$chargeId");
+
+            return $ch->refunds->create(
+                array(
+                    'amount' => $amount * 100,
+                    'description' => 'Your Descripton',
+                )
+            );
+        } catch (Base $e) {
+            header('Status: '.$e->getHttpStatus());
+            echo $e->getHttpBody();
+        }
+    }
+
+    /**
      * @param string $orderNo
      * @param string $channel
      * @param string $chargeId
@@ -344,6 +386,10 @@ class PaymentController extends DoorController
     public function setDoorAccessForSingleOrder(
         $order
     ) {
+        if ($order->isRejected()) {
+            return;
+        }
+
         // send order email
         $this->sendOrderEmail($order);
 

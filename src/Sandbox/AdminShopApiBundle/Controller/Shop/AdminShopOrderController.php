@@ -321,6 +321,38 @@ class AdminShopOrderController extends ShopController
                     );
                 }
 
+                if ($order->IsUnoriginal()) {
+                    $originalOrder = $this->getRepo('Shop\ShopOrder')->findOneBy(
+                        [
+                            'unoriginal' => false,
+                            'linkedOrderId' => $id,
+                        ]
+                    );
+
+                    if (!is_null($originalOrder)) {
+                        $price = $originalOrder->getPrice();
+                        $refund = $originalOrder->getRefundAmount();
+
+                        if ($price > $refund) {
+                            $invoice = $price - $refund;
+
+                            // set invoice amount
+                            $amount = $this->postConsumeBalance(
+                                $order->getUserId(),
+                                $invoice,
+                                $order->getOrderNumber()
+                            );
+                        }
+                    }
+                } else {
+                    // set invoice amount
+                    $amount = $this->postConsumeBalance(
+                        $order->getUserId(),
+                        $order->getPrice(),
+                        $order->getOrderNumber()
+                    );
+                }
+
                 break;
             case ShopOrder::STATUS_ISSUE:
                 if ($oldStatus != ShopOrder::STATUS_READY && $oldStatus !== ShopOrder::STATUS_PAID) {
@@ -969,14 +1001,27 @@ class AdminShopOrderController extends ShopController
     private function refundAdminShopOrder(
         $oldOrder
     ) {
-        $balance = $this->postBalanceChange(
-            $oldOrder->getUserId(),
-            $oldOrder->getRefundAmount(),
-            $oldOrder->getOrderNumber(),
-            self::PAYMENT_CHANNEL_ACCOUNT,
-            0,
-            self::ORDER_REFUND
-        );
+        $channel = $oldOrder->getPayChannel();
+        $refund = $oldOrder->getRefundAmount();
+
+        if (ShopOrder::CHANNEL_ACCOUNT == $channel) {
+            $balance = $this->postBalanceChange(
+                $oldOrder->getUserId(),
+                $refund,
+                $oldOrder->getOrderNumber(),
+                self::PAYMENT_CHANNEL_ACCOUNT,
+                0,
+                self::ORDER_REFUND
+            );
+        } elseif (ShopOrder::CHANNEL_ALIPAY == $channel) {
+            //TODO: add to be refunded
+        } else {
+            $this->refundToPayChannel(
+                $oldOrder,
+                $refund,
+                ShopOrder::SHOP_MAP
+            );
+        }
     }
 
     /**

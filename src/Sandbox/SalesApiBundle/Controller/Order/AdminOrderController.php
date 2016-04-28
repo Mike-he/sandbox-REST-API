@@ -4,13 +4,16 @@ namespace Sandbox\SalesApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
+use Sandbox\ApiBundle\Form\Order\PatchOrderRejectedType;
 use Sandbox\ApiBundle\Form\Order\PreOrderType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -37,6 +40,127 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminOrderController extends OrderController
 {
+    /**
+     * set rejected.
+     *
+     * @Route("/orders/{id}/rejected")
+     * @Method({"PATCH"})
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return View
+     */
+    public function patchRejectedAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->getOrderByIdAndStatus($id);
+
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $buildingId = $order->getProduct()->getRoom()->getBuildingId();
+
+        // check user permission
+        $this->checkAdminOrderPermission(
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            $buildingId
+        );
+
+        $oldRejected = $order->isRejected();
+
+        if (!$oldRejected) {
+            return new View();
+        }
+
+        // bind data
+        $orderJson = $this->get('serializer')->serialize($order, 'json');
+        $patch = new Patch($orderJson, $request->getContent());
+        $orderJson = $patch->apply();
+
+        $form = $this->createForm(new PatchOrderRejectedType(), $order);
+        $form->submit(json_decode($orderJson, true));
+
+        $now = new \DateTime();
+        $newRejected = $order->isRejected();
+
+        if ($newRejected) {
+            $order->setStatus(ProductOrder::STATUS_CANCELLED);
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
+
+            $price = $order->getDiscountPrice();
+            $userId = $order->getUserId();
+            $channel = $order->getPayChannel();
+
+            if ($price > 0) {
+                if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                    $balance = $this->postBalanceChange(
+                        $userId,
+                        $price,
+                        $order->getOrderNumber(),
+                        self::PAYMENT_CHANNEL_ACCOUNT,
+                        0,
+                        self::ORDER_REFUND
+                    );
+                } elseif (ProductOrder::CHANNEL_ALIPAY == $channel) {
+                    //TODO: add to be refunded
+                } else {
+                    $this->refundToPayChannel(
+                        $order,
+                        $price,
+                        ProductOrder::PRODUCT_MAP
+                    );
+                }
+            }
+
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                array(),
+                ProductOrder::ACTION_REJECTED,
+                null,
+                [$order],
+                ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+            );
+        } else {
+            // set door access
+            $this->setDoorAccessForSingleOrder($order);
+
+            // set invoice amount
+            if (ProductOrder::STATUS_COMPLETED == $order->getStatus()) {
+                $amount = $this->postConsumeBalance(
+                    $order->getUserId(),
+                    $order->getDiscountPrice(),
+                    $order->getOrderNumber()
+                );
+            }
+
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                array(),
+                ProductOrder::ACTION_ACCEPTED,
+                null,
+                [$order],
+                ProductOrderMessage::OFFICE_ACCEPTED_MESSAGE
+            );
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
     /**
      * @Route("/orders/{id}/sync")
      * @Method({"POST"})
