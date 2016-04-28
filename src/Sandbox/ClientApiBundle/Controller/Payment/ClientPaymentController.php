@@ -35,6 +35,14 @@ class ClientPaymentController extends PaymentController
         $data = json_decode($rawData, true);
         $object = $data['data']['object'];
 
+        if ('refund' == $object['object']) {
+            if ('succeeded' != $object['status'] || true != $object['succeed']) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            return new Response();
+        }
+
         if ($data['type'] != 'charge.succeeded' || $object['paid'] != true) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
@@ -65,11 +73,7 @@ class ClientPaymentController extends PaymentController
                     $chargeId,
                     $channel
                 );
-                $amount = $this->postConsumeBalance(
-                    $order->getUserId(),
-                    $price,
-                    $orderNumber
-                );
+
                 $balance = $this->postBalanceChange(
                     $order->getUserId(),
                     0,
@@ -79,33 +83,33 @@ class ClientPaymentController extends PaymentController
                 );
 
                 break;
-            case 'V':
-                $productId = $myCharge->getOrderId();
-                $order = $this->setMembershipOrder(
-                    $userId,
-                    $productId,
-                    $price,
-                    $orderNumber
-                );
-                $this->postAccountUpgrade(
-                    $userId,
-                    $productId,
-                    $orderNumber
-                );
-                $amount = $this->postConsumeBalance(
-                    $userId,
-                    $price,
-                    $orderNumber
-                );
-                $balance = $this->postBalanceChange(
-                    $userId,
-                    0,
-                    $orderNumber,
-                    $channel,
-                    $price
-                );
-
-                break;
+//            case 'V':
+//                $productId = $myCharge->getOrderId();
+//                $order = $this->setMembershipOrder(
+//                    $userId,
+//                    $productId,
+//                    $price,
+//                    $orderNumber
+//                );
+//                $this->postAccountUpgrade(
+//                    $userId,
+//                    $productId,
+//                    $orderNumber
+//                );
+//                $amount = $this->postConsumeBalance(
+//                    $userId,
+//                    $price,
+//                    $orderNumber
+//                );
+//                $balance = $this->postBalanceChange(
+//                    $userId,
+//                    0,
+//                    $orderNumber,
+//                    $channel,
+//                    $price
+//                );
+//
+//                break;
             case 'T':
                 $this->setTopUpOrder(
                     $userId,
@@ -127,38 +131,33 @@ class ClientPaymentController extends PaymentController
                 );
 
                 break;
-            case 'F':
-                $data = $this->getJsonData(
-                    $orderNumber,
-                    $channel,
-                    $chargeId,
-                    true
-                );
-
-                $result = $this->foodPaymentCallback($data);
-
-                $amount = $this->postConsumeBalance(
-                    $userId,
-                    $price,
-                    $orderNumber
-                );
-                $balance = $this->postBalanceChange(
-                    $userId,
-                    0,
-                    $orderNumber,
-                    $channel,
-                    $price
-                );
-
-                break;
+//            case 'F':
+//                $data = $this->getJsonData(
+//                    $orderNumber,
+//                    $channel,
+//                    $chargeId,
+//                    true
+//                );
+//
+//                $result = $this->foodPaymentCallback($data);
+//
+//                $amount = $this->postConsumeBalance(
+//                    $userId,
+//                    $price,
+//                    $orderNumber
+//                );
+//                $balance = $this->postBalanceChange(
+//                    $userId,
+//                    0,
+//                    $orderNumber,
+//                    $channel,
+//                    $price
+//                );
+//
+//                break;
             case 'S':
                 $order = $this->setShopOrderStatus($orderNumber);
 
-                $amount = $this->postConsumeBalance(
-                    $order->getUserId(),
-                    $price,
-                    $orderNumber
-                );
                 $balance = $this->postBalanceChange(
                     $order->getUserId(),
                     0,

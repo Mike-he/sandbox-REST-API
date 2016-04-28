@@ -3,7 +3,8 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 //use Sandbox\ApiBundle\Traits\CurlUtil;
-use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Traits\ConsumeTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,9 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckStatusCommand extends ContainerAwareCommand
 {
-    //    use CurlUtil;
-
-    const HTTP_STATUS_OK = 200;
+    use ConsumeTrait;
 
     protected function configure()
     {
@@ -24,8 +23,6 @@ class CheckStatusCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->setShopOrderStatusCancelled();
-
         // set product order status cancelled
         $this->getContainer()
             ->get('doctrine')
@@ -51,41 +48,25 @@ class CheckStatusCommand extends ContainerAwareCommand
                 $em = $this->getContainer()->get('doctrine')->getManager();
                 $em->flush();
 
+                if ($order->isRejected()
+                    || (ProductOrder::CHANNEL_ACCOUNT == $order->getPayChannel())
+                ) {
+                    continue;
+                }
+
+                // set invoice amount
+                $amount = $this->postConsumeBalance(
+                    $order->getUserId(),
+                    $order->getDiscountPrice(),
+                    $order->getOrderNumber()
+                );
+
                 //TODO: VIP Membership Module
 //                $membershipBindId = $order->getMembershipBindId();
 //                if (!is_null($membershipBindId)) {
 //                    $this->postAccountUpgrade($order, $membershipBindId);
 //                }
             }
-        }
-    }
-
-    /**
-     * Set status cancelled and restock inventory.
-     */
-    private function setShopOrderStatusCancelled()
-    {
-        $orders = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
-            ->getUnpaidShopOrders();
-
-        $now = new \DateTime();
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        foreach ($orders as $order) {
-            $inventoryData = $this->getContainer()
-                ->get('doctrine')
-                ->getRepository('SandboxApiBundle:Shop\ShopOrderProduct')
-                ->getShopOrderProductInventory($order->getId());
-
-            foreach ($inventoryData as $data) {
-                $data['item']->setInventory($data['inventory'] + $data['amount']);
-            }
-
-            $order->setStatus(ShopOrder::STATUS_CANCELLED);
-            $order->setCancelledDate($now);
-            $order->setModificationDate($now);
-            $em->flush();
         }
     }
 
