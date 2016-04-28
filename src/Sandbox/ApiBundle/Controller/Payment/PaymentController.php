@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Sandbox\ApiBundle\Entity\Food\FoodOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
@@ -292,6 +293,33 @@ class PaymentController extends DoorController
         $orderNumber
     ) {
         $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'orderNumber' => $orderNumber,
+                'status' => ShopOrder::STATUS_UNPAID,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $now = new \DateTime();
+        $order->setStatus(ShopOrder::STATUS_PAID);
+        $order->setPaymentDate($now);
+        $order->setModificationDate($now);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return $order;
+    }
+
+    /**
+     * @param $orderNumber
+     *
+     * @return EventOrder
+     */
+    public function setEventOrderStatus(
+        $orderNumber
+    ) {
+        $order = $this->getRepo('Event\EventOrder')->findOneBy(
             [
                 'orderNumber' => $orderNumber,
                 'status' => ShopOrder::STATUS_UNPAID,

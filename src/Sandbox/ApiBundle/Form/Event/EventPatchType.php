@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class EventPostType extends AbstractType
+class EventPatchType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,28 +15,7 @@ class EventPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
-            ->add('attachments')
-            ->add('description')
-            ->add('dates')
-            ->add('city_id')
-            ->add('address')
-            ->add('limit_number')
-            ->add('registration_start_date')
-            ->add('registration_end_date')
-            ->add('registration_method')
-            ->add('verify')
-            ->add('forms')
-            ->add('publish_company')
-            ->add('is_charge')
-            ->add('price')
-            ->add(
-                'submit',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
+            ->add('visible')
         ;
     }
 

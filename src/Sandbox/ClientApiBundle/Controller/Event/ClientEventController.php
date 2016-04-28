@@ -211,6 +211,7 @@ class ClientEventController extends EventController
         $event = $this->getRepo('Event\Event')->findOneBy(array(
             'id' => $id,
             'isDeleted' => false,
+            'visible' => true,
         ));
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 

@@ -28,11 +28,13 @@ class EventRepository extends EntityRepository
         // filter by status
         $now = new \DateTime('now');
         if ($status == Event::STATUS_ONGOING) {
-            $query = $query->andwhere('e.eventEndDate >= :now')
+            $query->andwhere('e.eventEndDate >= :now')
                 ->setParameter('now', $now);
         } elseif ($status == Event::STATUS_END) {
-            $query = $query->andwhere('e.eventEndDate < :now')
+            $query->andwhere('e.eventEndDate < :now')
                 ->setParameter('now', $now);
+        } elseif ($status == Event::STATUS_SAVED) {
+            $query->andWhere('e.isSaved = TRUE');
         }
 
         $query->orderBy('e.creationDate', 'DESC');
@@ -51,7 +53,8 @@ class EventRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('e')
-            ->where('e.isDeleted = FALSE');
+            ->where('e.isDeleted = FALSE')
+            ->andWhere('e.visible = TRUE');
 
         $query->orderBy('e.creationDate', 'DESC')
             ->setFirstResult($offset)
@@ -77,6 +80,7 @@ class EventRepository extends EntityRepository
                 FROM SandboxApiBundle:Event\Event e
                 LEFT JOIN SandboxApiBundle:Event\EventRegistration er WITH er.eventId = e.id
                 WHERE e.isDeleted = FALSE
+                AND e.visible = TRUE
                 AND er.userId = :userId
                 AND
                 (
