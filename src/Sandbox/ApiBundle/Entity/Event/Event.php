@@ -206,7 +206,8 @@ class Event
      *
      * @Serializer\Groups({
      *      "main",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_event"
      * })
      */
     private $isCharge = false;
@@ -925,7 +926,7 @@ class Event
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isCharge()
     {
@@ -933,7 +934,7 @@ class Event
     }
 
     /**
-     * @param boolean $isCharge
+     * @param bool $isCharge
      */
     public function setIsCharge($isCharge)
     {
