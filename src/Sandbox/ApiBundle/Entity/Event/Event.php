@@ -344,6 +344,36 @@ class Event
     private $acceptedPersonNumber;
 
     /**
+     * @var int
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $likesCount;
+
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $commentsCount;
+
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $myLikeId;
+
+    /**
      * Get id.
      *
      * @return int
@@ -939,5 +969,53 @@ class Event
     public function setIsCharge($isCharge)
     {
         $this->isCharge = $isCharge;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLikesCount()
+    {
+        return $this->likesCount;
+    }
+
+    /**
+     * @param int $likesCount
+     */
+    public function setLikesCount($likesCount)
+    {
+        $this->likesCount = $likesCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCommentsCount()
+    {
+        return $this->commentsCount;
+    }
+
+    /**
+     * @param int $commentsCount
+     */
+    public function setCommentsCount($commentsCount)
+    {
+        $this->commentsCount = $commentsCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMyLikeId()
+    {
+        return $this->myLikeId;
+    }
+
+    /**
+     * @param int $myLikeId
+     */
+    public function setMyLikeId($myLikeId)
+    {
+        $this->myLikeId = $myLikeId;
     }
 }

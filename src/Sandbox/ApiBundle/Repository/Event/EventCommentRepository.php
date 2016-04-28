@@ -61,4 +61,21 @@ class EventCommentRepository extends EntityRepository
 
         return $result;
     }
+    
+    /**
+     * @param $eventId
+     * @return mixed
+     */
+    public function getCommentsCount(
+        $eventId
+    ) {
+        $query = $this->createQueryBuilder('ec')
+            ->select('COUNT(ec.id)')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = ec.authorId')
+            ->where('ec.eventId = :eventId')
+            ->andWhere('u.banned = FALSE')
+            ->setParameter('eventId', $eventId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

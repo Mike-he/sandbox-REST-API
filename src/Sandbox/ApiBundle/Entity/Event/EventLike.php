@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * EventLike.
  *
  * @ORM\Table(name="EventLike")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Event\EventLikeRepository")
  */
 class EventLike
 {
