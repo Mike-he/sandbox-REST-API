@@ -12,6 +12,7 @@ CREATE TABLE `ShopOrder` (
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   `linkedOrderId` int(11),
+  `manualRefund` boolean DEFAULT FALSE NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `orderNumber_UNIQUE` (`orderNumber`),
   KEY `fk_ShopOrder_shopId_idx` (`shopId`),

@@ -19,6 +19,8 @@ CREATE TABLE `ProductOrder` (
   `ruleDescription` varchar(255),
   `membershipBindId` int(11),
   `adminId` int(11),
+  `rejected` boolean DEFAULT FALSE NOT NULL,
+  `manualRefund` boolean DEFAULT FALSE NOT NULL,
   `type` enum('reserve','preorder') DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
