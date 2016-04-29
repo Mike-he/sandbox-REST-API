@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
 use Sandbox\ApiBundle\Form\Order\PatchOrderRejectedType;
 use Sandbox\ApiBundle\Form\Order\PreOrderType;
@@ -802,7 +803,7 @@ class AdminOrderController extends OrderController
                 );
             }
 
-            $user = $this->getRepo('User\User')->find($order->getUserId());
+            $user = $this->getRepo('User\User')->findOneByXmppUsername(User::XMPP_SERVICE);
             $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
             $productId = $order->getProductId();
@@ -875,6 +876,7 @@ class AdminOrderController extends OrderController
             $order->setType(ProductOrder::RESERVE_TYPE);
             $order->setPrice(0);
             $order->setDiscountPrice(0);
+            $order->setUser($user);
 
             $em->persist($order);
 
@@ -885,17 +887,7 @@ class AdminOrderController extends OrderController
                 $product
             );
 
-            // set sales user
-            $this->setSalesUser(
-                $em,
-                $user->getId(),
-                $product
-            );
-
             $em->flush();
-
-            // set door access
-            $this->setDoorAccessForSingleOrder($order);
 
             $view = new View();
             $view->setData(
@@ -920,7 +912,7 @@ class AdminOrderController extends OrderController
      * @param Request $request
      * @param $id
      */
-    public function cancelReservedOrderAction(
+    public function cancelAdminOrderAction(
         Request $request,
         $id
     ) {
@@ -936,19 +928,39 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
         $adminId = $this->getAdminId();
 
+        if ($adminId != $order->getAdminId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $type = $order->getType();
+
+        if (ProductOrder::RESERVE_TYPE == $type) {
+            $permission = SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE;
+        } elseif (ProductOrder::PREORDER_TYPE) {
+            $permission = SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER;
+        } else {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
         // check user permission
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $adminId,
             SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                $permission,
             ),
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             $buildingId
         );
 
         $now = new \DateTime();
-        if ($order->getStatus() !== 'paid' || $order->getStartDate() <= $now) {
+        $status = $order->getStatus();
+
+        if (
+            (ProductOrder::STATUS_PAID != $status
+            && ProductOrder::STATUS_COMPLETED != $status)
+            || $order->getEndDate() <= $now
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_PAYMENT_STATUS_CODE,
@@ -956,11 +968,41 @@ class AdminOrderController extends OrderController
             );
         }
 
-        if ($adminId !== $order->getAdminId() || $order->getType() !== ProductOrder::RESERVE_TYPE) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        if (ProductOrder::PREORDER_TYPE == $type) {
+            $price = $order->getDiscountPrice();
+            $channel = $order->getPayChannel();
+            $userId = $order->getUserId();
 
-        $this->removeAccessByOrder($order);
+            if ($price > 0) {
+                if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                    $balance = $this->postBalanceChange(
+                        $userId,
+                        $price,
+                        $order->getOrderNumber(),
+                        self::PAYMENT_CHANNEL_ACCOUNT,
+                        0,
+                        self::ORDER_REFUND
+                    );
+                } elseif (ProductOrder::CHANNEL_ALIPAY == $channel) {
+                    //TODO: add to be refunded
+                } else {
+                    $this->refundToPayChannel(
+                        $order,
+                        $price,
+                        ProductOrder::PRODUCT_MAP
+                    );
+                }
+            }
+
+            $this->removeAccessByOrder($order);
+        } else {
+            $order->setStatus(ProductOrder::STATUS_CANCELLED);
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+        }
 
         return new View();
     }
@@ -1102,6 +1144,11 @@ class AdminOrderController extends OrderController
 
             $order->setAdminId($adminId);
             $order->setType(ProductOrder::PREORDER_TYPE);
+
+            if (0 == $order->getDiscountPrice()) {
+                $order->setStatus(ProductOrder::STATUS_PAID);
+                $order->setPaymentDate($now);
+            }
 
             $em->persist($order);
 
