@@ -16,6 +16,7 @@ class EventRegistrationPatchType extends AbstractType
     {
         $builder
             ->add('status')
+            ->add('not_in_list')
         ;
     }
 

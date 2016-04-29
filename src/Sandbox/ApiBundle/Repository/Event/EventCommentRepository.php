@@ -68,7 +68,8 @@ class EventCommentRepository extends EntityRepository
      */
     public function getCommentsCount(
         $eventId
-    ) {
+    )
+    {
         $query = $this->createQueryBuilder('ec')
             ->select('COUNT(ec.id)')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = ec.authorId')
@@ -77,5 +78,23 @@ class EventCommentRepository extends EntityRepository
             ->setParameter('eventId', $eventId);
 
         return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $eventId
+     *
+     * @return array
+     */
+    public function getAdminEventComments(
+        $eventId
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'c.authorId = u.id')
+            ->where('c.eventId = :eventId')
+            ->andWhere('u.banned = FALSE')
+            ->orderBy('c.creationDate', 'ASC')
+            ->setParameter('eventId', $eventId);
+
+        return $query->getQuery()->getResult();
     }
 }
