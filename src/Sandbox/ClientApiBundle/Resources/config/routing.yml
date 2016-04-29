@@ -198,6 +198,12 @@ sandbox_client_api_food:
     type:     annotation
     prefix:   /
 
+# User Client /client/events/{id}/likes
+sandbox_client_event_order:
+    resource: "@SandboxClientApiBundle/Controller/Event/ClientEventLikeController.php"
+    type:     annotation
+    prefix:   /
+
 # User Client /client/events/{id}/orders
 sandbox_client_event_order:
     resource: "@SandboxClientApiBundle/Controller/Event/ClientEventOrderController.php"

@@ -239,18 +239,22 @@ class ClientEventController extends EventController
     ) {
         $eventId = $event->getId();
 
-        // get attachment, dates, forms, registrationCounts
+        // get attachment, dates, forms, registrationCounts, likesCount, commentsCount
         $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
         $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
         $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
         $registrationCounts = $this->getRepo('Event\EventRegistration')
             ->getRegistrationCounts($eventId);
+        $likesCount = $this->getRepo('Event\EventLike')->getLikesCount($eventId);
+        $commentsCount = $this->getRepo('Event\EventComment')->getCommentsCount($eventId);
 
         // set attachment, dates, forms, registrationCounts
         $event->setAttachments($attachments);
         $event->setDates($dates);
         $event->setForms($forms);
         $event->setRegisteredPersonNumber((int) $registrationCounts);
+        $event->setLikesCount((int) $likesCount);
+        $event->setCommentsCount((int) $commentsCount);
 
         // set accepted person number
         if ($event->isVerify()) {
@@ -270,6 +274,16 @@ class ClientEventController extends EventController
             if (!is_null($registration)) {
                 // set registration
                 $event->setEventRegistration($registration);
+            }
+
+            // check my like if
+            $like = $this->getRepo('Event\EventLike')->findOneBy(array(
+                'eventId' => $event->getId(),
+                'authorId' => $userId,
+            ));
+
+            if (!is_null($like)) {
+                $event->setMyLikeId($like->getId());
             }
         }
 
