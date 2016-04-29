@@ -25,7 +25,9 @@ class UserViewRepository extends EntityRepository
             u.email,
             u.banned,
             u.name,
-            u.gender
+            u.gender,
+            u.authorizedPlatform,
+            u.authorizedAdminUsername
             ');
         $query->where('u.id > \'0\'');
         if (!is_null($banned)) {
@@ -57,7 +59,9 @@ class UserViewRepository extends EntityRepository
                     u.email,
                     u.banned,
                     u.name,
-                    u.gender
+                    u.gender,
+                    u.authorizedPlatform,
+                    u.authorizedAdminUsername
                     FROM SandboxApiBundle:User\UserView u
                     WHERE u.id IN (:ids)
                 '

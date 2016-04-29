@@ -90,6 +90,22 @@ class UserView
     private $gender;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="authorizedPlatform", type="string", length=32, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $authorizedPlatform;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="authorizedAdminUsername", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $authorizedAdminUsername;
+
+    /**
      * Get id.
      *
      * @return int
@@ -173,5 +189,37 @@ class UserView
     public function getGender()
     {
         return $this->gender;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthorizedPlatform()
+    {
+        return $this->authorizedPlatform;
+    }
+
+    /**
+     * @param string $authorizedPlatform
+     */
+    public function setAuthorizedPlatform($authorizedPlatform)
+    {
+        $this->authorizedPlatform = $authorizedPlatform;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAuthorizedAdminUsername()
+    {
+        return $this->authorizedAdminUsername;
+    }
+
+    /**
+     * @param int $authorizedAdminUsername
+     */
+    public function setAuthorizedAdminUsername($authorizedAdminUsername)
+    {
+        $this->authorizedAdminUsername = $authorizedAdminUsername;
     }
 }

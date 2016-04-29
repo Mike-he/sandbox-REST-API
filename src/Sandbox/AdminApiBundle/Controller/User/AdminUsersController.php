@@ -6,7 +6,7 @@ use Elastica\Param;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
-use Sandbox\ApiBundle\Entity\User;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
@@ -588,6 +588,11 @@ class AdminUsersController extends DoorController
         // authorized user
         $user->setAuthorized(true);
         $user->setModificationDate(new \DateTime('now'));
+
+        // set authorized admin
+        $adminUsername = $this->getUser()->getMyAdmin()->getUsername();
+        $user->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_OFFICIAL);
+        $user->setAuthorizedAdminUsername($adminUsername);
 
         // update to db
         $em = $this->getDoctrine()->getManager();
