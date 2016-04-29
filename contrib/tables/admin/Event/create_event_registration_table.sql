@@ -3,6 +3,7 @@ CREATE TABLE `EventRegistration` (
   `eventId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
   `status` enum('pending','rejected','accepted') NOT NULL,
+  'notInList' tinyint(1) DEFAULT FALSE NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

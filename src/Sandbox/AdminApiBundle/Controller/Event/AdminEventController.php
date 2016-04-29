@@ -195,11 +195,13 @@ class AdminEventController extends SandboxRestController
         $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
         $registrationCounts = $this->getRepo('Event\EventRegistration')
             ->getRegistrationCounts($event->getId());
+        $commentsCount = $this->getRepo('Event\EventComment')->getCommentsCount($event->getId());
 
         $event->setAttachments($attachments);
         $event->setDates($dates);
         $event->setForms($forms);
         $event->setRegisteredPersonNumber((int) $registrationCounts);
+        $event->setCommentsCount((int) $commentsCount);
 
         // set view
         $view = new View($event);
