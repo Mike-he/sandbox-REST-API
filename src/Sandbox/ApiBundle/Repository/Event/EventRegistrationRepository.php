@@ -164,6 +164,7 @@ class EventRegistrationRepository extends EntityRepository
             ->select('
                 er.id,
                 er.status,
+                up.jobTitle,
                 up.name as user_name,
                 up.gender,
                 u.phone,
