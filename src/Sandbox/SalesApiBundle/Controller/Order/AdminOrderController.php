@@ -956,11 +956,7 @@ class AdminOrderController extends OrderController
         $now = new \DateTime();
         $status = $order->getStatus();
 
-        if (
-            (ProductOrder::STATUS_PAID != $status
-            && ProductOrder::STATUS_COMPLETED != $status)
-            || $order->getEndDate() <= $now
-        ) {
+        if (ProductOrder::STATUS_CANCELLED == $status || $order->getEndDate() <= $now) {
             return $this->customErrorView(
                 400,
                 self::WRONG_PAYMENT_STATUS_CODE,
