@@ -2,6 +2,9 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Event;
 
+use FOS\RestBundle\Controller\Annotations;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
@@ -9,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Sandbox\ApiBundle\Entity\Event\EventRegistrationCheck;
 use Sandbox\ApiBundle\Entity\Event\EventRegistrationForm;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Form\Event\EventRegistrationPatchType;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPostType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -47,6 +51,64 @@ class ClientEventRegistrationController extends EventController
     const ERROR_OVER_LIMIT_NUMBER_MESSAGE = 'Over registration limit number';
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="offset of page"
+     * )
+     *
+     * @Route("/events/{id}/registrations")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getRegistrationsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        // filters
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        // get max limit
+        $limit = $this->getLoadMoreLimit($limit);
+
+        // get event
+        $event = $this->getRepo('Event\Event')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        $registrations = $this->getRepo('Event\EventRegistration')->getClientEventRegistrations(
+            $event->getId(),
+            $limit,
+            $offset
+        );
+
+        return new View($registrations);
+    }
+
+    /**
      * Post registrations.
      *
      * @param Request $request
@@ -77,6 +139,41 @@ class ClientEventRegistrationController extends EventController
             $event_id,
             $request
         );
+    }
+
+    /**
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/events/{id}/registration")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchRegistrationAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
+            'eventId' => $id,
+            'userId' => $userId,
+        ));
+        $this->throwNotFoundIfNull($registration, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $registrationJson = $this->container->get('serializer')->serialize($registration, 'json');
+        $patch = new Patch($registrationJson, $request->getContent());
+        $registrationJson = $patch->apply();
+
+        $form = $this->createForm(new EventRegistrationPatchType(), $registration);
+        $form->submit(json_decode($registrationJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**

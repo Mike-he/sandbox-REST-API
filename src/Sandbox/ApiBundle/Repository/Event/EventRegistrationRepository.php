@@ -147,4 +147,41 @@ class EventRegistrationRepository extends EntityRepository
 
         $query->execute();
     }
+
+    /**
+     * @param $eventId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getClientEventRegistrations(
+        $eventId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('er')
+            ->select('
+                er.id,
+                er.status,
+                up.name as user_name,
+                up.gender,
+                u.phone,
+                u.email
+            ')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = er.eventId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = er.userId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = er.userId')
+            ->where('e.id = :eventId')
+            ->andWhere('e.isDeleted = FALSE')
+            ->andWhere('er.notInList = FALSE')
+            ->setParameter('eventId', $eventId);
+
+        $query->setMaxResults($limit);
+        $query->setFirstResult($offset);
+
+        $query->orderBy('er.id', 'ASC');
+
+        return $query->getQuery()->getResult();
+    }
 }

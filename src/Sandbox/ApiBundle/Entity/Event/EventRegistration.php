@@ -79,6 +79,17 @@ class EventRegistration
     private $status = self::STATUS_PENDING;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="notInList", type="boolean", nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $notInList = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -222,6 +233,22 @@ class EventRegistration
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNotInList()
+    {
+        return $this->notInList;
+    }
+
+    /**
+     * @param bool $notInList
+     */
+    public function setNotInList($notInList)
+    {
+        $this->notInList = $notInList;
     }
 
     /**
