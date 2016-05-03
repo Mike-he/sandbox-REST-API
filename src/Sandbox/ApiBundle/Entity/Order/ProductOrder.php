@@ -34,6 +34,7 @@ class ProductOrder
     const ACTION_ACCEPTED = 'accepted';
     const ACTION_REJECTED = 'rejected';
     const LETTER_HEAD = 'P';
+    const ENTITY_PATH = 'Order\ProductOrder';
 
     const RESERVE_TYPE = 'reserve';
     const PREORDER_TYPE = 'preorder';

@@ -72,9 +72,13 @@ class AdminOrderController extends OrderController
             $order->getDiscountPrice(),
             ShopOrder::SHOP_MAP
         );
-        $charge = json_decode($charge, true);
 
-        return new View($charge);
+        $link = $this->getRefundLink($charge);
+
+        $view = new View();
+        $view->setData(['refund_link' => $link]);
+
+        return $view;
     }
 
     /**
@@ -175,9 +179,35 @@ class AdminOrderController extends OrderController
             $order->getDiscountPrice(),
             ProductOrder::PRODUCT_MAP
         );
+
+        $link = $this->getRefundLink($charge);
+
+        $view = new View();
+        $view->setData(['refund_link' => $link]);
+
+        return $view;
+    }
+
+    /**
+     * @param json $charge
+     *
+     * @return string
+     */
+    private function getRefundLink(
+        $charge
+    ) {
         $charge = json_decode($charge, true);
 
-        return new View($charge);
+        if (!array_key_exists('failure_msg', $charge) || empty($charge['failure_msg'])) {
+            return;
+        }
+
+        $link = $charge['failure_msg'];
+
+        $linkArray = explode('https://', $link);
+        $link = 'https://'.$linkArray[1];
+
+        return $link;
     }
 
     /**
