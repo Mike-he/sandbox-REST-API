@@ -103,7 +103,6 @@ class AdminOrderController extends OrderController
             if ($price > 0) {
                 if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
                     $balance = $this->postBalanceChange(
-
                         $userId,
                         $price,
                         $order->getOrderNumber(),
