@@ -203,7 +203,7 @@ class ClientEventOrderController extends PaymentController
         $orderNumber = $this->getOrderNumber(EventOrder::LETTER_HEAD);
 
         // set order
-        $order->setEventId($event->getId());
+        $order->setEvent($event);
         $order->setUserId($userId);
         $order->setPrice($event->getPrice());
         $order->setStatus(EventOrder::STATUS_UNPAID);
