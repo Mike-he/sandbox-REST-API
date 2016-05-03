@@ -7,6 +7,8 @@ SELECT
        u.authorized,
        u.cardNo,
        u.credentialNo,
+       u.authorizedPlatform,
+       u.authorizedAdminUsername,
        up.name,
 	     up.gender
 FROM User u

@@ -27,6 +27,9 @@ class User implements UserInterface
     const XMPP_SERVICE = 'service';
     const ERROR_NOT_FOUND = 'User Not Found';
 
+    const AUTHORIZED_PLATFORM_OFFICIAL = 'official';
+    const AUTHORIZED_PLATFORM_SALES = 'sales';
+
     /**
      * @var int
      *
@@ -99,6 +102,22 @@ class User implements UserInterface
      * @Serializer\Groups({"main"})
      */
     private $credentialNo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="authorizedPlatform", type="string", length=32, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $authorizedPlatform;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="authorizedAdminUsername", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $authorizedAdminUsername;
 
     /**
      * @var \DateTime
@@ -316,6 +335,38 @@ class User implements UserInterface
         $this->credentialNo = $credentialNo;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthorizedPlatform()
+    {
+        return $this->authorizedPlatform;
+    }
+
+    /**
+     * @param string $authorizedPlatform
+     */
+    public function setAuthorizedPlatform($authorizedPlatform)
+    {
+        $this->authorizedPlatform = $authorizedPlatform;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAuthorizedAdminUsername()
+    {
+        return $this->authorizedAdminUsername;
+    }
+
+    /**
+     * @param int $authorizedAdminUsername
+     */
+    public function setAuthorizedAdminUsername($authorizedAdminUsername)
+    {
+        $this->authorizedAdminUsername = $authorizedAdminUsername;
     }
 
     /**

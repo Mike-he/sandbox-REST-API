@@ -7,7 +7,7 @@ use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
-use Sandbox\ApiBundle\Entity\User;
+use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Symfony\Component\HttpFoundation\Request;
@@ -525,6 +525,11 @@ class AdminUsersController extends DoorController
 
         $salesUser->setIsAuthorized(true);
         $salesUser->setModificationDate(new \DateTime('now'));
+
+        // set authorized admin
+        $adminUsername = $this->getUser()->getMyAdmin()->getUsername();
+        $user->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_SALES);
+        $user->setAuthorizedAdminUsername($adminUsername);
 
         $em->persist($salesUser);
 
