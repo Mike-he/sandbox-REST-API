@@ -2,7 +2,6 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Event;
 
-use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Event\EventLike;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;

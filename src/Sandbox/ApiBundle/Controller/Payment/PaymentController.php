@@ -98,6 +98,8 @@ class PaymentController extends DoorController
 
     /**
      * @param object $order
+     * @param float  $amount
+     * @param string $type
      * 
      * @return Charge
      */
@@ -118,6 +120,8 @@ class PaymentController extends DoorController
         if (is_null($chargeId) || empty($chargeId)) {
             return array();
         }
+
+        $order->setRefundProcessed(true);
 
         $globals = $this->get('twig')->getGlobals();
         $key = $globals['pingpp_key'];

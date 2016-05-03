@@ -50,6 +50,7 @@ class CheckStatusCommand extends ContainerAwareCommand
 
                 if ($order->isRejected()
                     || (ProductOrder::CHANNEL_ACCOUNT == $order->getPayChannel())
+                    || $order->getDiscountPrice() <= 0
                 ) {
                     continue;
                 }
