@@ -31,6 +31,7 @@ class ShopOrder
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
     const SHOP_MAP = 'shop';
+    const ENTITY_PATH = 'Shop\ShopOrder';
 
     const NOT_PAID_CODE = 400003;
     const NOT_PAID_MESSAGE = 'Order is not paid';

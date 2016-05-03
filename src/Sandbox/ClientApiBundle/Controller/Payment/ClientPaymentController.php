@@ -3,6 +3,8 @@
 namespace Sandbox\ClientApiBundle\Controller\Payment;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -33,17 +35,19 @@ class ClientPaymentController extends PaymentController
     ) {
         $rawData = file_get_contents('php://input');
         $data = json_decode($rawData, true);
+        $type = $data['type'];
         $object = $data['data']['object'];
 
-        if ('refund' == $object['object']) {
+        if ('refund.succeeded' == $type) {
             if ('succeeded' == $object['status'] && true == $object['succeed']) {
-                //TODO: update order refund status
+                // update order refund status
+                $this->updateRefundStatus($object);
             }
 
             return new Response();
         }
 
-        if ($data['type'] != 'charge.succeeded' || $object['paid'] != true) {
+        if ($type != 'charge.succeeded' || $object['paid'] != true) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -249,5 +253,39 @@ class ClientPaymentController extends PaymentController
         );
 
         return new View($charge);
+    }
+
+    /**
+     * @param $object
+     */
+    private function updateRefundStatus(
+        $object
+    ) {
+        $chargeId = $object['charge'];
+
+        $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
+            [
+                'chargeId' => $chargeId,
+            ]
+        );
+        $this->throwNotFoundIfNull($myCharge, self::NOT_FOUND_MESSAGE);
+
+        $type = $myCharge->getType();
+        $orderId = $myCharge->getOrderId();
+
+        if ($type == ProductOrder::PRODUCT_MAP) {
+            $path = ProductOrder::ENTITY_PATH;
+        } elseif ($type == ShopOrder::SHOP_MAP) {
+            $path = ShopOrder::ENTITY_PATH;
+        } else {
+            return;
+        }
+
+        $order = $this->getRepo($path)->find($orderId);
+        $order->setRefunded(true);
+        $order->setNeedToRefund(false);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
     }
 }
