@@ -124,8 +124,8 @@ class ClientEventOrderController extends PaymentController
      * @Annotations\QueryParam(
      *    name="status",
      *    array=false,
-     *    default="unpaid",
-     *    nullable=false,
+     *    default=null,
+     *    nullable=true,
      *    strict=true,
      *    description="event order status"
      * )
@@ -145,11 +145,16 @@ class ClientEventOrderController extends PaymentController
         $status = $paramFetcher->get('status');
         $userId = $this->getUserId();
 
-        $orders = $this->getRepo('Event\EventOrder')->findOneBy(array(
+        $filters = array(
             'eventId' => $id,
             'userId' => $userId,
-            'status' => $status,
-        ));
+        );
+
+        if (!is_null($status)) {
+            $filters['status'] = $status;
+        }
+
+        $orders = $this->getRepo('Event\EventOrder')->findOneBy($filters);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
