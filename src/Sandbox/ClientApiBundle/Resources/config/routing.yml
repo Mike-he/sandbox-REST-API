@@ -199,7 +199,7 @@ sandbox_client_api_food:
     prefix:   /
 
 # User Client /client/events/{id}/likes
-sandbox_client_event_order:
+sandbox_client_event_like:
     resource: "@SandboxClientApiBundle/Controller/Event/ClientEventLikeController.php"
     type:     annotation
     prefix:   /
