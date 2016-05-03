@@ -338,7 +338,7 @@ class AdminShopOrderController extends ShopController
 
                             // set invoice amount
                             $amount = $this->postConsumeBalance(
-                                $order->getUserId(),
+                                $userId,
                                 $invoice,
                                 $order->getOrderNumber()
                             );
@@ -347,7 +347,7 @@ class AdminShopOrderController extends ShopController
                 } else {
                     // set invoice amount
                     $amount = $this->postConsumeBalance(
-                        $order->getUserId(),
+                        $userId,
                         $order->getPrice(),
                         $order->getOrderNumber()
                     );
@@ -1003,6 +1003,7 @@ class AdminShopOrderController extends ShopController
     ) {
         $channel = $oldOrder->getPayChannel();
         $refund = $oldOrder->getRefundAmount();
+        $oldOrder->setNeedToRefund(true);
 
         if (ShopOrder::CHANNEL_ACCOUNT == $channel) {
             $balance = $this->postBalanceChange(
@@ -1013,9 +1014,9 @@ class AdminShopOrderController extends ShopController
                 0,
                 self::ORDER_REFUND
             );
-        } elseif (ShopOrder::CHANNEL_ALIPAY == $channel) {
-            //TODO: add to be refunded
-        } else {
+
+            $oldOrder->setRefunded(true);
+        } elseif (ShopOrder::CHANNEL_ALIPAY != $channel) {
             $this->refundToPayChannel(
                 $oldOrder,
                 $refund,

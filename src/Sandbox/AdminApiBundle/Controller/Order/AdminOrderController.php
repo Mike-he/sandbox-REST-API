@@ -9,6 +9,8 @@ use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -34,6 +36,212 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminOrderController extends OrderController
 {
+    /**
+     * @Route("/shop/orders/{id}/refund")
+     * @Method({"GET"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getShopOrderRefundLinkAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ShopOrder::STATUS_REFUNDED,
+                'needToRefund' => true,
+                'refunded' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $order->setRefundProcessed(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $charge = $this->refundToPayChannel(
+            $order,
+            $order->getDiscountPrice(),
+            ShopOrder::SHOP_MAP
+        );
+        $charge = json_decode($charge, true);
+
+        return new View($charge);
+    }
+
+    /**
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/shop/orders/refund")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     */
+    public function getRefundShopOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $orders = $this->getRepo('Shop\ShopOrder')->findBy(
+            [
+                'needToRefund' => true,
+                'status' => ShopOrder::STATUS_REFUNDED,
+                'refunded' => false,
+            ]
+        );
+
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['admin_shop'])
+        );
+        $orders = json_decode($orders, true);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $orders,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * @Route("/orders/{id}/refund")
+     * @Method({"GET"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getOrderRefundLinkAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ProductOrder::STATUS_CANCELLED,
+                'needToRefund' => true,
+                'refunded' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $order->setRefundProcessed(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $charge = $this->refundToPayChannel(
+            $order,
+            $order->getDiscountPrice(),
+            ProductOrder::PRODUCT_MAP
+        );
+        $charge = json_decode($charge, true);
+
+        return new View($charge);
+    }
+
+    /**
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/orders/refund")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     */
+    public function getRefundOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $orders = $this->getRepo('Order\ProductOrder')->findBy(
+            [
+                'needToRefund' => true,
+                'status' => ProductOrder::STATUS_CANCELLED,
+                'refunded' => false,
+            ]
+        );
+
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['admin_detail'])
+        );
+        $orders = json_decode($orders, true);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $orders,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
     /**
      * @Route("/orders/{id}/sync")
      * @Method({"POST"})

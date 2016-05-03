@@ -518,6 +518,7 @@ class ClientOrderController extends OrderController
 
         $charge = [];
         $channel = $order->getPayChannel();
+        $order->setNeedToRefund(true);
 
         if ($price > 0) {
             if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
@@ -529,9 +530,9 @@ class ClientOrderController extends OrderController
                     0,
                     self::ORDER_REFUND
                 );
-            } elseif (ProductOrder::CHANNEL_ALIPAY == $channel) {
-                //TODO: add to be refunded
-            } else {
+
+                $order->setRefunded(true);
+            } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
                 $this->refundToPayChannel(
                     $order,
                     $price,
@@ -875,6 +876,7 @@ class ClientOrderController extends OrderController
         $productId = $order->getProductId();
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
+        $price = $order->getDiscountPrice();
         $renewButton = false;
 
         if ($type == Room::TYPE_OFFICE && $status == ProductOrder::STATUS_COMPLETED) {
@@ -893,6 +895,18 @@ class ClientOrderController extends OrderController
             $order->setModificationDate($now);
             $em = $this->getDoctrine()->getManager();
             $em->flush();
+
+            if (!$order->isRejected()
+                && (ProductOrder::CHANNEL_ACCOUNT != $order->getPayChannel())
+                && $price > 0
+            ) {
+                // set invoice amount
+                $amount = $this->postConsumeBalance(
+                    $userId,
+                    $price,
+                    $order->getOrderNumber()
+                );
+            }
         }
 
         $view = new View();

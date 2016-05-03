@@ -90,15 +90,15 @@ class AdminOrderController extends OrderController
 
         $now = new \DateTime();
         $newRejected = $order->isRejected();
+        $price = $order->getDiscountPrice();
+        $userId = $order->getUserId();
+        $channel = $order->getPayChannel();
 
         if ($newRejected) {
             $order->setStatus(ProductOrder::STATUS_CANCELLED);
             $order->setCancelledDate($now);
             $order->setModificationDate($now);
-
-            $price = $order->getDiscountPrice();
-            $userId = $order->getUserId();
-            $channel = $order->getPayChannel();
+            $order->setNeedToRefund(true);
 
             if ($price > 0) {
                 if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
@@ -110,9 +110,9 @@ class AdminOrderController extends OrderController
                         0,
                         self::ORDER_REFUND
                     );
-                } elseif (ProductOrder::CHANNEL_ALIPAY == $channel) {
-                    //TODO: add to be refunded
-                } else {
+
+                    $order->setRefunded(true);
+                } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
                     $this->refundToPayChannel(
                         $order,
                         $price,
@@ -136,10 +136,13 @@ class AdminOrderController extends OrderController
             $this->setDoorAccessForSingleOrder($order);
 
             // set invoice amount
-            if (ProductOrder::STATUS_COMPLETED == $order->getStatus()) {
+            if (ProductOrder::STATUS_COMPLETED == $order->getStatus()
+                && $price > 0
+                && $channel != ProductOrder::CHANNEL_ACCOUNT
+            ) {
                 $amount = $this->postConsumeBalance(
-                    $order->getUserId(),
-                    $order->getDiscountPrice(),
+                    $userId,
+                    $price,
                     $order->getOrderNumber()
                 );
             }
@@ -968,6 +971,7 @@ class AdminOrderController extends OrderController
             $price = $order->getDiscountPrice();
             $channel = $order->getPayChannel();
             $userId = $order->getUserId();
+            $order->setNeedToRefund(true);
 
             if ($price > 0) {
                 if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
@@ -979,9 +983,9 @@ class AdminOrderController extends OrderController
                         0,
                         self::ORDER_REFUND
                     );
-                } elseif (ProductOrder::CHANNEL_ALIPAY == $channel) {
-                    //TODO: add to be refunded
-                } else {
+
+                    $order->setRefunded(true);
+                } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
                     $this->refundToPayChannel(
                         $order,
                         $price,

@@ -3,13 +3,12 @@
 namespace Sandbox\ApiBundle\Repository\Event;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\ApiBundle\Entity\Event\Event;
-use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 
 class EventLikeRepository extends EntityRepository
 {
     /**
      * @param $eventId
+     *
      * @return mixed
      */
     public function getLikesCount(

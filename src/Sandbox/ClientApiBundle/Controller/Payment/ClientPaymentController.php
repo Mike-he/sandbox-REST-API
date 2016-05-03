@@ -36,8 +36,8 @@ class ClientPaymentController extends PaymentController
         $object = $data['data']['object'];
 
         if ('refund' == $object['object']) {
-            if ('succeeded' != $object['status'] || true != $object['succeed']) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            if ('succeeded' == $object['status'] && true == $object['succeed']) {
+                //TODO: update order refund status
             }
 
             return new Response();

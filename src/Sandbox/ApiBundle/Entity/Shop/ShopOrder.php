@@ -212,10 +212,26 @@ class ShopOrder
     /**
      * @var bool
      *
-     * @ORM\Column(name="manualRefund", type="boolean", options={"default": false})
+     * @ORM\Column(name="needToRefund", type="boolean", options={"default": false})
      * @Serializer\Groups({"main", "admin_shop", "client_order"})
      */
-    private $manualRefund = false;
+    private $needToRefund = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="refunded", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $refunded = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="refundProcessed", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_shop", "client_order"})
+     */
+    private $refundProcessed = false;
 
     /**
      * Get id.
@@ -276,27 +292,75 @@ class ShopOrder
     }
 
     /**
-     * Set manualRefund.
+     * Set needToRefund.
      *
-     * @param bool $manualRefund
+     * @param bool $needToRefund
      *
      * @return ShopOrder
      */
-    public function setManualRefund($manualRefund)
+    public function setNeedToRefund($needToRefund)
     {
-        $this->manualRefund = $manualRefund;
+        $this->needToRefund = $needToRefund;
 
         return $this;
     }
 
     /**
-     * Get manualRefund.
+     * Get needToRefund.
      *
      * @return bool
      */
-    public function isManualRefund()
+    public function isNeedToRefund()
     {
-        return $this->manualRefund;
+        return $this->needToRefund;
+    }
+
+    /**
+     * Set refunded.
+     *
+     * @param bool $refunded
+     *
+     * @return ShopOrder
+     */
+    public function setRefunded($refunded)
+    {
+        $this->refunded = $refunded;
+
+        return $this;
+    }
+
+    /**
+     * Get refunded.
+     *
+     * @return bool
+     */
+    public function isRefunded()
+    {
+        return $this->refunded;
+    }
+
+    /**
+     * Set refundProcessed.
+     *
+     * @param bool $refundProcessed
+     *
+     * @return ShopOrder
+     */
+    public function setRefundProcessed($refundProcessed)
+    {
+        $this->refundProcessed = $refundProcessed;
+
+        return $this;
+    }
+
+    /**
+     * Get refundProcessed.
+     *
+     * @return bool
+     */
+    public function isRefundProcessed()
+    {
+        return $this->refundProcessed;
     }
 
     /**
