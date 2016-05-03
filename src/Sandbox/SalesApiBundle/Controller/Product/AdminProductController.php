@@ -254,7 +254,7 @@ class AdminProductController extends ProductController
         $permissions = $paramFetcher->get('permission');
 
         // set default permission
-        if (is_null($permissions)) {
+        if (is_null($permissions) || empty($permissions)) {
             $permissions = array(
                 SalesAdminPermission::KEY_BUILDING_PRODUCT,
             );
