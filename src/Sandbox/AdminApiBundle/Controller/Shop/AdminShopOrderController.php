@@ -15,6 +15,7 @@ use Sandbox\ApiBundle\Entity\Shop\Shop;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Admin ShopOrder Controller.
@@ -246,8 +247,12 @@ class AdminShopOrderController extends ShopController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
 
         $shopId = $paramFetcher->get('shop');
         $status = $paramFetcher->get('status');
@@ -317,5 +322,24 @@ class AdminShopOrderController extends ShopController
             AdminPermission::KEY_PLATFORM_ORDER,
             $opLevel
         );
+    }
+
+    /**
+     * authenticate with web browser cookie.
+     */
+    private function authenticateAdminCookie()
+    {
+        $cookie_name = self::ADMIN_COOKIE_NAME;
+        if (!isset($_COOKIE[$cookie_name])) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $token = $_COOKIE[$cookie_name];
+        $adminToken = $this->getRepo('Admin\AdminToken')->findOneByToken($token);
+        if (is_null($adminToken)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        return $adminToken->getAdmin();
     }
 }
