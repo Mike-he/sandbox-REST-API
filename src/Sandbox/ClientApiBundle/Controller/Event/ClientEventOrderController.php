@@ -264,7 +264,9 @@ class ClientEventOrderController extends PaymentController
                     'eventId' => $order->getEventId(),
                     'userId' => $order->getUserId(),
                 ));
-                $em->remove($eventRegistration);
+                if (!is_null($eventRegistration)) {
+                    $em->remove($eventRegistration);
+                }
 
                 $em->flush();
             }
