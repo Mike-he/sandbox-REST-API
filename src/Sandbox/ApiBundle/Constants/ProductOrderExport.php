@@ -19,12 +19,14 @@ class ProductOrderExport
     const USER_PHONE = 'phone';
     const USER_EMAIL = 'email';
     const PAYMENT_CHANNEL = 'channel';
+    const ORDER_TYPE = 'order_type';
 
     const TRANS_ROOM_TYPE = 'room.type.';
     const TRANS_ROOM_UNIT = 'room.unit.';
 
     const TRANS_PRODUCT_ORDER_STATUS = 'product_order.status.';
     const TRANS_PRODUCT_ORDER_CHANNEL = 'product_order.channel.';
+    const TRANS_PRODUCT_ORDER_TYPE = 'product_order.order_type.';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_NO = 'product_order.export_header.order_number';
     const TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME = 'product_order.export_header.product_name';
     const TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE = 'product_order.export_header.type';
@@ -40,4 +42,5 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_USER_PHONE = 'product_order.export_header.phone';
     const TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL = 'product_order.export_header.email';
     const TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL = 'product_order.export_header.channel';
+    const TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE = 'product_order.export_header.order_type';
 }

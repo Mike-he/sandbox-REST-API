@@ -4,7 +4,6 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
@@ -18,10 +17,8 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
-use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -644,9 +641,6 @@ class AdminOrderController extends OrderController
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $phpExcelObject = new \PHPExcel();
-        $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
-
         //get array of orders
         $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport(
             $channel,
@@ -660,136 +654,7 @@ class AdminOrderController extends OrderController
             $payEnd
         );
 
-        $excelBody = array();
-
-        // set excel body
-        foreach ($orders as $order) {
-            $productInfo = json_decode($order->getProductInfo(), true);
-
-            // set product name
-            $productName = $productInfo['room']['city']['name'].
-                $productInfo['room']['building']['name'].
-                $productInfo['room']['number'];
-
-            // set product type
-            $productTypeKey = $productInfo['room']['type'];
-            $productType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey,
-                array(),
-                null,
-                $language
-            );
-
-            // set unit price
-            $unitPriceKey = $productInfo['unit_price'];
-            $unitPrice = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey,
-                array(),
-                null,
-                $language
-            );
-
-            // set status
-            $statusKey = $order->getStatus();
-            $status = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey,
-                array(),
-                null,
-                $language
-            );
-
-            // set leasing name
-            $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$order->getEndDate()->format('Y-m-d H:i:s');
-
-            $userId = $order->getUserId();
-            $user = $this->getRepo('User\User')->find($userId);
-
-            $paymentChannel = $order->getPayChannel();
-            if (!is_null($paymentChannel) && !empty($paymentChannel)) {
-                $paymentChannel = $this->get('translator')->trans(
-                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
-                    array(),
-                    null,
-                    $language
-                );
-            }
-
-            // set excel body
-            $body = array(
-                ProductOrderExport::ORDER_NUMBER => $order->getOrderNumber(),
-                ProductOrderExport::PRODUCT_NAME => $productName,
-                ProductOrderExport::ROOM_TYPE => $productType,
-                ProductOrderExport::USER_ID => $userId,
-                ProductOrderExport::BASE_PRICE => $productInfo['base_price'],
-                ProductOrderExport::UNIT_PRICE => $unitPrice,
-                ProductOrderExport::AMOUNT => $order->getPrice(),
-                ProductOrderExport::DISCOUNT_PRICE => $order->getDiscountPrice(),
-                ProductOrderExport::LEASING_TIME => $leasingTime,
-                ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
-                ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
-                ProductOrderExport::ORDER_STATUS => $status,
-                ProductOrderExport::USER_PHONE => $user->getPhone(),
-                ProductOrderExport::USER_EMAIL => $user->getEmail(),
-                ProductOrderExport::PAYMENT_CHANNEL => $paymentChannel,
-            );
-
-            $excelBody[] = $body;
-        }
-
-        $headers = [
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_PHONE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),
-        ];
-
-        //Fill data
-        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
-        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
-
-        $phpExcelObject->getActiveSheet()->getStyle('A1:L1')->getFont()->setBold(true);
-
-        //set column dimension
-        for ($col = ord('a'); $col <= ord('o'); ++$col) {
-            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
-        }
-        $phpExcelObject->getActiveSheet()->setTitle('Orders');
-
-        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
-        $phpExcelObject->setActiveSheetIndex(0);
-
-        // create the writer
-        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
-        // create the response
-        $response = $this->get('phpexcel')->createStreamedResponse($writer);
-
-        $date = new \DateTime('now');
-        $stringDate = $date->format('Y-m-d H:i:s');
-
-        // adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'orders_'.$stringDate.'.xls'
-        );
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-
-        return $response;
+        return $this->getProductOrderExport($orders, $language);
     }
 
     /**

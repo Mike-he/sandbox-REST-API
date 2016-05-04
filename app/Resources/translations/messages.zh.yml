@@ -46,6 +46,10 @@ product_order:
     paid: 已付款
     completed: 已完成
     cancelled: 已取消
+  order_type:
+    user: 用户下单
+    preorder: 后台预定
+    reserve: 后台预留
   export_header:
     order_number: 订单号
     product_name: 商品
@@ -62,6 +66,7 @@ product_order:
     phone: 租赁人手机
     email: 租赁人邮箱
     channel: 支付渠道
+    order_type: 下单方式
 
 shop_order:
   channel:

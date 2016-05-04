@@ -46,6 +46,10 @@ product_order:
     paid: Paid
     completed: Completed
     cancelled: Cancelled
+  order_type:
+    user: Client User
+    preorder: Pre-Order
+    reserve: Reserve
   export_header:
     order_number: Order Number
     product_name: Product Name
@@ -62,6 +66,7 @@ product_order:
     phone: Renter Mobile
     email: Renter Email
     channel: Payment Channel
+    order_type: Order Type
 
 shop_order:
   channel:

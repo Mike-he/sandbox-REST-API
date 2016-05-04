@@ -2,6 +2,9 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Shop;
 
+use Proxies\__CG__\Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -25,30 +28,6 @@ use Knp\Component\Pager\Paginator;
  */
 class AdminShopOrderController extends ShopController
 {
-    /**
-     * @param Request $request
-     * @param int     $id
-     *
-     * @Method({"GET"})
-     * @Route("/shop/orders/{id}")
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function getAdminShopOrderByIdAction(
-        Request $request,
-        $id
-    ) {
-        $order = $this->getRepo('Shop\ShopOrder')->find($id);
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
-        $view->setData($order);
-
-        return $view;
-    }
-
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -149,6 +128,9 @@ class AdminShopOrderController extends ShopController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+
         $shopId = $paramFetcher->get('shop');
         $status = $paramFetcher->get('status');
         $start = $paramFetcher->get('start');
@@ -184,5 +166,156 @@ class AdminShopOrderController extends ShopController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by shop"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by payment date start"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by payment date end"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort",
+     *    array=false,
+     *    default="DESC",
+     *    nullable=false,
+     *    strict=true,
+     *    description="sort direction"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search by order orderNumber, username"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    default="zh",
+     *    nullable=true,
+     *    requirements="(zh|en)",
+     *    strict=true,
+     *    description="export language"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/shop/orders/export")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminShopOrderExportAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $shopId = $paramFetcher->get('shop');
+        $status = $paramFetcher->get('status');
+        $start = $paramFetcher->get('start');
+        $end = $paramFetcher->get('end');
+        $sort = $paramFetcher->get('sort');
+        $search = $paramFetcher->get('search');
+        $language = $paramFetcher->get('language');
+
+        if (!is_null($status) && !empty($status)) {
+            $status = explode(',', $status);
+        }
+
+        $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrdersForBackend(
+            $shopId,
+            $status,
+            $start,
+            $end,
+            $sort,
+            $search,
+            null
+        );
+
+        return $this->getShopOrderExport($orders, $language);
+    }
+
+    /**
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Method({"GET"})
+     * @Route("/shop/orders/{id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminShopOrderByIdAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $order = $this->getRepo('Shop\ShopOrder')->find($id);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setData($order);
+
+        return $view;
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $opLevel
+     * @param int $adminId
+     */
+    private function checkAdminOrderPermission(
+        $adminId,
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_ORDER,
+            $opLevel
+        );
     }
 }
