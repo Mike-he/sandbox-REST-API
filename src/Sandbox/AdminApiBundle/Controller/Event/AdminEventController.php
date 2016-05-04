@@ -522,7 +522,8 @@ class AdminEventController extends SandboxRestController
             $registrationStartDate,
             $registrationEndDate,
             $dates,
-            $submit
+            $submit,
+            $eventStartDate
         );
 
         // add events attachments
@@ -664,12 +665,14 @@ class AdminEventController extends SandboxRestController
             }
         }
 
+        $eventStartDate = $this->getEventStartDate($dates);
         $eventEndDate = $this->getEventEndDate($dates);
 
         $event->setCity($city);
         $event->setBuildingId($buildingId);
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
+        $event->setEventStartDate($eventStartDate);
         $event->setEventEndDate($eventEndDate);
         $event->setModificationDate($now);
 
@@ -783,6 +786,7 @@ class AdminEventController extends SandboxRestController
      * @param \DateTime $endDate
      * @param array     $dates
      * @param           $submit
+     * @param \DateTime $eventStartDate
      */
     private function addEvents(
         $event,
@@ -791,7 +795,8 @@ class AdminEventController extends SandboxRestController
         $startDate,
         $endDate,
         $dates,
-        $submit
+        $submit,
+        $eventStartDate
     ) {
         $em = $this->getDoctrine()->getManager();
 
@@ -812,6 +817,7 @@ class AdminEventController extends SandboxRestController
         $event->setBuildingId($buildingId);
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
+        $event->setEventStartDate($eventStartDate);
         $event->setEventEndDate($eventEndDate);
         $event->setCreationDate($now);
         $event->setModificationDate($now);

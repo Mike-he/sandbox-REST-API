@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Event;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 
 class EventRegistrationRepository extends EntityRepository
@@ -123,16 +124,17 @@ class EventRegistrationRepository extends EntityRepository
         $start = clone $now;
         $start->modify('-15 minutes');
 
-        $query = $this->createQueryBuilder('r')
+        $registrationQuery = $this->createQueryBuilder('r')
             ->select('r.id')
             ->leftJoin('SandboxApiBundle:Event\EventOrder', 'o', 'WITH', 'r.eventId = o.eventId')
             ->where('r.userId = o.userId')
-            ->andWhere('o.status = \'cancelled\'')
+            ->andWhere('o.status = :unpaid')
             ->andWhere('o.creationDate <= :start')
+            ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
             ->setParameter('start', $start)
             ->getQuery();
 
-        $registrations = $query->getResult();
+        $registrations = $registrationQuery->getResult();
         $registrationIds = array_map('current', $registrations);
 
         // delete event registrations
@@ -164,6 +166,7 @@ class EventRegistrationRepository extends EntityRepository
             ->select('
                 er.id,
                 er.status,
+                up.userId,
                 up.jobTitle,
                 up.name as user_name,
                 up.gender,

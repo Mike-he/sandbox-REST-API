@@ -154,6 +154,15 @@ class Event
     /**
      * @var \DateTime
      *
+     * @ORM\Column(name="eventStartDate", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $eventStartDate;
+
+    /**
+     * @var \DateTime
+     *
      * @ORM\Column(name="eventEndDate", type="datetime", nullable=false)
      *
      * @Serializer\Groups({"main"})
@@ -686,6 +695,22 @@ class Event
     public function isDeleted()
     {
         return $this->isDeleted;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEventStartDate()
+    {
+        return $this->eventStartDate;
+    }
+
+    /**
+     * @param \DateTime $eventStartDate
+     */
+    public function setEventStartDate($eventStartDate)
+    {
+        $this->eventStartDate = $eventStartDate;
     }
 
     /**
