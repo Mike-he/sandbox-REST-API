@@ -58,4 +58,34 @@ class EventOrderRepository extends EntityRepository
 
         $query->execute();
     }
+
+    /**
+     * @param $eventId
+     * @param $userId
+     * @param $status
+     *
+     * @return mixed
+     */
+    public function getLastEventOrder(
+        $eventId,
+        $userId,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->where('eo.eventId = :eventId')
+            ->andWhere('eo.userId = :userId')
+            ->setParameter('eventId', $eventId)
+            ->setParameter('userId', $userId);
+
+        // filter by status
+        if (!is_null($status)) {
+            $query->andWhere('eo.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        // set order by
+        $query->orderBy('eo.creationDate', 'DESC');
+
+        return $query->getQuery()->getOneOrNullResult();
+    }
 }

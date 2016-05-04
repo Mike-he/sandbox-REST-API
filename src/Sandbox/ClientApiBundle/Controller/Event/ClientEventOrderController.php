@@ -107,7 +107,10 @@ class ClientEventOrderController extends PaymentController
     ) {
         $userId = $this->getUserId();
 
-        $orders = $this->getRepo('Event\EventOrder')->findOneByUserId($userId);
+        $orders = $this->getRepo('Event\EventOrder')->findOneBy(array(
+            'id' => $id,
+            'userId' => $userId,
+        ));
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
@@ -140,25 +143,18 @@ class ClientEventOrderController extends PaymentController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $this->getRepo('Event\EventOrder')->setStatusCompleted();
-
         $status = $paramFetcher->get('status');
         $userId = $this->getUserId();
 
-        $filters = array(
-            'eventId' => $id,
-            'userId' => $userId,
+        $order = $this->getRepo('Event\EventOrder')->getLastEventOrder(
+            $id,
+            $userId,
+            $status
         );
-
-        if (!is_null($status)) {
-            $filters['status'] = $status;
-        }
-
-        $orders = $this->getRepo('Event\EventOrder')->findOneBy($filters);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
-        $view->setData($orders);
+        $view->setData($order);
 
         return $view;
     }
