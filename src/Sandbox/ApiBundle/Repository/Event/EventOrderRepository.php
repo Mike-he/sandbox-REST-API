@@ -86,6 +86,9 @@ class EventOrderRepository extends EntityRepository
         // set order by
         $query->orderBy('eo.creationDate', 'DESC');
 
+        // set max number
+        $query->setMaxResults(1);
+
         return $query->getQuery()->getOneOrNullResult();
     }
 }
