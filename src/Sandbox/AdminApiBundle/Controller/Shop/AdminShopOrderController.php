@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Shop;
 use Proxies\__CG__\Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -29,6 +30,113 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class AdminShopOrderController extends ShopController
 {
+    /**
+     * @Route("/shop/orders/{id}/refund")
+     * @Method({"GET"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getShopOrderRefundLinkAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ShopOrder::STATUS_REFUNDED,
+                'needToRefund' => true,
+                'refunded' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $order->setRefundProcessed(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $charge = $this->refundToPayChannel(
+            $order,
+            $order->getDiscountPrice(),
+            ShopOrder::SHOP_MAP
+        );
+
+        $link = $this->getRefundLink($charge);
+
+        $view = new View();
+        $view->setData(['refund_link' => $link]);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/shop/orders/refund")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     */
+    public function getRefundShopOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $orders = $this->getRepo('Shop\ShopOrder')->findBy(
+            [
+                'needToRefund' => true,
+                'status' => ShopOrder::STATUS_REFUNDED,
+                'refunded' => false,
+            ]
+        );
+
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['admin_shop'])
+        );
+        $orders = json_decode($orders, true);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $orders,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -341,5 +449,27 @@ class AdminShopOrderController extends ShopController
         }
 
         return $adminToken->getAdmin();
+    }
+
+    /**
+     * @param json $charge
+     *
+     * @return string
+     */
+    private function getRefundLink(
+        $charge
+    ) {
+        $charge = json_decode($charge, true);
+
+        if (!array_key_exists('failure_msg', $charge) || empty($charge['failure_msg'])) {
+            return;
+        }
+
+        $link = $charge['failure_msg'];
+
+        $linkArray = explode('https://', $link);
+        $link = 'https://'.$linkArray[1];
+
+        return $link;
     }
 }
