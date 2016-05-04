@@ -80,6 +80,7 @@ security:
         - { path: ^/sales/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales, role: ROLE_SALES_ADMIN_API }
         - { path: ^/shop, role: ROLE_SHOP_ADMIN_API }
+        - { path: ^/admin/shop/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/payment/refund$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, role: ROLE_ADMIN_API }
