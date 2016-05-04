@@ -434,10 +434,10 @@ class ClientEventOrderController extends PaymentController
         }
 
         // check event order exists
-        $order = $this->getRepo('Event\EventOrder')->findOneBy(array(
-            'eventId' => $event->getId(),
-            'userId' => $userId,
-        ));
+        $order = $this->getRepo('Event\EventOrder')->getLastEventOrder(
+            $event->getId(),
+            $userId
+        );
 
         if (!is_null($order) && $order->getStatus() != EventOrder::STATUS_CANCELLED) {
             $error->setCode(self::EVENT_ORDER_EXIST_CODE);

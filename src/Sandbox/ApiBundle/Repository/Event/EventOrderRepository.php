@@ -69,7 +69,7 @@ class EventOrderRepository extends EntityRepository
     public function getLastEventOrder(
         $eventId,
         $userId,
-        $status
+        $status = null
     ) {
         $query = $this->createQueryBuilder('eo')
             ->where('eo.eventId = :eventId')
