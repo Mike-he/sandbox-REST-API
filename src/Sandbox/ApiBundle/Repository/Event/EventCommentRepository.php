@@ -92,7 +92,7 @@ class EventCommentRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'c.authorId = u.id')
             ->where('c.eventId = :eventId')
             ->andWhere('u.banned = FALSE')
-            ->orderBy('c.creationDate', 'ASC')
+            ->orderBy('c.creationDate', 'DESC')
             ->setParameter('eventId', $eventId);
 
         return $query->getQuery()->getResult();
