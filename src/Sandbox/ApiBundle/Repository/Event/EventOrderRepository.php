@@ -132,6 +132,8 @@ class EventOrderRepository extends EntityRepository
 
         // filter by start date
         if (!is_null($startDate)) {
+            $startDate = new \DateTime($startDate);
+
             if (self::FLAG_EVENT == $flag) {
                 $query->andWhere('e.eventEndDate > :startDate');
             } elseif (self::FLAG_EVENT_REGISTRATION == $flag) {
@@ -142,10 +144,12 @@ class EventOrderRepository extends EntityRepository
 
         // filter by end date
         if (!is_null($endDate)) {
+            $endDate = new \DateTime($endDate);
+
             if (self::FLAG_EVENT == $flag) {
-                $query->andWhere('e.eventStartDate > :endDate');
+                $query->andWhere('e.eventStartDate <= :endDate');
             } elseif (self::FLAG_EVENT_REGISTRATION == $flag) {
-                $query->andWhere('e.registrationStartDate > :endDate');
+                $query->andWhere('e.registrationStartDate <= :endDate');
             }
             $query->setParameter('endDate', $endDate);
         }
