@@ -109,7 +109,7 @@ class EventOrderRepository extends EntityRepository
         $flag,
         $startDate,
         $endDate,
-        $search
+        $search = null
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')

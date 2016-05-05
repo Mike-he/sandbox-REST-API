@@ -575,7 +575,7 @@ class AdminOrderController extends OrderController
     /**
      * authenticate with web browser cookie.
      */
-    private function authenticateAdminCookie()
+    protected function authenticateAdminCookie()
     {
         $cookie_name = self::ADMIN_COOKIE_NAME;
         if (!isset($_COOKIE[$cookie_name])) {

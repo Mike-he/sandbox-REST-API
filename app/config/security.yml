@@ -82,6 +82,7 @@ security:
         - { path: ^/shop, role: ROLE_SHOP_ADMIN_API }
         - { path: ^/admin/shop/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/events/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/payment/refund$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, role: ROLE_ADMIN_API }
         - { path: ^/user/background/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }

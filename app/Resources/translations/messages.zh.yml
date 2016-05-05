@@ -152,3 +152,25 @@ client:
   login:
     account_banned: 您的账户已经被冻结，如有疑问请联系客服：
     account_non_existent: 账户不存在
+
+event_order:
+  status:
+    unpaid: 未付款
+    paid: 已付款
+    completed: 已完成
+    cancelled: 已取消
+  channel:
+    wx: 微信支付
+    upacp: 银联支付
+    alipay: 支付宝支付
+    account: 余额支付
+  export_header:
+    order_number: 订单号
+    event_name: 活动名称
+    user_id: 用户
+    pay_amount: 实收款
+    payment_date: 付款时间
+    order_status: 订单状态
+    user_phone: 手机
+    user_email: 邮箱
+    pay_channel: 支付渠道

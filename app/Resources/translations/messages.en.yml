@@ -152,3 +152,25 @@ client:
   login:
     account_banned: Your account is banned, please contact customer service:
     account_non_existent: Account does not exist
+
+event_order:
+  status:
+    unpaid: Unpaid
+    paid: Paid
+    completed: Completed
+    cancelled: Cancelled
+  channel:
+    wx: WechatPay
+    upacp: UnionPay
+    alipay: Alipay
+    account: Balance
+  export_header:
+    order_number: Order Number
+    event_name: Event Name
+    user_id: User
+    pay_amount: Paid Amount
+    payment_date: Payment Amount
+    order_status: Order Status
+    user_phone: Renter Mobile
+    user_email: Renter Email
+    pay_channel: Payment Channel
