@@ -63,7 +63,7 @@ class AdminEventOrderController extends SandboxRestController
      *
      * @Annotations\QueryParam(
      *    name="flag",
-     *    default=null,
+     *    default="event",
      *    requirements="(event|event_registration)",
      *    nullable=true,
      *    description="search flag"
@@ -116,6 +116,13 @@ class AdminEventOrderController extends SandboxRestController
             $search
         );
 
+        // set event dates
+        foreach ($orders as $order) {
+            $event = $order->getEvent();
+            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+            $event->setDates($dates);
+        }
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $orders,
@@ -144,6 +151,10 @@ class AdminEventOrderController extends SandboxRestController
 
         $order = $this->getRepo('Event\EventOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $event = $order->getEvent();
+        $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+        $event->setDates($dates);
 
         $view = new View($order);
         $view->setSerializationContext(
