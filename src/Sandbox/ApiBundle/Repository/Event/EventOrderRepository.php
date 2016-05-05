@@ -145,6 +145,7 @@ class EventOrderRepository extends EntityRepository
         // filter by end date
         if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
 
             if (self::FLAG_EVENT == $flag) {
                 $query->andWhere('e.eventStartDate <= :endDate');
