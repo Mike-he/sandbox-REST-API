@@ -41,7 +41,6 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
             $this->sendXmppProductOrderNotification(
                 null,
                 null,
-                array(),
                 ProductOrder::ACTION_START,
                 null,
                 $startOrders,
@@ -53,7 +52,6 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
             $this->sendXmppProductOrderNotification(
                 null,
                 null,
-                array(),
                 ProductOrder::ACTION_END,
                 null,
                 $endOrders,

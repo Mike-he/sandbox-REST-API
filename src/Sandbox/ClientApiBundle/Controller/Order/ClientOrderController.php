@@ -406,7 +406,6 @@ class ClientOrderController extends OrderController
             $this->sendXmppProductOrderNotification(
                 null,
                 null,
-                array(),
                 ProductOrder::ACTION_OFFICE_ORDER,
                 null,
                 [$order],

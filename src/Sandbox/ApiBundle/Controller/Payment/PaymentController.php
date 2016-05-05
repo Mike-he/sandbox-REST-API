@@ -380,7 +380,6 @@ class PaymentController extends DoorController
             $this->sendXmppProductOrderNotification(
                 null,
                 null,
-                array(),
                 ProductOrder::ACTION_OFFICE_ORDER,
                 null,
                 [$order],

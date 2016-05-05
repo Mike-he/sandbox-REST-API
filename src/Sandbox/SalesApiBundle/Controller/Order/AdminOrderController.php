@@ -128,7 +128,6 @@ class AdminOrderController extends OrderController
             $this->sendXmppProductOrderNotification(
                 null,
                 null,
-                array(),
                 ProductOrder::ACTION_REJECTED,
                 null,
                 [$order],
@@ -154,7 +153,6 @@ class AdminOrderController extends OrderController
             $this->sendXmppProductOrderNotification(
                 null,
                 null,
-                array(),
                 ProductOrder::ACTION_ACCEPTED,
                 null,
                 [$order],
