@@ -414,7 +414,7 @@ class AdminShopOrderController extends ShopController
                     $order->getShopId()
                 );
 
-                if ($oldStatus != ShopOrder::STATUS_TO_BE_REFUNDED) {
+                if ($oldStatus != ShopOrder::STATUS_TO_BE_REFUNDED || $order->IsUnoriginal()) {
                     return $this->customErrorView(
                         400,
                         ShopOrder::NOT_TO_BE_REFUNDED_CODE,
@@ -779,7 +779,9 @@ class AdminShopOrderController extends ShopController
                 self::ORDER_REFUND
             );
 
-            $oldOrder->setRefunded(true);
+            if (!is_null($balance)) {
+                $oldOrder->setRefunded(true);
+            }
         } elseif (ShopOrder::CHANNEL_ALIPAY != $channel) {
             $this->refundToPayChannel(
                 $oldOrder,

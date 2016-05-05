@@ -33,6 +33,7 @@ class ProductOrder
     const ACTION_END = 'end';
     const ACTION_ACCEPTED = 'accepted';
     const ACTION_REJECTED = 'rejected';
+    const ACTION_OFFICE_ORDER = 'office_order';
     const LETTER_HEAD = 'P';
     const ENTITY_PATH = 'Order\ProductOrder';
 

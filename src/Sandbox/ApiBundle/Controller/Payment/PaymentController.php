@@ -3,7 +3,9 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use FOS\RestBundle\View\View;
+use Proxies\__CG__\Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
@@ -20,6 +22,7 @@ use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
+use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 
 /**
  * Payment Controller.
@@ -35,6 +38,7 @@ class PaymentController extends DoorController
 {
     use StringUtil;
     use DoorAccessTrait;
+    use ProductOrderNotification;
 
     const STATUS_PAID = 'paid';
     const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
@@ -121,8 +125,6 @@ class PaymentController extends DoorController
             return array();
         }
 
-        $order->setRefundProcessed(true);
-
         $globals = $this->get('twig')->getGlobals();
         $key = $globals['pingpp_key'];
 
@@ -130,16 +132,63 @@ class PaymentController extends DoorController
         try {
             $ch = \Pingpp\Charge::retrieve("$chargeId");
 
-            return $ch->refunds->create(
+            $refund = $ch->refunds->create(
                 array(
                     'amount' => $amount * 100,
                     'description' => 'Your Descripton',
                 )
             );
+
+            $this->checkRefund($refund, $order);
+
+            return $refund;
         } catch (Base $e) {
             header('Status: '.$e->getHttpStatus());
             echo $e->getHttpBody();
         }
+    }
+
+    /**
+     * @param $refund
+     * @param $order
+     */
+    private function checkRefund(
+        $refund,
+        $order
+    ) {
+        $refund = json_decode($refund, true);
+
+        if (!array_key_exists('failure_msg', $refund)
+            || !array_key_exists('id', $refund)
+            || !array_key_exists('status', $refund)
+        ) {
+            return;
+        }
+
+        $order->setRefundProcessed(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+    }
+
+    /**
+     * @param json $refund
+     *
+     * @return string
+     */
+    protected function getRefundLink(
+        $refund
+    ) {
+        if (empty($refund['failure_msg'])) {
+            return;
+        }
+
+        $link = $refund['failure_msg'];
+
+        $linkArray = explode('https://', $link);
+        $link = 'https://'.$linkArray[1];
+
+        return $link;
     }
 
     /**
@@ -323,6 +372,21 @@ class PaymentController extends DoorController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        //send message
+        $type = $order->getProduct()->getRoom()->getType();
+
+        if (Room::TYPE_OFFICE == $type  && is_null($order->getType())) {
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                array(),
+                ProductOrder::ACTION_OFFICE_ORDER,
+                null,
+                [$order],
+                ProductOrderMessage::OFFICE_ORDER_MESSAGE
+            );
+        }
 
         // set door access
         $this->setDoorAccessForSingleOrder($order);

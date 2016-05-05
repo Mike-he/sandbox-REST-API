@@ -13,6 +13,7 @@ class ProductOrderMessage
     const OFFICE_START_MESSAGE = '您的办公室将在明天开始使用';
     const OFFICE_END_MESSAGE = '您的办公室将在七天后到期';
     const OFFICE_REJECTED_MESSAGE = '抱歉，您申请的办公室没有通过审核，钱款将在1~3个工作日退回到您的支付账户下。';
+    const OFFICE_ORDER_MESSAGE = '您的办公室已预定成功，使用前请先到前台登记。';
     const OFFICE_ACCEPTED_MESSAGE = '您申请的办公室已通过。';
 
     const APPOINT_MESSAGE_PART1 = '您已被授权进入“';

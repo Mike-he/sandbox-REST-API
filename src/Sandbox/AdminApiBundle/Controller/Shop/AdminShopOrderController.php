@@ -52,22 +52,18 @@ class AdminShopOrderController extends ShopController
                 'status' => ShopOrder::STATUS_REFUNDED,
                 'needToRefund' => true,
                 'refunded' => false,
+                'refundProcessed' => false,
             ]
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $order->setRefundProcessed(true);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        $charge = $this->refundToPayChannel(
+        $refund = $this->refundToPayChannel(
             $order,
             $order->getDiscountPrice(),
             ShopOrder::SHOP_MAP
         );
 
-        $link = $this->getRefundLink($charge);
+        $link = $this->getRefundLink($refund);
 
         $view = new View();
         $view->setData(['refund_link' => $link]);
@@ -113,6 +109,7 @@ class AdminShopOrderController extends ShopController
             [
                 'needToRefund' => true,
                 'status' => ShopOrder::STATUS_REFUNDED,
+                'unoriginal' => false,
                 'refunded' => false,
             ]
         );
@@ -449,27 +446,5 @@ class AdminShopOrderController extends ShopController
         }
 
         return $adminToken->getAdmin();
-    }
-
-    /**
-     * @param json $charge
-     *
-     * @return string
-     */
-    private function getRefundLink(
-        $charge
-    ) {
-        $charge = json_decode($charge, true);
-
-        if (!array_key_exists('failure_msg', $charge) || empty($charge['failure_msg'])) {
-            return;
-        }
-
-        $link = $charge['failure_msg'];
-
-        $linkArray = explode('https://', $link);
-        $link = 'https://'.$linkArray[1];
-
-        return $link;
     }
 }

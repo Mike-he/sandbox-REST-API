@@ -26,6 +26,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpFoundation\Response;
+use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 
 /**
  * Admin order controller.
@@ -39,6 +40,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminOrderController extends OrderController
 {
+    use ProductOrderNotification;
+
     /**
      * set rejected.
      *
@@ -109,7 +112,9 @@ class AdminOrderController extends OrderController
                         self::ORDER_REFUND
                     );
 
-                    $order->setRefunded(true);
+                    if (!is_null($balance)) {
+                        $order->setRefunded(true);
+                    }
                 } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
                     $this->refundToPayChannel(
                         $order,
@@ -850,7 +855,9 @@ class AdminOrderController extends OrderController
                         self::ORDER_REFUND
                     );
 
-                    $order->setRefunded(true);
+                    if (!is_null($balance)) {
+                        $order->setRefunded(true);
+                    }
                 } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
                     $this->refundToPayChannel(
                         $order,

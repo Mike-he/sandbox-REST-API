@@ -399,6 +399,21 @@ class ClientOrderController extends OrderController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
+        //send message
+        $type = $order->getProduct()->getRoom()->getType();
+
+        if (Room::TYPE_OFFICE == $type && is_null($order->getType())) {
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                array(),
+                ProductOrder::ACTION_OFFICE_ORDER,
+                null,
+                [$order],
+                ProductOrderMessage::OFFICE_ORDER_MESSAGE
+            );
+        }
+
         // set door access
         $this->setDoorAccessForSingleOrder($order);
 
@@ -492,7 +507,13 @@ class ClientOrderController extends OrderController
         Request $request,
         $id
     ) {
-        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'id' => $id,
+                'refunded' => false,
+                'refundProcessed' => false,
+            ]
+        );
         if (is_null($order)) {
             return $this->customErrorView(
                 400,
@@ -531,7 +552,9 @@ class ClientOrderController extends OrderController
                     self::ORDER_REFUND
                 );
 
-                $order->setRefunded(true);
+                if (!is_null($balance)) {
+                    $order->setRefunded(true);
+                }
             } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
                 $this->refundToPayChannel(
                     $order,
