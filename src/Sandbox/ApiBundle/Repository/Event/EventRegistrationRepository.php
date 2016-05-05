@@ -179,7 +179,9 @@ class EventRegistrationRepository extends EntityRepository
             ->where('e.id = :eventId')
             ->andWhere('e.isDeleted = FALSE')
             ->andWhere('er.notInList = FALSE')
-            ->setParameter('eventId', $eventId);
+            ->andWhere('er.status = :accepted')
+            ->setParameter('eventId', $eventId)
+            ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED);
 
         $query->setMaxResults($limit);
         $query->setFirstResult($offset);

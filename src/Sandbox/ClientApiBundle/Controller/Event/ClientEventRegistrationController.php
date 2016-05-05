@@ -276,6 +276,11 @@ class ClientEventRegistrationController extends EventController
         $eventRegistration->setCreationDate($now);
         $eventRegistration->setModificationDate($now);
 
+        // set status
+        if (!$event->isVerify()) {
+            $eventRegistration->setStatus(EventRegistration::STATUS_ACCEPTED);
+        }
+
         $em->persist($eventRegistration);
         $em->flush();
     }
