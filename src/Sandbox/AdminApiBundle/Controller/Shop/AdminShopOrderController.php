@@ -224,6 +224,26 @@ class AdminShopOrderController extends ShopController
      *    description="Filter by user id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @Method({"GET"})
      * @Route("/shop/orders")
      *
@@ -247,6 +267,8 @@ class AdminShopOrderController extends ShopController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $user = $paramFetcher->get('user');
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
 
         $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrdersForBackend(
             $shopId,
@@ -255,7 +277,9 @@ class AdminShopOrderController extends ShopController
             $end,
             $sort,
             $search,
-            $user
+            $user,
+            $cityId,
+            $buildingId
         );
 
         $orders = $this->get('serializer')->serialize(

@@ -102,9 +102,14 @@ class ShopOrderRepository extends EntityRepository
         $end,
         $sort,
         $search,
-        $user
+        $user,
+        $cityId = null,
+        $buildingId = null
     ) {
         $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId')
             ->orderBy('o.modificationDate', $sort);
 
         if (is_null($search) || empty($search)) {
@@ -142,6 +147,16 @@ class ShopOrderRepository extends EntityRepository
             $end->setTime(23, 59, 59);
             $query = $query->andWhere('o.paymentDate <= :end')
                 ->setParameter('end', $end);
+        }
+
+        if (!is_null($cityId)) {
+            $query->andWhere('c.id = :cityId')
+                ->setParameter('cityId', $cityId);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
         }
 
         return $query->getQuery()->getResult();
