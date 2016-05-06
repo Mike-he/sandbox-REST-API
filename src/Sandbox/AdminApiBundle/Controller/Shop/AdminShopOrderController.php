@@ -53,13 +53,14 @@ class AdminShopOrderController extends ShopController
                 'needToRefund' => true,
                 'refunded' => false,
                 'refundProcessed' => false,
+                'unoriginal' => false,
             ]
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $refund = $this->refundToPayChannel(
             $order,
-            $order->getDiscountPrice(),
+            $order->getRefundAmount(),
             ShopOrder::SHOP_MAP
         );
 
