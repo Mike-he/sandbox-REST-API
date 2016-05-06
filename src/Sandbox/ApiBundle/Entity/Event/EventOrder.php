@@ -20,6 +20,8 @@ class EventOrder
 
     const LETTER_HEAD = 'E';
 
+    const CHANNEL_ACCOUNT = 'account';
+
     /**
      * @var int
      *
