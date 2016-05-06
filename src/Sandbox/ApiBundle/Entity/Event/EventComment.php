@@ -27,7 +27,7 @@ class EventComment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "client_event"})
+     * @Serializer\Groups({"main", "client_event", "admin_event"})
      */
     private $id;
 
@@ -36,7 +36,7 @@ class EventComment
      *
      * @ORM\Column(name="eventId", type="integer")
      *
-     * @Serializer\Groups({"main", "client_event"})
+     * @Serializer\Groups({"main", "client_event", "admin_event"})
      */
     private $eventId;
 
@@ -48,7 +48,7 @@ class EventComment
      *   @ORM\JoinColumn(name="eventId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      *
-     * @Serializer\Groups({"client_event"})
+     * @Serializer\Groups({"client_event", "admin_event"})
      */
     private $event;
 
@@ -69,7 +69,7 @@ class EventComment
      *   @ORM\JoinColumn(name="authorId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      *
-     * @Serializer\Groups({"main", "client_event"})
+     * @Serializer\Groups({"main", "client_event", "admin_event"})
      */
     private $author;
 
@@ -78,7 +78,7 @@ class EventComment
      *
      * @ORM\Column(name="payload", type="text")
      *
-     * @Serializer\Groups({"main", "client_event"})
+     * @Serializer\Groups({"main", "client_event", "admin_event"})
      */
     private $payload;
 

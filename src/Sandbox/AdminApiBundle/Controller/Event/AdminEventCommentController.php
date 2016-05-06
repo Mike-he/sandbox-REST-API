@@ -3,8 +3,9 @@
 namespace Sandbox\AdminApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Event\EventCommentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
@@ -24,7 +25,7 @@ use FOS\RestBundle\View\View;
  *
  * @link     http://www.Sandbox.cn/
  */
-class AdminEventCommentController extends SandboxRestController
+class AdminEventCommentController extends EventCommentController
 {
     /**
      * @param Request               $request
@@ -80,9 +81,18 @@ class AdminEventCommentController extends SandboxRestController
             $eventId
         );
 
+        $commentsResponse = $this->setEventCommentsExtra($comments);
+
+        $response = $this->get('serializer')->serialize(
+            $commentsResponse,
+            'json',
+            SerializationContext::create()->setGroups(['admin_event'])
+        );
+        $response = json_decode($response, true);
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $comments,
+            $response,
             $pageIndex,
             $pageLimit
         );

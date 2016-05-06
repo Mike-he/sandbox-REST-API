@@ -4,7 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Event\EventCommentController;
 use Sandbox\ApiBundle\Entity\Event\EventComment;
 use Sandbox\ApiBundle\Form\Event\EventCommentType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ClientEventCommentController extends SandboxRestController
+class ClientEventCommentController extends EventCommentController
 {
     /**
      * @param Request               $request
@@ -79,36 +79,7 @@ class ClientEventCommentController extends SandboxRestController
             $lastId
         );
 
-        $commentsResponse = array();
-
-        foreach ($comments as $comment) {
-            $authorId = $comment->getAuthorId();
-            if (is_null($authorId)) {
-                continue;
-            }
-
-            $authorProfile = $this->getRepo('User\UserProfile')->findOneByUserId($authorId);
-            if (is_null($authorProfile) || empty($authorProfile)) {
-                continue;
-            }
-
-            $replyToUserId = $comment->getReplyToUserId();
-            $replyToUser = null;
-            if (!is_null($replyToUserId)) {
-                $replyToUser = $this->getRepo('User\UserProfile')->findOneByUserId($replyToUserId);
-            }
-
-            $comment_array = array(
-                'id' => $comment->getId(),
-                'event_id' => $comment->getEventId(),
-                'author' => $authorProfile,
-                'payload' => $comment->getPayload(),
-                'reply_to_user' => $replyToUser,
-                'creation_date' => $comment->getCreationDate(),
-            );
-
-            array_push($commentsResponse, $comment_array);
-        }
+        $commentsResponse = $this->setEventCommentsExtra($comments);
 
         $view = new View($commentsResponse);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));

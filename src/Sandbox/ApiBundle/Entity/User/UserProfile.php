@@ -64,7 +64,8 @@ class UserProfile
      *      "company_info",
      *      "chatgroup",
      *      "verify",
-     *      "client_event"
+     *      "client_event",
+     *      "admin_event"
      *  }
      * )
      */
@@ -90,7 +91,8 @@ class UserProfile
      *      "client",
      *      "chatgroup",
      *      "verify",
-     *      "client_event"
+     *      "client_event",
+     *      "admin_event"
      *  }
      * )
      */
@@ -110,7 +112,8 @@ class UserProfile
      *      "buddy",
      *      "member",
      *      "feed",
-     *      "client_event"
+     *      "client_event",
+     *      "admin_event"
      *  }
      * )
      */
@@ -333,7 +336,8 @@ class UserProfile
      *      "buddy",
      *      "member",
      *      "feed",
-     *      "client_event"
+     *      "client_event",
+     *      "admin_event"
      *  }
      * )
      **/
