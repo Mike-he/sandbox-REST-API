@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 //use Sandbox\ApiBundle\Traits\CurlUtil;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\ConsumeTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -82,10 +83,31 @@ class CheckStatusCommand extends ContainerAwareCommand
             ->setStatusCancelled();
 
         // set event order status completed
-        $this->getContainer()
+        $orders = $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->setStatusCompleted();
+            ->getStatusCompleted();
+
+        foreach ($orders as $order) {
+            $order->setStatus('completed');
+            $order->setModificationDate(new \DateTime('now'));
+            $em = $this->getContainer()->get('doctrine')->getManager();
+            $em->flush();
+
+            if (is_null($order)
+                || (EventOrder::CHANNEL_ACCOUNT == $order->getPayChannel())
+                || $order->getPrice() <= 0
+            ) {
+                continue;
+            }
+
+            // set invoice amount
+            $this->postConsumeBalance(
+                $order->getUserId(),
+                $order->getPrice(),
+                $order->getOrderNumber()
+            );
+        }
     }
 
 //    private function postAccountUpgrade(

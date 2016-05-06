@@ -37,29 +37,21 @@ class EventOrderRepository extends EntityRepository
         $query->execute();
     }
 
-    public function setStatusCompleted()
+    /**
+     * @return array
+     */
+    public function getStatusCompleted()
     {
         $now = new \DateTime();
 
         $orderQuery = $this->createQueryBuilder('o')
-            ->select('o.id')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = o.eventId')
             ->where('o.status = :paid')
-            ->andWhere('e.registrationEndDate <= :now')
+            ->andWhere('e.eventEndDate <= :now')
             ->setParameter('paid', EventOrder::STATUS_PAID)
             ->setParameter('now', $now);
 
-        $orders = $orderQuery->getQuery()->getResult();
-        $orderIds = array_map('current', $orders);
-
-        $query = $this->createQueryBuilder('o')
-            ->update()
-            ->set('o.status', self::COMPLETED)
-            ->where('o.id IN (:ids)')
-            ->setParameter('ids', $orderIds)
-            ->getQuery();
-
-        $query->execute();
+        return $orderQuery->getQuery()->getResult();
     }
 
     /**
