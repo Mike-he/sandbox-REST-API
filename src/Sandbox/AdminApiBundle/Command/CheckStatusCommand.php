@@ -94,8 +94,7 @@ class CheckStatusCommand extends ContainerAwareCommand
             $em = $this->getContainer()->get('doctrine')->getManager();
             $em->flush();
 
-            if (is_null($order)
-                || (EventOrder::CHANNEL_ACCOUNT == $order->getPayChannel())
+            if ((EventOrder::CHANNEL_ACCOUNT == $order->getPayChannel())
                 || $order->getPrice() <= 0
             ) {
                 continue;

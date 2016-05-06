@@ -47,7 +47,7 @@ class EventOrderRepository extends EntityRepository
         $orderQuery = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = o.eventId')
             ->where('o.status = :paid')
-            ->andWhere('e.eventEndDate <= :now')
+            ->andWhere('e.eventStartDate <= :now')
             ->setParameter('paid', EventOrder::STATUS_PAID)
             ->setParameter('now', $now);
 
