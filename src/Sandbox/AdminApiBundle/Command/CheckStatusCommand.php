@@ -3,8 +3,6 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 //use Sandbox\ApiBundle\Traits\CurlUtil;
-use Sandbox\ApiBundle\Entity\Event\EventOrder;
-use Sandbox\ApiBundle\Traits\ConsumeTrait;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,7 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckStatusCommand extends ContainerAwareCommand
 {
-    use ConsumeTrait;
     use SetStatusTrait;
 
     protected function configure()
@@ -45,7 +42,7 @@ class CheckStatusCommand extends ContainerAwareCommand
 
         if (!empty($orders)) {
             foreach ($orders as $order) {
-                $this->setStatusCompleted($order);
+                $this->setProductOrderStatusCompleted($order);
 
                 //TODO: VIP Membership Module
 //                $membershipBindId = $order->getMembershipBindId();
@@ -73,21 +70,7 @@ class CheckStatusCommand extends ContainerAwareCommand
             ->getStatusCompleted();
 
         foreach ($orders as $order) {
-            $order->setStatus('completed');
-            $order->setModificationDate(new \DateTime('now'));
-
-            if ((EventOrder::CHANNEL_ACCOUNT == $order->getPayChannel())
-                || $order->getPrice() <= 0
-            ) {
-                continue;
-            }
-
-            // set invoice amount
-            $this->postConsumeBalance(
-                $order->getUserId(),
-                $order->getPrice(),
-                $order->getOrderNumber()
-            );
+            $this->setEventOrderStatusCompleted($order);
         }
 
         $em = $this->getContainer()->get('doctrine')->getManager();

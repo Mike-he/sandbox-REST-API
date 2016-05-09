@@ -915,7 +915,7 @@ class ClientOrderController extends OrderController
         }
 
         if ($status == ProductOrder::STATUS_PAID && $now >= $startDate) {
-            $this->setStatusCompleted($order);
+            $this->setProductOrderStatusCompleted($order);
         }
 
         $view = new View();

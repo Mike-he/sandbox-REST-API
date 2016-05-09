@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
 /**
@@ -19,7 +20,10 @@ trait SetStatusTrait
     use CommonMethod;
     use ConsumeTrait;
 
-    protected function setStatusCompleted(
+    /**
+     * @param ProductOrder $order
+     */
+    protected function setProductOrderStatusCompleted(
         $order
     ) {
         $order->setStatus(ProductOrder::STATUS_COMPLETED);
@@ -35,6 +39,29 @@ trait SetStatusTrait
             // set invoice amount
             $amount = $this->postConsumeBalance(
                 $userId,
+                $price,
+                $order->getOrderNumber()
+            );
+        }
+    }
+
+    /**
+     * @param EventOrder $order
+     */
+    protected function setEventOrderStatusCompleted(
+        $order
+    ) {
+        $order->setStatus(EventOrder::STATUS_COMPLETED);
+        $order->setModificationDate(new \DateTime('now'));
+
+        $price = $order->getPrice();
+
+        if ((EventOrder::CHANNEL_ACCOUNT != $order->getPayChannel())
+            && $price > 0
+        ) {
+            // set invoice amount
+            $this->postConsumeBalance(
+                $order->getUserId(),
                 $price,
                 $order->getOrderNumber()
             );
