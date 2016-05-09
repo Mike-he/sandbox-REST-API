@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
@@ -35,6 +36,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class ClientOrderController extends OrderController
 {
     use ProductOrderNotification;
+    use SetStatusTrait;
 
     const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';
@@ -898,7 +900,7 @@ class ClientOrderController extends OrderController
         $productId = $order->getProductId();
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
-        $price = $order->getDiscountPrice();
+
         $renewButton = false;
 
         if ($type == Room::TYPE_OFFICE && $status == ProductOrder::STATUS_COMPLETED) {
@@ -913,22 +915,7 @@ class ClientOrderController extends OrderController
         }
 
         if ($status == ProductOrder::STATUS_PAID && $now >= $startDate) {
-            $order->setStatus(ProductOrder::STATUS_COMPLETED);
-            $order->setModificationDate($now);
-            $em = $this->getDoctrine()->getManager();
-            $em->flush();
-
-            if (!$order->isRejected()
-                && (ProductOrder::CHANNEL_ACCOUNT != $order->getPayChannel())
-                && $price > 0
-            ) {
-                // set invoice amount
-                $amount = $this->postConsumeBalance(
-                    $userId,
-                    $price,
-                    $order->getOrderNumber()
-                );
-            }
+            $this->setStatusCompleted($order);
         }
 
         $view = new View();

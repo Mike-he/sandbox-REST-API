@@ -4,8 +4,8 @@ namespace Sandbox\AdminApiBundle\Command;
 
 //use Sandbox\ApiBundle\Traits\CurlUtil;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\ConsumeTrait;
+use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CheckStatusCommand extends ContainerAwareCommand
 {
     use ConsumeTrait;
+    use SetStatusTrait;
 
     protected function configure()
     {
@@ -44,24 +45,7 @@ class CheckStatusCommand extends ContainerAwareCommand
 
         if (!empty($orders)) {
             foreach ($orders as $order) {
-                $order->setStatus('completed');
-                $order->setModificationDate(new \DateTime('now'));
-                $em = $this->getContainer()->get('doctrine')->getManager();
-                $em->flush();
-
-                if ($order->isRejected()
-                    || (ProductOrder::CHANNEL_ACCOUNT == $order->getPayChannel())
-                    || $order->getDiscountPrice() <= 0
-                ) {
-                    continue;
-                }
-
-                // set invoice amount
-                $amount = $this->postConsumeBalance(
-                    $order->getUserId(),
-                    $order->getDiscountPrice(),
-                    $order->getOrderNumber()
-                );
+                $this->setStatusCompleted($order);
 
                 //TODO: VIP Membership Module
 //                $membershipBindId = $order->getMembershipBindId();
@@ -91,8 +75,6 @@ class CheckStatusCommand extends ContainerAwareCommand
         foreach ($orders as $order) {
             $order->setStatus('completed');
             $order->setModificationDate(new \DateTime('now'));
-            $em = $this->getContainer()->get('doctrine')->getManager();
-            $em->flush();
 
             if ((EventOrder::CHANNEL_ACCOUNT == $order->getPayChannel())
                 || $order->getPrice() <= 0
@@ -107,6 +89,9 @@ class CheckStatusCommand extends ContainerAwareCommand
                 $order->getOrderNumber()
             );
         }
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em->flush();
     }
 
 //    private function postAccountUpgrade(
