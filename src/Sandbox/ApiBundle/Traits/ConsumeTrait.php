@@ -16,7 +16,7 @@ use Sandbox\ApiBundle\Constants\BundleConstants;
  */
 trait ConsumeTrait
 {
-    use SendNotification;
+    use ProductOrderNotification;
 
     /**
      * @param int    $userId

@@ -20,7 +20,6 @@ use FOS\RestBundle\Controller\Annotations\Delete;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
-use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
@@ -35,7 +34,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class ClientOrderController extends OrderController
 {
-    use ProductOrderNotification;
     use SetStatusTrait;
 
     const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';

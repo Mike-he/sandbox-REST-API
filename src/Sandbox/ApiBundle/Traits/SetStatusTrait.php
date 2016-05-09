@@ -17,7 +17,6 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
  */
 trait SetStatusTrait
 {
-    use CommonMethod;
     use ConsumeTrait;
 
     /**
