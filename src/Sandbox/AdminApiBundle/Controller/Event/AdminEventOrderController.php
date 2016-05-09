@@ -310,7 +310,7 @@ class AdminEventOrderController extends AdminOrderController
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
 
-        $phpExcelObject->getActiveSheet()->getStyle('A1:L1')->getFont()->setBold(true);
+        $phpExcelObject->getActiveSheet()->getStyle('A1:I1')->getFont()->setBold(true);
 
         //set column dimension
         for ($col = ord('a'); $col <= ord('o'); ++$col) {
