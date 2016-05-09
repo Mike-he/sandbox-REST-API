@@ -914,6 +914,9 @@ class ClientOrderController extends OrderController
 
         if ($status == ProductOrder::STATUS_PAID && $now >= $startDate) {
             $this->setProductOrderStatusCompleted($order);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
         }
 
         $view = new View();
