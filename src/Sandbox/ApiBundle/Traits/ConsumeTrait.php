@@ -16,8 +16,7 @@ use Sandbox\ApiBundle\Constants\BundleConstants;
  */
 trait ConsumeTrait
 {
-    use CommonMethod;
-    use CurlUtil;
+    use SendNotification;
 
     /**
      * @param int    $userId
