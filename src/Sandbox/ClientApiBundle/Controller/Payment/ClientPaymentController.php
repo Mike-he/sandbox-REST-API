@@ -174,11 +174,6 @@ class ClientPaymentController extends PaymentController
             case 'E':
                 $order = $this->setEventOrderStatus($orderNumber);
 
-                 $this->postConsumeBalance(
-                    $order->getUserId(),
-                    $price,
-                    $orderNumber
-                );
                 $this->postBalanceChange(
                     $order->getUserId(),
                     0,
