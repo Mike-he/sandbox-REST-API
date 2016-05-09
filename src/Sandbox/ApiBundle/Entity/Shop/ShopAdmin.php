@@ -116,7 +116,7 @@ class ShopAdmin implements UserInterface
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
      * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "auth"})
      */
     private $salesCompany;
 
