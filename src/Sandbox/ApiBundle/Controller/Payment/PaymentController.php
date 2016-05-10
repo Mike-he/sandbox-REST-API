@@ -390,7 +390,9 @@ class PaymentController extends DoorController
         }
 
         // set door access
-        $this->setDoorAccessForSingleOrder($order);
+        if (!$order->isRejected()) {
+            $this->setDoorAccessForSingleOrder($order);
+        }
 
         return $order;
     }
