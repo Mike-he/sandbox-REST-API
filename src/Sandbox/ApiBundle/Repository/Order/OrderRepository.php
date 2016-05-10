@@ -371,7 +371,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('endDate', $endDate)
             ->getQuery();
 
-        return $query->getResult();
+        return $query->getOneOrNullResult();
     }
 
     public function getAlreadyRenewedOrder(

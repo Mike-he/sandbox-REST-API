@@ -238,16 +238,21 @@ class ClientOrderController extends OrderController
                     $productId,
                     $myEnd
                 );
-                if (empty($myOrder)) {
+
+                if (is_null($myOrder)) {
                     return $this->customErrorView(
                         400,
                         self::CAN_NOT_RENEW_CODE,
                         self::CAN_NOT_RENEW_MESSAGE
                     );
                 }
-                $startDate = $myOrder[0]->getEndDate();
+
+                $startDate = $myOrder->getEndDate();
                 $endDate = clone $startDate;
                 $endDate->modify('+ 30 days');
+
+                $startDate->modify('+ 1 day');
+                $startDate->setTime(00, 00, 00);
             } else {
                 $diff = $startDate->diff($now)->days;
                 if ($diff > 7) {
