@@ -248,10 +248,11 @@ class ClientOrderController extends OrderController
                 }
 
                 $startDate = $myOrder->getEndDate();
+                $startDate->modify('+ 1 day');
+
                 $endDate = clone $startDate;
                 $endDate->modify('+ 30 days');
 
-                $startDate->modify('+ 1 day');
                 $startDate->setTime(00, 00, 00);
             } else {
                 $diff = $startDate->diff($now)->days;
