@@ -2,6 +2,9 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Shop;
 
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Form\Shop\ShopPatchActiveType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -43,6 +46,9 @@ class AdminShopController extends ShopController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminShopPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
         $shop = $this->findShopById($id);
 
         // bind data
@@ -60,6 +66,85 @@ class AdminShopController extends ShopController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="admin",
+     *     array=false,
+     *     default=null,
+     *     nullable=false,
+     *     strict=true,
+     *     description="admin id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="close",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="shop close status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Route("/shops")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getShopsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminShopPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $adminId = $paramFetcher->get('admin');
+        $close = $paramFetcher->get('close');
+
+        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($adminId);
+        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
+
+        $companyId = $admin->getCompanyId();
+
+        $shops = $this->getRepo('Shop\Shop')->getShopsByCompany(
+            $companyId,
+            $close
+        );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $shops,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
      * @param Request $request
      * @param $id
      *
@@ -72,6 +157,9 @@ class AdminShopController extends ShopController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminShopPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $shop = $this->getRepo('Shop\Shop')->getShopById($id);
 
         $view = new View();
@@ -103,6 +191,9 @@ class AdminShopController extends ShopController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminShopPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $buildingId = $paramFetcher->get('building');
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding($buildingId);
 
@@ -155,6 +246,9 @@ class AdminShopController extends ShopController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminShopPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $cityId = $paramFetcher->get('city');
         $buildings = $this->getRepo('Room\RoomBuilding')->findByCityId($cityId);
 
@@ -203,5 +297,21 @@ class AdminShopController extends ShopController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $opLevel
+     */
+    private function checkAdminShopPermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_SALES,
+            $opLevel
+        );
     }
 }

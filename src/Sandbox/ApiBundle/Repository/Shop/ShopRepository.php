@@ -245,17 +245,25 @@ class ShopRepository extends EntityRepository
 
     /**
      * @param $companyId
+     * @param $close
      *
      * @return array
      */
     public function getShopsByCompany(
-        $companyId
+        $companyId,
+        $close = null
     ) {
         $query = $this->createQueryBuilder('s')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
             ->where('b.companyId = :companyId')
             ->andWhere('s.isDeleted = FALSE')
             ->setParameter('companyId', $companyId);
+
+        // filter by close status
+        if (!is_null($close)) {
+            $query->andWhere('s.close = :close')
+                ->setParameter('close', $close);
+        }
 
         return $query->getQuery()->getResult();
     }
