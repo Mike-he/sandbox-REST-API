@@ -768,6 +768,7 @@ class AdminShopOrderController extends ShopController
         $channel = $oldOrder->getPayChannel();
         $refund = $oldOrder->getRefundAmount();
         $oldOrder->setNeedToRefund(true);
+        $oldOrder->setModificationDate(new \DateTime());
 
         if (ShopOrder::CHANNEL_ACCOUNT == $channel) {
             $balance = $this->postBalanceChange(
@@ -778,6 +779,8 @@ class AdminShopOrderController extends ShopController
                 0,
                 self::ORDER_REFUND
             );
+
+            $oldOrder->setRefundProcessedDate(new \DateTime());
 
             if (!is_null($balance)) {
                 $oldOrder->setRefunded(true);

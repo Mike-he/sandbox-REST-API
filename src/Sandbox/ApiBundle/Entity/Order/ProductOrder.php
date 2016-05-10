@@ -319,6 +319,15 @@ class ProductOrder
     private $refundProcessed = false;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="refundProcessedDate", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $refundProcessedDate;
+
+    /**
      * @var int
      */
     private $rentPeriod;
@@ -641,6 +650,30 @@ class ProductOrder
     public function getPaymentDate()
     {
         return $this->paymentDate;
+    }
+
+    /**
+     * Set refundProcessedDate.
+     *
+     * @param \DateTime $refundProcessedDate
+     *
+     * @return ProductOrder
+     */
+    public function setRefundProcessedDate($refundProcessedDate)
+    {
+        $this->refundProcessedDate = $refundProcessedDate;
+
+        return $this;
+    }
+
+    /**
+     * Get refundProcessedDate.
+     *
+     * @return \DateTime
+     */
+    public function getRefundProcessedDate()
+    {
+        return $this->refundProcessedDate;
     }
 
     /**

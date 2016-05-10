@@ -235,6 +235,15 @@ class ShopOrder
     private $refundProcessed = false;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="refundProcessedDate", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $refundProcessedDate;
+
+    /**
      * Get id.
      *
      * @return int
@@ -364,6 +373,29 @@ class ShopOrder
         return $this->refundProcessed;
     }
 
+    /**
+     * Set refundProcessedDate.
+     *
+     * @param \DateTime $refundProcessedDate
+     *
+     * @return ShopOrder
+     */
+    public function setRefundProcessedDate($refundProcessedDate)
+    {
+        $this->refundProcessedDate = $refundProcessedDate;
+
+        return $this;
+    }
+
+    /**
+     * Get refundProcessedDate.
+     *
+     * @return \DateTime
+     */
+    public function getRefundProcessedDate()
+    {
+        return $this->refundProcessedDate;
+    }
     /**
      * Set orderNumber.
      *

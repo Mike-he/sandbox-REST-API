@@ -112,6 +112,8 @@ class AdminOrderController extends OrderController
                         self::ORDER_REFUND
                     );
 
+                    $order->setRefundProcessedDate($now);
+
                     if (!is_null($balance)) {
                         $order->setRefunded(true);
                     }
@@ -841,6 +843,7 @@ class AdminOrderController extends OrderController
             $channel = $order->getPayChannel();
             $userId = $order->getUserId();
             $order->setNeedToRefund(true);
+            $order->setModificationDate($now);
 
             if ($price > 0) {
                 if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
@@ -852,6 +855,8 @@ class AdminOrderController extends OrderController
                         0,
                         self::ORDER_REFUND
                     );
+
+                    $order->setRefundProcessedDate($now);
 
                     if (!is_null($balance)) {
                         $order->setRefunded(true);

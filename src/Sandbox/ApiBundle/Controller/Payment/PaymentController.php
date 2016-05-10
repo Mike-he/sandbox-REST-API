@@ -166,6 +166,8 @@ class PaymentController extends DoorController
         }
 
         $order->setRefundProcessed(true);
+        $order->setRefundProcessedDate(new \DateTime());
+        $order->setModificationDate(new \DateTime());
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

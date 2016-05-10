@@ -539,6 +539,7 @@ class ClientOrderController extends OrderController
         $charge = [];
         $channel = $order->getPayChannel();
         $order->setNeedToRefund(true);
+        $order->setModificationDate(new \DateTime());
 
         if ($price > 0) {
             if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
@@ -550,6 +551,8 @@ class ClientOrderController extends OrderController
                     0,
                     self::ORDER_REFUND
                 );
+
+                $order->setRefundProcessedDate($now);
 
                 if (!is_null($balance)) {
                     $order->setRefunded(true);

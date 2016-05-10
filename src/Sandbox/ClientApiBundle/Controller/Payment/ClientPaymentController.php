@@ -279,6 +279,7 @@ class ClientPaymentController extends PaymentController
         $order = $this->getRepo($path)->find($orderId);
         $order->setRefunded(true);
         $order->setNeedToRefund(false);
+        $order->setModificationDate(new \DateTime());
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
