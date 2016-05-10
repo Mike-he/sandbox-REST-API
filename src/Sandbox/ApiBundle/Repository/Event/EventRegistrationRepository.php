@@ -122,7 +122,7 @@ class EventRegistrationRepository extends EntityRepository
     {
         $now = new \DateTime();
         $start = clone $now;
-        $start->modify('-15 minutes');
+        $start->modify('-5 minutes');
 
         $registrationQuery = $this->createQueryBuilder('r')
             ->select('r.id')

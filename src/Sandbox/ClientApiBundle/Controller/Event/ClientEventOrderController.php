@@ -250,7 +250,7 @@ class ClientEventOrderController extends PaymentController
             $remainingTime = $now->diff($creationDate);
             $minutes = $remainingTime->i;
             $seconds = $remainingTime->s;
-            $minutes = 14 - $minutes;
+            $minutes = 4 - $minutes;
             $seconds = 59 - $seconds;
             if ($minutes < 0) {
                 $minutes = 0;

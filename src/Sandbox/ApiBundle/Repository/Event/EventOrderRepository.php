@@ -18,7 +18,7 @@ class EventOrderRepository extends EntityRepository
     {
         $now = new \DateTime();
         $start = clone $now;
-        $start->modify('-15 minutes');
+        $start->modify('-5 minutes');
         $nowString = (string) $now->format('Y-m-d H:i:s');
         $nowString = "'$nowString'";
 
