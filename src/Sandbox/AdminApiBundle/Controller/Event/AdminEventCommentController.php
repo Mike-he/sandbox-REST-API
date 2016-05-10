@@ -63,7 +63,7 @@ class AdminEventCommentController extends EventCommentController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventRegistrationPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminEventCommentPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -101,9 +101,35 @@ class AdminEventCommentController extends EventCommentController
     }
 
     /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/events/comments/{id}")
+     * @Method("DELETE")
+     *
+     * @return View
+     */
+    public function deleteAdminEventCommentAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminEventCommentPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $comment = $this->getRepo('Event\EventComment')->find($id);
+        $this->throwNotFoundIfNull($comment, self::NOT_FOUND_MESSAGE);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($comment);
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @param $opLevel
      */
-    private function checkAdminEventRegistrationPermission(
+    private function checkAdminEventCommentPermission(
         $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
