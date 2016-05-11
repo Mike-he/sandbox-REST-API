@@ -337,7 +337,7 @@ class ClientEventOrderController extends PaymentController
         $orderNumber = $order->getOrderNumber();
         $charge = $this->payForOrder(
             $orderNumber,
-            $order->getDiscountPrice(),
+            $order->getPrice(),
             $channel,
             self::PAYMENT_SUBJECT,
             self::PAYMENT_BODY
