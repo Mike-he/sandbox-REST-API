@@ -202,14 +202,21 @@ class UserViewRepository extends EntityRepository
         $direction,
         $userIds
     ) {
-        $queryResults = $this->createQueryBuilder('u')
-            ->where('u.id = :query')
-            ->orWhere('u.name = :query')
-            ->orWhere('u.email = :query')
-            ->orWhere('u.phone = :query')
-            ->orWhere('u.cardNo = :query')
-            ->orWhere('u.credentialNo = :query')
-            ->setParameter('query', $query);
+        $queryResults = $this->createQueryBuilder('u');
+
+        // filters by query
+        if (is_null($query)) {
+            $queryResults->where('u.id IN (:ids)');
+            $queryResults->setParameter('ids', $userIds);
+        } else {
+            $queryResults->where('u.id = :query')
+                ->orWhere('u.name = :query')
+                ->orWhere('u.email = :query')
+                ->orWhere('u.phone = :query')
+                ->orWhere('u.cardNo = :query')
+                ->orWhere('u.credentialNo = :query')
+                ->setParameter('query', $query);
+        }
 
         if (!is_null($banned)) {
             $queryResults->andWhere('u.banned = :banned')
@@ -223,12 +230,6 @@ class UserViewRepository extends EntityRepository
 
         if (!is_null($sortBy)) {
             $queryResults->orderBy('u.'.$sortBy, $direction);
-        }
-
-        // filters by user ids
-        if (is_null($query)) {
-            $queryResults->andWhere('u.id IN (:ids)');
-            $queryResults->setParameter('ids', $userIds);
         }
 
         return $queryResults->getQuery()->getResult();
