@@ -100,15 +100,15 @@ sandbox_admin_api_event_comments:
     type:     annotation
     prefix:  /
 
-# Events /admin/events
-sandbox_admin_api_events:
-    resource: "@SandboxAdminApiBundle/Controller/Event/AdminEventController.php"
-    type:     annotation
-    prefix:  /
-
 # Events registrations /admin/events/{event-id}/registrations
 sandbox_admin_api_events_registrations:
     resource: "@SandboxAdminApiBundle/Controller/Event/AdminEventRegistrationController.php"
+    type:     annotation
+    prefix:  /
+
+# Events /admin/events
+sandbox_admin_api_events:
+    resource: "@SandboxAdminApiBundle/Controller/Event/AdminEventController.php"
     type:     annotation
     prefix:  /
 
