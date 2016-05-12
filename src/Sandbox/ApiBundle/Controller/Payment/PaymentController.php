@@ -426,11 +426,13 @@ class PaymentController extends DoorController
 
     /**
      * @param $orderNumber
+     * @param $channel
      *
      * @return EventOrder
      */
     public function setEventOrderStatus(
-        $orderNumber
+        $orderNumber,
+        $channel
     ) {
         $order = $this->getRepo('Event\EventOrder')->findOneBy(
             [
@@ -443,6 +445,7 @@ class PaymentController extends DoorController
         $now = new \DateTime();
         $order->setStatus(ShopOrder::STATUS_PAID);
         $order->setPaymentDate($now);
+        $order->setPayChannel($channel);
         $order->setModificationDate($now);
 
         $em = $this->getDoctrine()->getManager();
