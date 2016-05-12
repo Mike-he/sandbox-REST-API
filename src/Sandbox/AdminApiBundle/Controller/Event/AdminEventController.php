@@ -331,6 +331,9 @@ class AdminEventController extends SandboxRestController
 
         // set default submit value
         $submit = $requestContent['submit'];
+        if (is_null($submit)) {
+            $submit = true;
+        }
 
         // check charge valid
         if ($event->isCharge()) {
