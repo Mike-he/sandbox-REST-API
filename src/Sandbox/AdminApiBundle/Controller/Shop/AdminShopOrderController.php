@@ -52,19 +52,17 @@ class AdminShopOrderController extends ShopController
                 'status' => ShopOrder::STATUS_REFUNDED,
                 'needToRefund' => true,
                 'refunded' => false,
-                'refundProcessed' => false,
                 'unoriginal' => false,
             ]
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $refund = $this->refundToPayChannel(
+        $price = $order->getRefundAmount();
+        $link = $this->checkForRefund(
             $order,
-            $order->getRefundAmount(),
+            $price,
             ShopOrder::SHOP_MAP
         );
-
-        $link = $this->getRefundLink($refund);
 
         $view = new View();
         $view->setData(['refund_link' => $link]);

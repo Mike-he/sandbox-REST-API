@@ -239,9 +239,17 @@ class ShopOrder
      *
      * @ORM\Column(name="refundProcessedDate", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_shop"})
      */
     private $refundProcessedDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="refundUrl", type="text", nullable=true)
+     * @Serializer\Groups({"main", "admin_shop", "client_order", "admin_detail"})
+     */
+    private $refundUrl;
 
     /**
      * Get id.
@@ -778,6 +786,30 @@ class ShopOrder
     public function getLinkedOrders()
     {
         return $this->linkedOrders;
+    }
+
+    /**
+     * Set refundUrl.
+     *
+     * @param string $refundUrl
+     *
+     * @return ShopOrder
+     */
+    public function setRefundUrl($refundUrl)
+    {
+        $this->refundUrl = $refundUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get refundUrl.
+     *
+     * @return string
+     */
+    public function getRefundUrl()
+    {
+        return $this->refundUrl;
     }
 
     public function __construct()

@@ -16,6 +16,7 @@ CREATE TABLE `ShopOrder` (
   `refunded` boolean DEFAULT FALSE NOT NULL,
   `refundProcessed` boolean DEFAULT FALSE NOT NULL,
   `refundProcessedDate` datetime,
+  `refundUrl` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `orderNumber_UNIQUE` (`orderNumber`),
   KEY `fk_ShopOrder_shopId_idx` (`shopId`),

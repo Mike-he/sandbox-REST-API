@@ -194,6 +194,62 @@ class PaymentController extends DoorController
     }
 
     /**
+     * @param object $order
+     * @param float  $price
+     *
+     * @return string
+     */
+    protected function checkForRefund(
+        $order,
+        $price,
+        $map
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $channel = $order->getPayChannel();
+        $link = '';
+
+        if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+            $balance = $this->postBalanceChange(
+                $order->getUserId(),
+                $price,
+                $order->getOrderNumber(),
+                self::PAYMENT_CHANNEL_ACCOUNT,
+                0,
+                self::ORDER_REFUND
+            );
+
+            if (!is_null($balance)) {
+                $order->setRefunded(true);
+            }
+        } elseif (ProductOrder::CHANNEL_ALIPAY == $channel) {
+            $link = $order->getRefundUrl();
+
+            if (is_null($link) || empty($link)) {
+                $refund = $this->refundToPayChannel(
+                    $order,
+                    $price,
+                    $map
+                );
+
+                $link = $this->getRefundLink($refund);
+                $order->setRefundUrl($link);
+            }
+        } else {
+            if (!$order->isRefundProcessed()) {
+                $this->refundToPayChannel(
+                    $order,
+                    $price,
+                    $map
+                );
+            }
+        }
+
+        $em->flush();
+
+        return $link;
+    }
+
+    /**
      * @param string $orderNo
      * @param string $channel
      * @param string $chargeId
