@@ -55,7 +55,7 @@ class EventCommentRepository extends EntityRepository
         $query->setParameters($parameters);
 
         // order by creationDate
-        $query->orderBy('c.creationDate', 'ASC');
+        $query->orderBy('c.creationDate', 'DESC');
 
         $result = $query->getQuery()->getResult();
 
