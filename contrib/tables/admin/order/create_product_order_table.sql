@@ -23,6 +23,8 @@ CREATE TABLE `ProductOrder` (
   `needToRefund` boolean DEFAULT FALSE NOT NULL,
   `refunded` boolean DEFAULT FALSE NOT NULL,
   `refundProcessed` boolean DEFAULT FALSE NOT NULL,
+  `refundProcessedDate` datetime,
+  `invoiced` boolean DEFAULT FALSE NOT NULL,
   `type` enum('reserve','preorder') DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
