@@ -43,9 +43,9 @@ class EventCommentRepository extends EntityRepository
         // filter by user banned
         $query->andWhere('u.banned = FALSE');
 
-        // filter by type
+        // filter by last id
         if (!is_null($lastId)) {
-            $query->andWhere('c.id > :lastId');
+            $query->andWhere('c.id < :lastId');
             $parameters['lastId'] = $lastId;
         }
 
