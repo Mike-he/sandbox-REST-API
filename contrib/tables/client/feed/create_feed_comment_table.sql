@@ -3,6 +3,7 @@ CREATE TABLE `FeedComment` (
   `feedId` int(11) NOT NULL,
   `authorId` int(11) NOT NULL,
   `payload` mediumtext CHARACTER SET utf8mb4 NOT NULL,
+  `replyToUserId` int(11) DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_feedComment_feedId_idx` (`feedId`),

@@ -2,7 +2,7 @@ CREATE TABLE `EventComment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventId` int(11) NOT NULL,
   `authorId` int(11) NOT NULL,
-  `payload` longtext NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 NOT NULL,
   `replyToUserId` int(11) DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),
