@@ -149,6 +149,10 @@ class AdminOrderController extends OrderController
                     $price,
                     $order->getOrderNumber()
                 );
+
+                if (!is_null($amount)) {
+                    $order->setInvoiced(true);
+                }
             }
 
             // send message

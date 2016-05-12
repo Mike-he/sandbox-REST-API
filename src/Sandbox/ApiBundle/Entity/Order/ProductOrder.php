@@ -290,7 +290,7 @@ class ProductOrder
      * @var bool
      *
      * @ORM\Column(name="rejected", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $rejected = false;
 
@@ -323,9 +323,17 @@ class ProductOrder
      *
      * @ORM\Column(name="refundProcessedDate", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
      */
     private $refundProcessedDate;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="invoiced", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     */
+    private $invoiced = false;
 
     /**
      * @var int
@@ -1106,6 +1114,30 @@ class ProductOrder
     public function getRentPeriod()
     {
         return $this->rentPeriod;
+    }
+
+    /**
+     * Set invoiced.
+     *
+     * @param bool $invoiced
+     *
+     * @return ProductOrder
+     */
+    public function setInvoiced($invoiced)
+    {
+        $this->invoiced = $invoiced;
+
+        return $this;
+    }
+
+    /**
+     * Get invoiced.
+     *
+     * @return bool
+     */
+    public function isInvoiced()
+    {
+        return $this->invoiced;
     }
 
     public function __construct()

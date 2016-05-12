@@ -22,6 +22,36 @@ class CheckStatusCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkProductOrders();
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em->flush();
+
+        $this->setInvoiceForProductOrders();
+
+        $this->checkEventOrders();
+
+        $em->flush();
+    }
+
+    private function setInvoiceForProductOrders()
+    {
+        // get paid product order and set status completed
+        $orders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getInvoiceOrders();
+
+        foreach ($orders as $order) {
+            $this->setProductOrderInvoice($order);
+        }
+    }
+
+    /**
+     * check and set status for product order.
+     */
+    private function checkProductOrders()
+    {
         // set product order status cancelled
         $this->getContainer()
             ->get('doctrine')
@@ -40,18 +70,16 @@ class CheckStatusCommand extends ContainerAwareCommand
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getStatusPaid();
 
-        if (!empty($orders)) {
-            foreach ($orders as $order) {
-                $this->setProductOrderStatusCompleted($order);
-
-                //TODO: VIP Membership Module
-//                $membershipBindId = $order->getMembershipBindId();
-//                if (!is_null($membershipBindId)) {
-//                    $this->postAccountUpgrade($order, $membershipBindId);
-//                }
-            }
+        foreach ($orders as $order) {
+            $this->setProductOrderStatusCompleted($order);
         }
+    }
 
+    /**
+     * check and set status for event orders.
+     */
+    private function checkEventOrders()
+    {
         // set event order status cancelled & delete event registrations
         $this->getContainer()
             ->get('doctrine')
@@ -72,9 +100,6 @@ class CheckStatusCommand extends ContainerAwareCommand
         foreach ($orders as $order) {
             $this->setEventOrderStatusCompleted($order);
         }
-
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        $em->flush();
     }
 
 //    private function postAccountUpgrade(
