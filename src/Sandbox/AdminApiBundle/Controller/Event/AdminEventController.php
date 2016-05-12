@@ -100,6 +100,15 @@ class AdminEventController extends SandboxRestController
      *    description="event status"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="visible",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="event visible"
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -126,9 +135,13 @@ class AdminEventController extends SandboxRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
+        $visible = $paramFetcher->get('visible');
 
         $eventsArray = array();
-        $events = $this->getRepo('Event\Event')->getEvents($status);
+        $events = $this->getRepo('Event\Event')->getEvents(
+            $status,
+            $visible
+        );
         foreach ($events as $eventArray) {
             $event = $eventArray['event'];
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);

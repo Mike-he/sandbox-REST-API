@@ -14,7 +14,8 @@ class EventRepository extends EntityRepository
      * @return array
      */
     public function getEvents(
-        $status
+        $status,
+        $visible
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
@@ -35,6 +36,12 @@ class EventRepository extends EntityRepository
                 ->setParameter('now', $now);
         } elseif ($status == Event::STATUS_SAVED) {
             $query->andWhere('e.isSaved = TRUE');
+        }
+
+        // filter by visible
+        if (!is_null($visible)) {
+            $query->andWhere('e.visible = :visible')
+                ->setParameter('visible', $visible);
         }
 
         $query->orderBy('e.creationDate', 'DESC');
