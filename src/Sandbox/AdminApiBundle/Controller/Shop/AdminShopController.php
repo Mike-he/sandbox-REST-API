@@ -107,7 +107,7 @@ class AdminShopController extends ShopController
      *    description="page number "
      * )
      *
-     * @Route("/shops")
+     * @Route("/sales/shops")
      * @Method({"GET"})
      *
      * @return View
