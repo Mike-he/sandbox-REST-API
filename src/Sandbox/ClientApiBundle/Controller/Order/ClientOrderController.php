@@ -926,6 +926,13 @@ class ClientOrderController extends OrderController
         if ($status == ProductOrder::STATUS_PAID && $now >= $startDate) {
             $this->setProductOrderStatusCompleted($order);
 
+            if ($order->getDiscountPrice() > 0
+                && ProductOrder::CHANNEL_ACCOUNT != $order->getPayChannel()
+                && !$order->isRejected()
+            ) {
+                $this->setProductOrderInvoice($order);
+            }
+
             $em = $this->getDoctrine()->getManager();
             $em->flush();
         }
