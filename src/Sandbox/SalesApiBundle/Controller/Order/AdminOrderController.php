@@ -834,7 +834,10 @@ class AdminOrderController extends OrderController
         $now = new \DateTime();
         $status = $order->getStatus();
 
-        if (ProductOrder::STATUS_CANCELLED == $status || $order->getEndDate() <= $now) {
+        if (ProductOrder::STATUS_CANCELLED == $status
+            || $order->getEndDate() <= $now
+            || $order->isInvoiced()
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_PAYMENT_STATUS_CODE,
@@ -843,6 +846,14 @@ class AdminOrderController extends OrderController
         }
 
         if (ProductOrder::PREORDER_TYPE == $type) {
+            if (ProductOrder::STATUS_COMPLETED == $status) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_PAYMENT_STATUS_CODE,
+                    self::WRONG_PAYMENT_STATUS_MESSAGE
+                );
+            }
+
             $price = $order->getDiscountPrice();
             $channel = $order->getPayChannel();
             $userId = $order->getUserId();
