@@ -336,6 +336,14 @@ class ProductOrder
     private $invoiced = false;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="refundUrl", type="text", nullable=true)
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     */
+    private $refundUrl;
+
+    /**
      * @var int
      */
     private $rentPeriod;
@@ -1138,6 +1146,30 @@ class ProductOrder
     public function isInvoiced()
     {
         return $this->invoiced;
+    }
+
+    /**
+     * Set refundUrl.
+     *
+     * @param string $refundUrl
+     *
+     * @return ProductOrder
+     */
+    public function setRefundUrl($refundUrl)
+    {
+        $this->refundUrl = $refundUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get refundUrl.
+     *
+     * @return string
+     */
+    public function getRefundUrl()
+    {
+        return $this->refundUrl;
     }
 
     public function __construct()

@@ -546,10 +546,11 @@ class ClientOrderController extends OrderController
 
         $charge = [];
         $channel = $order->getPayChannel();
-        $order->setNeedToRefund(true);
         $order->setModificationDate(new \DateTime());
 
         if ($price > 0) {
+            $order->setNeedToRefund(true);
+
             if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
                 $balance = $this->postBalanceChange(
                     $userId,

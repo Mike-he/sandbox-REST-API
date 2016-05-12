@@ -54,18 +54,16 @@ class AdminOrderController extends OrderController
                 'status' => ProductOrder::STATUS_CANCELLED,
                 'needToRefund' => true,
                 'refunded' => false,
-                'refundProcessed' => false,
             ]
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $refund = $this->refundToPayChannel(
+        $price = $order->getDiscountPrice();
+        $link = $this->checkForRefund(
             $order,
-            $order->getDiscountPrice(),
+            $price,
             ProductOrder::PRODUCT_MAP
         );
-
-        $link = $this->getRefundLink($refund);
 
         $view = new View();
         $view->setData(['refund_link' => $link]);
