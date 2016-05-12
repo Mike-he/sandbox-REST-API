@@ -27,20 +27,23 @@ trait SetStatusTrait
     ) {
         $order->setStatus(ProductOrder::STATUS_COMPLETED);
         $order->setModificationDate(new \DateTime('now'));
+    }
 
+    protected function setProductOrderInvoice(
+        $order
+    ) {
         $price = $order->getDiscountPrice();
         $userId = $order->getUserId();
 
-        if (!$order->isRejected()
-            && (ProductOrder::CHANNEL_ACCOUNT != $order->getPayChannel())
-            && $price > 0
-        ) {
-            // set invoice amount
-            $amount = $this->postConsumeBalance(
-                $userId,
-                $price,
-                $order->getOrderNumber()
-            );
+        // set invoice amount
+        $amount = $this->postConsumeBalance(
+            $userId,
+            $price,
+            $order->getOrderNumber()
+        );
+
+        if (!is_null($amount)) {
+            $order->setInvoiced(true);
         }
     }
 
