@@ -81,7 +81,11 @@ class OpenServerUserController extends SandboxRestController
         );
 
         if (!is_null($error->getCode())) {
-            return new View($error);
+            return $this->customErrorView(
+                400,
+                $error->getCode(),
+                $error->getMessage()
+            );
         }
 
         $openServerUser = new OpenServerUser();
