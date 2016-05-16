@@ -164,7 +164,7 @@ class OpenServerUserController extends SandboxRestController
         }
 
         // check auth
-        if (md5($server->getAuthKey()) != $authKey) {
+        if ($server->getAuthKey() != $authKey) {
             $error->setCode(self::ERROR_AUTH_KEY_CODE);
             $error->setMessage(self::ERROR_AUTH_KEY_MESSAGE);
 
