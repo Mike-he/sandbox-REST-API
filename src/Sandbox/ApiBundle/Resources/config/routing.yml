@@ -69,3 +69,15 @@ sandbox_api_menus:
     resource: "@SandboxApiBundle/Controller/Menu/MenuController.php"
     type:     annotation
     prefix:   /
+
+# Open Server /openserver/users
+sandbox_api_openserver_user:
+    resource: "@SandboxApiBundle/Controller/Server/OpenServerUserController.php"
+    type:     annotation
+    prefix:   /
+
+# Open Server /openserver/client/login
+sandbox_api_openserver_auth_login:
+    resource: "@SandboxApiBundle/Controller/Server/OpenServerUserLoginController.php"
+    type:     annotation
+    prefix:   /
