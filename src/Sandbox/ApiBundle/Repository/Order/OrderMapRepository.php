@@ -3,7 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Order;
 
 use Doctrine\ORM\EntityRepository;
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
