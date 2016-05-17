@@ -132,8 +132,6 @@ class ClientMembershipOrderController extends PaymentController
             $this->getUserId()
         );
         $charge = json_decode($charge, true);
-        $chargeId = $charge['id'];
-        $this->createOrderMap('upgrade', $productId, $chargeId);
 
         return new View($charge);
     }

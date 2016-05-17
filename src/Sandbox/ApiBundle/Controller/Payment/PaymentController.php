@@ -114,7 +114,7 @@ class PaymentController extends DoorController
     ) {
         $map = $this->getRepo('Order\OrderMap')->findOneBy(
             [
-                'orderId' => $order->getId(),
+                'orderNumber' => $order->getOrderNumber(),
                 'type' => $type,
             ]
         );
@@ -401,21 +401,21 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $chargeId
-     * @param $channel
+     * @param string $orderNumber
+     * @param string $channel
      *
      * @return ProductOrder
      */
     public function setProductOrder(
-        $chargeId,
+        $orderNumber,
         $channel
     ) {
-        $map = $this->getRepo('Order\OrderMap')->findOneBy(['chargeId' => $chargeId]);
-        $this->throwNotFoundIfNull($map, self::NOT_FOUND_MESSAGE);
-
-        $orderId = $map->getOrderId();
-
-        $order = $this->getRepo('Order\ProductOrder')->find($orderId);
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'orderNumber' => $orderNumber,
+                'status' => ProductOrder::STATUS_UNPAID,
+            ]
+        );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $order->setStatus(self::STATUS_PAID);
@@ -697,10 +697,14 @@ class PaymentController extends DoorController
         $orderNumber,
         $channel
     ) {
-        $order = new TopUpOrder();
-        $order->setUserId($userId);
-        $order->setOrderNumber($orderNumber);
-        $order->setPrice($price);
+        $order = $this->getRepo('Order\TopUpOrder')->findOneByOrderNumber($orderNumber);
+
+        if (is_null($order)) {
+            $order = new TopUpOrder();
+            $order->setUserId($userId);
+            $order->setOrderNumber($orderNumber);
+            $order->setPrice($price);
+        }
 
         $this->storePayChannel(
             $order,
@@ -729,21 +733,28 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $type
-     * @param $id
-     * @param $chargeId
+     * @param string $orderNumber
+     * @param string $chargeId
+     * @param string $type
      *
      * @return OrderMap
      */
     public function createOrderMap(
-        $type,
-        $id,
-        $chargeId
+        $orderNumber,
+        $chargeId,
+        $type
     ) {
+        $maps = $this->getRepo('Order\OrderMap')->findByOrderNumber($orderNumber);
+
+        if (!empty($maps)) {
+            return;
+        }
+
         $map = new OrderMap();
         $map->setType($type);
-        $map->setOrderId($id);
+        $map->setOrderNumber($orderNumber);
         $map->setChargeId($chargeId);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($map);
         $em->flush();

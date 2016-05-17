@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TopUpOrder
 {
+    const TOP_UP_MAP = 'topup';
+
     /**
      * @var int
      *

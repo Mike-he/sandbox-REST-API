@@ -21,6 +21,7 @@ class EventOrder
     const LETTER_HEAD = 'E';
 
     const CHANNEL_ACCOUNT = 'account';
+    const EVENT_MAP = 'event';
 
     /**
      * @var int

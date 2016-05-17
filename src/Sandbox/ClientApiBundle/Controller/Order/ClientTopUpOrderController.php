@@ -118,8 +118,6 @@ class ClientTopUpOrderController extends PaymentController
         );
 
         $charge = json_decode($charge, true);
-        $chargeId = $charge['id'];
-        $this->createOrderMap('topup', null, $chargeId);
 
         return new View($charge);
     }

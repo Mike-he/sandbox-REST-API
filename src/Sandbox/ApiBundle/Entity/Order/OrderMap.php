@@ -31,14 +31,14 @@ class OrderMap
     /**
      * @var int
      *
-     * @ORM\Column(name="orderId", type="integer", nullable=true)
+     * @ORM\Column(name="orderNumber", type="string")
      */
-    private $orderId;
+    private $orderNumber;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="chargeId", type="string", length=128, nullable=true)
+     * @ORM\Column(name="chargeId", type="string", length=128)
      */
     private $chargeId;
 
@@ -77,27 +77,27 @@ class OrderMap
     }
 
     /**
-     * Set orderId.
+     * Set orderNumber.
      *
-     * @param int $orderId
+     * @param string $orderNumber
      *
      * @return OrderMap
      */
-    public function setOrderId($orderId)
+    public function setOrderNumber($orderNumber)
     {
-        $this->orderId = $orderId;
+        $this->orderNumber = $orderNumber;
 
         return $this;
     }
 
     /**
-     * Get orderId.
+     * Get orderNumber.
      *
-     * @return int
+     * @return string
      */
-    public function getOrderId()
+    public function getOrderNumber()
     {
-        return $this->orderId;
+        return $this->orderNumber;
     }
 
     /**

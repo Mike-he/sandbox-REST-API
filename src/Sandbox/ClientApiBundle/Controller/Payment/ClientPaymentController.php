@@ -3,7 +3,9 @@
 namespace Sandbox\ClientApiBundle\Controller\Payment;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -58,23 +60,10 @@ class ClientPaymentController extends PaymentController
         $userId = (int) $object['body'];
         $orderType = $orderNumber[0];
 
-        $myCharge = $this->getRepo('Order\OrderMap')->findOneBy(
-            [
-                'chargeId' => $chargeId,
-            ]
-        );
-        if (is_null($myCharge) || empty($myCharge)) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHARGE_ID_CODE,
-                self::WRONG_CHARGE_ID__MESSAGE
-            );
-        }
-
         switch ($orderType) {
             case 'P':
                 $order = $this->setProductOrder(
-                    $chargeId,
+                    $orderNumber,
                     $channel
                 );
 
@@ -85,6 +74,8 @@ class ClientPaymentController extends PaymentController
                     $channel,
                     $price
                 );
+
+                $orderMap = ProductOrder::PRODUCT_MAP;
 
                 break;
 //            case 'V':
@@ -134,6 +125,8 @@ class ClientPaymentController extends PaymentController
                     $orderNumber
                 );
 
+                $orderMap = TopUpOrder::TOP_UP_MAP;
+
                 break;
 //            case 'F':
 //                $data = $this->getJsonData(
@@ -170,6 +163,8 @@ class ClientPaymentController extends PaymentController
                     $price
                 );
 
+                $orderMap = ShopOrder::SHOP_MAP;
+
                 break;
             case 'E':
                 $order = $this->setEventOrderStatus(
@@ -184,9 +179,22 @@ class ClientPaymentController extends PaymentController
                     $channel,
                     $price
                 );
+
+                $orderMap = EventOrder::EVENT_MAP;
+
                 break;
             default:
+                $orderMap = null;
+
                 break;
+        }
+
+        if (!is_null($orderMap)) {
+            $this->createOrderMap(
+                $orderNumber,
+                $chargeId,
+                $orderMap
+            );
         }
 
         return new Response();
@@ -242,13 +250,6 @@ class ClientPaymentController extends PaymentController
         );
 
         $charge = json_decode($chargeJson, true);
-        $chargeId = $charge['id'];
-
-        $this->createOrderMap(
-            'food',
-            null,
-            $chargeId
-        );
 
         return new View($charge);
     }
@@ -269,7 +270,7 @@ class ClientPaymentController extends PaymentController
         $this->throwNotFoundIfNull($myCharge, self::NOT_FOUND_MESSAGE);
 
         $type = $myCharge->getType();
-        $orderId = $myCharge->getOrderId();
+        $orderNumber = $myCharge->getOrderNumber();
 
         if ($type == ProductOrder::PRODUCT_MAP) {
             $path = ProductOrder::ENTITY_PATH;
@@ -279,7 +280,9 @@ class ClientPaymentController extends PaymentController
             return;
         }
 
-        $order = $this->getRepo($path)->find($orderId);
+        $order = $this->getRepo($path)->findOneByOrderNumber($orderNumber);
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
         $order->setRefunded(true);
         $order->setNeedToRefund(false);
         $order->setModificationDate(new \DateTime());
