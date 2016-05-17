@@ -81,3 +81,9 @@ sandbox_api_openserver_auth_login:
     resource: "@SandboxApiBundle/Controller/Server/OpenServerUserLoginController.php"
     type:     annotation
     prefix:   /
+
+# WeChat Share /wechat/share/signature
+sandbox_api_wechat_share_signature:
+    resource: "@SandboxApiBundle/Controller/ThirdParty/WeChatShareController.php"
+    type:     annotation
+    prefix:   /
