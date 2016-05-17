@@ -191,6 +191,24 @@ class Shop implements JsonSerializable
     private $end;
 
     /**
+     * @var int
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $menuCount;
+
+    /**
+     * @var int
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $onlineProductCount;
+
+    /**
+     * @var int
+     * @Serializer\Groups({"main", "admin_shop"})
+     */
+    private $offlineProductCount;
+
+    /**
      * Get id.
      *
      * @return int
@@ -198,6 +216,78 @@ class Shop implements JsonSerializable
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set menuCount.
+     *
+     * @param int $menuCount
+     *
+     * @return Shop
+     */
+    public function setMenuCount($menuCount)
+    {
+        $this->menuCount = $menuCount;
+
+        return $this;
+    }
+
+    /**
+     * Get menuCount.
+     *
+     * @return int
+     */
+    public function getMenuCount()
+    {
+        return $this->menuCount;
+    }
+
+    /**
+     * Set onlineProductCount.
+     *
+     * @param int $onlineProductCount
+     *
+     * @return Shop
+     */
+    public function setOnlineProductCount($onlineProductCount)
+    {
+        $this->onlineProductCount = $onlineProductCount;
+
+        return $this;
+    }
+
+    /**
+     * Get onlineProductCount.
+     *
+     * @return int
+     */
+    public function getOnlineProductCount()
+    {
+        return $this->onlineProductCount;
+    }
+
+    /**
+     * Set offlineProductCount.
+     *
+     * @param int $offlineProductCount
+     *
+     * @return Shop
+     */
+    public function setOfflineProductCount($offlineProductCount)
+    {
+        $this->offlineProductCount = $offlineProductCount;
+
+        return $this;
+    }
+
+    /**
+     * Get offlineProductCount.
+     *
+     * @return int
+     */
+    public function getOfflineProductCount()
+    {
+        return $this->offlineProductCount;
     }
 
     /**

@@ -284,6 +284,43 @@ class AdminShopController extends ShopController
             $shopIds
         );
 
+        foreach ($shops as $shop) {
+            $menus = $this->getRepo('Shop\ShopMenu')->findBy(
+                [
+                    'invisible' => false,
+                    'shop' => $shop,
+                ]
+            );
+
+            $shop->setMenuCount(count($menus));
+            $onlineCount = 0;
+            $offlineCount = 0;
+
+            foreach ($menus as $menu) {
+                $onlineProducts = $this->getRepo('Shop\ShopProduct')->findBy(
+                    [
+                        'menu' => $menu,
+                        'online' => true,
+                        'invisible' => false,
+                    ]
+                );
+
+                $offlineProducts = $this->getRepo('Shop\ShopProduct')->findBy(
+                    [
+                        'menu' => $menu,
+                        'invisible' => false,
+                        'online' => false,
+                    ]
+                );
+
+                $onlineCount += count($onlineProducts);
+                $offlineCount += count($offlineProducts);
+            }
+
+            $shop->setOnlineProductCount($onlineCount);
+            $shop->setOfflineProductCount($offlineCount);
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
         $view->setData($shops);
