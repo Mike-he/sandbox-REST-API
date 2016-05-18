@@ -395,6 +395,15 @@ class LocationController extends SalesRestController
             $range
         );
 
+        // building 6 Zhangjiang, using baidu map coordination for display on map
+        // using gaode map in database for distance calculation
+        foreach ($buildings as $building) {
+            if ($building->getId() == 6) {
+                $building->setLat(31.216158);
+                $building->setLng(121.632778);
+            }
+        }
+
         if ($addon == 'shop') {
             $count = count($buildings);
 
