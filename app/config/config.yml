@@ -225,7 +225,7 @@ nelmio_cors:
     paths:
         '^/':
             allow_origin: ['*']
-            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization', 'sandboxadminauthorization', 'Access-Control-Request-Headers']
+            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization', 'sandboxadminauthorization', 'sandboxclientauthorization', 'Access-Control-Request-Headers']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'PATCH']
             max_age: 3600
 
