@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller\ThirdParty;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\WeChatConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\ThirdParty\WeChatShare;
 use Sandbox\ApiBundle\Traits\CurlUtil;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -16,6 +17,9 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 class WeChatShareController extends SandboxRestController
 {
     use CurlUtil;
+
+    const KEY_ACCESS_TOKEN = 'access_token';
+    const KEY_JSAPI_TICKET = 'jsapi_ticket';
 
     /**
      * @param Request               $request
@@ -35,31 +39,47 @@ class WeChatShareController extends SandboxRestController
 
         $data = json_decode($request->getContent(), true);
 
-        if (is_null($data) || empty($data)) {
+        if (is_null($data) || empty($data) || !array_key_exists('url', $data)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $em = $this->getDoctrine()->getManager();
+
+        $now = new \DateTime('now');
+        $expiresTime = $now->modify('-2 hours');
+
         // get app access token
-        $accessToken = $this->generateAccessToken();
+        $accessToken = $this->getAccessToken(
+            $em,
+            $expiresTime
+        );
 
         if (is_null($accessToken)) {
             return new View();
         }
 
         // get jsapi_ticket
-        $ticket = $this->generateJsApiTicket($accessToken);
+        $ticket = $this->getJsApiTicket(
+            $em,
+            $expiresTime,
+            $accessToken
+        );
 
         if (is_null($ticket)) {
             return new View();
         }
 
-        $data['jsapi_ticket'] = $ticket;
+        $data['noncestr'] = $this->createNonceStr();
 
         // generate signature
-        $string1 = $this->generateSignature($data);
+        $string1 = $this->generateSignature($data, $ticket);
+
+        $em->flush();
 
         return new View(array(
+            'nonceStr' => $data['noncestr'],
             'signature' => sha1($string1),
+            'timestamp' => time(),
         ));
     }
 
@@ -91,16 +111,76 @@ class WeChatShareController extends SandboxRestController
     }
 
     /**
+     * @param $em
+     * @param $expiresTime
+     *
      * @return string
      */
-    private function generateAccessToken()
+    private function getAccessToken(
+        $em,
+        $expiresTime
+    ) {
+        $accessToken = $this->getRepo('ThirdParty\WeChatShare')->findOneByKeyName(self::KEY_ACCESS_TOKEN);
+
+        if (is_null($accessToken)) {
+            $accessToken = new WeChatShare();
+
+            $accessToken->setKeyName(self::KEY_ACCESS_TOKEN);
+            $accessToken->setValue($this->generateAccessTokenByCurl());
+
+            $em->persist($accessToken);
+        }
+
+        if ($accessToken->getModificationDate() < $expiresTime) {
+            $accessToken->setValue($this->generateAccessTokenByCurl());
+            $accessToken->setModificationDate(new \DateTime());
+        }
+
+        return $accessToken->getValue();
+    }
+
+    /**
+     * @param $em
+     * @param $expiresTime
+     * @param $accessToken
+     *
+     * @return string
+     */
+    private function getJsApiTicket(
+        $em,
+        $expiresTime,
+        $accessToken
+    ) {
+        $ticket = $this->getRepo('ThirdParty\WeChatShare')->findOneByKeyName(self::KEY_JSAPI_TICKET);
+
+        if (is_null($ticket)) {
+            $ticket = new WeChatShare();
+
+            $ticket->setKeyName(self::KEY_JSAPI_TICKET);
+            $ticket->setValue($this->generateJsApiTicketByCurl($accessToken));
+
+            $em->persist($ticket);
+        }
+
+        if ($ticket->getModificationDate() < $expiresTime) {
+            $ticket->setValue($this->generateJsApiTicketByCurl($accessToken));
+            $ticket->setModificationDate(new \DateTime());
+        }
+
+        return $ticket->getValue();
+    }
+
+    /**
+     * @return string
+     */
+    private function generateAccessTokenByCurl()
     {
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
         $url = WeChatConstants::URL_APP_ACCESS_TOKEN;
-        $appId = $globals['wechat_app_id'];
-        $secret = $globals['wechat_app_secret'];
+        $appId = $globals['wechat_public_platform_app_id'];
+        $secret = $globals['wechat_public_platform_secret'];
 
         $apiUrl = $url.'?grant_type=client_credential'.'&appid='.$appId.'&secret='.$secret;
         $ch = curl_init($apiUrl);
@@ -126,7 +206,7 @@ class WeChatShareController extends SandboxRestController
      *
      * @return string
      */
-    private function generateJsApiTicket(
+    private function generateJsApiTicketByCurl(
         $accessToken
     ) {
         $ticketUrl = WeChatConstants::URL_JSAPI_TICKET;
@@ -152,12 +232,17 @@ class WeChatShareController extends SandboxRestController
 
     /**
      * @param $data
+     * @param $ticket
      *
      * @return string
      */
     private function generateSignature(
-        $data
+        $data,
+        $ticket
     ) {
+        $data['timestamp'] = time();
+        $data['jsapi_ticket'] = $ticket;
+
         foreach ($data as $key => $value) {
             $keys[] = $key;
         }
@@ -178,5 +263,22 @@ class WeChatShareController extends SandboxRestController
         }
 
         return $string1;
+    }
+
+    /**
+     * @param int $length
+     *
+     * @return string
+     */
+    private function createNonceStr($length = 16)
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $str = '';
+
+        for ($i = 0; $i < $length; ++$i) {
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+
+        return $str;
     }
 }
