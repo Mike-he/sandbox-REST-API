@@ -177,6 +177,15 @@ class LocationController extends SalesRestController
             true
         );
 
+        // building 6 Zhangjiang, using baidu map coordination for display on map
+        // using gaode map in database for distance calculation
+        foreach ($buildings as $building) {
+            if ($building->getId() == 6) {
+                $building->setLat(31.216158);
+                $building->setLng(121.632778);
+            }
+        }
+
         if (!is_null($user)) {
             // sales bundle
             if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
@@ -394,15 +403,6 @@ class LocationController extends SalesRestController
             $lng,
             $range
         );
-
-        // building 6 Zhangjiang, using baidu map coordination for display on map
-        // using gaode map in database for distance calculation
-        foreach ($buildings as $building) {
-            if ($building->getId() == 6) {
-                $building->setLat(31.216158);
-                $building->setLng(121.632778);
-            }
-        }
 
         if ($addon == 'shop') {
             $count = count($buildings);
