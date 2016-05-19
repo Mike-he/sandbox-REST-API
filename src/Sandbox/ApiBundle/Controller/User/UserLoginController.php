@@ -263,6 +263,10 @@ class UserLoginController extends SandboxRestController
             return;
         }
 
+        if ($auth->getPassword() != $user->getPassword()) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
         return $user;
     }
 }
