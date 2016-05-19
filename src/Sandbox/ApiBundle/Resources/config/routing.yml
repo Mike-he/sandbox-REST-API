@@ -87,3 +87,9 @@ sandbox_api_wechat_share_signature:
     resource: "@SandboxApiBundle/Controller/ThirdParty/WeChatShareController.php"
     type:     annotation
     prefix:   /
+
+# User Phone Code /user/phonecode/lists
+sandbox_api_user_phone_code:
+    resource: "@SandboxApiBundle/Controller/User/UserPhoneCodeController.php"
+    type:     annotation
+    prefix:   /
