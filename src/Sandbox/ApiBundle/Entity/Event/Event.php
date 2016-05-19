@@ -224,7 +224,7 @@ class Event
     /**
      * @var float
      *
-     * @ORM\Column(name="price", type="decimal", nullable=true)
+     * @ORM\Column(name="price", type="decimal", precision=10, scale=2, nullable=true)
      *
      * @Serializer\Groups({
      *      "main",

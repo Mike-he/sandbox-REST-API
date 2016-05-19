@@ -58,6 +58,42 @@ class AdminEventController extends SandboxRestController
     const ERROR_ROOM_INVALID = 'Invalid room';
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/event/starttime/sync")
+     * @Method({"POST"})
+     *
+     * @return view
+     */
+    public function syncEventStartTimeAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $events = $this->getRepo('Event\Event')->findAll();
+
+        foreach ($events as $event) {
+            $repository = $this->getRepo('Event\EventTime');
+            $times = $repository->createQueryBuilder('et')
+                ->select('min(et.startTime)')
+                ->leftJoin('SandboxApiBundle:Event\EventDate', 'ed', 'WITH', 'ed.id = et.dateId')
+                ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = :eventId')
+                ->where('e.id = ed.eventId')
+                ->setParameter('eventId', $event->getId());
+
+            $result = $times->getQuery()->getSingleScalarResult();
+
+            $event->setEventStartDate(new \DateTime($result));
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * Get Events.
      *
      * @param Request               $request
