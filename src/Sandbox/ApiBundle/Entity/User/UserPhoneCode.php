@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * UserPhoneCode.
  *
  * @ORM\Table(name="UserPhoneCode")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\User\UserPhoneCodeRepository")
  */
 class UserPhoneCode
 {

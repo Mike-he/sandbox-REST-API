@@ -11,6 +11,9 @@ use FOS\RestBundle\View\View;
 
 class UserPhoneCodeController extends SandboxRestController
 {
+    const LANGUAGE_ZH = 'zh';
+    const LANGUAGE_EN = 'en';
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -24,7 +27,12 @@ class UserPhoneCodeController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $lists = $this->getRepo('User\UserPhoneCode')->findAll();
+        $language = $request->getPreferredLanguage(array(
+            self::LANGUAGE_ZH,
+            self::LANGUAGE_EN,
+        ));
+
+        $lists = $this->getRepo('User\UserPhoneCode')->getPhoneCodeByLanguage($language);
 
         return new View($lists);
     }
