@@ -21,6 +21,11 @@ class WeChatShareController extends SandboxRestController
     const KEY_ACCESS_TOKEN = 'access_token';
     const KEY_JSAPI_TICKET = 'jsapi_ticket';
 
+    const INVALID_ACCESS_TOKEN_CODE = 400001;
+    const INVALID_ACCESS_TOKEN_MESSAGE = 'Invalid access token';
+    const INVALID_JSPAI_TICKET_CODE = 400002;
+    const INVALID_JSAPI_TICKET_MESSAGE = 'Invalid jspai ticket';
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -55,7 +60,11 @@ class WeChatShareController extends SandboxRestController
         );
 
         if (is_null($accessToken)) {
-            return new View();
+            return $this->customErrorView(
+                400,
+                self::INVALID_ACCESS_TOKEN_CODE,
+                self::INVALID_ACCESS_TOKEN_MESSAGE
+            );
         }
 
         // get jsapi_ticket
@@ -66,20 +75,32 @@ class WeChatShareController extends SandboxRestController
         );
 
         if (is_null($ticket)) {
-            return new View();
+            return $this->customErrorView(
+                400,
+                self::INVALID_JSPAI_TICKET_CODE,
+                self::INVALID_JSAPI_TICKET_MESSAGE
+            );
         }
 
         $data['noncestr'] = $this->createNonceStr();
+        $data['timestamp'] = time();
+        $data['jsapi_ticket'] = $ticket;
 
         // generate signature
-        $string1 = $this->generateSignature($data, $ticket);
+        $signature = $this->generateSignature($data);
 
         $em->flush();
 
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $appId = $globals['wechat_public_platform_app_id'];
+
         return new View(array(
+            'app_id' => $appId,
             'nonceStr' => $data['noncestr'],
-            'signature' => sha1($string1),
-            'timestamp' => time(),
+            'signature' => $signature,
+            'timestamp' => $data['timestamp'],
         ));
     }
 
@@ -232,17 +253,12 @@ class WeChatShareController extends SandboxRestController
 
     /**
      * @param $data
-     * @param $ticket
      *
      * @return string
      */
     private function generateSignature(
-        $data,
-        $ticket
+        $data
     ) {
-        $data['timestamp'] = time();
-        $data['jsapi_ticket'] = $ticket;
-
         foreach ($data as $key => $value) {
             $keys[] = $key;
         }
@@ -262,7 +278,7 @@ class WeChatShareController extends SandboxRestController
             $string1 = $string1.$key.'='.$data[$key];
         }
 
-        return $string1;
+        return sha1($string1);
     }
 
     /**
