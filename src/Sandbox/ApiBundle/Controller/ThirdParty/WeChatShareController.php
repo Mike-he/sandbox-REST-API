@@ -97,7 +97,7 @@ class WeChatShareController extends SandboxRestController
         $appId = $globals['wechat_public_platform_app_id'];
 
         return new View(array(
-            'app_id' => $appId,
+            'appId' => $appId,
             'nonceStr' => $data['noncestr'],
             'signature' => $signature,
             'timestamp' => $data['timestamp'],
