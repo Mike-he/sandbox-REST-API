@@ -234,7 +234,7 @@ class UserLoginController extends SandboxRestController
         $headerKey = self::SANDBOX_CLIENT_LOGIN_HEADER;
 
         // get auth
-        $headers = apache_request_headers();
+        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
         if (!array_key_exists($headerKey, $headers)) {
             return $this->getUser();
         }

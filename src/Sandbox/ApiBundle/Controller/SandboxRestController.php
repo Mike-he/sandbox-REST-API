@@ -1592,7 +1592,7 @@ class SandboxRestController extends FOSRestController
         $headerKey
     ) {
         // get auth
-        $headers = apache_request_headers();
+        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
         if (!array_key_exists($headerKey, $headers)) {
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
