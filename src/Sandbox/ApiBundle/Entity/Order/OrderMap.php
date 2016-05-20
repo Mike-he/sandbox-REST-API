@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * OrderMap.
  *
  * @ORM\Table(name="OrderMap")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\OrderMapRepository")
  */
 class OrderMap
 {
@@ -34,6 +34,13 @@ class OrderMap
      * @ORM\Column(name="orderId", type="integer", nullable=true)
      */
     private $orderId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="orderNumber", type="string", nullable=true)
+     */
+    private $orderNumber;
 
     /**
      * @var string
@@ -98,6 +105,30 @@ class OrderMap
     public function getOrderId()
     {
         return $this->orderId;
+    }
+
+    /**
+     * Set orderNumber.
+     *
+     * @param string $orderNumber
+     *
+     * @return OrderMap
+     */
+    public function setOrderNumber($orderNumber)
+    {
+        $this->orderNumber = $orderNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get orderNumber.
+     *
+     * @return string
+     */
+    public function getOrderNumber()
+    {
+        return $this->orderNumber;
     }
 
     /**

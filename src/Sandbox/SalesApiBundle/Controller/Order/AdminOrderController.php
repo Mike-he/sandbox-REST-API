@@ -1061,6 +1061,11 @@ class AdminOrderController extends OrderController
 
             $em->flush();
 
+            // set door access
+            if (0 == $order->getDiscountPrice()) {
+                $this->setDoorAccessForSingleOrder($order);
+            }
+
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
