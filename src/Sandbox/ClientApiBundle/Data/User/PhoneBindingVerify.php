@@ -10,12 +10,33 @@ class PhoneBindingVerify
     /**
      * @var string
      */
+    private $phoneCode;
+
+    /**
+     * @var string
+     */
     private $phone;
 
     /**
      * @var string
      */
     private $code;
+
+    /**
+     * @return string
+     */
+    public function getPhoneCode()
+    {
+        return $this->phoneCode;
+    }
+
+    /**
+     * @param string $phoneCode
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phoneCode = $phoneCode;
+    }
 
     /**
      * Set phone.

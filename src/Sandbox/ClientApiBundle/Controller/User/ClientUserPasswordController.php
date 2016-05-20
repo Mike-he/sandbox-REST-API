@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserPasswordController;
 use Sandbox\ApiBundle\Entity\User\UserForgetPassword;
+use Sandbox\ApiBundle\Entity\User\UserPhoneCode;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ClientApiBundle\Data\User\PasswordForgetReset;
@@ -184,6 +185,7 @@ class ClientUserPasswordController extends UserPasswordController
     ) {
         $email = $submit->getEmail();
         $phone = $submit->getPhone();
+        $phoneCode = $submit->getPhoneCode();
 
         if (!is_null($email)) {
             // check email valid
@@ -203,8 +205,15 @@ class ClientUserPasswordController extends UserPasswordController
                 return $this->customErrorView(400, self::ERROR_INVALID_PHONE_CODE, self::ERROR_INVALID_PHONE_MESSAGE);
             }
 
-            // get user by email
-            $user = $this->getRepo('User\User')->findOneByPhone($phone);
+            if (is_null($phoneCode)) {
+                $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
+            }
+
+            // get user by phone
+            $user = $this->getRepo('User\User')->findOneBy(array(
+                'phoneCode' => $phoneCode,
+                'phone' => $phone,
+            ));
         }
 
         if (is_null($user)) {
@@ -220,10 +229,17 @@ class ClientUserPasswordController extends UserPasswordController
         }
 
         // save or update forget password
-        $forgetPassword = $this->saveOrUpdateForgetPassword($user->getId(), 'submit', $email, $phone);
+        $forgetPassword = $this->saveOrUpdateForgetPassword(
+            $user->getId(),
+            'submit', $email,
+            $phone,
+            $phoneCode
+        );
+
+        $formalPhone = $phoneCode.$phone;
 
         // send verification
-        $this->sendVerification($email, $phone, $forgetPassword);
+        $this->sendVerification($email, $formalPhone, $forgetPassword);
 
         return new View();
     }
@@ -233,6 +249,7 @@ class ClientUserPasswordController extends UserPasswordController
      * @param string $status
      * @param string $email
      * @param string $phone
+     * @param string $phoneCode
      *
      * @return UserForgetPassword
      */
@@ -240,7 +257,8 @@ class ClientUserPasswordController extends UserPasswordController
         $userId,
         $status,
         $email,
-        $phone
+        $phone,
+        $phoneCode
     ) {
         $type = 'email';
         if (is_null($email)) {
@@ -253,7 +271,7 @@ class ClientUserPasswordController extends UserPasswordController
         ));
 
         if (is_null($forgetPassword)) {
-            $forgetPassword = $this->saveForgetPassword($userId, $status, $type, $email, $phone);
+            $forgetPassword = $this->saveForgetPassword($userId, $status, $type, $email, $phone, $phoneCode);
         } else {
             $forgetPassword = $this->updateForgetPassword($forgetPassword, $status);
         }
@@ -267,6 +285,7 @@ class ClientUserPasswordController extends UserPasswordController
      * @param string $type
      * @param string $email
      * @param string $phone
+     * @param string $phoneCode
      *
      * @return UserForgetPassword ForgetPassword
      */
@@ -275,7 +294,8 @@ class ClientUserPasswordController extends UserPasswordController
         $status,
         $type,
         $email,
-        $phone
+        $phone,
+        $phoneCode
     ) {
         $forgetPassword = new UserForgetPassword();
 
@@ -284,6 +304,7 @@ class ClientUserPasswordController extends UserPasswordController
         $forgetPassword->setStatus($status);
         $forgetPassword->setType($type);
         $forgetPassword->setEmail($email);
+        $forgetPassword->setPhoneCode($phoneCode);
         $forgetPassword->setPhone($phone);
         $forgetPassword->setCreationDate(new \DateTime('now'));
 
@@ -358,14 +379,20 @@ class ClientUserPasswordController extends UserPasswordController
         $email = $verify->getEmail();
         $phone = $verify->getPhone();
         $code = $verify->getCode();
+        $phoneCode = $verify->getPhoneCode();
 
         if (is_null($code) ||
             (!is_null($email) && !is_null($phone))) {
             return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
+        if (is_null($phoneCode)) {
+            $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
+        }
+
         $forgetPassword = $this->getRepo('User\UserForgetPassword')->findOneBy(array(
             'email' => $email,
+            'phoneCode' => $phoneCode,
             'phone' => $phone,
             'code' => $code,
             'status' => 'submit',

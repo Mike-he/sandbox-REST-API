@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserPhoneCode
 {
+    const DEFAULT_PHONE_CODE = '+86';
+
     /**
      * @var int
      *

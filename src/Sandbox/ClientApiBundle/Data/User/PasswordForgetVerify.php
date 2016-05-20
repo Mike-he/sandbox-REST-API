@@ -15,6 +15,11 @@ class PasswordForgetVerify
     /**
      * @var string
      */
+    private $phoneCode;
+
+    /**
+     * @var string
+     */
     private $phone;
 
     /**
@@ -44,6 +49,22 @@ class PasswordForgetVerify
     public function getEmail()
     {
         return $this->email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhoneCode()
+    {
+        return $this->phoneCode;
+    }
+
+    /**
+     * @param string $phoneCode
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phoneCode = $phoneCode;
     }
 
     /**

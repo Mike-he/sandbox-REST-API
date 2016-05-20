@@ -30,6 +30,13 @@ class UserRegistration
     /**
      * @var string
      *
+     * @ORM\Column(name="phoneCode", type="string", length=64, nullable=true)
+     */
+    private $phoneCode;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      */
     private $phone;
@@ -63,6 +70,22 @@ class UserRegistration
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhoneCode()
+    {
+        return $this->phoneCode;
+    }
+
+    /**
+     * @param string $phoneCode
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phoneCode = $phoneCode;
     }
 
     /**

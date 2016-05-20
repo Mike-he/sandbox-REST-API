@@ -17,6 +17,7 @@ class RegisterVerifyType extends AbstractType
             ->add('password')
             ->add('code')
             ->add('wechat', new ThirdPartyOAuthLoginWeChatType())
+            ->add('phone_code')
         ;
     }
 

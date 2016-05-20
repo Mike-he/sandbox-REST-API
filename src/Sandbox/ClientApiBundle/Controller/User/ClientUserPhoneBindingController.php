@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserPhoneBindingController;
+use Sandbox\ApiBundle\Entity\User\UserPhoneCode;
 use Sandbox\ApiBundle\Entity\User\UserPhoneVerification;
 use Sandbox\ClientApiBundle\Data\User\PhoneBindingSubmit;
 use Sandbox\ClientApiBundle\Data\User\PhoneBindingVerify;
@@ -129,9 +130,15 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $submit
     ) {
         $phone = $submit->getPhone();
+        $phoneCode = $submit->getPhoneCode();
+
+        if (is_null($phoneCode)) {
+            $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
+        }
 
         // check phone number already used
         $user = $this->getRepo('User\User')->findOneBy(array(
+            'phoneCode' => $phoneCode,
             'phone' => $phone,
             'banned' => false,
         ));
@@ -140,7 +147,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         }
 
         // get phone verification entity
-        $phoneVerification = $this->generatePhoneVerification($userId, $phone);
+        $phoneVerification = $this->generatePhoneVerification($userId, $phone, $phoneCode);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($phoneVerification);
@@ -163,11 +170,17 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     ) {
         $phone = $verify->getPhone();
         $code = $verify->getCode();
+        $phoneCode = $verify->getPhoneCode();
+
+        if (is_null($phoneCode)) {
+            $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
+        }
 
         // get phone verification entity
         $phoneVerification = $this->getRepo('User\UserPhoneVerification')->findOneBy(
             array(
                 'userId' => $userId,
+                'phoneCode' => $phoneCode,
                 'phone' => $phone,
                 'code' => $code,
             )
@@ -188,6 +201,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         $user->setPhone($phoneVerification->getPhone());
+        $user->setPhoneCode($phoneVerification->getPhoneCode());
 
         // remove verification
         $em = $this->getDoctrine()->getManager();
@@ -200,12 +214,14 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     /**
      * @param string $userId
      * @param string $phone
+     * @param string $phoneCode
      *
      * @return UserPhoneVerification
      */
     private function generatePhoneVerification(
         $userId,
-        $phone
+        $phone,
+        $phoneCode
     ) {
         $phoneVerification = $this->getRepo('User\UserPhoneVerification')->findOneByUserId($userId);
         if (is_null($phoneVerification)) {
@@ -214,6 +230,7 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
         }
 
         $phoneVerification->setPhone($phone);
+        $phoneVerification->setPhoneCode($phoneCode);
         $phoneVerification->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
         $phoneVerification->setCreationDate(new \DateTime('now'));
 

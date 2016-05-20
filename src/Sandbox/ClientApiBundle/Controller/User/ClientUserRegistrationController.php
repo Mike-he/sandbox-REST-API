@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
+use Sandbox\ApiBundle\Entity\User\UserPhoneCode;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Traits\WeChatApi;
 use Sandbox\ApiBundle\Traits\YunPianSms;
@@ -137,6 +138,7 @@ class ClientUserRegistrationController extends UserRegistrationController
     ) {
         $email = $submit->getEmail();
         $phone = $submit->getPhone();
+        $phoneCode = $submit->getPhoneCode();
 
         if (is_null($email)) {
             if (is_null($phone)) {
@@ -168,20 +170,26 @@ class ClientUserRegistrationController extends UserRegistrationController
                     self::ERROR_INVALID_PHONE_CODE,
                     self::ERROR_INVALID_PHONE_MESSAGE
                 );
+            } else {
+                if (is_null($phoneCode)) {
+                    $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
+                }
             }
         }
 
         $em = $this->getDoctrine()->getManager();
 
         // generate registration entity
-        $registration = $this->generateRegistration($email, $phone);
+        $registration = $this->generateRegistration($email, $phone, $phoneCode);
 
         $em->persist($registration);
         $em->flush();
 
+        $formalPhone = $registration->getPhoneCode().$registration->getPhone();
+
         // send verification code by email or sms
         $this->sendNotification($registration->getEmail(),
-            $registration->getPhone(),
+            $formalPhone,
             $registration->getCode());
 
         return new View();
@@ -198,13 +206,14 @@ class ClientUserRegistrationController extends UserRegistrationController
         $em = $this->getDoctrine()->getManager();
 
         $email = $verify->getEmail();
+        $phoneCode = $verify->getPhoneCode();
         $phone = $verify->getPhone();
         $code = $verify->getCode();
         $password = $verify->getPassword();
         $weChatData = $verify->getWeChat();
 
         // get registration by (email / phone) with code
-        $registration = $this->getMyRegistration($email, $phone, $code);
+        $registration = $this->getMyRegistration($email, $phone, $code, $phoneCode);
         if (is_null($registration)) {
             return $this->customErrorView(
                 400,
@@ -225,7 +234,7 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // so far, code is verified
         // get existing user or create a new user
-        $user = $this->finishRegistration($em, $email, $phone, $password, $registration);
+        $user = $this->finishRegistration($em, $email, $phone, $password, $registration, $phoneCode);
         if (is_null($user)) {
             // update db
             $em->flush();
@@ -255,13 +264,15 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param $email
      * @param $phone
      * @param $code
+     * @param $phoneCode
      *
      * @return UserRegistration
      */
     private function getMyRegistration(
         $email,
         $phone,
-        $code
+        $code,
+        $phoneCode
     ) {
         // code is required
         // email or phone, only one of them should be provided, not none, not both
@@ -271,8 +282,13 @@ class ClientUserRegistrationController extends UserRegistrationController
             return;
         }
 
+        if (is_null($phoneCode)) {
+            $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
+        }
+
         return $this->getRepo('User\UserRegistration')->findOneBy(array(
             'email' => $email,
+            'phoneCode' => $phoneCode,
             'phone' => $phone,
             'code' => $code,
         ));
@@ -305,6 +321,7 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param string           $phone
      * @param string           $password
      * @param UserRegistration $registration
+     * @param string           $phoneCode
      *
      * @return User
      */
@@ -313,7 +330,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         $email,
         $phone,
         $password,
-        $registration
+        $registration,
+        $phoneCode
     ) {
         $user = null;
 
@@ -325,7 +343,7 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         if (is_null($user) && !is_null($password)) {
             // generate user
-            $user = $this->generateUser($email, $phone, $password, $registration->getId());
+            $user = $this->generateUser($email, $phone, $password, $registration->getId(), $phoneCode);
             $em->persist($user);
 
             // create default profile
@@ -351,6 +369,7 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param string $phone
      * @param string $password
      * @param int    $registrationId
+     * @param string $phoneCode
      *
      * @return User User
      */
@@ -358,7 +377,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         $email,
         $phone,
         $password,
-        $registrationId
+        $registrationId,
+        $phoneCode
     ) {
         $user = new User();
         $user->setPassword($password);
@@ -367,6 +387,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             $user->setEmail($email);
         } else {
             $user->setPhone($phone);
+            $user->setPhoneCode($phoneCode);
         }
 
         // get xmppUsername from response
@@ -380,12 +401,14 @@ class ClientUserRegistrationController extends UserRegistrationController
     /**
      * @param string $email
      * @param string $phone
+     * @param string $phoneCode
      *
      * @return UserRegistration UserRegistration
      */
     private function generateRegistration(
         $email,
-        $phone
+        $phone,
+        $phoneCode
     ) {
         $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
                 'email' => $email,
@@ -396,6 +419,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             $registration = new UserRegistration();
             $registration->setEmail($email);
             $registration->setPhone($phone);
+            $registration->setPhoneCode($phoneCode);
         }
         $registration->setCreationDate(new \DateTime('now'));
         $registration->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
