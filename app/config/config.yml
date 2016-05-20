@@ -50,6 +50,8 @@ twig:
         pingpp_app_id: "%pingpp_app_id%"
         wechat_app_id: "%wechat_app_id%"
         wechat_app_secret: "%wechat_app_secret%"
+        wechat_public_platform_app_id: "%wechat_public_platform_app_id%"
+        wechat_public_platform_secret: "%wechat_public_platform_secret%"
         server_order_id: "%server_order_id%"
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"
@@ -225,7 +227,7 @@ nelmio_cors:
     paths:
         '^/':
             allow_origin: ['*']
-            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization', 'sandboxadminauthorization', 'Access-Control-Request-Headers']
+            allow_headers: ['X-Requested-With', 'Content-Type', 'authorization', 'sandboxadminauthorization', 'sandboxclientauthorization', 'Access-Control-Request-Headers']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'PATCH']
             max_age: 3600
 

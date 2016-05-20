@@ -234,7 +234,7 @@ class UserLoginController extends SandboxRestController
         $headerKey = self::SANDBOX_CLIENT_LOGIN_HEADER;
 
         // get auth
-        $headers = apache_request_headers();
+        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
         if (!array_key_exists($headerKey, $headers)) {
             return $this->getUser();
         }
@@ -261,6 +261,10 @@ class UserLoginController extends SandboxRestController
             $error->setMessage(self::ERROR_ACCOUNT_NONEXISTENT_MESSAGE);
 
             return;
+        }
+
+        if ($auth->getPassword() != $user->getPassword()) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
 
         return $user;
