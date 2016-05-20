@@ -4,10 +4,12 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -131,6 +133,40 @@ class AdminOrderController extends OrderController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * @Route("/orders/maps/set")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function syncOrderMapAction(
+        Request $request
+    ) {
+        $maps = $this->getRepo('Order\OrderMap')->findOrderMaps();
+
+        foreach ($maps as $map) {
+            $type = $map->getType();
+            $orderId = $map->getOrderId();
+
+            if (ProductOrder::PRODUCT_MAP == $type) {
+                $path = ProductOrder::ENTITY_PATH;
+            } elseif (ShopOrder::SHOP_MAP == $type) {
+                $path = ShopOrder::ENTITY_PATH;
+            } elseif (EventOrder::EVENT_MAP == $type) {
+                $path = EventOrder::ENTITY_PATH;
+            }
+
+            $order = $this->getRepo($path)->find($orderId);
+
+            $map->setOrderNumber($order->getOrderNumber());
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
     }
 
     /**

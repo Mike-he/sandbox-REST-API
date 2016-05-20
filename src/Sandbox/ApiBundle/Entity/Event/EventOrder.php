@@ -21,6 +21,8 @@ class EventOrder
     const LETTER_HEAD = 'E';
 
     const CHANNEL_ACCOUNT = 'account';
+    const EVENT_MAP = 'event';
+    const ENTITY_PATH = 'Event\EventOrder';
 
     /**
      * @var int

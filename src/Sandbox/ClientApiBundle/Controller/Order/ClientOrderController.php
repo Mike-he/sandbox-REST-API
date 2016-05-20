@@ -497,9 +497,6 @@ class ClientOrderController extends OrderController
             self::PAYMENT_BODY
         );
         $charge = json_decode($charge, true);
-        $chargeId = $charge['id'];
-
-        $this->createOrderMap(ProductOrder::PRODUCT_MAP, $order->getId(), $chargeId);
 
         return new View($charge);
     }

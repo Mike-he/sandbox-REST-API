@@ -283,13 +283,6 @@ class ClientShopOrderController extends ShopRestController
         );
 
         $charge = json_decode($charge, true);
-        $chargeId = $charge['id'];
-
-        $this->createOrderMap(
-            ShopOrder::SHOP_MAP,
-            $order->getId(),
-            $chargeId
-        );
 
         return new View($charge);
     }
