@@ -31,7 +31,7 @@ class Version20160518165917_feature extends AbstractMigration
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("阿拉斯加","Alaska","+1907")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("阿尔巴尼亚","Albania","+355")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("阿尔及利亚","Algeria","+213")');
-        $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("美国","America","+1")');
+        $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("美国","United States","+1")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("安道尔","Andorra","+376")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("安哥拉","Angola","+244")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("安圭拉岛","Anguilla I.","+1264")');
@@ -130,7 +130,7 @@ class Version20160518165917_feature extends AbstractMigration
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("牙买加","Jamaica","+1876")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("日本","Japan","+81")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("约旦","Jordan","+962")');
-        $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("柬埔塞","Kampuchea","+855")');
+        $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("柬埔寨","Cambodia","+855")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("哈萨克斯坦","Kazakhstan","+7")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("肯尼亚","Kenya","+254")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("基里巴斯","Kiribati","+686")');
