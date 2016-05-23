@@ -28,6 +28,7 @@ class ShopOrder
     const REFUNDED_NOTIFICATION = '您的订单已退款, 钱款将在1~3个工作日内退回到您的支付账户下';
     const ISSUE_NOTIFICATION = '您的订单有问题, 请到柜台查看';
     const PLATFORM_BACKEND = 'backend';
+    const PLATFORM_KITCHEN = 'kitchen';
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
     const SHOP_MAP = 'shop';

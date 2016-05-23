@@ -23,6 +23,8 @@ class ShopOrderRepository extends EntityRepository
      * @param $search
      * @param $platform
      * @param $$myShopIds
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
@@ -34,7 +36,9 @@ class ShopOrderRepository extends EntityRepository
         $sort,
         $search,
         $platform,
-        $myShopIds
+        $myShopIds,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.status != :unpaid')
@@ -49,6 +53,12 @@ class ShopOrderRepository extends EntityRepository
             && (is_null($search) || empty($search))) {
             $query = $query->andWhere('o.unoriginal = :unoriginal')
                 ->setParameter('unoriginal', false);
+        } elseif ($platform == ShopOrder::PLATFORM_KITCHEN
+            && !is_null($limit)
+            && !is_null($offset)
+        ) {
+            $query = $query->setMaxResults($limit)
+                ->setFirstResult($offset);
         }
 
         if (!is_null($shopId) && !empty($shopId)) {
