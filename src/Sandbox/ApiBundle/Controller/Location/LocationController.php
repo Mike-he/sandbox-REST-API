@@ -154,6 +154,14 @@ class LocationController extends SalesRestController
      *    description="op level"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    description="id of building"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -165,13 +173,14 @@ class LocationController extends SalesRestController
     ) {
         $user = $this->getUser();
 
+        $ids = $paramFetcher->get('id');
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
 
         // get all buildings
         $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
             $cityId,
-            null,
+            $ids,
             null,
             RoomBuilding::STATUS_ACCEPT,
             true
@@ -186,7 +195,7 @@ class LocationController extends SalesRestController
             }
         }
 
-        if (!is_null($user)) {
+        if (!is_null($user) && is_null($ids)) {
             // sales bundle
             if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
                 $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($this->getUser()->getAdminId());
