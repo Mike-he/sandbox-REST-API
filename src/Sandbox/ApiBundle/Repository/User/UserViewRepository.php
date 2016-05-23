@@ -209,8 +209,7 @@ class UserViewRepository extends EntityRepository
             $queryResults->where('u.id IN (:ids)');
             $queryResults->setParameter('ids', $userIds);
         } else {
-            $queryResults->where('u.id = :query')
-                ->orWhere('u.name = :query')
+            $queryResults->where('u.name = :query')
                 ->orWhere('u.email = :query')
                 ->orWhere('u.phone = :query')
                 ->orWhere('u.cardNo = :query')
