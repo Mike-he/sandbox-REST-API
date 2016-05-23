@@ -64,6 +64,16 @@ class CheckStatusCommand extends ContainerAwareCommand
             ->getRepository('SandboxApiBundle:Product\Product')
             ->setVisibleFalse();
 
+        // get unpaid preorder product orders
+        $preorders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getUnpaidPreOrders();
+
+        foreach ($preorders as $preorder) {
+            $this->checkPreOrders($preorder);
+        }
+
         // get paid product order and set status completed
         $orders = $this->getContainer()
             ->get('doctrine')
@@ -72,6 +82,37 @@ class CheckStatusCommand extends ContainerAwareCommand
 
         foreach ($orders as $order) {
             $this->setProductOrderStatusCompleted($order);
+        }
+    }
+
+    private function checkPreOrders(
+        $order
+    ) {
+        $now = new \DateTime();
+        $start = $order->getStartDate();
+        $timeTillPayment = $order->getTimeTillPayment();
+        $creationTime = $order->getCreationDate();
+
+        if ($start > $now) {
+            $remainingTime = $now->diff($start);
+            $days = $remainingTime->d;
+
+            if (!is_null($timeTillPayment)) {
+                if ($now >= $timeTillPayment) {
+                    $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $order->setCancelledDate($now);
+                    $order->setModificationDate($now);
+                }
+            } elseif ($days > 0) {
+                $endTime = clone $creationTime;
+                $endTime->modify('+ 1 day');
+
+                $order->setTimeTillPayment($endTime);
+            }
+        } else {
+            $order->setStatus(ProductOrder::STATUS_CANCELLED);
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
         }
     }
 

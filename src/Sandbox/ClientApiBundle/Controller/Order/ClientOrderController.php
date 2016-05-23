@@ -970,37 +970,98 @@ class ClientOrderController extends OrderController
         }
         $status = $order->getStatus();
         $now = new \DateTime();
+        $hours = 0;
         $minutes = 0;
         $seconds = 0;
 
-        if ($status == 'unpaid') {
-            $creationDate = $order->getCreationDate();
-            $remainingTime = $now->diff($creationDate);
-            $minutes = $remainingTime->i;
-            $seconds = $remainingTime->s;
-            $minutes = 4 - $minutes;
-            $seconds = 59 - $seconds;
-            if ($minutes < 0) {
-                $minutes = 0;
-                $seconds = 0;
-                $order->setStatus('cancelled');
-                $order->setCancelledDate($now);
-                $order->setModificationDate($now);
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($order);
-                $em->flush();
+        if ($status == ProductOrder::STATUS_UNPAID) {
+            if (ProductOrder::PREORDER_TYPE == $order->getType()) {
+                $start = $order->getStartDate();
+                $creationTime = $order->getCreationDate();
+
+                if ($start > $now) {
+                    $remainingTime = $now->diff($start);
+                    $days = $remainingTime->d;
+                    $hours = $remainingTime->h;
+                    $minutes = $remainingTime->i;
+                    $seconds = $remainingTime->s;
+
+                    $timeTillPayment = $order->getTimeTillPayment();
+
+                    if (!is_null($timeTillPayment)) {
+                        if ($now < $timeTillPayment) {
+                            $remainingTime = $now->diff($timeTillPayment);
+                            $hours = $remainingTime->h;
+                            $minutes = $remainingTime->i;
+                            $seconds = $remainingTime->s;
+                        } else {
+                            $hours = 0;
+                            $minutes = 0;
+                            $seconds = 0;
+
+                            $this->setOrderStatusCancelled($order, $now);
+                        }
+                    } elseif ($days > 0) {
+                        $endTime = clone $creationTime;
+                        $endTime->modify('+ 1 day');
+
+                        $order->setTimeTillPayment($endTime);
+
+                        $hours = 23;
+                        $minutes = 59;
+                        $seconds = 59;
+                    }
+                } else {
+                    $minutes = 0;
+                    $seconds = 0;
+
+                    $this->setOrderStatusCancelled($order, $now);
+                }
+            } else {
+                $start = $order->getCreationDate();
+
+                $remainingTime = $now->diff($start);
+                $minutes = $remainingTime->i;
+                $seconds = $remainingTime->s;
+
+                $minutes = 4 - $minutes;
+                $seconds = 59 - $seconds;
+
+                if ($minutes < 0) {
+                    $minutes = 0;
+                    $seconds = 0;
+
+                    $this->setOrderStatusCancelled($order, $now);
+                }
             }
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
         }
 
         $view = new View();
         $view->setData(
             [
+                'remainingHours' => $hours,
                 'remainingMinutes' => $minutes,
                 'remainingSeconds' => $seconds,
             ]
         );
 
         return $view;
+    }
+
+    /**
+     * @param ProductOrder $order
+     * @param \DateTime    $now
+     */
+    private function setOrderStatusCancelled(
+        $order,
+        $now
+    ) {
+        $order->setStatus(ProductOrder::STATUS_CANCELLED);
+        $order->setCancelledDate($now);
+        $order->setModificationDate($now);
     }
 
     /**
