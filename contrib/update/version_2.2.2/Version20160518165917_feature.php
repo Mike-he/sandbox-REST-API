@@ -238,7 +238,6 @@ class Version20160518165917_feature extends AbstractMigration
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("土库曼斯坦","Turkmenistan","+993")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("特克斯和凯科斯群岛","Turks and Caicos Is.","+1809")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("图瓦卢","Tuvalu","+688")');
-        $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("美国","America","+1")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("乌干达","Uganda","+256")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("乌克兰","Ukraine","+380")');
         $this->addSql('INSERT INTO UserPhoneCode(`cnName`,`enName`,`code`) VALUES("英国","United Kingdom","+44")');

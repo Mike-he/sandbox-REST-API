@@ -13,6 +13,7 @@ class RegisterSubmitType extends AbstractType
         $builder
             ->add('email')
             ->add('phone')
+            ->add('phone_code')
         ;
     }
 

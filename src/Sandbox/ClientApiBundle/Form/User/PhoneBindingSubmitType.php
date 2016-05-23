@@ -12,6 +12,7 @@ class PhoneBindingSubmitType extends AbstractType
     {
         $builder
             ->add('phone')
+            ->add('phone_code')
         ;
     }
 

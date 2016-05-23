@@ -29,6 +29,13 @@ class UserPhoneVerification
     private $userId;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="phoneCode", type="string", length=64, nullable=false)
+     */
+    private $phoneCode;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=false)
@@ -81,6 +88,22 @@ class UserPhoneVerification
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPhoneCode()
+    {
+        return $this->phoneCode;
+    }
+
+    /**
+     * @param int $phoneCode
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phoneCode = $phoneCode;
     }
 
     /**

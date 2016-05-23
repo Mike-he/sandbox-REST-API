@@ -18,6 +18,11 @@ class PasswordForgetSubmit
     private $phone;
 
     /**
+     * @var string
+     */
+    private $phoneCode;
+
+    /**
      * Set email.
      *
      * @param string $email
@@ -63,5 +68,21 @@ class PasswordForgetSubmit
     public function getPhone()
     {
         return $this->phone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhoneCode()
+    {
+        return $this->phoneCode;
+    }
+
+    /**
+     * @param string $phoneCode
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phoneCode = $phoneCode;
     }
 }

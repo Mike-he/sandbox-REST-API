@@ -13,6 +13,7 @@ class PhoneBindingVerifyType extends AbstractType
         $builder
             ->add('phone')
             ->add('code')
+            ->add('phone_code')
         ;
     }
 

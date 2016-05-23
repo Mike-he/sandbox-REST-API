@@ -19,6 +19,7 @@ class UserPhoneCodeRepository extends EntityRepository
             case UserPhoneCodeController::LANGUAGE_ZH:
                 $query = $this->createQueryBuilder('pc')
                     ->select('
+                        pc.id,
                         pc.cnName as name,
                         pc.code
                     ');
@@ -26,6 +27,7 @@ class UserPhoneCodeRepository extends EntityRepository
             case UserPhoneCodeController::LANGUAGE_EN:
                 $query = $this->createQueryBuilder('pc')
                     ->select('
+                        pc.id,
                         pc.enName as name,
                         pc.code
                     ');
