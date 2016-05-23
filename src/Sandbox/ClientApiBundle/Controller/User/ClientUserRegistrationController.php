@@ -282,7 +282,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             return;
         }
 
-        if (is_null($phoneCode)) {
+        if (!is_null($phone) && is_null($phoneCode)) {
             $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
         }
 

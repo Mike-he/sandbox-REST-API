@@ -386,7 +386,7 @@ class ClientUserPasswordController extends UserPasswordController
             return $this->customErrorView(400, self::ERROR_INVALID_VERIFICATION_CODE, self::ERROR_INVALID_VERIFICATION_MESSAGE);
         }
 
-        if (is_null($phoneCode)) {
+        if (!is_null($phone) && is_null($phoneCode)) {
             $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
         }
 
