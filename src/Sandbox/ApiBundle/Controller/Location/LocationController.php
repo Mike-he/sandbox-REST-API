@@ -195,7 +195,7 @@ class LocationController extends SalesRestController
             }
         }
 
-        if (!is_null($user) && is_null($ids)) {
+        if (!is_null($user) && empty($ids)) {
             // sales bundle
             if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
                 $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($this->getUser()->getAdminId());
