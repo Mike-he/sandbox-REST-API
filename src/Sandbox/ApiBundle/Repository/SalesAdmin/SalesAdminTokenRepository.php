@@ -12,19 +12,18 @@ class SalesAdminTokenRepository extends EntityRepository
      */
     public function deleteSalesAdminToken(
         $adminId,
-        $clientId
+        $clientId = null
     ) {
-        $query = $this->getEntityManager()
-            ->createQuery(
-                '
-                    DELETE FROM SandboxApiBundle:SalesAdmin\SalesAdminToken at
-                    WHERE at.adminId = :adminId
-                    AND at.clientId = :clientId
-                '
-            )
-            ->setParameter('adminId', $adminId)
-            ->setParameter('clientId', $clientId);
+        $query = $this->createQueryBuilder('at')
+            ->delete('SandboxApiBundle:SalesAdmin\SalesAdminToken', 'at')
+            ->where('at.adminId = :adminId')
+            ->setParameter('adminId', $adminId);
 
-        $query->execute();
+        if (!is_null($clientId)) {
+            $query->andWhere('at.clientId = :clientId')
+                ->setParameter('clientId', $clientId);
+        }
+
+        $query->getQuery()->execute();
     }
 }

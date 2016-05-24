@@ -486,6 +486,11 @@ class AdminAdminsController extends SalesRestController
         }
         $em->persist($admin);
 
+        // logout this admin
+        $this->getRepo('SalesAdmin\SalesAdminToken')->deleteSalesAdminToken(
+            $admin->getId()
+        );
+
         if (is_null($permissionInComing) || empty($permissionInComing)) {
             // save data
             $em->flush();

@@ -459,6 +459,11 @@ class AdminSalesAdminsController extends SandboxRestController
         }
         $em->persist($admin);
 
+        // logout this admin
+        $this->getRepo('SalesAdmin\SalesAdminToken')->deleteSalesAdminToken(
+            $admin->getId()
+        );
+
         // set sales company
         if (!is_null($company) || !empty($company)) {
             $salesCompany = $this->getRepo('SalesAdmin\SalesCompany')->find($admin->getCompanyId());

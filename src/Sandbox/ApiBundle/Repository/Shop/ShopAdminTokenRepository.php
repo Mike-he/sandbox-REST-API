@@ -12,19 +12,18 @@ class ShopAdminTokenRepository extends EntityRepository
      */
     public function deleteShopAdminToken(
         $adminId,
-        $clientId
+        $clientId = null
     ) {
-        $query = $this->getEntityManager()
-            ->createQuery(
-                '
-                    DELETE FROM SandboxApiBundle:Shop\ShopAdminToken at
-                    WHERE at.adminId = :adminId
-                    AND at.clientId = :clientId
-                '
-            )
-            ->setParameter('adminId', $adminId)
-            ->setParameter('clientId', $clientId);
+        $query = $this->createQueryBuilder('at')
+            ->delete('SandboxApiBundle:Shop\ShopAdminToken', 'at')
+            ->where('at.adminId = :adminId')
+            ->setParameter('adminId', $adminId);
 
-        $query->execute();
+        if (!is_null($clientId)) {
+            $query->andWhere('at.clientId = :clientId')
+                ->setParameter('clientId', $clientId);
+        }
+
+        $query->getQuery()->execute();
     }
 }

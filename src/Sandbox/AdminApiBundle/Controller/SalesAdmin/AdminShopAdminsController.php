@@ -275,6 +275,11 @@ class AdminShopAdminsController extends SandboxRestController
         }
         $em->persist($admin);
 
+        // logout this admin
+        $this->getRepo('ShopAdmin\ShopAdminToken')->deleteShopAdminToken(
+            $admin->getId()
+        );
+
         //save data
         $em->flush();
 

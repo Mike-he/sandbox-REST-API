@@ -374,6 +374,11 @@ class AdminAdminsController extends SandboxRestController
         }
         $em->persist($admin);
 
+        // logout this admin
+        $this->getRepo('Admin\AdminToken')->deleteAdminToken(
+            $admin->getId()
+        );
+
         if (is_null($permissionInComing) || empty($permissionInComing)) {
             // save data
             $em->flush();

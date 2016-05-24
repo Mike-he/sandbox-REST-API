@@ -474,6 +474,11 @@ class AdminAdminsController extends ShopRestController
         }
         $em->persist($admin);
 
+        // logout this admin
+        $this->getRepo('ShopAdmin\ShopAdminToken')->deleteShopAdminToken(
+            $admin->getId()
+        );
+
         if (is_null($permissionInComing) || empty($permissionInComing)) {
             // save data
             $em->flush();
