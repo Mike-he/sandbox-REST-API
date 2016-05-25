@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminPutType;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPostType;
+use Sandbox\ApiBundle\Traits\AdminTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -37,6 +38,8 @@ use Rs\Json\Patch;
  */
 class AdminSalesAdminsController extends SandboxRestController
 {
+    use AdminTrait;
+
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
 
@@ -356,11 +359,15 @@ class AdminSalesAdminsController extends SandboxRestController
             AdminPermissionMap::OP_LEVEL_EDIT
         );
 
-        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($id);
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')->find($id);
         $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
 
         $passwordOld = $admin->getPassword();
         $bannedOld = $admin->isBanned();
+
+        // get origin admin hash string
+        $adminOriginHash = $this->getHashResult($admin);
 
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
@@ -387,7 +394,8 @@ class AdminSalesAdminsController extends SandboxRestController
         return $this->handleAdminPatch(
             $admin,
             $type_key,
-            $company
+            $company,
+            $adminOriginHash
         );
     }
 
@@ -444,13 +452,15 @@ class AdminSalesAdminsController extends SandboxRestController
      * @param SalesAdmin     $admin
      * @param SalesAdminType $typeKey
      * @param SalesCompany   $company
+     * @param string         $adminOriginHash
      *
      * @return View
      */
     private function handleAdminPatch(
         $admin,
         $typeKey,
-        $company
+        $company,
+        $adminOriginHash
     ) {
         $em = $this->getDoctrine()->getManager();
         if (!is_null($typeKey)) {
@@ -458,11 +468,6 @@ class AdminSalesAdminsController extends SandboxRestController
             $admin->setTypeId($type->getId());
         }
         $em->persist($admin);
-
-        // logout this admin
-        $this->getRepo('SalesAdmin\SalesAdminToken')->deleteSalesAdminToken(
-            $admin->getId()
-        );
 
         // set sales company
         if (!is_null($company) || !empty($company)) {
@@ -477,6 +482,14 @@ class AdminSalesAdminsController extends SandboxRestController
 
         //save data
         $em->flush();
+
+        $adminNewHash = $this->getHashResult($admin);
+        if ($adminOriginHash != $adminNewHash) {
+            // logout this admin
+            $this->getRepo('SalesAdmin\SalesAdminToken')->deleteSalesAdminToken(
+                $admin->getId()
+            );
+        }
 
         return new View();
     }

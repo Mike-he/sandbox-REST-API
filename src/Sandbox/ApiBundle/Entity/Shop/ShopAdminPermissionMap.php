@@ -59,7 +59,7 @@ class ShopAdminPermissionMap
     /**
      * @ORM\ManyToOne(targetEntity="ShopAdminPermission")
      * @ORM\JoinColumn(name="permissionId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      **/
     private $permission;
 
@@ -67,7 +67,7 @@ class ShopAdminPermissionMap
      * @var int
      *
      * @ORM\Column(name="opLevel", type="integer", nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $opLevel;
 

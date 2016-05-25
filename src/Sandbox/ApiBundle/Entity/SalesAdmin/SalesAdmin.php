@@ -26,7 +26,7 @@ class SalesAdmin implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $id;
 
@@ -34,7 +34,7 @@ class SalesAdmin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $username;
 
@@ -42,7 +42,7 @@ class SalesAdmin implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password", type="string", length=256, nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_basic"})
      */
     private $password;
 
@@ -58,7 +58,7 @@ class SalesAdmin implements UserInterface
      * @var int
      *
      * @ORM\Column(name="typeId", type="integer", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_basic"})
      */
     private $typeId;
 
@@ -92,7 +92,7 @@ class SalesAdmin implements UserInterface
      *      targetEntity="SalesAdminPermissionMap",
      *      mappedBy="admin"
      * )
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $permissions;
 
