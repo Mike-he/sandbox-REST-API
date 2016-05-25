@@ -58,6 +58,7 @@ twig:
         nearby_shop_range_km: "%nearby_shop_range_km%"
         expired_verification_time: "%expired_verification_time%"
         time_for_half_hour_early: "%time_for_half_hour_early%"
+        time_for_preorder_cancel: "%time_for_preorder_cancel%"
         sandbox_auth_key: "%sandbox_auth_key%"
         food_api_url: "%food_api_url%"
         food_api_payment_callback: "%food_api_payment_callback%"
