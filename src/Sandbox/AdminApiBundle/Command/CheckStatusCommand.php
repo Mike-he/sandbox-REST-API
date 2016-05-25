@@ -66,13 +66,17 @@ class CheckStatusCommand extends ContainerAwareCommand
             ->setVisibleFalse();
 
         // get unpaid preorder product orders
+        $twig = $this->getContainer()->get('twig');
+        $globals = $twig->getGlobals();
+        $modifyTime = $globals['time_for_preorder_cancel'];
+
         $preorders = $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getUnpaidPreOrders();
 
         foreach ($preorders as $preorder) {
-            $this->checkPreOrders($preorder);
+            $this->checkPreOrders($preorder, $modifyTime);
         }
 
         // get paid product order and set status completed
@@ -87,28 +91,26 @@ class CheckStatusCommand extends ContainerAwareCommand
     }
 
     private function checkPreOrders(
-        $order
+        $order,
+        $modifyTime
     ) {
         $now = new \DateTime();
         $start = $order->getStartDate();
-        $timeTillPayment = $order->getTimeTillPayment();
         $creationTime = $order->getCreationDate();
 
         if ($start > $now) {
-            $remainingTime = $now->diff($start);
+            $remainingTime = $start->diff($creationTime);
             $days = $remainingTime->d;
 
-            if (!is_null($timeTillPayment)) {
-                if ($now >= $timeTillPayment) {
+            if ($days > 0) {
+                $endTime = clone $creationTime;
+                $endTime->modify($modifyTime);
+
+                if ($now >= $endTime) {
                     $order->setStatus(ProductOrder::STATUS_CANCELLED);
                     $order->setCancelledDate($now);
                     $order->setModificationDate($now);
                 }
-            } elseif ($days > 0) {
-                $endTime = clone $creationTime;
-                $endTime->modify('+ 1 day');
-
-                $order->setTimeTillPayment($endTime);
             }
         } else {
             $order->setStatus(ProductOrder::STATUS_CANCELLED);

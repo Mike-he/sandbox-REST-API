@@ -968,6 +968,8 @@ class ClientOrderController extends OrderController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
+
+        $modifyTime = $this->getGlobal('time_for_preorder_cancel');
         $status = $order->getStatus();
         $now = new \DateTime();
         $hours = 0;
@@ -975,52 +977,42 @@ class ClientOrderController extends OrderController
         $seconds = 0;
 
         if ($status == ProductOrder::STATUS_UNPAID) {
+            $creationTime = $order->getCreationDate();
+
             if (ProductOrder::PREORDER_TYPE == $order->getType()) {
                 $start = $order->getStartDate();
-                $creationTime = $order->getCreationDate();
 
                 if ($start > $now) {
-                    $remainingTime = $now->diff($start);
+                    $remainingTime = $start->diff($creationTime);
                     $days = $remainingTime->d;
-                    $hours = $remainingTime->h;
-                    $minutes = $remainingTime->i;
-                    $seconds = $remainingTime->s;
 
-                    $timeTillPayment = $order->getTimeTillPayment();
+                    if ($days > 0) {
+                        $endTime = clone $creationTime;
+                        $endTime->modify($modifyTime);
 
-                    if (!is_null($timeTillPayment)) {
-                        if ($now < $timeTillPayment) {
-                            $remainingTime = $now->diff($timeTillPayment);
-                            $hours = $remainingTime->h;
-                            $minutes = $remainingTime->i;
-                            $seconds = $remainingTime->s;
-                        } else {
+                        $remainingTime = $endTime->diff($now);
+                        $hours = $remainingTime->h;
+                        $minutes = $remainingTime->i;
+                        $seconds = $remainingTime->s;
+
+                        if ($now >= $endTime) {
                             $hours = 0;
                             $minutes = 0;
                             $seconds = 0;
 
                             $this->setOrderStatusCancelled($order, $now);
                         }
-                    } elseif ($days > 0) {
-                        $endTime = clone $creationTime;
-                        $endTime->modify('+ 1 day');
-
-                        $order->setTimeTillPayment($endTime);
-
-                        $hours = 23;
-                        $minutes = 59;
-                        $seconds = 59;
+                    } else {
+                        $remainingTime = $start->diff($now);
+                        $hours = $remainingTime->h;
+                        $minutes = $remainingTime->i;
+                        $seconds = $remainingTime->s;
                     }
                 } else {
-                    $minutes = 0;
-                    $seconds = 0;
-
                     $this->setOrderStatusCancelled($order, $now);
                 }
             } else {
-                $start = $order->getCreationDate();
-
-                $remainingTime = $now->diff($start);
+                $remainingTime = $now->diff($creationTime);
                 $minutes = $remainingTime->i;
                 $seconds = $remainingTime->s;
 

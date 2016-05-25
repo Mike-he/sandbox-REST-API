@@ -349,15 +349,6 @@ class ProductOrder
     private $rentPeriod;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="timeTillPayment", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
-     */
-    private $timeTillPayment;
-
-    /**
      * Set isRenew.
      *
      * @param bool $isRenew
@@ -1179,30 +1170,6 @@ class ProductOrder
     public function getRefundUrl()
     {
         return $this->refundUrl;
-    }
-
-    /**
-     * Set timeTillPayment.
-     *
-     * @param \DateTime $timeTillPayment
-     *
-     * @return ProductOrder
-     */
-    public function setTimeTillPayment($timeTillPayment)
-    {
-        $this->timeTillPayment = $timeTillPayment;
-
-        return $this;
-    }
-
-    /**
-     * Get timeTillPayment.
-     *
-     * @return \DateTime
-     */
-    public function getTimeTillPayment()
-    {
-        return $this->timeTillPayment;
     }
 
     public function __construct()

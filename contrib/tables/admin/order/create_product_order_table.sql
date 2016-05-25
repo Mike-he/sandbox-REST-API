@@ -29,7 +29,6 @@ CREATE TABLE `ProductOrder` (
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   `refundUrl` text,
-  `timeTillPayment` datetime,
   PRIMARY KEY (`id`),
   KEY `fk_ProductOrder_userId_idx` (`userId`),
   KEY `fk_ProductOrder_productId_idx` (`productId`),
