@@ -33,6 +33,7 @@ class AdminPermission
     const KEY_PLATFORM_BUILDING = 'platform.building';
     const KEY_PLATFORM_VERIFY = 'platform.verify';
     const KEY_PLATFORM_SALES = 'platform.sales';
+    const KEY_PLATFORM_BULLETIN = 'platform.bulletin';
 
     /**
      * @var int

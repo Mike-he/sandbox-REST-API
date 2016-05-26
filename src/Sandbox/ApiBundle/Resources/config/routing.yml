@@ -93,3 +93,9 @@ sandbox_api_user_phone_code:
     resource: "@SandboxApiBundle/Controller/User/UserPhoneCodeController.php"
     type:     annotation
     prefix:   /
+
+# Bulletin /bulletins
+sandbox_api_bulletins:
+    resource: "@SandboxApiBundle/Controller/Bulletin/BulletinController.php"
+    type:     annotation
+    prefix:   /
