@@ -253,7 +253,18 @@ class UserLoginController extends SandboxRestController
         if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
             $user = $this->getRepo('User\User')->findOneByEmail($username);
         } else {
-            $user = $this->getRepo('User\User')->findOneByPhone($username);
+            $usernameArray = explode('-', $username);
+            if (count($usernameArray) != 2) {
+                throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+            }
+
+            $phoneCode = $usernameArray[0];
+            $phone = $usernameArray[1];
+
+            $user = $this->getRepo('User\User')->findOneBy(array(
+                'phoneCode' => $phoneCode,
+                'phone' => $phone,
+            ));
         }
 
         if (is_null($user)) {

@@ -14,6 +14,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Form\Shop\ShopAdminPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopAdminPutType;
+use Sandbox\ApiBundle\Traits\AdminTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -35,6 +36,8 @@ use Rs\Json\Patch;
  */
 class AdminShopAdminsController extends SandboxRestController
 {
+    use AdminTrait;
+
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
 
@@ -237,6 +240,9 @@ class AdminShopAdminsController extends SandboxRestController
 
         $passwordOld = $admin->getPassword();
 
+        // get origin admin hash string
+        $adminOriginHash = $this->getHashResult($admin);
+
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
         $patch = new Patch($adminJson, $request->getContent());
@@ -254,19 +260,22 @@ class AdminShopAdminsController extends SandboxRestController
 
         return $this->handleAdminPatch(
             $admin,
-            $type_key
+            $type_key,
+            $adminOriginHash
         );
     }
 
     /**
      * @param ShopAdmin     $admin
      * @param ShopAdminType $typeKey
+     * @param string        $adminOriginHash
      *
      * @return View
      */
     private function handleAdminPatch(
         $admin,
-        $typeKey
+        $typeKey,
+        $adminOriginHash
     ) {
         $em = $this->getDoctrine()->getManager();
         if (!is_null($typeKey)) {
@@ -277,6 +286,14 @@ class AdminShopAdminsController extends SandboxRestController
 
         //save data
         $em->flush();
+
+        $adminNewHash = $this->getHashResult($admin);
+        if ($adminOriginHash != $adminNewHash) {
+            // logout this admin
+            $this->getRepo('ShopAdmin\ShopAdminToken')->deleteShopAdminToken(
+                $admin->getId()
+            );
+        }
 
         return new View();
     }

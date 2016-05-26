@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesMyAdminPutType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesPlatformAdminPostType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesPlatformAdminPutType;
+use Sandbox\ApiBundle\Traits\AdminTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -36,6 +37,8 @@ use Rs\Json\Patch;
  */
 class AdminAdminsController extends SalesRestController
 {
+    use AdminTrait;
+
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
 
@@ -341,8 +344,12 @@ class AdminAdminsController extends SalesRestController
             SalesAdminPermissionMap::OP_LEVEL_EDIT
         );
 
-        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($id);
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')->find($id);
         $passwordOld = $admin->getPassword();
+
+        // get origin admin hash string
+        $adminOriginHash = $this->getHashResult($admin);
 
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
@@ -364,7 +371,8 @@ class AdminAdminsController extends SalesRestController
             $id,
             $admin,
             $type_key,
-            $permission
+            $permission,
+            $adminOriginHash
         );
     }
 
@@ -468,6 +476,7 @@ class AdminAdminsController extends SalesRestController
      * @param SalesAdmin              $id
      * @param SalesAdminType          $typeKey
      * @param SalesAdminPermissionMap $permissionInComing
+     * @param string                  $adminOriginHash
      *
      * @return View
      */
@@ -475,7 +484,8 @@ class AdminAdminsController extends SalesRestController
         $id,
         $admin,
         $typeKey,
-        $permissionInComing
+        $permissionInComing,
+        $adminOriginHash
     ) {
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
@@ -553,6 +563,14 @@ class AdminAdminsController extends SalesRestController
 
         //save data
         $em->flush();
+
+        $adminNewHash = $this->getHashResult($admin);
+        if ($adminOriginHash != $adminNewHash) {
+            // logout this admin
+            $this->getRepo('SalesAdmin\SalesAdminToken')->deleteSalesAdminToken(
+                $admin->getId()
+            );
+        }
 
         return new View();
     }

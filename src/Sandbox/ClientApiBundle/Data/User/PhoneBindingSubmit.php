@@ -13,6 +13,11 @@ class PhoneBindingSubmit
     private $phone;
 
     /**
+     * @var string
+     */
+    private $phoneCode;
+
+    /**
      * Set phone.
      *
      * @param string $phone
@@ -34,5 +39,21 @@ class PhoneBindingSubmit
     public function getPhone()
     {
         return $this->phone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhoneCode()
+    {
+        return $this->phoneCode;
+    }
+
+    /**
+     * @param string $phoneCode
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phoneCode = $phoneCode;
     }
 }

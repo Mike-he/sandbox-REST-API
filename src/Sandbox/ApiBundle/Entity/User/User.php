@@ -66,6 +66,14 @@ class User implements UserInterface
     /**
      * @var string
      *
+     * @ORM\Column(name="phoneCode", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main", "login", "buddy"})
+     */
+    private $phoneCode;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      * @Serializer\Groups({"main", "login", "buddy"})
      */
@@ -215,6 +223,22 @@ class User implements UserInterface
     public function getEmail()
     {
         return $this->email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhoneCode()
+    {
+        return $this->phoneCode;
+    }
+
+    /**
+     * @param string $phoneCode
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phoneCode = $phoneCode;
     }
 
     /**

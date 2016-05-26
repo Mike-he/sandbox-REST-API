@@ -33,6 +33,7 @@ class AdminPermission
     const KEY_PLATFORM_BUILDING = 'platform.building';
     const KEY_PLATFORM_VERIFY = 'platform.verify';
     const KEY_PLATFORM_SALES = 'platform.sales';
+    const KEY_PLATFORM_BULLETIN = 'platform.bulletin';
 
     /**
      * @var int
@@ -40,7 +41,7 @@ class AdminPermission
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $id;
 
@@ -48,7 +49,7 @@ class AdminPermission
      * @var string
      *
      * @ORM\Column(name="key", type="string", length=32, nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $key;
 
@@ -56,7 +57,7 @@ class AdminPermission
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $name;
 

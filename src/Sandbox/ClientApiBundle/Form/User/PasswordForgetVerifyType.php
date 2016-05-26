@@ -14,6 +14,7 @@ class PasswordForgetVerifyType extends AbstractType
             ->add('email')
             ->add('phone')
             ->add('code')
+            ->add('phone_code')
         ;
     }
 

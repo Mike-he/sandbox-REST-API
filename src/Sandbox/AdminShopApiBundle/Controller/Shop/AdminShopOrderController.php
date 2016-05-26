@@ -175,6 +175,26 @@ class AdminShopOrderController extends ShopController
      *    description="Filter coffee backend or kitchen ipad"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
      * @Method({"GET"})
      * @Route("/orders")
      *
@@ -213,6 +233,8 @@ class AdminShopOrderController extends ShopController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $platform = $paramFetcher->get('platform');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         if (!is_null($shopId) && !in_array((int) $shopId, $myShopIds)) {
             return new View();
@@ -226,16 +248,22 @@ class AdminShopOrderController extends ShopController
             $sort,
             $search,
             $platform,
-            $myShopIds
+            $myShopIds,
+            $limit,
+            $offset
         );
 
         $orders = $this->get('serializer')->serialize(
-
             $orders,
             'json',
             SerializationContext::create()->setGroups(['admin_shop'])
         );
         $orders = json_decode($orders, true);
+
+        // using limit and offset instead of pagination
+        if ($platform == ShopOrder::PLATFORM_KITCHEN) {
+            return new View($orders);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -700,7 +728,9 @@ class AdminShopOrderController extends ShopController
             $sort,
             $search,
             $platform,
-            $myShopIds
+            $myShopIds,
+            null,
+            null
         );
 
         return $this->getShopOrderExport($orders, $language);

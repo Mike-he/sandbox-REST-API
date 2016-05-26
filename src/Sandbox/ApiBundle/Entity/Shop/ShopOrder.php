@@ -25,9 +25,10 @@ class ShopOrder
     const PAYMENT_SUBJECT = 'SANDBOX3-店铺订单';
     const PAYMENT_BODY = 'Shop Order';
     const READY_NOTIFICATION = '您的订单已做好, 请到柜台领取';
-    const REFUNDED_NOTIFICATION = '您的订单已退款, 钱款将在1~3个工作日内退回到您的支付账户下';
+    const REFUNDED_NOTIFICATION = '您的订单已退款, 钱款将在5~10个工作日内退回到您的支付账户下';
     const ISSUE_NOTIFICATION = '您的订单有问题, 请到柜台查看';
     const PLATFORM_BACKEND = 'backend';
+    const PLATFORM_KITCHEN = 'kitchen';
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
     const SHOP_MAP = 'shop';

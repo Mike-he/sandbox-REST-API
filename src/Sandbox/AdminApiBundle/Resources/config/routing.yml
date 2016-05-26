@@ -201,3 +201,15 @@ sandbox_admin_api_shop_orders:
     resource: "@SandboxAdminApiBundle/Controller/Shop/AdminShopOrderController.php"
     type:     annotation
     prefix:   /
+
+# Bulletin Type /admin/bulletins/type
+sandbox_admin_api_bulletins_type:
+    resource: "@SandboxAdminApiBundle/Controller/Bulletin/AdminBulletinTypeController.php"
+    type:     annotation
+    prefix:   /
+
+# Bulletin /admin/bulletins
+sandbox_admin_api_bulletins:
+    resource: "@SandboxAdminApiBundle/Controller/Bulletin/AdminBulletinPostController.php"
+    type:     annotation
+    prefix:   /

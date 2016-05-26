@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 //use Sandbox\ApiBundle\Traits\CurlUtil;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -64,6 +65,20 @@ class CheckStatusCommand extends ContainerAwareCommand
             ->getRepository('SandboxApiBundle:Product\Product')
             ->setVisibleFalse();
 
+        // get unpaid preorder product orders
+        $twig = $this->getContainer()->get('twig');
+        $globals = $twig->getGlobals();
+        $modifyTime = $globals['time_for_preorder_cancel'];
+
+        $preorders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getUnpaidPreOrders();
+
+        foreach ($preorders as $preorder) {
+            $this->checkPreOrders($preorder, $modifyTime);
+        }
+
         // get paid product order and set status completed
         $orders = $this->getContainer()
             ->get('doctrine')
@@ -72,6 +87,35 @@ class CheckStatusCommand extends ContainerAwareCommand
 
         foreach ($orders as $order) {
             $this->setProductOrderStatusCompleted($order);
+        }
+    }
+
+    private function checkPreOrders(
+        $order,
+        $modifyTime
+    ) {
+        $now = new \DateTime();
+        $start = $order->getStartDate();
+        $creationTime = $order->getCreationDate();
+
+        if ($start > $now) {
+            $remainingTime = $start->diff($creationTime);
+            $days = $remainingTime->d;
+
+            if ($days > 0) {
+                $endTime = clone $creationTime;
+                $endTime->modify($modifyTime);
+
+                if ($now >= $endTime) {
+                    $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $order->setCancelledDate($now);
+                    $order->setModificationDate($now);
+                }
+            }
+        } else {
+            $order->setStatus(ProductOrder::STATUS_CANCELLED);
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
         }
     }
 

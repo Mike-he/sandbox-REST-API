@@ -33,7 +33,7 @@ class ShopAdminPermission
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $id;
 
@@ -41,7 +41,7 @@ class ShopAdminPermission
      * @var string
      *
      * @ORM\Column(name="key", type="string", length=32, nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $key;
 
@@ -49,7 +49,7 @@ class ShopAdminPermission
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $name;
 

@@ -370,11 +370,27 @@ class OrderRepository extends EntityRepository
             ->set('o.cancelledDate', $nowString)
             ->set('o.modificationDate', $nowString)
             ->where('o.status = \'unpaid\'')
+            ->andWhere('o.type != :preorder')
             ->andWhere('o.creationDate <= :start')
+            ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
             ->setParameter('start', $start)
             ->getQuery();
 
         $query->execute();
+    }
+
+    /**
+     * get unpaid preorder product orders.
+     */
+    public function getUnpaidPreOrders()
+    {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = \'unpaid\'')
+            ->andWhere('o.type = :preorder')
+            ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
+            ->getQuery();
+
+        return $query->getResult();
     }
 
     public function getRenewOrder(

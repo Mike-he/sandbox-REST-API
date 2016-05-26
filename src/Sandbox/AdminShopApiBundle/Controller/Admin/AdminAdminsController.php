@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Form\Shop\ShopPlatformAdminPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopMyAdminPutType;
 use Sandbox\ApiBundle\Form\Shop\ShopPlatformAdminPutType;
+use Sandbox\ApiBundle\Traits\AdminTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -36,6 +37,8 @@ use Rs\Json\Patch;
  */
 class AdminAdminsController extends ShopRestController
 {
+    use AdminTrait;
+
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
 
@@ -334,6 +337,9 @@ class AdminAdminsController extends ShopRestController
         $admin = $this->getRepo('Shop\ShopAdmin')->find($id);
         $passwordOld = $admin->getPassword();
 
+        // get origin admin hash string
+        $adminOriginHash = $this->getHashResult($admin);
+
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
         $patch = new Patch($adminJson, $request->getContent());
@@ -354,7 +360,8 @@ class AdminAdminsController extends ShopRestController
             $id,
             $admin,
             $type_key,
-            $permission
+            $permission,
+            $adminOriginHash
         );
     }
 
@@ -456,6 +463,7 @@ class AdminAdminsController extends ShopRestController
      * @param ShopAdmin              $id
      * @param ShopAdminType          $typeKey
      * @param ShopAdminPermissionMap $permissionInComing
+     * @param string                 $adminOriginHash
      *
      * @return View
      */
@@ -463,7 +471,8 @@ class AdminAdminsController extends ShopRestController
         $id,
         $admin,
         $typeKey,
-        $permissionInComing
+        $permissionInComing,
+        $adminOriginHash
     ) {
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
@@ -541,6 +550,14 @@ class AdminAdminsController extends ShopRestController
 
         //save data
         $em->flush();
+
+        $adminNewHash = $this->getHashResult($admin);
+        if ($adminOriginHash != $adminNewHash) {
+            // logout this admin
+            $this->getRepo('ShopAdmin\ShopAdminToken')->deleteShopAdminToken(
+                $admin->getId()
+            );
+        }
 
         return new View();
     }
