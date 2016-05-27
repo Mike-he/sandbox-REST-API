@@ -336,9 +336,7 @@ class AdminAdminsController extends ShopRestController
 
         $admin = $this->getRepo('Shop\ShopAdmin')->find($id);
         $passwordOld = $admin->getPassword();
-
-        // get origin admin hash string
-        $adminOriginHash = $this->getHashResult($admin);
+        $usernameOld = $admin->getUsername();
 
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
@@ -361,7 +359,8 @@ class AdminAdminsController extends ShopRestController
             $admin,
             $type_key,
             $permission,
-            $adminOriginHash
+            $passwordOld,
+            $usernameOld
         );
     }
 
@@ -463,7 +462,8 @@ class AdminAdminsController extends ShopRestController
      * @param ShopAdmin              $id
      * @param ShopAdminType          $typeKey
      * @param ShopAdminPermissionMap $permissionInComing
-     * @param string                 $adminOriginHash
+     * @param string                 $passwordOrigin
+     * @param string                 $usernameOrigin
      *
      * @return View
      */
@@ -472,8 +472,11 @@ class AdminAdminsController extends ShopRestController
         $admin,
         $typeKey,
         $permissionInComing,
-        $adminOriginHash
+        $passwordOrigin,
+        $usernameOrigin
     ) {
+        $logoutAdminRequired = false;
+
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
 
@@ -525,6 +528,7 @@ class AdminAdminsController extends ShopRestController
                 $permissionMap->setShopId($shopId);
 
                 $em->persist($permissionMap);
+                $logoutAdminRequired = true;
 
                 continue;
             }
@@ -545,14 +549,20 @@ class AdminAdminsController extends ShopRestController
 
             if (!in_array($permissionArray, $permissionInComingArray)) {
                 $em->remove($item);
+                $logoutAdminRequired = true;
             }
         }
 
         //save data
         $em->flush();
 
-        $adminNewHash = $this->getHashResult($admin);
-        if ($adminOriginHash != $adminNewHash) {
+        if ($usernameOrigin != $admin->getUsername()
+            || $passwordOrigin != $admin->getPassword()
+        ) {
+            $logoutAdminRequired = true;
+        }
+
+        if ($logoutAdminRequired) {
             // logout this admin
             $this->getRepo('ShopAdmin\ShopAdminToken')->deleteShopAdminToken(
                 $admin->getId()

@@ -239,9 +239,7 @@ class AdminShopAdminsController extends SandboxRestController
         $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
 
         $passwordOld = $admin->getPassword();
-
-        // get origin admin hash string
-        $adminOriginHash = $this->getHashResult($admin);
+        $usernameOld = $admin->getUsername();
 
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
@@ -261,21 +259,24 @@ class AdminShopAdminsController extends SandboxRestController
         return $this->handleAdminPatch(
             $admin,
             $type_key,
-            $adminOriginHash
+            $passwordOld,
+            $usernameOld
         );
     }
 
     /**
      * @param ShopAdmin     $admin
      * @param ShopAdminType $typeKey
-     * @param string        $adminOriginHash
+     * @param string        $passwordOrigin
+     * @param string        $usernameOrigin
      *
      * @return View
      */
     private function handleAdminPatch(
         $admin,
         $typeKey,
-        $adminOriginHash
+        $passwordOrigin,
+        $usernameOrigin
     ) {
         $em = $this->getDoctrine()->getManager();
         if (!is_null($typeKey)) {
@@ -287,8 +288,9 @@ class AdminShopAdminsController extends SandboxRestController
         //save data
         $em->flush();
 
-        $adminNewHash = $this->getHashResult($admin);
-        if ($adminOriginHash != $adminNewHash) {
+        if ($usernameOrigin != $admin->getUsername()
+            || $passwordOrigin != $admin->getPassword()
+        ) {
             // logout this admin
             $this->getRepo('ShopAdmin\ShopAdminToken')->deleteShopAdminToken(
                 $admin->getId()

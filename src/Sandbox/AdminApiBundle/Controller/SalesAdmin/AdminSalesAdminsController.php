@@ -365,9 +365,7 @@ class AdminSalesAdminsController extends SandboxRestController
 
         $passwordOld = $admin->getPassword();
         $bannedOld = $admin->isBanned();
-
-        // get origin admin hash string
-        $adminOriginHash = $this->getHashResult($admin);
+        $usernameOrigin = $admin->getUsername();
 
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
@@ -395,7 +393,8 @@ class AdminSalesAdminsController extends SandboxRestController
             $admin,
             $type_key,
             $company,
-            $adminOriginHash
+            $passwordOld,
+            $usernameOrigin
         );
     }
 
@@ -452,7 +451,8 @@ class AdminSalesAdminsController extends SandboxRestController
      * @param SalesAdmin     $admin
      * @param SalesAdminType $typeKey
      * @param SalesCompany   $company
-     * @param string         $adminOriginHash
+     * @param string         $passwordOrigin
+     * @param string         $usernameOrigin
      *
      * @return View
      */
@@ -460,7 +460,8 @@ class AdminSalesAdminsController extends SandboxRestController
         $admin,
         $typeKey,
         $company,
-        $adminOriginHash
+        $passwordOrigin,
+        $usernameOrigin
     ) {
         $em = $this->getDoctrine()->getManager();
         if (!is_null($typeKey)) {
@@ -483,8 +484,9 @@ class AdminSalesAdminsController extends SandboxRestController
         //save data
         $em->flush();
 
-        $adminNewHash = $this->getHashResult($admin);
-        if ($adminOriginHash != $adminNewHash) {
+        if ($usernameOrigin != $admin->getUsername()
+            || $passwordOrigin != $admin->getPassword()
+        ) {
             // logout this admin
             $this->getRepo('SalesAdmin\SalesAdminToken')->deleteSalesAdminToken(
                 $admin->getId()
