@@ -3,5 +3,6 @@ CREATE TABLE `BulletinType` (
   `name` varchar(64) NOT NULL,
   `deleted` tinyint(1) DEFAULT FALSE NOT NULL,
   `creationDate` datetime NOT NULL,
+  `sortTime` varchar(15) NOT NULL,
   PRIMARY KEY (`id`)
 );
