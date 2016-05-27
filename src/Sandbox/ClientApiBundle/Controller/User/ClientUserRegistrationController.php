@@ -413,6 +413,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $registration = $this->getRepo('User\UserRegistration')->findOneBy(array(
                 'email' => $email,
                 'phone' => $phone,
+                'phoneCode' => $phoneCode,
             )
         );
         if (is_null($registration)) {
