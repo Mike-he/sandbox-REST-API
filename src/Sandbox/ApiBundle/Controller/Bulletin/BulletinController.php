@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Bulletin;
 
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
