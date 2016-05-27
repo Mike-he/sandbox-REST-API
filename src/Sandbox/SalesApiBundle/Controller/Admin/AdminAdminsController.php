@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesMyAdminPutType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesPlatformAdminPostType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesPlatformAdminPutType;
-use Sandbox\ApiBundle\Traits\AdminTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -37,8 +36,6 @@ use Rs\Json\Patch;
  */
 class AdminAdminsController extends SalesRestController
 {
-    use AdminTrait;
-
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
 

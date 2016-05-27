@@ -14,7 +14,6 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Form\Shop\ShopAdminPostType;
 use Sandbox\ApiBundle\Form\Shop\ShopAdminPutType;
-use Sandbox\ApiBundle\Traits\AdminTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -36,8 +35,6 @@ use Rs\Json\Patch;
  */
 class AdminShopAdminsController extends SandboxRestController
 {
-    use AdminTrait;
-
     const ERROR_USERNAME_INVALID_CODE = 400001;
     const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
 
