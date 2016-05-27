@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * BulletinType.
  *
  * @ORM\Table(name="BulletinType")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Bulletin\BulletinTypeRepository")
  */
 class BulletinType
 {
@@ -53,6 +53,14 @@ class BulletinType
      * @Serializer\Groups({"main", "admin", "client"})
      */
     private $creationDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sortTime", type="string", length=15)
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $sortTime;
 
     /**
      * Get id.
@@ -136,9 +144,34 @@ class BulletinType
         return $this->creationDate;
     }
 
+    /**
+     * Set sortTime.
+     *
+     * @param string $sortTime
+     *
+     * @return BulletinType
+     */
+    public function setSortTime($sortTime)
+    {
+        $this->sortTime = $sortTime;
+
+        return $this;
+    }
+
+    /**
+     * Get sortTime.
+     *
+     * @return string
+     */
+    public function getSortTime()
+    {
+        return $this->sortTime;
+    }
+
     public function __construct()
     {
         $now = new \DateTime('now');
         $this->setCreationDate($now);
+        $this->setSortTime(round(microtime(true) * 1000));
     }
 }
