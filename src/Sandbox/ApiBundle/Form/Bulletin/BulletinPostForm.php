@@ -17,7 +17,6 @@ class BulletinPostForm extends AbstractType
         $builder
             ->add('title')
             ->add('description')
-            ->add('content')
             ->add('attachments')
             ->add('typeId')
         ;

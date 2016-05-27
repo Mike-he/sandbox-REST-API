@@ -53,20 +53,11 @@ class BulletinPost
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=1024)
+     * @ORM\Column(name="description", type="text")
      *
      * @Serializer\Groups({"main", "admin", "client"})
      */
     private $description;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="content", type="text")
-     *
-     * @Serializer\Groups({"main", "admin", "client"})
-     */
-    private $content;
 
     /**
      * @var bool
@@ -94,6 +85,14 @@ class BulletinPost
      * @Serializer\Groups({"main", "admin", "client"})
      */
     private $modificationDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sortTime", type="string", length=15)
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $sortTime;
 
     /**
      * @var array
@@ -222,30 +221,6 @@ class BulletinPost
     }
 
     /**
-     * Set content.
-     *
-     * @param string $content
-     *
-     * @return BulletinPost
-     */
-    public function setContent($content)
-    {
-        $this->content = $content;
-
-        return $this;
-    }
-
-    /**
-     * Get content.
-     *
-     * @return string
-     */
-    public function getContent()
-    {
-        return $this->content;
-    }
-
-    /**
      * Set deleted.
      *
      * @param bool $deleted
@@ -361,10 +336,35 @@ class BulletinPost
         return $this->postAttachments;
     }
 
+    /**
+     * Set sortTime.
+     *
+     * @param string $sortTime
+     *
+     * @return BulletinPost
+     */
+    public function setSortTime($sortTime)
+    {
+        $this->sortTime = $sortTime;
+
+        return $this;
+    }
+
+    /**
+     * Get sortTime.
+     *
+     * @return string
+     */
+    public function getSortTime()
+    {
+        return $this->sortTime;
+    }
+
     public function __construct()
     {
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+        $this->setSortTime(round(microtime(true) * 1000));
     }
 }

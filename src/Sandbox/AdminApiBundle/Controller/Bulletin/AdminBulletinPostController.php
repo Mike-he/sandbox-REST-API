@@ -5,12 +5,14 @@ namespace Sandbox\AdminApiBundle\Controller\Bulletin;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\AdminApiBundle\Data\Position\Position;
 use Sandbox\ApiBundle\Controller\Bulletin\BulletinController;
 use Sandbox\ApiBundle\Entity\Bulletin\BulletinPost;
 use Sandbox\ApiBundle\Entity\Bulletin\BulletinPostAttachment;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Form\Bulletin\BulletinPostForm;
 use Sandbox\ApiBundle\Form\Bulletin\BulletinPostAttachmentForm;
+use Sandbox\ApiBundle\Form\Position\PositionType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -319,6 +321,86 @@ class AdminBulletinPostController extends BulletinController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Method({"POST"})
+     * @Route("/bulletin/posts/{id}/position")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function changePostPositionAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $post = $this->getRepo('Bulletin\BulletinPost')->findOneBy(
+            [
+                'id' => $id,
+                'deleted' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($post, self::NOT_FOUND_MESSAGE);
+
+        $position = new Position();
+
+        $form = $this->createForm(new PositionType(), $position);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $action = $position->getAction();
+
+        if (empty($action) || is_null($action)) {
+            return new View();
+        }
+
+        $this->setPosition(
+            $post,
+            $action
+        );
+
+        return new View();
+    }
+
+    /**
+     * @param $post
+     * @param $action
+     */
+    private function setPosition(
+        $post,
+        $action
+    ) {
+        if ($action == Position::ACTION_TOP) {
+            $post->setSortTime(round(microtime(true) * 1000));
+        } elseif ($action == Position::ACTION_UP || $action == Position::ACTION_DOWN) {
+            $swapItem = $this->getRepo('Bulletin\BulletinPost')->findSwapBulletinPost(
+                $post,
+                $action
+            );
+
+            if (empty($swapItem)) {
+                return;
+            }
+
+            // swap
+            $itemSortTime = $post->getSortTime();
+            $post->setSortTime($swapItem->getSortTime());
+            $swapItem->setSortTime($itemSortTime);
+        }
+
+        // save
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
     }
 
     /**
