@@ -347,9 +347,7 @@ class AdminAdminsController extends SalesRestController
         $admin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')->find($id);
         $passwordOld = $admin->getPassword();
-
-        // get origin admin hash string
-        $adminOriginHash = $this->getHashResult($admin);
+        $usernameOld = $admin->getUsername();
 
         // bind data
         $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
@@ -372,7 +370,8 @@ class AdminAdminsController extends SalesRestController
             $admin,
             $type_key,
             $permission,
-            $adminOriginHash
+            $passwordOld,
+            $usernameOld
         );
     }
 
@@ -476,7 +475,8 @@ class AdminAdminsController extends SalesRestController
      * @param SalesAdmin              $id
      * @param SalesAdminType          $typeKey
      * @param SalesAdminPermissionMap $permissionInComing
-     * @param string                  $adminOriginHash
+     * @param string                  $passwordOrigin
+     * @param string                  $usernameOrigin
      *
      * @return View
      */
@@ -485,8 +485,11 @@ class AdminAdminsController extends SalesRestController
         $admin,
         $typeKey,
         $permissionInComing,
-        $adminOriginHash
+        $passwordOrigin,
+        $usernameOrigin
     ) {
+        $logoutAdminRequired = false;
+
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
 
@@ -538,6 +541,7 @@ class AdminAdminsController extends SalesRestController
                 $permissionMap->setBuildingId($buildingId);
 
                 $em->persist($permissionMap);
+                $logoutAdminRequired = true;
 
                 continue;
             }
@@ -558,14 +562,20 @@ class AdminAdminsController extends SalesRestController
 
             if (!in_array($permissionArray, $permissionInComingArray)) {
                 $em->remove($item);
+                $logoutAdminRequired = true;
             }
         }
 
         //save data
         $em->flush();
 
-        $adminNewHash = $this->getHashResult($admin);
-        if ($adminOriginHash != $adminNewHash) {
+        if ($usernameOrigin != $admin->getUsername()
+            || $passwordOrigin != $admin->getPassword()
+        ) {
+            $logoutAdminRequired = true;
+        }
+
+        if ($logoutAdminRequired) {
             // logout this admin
             $this->getRepo('SalesAdmin\SalesAdminToken')->deleteSalesAdminToken(
                 $admin->getId()
