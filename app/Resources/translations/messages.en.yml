@@ -152,6 +152,7 @@ client:
   login:
     account_banned: Your account is banned, please contact customer service:
     account_non_existent: Account does not exist
+    wrong_password: Wrong password
 
 event_order:
   status:

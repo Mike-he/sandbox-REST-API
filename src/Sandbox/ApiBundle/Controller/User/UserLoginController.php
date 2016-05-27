@@ -38,6 +38,9 @@ class UserLoginController extends SandboxRestController
     const ERROR_ACCOUNT_NONEXISTENT_CODE = 401002;
     const ERROR_ACCOUNT_NONEXISTENT_MESSAGE = 'client.login.account_non_existent';
 
+    const ERROR_ACCOUNT_WRONG_PASSWORD_CODE = 401003;
+    const ERROR_ACCOUNT_WRONG_PASSWORD_MESSAGE = 'client.login.wrong_password';
+
     /**
      * @param Request       $request
      * @param User          $user
@@ -275,7 +278,10 @@ class UserLoginController extends SandboxRestController
         }
 
         if ($auth->getPassword() != $user->getPassword()) {
-            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+            $error->setCode(self::ERROR_ACCOUNT_WRONG_PASSWORD_CODE);
+            $error->setMessage(self::ERROR_ACCOUNT_WRONG_PASSWORD_MESSAGE);
+
+            return;
         }
 
         return $user;

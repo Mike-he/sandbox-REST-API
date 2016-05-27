@@ -4,10 +4,14 @@ namespace Sandbox\AdminApiBundle\Controller\Bulletin;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
+use Knp\Component\Pager\Paginator;
+use Sandbox\AdminApiBundle\Data\Position\Position;
+use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Controller\Bulletin\BulletinController;
 use Sandbox\ApiBundle\Entity\Bulletin\BulletinType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Form\Bulletin\BulletinTypePost;
+use Sandbox\ApiBundle\Form\Position\PositionType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -169,6 +173,26 @@ class AdminBulletinTypeController extends BulletinController
      *   }
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
      * @Route("/bulletin/types")
      * @Method({"GET"})
      *
@@ -185,15 +209,27 @@ class AdminBulletinTypeController extends BulletinController
 
         $types = $this->getRepo('Bulletin\BulletinType')->findBy(
             ['deleted' => false],
-            ['creationDate' => 'DESC']
+            ['sortTime' => 'DESC']
         );
 
-        // set view
-        $view = new View();
-        $view->setData($types);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin']));
+        $types = $this->get('serializer')->serialize(
+            $types,
+            'json',
+            SerializationContext::create()->setGroups(['admin'])
+        );
+        $types = json_decode($types, true);
 
-        return $view;
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $types,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
@@ -292,6 +328,86 @@ class AdminBulletinTypeController extends BulletinController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Method({"POST"})
+     * @Route("/bulletin/types/{id}/position")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function changePositionAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $type = $this->getRepo('Bulletin\BulletinType')->findOneBy(
+            [
+                'id' => $id,
+                'deleted' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($type, self::NOT_FOUND_MESSAGE);
+
+        $position = new Position();
+
+        $form = $this->createForm(new PositionType(), $position);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $action = $position->getAction();
+
+        if (empty($action) || is_null($action)) {
+            return new View();
+        }
+
+        $this->setPosition(
+            $type,
+            $action
+        );
+
+        return new View();
+    }
+
+    /**
+     * @param $type
+     * @param $action
+     */
+    private function setPosition(
+        $type,
+        $action
+    ) {
+        if ($action == Position::ACTION_TOP) {
+            $type->setSortTime(round(microtime(true) * 1000));
+        } elseif ($action == Position::ACTION_UP || $action == Position::ACTION_DOWN) {
+            $swapItem = $this->getRepo('Bulletin\BulletinType')->findSwapBulletinType(
+                $type,
+                $action
+            );
+
+            if (empty($swapItem)) {
+                return;
+            }
+
+            // swap
+            $itemSortTime = $type->getSortTime();
+            $type->setSortTime($swapItem->getSortTime());
+            $swapItem->setSortTime($itemSortTime);
+        }
+
+        // save
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
     }
 
     /**
