@@ -106,6 +106,11 @@ class UserView
     private $authorizedAdminUsername;
 
     /**
+     * @var array
+     */
+    private $building;
+
+    /**
      * Get id.
      *
      * @return int
@@ -221,5 +226,21 @@ class UserView
     public function setAuthorizedAdminUsername($authorizedAdminUsername)
     {
         $this->authorizedAdminUsername = $authorizedAdminUsername;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param array $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
     }
 }

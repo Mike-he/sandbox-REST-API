@@ -65,6 +65,8 @@ security:
         - { path: ^/client/user/password/forget/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/payment/webhooks$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client/shops, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/client/shops/orders, role: ROLE_CLIENT_API}
         - { path: ^/client/banners, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/news, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/companies, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }

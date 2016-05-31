@@ -198,7 +198,7 @@ class RoomBuildingRepository extends EntityRepository
         }
 
         // filter by building id
-        if (!is_null($myBuildingIds)) {
+        if (!empty($myBuildingIds)) {
             if ($notFirst) {
                 $buildingsQuery->andWhere('rb.id IN (:ids)');
             } else {
