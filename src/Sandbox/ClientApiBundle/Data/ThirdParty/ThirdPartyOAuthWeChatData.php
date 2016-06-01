@@ -7,10 +7,18 @@ namespace Sandbox\ClientApiBundle\Data\ThirdParty;
  */
 class ThirdPartyOAuthWeChatData
 {
+    const DATA_FROM_APPLICATION = 'app';
+    const DATA_FROM_WEBSITE = 'web';
+
     /**
      * @var string
      */
     private $code;
+
+    /**
+     * @var string
+     */
+    private $from = self::DATA_FROM_APPLICATION;
 
     /**
      * @return string
@@ -26,5 +34,21 @@ class ThirdPartyOAuthWeChatData
     public function setCode($code)
     {
         $this->code = $code;
+    }
+
+    /**
+     * @return string
+     */
+    public function isFrom()
+    {
+        return $this->from;
+    }
+
+    /**
+     * @param string $from
+     */
+    public function setFrom($from)
+    {
+        $this->from = $from;
     }
 }

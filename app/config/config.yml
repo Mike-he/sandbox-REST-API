@@ -52,6 +52,8 @@ twig:
         wechat_app_secret: "%wechat_app_secret%"
         wechat_public_platform_app_id: "%wechat_public_platform_app_id%"
         wechat_public_platform_secret: "%wechat_public_platform_secret%"
+        wechat_website_app_id: "%wechat_website_app_id%"
+        wechat_website_secret: "%wechat_website_secret%"
         server_order_id: "%server_order_id%"
         load_more_limit: "%load_more_limit%"
         nearby_range_km: "%nearby_range_km%"

@@ -12,6 +12,7 @@ class ThirdPartyOAuthLoginWeChatType extends AbstractType
     {
         $builder
             ->add('code')
+            ->add('from')
         ;
     }
 

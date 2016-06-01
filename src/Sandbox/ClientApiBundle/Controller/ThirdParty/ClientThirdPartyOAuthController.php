@@ -98,12 +98,13 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         $weChatData
     ) {
         $code = $weChatData->getCode();
+        $from = $weChatData->isFrom();
         if (is_null($code) || empty($code)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // call WeChat API to get access token
-        $result = $this->getWeChatAuthInfoByCode($code);
+        $result = $this->getWeChatAuthInfoByCode($code, $from);
 
         // get WeChat by openId
         $openId = $result['openid'];
