@@ -103,6 +103,11 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        // set default from type
+        if (is_null($from)) {
+            $from = ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION;
+        }
+
         // call WeChat API to get access token
         $result = $this->getWeChatAuthInfoByCode($code, $from);
 
