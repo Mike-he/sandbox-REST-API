@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Sandbox\ApiBundle\Traits\OpenfireApi;
 use FOS\RestBundle\View\View;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Sandbox\ApiBundle\Entity\Error\Error;
 
@@ -244,13 +245,13 @@ class UserLoginController extends SandboxRestController
 
         $auth = $this->getSandboxAuthorization($headerKey);
         if (is_null($auth)) {
-            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // find user by email or phone
         $username = $auth->getUsername();
         if (is_null($username)) {
-            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
@@ -258,7 +259,10 @@ class UserLoginController extends SandboxRestController
         } else {
             $usernameArray = explode('-', $username);
             if (count($usernameArray) != 2) {
-                throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+                $error->setCode(self::ERROR_ACCOUNT_NONEXISTENT_CODE);
+                $error->setMessage(self::ERROR_ACCOUNT_NONEXISTENT_MESSAGE);
+
+                return;
             }
 
             $phoneCode = $usernameArray[0];
