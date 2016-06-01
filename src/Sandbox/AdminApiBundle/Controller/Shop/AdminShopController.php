@@ -192,7 +192,15 @@ class AdminShopController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminShopPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_SALES,
+                AdminPermission::KEY_PLATFORM_ORDER,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $buildingId = $paramFetcher->get('building');
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding($buildingId);
