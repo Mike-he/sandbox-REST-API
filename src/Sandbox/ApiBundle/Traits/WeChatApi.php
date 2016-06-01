@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Constants\WeChatConstants;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
@@ -18,11 +19,13 @@ trait WeChatApi
 
     /**
      * @param string $code
+     * @param string $from
      *
      * @return array
      */
     public function getWeChatAuthInfoByCode(
-        $code
+        $code,
+        $from
     ) {
         $code = $this->after('_', $code);
 
@@ -30,8 +33,14 @@ trait WeChatApi
                         ->get('twig')
                         ->getGlobals();
 
-        $appId = $globals['wechat_app_id'];
-        $secret = $globals['wechat_app_secret'];
+        // get appid by data from type
+        if (ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION == $from) {
+            $appId = $globals['wechat_app_id'];
+            $secret = $globals['wechat_app_secret'];
+        } elseif (ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE == $from) {
+            $appId = $globals['wechat_website_app_id'];
+            $secret = $globals['wechat_website_secret'];
+        }
 
         $url = WeChatConstants::URL_ACCESS_TOKEN;
         $params = "appid=$appId&secret=$secret&code=$code";

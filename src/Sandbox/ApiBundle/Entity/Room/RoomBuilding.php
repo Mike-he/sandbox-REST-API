@@ -158,7 +158,8 @@ class RoomBuilding implements JsonSerializable
      *      "building_nearby",
      *      "admin_building",
      *      "admin_shop",
-     *      "client_shop"
+     *      "client_shop",
+     *      "shop_nearby"
      * })
      */
     private $address;
