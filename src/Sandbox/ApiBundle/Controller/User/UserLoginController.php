@@ -13,7 +13,6 @@ use Sandbox\ApiBundle\Traits\OpenfireApi;
 use FOS\RestBundle\View\View;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Sandbox\ApiBundle\Entity\Error\Error;
 
 /**

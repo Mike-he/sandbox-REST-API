@@ -92,7 +92,7 @@ class Shop implements JsonSerializable
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_building", "client_shop", "shop_nearby"})
      */
     private $description;
 
@@ -171,7 +171,7 @@ class Shop implements JsonSerializable
      * @ORM\JoinColumn(name="id", referencedColumnName="shopId")
      * @ORM\OrderBy({"id" = "ASC"})
      *
-     * @Serializer\Groups({"main", "admin_shop", "client_shop"})
+     * @Serializer\Groups({"main", "admin_shop", "client_shop", "shop_nearby"})
      */
     private $shopAttachments;
 
