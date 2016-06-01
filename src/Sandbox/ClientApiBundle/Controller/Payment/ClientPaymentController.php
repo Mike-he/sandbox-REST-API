@@ -153,7 +153,10 @@ class ClientPaymentController extends PaymentController
 //
 //                break;
             case 'S':
-                $order = $this->setShopOrderStatus($orderNumber);
+                $order = $this->setShopOrderStatus(
+                    $orderNumber,
+                    $channel
+                );
 
                 $balance = $this->postBalanceChange(
                     $order->getUserId(),
