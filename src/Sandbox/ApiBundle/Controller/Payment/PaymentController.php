@@ -455,11 +455,13 @@ class PaymentController extends DoorController
 
     /**
      * @param string $orderNumber
+     * @param string $channel
      *
      * @return ShopOrder
      */
     public function setShopOrderStatus(
-        $orderNumber
+        $orderNumber,
+        $channel
     ) {
         $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
             [
@@ -471,6 +473,7 @@ class PaymentController extends DoorController
 
         $now = new \DateTime();
         $order->setStatus(ShopOrder::STATUS_PAID);
+        $order->setPayChannel($channel);
         $order->setPaymentDate($now);
         $order->setModificationDate($now);
 
