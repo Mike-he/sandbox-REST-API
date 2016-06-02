@@ -289,7 +289,7 @@ class AdminShopAdminsController extends SandboxRestController
             || $passwordOrigin != $admin->getPassword()
         ) {
             // logout this admin
-            $this->getRepo('ShopAdmin\ShopAdminToken')->deleteShopAdminToken(
+            $this->getRepo('Shop\ShopAdminToken')->deleteShopAdminToken(
                 $admin->getId()
             );
         }

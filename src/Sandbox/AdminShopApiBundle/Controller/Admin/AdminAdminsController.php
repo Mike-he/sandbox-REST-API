@@ -561,7 +561,7 @@ class AdminAdminsController extends ShopRestController
 
         if ($logoutAdminRequired) {
             // logout this admin
-            $this->getRepo('ShopAdmin\ShopAdminToken')->deleteShopAdminToken(
+            $this->getRepo('Shop\ShopAdminToken')->deleteShopAdminToken(
                 $admin->getId()
             );
         }
