@@ -15,6 +15,7 @@ class SalesAdminPutType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('username')
             ->add('password')
             ->add('name')
             ->add(
