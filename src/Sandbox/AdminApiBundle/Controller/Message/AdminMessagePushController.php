@@ -11,8 +11,10 @@ use Sandbox\ApiBundle\Traits\MessagePushNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use FOS\RestBundle\Controller\Annotations;
 
 class AdminMessagePushController extends AdminMessageController
 {
@@ -69,7 +71,7 @@ class AdminMessagePushController extends AdminMessageController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
-        $messages = $this->getRepo('Message\MessagePush')->getMessageList();
+        $messages = $this->getRepo('Message\MessagePush')->getMessagePushList();
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(

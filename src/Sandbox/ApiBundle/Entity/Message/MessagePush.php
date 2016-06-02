@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MessagePush.
  *
  * @ORM\Table(name="MessagePush")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Message\MessagePushRepository")
  */
 class MessagePush
 {
