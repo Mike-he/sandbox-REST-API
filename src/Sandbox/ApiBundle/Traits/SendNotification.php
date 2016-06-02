@@ -79,20 +79,23 @@ trait SendNotification
      * @param array $receivers
      * @param array $contentArray
      * @param array $messageArray
+     * @param array $apnsArray
      *
      * @return array
      */
     private function getNotificationJsonData(
         $receivers,
         $contentArray = null,
-        $messageArray = null
+        $messageArray = null,
+        $apnsArray = null
     ) {
         $jsonDataArray = array('receivers' => $receivers);
 
         return $this->setJsonDataArrayBody(
             $jsonDataArray,
             $contentArray,
-            $messageArray
+            $messageArray,
+            $apnsArray
         );
     }
 
@@ -100,13 +103,15 @@ trait SendNotification
      * @param array $jsonDataArray
      * @param array $contentArray
      * @param array $messageArray
+     * @param array $apnsArray
      *
      * @return array
      */
     private function setJsonDataArrayBody(
         $jsonDataArray,
         $contentArray,
-        $messageArray
+        $messageArray,
+        $apnsArray = null
     ) {
         // check content array
         if (!is_null($contentArray)) {
@@ -118,6 +123,11 @@ trait SendNotification
             $jsonDataArray['message'] = $messageArray;
         }
 
+        // check apns array
+        if (!is_null($apnsArray)) {
+            $jsonDataArray['apns'] = $apnsArray;
+        }
+
         return $jsonDataArray;
     }
 
@@ -125,20 +135,23 @@ trait SendNotification
      * @param array $outcasts
      * @param array $contentArray
      * @param array $messageArray
+     * @param array $apnsArray
      *
      * @return array
      */
     private function getNotificationBroadcastJsonData(
         $outcasts,
         $contentArray = null,
-        $messageArray = null
+        $messageArray = null,
+        $apnsArray = null
     ) {
         $jsonDataArray = array('outcasts' => $outcasts);
 
         return $this->setJsonDataArrayBody(
             $jsonDataArray,
             $contentArray,
-            $messageArray
+            $messageArray,
+            $apnsArray
         );
     }
 
@@ -171,5 +184,25 @@ trait SendNotification
         } catch (Exception $e) {
             error_log('Send XMPP notification went wrong.');
         }
+    }
+
+    /**
+     * @param $zhMessage
+     * @param $enMessage
+     *
+     * @return array
+     */
+    protected function setApnsJsonDataArray(
+        $zhMessage,
+        $enMessage
+    ) {
+        $apns = array(
+            'alert' => array(
+                'zh' => $zhMessage,
+                'en' => $enMessage,
+            ),
+        );
+
+        return $apns;
     }
 }

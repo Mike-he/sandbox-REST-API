@@ -2,36 +2,21 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Message;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Message\Message;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
-use Sandbox\ApiBundle\Form\Message\MessageType;
+use Sandbox\ApiBundle\Entity\Message\MessagePush;
+use Sandbox\ApiBundle\Form\Message\MessagePushType;
+use Sandbox\ApiBundle\Traits\MessagePushNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\View\View;
-use Knp\Component\Pager\Paginator;
-use FOS\RestBundle\Request\ParamFetcherInterface;
-use FOS\RestBundle\Controller\Annotations;
-use Sandbox\ApiBundle\Traits\MessageNotification;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-/**
- * Admin Message Controller.
- *
- * @category Sandbox
- *
- * @author   Leo Xu <leox@gobeta.com.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- *
- * @link     http://www.Sandbox.cn/
- */
-class AdminMessageController extends SandboxRestController
+class AdminMessagePushController extends AdminMessageController
 {
-    use MessageNotification;
+    use MessagePushNotification;
 
     /**
      * Get Message List.
@@ -66,7 +51,7 @@ class AdminMessageController extends SandboxRestController
      *    description="page number "
      * )
      *
-     * @Route("/messages")
+     * @Route("/push/messages")
      * @Method({"GET"})
      *
      * @return View
@@ -84,7 +69,7 @@ class AdminMessageController extends SandboxRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
-        $messages = $this->getRepo('Message\Message')->getMessageList();
+        $messages = $this->getRepo('Message\MessagePush')->getMessageList();
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -97,62 +82,39 @@ class AdminMessageController extends SandboxRestController
     }
 
     /**
-     * Post Message.
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      *
-     * @param Request $request
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     201 = "Returned when successful created"
-     *  }
-     * )
-     *
-     * @Route("/messages")
-     * @Method({"POST"})
+     * @Route("/push/messages")
+     * @Method("POST")
      *
      * @return View
-     *
-     * @throws \Exception
      */
-    public function postMessageAction(
-        Request $request
+    public function postMessagePushAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
         $this->checkAdminMessagePermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        $message = new Message();
+        $messagePush = new MessagePush();
 
-        $form = $this->createForm(new MessageType(), $message);
+        $form = $this->createForm(new MessagePushType(), $messagePush);
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $messagePush->setAdminId($this->getAdminId());
+
         $em = $this->getDoctrine()->getManager();
-        $em->persist($message);
+        $em->persist($messagePush);
         $em->flush();
 
-        // send message to all users using sandbox service account
-        $this->sendXmppMessageNotification($message->getContent());
+        // send message to all client
+        $this->sendXmppMessagePushNotification($messagePush->getContent());
 
         return new View();
-    }
-
-    /**
-     * Check user permission.
-     *
-     * @param int $OpLevel
-     */
-    protected function checkAdminMessagePermission(
-        $OpLevel
-    ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_MESSAGE,
-            $OpLevel
-        );
     }
 }

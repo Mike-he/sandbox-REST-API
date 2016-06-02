@@ -136,6 +136,12 @@ sandbox_admin_api_message:
     type:     annotation
     prefix:   /
 
+# MessagePush /admin/push/messages
+sandbox_admin_api_message_push:
+    resource: "@SandboxAdminApiBundle/Controller/Message/AdminMessagePushController.php"
+    type:     annotation
+    prefix:   /
+
 # Room Building /admin/building
 sandbox_admin_api_building:
     resource: "@SandboxAdminApiBundle/Controller/Building/AdminBuildingController.php"
