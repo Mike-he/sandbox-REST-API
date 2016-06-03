@@ -375,8 +375,6 @@ class AdminAdminsController extends SandboxRestController
         $passwordOrigin,
         $usernameOrigin
     ) {
-        $logoutAdminRequired = false;
-
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
 
@@ -424,7 +422,6 @@ class AdminAdminsController extends SandboxRestController
                 $permissionMap->setOpLevel($item['op_level']);
 
                 $em->persist($permissionMap);
-                $logoutAdminRequired = true;
 
                 continue;
             }
@@ -440,7 +437,6 @@ class AdminAdminsController extends SandboxRestController
         foreach ($permissionDbAll as $item) {
             if (!in_array($item->getPermissionId(), $permissionInComingIds)) {
                 $em->remove($item);
-                $logoutAdminRequired = true;
             }
         }
 
@@ -448,12 +444,8 @@ class AdminAdminsController extends SandboxRestController
         $em->flush();
 
         if ($usernameOrigin != $admin->getUsername()
-        || $passwordOrigin != $admin->getPassword()
+            || $passwordOrigin != $admin->getPassword()
         ) {
-            $logoutAdminRequired = true;
-        }
-
-        if ($logoutAdminRequired) {
             // logout this admin
             $this->getRepo('Admin\AdminToken')->deleteAdminToken(
                 $admin->getId()

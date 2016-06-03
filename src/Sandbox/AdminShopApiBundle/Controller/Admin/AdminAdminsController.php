@@ -472,8 +472,6 @@ class AdminAdminsController extends ShopRestController
         $passwordOrigin,
         $usernameOrigin
     ) {
-        $logoutAdminRequired = false;
-
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
 
@@ -525,7 +523,6 @@ class AdminAdminsController extends ShopRestController
                 $permissionMap->setShopId($shopId);
 
                 $em->persist($permissionMap);
-                $logoutAdminRequired = true;
 
                 continue;
             }
@@ -546,7 +543,6 @@ class AdminAdminsController extends ShopRestController
 
             if (!in_array($permissionArray, $permissionInComingArray)) {
                 $em->remove($item);
-                $logoutAdminRequired = true;
             }
         }
 
@@ -556,10 +552,6 @@ class AdminAdminsController extends ShopRestController
         if ($usernameOrigin != $admin->getUsername()
             || $passwordOrigin != $admin->getPassword()
         ) {
-            $logoutAdminRequired = true;
-        }
-
-        if ($logoutAdminRequired) {
             // logout this admin
             $this->getRepo('Shop\ShopAdminToken')->deleteShopAdminToken(
                 $admin->getId()

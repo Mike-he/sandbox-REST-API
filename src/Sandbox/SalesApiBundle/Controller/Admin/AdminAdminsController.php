@@ -485,8 +485,6 @@ class AdminAdminsController extends SalesRestController
         $passwordOrigin,
         $usernameOrigin
     ) {
-        $logoutAdminRequired = false;
-
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
 
@@ -538,7 +536,6 @@ class AdminAdminsController extends SalesRestController
                 $permissionMap->setBuildingId($buildingId);
 
                 $em->persist($permissionMap);
-                $logoutAdminRequired = true;
 
                 continue;
             }
@@ -559,7 +556,6 @@ class AdminAdminsController extends SalesRestController
 
             if (!in_array($permissionArray, $permissionInComingArray)) {
                 $em->remove($item);
-                $logoutAdminRequired = true;
             }
         }
 
@@ -569,10 +565,6 @@ class AdminAdminsController extends SalesRestController
         if ($usernameOrigin != $admin->getUsername()
             || $passwordOrigin != $admin->getPassword()
         ) {
-            $logoutAdminRequired = true;
-        }
-
-        if ($logoutAdminRequired) {
             // logout this admin
             $this->getRepo('SalesAdmin\SalesAdminToken')->deleteSalesAdminToken(
                 $admin->getId()
