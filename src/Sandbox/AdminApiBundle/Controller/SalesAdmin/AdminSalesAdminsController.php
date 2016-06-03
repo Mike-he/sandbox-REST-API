@@ -635,6 +635,13 @@ class AdminSalesAdminsController extends SandboxRestController
         if (!empty($salesPlatformAdmins)) {
             foreach ($salesPlatformAdmins as $platformAdmin) {
                 $platformAdmin->setBanned($platformAdminBanned);
+
+                // logout this admin
+                if ($platformAdminBanned) {
+                    $this->getRepo('SalesAdmin\SalesAdminToken')->deleteAdminToken(
+                        $platformAdmin->getId()
+                    );
+                }
             }
         }
 
@@ -643,6 +650,13 @@ class AdminSalesAdminsController extends SandboxRestController
         if (!empty($shopPlatformAdmins)) {
             foreach ($shopPlatformAdmins as $platformAdmin) {
                 $platformAdmin->setBanned($platformAdminBanned);
+
+                // logout this admin
+                if ($platformAdminBanned) {
+                    $this->getRepo('Shop\ShopAdminToken')->deleteAdminToken(
+                        $platformAdmin->getId()
+                    );
+                }
             }
         }
 
