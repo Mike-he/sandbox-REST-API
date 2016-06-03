@@ -67,6 +67,20 @@ product_order:
     email: 租赁人邮箱
     channel: 支付渠道
     order_type: 下单方式
+  push_message:
+    meeting_start: 您的会议室将在10分钟后开始使用
+    meeting_end: 您的会议室将在10分钟后到期
+    workspace_start: 您的工位将在明天开始使用
+    workspace_end: 您的工位将在明天到期
+    office_start: 您的办公室将在明天开始使用
+    office_end: 您的办公室将在七天后到期
+    office_reject: 抱歉，您申请的办公室没有通过审核，钱款将在1~3个工作日退回到您的支付账户下
+    office_order: 您的办公室已预定成功，使用前请先到前台登记
+    office_accept: 您申请的办公室已通过
+    appoint_first: 您已被授权进入"
+    appoint_second: ”房间了，你可以用Sandbox3的卡片开启该房间的门禁
+    appoint_cancel_first: 您在“
+    appoint_cancel_second: ”的授权已经被取消了
 
 shop_order:
   channel:
@@ -96,6 +110,10 @@ shop_order:
     refund: 退款金额
     status: 订单状态
     channel: 支付渠道
+  push_message:
+      ready: 您的订单已完成, 请到前台领取
+      issue: 您的订单有问题, 请到前台与管理员沟通
+      refund: 您的订单已退款, 钱款将在5~10个工作日内退回到您的支付账户下
 
 user:
   hobby:
