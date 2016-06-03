@@ -47,6 +47,12 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     const ERROR_EXPIRED_VERIFICATION_CODE = 400004;
     const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.-该验证已过期';
 
+    const ZH_SMS_VERIFICATION_BEFORE = '【展想创合】您正在申请绑定当前手机，如确认是本人行为，请提交以下验证码完成操作：';
+    const ZH_SMS_VERIFICATION_AFTER = '。验证码在10分钟内有效。';
+
+    const EN_SMS_VERIFICATION_BEFORE = '【Sandbox3】You are trying to bind your account with the current mobile phone, please submit below verification code if this is your own behavior: ';
+    const EN_SMS_VERIFICATION_AFTER = '. The verification code will be expired after 10 minutes.';
+
     /**
      * Phone binding submit country code and phone.
      *
@@ -243,9 +249,19 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
     private function sendSMSNotification(
         $phoneVerification
     ) {
-        $smsText = '【展想创合】您正在申请绑定当前手机，如确认是本人行为，请提交以下验证码完成操作：'
-            .$phoneVerification->getCode().'。验证码在10分钟内有效。';
+        $phoneCode = $phoneVerification->getPhoneCode();
 
-        $this->send_sms($phoneVerification->getPhone(), $smsText);
+        if (UserPhoneCode::DEFAULT_PHONE_CODE == $phoneCode) {
+            $smsText = self::ZH_SMS_VERIFICATION_BEFORE.$phoneVerification->getCode()
+                .self::ZH_SMS_VERIFICATION_AFTER;
+        } else {
+            $smsText = self::EN_SMS_VERIFICATION_BEFORE.$phoneVerification->getCode()
+                .self::EN_SMS_VERIFICATION_AFTER;
+        }
+
+        $this->send_sms(
+            $phoneCode.$phoneVerification->getPhone(),
+            $smsText
+        );
     }
 }

@@ -60,6 +60,12 @@ class ClientUserRegistrationController extends UserRegistrationController
     const ERROR_EXPIRED_VERIFICATION_CODE = 400007;
     const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'register.verify.expired_verification';
 
+    const ZH_SMS_VERIFICATION_BEFORE = '【展想创合】欢迎注册展想创合！您的手机验证码为：';
+    const ZH_SMS_VERIFICATION_AFTER = '，请输入后进行验证，谢谢！验证码在10分钟内有效。';
+
+    const EN_SMS_VERIFICATION_BEFORE = '【Sandbox3】Welcome to register Sandbox3! Your verification code is';
+    const EN_SMS_VERIFICATION_AFTER = ', please submit to verify, thank you! The verification code will be expired after 10 minutes.';
+
     /**
      * Registration submit.
      *
@@ -188,9 +194,12 @@ class ClientUserRegistrationController extends UserRegistrationController
         $formalPhone = $registration->getPhoneCode().$registration->getPhone();
 
         // send verification code by email or sms
-        $this->sendNotification($registration->getEmail(),
+        $this->sendNotification(
+            $registration->getEmail(),
             $formalPhone,
-            $registration->getCode());
+            $registration->getCode(),
+            $registration->getPhoneCode()
+        );
 
         return new View();
     }
@@ -501,11 +510,13 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param string $email
      * @param string $phone
      * @param string $code
+     * @param string $phoneCode
      */
     private function sendNotification(
         $email,
         $phone,
-        $code
+        $code,
+        $phoneCode
     ) {
         if (!is_null($email)) {
             // send verification URL to email
@@ -517,7 +528,13 @@ class ClientUserRegistrationController extends UserRegistrationController
                 ));
         } else {
             // sms verification code to phone
-            $smsText = '【展想创合】欢迎注册展想创合！您的手机验证码为：'.$code.'，请输入后进行验证，谢谢！验证码在10分钟内有效。';
+            if (UserPhoneCode::DEFAULT_PHONE_CODE == $phoneCode) {
+                // default chinese message
+                $smsText = self::ZH_SMS_VERIFICATION_BEFORE.$code.self::ZH_SMS_VERIFICATION_AFTER;
+            } else {
+                // other country use english message
+                $smsText = self::EN_SMS_VERIFICATION_BEFORE.$code.self::EN_SMS_VERIFICATION_AFTER;
+            }
 
             $this->send_sms($phone, $smsText);
         }
