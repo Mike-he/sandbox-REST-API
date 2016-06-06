@@ -243,7 +243,7 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // so far, code is verified
         // get existing user or create a new user
-        $user = $this->finishRegistration($em, $email, $phone, $password, $registration, $phoneCode);
+        $user = $this->finishRegistration($em, $password, $registration);
         if (is_null($user)) {
             // update db
             $em->flush();
@@ -326,23 +326,22 @@ class ClientUserRegistrationController extends UserRegistrationController
 
     /**
      * @param EntityManager    $em
-     * @param string           $email
-     * @param string           $phone
      * @param string           $password
      * @param UserRegistration $registration
-     * @param string           $phoneCode
      *
      * @return User
      */
     private function finishRegistration(
         $em,
-        $email,
-        $phone,
         $password,
-        $registration,
-        $phoneCode
+        $registration
     ) {
         $user = null;
+
+        $phone = $registration->getPhone();
+        $phoneCode = $registration->getPhoneCode();
+        $email = $registration->getEmail();
+        $registrationId = $registration->getId();
 
         if (!is_null($email)) {
             $user = $this->getRepo('User\User')->findOneByEmail($email);
@@ -351,8 +350,9 @@ class ClientUserRegistrationController extends UserRegistrationController
         }
 
         if (is_null($user) && !is_null($password)) {
+
             // generate user
-            $user = $this->generateUser($email, $phone, $password, $registration->getId(), $phoneCode);
+            $user = $this->generateUser($email, $phone, $password, $registrationId, $phoneCode);
             $em->persist($user);
 
             // create default profile
