@@ -479,7 +479,7 @@ class AdminUsersController extends DoorController
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
             SalesAdminType::KEY_PLATFORM,
-            SalesAdminPermission::KEY_BUILDING_USER,
+            array(SalesAdminPermission::KEY_BUILDING_USER),
             SalesAdminPermissionMap::OP_LEVEL_EDIT
         );
 
