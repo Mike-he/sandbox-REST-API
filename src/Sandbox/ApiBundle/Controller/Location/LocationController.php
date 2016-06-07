@@ -179,8 +179,6 @@ class LocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $user = $this->getUser();
-
         $ids = $paramFetcher->get('id');
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
@@ -200,155 +198,37 @@ class LocationController extends SalesRestController
             $visible
         );
 
-        $user = $this->getUser();
+        foreach ($buildings as $building) {
+            switch ($building->getId()) {
+                case 6:
+                    $building->setLat(31.210573);
+                    $building->setLng(121.626096);
 
-        if (!is_null($user)) {
-            $clientId = $user->getClientId();
-            $client = $this->getRepo('User\UserClient')->find($clientId);
+                    break;
+                case 9:
+                    $building->setLat(31.2105);
+                    $building->setLng(121.625838);
 
-            if (!is_null($client)) {
-                $name = $client->getName();
+                    break;
+                case 10:
+                    $building->setLat(31.231719);
+                    $building->setLng(121.463842);
 
-                if ($name == 'SandBox iOS') {
-                    foreach ($buildings as $building) {
-                        switch ($building->getId()) {
-                            case 6:
-                                $building->setLat(31.210573);
-                                $building->setLng(121.626096);
+                    break;
+                case 11:
+                    $building->setLat(31.271693);
+                    $building->setLng(121.533756);
 
-                                break;
-                            case 9:
-                                $building->setLat(31.2105);
-                                $building->setLng(121.625838);
+                    break;
+                case 20:
+                    $building->setLat(31.207687);
+                    $building->setLng(121.611939);
 
-                                break;
-                            case 10:
-                                $building->setLat(31.231719);
-                                $building->setLng(121.463842);
-
-                                break;
-                            case 11:
-                                $building->setLat(31.271693);
-                                $building->setLng(121.533756);
-
-                                break;
-                            case 20:
-                                $building->setLat(31.207687);
-                                $building->setLng(121.611939);
-
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                } elseif ($name == 'Sandbox Android') {
-                    foreach ($buildings as $building) {
-                        switch ($building->getId()) {
-                            case 6:
-                                $building->setLat(31.21616);
-                                $building->setLng(121.633312);
-
-                                break;
-                            case 9:
-                                $building->setLat(31.21606);
-                                $building->setLng(121.633212);
-
-                                break;
-                            case 10:
-                                $building->setLat(31.237882);
-                                $building->setLng(121.470016);
-
-                                break;
-                            case 11:
-                                $building->setLat(31.277719);
-                                $building->setLng(121.539895);
-
-                                break;
-                            case 20:
-                                $building->setLat(31.213244);
-                                $building->setLng(121.618609);
-
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
+                    break;
+                default:
+                    break;
             }
         }
-
-//        // fix ios/android pos
-//        $headers = apache_request_headers();
-//        $agent = strtoupper($headers['User-Agent']);
-//
-//        $mac = strpos($agent, 'MAC');
-//        $android = strpos($agent, 'ANDROID');
-//
-//        if ($mac > 0) {
-//            foreach ($buildings as $building) {
-//                switch ($building->getId()) {
-//                    case 6:
-//                        $building->setLat(31.210573);
-//                        $building->setLng(121.626096);
-//
-//                        break;
-//                    case 9:
-//                        $building->setLat(31.2105);
-//                        $building->setLng(121.625838);
-//
-//                        break;
-//                    case 10:
-//                        $building->setLat(31.231719);
-//                        $building->setLng(121.463842);
-//
-//                        break;
-//                    case 11:
-//                        $building->setLat(31.271693);
-//                        $building->setLng(121.533756);
-//
-//                        break;
-//                    case 20:
-//                        $building->setLat(31.207687);
-//                        $building->setLng(121.611939);
-//
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//        } elseif ($android > 0) {
-//            foreach ($buildings as $building) {
-//                switch ($building->getId()) {
-//                    case 6:
-//                        $building->setLat(31.21616);
-//                        $building->setLng(121.633312);
-//
-//                        break;
-//                    case 9:
-//                        $building->setLat(31.21606);
-//                        $building->setLng(121.633212);
-//
-//                        break;
-//                    case 10:
-//                        $building->setLat(31.237882);
-//                        $building->setLng(121.470016);
-//
-//                        break;
-//                    case 11:
-//                        $building->setLat(31.277719);
-//                        $building->setLng(121.539895);
-//
-//                        break;
-//                    case 20:
-//                        $building->setLat(31.213244);
-//                        $building->setLng(121.618609);
-//
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//        }
 
         if (!is_null($user) && empty($ids)) {
             // sales bundle
