@@ -203,12 +203,12 @@ class LocationController extends SalesRestController
         foreach ($buildings as $building) {
             switch ($building->getId()) {
                 case 6:
-                    $building->setLat(31.22416);
+                    $building->setLat(31.21616);
                     $building->setLng(121.633312);
 
                     break;
                 case 9:
-                    $building->setLat(31.22406);
+                    $building->setLat(31.21606);
                     $building->setLng(121.633212);
 
                     break;
