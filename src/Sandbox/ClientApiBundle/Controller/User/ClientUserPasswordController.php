@@ -211,9 +211,9 @@ class ClientUserPasswordController extends UserPasswordController
                 return $this->customErrorView(400, self::ERROR_INVALID_PHONE_CODE, self::ERROR_INVALID_PHONE_MESSAGE);
             }
 
-            if (is_null($phoneCode)) {
-                $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
-            }
+//            if (is_null($phoneCode)) {
+//                $phoneCode = UserPhoneCode::DEFAULT_PHONE_CODE;
+//            }
 
             // get user by phone
             $user = $this->getRepo('User\User')->findOneBy(array(
@@ -232,6 +232,8 @@ class ClientUserPasswordController extends UserPasswordController
                 ClientUserLoginController::ERROR_ACCOUNT_BANNED_MESSAGE
             );
         }
+
+        $phoneCode = $user->getPhoneCode();
 
         // save or update forget password
         $forgetPassword = $this->saveOrUpdateForgetPassword(
