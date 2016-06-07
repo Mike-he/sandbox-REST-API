@@ -73,6 +73,12 @@ class ClientUserPasswordController extends UserPasswordController
     const ERROR_SAME_PASSWORD_CODE = 400011;
     const ERROR_SAME_PASSWORD_MESSAGE = 'Same password.-新密码与旧密码不能相同';
 
+    const ZH_SMS_RESET_PASSWORD_BEFORE = '【展想创合】您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：';
+    const ZH_SMS_RESET_PASSWORD_AFTER = '。验证码在10分钟内有效。';
+
+    const EN_SMS_RESET_PASSWORD_BEFORE = '【Sandbox3】Your verification code is ';
+    const EN_SMS_RESET_PASSWORD_AFTER = '.';
+
     /**
      * Forget password submit email or phone.
      *
@@ -239,7 +245,7 @@ class ClientUserPasswordController extends UserPasswordController
         $formalPhone = $phoneCode.$phone;
 
         // send verification
-        $this->sendVerification($email, $formalPhone, $forgetPassword);
+        $this->sendVerification($email, $formalPhone, $forgetPassword, $phoneCode);
 
         return new View();
     }
@@ -344,11 +350,13 @@ class ClientUserPasswordController extends UserPasswordController
      * @param string             $email
      * @param string             $phone
      * @param UserForgetPassword $forgetPassword
+     * @param string             $phoneCode
      */
     private function sendVerification(
         $email,
         $phone,
-        $forgetPassword
+        $forgetPassword,
+        $phoneCode
     ) {
         if (!is_null($email)) {
 
@@ -361,9 +369,15 @@ class ClientUserPasswordController extends UserPasswordController
                 )
             );
         } else {
-            // sms verification code to phone
-            $smsText = '【展想创合】您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：'
-                .$forgetPassword->getCode().'。验证码在10分钟内有效。';
+            if (UserPhoneCode::DEFAULT_PHONE_CODE == $phoneCode) {
+                // sms verification code to phone
+                $smsText = self::ZH_SMS_RESET_PASSWORD_BEFORE
+                    .$forgetPassword->getCode().self::ZH_SMS_RESET_PASSWORD_AFTER;
+            } else {
+                $smsText = self::EN_SMS_RESET_PASSWORD_BEFORE
+                    .$forgetPassword->getCode().self::EN_SMS_RESET_PASSWORD_AFTER;
+            }
+
             $this->send_sms($phone, $smsText);
         }
     }
