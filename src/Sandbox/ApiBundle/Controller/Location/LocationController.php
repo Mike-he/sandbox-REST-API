@@ -207,7 +207,7 @@ class LocationController extends SalesRestController
         $mac = strpos($agent, 'MAC');
         $android = strpos($agent, 'ANDROID');
 
-        if ($mac) {
+        if ($mac >= 0) {
             foreach ($buildings as $building) {
                 switch ($building->getId()) {
                     case 6:
@@ -239,7 +239,7 @@ class LocationController extends SalesRestController
                         break;
                 }
             }
-        } elseif ($android) {
+        } elseif ($android >= 0) {
             foreach ($buildings as $building) {
                 switch ($building->getId()) {
                     case 6:
