@@ -70,7 +70,7 @@ class BulletinController extends SalesRestController
      *    description="type"
      * )
      *
-     * @Route("/bulletin/posts")
+     * @Route("/bulletin/view/posts")
      * @Method({"GET"})
      *
      * @return View
@@ -120,7 +120,7 @@ class BulletinController extends SalesRestController
      * @param Request $request
      * @param $id
      *
-     * @Route("/bulletin/posts/{id}")
+     * @Route("/bulletin/view/posts/{id}")
      * @Method({"GET"})
      *
      * @return View
