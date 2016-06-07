@@ -271,7 +271,7 @@ class LocationController extends SalesRestController
                         break;
                 }
             }
-        } elseif ($android >= 0) {
+        } else {
             foreach ($buildings as $building) {
                 switch ($building->getId()) {
                     case 6:
