@@ -63,7 +63,7 @@ class ClientUserRegistrationController extends UserRegistrationController
     const ZH_SMS_VERIFICATION_BEFORE = '【展想创合】欢迎注册展想创合！您的手机验证码为：';
     const ZH_SMS_VERIFICATION_AFTER = '，请输入后进行验证，谢谢！验证码在10分钟内有效。';
 
-    const EN_SMS_VERIFICATION_BEFORE = '【Sandbox3】Welcome to register Sandbox3! Your verification code is';
+    const EN_SMS_VERIFICATION_BEFORE = '【Sandbox3】Welcome to register Sandbox3! Your verification code is ';
     const EN_SMS_VERIFICATION_AFTER = ', please submit to verify, thank you! The verification code will be expired after 10 minutes.';
 
     /**
