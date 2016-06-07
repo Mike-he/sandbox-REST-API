@@ -217,8 +217,7 @@ class ClientUserPasswordController extends UserPasswordController
 
             // get user by phone
             $user = $this->getRepo('User\User')->findOneBy(array(
-                'phoneCode' => $phoneCode,
-                'phone' => $phone,
+                'phone' => $phone
             ));
         }
 
