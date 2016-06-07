@@ -216,8 +216,8 @@ class LocationController extends SalesRestController
 
                         break;
                     case 9:
-                        $building->setLat(31.210573);
-                        $building->setLng(121.626096);
+                        $building->setLat(31.2105);
+                        $building->setLng(121.625838);
 
                         break;
                     case 10:
