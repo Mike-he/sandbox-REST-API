@@ -204,8 +204,8 @@ class LocationController extends SalesRestController
         $headers = apache_request_headers();
         $agent = strtoupper($headers['User-Agent']);
 
-        $mac = strpos($agent, 'mac');
-        $android = strpos($agent, 'android');
+        $mac = strpos($agent, 'MAC');
+        $android = strpos($agent, 'ANDROID');
 
         if ($mac) {
             foreach ($buildings as $building) {
@@ -216,8 +216,8 @@ class LocationController extends SalesRestController
 
                         break;
                     case 9:
-                        $building->setLat(31.2105);
-                        $building->setLng(121.625838);
+                        $building->setLat(31.210573);
+                        $building->setLng(121.626096);
 
                         break;
                     case 10:
