@@ -200,15 +200,6 @@ class LocationController extends SalesRestController
             $visible
         );
 
-        // building 6 Zhangjiang, using baidu map coordination for display on map
-        // using gaode map in database for distance calculation
-        foreach ($buildings as $building) {
-            if ($building->getId() == 6) {
-                $building->setLat(31.216158);
-                $building->setLng(121.632778);
-            }
-        }
-
         if (!is_null($user) && empty($ids)) {
             // sales bundle
             if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
