@@ -162,6 +162,14 @@ class LocationController extends SalesRestController
      *    description="id of building"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="platform",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="platform"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -176,6 +184,12 @@ class LocationController extends SalesRestController
         $ids = $paramFetcher->get('id');
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
+        $platform = $paramFetcher->get('platform');
+
+        $visible = true;
+        if (RoomBuilding::PLATFORM_SALES_USER_BUILDING == $platform) {
+            $visible = null;
+        }
 
         // get all buildings
         $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
@@ -183,7 +197,7 @@ class LocationController extends SalesRestController
             $ids,
             null,
             RoomBuilding::STATUS_ACCEPT,
-            true
+            $visible
         );
 
         // building 6 Zhangjiang, using baidu map coordination for display on map

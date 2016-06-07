@@ -28,6 +28,8 @@ class RoomBuilding implements JsonSerializable
     const STATUS_REFUSE = 'refuse';
     const STATUS_BANNED = 'banned';
 
+    const PLATFORM_SALES_USER_BUILDING = 'sales';
+
     /**
      * @var int
      *
