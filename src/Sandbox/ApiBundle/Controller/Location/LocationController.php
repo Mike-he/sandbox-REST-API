@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
-use Sandbox\ApiBundle\Entity\Header\UserAgent;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
@@ -202,16 +201,9 @@ class LocationController extends SalesRestController
         );
 
         $headers = apache_request_headers();
-        
+
         if (!is_null($user)) {
             $clientId = $user->getClientId();
-            $test = new UserAgent();
-            $test->setContent($clientId);
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($test);
-            $em->flush();
-
             $client = $this->getRepo('User\UserClient')->find($clientId);
 
             if (!is_null($client)) {
