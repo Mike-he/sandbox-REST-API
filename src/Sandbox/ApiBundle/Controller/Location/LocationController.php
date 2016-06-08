@@ -179,6 +179,8 @@ class LocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $user = $this->getUser();
+
         $ids = $paramFetcher->get('id');
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
