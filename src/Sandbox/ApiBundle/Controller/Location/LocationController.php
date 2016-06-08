@@ -202,22 +202,22 @@ class LocationController extends SalesRestController
         );
 
         $headers = apache_request_headers();
-
+        
         if (!is_null($user)) {
             $clientId = $user->getClientId();
+            $test = new UserAgent();
+            $test->setContent($clientId);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($test);
+            $em->flush();
+
             $client = $this->getRepo('User\UserClient')->find($clientId);
 
             if (!is_null($client)) {
                 $version = $client->getVersion();
 
                 if (!is_null($version) && !empty($version)) {
-                    $test = new UserAgent();
-                    $test->setContent($version);
-
-                    $em = $this->getDoctrine()->getManager();
-                    $em->persist($test);
-                    $em->flush();
-
                     $versionArray = explode('.', $version);
 
                     $total = 0;
