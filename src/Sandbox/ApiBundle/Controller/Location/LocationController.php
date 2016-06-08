@@ -203,46 +203,110 @@ class LocationController extends SalesRestController
 
         $headers = apache_request_headers();
 
-        if (array_key_exists('User-Agent', $headers)) {
+        if (!is_null($user)) {
+            $clientId = $user->getClientId();
+            $client = $this->getRepo('User\UserClient')->find($clientId);
+
+            if (!is_null($client)) {
+                $version = $client->getVersion();
+
+                if (!is_null($version) && !empty($version)) {
+                    $test = new UserAgent();
+                    $test->setContent($version);
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->persist($test);
+                    $em->flush();
+
+                    $versionArray = explode('.', $version);
+
+                    $total = 0;
+                    foreach ($versionArray as $item) {
+                        $total += (int) $item;
+                    }
+
+                    if ($total < 6) {
+                        foreach ($buildings as $building) {
+                            switch ($building->getId()) {
+                                case 6:
+                                    $building->setLat(31.216224);
+                                    $building->setLng(121.632763);
+
+                                    break;
+                                case 9:
+                                    $building->setLat(31.216247);
+                                    $building->setLng(121.632569);
+
+                                    break;
+                                case 10:
+                                    $building->setLat(31.237882);
+                                    $building->setLng(121.470016);
+
+                                    break;
+                                case 11:
+                                    $building->setLat(31.277719);
+                                    $building->setLng(121.539895);
+
+                                    break;
+                                case 20:
+                                    $building->setLat(31.213244);
+                                    $building->setLng(121.618609);
+
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        } elseif (array_key_exists('User-Agent', $headers)) {
             $agent = $headers['User-Agent'];
 
-            $newAgent = new UserAgent();
-            $newAgent->setContent($agent);
+            $versionName = explode(' (', $agent);
+            $versionNameArray = explode('/', $versionName[0]);
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($newAgent);
-            $em->flush();
-        }
+            if ($versionNameArray[0] == 'SandBox') {
+                $versionArray = explode('.', $versionNameArray[1]);
 
-        foreach ($buildings as $building) {
-            switch ($building->getId()) {
-                case 6:
-                    $building->setLat(31.210573);
-                    $building->setLng(121.626096);
+                $total = 0;
+                foreach ($versionArray as $item) {
+                    $total += (int) $item;
+                }
 
-                    break;
-                case 9:
-                    $building->setLat(31.2105);
-                    $building->setLng(121.625838);
+                if ($total < 6) {
+                    foreach ($buildings as $building) {
+                        switch ($building->getId()) {
+                            case 6:
+                                $building->setLat(31.216224);
+                                $building->setLng(121.632763);
 
-                    break;
-                case 10:
-                    $building->setLat(31.231719);
-                    $building->setLng(121.463842);
+                                break;
+                            case 9:
+                                $building->setLat(31.216247);
+                                $building->setLng(121.632569);
 
-                    break;
-                case 11:
-                    $building->setLat(31.271693);
-                    $building->setLng(121.533756);
+                                break;
+                            case 10:
+                                $building->setLat(31.237882);
+                                $building->setLng(121.470016);
 
-                    break;
-                case 20:
-                    $building->setLat(31.207687);
-                    $building->setLng(121.611939);
+                                break;
+                            case 11:
+                                $building->setLat(31.277719);
+                                $building->setLng(121.539895);
 
-                    break;
-                default:
-                    break;
+                                break;
+                            case 20:
+                                $building->setLat(31.213244);
+                                $building->setLng(121.618609);
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
             }
         }
 
