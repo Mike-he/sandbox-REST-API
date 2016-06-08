@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
+use Sandbox\ApiBundle\Entity\Header\UserAgent;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
@@ -199,6 +200,19 @@ class LocationController extends SalesRestController
             RoomBuilding::STATUS_ACCEPT,
             $visible
         );
+
+        $headers = apache_request_headers();
+
+        if (array_key_exists('User-Agent', $headers)) {
+            $agent = $headers['User-Agent'];
+
+            $newAgent = new UserAgent();
+            $newAgent->setContent($agent);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($newAgent);
+            $em->flush();
+        }
 
         foreach ($buildings as $building) {
             switch ($building->getId()) {
