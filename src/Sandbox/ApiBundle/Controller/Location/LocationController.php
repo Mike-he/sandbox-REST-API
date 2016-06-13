@@ -37,6 +37,8 @@ class LocationController extends SalesRestController
 {
     const LOCATION_CITY_PREFIX = 'location.city.';
 
+    public static $pi = 3.1415926535897932384626;
+
     /**
      * @Get("/cities")
      *
@@ -208,6 +210,7 @@ class LocationController extends SalesRestController
 
             if (!is_null($client)) {
                 $version = $client->getVersion();
+                $name = strtoupper($client->getName());
 
                 if (!is_null($version) && !empty($version)) {
                     $versionArray = explode('.', $version);
@@ -217,37 +220,15 @@ class LocationController extends SalesRestController
                         $total += (int) $item;
                     }
 
-                    if ($total < 6) {
-                        foreach ($buildings as $building) {
-                            switch ($building->getId()) {
-                                case 6:
-                                    $building->setLat(31.216224);
-                                    $building->setLng(121.632763);
+                    $pos = strpos($name, 'ANDROID');
 
-                                    break;
-                                case 9:
-                                    $building->setLat(31.216247);
-                                    $building->setLng(121.632569);
-
-                                    break;
-                                case 10:
-                                    $building->setLat(31.237882);
-                                    $building->setLng(121.470016);
-
-                                    break;
-                                case 11:
-                                    $building->setLat(31.277719);
-                                    $building->setLng(121.539895);
-
-                                    break;
-                                case 20:
-                                    $building->setLat(31.213244);
-                                    $building->setLng(121.618609);
-
-                                    break;
-                                default:
-                                    break;
-                            }
+                    if ($pos !== false) {
+                        if ($total < 7) {
+                            $this->transformLocation($buildings);
+                        }
+                    } else {
+                        if ($total < 6) {
+                            $this->transformLocation($buildings);
                         }
                     }
                 }
@@ -267,37 +248,7 @@ class LocationController extends SalesRestController
                 }
 
                 if ($total < 6) {
-                    foreach ($buildings as $building) {
-                        switch ($building->getId()) {
-                            case 6:
-                                $building->setLat(31.216224);
-                                $building->setLng(121.632763);
-
-                                break;
-                            case 9:
-                                $building->setLat(31.216247);
-                                $building->setLng(121.632569);
-
-                                break;
-                            case 10:
-                                $building->setLat(31.237882);
-                                $building->setLng(121.470016);
-
-                                break;
-                            case 11:
-                                $building->setLat(31.277719);
-                                $building->setLng(121.539895);
-
-                                break;
-                            case 20:
-                                $building->setLat(31.213244);
-                                $building->setLng(121.618609);
-
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                    $this->transformLocation($buildings);
                 }
             }
         }
@@ -696,5 +647,43 @@ class LocationController extends SalesRestController
         }
 
         return $citiesArray;
+    }
+
+    /**
+     * @param array $buildings
+     */
+    private function transformLocation(
+        $buildings
+    ) {
+        foreach ($buildings as $building) {
+            $lat = $building->getLat();
+            $lng = $building->getLng();
+
+            $locationArray = $this->gaodeToBaidu($lat, $lng);
+
+            if (array_key_exists('lat', $locationArray) && array_key_exists('lon', $locationArray)) {
+                $building->setLat($locationArray['lat']);
+                $building->setLng($locationArray['lon']);
+            }
+        }
+    }
+
+    /**
+     * 火星坐标系 (GCJ-02) 与百度坐标系 (BD-09) 的转换算法 将 GCJ-02 坐标转换成 BD-09 坐标.
+     *
+     * @param gg_lat
+     * @param gg_lon
+     */
+    private function gaodeToBaidu($gg_lat, $gg_lon)
+    {
+        $x = $gg_lon;
+        $y = $gg_lat;
+
+        $z = sqrt($x * $x + $y * $y) + 0.00002 * sin($y * self::$pi);
+        $theta = atan2($y, $x) + 0.000003 * cos($x * self::$pi);
+        $bd_lon = $z * cos($theta) + 0.0065;
+        $bd_lat = $z * sin($theta) + 0.006;
+
+        return  array('lat' => $bd_lat, 'lon' => $bd_lon);
     }
 }
