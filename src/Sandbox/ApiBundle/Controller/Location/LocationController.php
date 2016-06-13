@@ -215,22 +215,11 @@ class LocationController extends SalesRestController
                 if (!is_null($version) && !empty($version)) {
                     $versionArray = explode('.', $version);
 
-                    $total = 0;
-                    foreach ($versionArray as $item) {
-                        $total += (int) $item;
-                    }
-
-                    $pos = strpos($name, 'ANDROID');
-
-                    if ($pos !== false) {
-                        if ($total < 7) {
-                            $this->transformLocation($buildings);
-                        }
-                    } else {
-                        if ($total < 6) {
-                            $this->transformLocation($buildings);
-                        }
-                    }
+                    $this->checkForTransformWithToken(
+                        $name,
+                        $versionArray,
+                        $buildings
+                    );
                 }
             }
         } elseif (array_key_exists('User-Agent', $headers)) {
@@ -242,14 +231,7 @@ class LocationController extends SalesRestController
             if ($versionNameArray[0] == 'SandBox') {
                 $versionArray = explode('.', $versionNameArray[1]);
 
-                $total = 0;
-                foreach ($versionArray as $item) {
-                    $total += (int) $item;
-                }
-
-                if ($total < 6) {
-                    $this->transformLocation($buildings);
-                }
+                $this->checkForTransformWithoutToken($versionArray, $buildings);
             }
         }
 
@@ -685,5 +667,68 @@ class LocationController extends SalesRestController
         $bd_lat = $z * sin($theta) + 0.006;
 
         return  array('lat' => $bd_lat, 'lon' => $bd_lon);
+    }
+
+    /**
+     * @param $versionArray
+     * @param $buildings
+     */
+    private function checkForTransformWithToken(
+        $name,
+        $versionArray,
+        $buildings
+    ) {
+        $transform = false;
+
+        if ((int) $versionArray[0] < RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+            $transform = true;
+        } elseif ((int) $versionArray[0] == RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+            if ((int) $versionArray[1] < RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+                $transform = true;
+            } elseif ((int) $versionArray[1] == RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+                $pos = strpos($name, 'ANDROID');
+
+                if ($pos !== false) {
+                    if ((int) $versionArray[2] < RoomBuilding::LOCATION_TRANSFORM_VERSION_3) {
+                        $transform = true;
+                    }
+                } else {
+                    if ((int) $versionArray[2] < RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+                        $transform = true;
+                    }
+                }
+            }
+        }
+
+        if ($transform) {
+            $this->transformLocation($buildings);
+        }
+    }
+
+    /**
+     * @param $versionArray
+     * @param $buildings
+     */
+    private function checkForTransformWithoutToken(
+        $versionArray,
+        $buildings
+    ) {
+        $transform = false;
+
+        if ((int) $versionArray[0] < RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+            $transform = true;
+        } elseif ((int) $versionArray[0] == RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+            if ((int) $versionArray[1] < RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+                $transform = true;
+            } elseif ((int) $versionArray[1] == RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+                if ((int) $versionArray[2] < RoomBuilding::LOCATION_TRANSFORM_VERSION_2) {
+                    $transform = true;
+                }
+            }
+        }
+
+        if ($transform) {
+            $this->transformLocation($buildings);
+        }
     }
 }

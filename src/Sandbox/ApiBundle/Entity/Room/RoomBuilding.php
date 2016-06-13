@@ -30,6 +30,9 @@ class RoomBuilding implements JsonSerializable
 
     const PLATFORM_SALES_USER_BUILDING = 'sales';
 
+    const LOCATION_TRANSFORM_VERSION_2 = 2; // checking version 2.2.2
+    const LOCATION_TRANSFORM_VERSION_3 = 3; // checking version 2.2.3 (android)
+
     /**
      * @var int
      *
