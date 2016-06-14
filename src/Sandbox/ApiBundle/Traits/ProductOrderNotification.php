@@ -39,13 +39,47 @@ trait ProductOrderNotification
         $first = null,
         $second = null
     ) {
+        if (!is_null($first)) {
+            $firstZh = $this->get('translator')->trans(
+                $first,
+                array(),
+                null,
+                'zh'
+            );
+
+            $firstEn = $this->get('translator')->trans(
+                $first,
+                array(),
+                null,
+                'en'
+            );
+        }
+
+        if (!is_null($second)) {
+            $secondZh = $this->get('translator')->trans(
+                $second,
+                array(),
+                null,
+                'zh'
+            );
+
+            $secondEn = $this->get('translator')->trans(
+                $second,
+                array(),
+                null,
+                'en'
+            );
+        }
+
         try {
             if (empty($orders) && !is_null($order)) {
                 $city = $order->getProduct()->getRoom()->getCity()->getName();
                 $building = $order->getProduct()->getRoom()->getBuilding()->getName();
                 $room = $order->getProduct()->getRoom()->getName();
 
-                $body = $first.$city.$building.$room.$second;
+                $bodyZh = $firstZh.$city.$building.$room.$secondZh;
+                $bodyEn = $firstEn.$city.$building.$room.$secondEn;
+
                 // get notification data
                 $data = $this->getProductOrderNotificationJsonData(
                     $order->getId(),
@@ -53,7 +87,8 @@ trait ProductOrderNotification
                     $fromUserId,
                     $receivers,
                     $action,
-                    $body
+                    $bodyZh,
+                    $bodyEn
                 );
 
                 $jsonData = json_encode(array($data));
@@ -66,7 +101,8 @@ trait ProductOrderNotification
                         $fromUserId,
                         [$order->getUserId()],
                         $action,
-                        $first
+                        $firstZh,
+                        $firstEn
                     );
 
                     array_push($dataArray, $data);
@@ -88,7 +124,8 @@ trait ProductOrderNotification
      * @param int    $fromUserId
      * @param array  $receivers
      * @param string $action
-     * @param string $body
+     * @param string $bodyZh
+     * @param string $bodyEn
      *
      * @return mixed
      */
@@ -98,7 +135,8 @@ trait ProductOrderNotification
         $fromUserId,
         $receivers,
         $action,
-        $body
+        $bodyZh,
+        $bodyEn
     ) {
         $globals = $this->getContainer()
                         ->get('twig')
@@ -125,11 +163,14 @@ trait ProductOrderNotification
             array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
         }
 
+        $apns = $this->setApnsJsonDataArray($bodyZh, $bodyEn);
+
         // get content array
         $contentArray = $this->getDefaultContentArray(
             ProductOrder::ACTION_TYPE,
             $action,
-            $fromUser
+            $fromUser,
+            $apns
         );
 
         // get order array
@@ -140,13 +181,14 @@ trait ProductOrderNotification
         $messageArray = [
             'type' => 'chat',
             'from' => $jid,
-            'body' => $body,
+            'body' => $bodyZh,
         ];
 
         return $this->getNotificationJsonData(
             $receiversArray,
             $contentArray,
-            $messageArray
+            $messageArray,
+            $apns
         );
     }
 

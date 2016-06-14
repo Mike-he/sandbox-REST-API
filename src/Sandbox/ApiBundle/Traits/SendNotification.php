@@ -31,7 +31,8 @@ trait SendNotification
     private function getDefaultContentArray(
         $type,
         $action,
-        $fromUser = null
+        $fromUser = null,
+        $apns = null
     ) {
         $timestamp = round(microtime(true) * 1000);
 
@@ -44,6 +45,11 @@ trait SendNotification
         // get fromUserArray
         if (!is_null($fromUser)) {
             $contentArray['from'] = $this->getFromUserArray($fromUser);
+        }
+
+        // get fromUserArray
+        if (!is_null($apns)) {
+            $contentArray = array_merge($contentArray, $apns);
         }
 
         return $contentArray;
