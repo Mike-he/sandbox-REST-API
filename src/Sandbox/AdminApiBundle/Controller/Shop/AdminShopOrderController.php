@@ -3,9 +3,11 @@
 namespace Sandbox\AdminApiBundle\Controller\Shop;
 
 use Proxies\__CG__\Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Form\Shop\ShopOrderRefundPatch;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -30,6 +32,61 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class AdminShopOrderController extends ShopController
 {
+    /**
+     * patch shop order refund status.
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Method({"PATCH"})
+     * @Route("/shop/orders/{id}/refund")
+     *
+     * @return View
+     */
+    public function patchShopOrderRefundAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ShopOrder::STATUS_REFUNDED,
+                'needToRefund' => true,
+                'refunded' => false,
+                'unoriginal' => false,
+                'refundProcessed' => true,
+                'payChannel' => ShopOrder::CHANNEL_UNIONPAY,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $orderJson = $this->get('serializer')->serialize($order, 'json');
+        $patch = new Patch($orderJson, $request->getContent());
+        $orderJson = $patch->apply();
+
+        $form = $this->createForm(new ShopOrderRefundPatch(), $order);
+        $form->submit(json_decode($orderJson, true));
+
+        $refunded = $order->isRefunded();
+        $view = new View();
+
+        if (!$refunded) {
+            return $view;
+        }
+
+        $order->setNeedToRefund(false);
+        $order->setModificationDate(new \DateTime());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return $view;
+    }
+
     /**
      * @Route("/shop/orders/{id}/refund")
      * @Method({"GET"})

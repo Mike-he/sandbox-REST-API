@@ -558,17 +558,13 @@ class ClientOrderController extends OrderController
                     self::ORDER_REFUND
                 );
 
+                $order->setRefundProcessed(true);
                 $order->setRefundProcessedDate($now);
 
                 if (!is_null($balance)) {
                     $order->setRefunded(true);
+                    $order->setNeedToRefund(false);
                 }
-            } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
-                $this->refundToPayChannel(
-                    $order,
-                    $price,
-                    ProductOrder::PRODUCT_MAP
-                );
             }
         }
 

@@ -31,6 +31,7 @@ class ShopOrder
     const PLATFORM_KITCHEN = 'kitchen';
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
+    const CHANNEL_UNIONPAY = 'upacp';
     const SHOP_MAP = 'shop';
     const ENTITY_PATH = 'Shop\ShopOrder';
 
@@ -251,6 +252,14 @@ class ShopOrder
      * @Serializer\Groups({"main", "admin_shop", "client_order", "admin_detail"})
      */
     private $refundUrl;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="refundSSN", type="string", nullable=true)
+     * @Serializer\Groups({"main", "admin_shop", "admin_detail", "client_order"})
+     */
+    private $refundSSN;
 
     /**
      * Get id.
@@ -811,6 +820,30 @@ class ShopOrder
     public function getRefundUrl()
     {
         return $this->refundUrl;
+    }
+
+    /**
+     * Set refundSSN.
+     *
+     * @param string $refundSSN
+     *
+     * @return ShopOrder
+     */
+    public function setRefundSSN($refundSSN)
+    {
+        $this->refundSSN = $refundSSN;
+
+        return $this;
+    }
+
+    /**
+     * Get refundSSN.
+     *
+     * @return string
+     */
+    public function getRefundSSN()
+    {
+        return $this->refundSSN;
     }
 
     public function __construct()

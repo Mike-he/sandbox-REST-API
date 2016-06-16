@@ -21,6 +21,7 @@ class ProductOrder
 
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
+    const CHANNEL_UNIONPAY = 'upacp';
 
     const PRODUCT_MAP = 'product';
 
@@ -342,6 +343,14 @@ class ProductOrder
      * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
      */
     private $refundUrl;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="refundSSN", type="string", nullable=true)
+     * @Serializer\Groups({"main", "admin_detail", "admin_order", "client_order"})
+     */
+    private $refundSSN;
 
     /**
      * @var int
@@ -1170,6 +1179,30 @@ class ProductOrder
     public function getRefundUrl()
     {
         return $this->refundUrl;
+    }
+
+    /**
+     * Set refundSSN.
+     *
+     * @param string $refundSSN
+     *
+     * @return ProductOrder
+     */
+    public function setRefundSSN($refundSSN)
+    {
+        $this->refundSSN = $refundSSN;
+
+        return $this;
+    }
+
+    /**
+     * Get refundSSN.
+     *
+     * @return string
+     */
+    public function getRefundSSN()
+    {
+        return $this->refundSSN;
     }
 
     public function __construct()
