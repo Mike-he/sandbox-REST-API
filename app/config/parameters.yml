@@ -94,3 +94,8 @@ parameters:
     customer_service_phone: xxx-xxx
     client_version_ios: 2.0.5
     client_version_android: 2.0.5
+    account_refund_fee_multiplier: 0
+    alipay_refund_fee_multiplier: 0.0055
+    union_refund_fee_multiplier: 0
+    wechat_refund_fee_multiplier: 0
+    foreign_credit_refund_fee_multiplier: 0

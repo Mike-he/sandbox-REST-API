@@ -109,6 +109,11 @@ twig:
         customer_service_phone: "%customer_service_phone%"
         client_version_ios: "%client_version_ios%"
         client_version_android: "%client_version_android%"
+        account_refund_fee_multiplier: "%account_refund_fee_multiplier%"
+        alipay_refund_fee_multiplier: "%alipay_refund_fee_multiplier%"
+        union_refund_fee_multiplier: "%union_refund_fee_multiplier%"
+        wechat_refund_fee_multiplier: "%wechat_refund_fee_multiplier%"
+        foreign_credit_refund_fee_multiplier: "%foreign_credit_refund_fee_multiplier%"
 
 # Assetic Configuration
 assetic:

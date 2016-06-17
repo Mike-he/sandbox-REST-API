@@ -78,6 +78,16 @@ class AdminShopOrderController extends ShopController
             return $view;
         }
 
+        $ssn = $order->getRefundSSN();
+
+        if (is_null($ssn) || empty($ssn)) {
+            return $this->customErrorView(
+                400,
+                self::REFUND_SSN_NOT_FOUND_CODE,
+                self::REFUND_SSN_NOT_FOUND_MESSAGE
+            );
+        }
+
         $order->setNeedToRefund(false);
         $order->setModificationDate(new \DateTime());
 

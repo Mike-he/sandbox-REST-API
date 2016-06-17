@@ -22,6 +22,8 @@ class ProductOrder
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
     const CHANNEL_UNIONPAY = 'upacp';
+    const CHANNEL_WECHAT = 'wx';
+    const CHANNEL_FOREIGN_CREDIT = 'cnp_f';
 
     const PRODUCT_MAP = 'product';
 
@@ -356,6 +358,33 @@ class ProductOrder
      * @var int
      */
     private $rentPeriod;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="actualRefundAmount", type="decimal", precision=10, scale=3, nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_order"})
+     */
+    private $actualRefundAmount;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="refundProcessFee", type="decimal", precision=10, scale=3, nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_order"})
+     */
+    private $refundProcessFee;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="refundComment", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_detail", "admin_order"})
+     */
+    private $refundComment;
 
     /**
      * Set isRenew.
@@ -1203,6 +1232,78 @@ class ProductOrder
     public function getRefundSSN()
     {
         return $this->refundSSN;
+    }
+
+    /**
+     * Set actualRefundAmount.
+     *
+     * @param string $actualRefundAmount
+     *
+     * @return ProductOrder
+     */
+    public function setActualRefundAmount($actualRefundAmount)
+    {
+        $this->actualRefundAmount = $actualRefundAmount;
+
+        return $this;
+    }
+
+    /**
+     * Get actualRefundAmount.
+     *
+     * @return string
+     */
+    public function getActualRefundAmount()
+    {
+        return $this->actualRefundAmount;
+    }
+
+    /**
+     * Set refundProcessFee.
+     *
+     * @param string $refundProcessFee
+     *
+     * @return ProductOrder
+     */
+    public function setRefundProcessFee($refundProcessFee)
+    {
+        $this->refundProcessFee = $refundProcessFee;
+
+        return $this;
+    }
+
+    /**
+     * Get refundProcessFee.
+     *
+     * @return string
+     */
+    public function getRefundProcessFee()
+    {
+        return $this->refundProcessFee;
+    }
+
+    /**
+     * Set refundComment.
+     *
+     * @param string $refundComment
+     *
+     * @return ProductOrder
+     */
+    public function setRefundComment($refundComment)
+    {
+        $this->refundComment = $refundComment;
+
+        return $this;
+    }
+
+    /**
+     * Get refundComment.
+     *
+     * @return string
+     */
+    public function getRefundComment()
+    {
+        return $this->refundComment;
     }
 
     public function __construct()

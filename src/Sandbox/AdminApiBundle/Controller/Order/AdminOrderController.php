@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Form\Order\OrderRefundFeePatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundPatch;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -81,6 +82,16 @@ class AdminOrderController extends OrderController
             return $view;
         }
 
+        $ssn = $order->getRefundSSN();
+
+        if (is_null($ssn) || empty($ssn)) {
+            return $this->customErrorView(
+                400,
+                self::REFUND_SSN_NOT_FOUND_CODE,
+                self::REFUND_SSN_NOT_FOUND_MESSAGE
+            );
+        }
+
         $order->setNeedToRefund(false);
         $order->setModificationDate(new \DateTime());
 
@@ -88,6 +99,104 @@ class AdminOrderController extends OrderController
         $em->flush();
 
         return $view;
+    }
+
+    /**
+     * @Route("/orders/{id}/fee")
+     * @Method({"GET"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function getOrderRefundFeeAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ProductOrder::STATUS_CANCELLED,
+                'needToRefund' => true,
+                'refunded' => false,
+                'refundProcessed' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $channel = $order->getPayChannel();
+        $refund = (double) $order->getDiscountPrice();
+
+        $multiplier = $this->getRefundFeeMultiplier($channel);
+
+        $fee = $refund * $multiplier;
+        $actualRefund = $refund - $fee;
+
+        $view = new View();
+        $view->setData([
+            'full_refund' => $refund,
+            'channel' => $channel,
+            'process_fee' => $fee,
+            'actual_refund' => $actualRefund,
+        ]);
+
+        return $view;
+    }
+
+    /**
+     * @Route("/orders/{id}/fee")
+     * @Method({"PATCH"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function storeOrderRefundFeeAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ProductOrder::STATUS_CANCELLED,
+                'needToRefund' => true,
+                'refunded' => false,
+                'refundProcessed' => false,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $orderJson = $this->get('serializer')->serialize($order, 'json');
+        $patch = new Patch($orderJson, $request->getContent());
+        $orderJson = $patch->apply();
+
+        $form = $this->createForm(new OrderRefundFeePatch(), $order);
+        $form->submit(json_decode($orderJson, true));
+
+        $price = $order->getDiscountPrice();
+        $refund = $order->getActualRefundAmount();
+
+        if ($refund > $price) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_REFUND_AMOUNT_CODE,
+                self::WRONG_REFUND_AMOUNT_MESSAGE
+            );
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -116,10 +225,19 @@ class AdminOrderController extends OrderController
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $price = $order->getDiscountPrice();
+        $refund = $order->getActualRefundAmount();
+
+        if (is_null($refund) || empty($refund)) {
+            return $this->customErrorView(
+                400,
+                self::REFUND_AMOUNT_NOT_FOUND_CODE,
+                self::REFUND_AMOUNT_NOT_FOUND_MESSAGE
+            );
+        }
+
         $link = $this->checkForRefund(
             $order,
-            $price,
+            $refund,
             ProductOrder::PRODUCT_MAP
         );
 
