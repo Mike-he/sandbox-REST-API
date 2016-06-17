@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * SalesCompany.
  *
  * @ORM\Table(name="SalesCompany")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\SalesAdmin\SalesCompanyRepository")
  */
 class SalesCompany
 {
@@ -20,7 +20,7 @@ class SalesCompany
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "dropdown"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class SalesCompany
      *
      * @ORM\Column(name="name", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin", "auth"})
+     * @Serializer\Groups({"main", "admin", "auth", "dropdown"})
      */
     private $name;
 

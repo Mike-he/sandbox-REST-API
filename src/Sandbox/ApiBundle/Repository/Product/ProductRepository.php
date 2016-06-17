@@ -347,6 +347,7 @@ class ProductRepository extends EntityRepository
      * @param string       $direction
      * @param string       $search
      * @param bool         $recommend
+     * @param int          $companyId
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
@@ -358,7 +359,8 @@ class ProductRepository extends EntityRepository
         $sortBy,
         $direction,
         $search,
-        $recommend = false
+        $recommend = false,
+        $companyId = null
     ) {
         $notFirst = false;
         $parameters = [];
@@ -419,6 +421,14 @@ class ProductRepository extends EntityRepository
             $where = 'r.building = :building';
             $this->addWhereQuery($query, $notFirst, $where);
             $parameters['building'] = $building;
+            $notFirst = true;
+        }
+
+        // filter by company
+        if (!is_null($companyId)) {
+            $where = 'rb.companyId = :companyId';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['companyId'] = $companyId;
             $notFirst = true;
         }
 
