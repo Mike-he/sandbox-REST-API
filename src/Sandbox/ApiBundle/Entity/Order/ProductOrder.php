@@ -334,7 +334,7 @@ class ProductOrder
      * @var bool
      *
      * @ORM\Column(name="invoiced", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $invoiced = false;
 
