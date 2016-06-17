@@ -48,7 +48,7 @@ class AdminOrderController extends OrderController
      *
      * @return View
      */
-    public function patchShopOrderRefundAction(
+    public function patchOrderRefundAction(
         Request $request,
         $id
     ) {
