@@ -429,6 +429,7 @@ class OrderController extends PaymentController
                 'attachment' => $attachmentArray,
             ],
             'seat_number' => $product->getSeatNumber(),
+            'sales_invoice' => $product->isSalesInvoice(),
         ];
 
         return json_encode($productInfo);
