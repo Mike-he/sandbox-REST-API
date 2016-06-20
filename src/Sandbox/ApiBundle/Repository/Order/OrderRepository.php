@@ -344,10 +344,43 @@ class OrderRepository extends EntityRepository
             ->andWhere('o.payChannel != :account')
             ->andWhere('o.rejected = :rejected')
             ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('invoiced', false)
             ->setParameter('rejected', false)
+            ->setParameter('salesInvoice', false)
             ->setParameter('price', 0)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * get orders that need to set invoice.
+     */
+    public function getInvoiceOrdersForApp(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('o')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('userId', $userId)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
             ->getQuery();
 
         return $query->getResult();

@@ -339,6 +339,14 @@ class ProductOrder
     private $invoiced = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="salesInvoice", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_detail", "admin_order"})
+     */
+    private $salesInvoice = false;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="refundUrl", type="text", nullable=true)
@@ -1304,6 +1312,30 @@ class ProductOrder
     public function getRefundComment()
     {
         return $this->refundComment;
+    }
+
+    /**
+     * Set salesInvoice.
+     *
+     * @param bool $salesInvoice
+     *
+     * @return ProductOrder
+     */
+    public function setSalesInvoice($salesInvoice)
+    {
+        $this->salesInvoice = $salesInvoice;
+
+        return $this;
+    }
+
+    /**
+     * Get salesInvoice.
+     *
+     * @return bool
+     */
+    public function isSalesInvoice()
+    {
+        return $this->salesInvoice;
     }
 
     public function __construct()

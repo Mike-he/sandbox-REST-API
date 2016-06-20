@@ -114,6 +114,57 @@ class ClientOrderController extends OrderController
     }
 
     /**
+     * Get sales invoice orders for current user.
+     *
+     * @Get("/orders/my/sales/invoice")
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getUserSalesInvoiceOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $orders = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersForApp(
+            $userId,
+            $limit,
+            $offset
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
      * Get user's current available rooms.
      *
      * @Get("/orders/current")
@@ -330,6 +381,10 @@ class ClientOrderController extends OrderController
 
             if (Room::TYPE_OFFICE == $type) {
                 $order->setRejected(true);
+            }
+
+            if ($product->isSalesInvoice()) {
+                $order->setSalesInvoice(true);
             }
 
             $em->persist($order);
@@ -923,6 +978,7 @@ class ClientOrderController extends OrderController
             if ($order->getDiscountPrice() > 0
                 && ProductOrder::CHANNEL_ACCOUNT != $order->getPayChannel()
                 && !$order->isRejected()
+                && !$order->isSalesInvoice()
             ) {
                 $this->setProductOrderInvoice($order);
             }
