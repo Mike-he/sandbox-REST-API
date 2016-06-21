@@ -387,6 +387,34 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * get order that need to set invoice.
+     */
+    public function getInvoiceOrdersForInvoiced(
+        $id,
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->andWhere('o.id = :id')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('userId', $userId)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0)
+            ->setParameter('id', $id)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
+
+    /**
      * set status to cancelled after 15 minutes.
      */
     public function setStatusCancelled()

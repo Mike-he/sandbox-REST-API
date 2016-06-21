@@ -165,6 +165,36 @@ class ClientOrderController extends OrderController
     }
 
     /**
+     * post sales invoice order.
+     *
+     * @Post("/orders/{id}/sales/invoice")
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function postUserOrderInvoicedAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersForInvoiced(
+            $id,
+            $userId
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $order->setInvoiced(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * Get user's current available rooms.
      *
      * @Get("/orders/current")
