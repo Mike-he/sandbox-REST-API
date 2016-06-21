@@ -638,9 +638,11 @@ class AdminSalesAdminsController extends SandboxRestController
 
                 // logout this admin
                 if ($platformAdminBanned) {
-                    $this->getRepo('SalesAdmin\SalesAdminToken')->deleteAdminToken(
-                        $platformAdmin->getId()
-                    );
+                    $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminToken')
+                        ->deleteSalesAdminToken(
+                            $platformAdmin->getId()
+                        );
                 }
             }
         }
@@ -653,9 +655,11 @@ class AdminSalesAdminsController extends SandboxRestController
 
                 // logout this admin
                 if ($platformAdminBanned) {
-                    $this->getRepo('Shop\ShopAdminToken')->deleteAdminToken(
-                        $platformAdmin->getId()
-                    );
+                    $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Shop\ShopAdminToken')
+                        ->deleteShopAdminToken(
+                            $platformAdmin->getId()
+                        );
                 }
             }
         }
