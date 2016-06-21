@@ -34,6 +34,7 @@ class AdminPermission
     const KEY_PLATFORM_VERIFY = 'platform.verify';
     const KEY_PLATFORM_SALES = 'platform.sales';
     const KEY_PLATFORM_BULLETIN = 'platform.bulletin';
+    const KEY_PLATFORM_FINANCE = 'platform.finance';
 
     /**
      * @var int
