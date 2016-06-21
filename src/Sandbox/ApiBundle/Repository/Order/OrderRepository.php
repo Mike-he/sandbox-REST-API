@@ -415,6 +415,32 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * get order invoice amount.
+     */
+    public function getInvoiceOrdersAmount(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('SUM(o.discountPrice)')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('userId', $userId)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0)
+            ->getQuery();
+
+        return $query->getSingleScalarResult();
+    }
+
+    /**
      * set status to cancelled after 15 minutes.
      */
     public function setStatusCancelled()

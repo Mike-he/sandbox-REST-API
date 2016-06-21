@@ -114,6 +114,29 @@ class ClientOrderController extends OrderController
     }
 
     /**
+     * Get sales invoice orders amount.
+     *
+     * @Get("/orders/my/sales/invoice/amount")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getUserSalesInvoiceAmountAction(
+        Request $request
+    ) {
+        $userId = $this->getUserId();
+
+        $amount = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersAmount($userId);
+
+        if (is_null($amount)) {
+            $amount = 0;
+        }
+
+        return new View(['amount' => (float) $amount]);
+    }
+
+    /**
      * Get sales invoice orders for current user.
      *
      * @Get("/orders/my/sales/invoice")
