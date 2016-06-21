@@ -177,6 +177,9 @@ class AdminShopOrderController extends ShopController
                 'status' => ShopOrder::STATUS_REFUNDED,
                 'unoriginal' => false,
                 'refunded' => false,
+            ],
+            [
+                'modificationDate' => 'ASC'
             ]
         );
 

@@ -286,6 +286,9 @@ class AdminOrderController extends OrderController
                 'needToRefund' => true,
                 'status' => ProductOrder::STATUS_CANCELLED,
                 'refunded' => false,
+            ],
+            [
+                'modificationDate' => 'ASC'
             ]
         );
 
