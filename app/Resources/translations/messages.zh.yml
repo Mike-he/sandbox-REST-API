@@ -171,6 +171,29 @@ client:
     account_banned: 您的账户已经被冻结，如有疑问请联系客服：
     account_non_existent: 账户不存在
     wrong_password: 密码错误
+  menu:
+    order: 空间预定
+    coffee: 创合店铺
+    event: 创合活动
+    location: 寻找社区
+    community: 创合社区
+    blog: 创合博客
+    message: 创合消息
+    contact: 我的联系人
+    member: 创合会员
+    company: 创合企业
+    my_company: 我的企业
+    balance: 账户余额
+    my_order: 我的订单
+    my_room: 我的可用房间
+    notification: 通知
+    my_invoice: 我的发票
+    membership_card: 我的会员卡
+    reset_password: 重置密码
+    email: 绑定邮箱
+    phone: 绑定手机
+    about_us: 关于展想创合
+    setting: 设置
 
 event_order:
   status:
