@@ -288,7 +288,7 @@ class AdminOrderController extends OrderController
                 'refunded' => false,
             ],
             [
-                'modificationDate' => 'ASC'
+                'modificationDate' => 'ASC',
             ]
         );
 

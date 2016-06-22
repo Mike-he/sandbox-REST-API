@@ -179,7 +179,7 @@ class AdminShopOrderController extends ShopController
                 'refunded' => false,
             ],
             [
-                'modificationDate' => 'ASC'
+                'modificationDate' => 'ASC',
             ]
         );
 

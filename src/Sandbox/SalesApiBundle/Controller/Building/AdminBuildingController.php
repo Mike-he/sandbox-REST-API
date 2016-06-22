@@ -17,6 +17,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPostType;
@@ -559,7 +560,7 @@ class AdminBuildingController extends LocationController
         $phones = $building->getPhones();
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
-        $salesCompanyId = $this->getUser()->getMyAdmin()->getCompanyId();
+        $salesCompany = $this->getUser()->getMyAdmin()->getSalesCompany();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -571,7 +572,7 @@ class AdminBuildingController extends LocationController
         $this->addAdminBuilding(
             $building,
             $roomCity,
-            $salesCompanyId,
+            $salesCompany,
             $em
         );
 
@@ -824,18 +825,18 @@ class AdminBuildingController extends LocationController
      *
      * @param RoomBuilding  $building
      * @param RoomCity      $roomCity
-     * @param int           $salesCompanyId
+     * @param SalesCompany  $salesCompany
      * @param EntityManager $em
      */
     private function addAdminBuilding(
         $building,
         $roomCity,
-        $salesCompanyId,
+        $salesCompany,
         $em
     ) {
         $now = new \DateTime('now');
 
-        $building->setCompanyId($salesCompanyId);
+        $building->setCompany($salesCompany);
         $building->setCity($roomCity);
         $building->setStatus(RoomBuilding::STATUS_PENDING);
         $building->setCreationDate($now);

@@ -364,7 +364,9 @@ class OrderRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
-            ->select('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->where('o.status = \'completed\'')
             ->andWhere('o.userId = :userId')
             ->andWhere('o.discountPrice > :price')
@@ -372,7 +374,7 @@ class OrderRepository extends EntityRepository
             ->andWhere('o.rejected = :rejected')
             ->andWhere('o.invoiced = :invoiced')
             ->andWhere('o.salesInvoice = :salesInvoice')
-            ->orderBy('o.modificationDate', 'DESC')
+            ->orderBy('b.companyId', 'ASC')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('invoiced', false)
             ->setParameter('rejected', false)
