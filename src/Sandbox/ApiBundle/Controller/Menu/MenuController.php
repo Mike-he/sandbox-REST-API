@@ -24,18 +24,32 @@ use Sandbox\ApiBundle\Entity\Menu\Menu;
  */
 class MenuController extends SandboxRestController
 {
+    const CLIENT_MENU_ORDER = 'client.menu.order';
+    const CLIENT_MENU_COFFEE = 'client.menu.coffee';
+    const CLIENT_MENU_EVENT = 'client.menu.event';
+    const CLIENT_MENU_LOCATION = 'client.menu.location';
+    const CLIENT_MENU_COMMUNITY = 'client.menu.community';
+    const CLIENT_MENU_BLOG = 'client.menu.blog';
+    const CLIENT_MENU_MESSAGE = 'client.menu.message';
+    const CLIENT_MENU_CONTACT = 'client.menu.contact';
+    const CLIENT_MENU_MEMBER = 'client.menu.member';
+    const CLIENT_MENU_COMPANY = 'client.menu.company';
+    const CLIENT_MENU_MY_COMPANY = 'client.menu.my_company';
+    const CLIENT_MENU_BALANCE = 'client.menu.balance';
+    const CLIENT_MENU_MY_ORDER = 'client.menu.my_order';
+    const CLIENT_MENU_MY_ROOM = 'client.menu.my_room';
+    const CLIENT_MENU_NOTIFICATION = 'client.menu.notification';
+    const CLIENT_MENU_MY_INVOICE = 'client.menu.my_invoice';
+    const CLIENT_MENU_MEMBERSHIP_CARD = 'client.menu.membership_card';
+    const CLIENT_MENU_RESET_PASSWORD = 'client.menu.reset_password';
+    const CLIENT_MENU_EMAIL = 'client.menu.email';
+    const CLIENT_MENU_PHONE = 'client.menu.phone';
+    const CLIENT_MENU_ABOUT_US = 'client.menu.about_us';
+    const CLIENT_MENU_SETTING = 'client.menu.setting';
+
     /**
-     * List menus.
-     *
      * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher param fetcher service
-     *
-     *  @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
      *    name="component",
@@ -59,75 +73,192 @@ class MenuController extends SandboxRestController
      *    description="The value of version"
      * )
      *
-     * @Method({"GET"})
+     * @Annotations\QueryParam(
+     *    name="position",
+     *    default="main",
+     *    nullable=false,
+     *    description="The value of position"
+     * )
+     *
      * @Route("/menus")
+     * @Method({"GET"})
      *
      * @return View
-     *
-     * @throws \Exception
      */
-    public function getMenusAction(
+    public function getMenuBarAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $etag = $request->headers->get('etag');
+
         $component = $paramFetcher->get('component');
         $platform = $paramFetcher->get('platform');
         $version = $paramFetcher->get('version');
+        $position = $paramFetcher->get('position');
 
-        $menus = $this->getRepo('Menu\Menu')->findBy(
-            array(
+        $menu = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Menu\Menu')
+            ->findOneBy(array(
                 'component' => $component,
                 'platform' => $platform,
                 'version' => $version,
-            ),
-            array('section' => 'ASC')
+                'position' => $position,
+            ));
+        if (is_null($menu)) {
+            return new View();
+        }
+
+        $items = array(
+            self::CLIENT_MENU_ORDER,
+            self::CLIENT_MENU_COFFEE,
+            self::CLIENT_MENU_EVENT,
+            self::CLIENT_MENU_LOCATION,
+            self::CLIENT_MENU_COMMUNITY,
+            self::CLIENT_MENU_BLOG,
+            self::CLIENT_MENU_MESSAGE,
+            self::CLIENT_MENU_CONTACT,
+            self::CLIENT_MENU_MEMBER,
+            self::CLIENT_MENU_COMPANY,
+            self::CLIENT_MENU_MY_COMPANY,
+            self::CLIENT_MENU_BALANCE,
+            self::CLIENT_MENU_MY_ORDER,
+            self::CLIENT_MENU_MY_ROOM,
+            self::CLIENT_MENU_NOTIFICATION,
+            self::CLIENT_MENU_MY_INVOICE,
+            self::CLIENT_MENU_MEMBERSHIP_CARD,
+            self::CLIENT_MENU_RESET_PASSWORD,
+            self::CLIENT_MENU_EMAIL,
+            self::CLIENT_MENU_PHONE,
+            self::CLIENT_MENU_ABOUT_US,
+            self::CLIENT_MENU_SETTING,
         );
 
-        $menuResponse = array();
-
-        if ($component === Menu::COMPONENT_CLIENT) {
-            $leftMenuArray = array();
-            $rightMenuArray = array();
-
-            foreach ($menus as $menu) {
-                if ($menu->getPosition() === Menu::POSITION_LEFT) {
-                    array_push($leftMenuArray, $menu);
-                } elseif ($menu->getPosition() === Menu::POSITION_RIGHT) {
-                    array_push($rightMenuArray, $menu);
-                }
-            }
-
-            $menuResponse['left_menus'] = $this->setClientMenus($leftMenuArray);
-            $menuResponse['right_menus'] = $this->setClientMenus($rightMenuArray);
+        // translate json
+        $menuJson = $menu->getMenuJson();
+        foreach ($items as $item) {
+            $translate = $this->get('translator')->trans($item);
+            $menuJson = preg_replace('/'.$item.'/', "$translate", $menuJson);
         }
 
-        return new View($menuResponse);
-    }
+        $view = new View();
 
-    /**
-     * @param array $menus
-     *
-     * @return array
-     */
-    private function setClientMenus(
-        $menus
-    ) {
-        $menuArray = array();
+        $menuHash = hash('sha256', $menuJson);
+        $view->setHeader('etag', $menuHash);
 
-        foreach ($menus as $menu) {
-            $sectionStr = strval($menu->getSection());
-            $partIdx = $menu->getPart() - 1;
-            $numberIdx = $menu->getNumber() - 1;
-
-            $menuArray[$sectionStr][$partIdx][$numberIdx] = array(
-                'key' => $menu->getKey(),
-                'type' => $menu->getType(),
-                'name' => '',
-                'url' => $menu->getUrl(),
-                'ready' => $menu->isReady(),
-            );
+        // check hash
+        if ($etag == $menuHash) {
+            return $view;
         }
 
-        return $menuArray;
+        $view->setData(json_decode($menuJson, true));
+
+        return $view;
     }
+
+//    /**
+//     * List menus.
+//     *
+//     * @param Request               $request
+//     * @param ParamFetcherInterface $paramFetcher param fetcher service
+//     *
+//     *  @ApiDoc(
+//     *   resource = true,
+//     *   statusCodes = {
+//     *     200 = "Returned when successful"
+//     *   }
+//     * )
+//     *
+//     * @Annotations\QueryParam(
+//     *    name="component",
+//     *    nullable=false,
+//     *    requirements="(client|admin)",
+//     *    strict=true,
+//     *    description="The value of component"
+//     * )
+//     *
+//     * @Annotations\QueryParam(
+//     *    name="platform",
+//     *    nullable=false,
+//     *    requirements="(iphone|android)",
+//     *    strict=true,
+//     *    description="The value of platform"
+//     * )
+//     *
+//     * @Annotations\QueryParam(
+//     *    name="version",
+//     *    nullable=false,
+//     *    description="The value of version"
+//     * )
+//     *
+//     * @Method({"GET"})
+//     * @Route("/menus")
+//     *
+//     * @return View
+//     *
+//     * @throws \Exception
+//     */
+//    public function getMenusAction(
+//        Request $request,
+//        ParamFetcherInterface $paramFetcher
+//    ) {
+//        $component = $paramFetcher->get('component');
+//        $platform = $paramFetcher->get('platform');
+//        $version = $paramFetcher->get('version');
+//
+//        $menus = $this->getRepo('Menu\Menu')->findBy(
+//            array(
+//                'component' => $component,
+//                'platform' => $platform,
+//                'version' => $version,
+//            ),
+//            array('section' => 'ASC')
+//        );
+//
+//        $menuResponse = array();
+//
+//        if ($component === Menu::COMPONENT_CLIENT) {
+//            $leftMenuArray = array();
+//            $rightMenuArray = array();
+//
+//            foreach ($menus as $menu) {
+//                if ($menu->getPosition() === Menu::POSITION_LEFT) {
+//                    array_push($leftMenuArray, $menu);
+//                } elseif ($menu->getPosition() === Menu::POSITION_RIGHT) {
+//                    array_push($rightMenuArray, $menu);
+//                }
+//            }
+//
+//            $menuResponse['left_menus'] = $this->setClientMenus($leftMenuArray);
+//            $menuResponse['right_menus'] = $this->setClientMenus($rightMenuArray);
+//        }
+//
+//        return new View($menuResponse);
+//    }
+//
+//    /**
+//     * @param array $menus
+//     *
+//     * @return array
+//     */
+//    private function setClientMenus(
+//        $menus
+//    ) {
+//        $menuArray = array();
+//
+//        foreach ($menus as $menu) {
+//            $sectionStr = strval($menu->getSection());
+//            $partIdx = $menu->getPart() - 1;
+//            $numberIdx = $menu->getNumber() - 1;
+//
+//            $menuArray[$sectionStr][$partIdx][$numberIdx] = array(
+//                'key' => $menu->getKey(),
+//                'type' => $menu->getType(),
+//                'name' => '',
+//                'url' => $menu->getUrl(),
+//                'ready' => $menu->isReady(),
+//            );
+//        }
+//
+//        return $menuArray;
+//    }
 }

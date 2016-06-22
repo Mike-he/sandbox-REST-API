@@ -172,6 +172,29 @@ client:
     account_banned: Your account is banned, please contact customer service:
     account_non_existent: Account does not exist
     wrong_password: Wrong password
+  menu:
+    order: Reservation
+    coffee: Coffee
+    event: Events
+    location: Location
+    community: Community
+    blog: Blogs
+    message: Messages
+    contact: Contacts
+    member: Members
+    company: Companies
+    my_company: My Company
+    balance: Balance
+    my_order: My Orders
+    my_room: My Rooms
+    notification: Notification
+    my_invoice: My Invoice
+    membership_card: Membership Card
+    reset_password: Reset Password
+    email: Email
+    phone: Phone
+    about_us: About Us
+    setting: Settings
 
 event_order:
   status:
