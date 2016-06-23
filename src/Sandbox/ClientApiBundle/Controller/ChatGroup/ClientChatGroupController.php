@@ -200,12 +200,12 @@ class ClientChatGroupController extends ChatGroupController
             ->getChatGroup($id, $myUserId);
 
         // set group name
-        if (is_null($chatGroup['name'] || empty($chatGroup['name'])) {
+        if (is_null($chatGroup['name'] || empty($chatGroup['name']))) {
             $chatGroupName = $this->constructGroupChatName(
                 $chatGroup['id']
             );
 
-            $chatGroup->setName($chatGroupName);
+            $chatGroup['name'] = $chatGroupName;
         }
 
         return new View($chatGroup);
@@ -444,7 +444,7 @@ class ClientChatGroupController extends ChatGroupController
     /**
      * @param ChatGroup $chatGroupId
      *
-     * @return null|string
+     * @return string
      */
     protected function constructGroupChatName(
         $chatGroupId
