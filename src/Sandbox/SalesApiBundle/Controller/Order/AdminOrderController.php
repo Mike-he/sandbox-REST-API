@@ -631,6 +631,7 @@ class AdminOrderController extends OrderController
             array(
                 SalesAdminPermission::KEY_BUILDING_ORDER,
                 SalesAdminPermission::KEY_BUILDING_USER,
+                SalesAdminPermission::KEY_PLATFORM_FINANCE,
             ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             $buildingId
