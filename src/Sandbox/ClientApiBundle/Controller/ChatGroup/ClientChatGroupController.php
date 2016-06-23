@@ -124,7 +124,7 @@ class ClientChatGroupController extends ChatGroupController
             }
         }
 
-        $chatGroup->setName($chatGroupName);
+        $chatGroup->setName($name);
         $em->persist($chatGroup);
 
         // save to db
@@ -137,7 +137,7 @@ class ClientChatGroupController extends ChatGroupController
         $view = new View();
         $view->setData(array(
             'id' => $chatGroup->getId(),
-            'name' => $chatGroup->getName(),
+            'name' => $chatGroupName,
         ));
 
         return $view;
@@ -197,6 +197,15 @@ class ClientChatGroupController extends ChatGroupController
         // get chat group
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->getChatGroup($id, $myUserId);
 
+        // set group name
+        if (is_null($chatGroup->getName()) || empty($chatGroup->getName())) {
+            $chatGroupName = $this->constructGroupChatName(
+                $chatGroup
+            );
+
+            $chatGroup->setName($chatGroupName);
+        }
+
         return new View($chatGroup);
     }
 
@@ -233,6 +242,15 @@ class ClientChatGroupController extends ChatGroupController
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
         if (!is_null($members) && !empty($members)) {
             $chatGroupArray['members'] = $this->getChatGroupMembersArray($members);
+        }
+
+        // set group name
+        if (is_null($chatGroup->getName()) || empty($chatGroup->getName())) {
+            $chatGroupName = $this->constructGroupChatName(
+                $chatGroup
+            );
+
+            $chatGroup->setName($chatGroupName);
         }
 
         // set view
@@ -419,5 +437,45 @@ class ClientChatGroupController extends ChatGroupController
         $this->handleXmppChatGroupMute($chatGroup, $myUser, $mute);
 
         return new View();
+    }
+
+    /**
+     * @param ChatGroup $chatGroup
+     *
+     * @return null|string
+     */
+    protected function constructGroupChatName(
+        $chatGroup
+    ) {
+        $members = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+            ->findBy(array(
+                'chatGroup' => $chatGroup,
+            ));
+
+        $groupNameString = '';
+        $memberCount = 0;
+
+        foreach ($members as $member) {
+            ++$memberCount;
+
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array(
+                    'user' => $member->getUser(),
+                ));
+            $userName = $profile->getName();
+
+            if (is_null($userName)) {
+                continue;
+            }
+
+            $groupNameString = $groupNameString.$userName;
+
+            if ($memberCount < sizeof($members)) {
+                $groupNameString = $groupNameString.', ';
+            }
+        }
+
+        return $groupNameString;
     }
 }
