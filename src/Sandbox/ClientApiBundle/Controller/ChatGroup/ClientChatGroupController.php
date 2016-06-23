@@ -197,15 +197,18 @@ class ClientChatGroupController extends ChatGroupController
         // get chat group
         $chatGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->getChatGroup($id, $myUserId);
+            ->findOneBy(array(
+                'id' => $id,
+                'creatorId' => $myUserId,
+            ));
 
         // set group name
-        if (is_null($chatGroup['name'] || empty($chatGroup['name']))) {
+        if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
             $chatGroupName = $this->constructGroupChatName(
-                $chatGroup['id']
+                $chatGroup
             );
 
-            $chatGroup['name'] = $chatGroupName;
+            $chatGroup->setName($chatGroupName);
         }
 
         return new View($chatGroup);
@@ -252,7 +255,7 @@ class ClientChatGroupController extends ChatGroupController
                 $chatGroup->getId()
             );
 
-            $chatGroup->setName($chatGroupName);
+            $chatGroupArray['name'] = $chatGroupName;
         }
 
         // set view
@@ -442,17 +445,17 @@ class ClientChatGroupController extends ChatGroupController
     }
 
     /**
-     * @param ChatGroup $chatGroupId
+     * @param ChatGroup $chatGroup
      *
      * @return string
      */
     protected function constructGroupChatName(
-        $chatGroupId
+        $chatGroup
     ) {
         $members = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
             ->findBy(array(
-                'chaGroupId' => $chatGroupId,
+                'chatGroup' => $chatGroup,
             ));
 
         $groupNameString = '';
