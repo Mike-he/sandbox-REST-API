@@ -77,14 +77,14 @@ trait ShopNotification
             return;
         }
 
-        $zhBody = $this->get('translator')->trans(
+        $zhBody = $this->getContainer()->get('translator')->trans(
             $key,
             array(),
             null,
             'zh'
         );
 
-        $enBody = $this->get('translator')->trans(
+        $enBody = $this->getContainer()->get('translator')->trans(
             $key,
             array(),
             null,

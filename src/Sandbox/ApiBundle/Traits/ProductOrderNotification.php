@@ -40,14 +40,14 @@ trait ProductOrderNotification
         $second = null
     ) {
         if (!is_null($first)) {
-            $firstZh = $this->get('translator')->trans(
+            $firstZh = $this->getContainer()->get('translator')->trans(
                 $first,
                 array(),
                 null,
                 'zh'
             );
 
-            $firstEn = $this->get('translator')->trans(
+            $firstEn = $this->getContainer()->get('translator')->trans(
                 $first,
                 array(),
                 null,
@@ -56,14 +56,14 @@ trait ProductOrderNotification
         }
 
         if (!is_null($second)) {
-            $secondZh = $this->get('translator')->trans(
+            $secondZh = $this->getContainer()->get('translator')->trans(
                 $second,
                 array(),
                 null,
                 'zh'
             );
 
-            $secondEn = $this->get('translator')->trans(
+            $secondEn = $this->getContainer()->get('translator')->trans(
                 $second,
                 array(),
                 null,
