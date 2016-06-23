@@ -112,7 +112,7 @@ trait ShopNotification
 
         $contentArray['order'] = array(
             'id' => $orderId,
-            'order_no' => $orderNo,
+            'order_number' => $orderNo,
         );
 
         $data = $this->getNotificationJsonData(
