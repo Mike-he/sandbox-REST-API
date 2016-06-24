@@ -41,6 +41,8 @@ product_order:
     upacp: UnionPay
     alipay: Alipay
     account: Balance
+    cnp_u: Domestic Quick Pay
+    cnp_f: International Quick Pay
   status:
     unpaid: Unpaid
     paid: Paid
@@ -88,6 +90,8 @@ shop_order:
     upacp: UnionPay
     alipay: Alipay
     account: Balance
+    cnp_u: Domestic Quick Pay
+    cnp_f: International Quick Pay
   status:
     unpaid: Unpaid
     paid: Paid
@@ -207,6 +211,8 @@ event_order:
     upacp: UnionPay
     alipay: Alipay
     account: Balance
+    cnp_u: Domestic Quick Pay
+    cnp_f: International Quick Pay
   export_header:
     order_number: Order Number
     event_name: Event Name

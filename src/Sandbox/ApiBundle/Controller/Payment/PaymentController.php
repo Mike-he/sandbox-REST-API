@@ -366,12 +366,21 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $order
+     * @param $token
+     * @param $smsId
+     * @param $smsCode
+     * @param $orderNumber
+     * @param $price
      * @param $channel
+     * @param $subject
+     * @param $body
      *
      * @return Charge
      */
     public function payForOrder(
+        $token,
+        $smsId,
+        $smsCode,
         $orderNumber,
         $price,
         $channel,
@@ -390,6 +399,20 @@ class PaymentController extends DoorController
                 $extra = array(
                     'result_url' => 'http://www.yourdomain.com/result?code=',
                 );
+                break;
+            case ProductOrder::CHANNEL_FOREIGN_CREDIT:
+                $extra = array(
+                    'source' => $token,
+                );
+
+                break;
+            case ProductOrder::CHANNEL_UNION_CREDIT:
+                $extra = array(
+                    'source' => $token,
+                    'sms_code[id]' => $smsId,
+                    'sms_code[code]' => $smsCode,
+                );
+
                 break;
         }
 

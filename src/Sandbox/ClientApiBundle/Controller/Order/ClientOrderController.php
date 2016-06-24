@@ -573,6 +573,22 @@ class ClientOrderController extends OrderController
         }
         $requestContent = json_decode($request->getContent(), true);
         $channel = $requestContent['channel'];
+        $token = '';
+        $smsId = '';
+        $smsCode = '';
+
+        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
+            $token = $requestContent['token_f'];
+
+            if (array_key_exists('sms_id', $requestContent) &&
+                array_key_exists('sms_code', $requestContent) &&
+                !empty($requestContent['sms_id']) &&
+                !empty($requestContent['sms_code'])
+            ) {
+                $smsId = $requestContent['sms_id'];
+                $smsCode = $requestContent['sms_code'];
+            }
+        }
 
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
@@ -580,7 +596,9 @@ class ClientOrderController extends OrderController
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
             $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
             $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
+            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
+            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
         ) {
             return $this->customErrorView(
                 400,
@@ -598,6 +616,9 @@ class ClientOrderController extends OrderController
 
         $orderNumber = $order->getOrderNumber();
         $charge = $this->payForOrder(
+            $token,
+            $smsId,
+            $smsCode,
             $orderNumber,
             $order->getDiscountPrice(),
             $channel,

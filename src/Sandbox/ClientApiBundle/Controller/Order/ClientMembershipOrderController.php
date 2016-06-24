@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -86,6 +87,22 @@ class ClientMembershipOrderController extends PaymentController
         $price = $requestContent['price'];
         $channel = $requestContent['channel'];
         $productId = $requestContent['product_id'];
+        $token = '';
+        $smsId = '';
+        $smsCode = '';
+
+        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
+            $token = $requestContent['token_f'];
+
+            if (array_key_exists('sms_id', $requestContent) &&
+                array_key_exists('sms_code', $requestContent) &&
+                !empty($requestContent['sms_id']) &&
+                !empty($requestContent['sms_code'])
+            ) {
+                $smsId = $requestContent['sms_id'];
+                $smsCode = $requestContent['sms_code'];
+            }
+        }
 
         if (is_null($productId) || empty($productId)) {
             return $this->customErrorView(
@@ -107,7 +124,9 @@ class ClientMembershipOrderController extends PaymentController
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
             $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
             $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
+            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
+            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
         ) {
             return $this->customErrorView(
                 400,
@@ -125,6 +144,9 @@ class ClientMembershipOrderController extends PaymentController
         $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
 
         $charge = $this->payForOrder(
+            $token,
+            $smsId,
+            $smsCode,
             $orderNumber,
             $price,
             $channel,
