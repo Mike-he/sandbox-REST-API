@@ -370,12 +370,12 @@ class OrderRepository extends EntityRepository
             ->set('o.cancelledDate', $nowString)
             ->set('o.modificationDate', $nowString)
             ->where('o.status = \'unpaid\'')
-            ->andWhere('o.type != :preorder')
+            ->andWhere('(o.type != :preorder OR o.type is NULL)')
             ->andWhere('o.creationDate <= :start')
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
             ->setParameter('start', $start)
             ->getQuery();
-
+        
         $query->execute();
     }
 
