@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Food\FoodOrder;
 use Sandbox\ApiBundle\Entity\Food\FoodOrderPost;
 use Sandbox\ApiBundle\Entity\Food\FoodItem;
 use Sandbox\ApiBundle\Entity\Food\FoodItemOption;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Food\FoodOrderType;
 use Sandbox\ApiBundle\Form\Food\FoodItemType;
 use Sandbox\ApiBundle\Form\Food\FoodItemOptionType;
@@ -249,7 +250,9 @@ class ClientFoodOrderController extends PaymentController
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
             $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
             $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
+            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
+            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
         ) {
             throw new BadRequestHttpException(self::WRONG_CHANNEL_MESSAGE);
         }
@@ -272,6 +275,9 @@ class ClientFoodOrderController extends PaymentController
             );
         } else {
             $charge = $this->payForOrder(
+                '',
+                '',
+                '',
                 $orderNumber,
                 $totalPrice,
                 $channel,

@@ -214,12 +214,28 @@ class ClientPaymentController extends PaymentController
         Request $request
     ) {
         $serverId = $this->getGlobal('server_order_id');
-        $data = json_decode($request->getContent(), true);
-        $subject = $data['subject'];
-        $orderNo = $data['order_no']."$serverId";
-        $amount = $data['amount'];
-        $channel = $data['channel'];
+        $requestContent = json_decode($request->getContent(), true);
+        $subject = $requestContent['subject'];
+        $orderNo = $requestContent['order_no']."$serverId";
+        $amount = $requestContent['amount'];
+        $channel = $requestContent['channel'];
         $userId = $this->getUserId();
+        $token = '';
+        $smsId = '';
+        $smsCode = '';
+
+        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
+            $token = $requestContent['token_f'];
+
+            if (array_key_exists('sms_id', $requestContent) &&
+                array_key_exists('sms_code', $requestContent) &&
+                !empty($requestContent['sms_id']) &&
+                !empty($requestContent['sms_code'])
+            ) {
+                $smsId = $requestContent['sms_id'];
+                $smsCode = $requestContent['sms_code'];
+            }
+        }
 
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
@@ -227,7 +243,9 @@ class ClientPaymentController extends PaymentController
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
             $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
             $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
+            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
+            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
         ) {
             return $this->customErrorView(
                 400,
@@ -245,6 +263,9 @@ class ClientPaymentController extends PaymentController
         }
 
         $chargeJson = $this->payForOrder(
+            $token,
+            $smsId,
+            $smsCode,
             $orderNo,
             $amount,
             $channel,

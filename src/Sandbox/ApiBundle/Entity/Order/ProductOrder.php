@@ -24,6 +24,7 @@ class ProductOrder
     const CHANNEL_UNIONPAY = 'upacp';
     const CHANNEL_WECHAT = 'wx';
     const CHANNEL_FOREIGN_CREDIT = 'cnp_f';
+    const CHANNEL_UNION_CREDIT = 'cnp_u';
 
     const PRODUCT_MAP = 'product';
 

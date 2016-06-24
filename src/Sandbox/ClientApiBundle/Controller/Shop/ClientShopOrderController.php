@@ -4,8 +4,8 @@ namespace Sandbox\ClientApiBundle\Controller\Shop;
 
 use Sandbox\AdminShopApiBundle\Controller\ShopRestController;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
-use Sandbox\ApiBundle\Form\Shop\ShopOrderPayChannelType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -242,14 +242,24 @@ class ClientShopOrderController extends ShopRestController
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $form = $this->createForm(new ShopOrderPayChannelType(), $order);
-        $form->handleRequest($request);
+        $requestContent = json_decode($request->getContent(), true);
+        $channel = $requestContent['pay_channel'];
+        $token = '';
+        $smsId = '';
+        $smsCode = '';
 
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
+            $token = $requestContent['token_f'];
+
+            if (array_key_exists('sms_id', $requestContent) &&
+                array_key_exists('sms_code', $requestContent) &&
+                !empty($requestContent['sms_id']) &&
+                !empty($requestContent['sms_code'])
+            ) {
+                $smsId = $requestContent['sms_id'];
+                $smsCode = $requestContent['sms_code'];
+            }
         }
-
-        $channel = $order->getPayChannel();
 
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
@@ -257,7 +267,9 @@ class ClientShopOrderController extends ShopRestController
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
             $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
             $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
+            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
+            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
         ) {
             return $this->customErrorView(
                 400,
@@ -275,6 +287,9 @@ class ClientShopOrderController extends ShopRestController
         $orderNumber = $order->getOrderNumber();
 
         $charge = $this->payForOrder(
+            $token,
+            $smsId,
+            $smsCode,
             $orderNumber,
             $order->getPrice(),
             $channel,
