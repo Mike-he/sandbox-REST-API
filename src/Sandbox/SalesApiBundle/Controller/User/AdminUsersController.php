@@ -277,6 +277,7 @@ class AdminUsersController extends DoorController
             array(
                 SalesAdminPermission::KEY_BUILDING_USER,
                 SalesAdminPermission::KEY_BUILDING_ORDER,
+                SalesAdminPermission::KEY_PLATFORM_FINANCE,
             ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
