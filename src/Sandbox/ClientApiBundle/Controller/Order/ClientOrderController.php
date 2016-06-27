@@ -1040,7 +1040,7 @@ class ClientOrderController extends OrderController
             if (is_null($renewOrder) || empty($renewOrder)) {
                 $endDate = $order->getEndDate();
                 $days = $endDate->diff($now)->days;
-                if ($days > 7 && $now >= $startDate) {
+                if ($days >= 7 && $now >= $startDate) {
                     $renewButton = true;
                 }
             }
