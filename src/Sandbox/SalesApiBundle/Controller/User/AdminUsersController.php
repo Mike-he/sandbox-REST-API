@@ -319,6 +319,43 @@ class AdminUsersController extends DoorController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Route("/open/users")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenUsersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('id');
+
+        // check user permission
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_FINANCE,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_VIEW
+        );
+
+        return $this->getUsersByIds($ids);
+    }
+
+    /**
      * List definite id of user.
      *
      * @param Request $request

@@ -464,7 +464,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
             ->setParameter('start', $start)
             ->getQuery();
-        
+
         $query->execute();
     }
 
