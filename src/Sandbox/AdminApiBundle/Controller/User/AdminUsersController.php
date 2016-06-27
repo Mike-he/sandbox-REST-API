@@ -414,6 +414,7 @@ class AdminUsersController extends DoorController
             array(
                 AdminPermission::KEY_PLATFORM_USER,
                 AdminPermission::KEY_PLATFORM_ORDER,
+                AdminPermission::KEY_PLATFORM_FINANCE,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
