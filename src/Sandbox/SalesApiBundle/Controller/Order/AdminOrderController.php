@@ -137,18 +137,23 @@ class AdminOrderController extends OrderController
             $this->setDoorAccessForSingleOrder($order);
 
             // set invoice amount
-            if (ProductOrder::STATUS_COMPLETED == $order->getStatus()
-                && $price > 0
-                && $channel != ProductOrder::CHANNEL_ACCOUNT
-            ) {
-                $amount = $this->postConsumeBalance(
-                    $userId,
-                    $price,
-                    $order->getOrderNumber()
-                );
+            if ($order->getStartDate() <= $now) {
+                $order->setStatus(ProductOrder::STATUS_COMPLETED);
+                $order->setModificationDate($now);
 
-                if (!is_null($amount)) {
-                    $order->setInvoiced(true);
+                if ($price > 0 &&
+                    $channel != ProductOrder::CHANNEL_ACCOUNT &&
+                    !$order->isSalesInvoice()
+                ) {
+                    $amount = $this->postConsumeBalance(
+                        $userId,
+                        $price,
+                        $order->getOrderNumber()
+                    );
+
+                    if (!is_null($amount)) {
+                        $order->setInvoiced(true);
+                    }
                 }
             }
 

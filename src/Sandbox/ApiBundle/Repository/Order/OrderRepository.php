@@ -28,14 +28,11 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('o.id = :id')
-            ->andWhere('o.endDate > :now')
             ->andWhere('r.type = :type')
-            ->andWhere('(o.status = :paid) OR (o.status = :completed)')
+            ->andWhere('o.status = :paid')
             ->setParameter('id', $id)
-            ->setParameter('now', new \DateTime())
             ->setParameter('type', Room::TYPE_OFFICE)
             ->setParameter('paid', ProductOrder::STATUS_PAID)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->getQuery();
 
         return $query->getOneOrNullResult();
@@ -326,7 +323,9 @@ class OrderRepository extends EntityRepository
             ->select('o')
             ->where('o.status = \'paid\'')
             ->andWhere('o.startDate <= :now')
+            ->andWhere('o.rejected = :rejected')
             ->setParameter('now', $now)
+            ->setParameter('rejected', false)
             ->getQuery();
 
         return $query->getResult();
