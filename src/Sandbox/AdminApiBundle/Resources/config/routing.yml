@@ -184,6 +184,12 @@ sandbox_admin_api_sales_buildings:
     type:     annotation
     prefix:   /sales
 
+# SalesCompany /admin/sales/companies
+sandbox_admin_api_sales_companies:
+    resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesCompanyController.php"
+    type:     annotation
+    prefix:   /sales
+
 # ShopAdmin /admin/shop/admins
 sandbox_admin_api_shop_admins:
     resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminShopAdminsController.php"

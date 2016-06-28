@@ -41,6 +41,8 @@ product_order:
     upacp: 银联支付
     alipay: 支付宝支付
     account: 余额支付
+    cnp_u: 快捷支付(国内)
+    cnp_f: 快捷支付(国外)
   status:
     unpaid: 未付款
     paid: 已付款
@@ -67,6 +69,20 @@ product_order:
     email: 租赁人邮箱
     channel: 支付渠道
     order_type: 下单方式
+  push_message:
+    meeting_start: 您的会议室将在10分钟后开始使用
+    meeting_end: 您的会议室将在10分钟后到期
+    workspace_start: 您的工位将在明天开始使用
+    workspace_end: 您的工位将在明天到期
+    office_start: 您的办公室将在明天开始使用
+    office_end: 您的办公室将在七天后到期
+    office_reject: 抱歉，您申请的办公室没有通过审核，钱款将在1~3个工作日退回到您的支付账户下
+    office_order: 您的办公室已预定成功，使用前请先到前台登记
+    office_accept: 您申请的办公室已通过
+    appoint_first: 您已被授权进入"
+    appoint_second: ”房间了，你可以用Sandbox3的卡片开启该房间的门禁
+    appoint_cancel_first: 您在“
+    appoint_cancel_second: ”的授权已经被取消了
 
 shop_order:
   channel:
@@ -74,6 +90,8 @@ shop_order:
     upacp: 银联支付
     alipay: 支付宝支付
     account: 余额支付
+    cnp_u: 快捷支付(国内)
+    cnp_f: 快捷支付(国外)
   status:
     unpaid: 未付款
     paid: 待处理
@@ -96,6 +114,10 @@ shop_order:
     refund: 退款金额
     status: 订单状态
     channel: 支付渠道
+  push_message:
+      ready: 您的订单已完成, 请到前台领取
+      issue: 您的订单有问题, 请到前台与管理员沟通
+      refund: 您的订单已退款, 钱款将在5~10个工作日内退回到您的支付账户下
 
 user:
   hobby:
@@ -153,6 +175,29 @@ client:
     account_banned: 您的账户已经被冻结，如有疑问请联系客服：
     account_non_existent: 账户不存在
     wrong_password: 密码错误
+  menu:
+    order: 空间预定
+    coffee: 创合店铺
+    event: 创合活动
+    location: 寻找社区
+    community: 创合社区
+    blog: 创合博客
+    message: 创合消息
+    contact: 我的联系人
+    member: 创合会员
+    company: 创合企业
+    my_company: 我的企业
+    balance: 账户余额
+    my_order: 我的订单
+    my_room: 我的可用房间
+    notification: 通知
+    my_invoice: 我的发票
+    membership_card: 我的会员卡
+    reset_password: 重置密码
+    email: 绑定邮箱
+    phone: 绑定手机
+    about_us: 关于展想创合
+    setting: 设置
 
 event_order:
   status:
@@ -165,6 +210,8 @@ event_order:
     upacp: 银联支付
     alipay: 支付宝支付
     account: 余额支付
+    cnp_u: 快捷支付(国内)
+    cnp_f: 快捷支付(国外)
   export_header:
     order_number: 订单号
     event_name: 活动名称

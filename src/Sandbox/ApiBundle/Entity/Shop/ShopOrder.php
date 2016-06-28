@@ -24,13 +24,14 @@ class ShopOrder
     const LETTER_HEAD = 'S';
     const PAYMENT_SUBJECT = 'SANDBOX3-店铺订单';
     const PAYMENT_BODY = 'Shop Order';
-    const READY_NOTIFICATION = '您的订单已做好, 请到柜台领取';
-    const REFUNDED_NOTIFICATION = '您的订单已退款, 钱款将在5~10个工作日内退回到您的支付账户下';
-    const ISSUE_NOTIFICATION = '您的订单有问题, 请到柜台查看';
+    const READY_NOTIFICATION = 'shop_order.push_message.ready';
+    const REFUNDED_NOTIFICATION = 'shop_order.push_message.refund';
+    const ISSUE_NOTIFICATION = 'shop_order.push_message.issue';
     const PLATFORM_BACKEND = 'backend';
     const PLATFORM_KITCHEN = 'kitchen';
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
+    const CHANNEL_UNIONPAY = 'upacp';
     const SHOP_MAP = 'shop';
     const ENTITY_PATH = 'Shop\ShopOrder';
 
@@ -251,6 +252,14 @@ class ShopOrder
      * @Serializer\Groups({"main", "admin_shop", "client_order", "admin_detail"})
      */
     private $refundUrl;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="refundSSN", type="string", nullable=true)
+     * @Serializer\Groups({"main", "admin_shop", "admin_detail", "client_order"})
+     */
+    private $refundSSN;
 
     /**
      * Get id.
@@ -811,6 +820,30 @@ class ShopOrder
     public function getRefundUrl()
     {
         return $this->refundUrl;
+    }
+
+    /**
+     * Set refundSSN.
+     *
+     * @param string $refundSSN
+     *
+     * @return ShopOrder
+     */
+    public function setRefundSSN($refundSSN)
+    {
+        $this->refundSSN = $refundSSN;
+
+        return $this;
+    }
+
+    /**
+     * Get refundSSN.
+     *
+     * @return string
+     */
+    public function getRefundSSN()
+    {
+        return $this->refundSSN;
     }
 
     public function __construct()

@@ -22,6 +22,8 @@ use FOS\RestBundle\View\View;
 
 class ShopRestController extends PaymentController
 {
+    const SHOP_PERMISSION_PREFIX = 'shop.shop';
+
     //-------------------- Repo --------------------//
 
     /**
@@ -387,12 +389,15 @@ class ShopRestController extends PaymentController
                 continue;
             }
 
-            // judge by global permission and building permission
             $filters = array(
                 'adminId' => $adminId,
                 'permissionId' => $permission->getId(),
             );
-            if (!is_null($shopId)) {
+
+            $key = $permission->getKey();
+            $keyArray = explode(self::SHOP_PERMISSION_PREFIX, $key);
+            if (count($keyArray) > 1 && !is_null($shopId)) {
+                // judge by global permission and building permission
                 $filters['shopId'] = $shopId;
             }
 

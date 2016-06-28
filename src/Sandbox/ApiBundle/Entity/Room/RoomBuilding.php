@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
 /**
  * RoomBuilding.
@@ -283,6 +284,13 @@ class RoomBuilding implements JsonSerializable
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $companyId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
+     * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     **/
+    private $company;
 
     /**
      * @var string
@@ -820,6 +828,22 @@ class RoomBuilding implements JsonSerializable
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+    }
+
+    /**
+     * @return SalesCompany
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
+     * @param SalesCompany $company
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
     }
 
     /**

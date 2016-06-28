@@ -113,17 +113,13 @@ class AdminOrderController extends OrderController
                         self::ORDER_REFUND
                     );
 
+                    $order->setRefundProcessed(true);
                     $order->setRefundProcessedDate($now);
 
                     if (!is_null($balance)) {
                         $order->setRefunded(true);
+                        $order->setNeedToRefund(false);
                     }
-                } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
-                    $this->refundToPayChannel(
-                        $order,
-                        $price,
-                        ProductOrder::PRODUCT_MAP
-                    );
                 }
             }
 
@@ -141,18 +137,23 @@ class AdminOrderController extends OrderController
             $this->setDoorAccessForSingleOrder($order);
 
             // set invoice amount
-            if (ProductOrder::STATUS_COMPLETED == $order->getStatus()
-                && $price > 0
-                && $channel != ProductOrder::CHANNEL_ACCOUNT
-            ) {
-                $amount = $this->postConsumeBalance(
-                    $userId,
-                    $price,
-                    $order->getOrderNumber()
-                );
+            if ($order->getStartDate() <= $now) {
+                $order->setStatus(ProductOrder::STATUS_COMPLETED);
+                $order->setModificationDate($now);
 
-                if (!is_null($amount)) {
-                    $order->setInvoiced(true);
+                if ($price > 0 &&
+                    $channel != ProductOrder::CHANNEL_ACCOUNT &&
+                    !$order->isSalesInvoice()
+                ) {
+                    $amount = $this->postConsumeBalance(
+                        $userId,
+                        $price,
+                        $order->getOrderNumber()
+                    );
+
+                    if (!is_null($amount)) {
+                        $order->setInvoiced(true);
+                    }
                 }
             }
 
@@ -635,6 +636,7 @@ class AdminOrderController extends OrderController
             array(
                 SalesAdminPermission::KEY_BUILDING_ORDER,
                 SalesAdminPermission::KEY_BUILDING_USER,
+                SalesAdminPermission::KEY_PLATFORM_FINANCE,
             ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             $buildingId
@@ -873,17 +875,13 @@ class AdminOrderController extends OrderController
                         self::ORDER_REFUND
                     );
 
+                    $order->setRefundProcessed(true);
                     $order->setRefundProcessedDate($now);
 
                     if (!is_null($balance)) {
                         $order->setRefunded(true);
+                        $order->setNeedToRefund(false);
                     }
-                } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
-                    $this->refundToPayChannel(
-                        $order,
-                        $price,
-                        ProductOrder::PRODUCT_MAP
-                    );
                 }
             }
 

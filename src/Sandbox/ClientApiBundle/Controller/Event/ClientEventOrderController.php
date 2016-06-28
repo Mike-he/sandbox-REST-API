@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -311,6 +312,22 @@ class ClientEventOrderController extends PaymentController
 
         $requestContent = json_decode($request->getContent(), true);
         $channel = $requestContent['channel'];
+        $token = '';
+        $smsId = '';
+        $smsCode = '';
+
+        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
+            $token = $requestContent['token_f'];
+
+            if (array_key_exists('sms_id', $requestContent) &&
+                array_key_exists('sms_code', $requestContent) &&
+                !empty($requestContent['sms_id']) &&
+                !empty($requestContent['sms_code'])
+            ) {
+                $smsId = $requestContent['sms_id'];
+                $smsCode = $requestContent['sms_code'];
+            }
+        }
 
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
@@ -318,7 +335,9 @@ class ClientEventOrderController extends PaymentController
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
             $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
             $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
+            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
+            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
         ) {
             return $this->customErrorView(
                 400,
@@ -336,6 +355,9 @@ class ClientEventOrderController extends PaymentController
 
         $orderNumber = $order->getOrderNumber();
         $charge = $this->payForOrder(
+            $token,
+            $smsId,
+            $smsCode,
             $orderNumber,
             $order->getPrice(),
             $channel,

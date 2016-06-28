@@ -277,6 +277,7 @@ class AdminUsersController extends DoorController
             array(
                 SalesAdminPermission::KEY_BUILDING_USER,
                 SalesAdminPermission::KEY_BUILDING_ORDER,
+                SalesAdminPermission::KEY_PLATFORM_FINANCE,
             ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
@@ -315,6 +316,43 @@ class AdminUsersController extends DoorController
             // ids is not null
             return $this->getUsersByIds($validIds);
         }
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Route("/open/users")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenUsersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('id');
+
+        // check user permission
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_FINANCE,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_VIEW
+        );
+
+        return $this->getUsersByIds($ids);
     }
 
     /**

@@ -4,12 +4,14 @@ namespace Sandbox\AdminApiBundle\Controller\Product;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Form\Product\ProductPatchType;
 use Sandbox\ApiBundle\Form\Product\ProductType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -51,7 +53,6 @@ class AdminProductController extends ProductController
      *     200 = "Returned when successful"
      *  }
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="type",
@@ -138,6 +139,15 @@ class AdminProductController extends ProductController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by sales company id"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -159,6 +169,7 @@ class AdminProductController extends ProductController
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
         $visible = $paramFetcher->get('visible');
+        $companyId = $paramFetcher->get('company');
 
         // sort by
         $sortBy = $paramFetcher->get('sortBy');
@@ -177,7 +188,9 @@ class AdminProductController extends ProductController
             $visible,
             $sortBy,
             $direction,
-            $search
+            $search,
+            false,
+            $companyId
         );
 
         $paginator = new Paginator();
@@ -408,6 +421,53 @@ class AdminProductController extends ProductController
         );
 
         return new View($response);
+    }
+
+    /**
+     * patch a product.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     201 = "Returned when successful created"
+     *  }
+     * )
+     *
+     * @Route("/products/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchProductAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $product = $this->getRepo('Product\Product')->find(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $productJson = $this->get('serializer')->serialize($product, 'json');
+        $patch = new Patch($productJson, $request->getContent());
+        $productJson = $patch->apply();
+
+        $form = $this->createForm(new ProductPatchType(), $product);
+        $form->submit(json_decode($productJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**

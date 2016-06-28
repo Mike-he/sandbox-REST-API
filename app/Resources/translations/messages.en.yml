@@ -41,6 +41,8 @@ product_order:
     upacp: UnionPay
     alipay: Alipay
     account: Balance
+    cnp_u: Domestic Quick Pay
+    cnp_f: International Quick Pay
   status:
     unpaid: Unpaid
     paid: Paid
@@ -67,6 +69,20 @@ product_order:
     email: Renter Email
     channel: Payment Channel
     order_type: Order Type
+  push_message:
+    meeting_start: Your meeting room will start in 10 minutes
+    meeting_end: Your meeting room will end in 10 minutes
+    workspace_start: Your workspace will start tomorrow
+    workspace_end: Your workspace will end tomorrow
+    office_start: Your office will start tomorrow
+    office_end: Your office will end in 7 days
+    office_reject: Your office reservation has been rejected, amount paid will refund back to your payment account in 5~10 working days
+    office_order: Your office reservation has been received，please check in at the front desk
+    office_accept: Your office reservation has been accepted
+    appoint_first: You has been authorized to use“
+    appoint_second: ”，you can use Sandbox3 card to open the room
+    appoint_cancel_first: Your authorization for “
+    appoint_cancel_second: ” has been removed
 
 shop_order:
   channel:
@@ -74,6 +90,8 @@ shop_order:
     upacp: UnionPay
     alipay: Alipay
     account: Balance
+    cnp_u: Domestic Quick Pay
+    cnp_f: International Quick Pay
   status:
     unpaid: Unpaid
     paid: Paid
@@ -96,6 +114,11 @@ shop_order:
     refund: Refund
     status: Status
     channel: Payment Channel
+  push_message:
+    ready: Your order is ready, please pick up at the counter
+    issue: There is an issue with your order, please contact staff at the counter
+    refund: Your order has been cancelled, amount paid will refund back to your payment account in 5~10 working days
+
 
 user:
   hobby:
@@ -153,6 +176,29 @@ client:
     account_banned: Your account is banned, please contact customer service:
     account_non_existent: Account does not exist
     wrong_password: Wrong password
+  menu:
+    order: Reservation
+    coffee: Coffee
+    event: Events
+    location: Location
+    community: Community
+    blog: Blogs
+    message: Messages
+    contact: Contacts
+    member: Members
+    company: Companies
+    my_company: My Company
+    balance: Balance
+    my_order: My Orders
+    my_room: My Rooms
+    notification: Notification
+    my_invoice: My Invoice
+    membership_card: Membership Card
+    reset_password: Reset Password
+    email: Email
+    phone: Phone
+    about_us: About Us
+    setting: Settings
 
 event_order:
   status:
@@ -165,6 +211,8 @@ event_order:
     upacp: UnionPay
     alipay: Alipay
     account: Balance
+    cnp_u: Domestic Quick Pay
+    cnp_f: International Quick Pay
   export_header:
     order_number: Order Number
     event_name: Event Name

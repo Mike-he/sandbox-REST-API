@@ -62,40 +62,64 @@ trait ShopNotification
             array('jid' => $recvUser->getXmppUsername().'@'.$domainURL),
         );
 
+        $jid = User::XMPP_SERVICE.'@'.$domainURL;
+
+        $key = null;
+        if ($action == ShopOrder::STATUS_READY) {
+            $key = ShopOrder::READY_NOTIFICATION;
+        } elseif ($action == ShopOrder::STATUS_ISSUE) {
+            $key = ShopOrder::ISSUE_NOTIFICATION;
+        } elseif ($action == ShopOrder::STATUS_REFUNDED) {
+            $key = ShopOrder::REFUNDED_NOTIFICATION;
+        }
+
+        if (is_null($key)) {
+            return;
+        }
+
+        $zhBody = $this->getContainer()->get('translator')->trans(
+            $key,
+            array(),
+            null,
+            'zh'
+        );
+
+        $enBody = $this->getContainer()->get('translator')->trans(
+            $key,
+            array(),
+            null,
+            'en'
+        );
+
+        $messageArray = null;
+        if (!is_null($zhBody)) {
+            $messageArray = array(
+                'type' => 'chat',
+                'from' => $jid,
+                'body' => $zhBody,
+            );
+        }
+
+        $apns = $this->setApnsJsonDataArray($zhBody, $enBody);
+
         // get content array
         $contentArray = $this->getDefaultContentArray(
-            'shop', $action
+            'shop',
+            $action,
+            null,
+            $apns
         );
 
         $contentArray['order'] = array(
             'id' => $orderId,
-            'order_no' => $orderNo,
+            'order_number' => $orderNo,
         );
-
-        $jid = User::XMPP_SERVICE.'@'.$domainURL;
-
-        $body = null;
-        if ($action == ShopOrder::STATUS_READY) {
-            $body = ShopOrder::READY_NOTIFICATION;
-        } elseif ($action == ShopOrder::STATUS_ISSUE) {
-            $body = ShopOrder::ISSUE_NOTIFICATION;
-        } elseif ($action == ShopOrder::STATUS_REFUNDED) {
-            $body = ShopOrder::REFUNDED_NOTIFICATION;
-        }
-
-        $messageArray = null;
-        if (!is_null($body)) {
-            $messageArray = array(
-                'type' => 'chat',
-                'from' => $jid,
-                'body' => $body,
-            );
-        }
 
         $data = $this->getNotificationJsonData(
             $receiversArray,
             $contentArray,
-            $messageArray
+            $messageArray,
+            $apns
         );
 
         return json_encode(array($data));

@@ -11,6 +11,8 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 
 class SalesRestController extends SandboxRestController
 {
+    const SALES_BUILDING_PERMISSION_PREFIX = 'sales.building';
+
     //-------------------- check sales admin permission --------------------//
 
     /**
@@ -58,12 +60,15 @@ class SalesRestController extends SandboxRestController
                 continue;
             }
 
-            // judge by global permission and building permission
             $filters = array(
                 'adminId' => $adminId,
                 'permissionId' => $permission->getId(),
             );
-            if (!is_null($buildingId)) {
+
+            $key = $permission->getKey();
+            $keyArray = explode(self::SALES_BUILDING_PERMISSION_PREFIX, $key);
+            if (count($keyArray) > 1 && !is_null($buildingId)) {
+                // judge by global permission and building permission
                 $filters['buildingId'] = $buildingId;
             }
 

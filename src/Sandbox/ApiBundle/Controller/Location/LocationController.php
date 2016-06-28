@@ -66,6 +66,14 @@ class LocationController extends SalesRestController
      *    description="tag of all"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sales_company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="id of sales admin"
+     * )
+     *
      * @return View
      */
     public function getCitiesAction(
@@ -76,9 +84,16 @@ class LocationController extends SalesRestController
 
         $all = $paramFetcher->get('all');
         $permissionArray = $paramFetcher->get('permission');
+        $salesCompanyId = $paramFetcher->get('sales_company');
 
-        // get all cities
-        $cities = $this->getRepo('Room\RoomCity')->findAll();
+        // filter by sales admin
+        $cities = null;
+        if (!is_null($salesCompanyId)) {
+            $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($salesCompanyId);
+        } else {
+            // get all cities
+            $cities = $this->getRepo('Room\RoomCity')->findAll();
+        }
 
         if (!is_null($user) && is_null($all)) {
             // sales bundle
@@ -172,6 +187,14 @@ class LocationController extends SalesRestController
      *    description="platform"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sales_company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="id of sales admin"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -187,6 +210,7 @@ class LocationController extends SalesRestController
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
         $platform = $paramFetcher->get('platform');
+        $salesCompanyId = $paramFetcher->get('sales_company');
 
         $visible = true;
         if (RoomBuilding::PLATFORM_SALES_USER_BUILDING == $platform) {
@@ -197,7 +221,7 @@ class LocationController extends SalesRestController
         $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
             $cityId,
             $ids,
-            null,
+            $salesCompanyId,
             RoomBuilding::STATUS_ACCEPT,
             $visible
         );
@@ -609,6 +633,10 @@ class LocationController extends SalesRestController
     protected function generateCitiesArray(
         $cities
     ) {
+        if (is_null($cities) || empty($cities)) {
+            return array();
+        }
+
         $citiesArray = array();
         foreach ($cities as $city) {
             $name = $city->getName();

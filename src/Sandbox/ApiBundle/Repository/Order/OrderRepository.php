@@ -28,14 +28,11 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('o.id = :id')
-            ->andWhere('o.endDate > :now')
             ->andWhere('r.type = :type')
-            ->andWhere('(o.status = :paid) OR (o.status = :completed)')
+            ->andWhere('o.status = :paid')
             ->setParameter('id', $id)
-            ->setParameter('now', new \DateTime())
             ->setParameter('type', Room::TYPE_OFFICE)
             ->setParameter('paid', ProductOrder::STATUS_PAID)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->getQuery();
 
         return $query->getOneOrNullResult();
@@ -326,7 +323,9 @@ class OrderRepository extends EntityRepository
             ->select('o')
             ->where('o.status = \'paid\'')
             ->andWhere('o.startDate <= :now')
+            ->andWhere('o.rejected = :rejected')
             ->setParameter('now', $now)
+            ->setParameter('rejected', false)
             ->getQuery();
 
         return $query->getResult();
@@ -344,13 +343,102 @@ class OrderRepository extends EntityRepository
             ->andWhere('o.payChannel != :account')
             ->andWhere('o.rejected = :rejected')
             ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('invoiced', false)
             ->setParameter('rejected', false)
+            ->setParameter('salesInvoice', false)
             ->setParameter('price', 0)
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    /**
+     * get orders that need to set invoice.
+     */
+    public function getInvoiceOrdersForApp(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->orderBy('b.companyId', 'ASC')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('userId', $userId)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * get order that need to set invoice.
+     */
+    public function getInvoiceOrdersForInvoiced(
+        $id,
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->andWhere('o.id = :id')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('userId', $userId)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0)
+            ->setParameter('id', $id)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
+
+    /**
+     * get order invoice amount.
+     */
+    public function getInvoiceOrdersAmount(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('SUM(o.discountPrice)')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('userId', $userId)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0)
+            ->getQuery();
+
+        return $query->getSingleScalarResult();
     }
 
     /**
@@ -375,7 +463,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
             ->setParameter('start', $start)
             ->getQuery();
-        
+
         $query->execute();
     }
 

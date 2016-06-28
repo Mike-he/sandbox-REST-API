@@ -92,6 +92,12 @@ class PaymentController extends DoorController
     const FOOD_OPTION_DOES_NOT_EXIST_MESSAGE = 'This Option Does Not Exist';
     const PRICE_RULE_DOES_NOT_EXIST_CODE = 400027;
     const PRICE_RULE_DOES_NOT_EXIST_MESSAGE = 'This price rule doees not exist';
+    const WRONG_REFUND_AMOUNT_CODE = 400028;
+    const WRONG_REFUND_AMOUNT_MESSAGE = 'Refund Amount Can Not Exceed Paid Amount';
+    const REFUND_AMOUNT_NOT_FOUND_CODE = 400029;
+    const REFUND_AMOUNT_NOT_FOUND_MESSAGE = 'Refund Amount Does Not Exist';
+    const REFUND_SSN_NOT_FOUND_CODE = 400030;
+    const REFUND_SSN_NOT_FOUND_MESSAGE = 'Refund SSN Does Not Exist';
     const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';
@@ -99,6 +105,38 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    /**
+     * @param $channel
+     *
+     * @return int
+     */
+    protected function getRefundFeeMultiplier(
+        $channel
+    ) {
+        $globals = $this->getGlobals();
+        $multiplier = 0;
+
+        switch ($channel) {
+            case ProductOrder::CHANNEL_ACCOUNT:
+                $multiplier = $globals['account_refund_fee_multiplier'];
+                break;
+            case ProductOrder::CHANNEL_ALIPAY:
+                $multiplier = $globals['alipay_refund_fee_multiplier'];
+                break;
+            case ProductOrder::CHANNEL_UNIONPAY:
+                $multiplier = $globals['union_refund_fee_multiplier'];
+                break;
+            case ProductOrder::CHANNEL_WECHAT:
+                $multiplier = $globals['wechat_refund_fee_multiplier'];
+                break;
+            case ProductOrder::CHANNEL_FOREIGN_CREDIT:
+                $multiplier = $globals['foreign_credit_refund_fee_multiplier'];
+                break;
+        }
+
+        return $multiplier;
+    }
 
     /**
      * @param object $order
@@ -234,6 +272,10 @@ class PaymentController extends DoorController
                 $link = $this->getRefundLink($refund);
                 $order->setRefundUrl($link);
             }
+        } elseif (ProductOrder::CHANNEL_UNIONPAY == $channel) {
+            $order->setRefundProcessed(true);
+            $order->setRefundProcessedDate(new \DateTime());
+            $order->setModificationDate(new \DateTime());
         } else {
             if (!$order->isRefundProcessed()) {
                 $this->refundToPayChannel(
@@ -324,12 +366,21 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $order
+     * @param $token
+     * @param $smsId
+     * @param $smsCode
+     * @param $orderNumber
+     * @param $price
      * @param $channel
+     * @param $subject
+     * @param $body
      *
      * @return Charge
      */
     public function payForOrder(
+        $token,
+        $smsId,
+        $smsCode,
         $orderNumber,
         $price,
         $channel,
@@ -348,6 +399,20 @@ class PaymentController extends DoorController
                 $extra = array(
                     'result_url' => 'http://www.yourdomain.com/result?code=',
                 );
+                break;
+            case ProductOrder::CHANNEL_FOREIGN_CREDIT:
+                $extra = array(
+                    'source' => $token,
+                );
+
+                break;
+            case ProductOrder::CHANNEL_UNION_CREDIT:
+                $extra = array(
+                    'source' => $token,
+                    'sms_code[id]' => $smsId,
+                    'sms_code[code]' => $smsCode,
+                );
+
                 break;
         }
 

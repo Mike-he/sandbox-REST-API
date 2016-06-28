@@ -192,6 +192,15 @@ class Product
     private $room;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="salesInvoice", type="boolean")
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $salesInvoice = false;
+
+    /**
      * Get id.
      *
      * @return int
@@ -412,7 +421,7 @@ class Product
      */
     public function isRecommend()
     {
-        return $this->$recommend;
+        return $this->recommend;
     }
 
     /**
@@ -597,5 +606,29 @@ class Product
     public function getVisible()
     {
         return $this->visible;
+    }
+
+    /**
+     * Set salesInvoice.
+     *
+     * @param bool $salesInvoice
+     *
+     * @return Product
+     */
+    public function setSalesInvoice($salesInvoice)
+    {
+        $this->salesInvoice = $salesInvoice;
+
+        return $this;
+    }
+
+    /**
+     * Get salesInvoice.
+     *
+     * @return bool
+     */
+    public function isSalesInvoice()
+    {
+        return $this->salesInvoice;
     }
 }

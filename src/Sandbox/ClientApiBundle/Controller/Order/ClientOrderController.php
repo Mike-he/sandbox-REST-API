@@ -114,6 +114,110 @@ class ClientOrderController extends OrderController
     }
 
     /**
+     * Get sales invoice orders amount.
+     *
+     * @Get("/orders/my/sales/invoice/amount")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getUserSalesInvoiceAmountAction(
+        Request $request
+    ) {
+        $userId = $this->getUserId();
+
+        $amount = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersAmount($userId);
+
+        if (is_null($amount)) {
+            $amount = 0;
+        }
+
+        return new View(['amount' => (float) $amount]);
+    }
+
+    /**
+     * Get sales invoice orders for current user.
+     *
+     * @Get("/orders/my/sales/invoice")
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getUserSalesInvoiceOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $orders = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersForApp(
+            $userId,
+            $limit,
+            $offset
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
+     * post sales invoice order.
+     *
+     * @Post("/orders/{id}/sales/invoice")
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return View
+     */
+    public function postUserOrderInvoicedAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersForInvoiced(
+            $id,
+            $userId
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $order->setInvoiced(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * Get user's current available rooms.
      *
      * @Get("/orders/current")
@@ -332,6 +436,10 @@ class ClientOrderController extends OrderController
                 $order->setRejected(true);
             }
 
+            if ($product->isSalesInvoice()) {
+                $order->setSalesInvoice(true);
+            }
+
             $em->persist($order);
 
             // store order record
@@ -465,6 +573,22 @@ class ClientOrderController extends OrderController
         }
         $requestContent = json_decode($request->getContent(), true);
         $channel = $requestContent['channel'];
+        $token = '';
+        $smsId = '';
+        $smsCode = '';
+
+        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
+            $token = $requestContent['token_f'];
+
+            if (array_key_exists('sms_id', $requestContent) &&
+                array_key_exists('sms_code', $requestContent) &&
+                !empty($requestContent['sms_id']) &&
+                !empty($requestContent['sms_code'])
+            ) {
+                $smsId = $requestContent['sms_id'];
+                $smsCode = $requestContent['sms_code'];
+            }
+        }
 
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
@@ -472,7 +596,9 @@ class ClientOrderController extends OrderController
             $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
             $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
             $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY
+            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
+            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
+            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
         ) {
             return $this->customErrorView(
                 400,
@@ -490,6 +616,9 @@ class ClientOrderController extends OrderController
 
         $orderNumber = $order->getOrderNumber();
         $charge = $this->payForOrder(
+            $token,
+            $smsId,
+            $smsCode,
             $orderNumber,
             $order->getDiscountPrice(),
             $channel,
@@ -558,17 +687,13 @@ class ClientOrderController extends OrderController
                     self::ORDER_REFUND
                 );
 
+                $order->setRefundProcessed(true);
                 $order->setRefundProcessedDate($now);
 
                 if (!is_null($balance)) {
                     $order->setRefunded(true);
+                    $order->setNeedToRefund(false);
                 }
-            } elseif (ProductOrder::CHANNEL_ALIPAY != $channel) {
-                $this->refundToPayChannel(
-                    $order,
-                    $price,
-                    ProductOrder::PRODUCT_MAP
-                );
             }
         }
 
@@ -915,18 +1040,18 @@ class ClientOrderController extends OrderController
             if (is_null($renewOrder) || empty($renewOrder)) {
                 $endDate = $order->getEndDate();
                 $days = $endDate->diff($now)->days;
-                if ($days > 7 && $now >= $startDate) {
+                if ($days >= 7 && $now >= $startDate) {
                     $renewButton = true;
                 }
             }
         }
 
-        if ($status == ProductOrder::STATUS_PAID && $now >= $startDate) {
+        if ($status == ProductOrder::STATUS_PAID && $now >= $startDate && !$order->isRejected()) {
             $this->setProductOrderStatusCompleted($order);
 
             if ($order->getDiscountPrice() > 0
                 && ProductOrder::CHANNEL_ACCOUNT != $order->getPayChannel()
-                && !$order->isRejected()
+                && !$order->isSalesInvoice()
             ) {
                 $this->setProductOrderInvoice($order);
             }
