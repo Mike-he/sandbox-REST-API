@@ -84,7 +84,7 @@ class LocationController extends SalesRestController
 
         $all = $paramFetcher->get('all');
         $permissionArray = $paramFetcher->get('permission');
-        $salesCompanyId = $paramFetcher->get('sales_admin');
+        $salesCompanyId = $paramFetcher->get('sales_company');
 
         // filter by sales admin
         $cities = null;
