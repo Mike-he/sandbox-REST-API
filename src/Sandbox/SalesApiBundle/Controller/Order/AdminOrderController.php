@@ -559,6 +559,26 @@ class AdminOrderController extends OrderController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="orderStartPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order start point. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderEndPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order end point. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders/export")
      * @Method({"GET"})
      *
@@ -591,6 +611,8 @@ class AdminOrderController extends OrderController
         $endDate = $paramFetcher->get('endDate');
         $payStart = $paramFetcher->get('payStart');
         $payEnd = $paramFetcher->get('payEnd');
+        $orderStartPoint = $paramFetcher->get('orderStartPoint');
+        $orderEndPoint = $paramFetcher->get('orderEndPoint');
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -608,18 +630,22 @@ class AdminOrderController extends OrderController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         //get array of orders
-        $orders = $this->getRepo('Order\ProductOrder')->getSalesOrdersToExport(
-            $channel,
-            $type,
-            $city,
-            $building,
-            $userId,
-            $startDate,
-            $endDate,
-            $payStart,
-            $payEnd,
-            $myBuildingIds
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getSalesOrdersToExport(
+                $channel,
+                $type,
+                $city,
+                $building,
+                $userId,
+                $startDate,
+                $endDate,
+                $payStart,
+                $payEnd,
+                $myBuildingIds,
+                $orderStartPoint,
+                $orderEndPoint
+            );
 
         return $this->getProductOrderExport($orders, $language);
     }
