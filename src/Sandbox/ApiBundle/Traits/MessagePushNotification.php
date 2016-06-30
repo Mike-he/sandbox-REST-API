@@ -41,7 +41,7 @@ trait MessagePushNotification
             $jsonData = json_encode(array($data));
 
             // send xmpp notification
-            $this->sendXmppNotification($jsonData, false);
+            $this->sendXmppNotification($jsonData, true);
         } catch (Exception $e) {
             error_log('Send message notification went wrong!');
         }
