@@ -151,7 +151,7 @@ class ProductOrder
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $invitedPeople;
 
