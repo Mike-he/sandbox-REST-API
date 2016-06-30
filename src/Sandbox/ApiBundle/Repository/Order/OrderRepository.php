@@ -845,7 +845,9 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $payStart,
-        $payEnd
+        $payEnd,
+        $orderStartPoint,
+        $orderEndPoint
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
@@ -902,19 +904,35 @@ class OrderRepository extends EntityRepository
             $parameters['endDate'] = $endDate;
         }
 
-        //filter by payStart
+        // filter by payStart
         if (!is_null($payStart)) {
             $payStart = new \DateTime($payStart);
             $query->andWhere('o.creationDate >= :payStart');
             $parameters['payStart'] = $payStart;
         }
 
-        //filter by payEnd
+        // filter by payEnd
         if (!is_null($payEnd)) {
             $payEnd = new \DateTime($payEnd);
             $payEnd->setTime(23, 59, 59);
             $query->andWhere('o.creationDate <= :payEnd');
             $parameters['payEnd'] = $payEnd;
+        }
+
+        // filter by order start point
+        if (!is_null($orderStartPoint)) {
+            $orderStartPoint = new \DateTime($orderStartPoint);
+            $orderStartPoint->setTime(00, 00, 00);
+            $query->andWhere('o.startDate >= :orderStartPoint');
+            $parameters['orderStartPoint'] = $orderStartPoint;
+
+            // filter by order end point
+            if (!is_null($orderEndPoint)) {
+                $orderEndPoint = new \DateTime($orderEndPoint);
+                $orderEndPoint->setTime(23, 59, 59);
+                $query->andWhere('o.startDate <= :orderEndPoint');
+                $parameters['orderEndPoint'] = $orderEndPoint;
+            }
         }
 
         $query->orderBy('o.creationDate', 'DESC');
@@ -1084,6 +1102,8 @@ class OrderRepository extends EntityRepository
      * @param          $payStart
      * @param          $payEnd
      * @param array    $myBuildingIds
+     * @param DateTime $orderStartPoint
+     * @param DateTime $orderEndPoint
      *
      * @return array
      */
@@ -1097,7 +1117,9 @@ class OrderRepository extends EntityRepository
         $endDate,
         $payStart,
         $payEnd,
-        $myBuildingIds
+        $myBuildingIds,
+        $orderStartPoint,
+        $orderEndPoint
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
@@ -1157,19 +1179,35 @@ class OrderRepository extends EntityRepository
             $parameters['endDate'] = $endDate;
         }
 
-        //filter by payStart
+        // filter by payStart
         if (!is_null($payStart)) {
             $payStart = new \DateTime($payStart);
             $query->andWhere('o.creationDate >= :payStart');
             $parameters['payStart'] = $payStart;
         }
 
-        //filter by payEnd
+        // filter by payEnd
         if (!is_null($payEnd)) {
             $payEnd = new \DateTime($payEnd);
             $payEnd->setTime(23, 59, 59);
             $query->andWhere('o.creationDate <= :payEnd');
             $parameters['payEnd'] = $payEnd;
+        }
+
+        // filter by order start point
+        if (!is_null($orderStartPoint)) {
+            $orderStartPoint = new \DateTime($orderStartPoint);
+            $orderStartPoint->setTime(00, 00, 00);
+            $query->andWhere('o.startDate >= :orderStartPoint');
+            $parameters['orderStartPoint'] = $orderStartPoint;
+
+            // filter by order end point
+            if (!is_null($orderEndPoint)) {
+                $orderEndPoint = new \DateTime($orderEndPoint);
+                $orderEndPoint->setTime(23, 59, 59);
+                $query->andWhere('o.startDate <= :orderEndPoint');
+                $parameters['orderEndPoint'] = $orderEndPoint;
+            }
         }
 
         $query->orderBy('o.creationDate', 'DESC');
