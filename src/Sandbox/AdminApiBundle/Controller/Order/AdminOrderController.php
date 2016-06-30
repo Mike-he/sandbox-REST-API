@@ -532,7 +532,7 @@ class AdminOrderController extends OrderController
      *    nullable=true,
      *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="filter for order ned point. Must be YYYY-mm-dd"
+     *    description="filter for order end point. Must be YYYY-mm-dd"
      * )
      *
      * @Route("/orders")
