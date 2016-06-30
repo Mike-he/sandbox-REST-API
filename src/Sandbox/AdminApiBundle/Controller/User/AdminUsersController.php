@@ -297,18 +297,20 @@ class AdminUsersController extends DoorController
                 $direction
             );
 
-        return new View($results);
-
         // set authorized building
         $response = array();
         foreach ($results as $user) {
-            $salesUser = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')->findOneBy(array(
-                'userId' => $user->getId(),
-                'isAuthorized' => true,
-            ));
+            $salesUser = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')
+                ->findOneBy(array(
+                    'userId' => $user->getId(),
+                    'isAuthorized' => true,
+                ));
 
             if (!is_null($salesUser)) {
-                $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($salesUser->getBuildingId());
+                $building = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($salesUser->getBuildingId());
 
                 if (!is_null($building)) {
                     $user->setBuilding($building->getName());
