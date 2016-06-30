@@ -287,13 +287,17 @@ class AdminUsersController extends DoorController
 //
 //        $paginator = $this->get('knp_paginator');
 
-        $results = $this->getRepo('User\UserView')->searchUser(
-            $banned,
-            $authorized,
-            $query,
-            $sortBy,
-            $direction
-        );
+        $results = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->searchUser(
+                $banned,
+                $authorized,
+                $query,
+                $sortBy,
+                $direction
+            );
+
+        return new View($results);
 
         // set authorized building
         $response = array();

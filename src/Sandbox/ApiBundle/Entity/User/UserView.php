@@ -106,6 +106,14 @@ class UserView
     private $authorizedAdminUsername;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="userRegistrationDate", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $userRegistrationDate;
+
+    /**
      * @var array
      */
     private $building;
@@ -226,6 +234,22 @@ class UserView
     public function setAuthorizedAdminUsername($authorizedAdminUsername)
     {
         $this->authorizedAdminUsername = $authorizedAdminUsername;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserRegistrationDate()
+    {
+        return $this->userRegistrationDate;
+    }
+
+    /**
+     * @param string $userRegistrationDate
+     */
+    public function setUserRegistrationDate($userRegistrationDate)
+    {
+        $this->userRegistrationDate = $userRegistrationDate;
     }
 
     /**
