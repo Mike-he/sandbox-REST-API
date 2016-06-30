@@ -10,7 +10,8 @@ SELECT
        u.authorizedPlatform,
        u.authorizedAdminUsername,
        up.name,
-	     up.gender
+	     up.gender,
+	     u.creationDate as userRegistrationDate
 FROM User u
 LEFT JOIN UserProfile up ON u.id = up.userId
 ;
