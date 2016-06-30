@@ -692,7 +692,11 @@ class OrderRepository extends EntityRepository
      * @param int          $userId
      * @param DateTime     $startDate
      * @param DateTime     $endDate
+     * @param DateTime     $payStart
+     * @param DateTime     $payEnd
      * @param string       $search
+     * @param DateTime     $orderStartPoint
+     * @param DateTime     $orderEndPoint
      *
      * @return array
      */
@@ -706,7 +710,9 @@ class OrderRepository extends EntityRepository
         $endDate,
         $payStart,
         $payEnd,
-        $search
+        $search,
+        $orderStartPoint,
+        $orderEndPoint
     ) {
         $parameters = [];
 
@@ -786,6 +792,22 @@ class OrderRepository extends EntityRepository
         if (!is_null($search)) {
             $query->andWhere('(o.orderNumber LIKE :search OR up.name LIKE :search)');
             $parameters['search'] = "%$search%";
+        }
+
+        // filter by order start point
+        if (!is_null($orderStartPoint)) {
+            $orderStartPoint = new \DateTime($orderStartPoint);
+            $orderStartPoint->setTime(00, 00, 00);
+            $query->andWhere('o.startDate >= :orderStartPoint');
+            $parameters['orderStartPoint'] = $orderStartPoint;
+
+            // filter by order end point
+            if (!is_null($orderEndPoint)) {
+                $orderEndPoint = new \DateTime($orderEndPoint);
+                $orderEndPoint->setTime(23, 59, 59);
+                $query->andWhere('o.startDate <= :orderEndPoint');
+                $parameters['orderEndPoint'] = $orderEndPoint;
+            }
         }
 
         //order by
@@ -919,6 +941,8 @@ class OrderRepository extends EntityRepository
      * @param              $payEnd
      * @param string       $search
      * @param array        $myBuildingIds
+     * @param DateTime     $orderStartPoint
+     * @param DateTime     $orderEndPoint
      *
      * @return array
      */
@@ -933,7 +957,9 @@ class OrderRepository extends EntityRepository
         $payStart,
         $payEnd,
         $search,
-        $myBuildingIds
+        $myBuildingIds,
+        $orderStartPoint,
+        $orderEndPoint
     ) {
         $parameters = [];
 
@@ -1016,6 +1042,22 @@ class OrderRepository extends EntityRepository
         if (!is_null($search)) {
             $query->andWhere('(o.orderNumber LIKE :search OR up.name LIKE :search)');
             $parameters['search'] = "%$search%";
+        }
+
+        // filter by order start point
+        if (!is_null($orderStartPoint)) {
+            $orderStartPoint = new \DateTime($orderStartPoint);
+            $orderStartPoint->setTime(00, 00, 00);
+            $query->andWhere('o.startDate >= :orderStartPoint');
+            $parameters['orderStartPoint'] = $orderStartPoint;
+
+            // filter by order end point
+            if (!is_null($orderEndPoint)) {
+                $orderEndPoint = new \DateTime($orderEndPoint);
+                $orderEndPoint->setTime(23, 59, 59);
+                $query->andWhere('o.startDate <= :orderEndPoint');
+                $parameters['orderEndPoint'] = $orderEndPoint;
+            }
         }
 
         //order by
