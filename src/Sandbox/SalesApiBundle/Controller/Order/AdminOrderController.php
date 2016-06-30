@@ -348,6 +348,26 @@ class AdminOrderController extends OrderController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="orderStartPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order start point. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderEndPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order ned point. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -388,6 +408,8 @@ class AdminOrderController extends OrderController
         $endDate = $paramFetcher->get('endDate');
         $payStart = $paramFetcher->get('payStart');
         $payEnd = $paramFetcher->get('payEnd');
+        $orderStartPoint = $paramFetcher->get('orderStartPoint');
+        $orderEndPoint = $paramFetcher->get('orderEndPoint');
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -407,19 +429,23 @@ class AdminOrderController extends OrderController
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getRepo('Order\ProductOrder')->getSalesOrdersForAdmin(
-            $channel,
-            $type,
-            $city,
-            $building,
-            $userId,
-            $startDate,
-            $endDate,
-            $payStart,
-            $payEnd,
-            $search,
-            $myBuildingIds
-        );
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getSalesOrdersForAdmin(
+                $channel,
+                $type,
+                $city,
+                $building,
+                $userId,
+                $startDate,
+                $endDate,
+                $payStart,
+                $payEnd,
+                $search,
+                $myBuildingIds,
+                $orderStartPoint,
+                $orderEndPoint
+            );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
