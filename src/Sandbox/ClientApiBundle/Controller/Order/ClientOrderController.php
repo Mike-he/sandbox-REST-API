@@ -174,11 +174,53 @@ class ClientOrderController extends OrderController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $orders = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersForApp(
-            $userId,
-            $limit,
-            $offset
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getInvoiceOrdersForApp(
+                $userId,
+                $limit,
+                $offset
+            );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
+     * @GET("/orders/my/sales/invoice/selected")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="ids of orders"
+     * )
+     *
+     * @return View
+     */
+    public function getUserSalesInvoiceOrdersByOrderIdsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $ids = $paramFetcher->get('id');
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getInvoiceOrdersForApp(
+                $userId,
+                null,
+                null,
+                $ids
+            );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
