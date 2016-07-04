@@ -32,6 +32,9 @@ class UserLoginController extends SandboxRestController
     const PLATFORM_IPHONE = 'iphone';
     const PLATFORM_ANDROID = 'android';
 
+    const PREFIX_ACCESS_TOKEN = 'access_token';
+    const PREFIX_FRESH_TOKEN = 'fresh_token';
+
     const ERROR_ACCOUNT_BANNED_CODE = 401001;
     const ERROR_ACCOUNT_BANNED_MESSAGE = 'client.login.account_banned';
 
@@ -155,10 +158,12 @@ class UserLoginController extends SandboxRestController
         $user,
         $userClient
     ) {
-        $userToken = $this->getRepo('User\UserToken')->findOneBy(array(
-            'user' => $user,
-            'client' => $userClient,
-        ));
+        $userToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(array(
+                'user' => $user,
+                'client' => $userClient,
+            ));
 
         if (is_null($userToken)) {
             $userToken = new UserToken();
@@ -166,14 +171,15 @@ class UserLoginController extends SandboxRestController
             $userToken->setUserId($user->getId());
             $userToken->setClient($userClient);
             $userToken->setClientId($userClient->getId());
-            $userToken->setToken($this->generateRandomToken());
 
             $em->persist($userToken);
         }
 
-        // refresh creation date
-        $userToken->setCreationDate(new \DateTime('now'));
+        // refresh data
         $userToken->setOnline(true);
+        $userToken->setToken($this->generateRandomToken(self::PREFIX_ACCESS_TOKEN.$user->getId()));
+        $userToken->setRefreshToken($this->generateRandomToken(self::PREFIX_FRESH_TOKEN.$user->getId()));
+        $userToken->setModificationDate(new \DateTime('now'));
 
         return $userToken;
     }
