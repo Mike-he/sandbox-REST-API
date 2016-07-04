@@ -356,11 +356,19 @@ class OrderRepository extends EntityRepository
 
     /**
      * get orders that need to set invoice.
+     *
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     * @param $ids
+     *
+     * @return array
      */
     public function getInvoiceOrdersForApp(
         $userId,
-        $limit,
-        $offset
+        $limit = null,
+        $offset = null,
+        $ids = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
@@ -379,12 +387,20 @@ class OrderRepository extends EntityRepository
             ->setParameter('rejected', false)
             ->setParameter('userId', $userId)
             ->setParameter('salesInvoice', true)
-            ->setParameter('price', 0)
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
+            ->setParameter('price', 0);
 
-        return $query->getResult();
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        // filter by order ids
+        if (!is_null($ids) && !empty($ids)) {
+            $query->andWhere('o.id IN (:ids)')
+                ->setParameter('ids', $ids);
+        }
+
+        return $query->getQuery()->getResult();
     }
 
     /**
