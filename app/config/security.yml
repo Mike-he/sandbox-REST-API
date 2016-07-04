@@ -47,6 +47,10 @@ security:
             pattern:  ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        client_refresh_token_login:
+            pattern: ^/client/auth/refresh
+            security: false
+
         main:
             pattern: ^/
             anonymous: true
@@ -54,6 +58,7 @@ security:
             stateless:  true
 
     access_control:
+        - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/shop/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }

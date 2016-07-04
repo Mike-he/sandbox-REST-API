@@ -2,7 +2,9 @@
 
 namespace Sandbox\ClientApiBundle\Controller\User;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
+use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
 use Sandbox\ClientApiBundle\Form\User\UserLoginType;
@@ -13,6 +15,7 @@ use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
  * Login controller.
@@ -26,6 +29,9 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientUserLoginController extends UserLoginController
 {
+    const PREFIX_BASIC_AUTHORIZATION = 'Basic';
+    const FRESH_TOKEN_EXPIRE_IN_TIME = '6 month';
+
     /**
      * Login.
      *
@@ -60,15 +66,15 @@ class ClientUserLoginController extends UserLoginController
             );
         }
 
-        // get globals
-        $globals = $this->getGlobals();
-
-        $customerPhone = $globals['customer_service_phone'];
-        $translated = $this->get('translator')->trans(self::ERROR_ACCOUNT_BANNED_MESSAGE);
-        $bannedMessage = $translated.$customerPhone;
-
+        // user is banned
         if ($user->isBanned()) {
-            // user is banned
+            // get globals
+            $globals = $this->getGlobals();
+
+            $customerPhone = $globals['customer_service_phone'];
+            $translated = $this->get('translator')->trans(self::ERROR_ACCOUNT_BANNED_MESSAGE);
+            $bannedMessage = $translated.$customerPhone;
+
             return $this->customErrorView(
                 401,
                 self::ERROR_ACCOUNT_BANNED_CODE,
@@ -96,5 +102,116 @@ class ClientUserLoginController extends UserLoginController
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
         return $view->setData($responseArray);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/refresh")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postRefreshTokenAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $headerKey = self::HTTP_HEADER_AUTH;
+
+        $auth = $this->getSandboxRefreshTokenAuthorization(
+            $headerKey
+        );
+
+        $token = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(array(
+                'refreshToken' => $auth->getUsername(),
+                'clientId' => $auth->getPassword(),
+            ));
+
+        if (is_null($token)) {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
+
+        // user is banned
+        $user = $token->getUser();
+        if ($user->isBanned()) {
+            // get globals
+            $globals = $this->getGlobals();
+
+            $customerPhone = $globals['customer_service_phone'];
+            $translated = $this->get('translator')->trans(self::ERROR_ACCOUNT_BANNED_MESSAGE);
+            $bannedMessage = $translated.$customerPhone;
+
+            return $this->customErrorView(
+                401,
+                self::ERROR_ACCOUNT_BANNED_CODE,
+                $bannedMessage
+            );
+        }
+
+        // check refresh token expire in
+        $now = new \DateTime('now');
+        $refreshTokenExpireIn = $token->getModificationDate()->modify('+ '.self::FRESH_TOKEN_EXPIRE_IN_TIME);
+        if ($refreshTokenExpireIn < $now) {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
+
+        // refresh data
+        $token->setOnline(true);
+        $token->setToken($this->generateRandomToken(self::PREFIX_ACCESS_TOKEN.$user->getId()));
+        $token->setRefreshToken($this->generateRandomToken(self::PREFIX_FRESH_TOKEN.$user->getId()));
+        $token->setModificationDate(new \DateTime('now'));
+
+        $em->flush();
+
+        // response
+        $view = new View(array(
+            'client' => $token->getClient(),
+            'user' => $token->getUser(),
+            'token' => $token,
+        ));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
+
+        return $view;
+    }
+
+    /**
+     * @param $headerKey
+     *
+     * @return Auth
+     */
+    private function getSandboxRefreshTokenAuthorization(
+        $headerKey
+    ) {
+        // get auth
+        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+        if (!array_key_exists($headerKey, $headers)) {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
+
+        // get auth part of headers
+        $authorization = $headers[$headerKey];
+        $auth = trim(substr(strstr(
+                $authorization,
+                self::PREFIX_BASIC_AUTHORIZATION),
+                strlen(self::PREFIX_BASIC_AUTHORIZATION))
+        );
+
+        $authString = base64_decode($auth, true);
+        $authArray = explode(':', $authString);
+
+        if (count($authArray) != 2) {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
+
+        $auth = new Auth();
+        $auth->setUsername($authArray[0]);
+        $auth->setPassword($authArray[1]);
+
+        return $auth;
     }
 }

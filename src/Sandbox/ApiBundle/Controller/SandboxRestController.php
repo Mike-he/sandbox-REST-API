@@ -842,11 +842,14 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
+     * @param string $prefix
+     *
      * @return string
      */
-    protected function generateRandomToken()
-    {
-        return md5(uniqid(rand(), true));
+    protected function generateRandomToken(
+        $prefix = null
+    ) {
+        return md5(uniqid($prefix.rand(), true));
     }
 
     //--------------------throw customer http error --------------------//
