@@ -202,6 +202,7 @@ class AdminSalesAdminsController extends SandboxRestController
                 $pendingBuilding = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
                     'companyId' => $admin->getCompanyId(),
                     'status' => RoomBuilding::STATUS_PENDING,
+                    'isDeleted' => false,
                 ));
                 if (!is_null($pendingBuilding)) {
                     $admin->setHasPendingBuilding(true);
@@ -209,7 +210,7 @@ class AdminSalesAdminsController extends SandboxRestController
 
                 // new pending shop
                 foreach ($shops as $shop) {
-                    if (!$shop->isActive()) {
+                    if (!$shop->isActive() && !$shop->isDeleted()) {
                         $admin->setHasPendingShop(true);
                     }
                 }

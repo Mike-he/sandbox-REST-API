@@ -12,7 +12,8 @@ use JMS\Serializer\Annotation as Serializer;
  *      name="UserToken",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"}),
- *          @ORM\UniqueConstraint(name="userId_clientId_UNIQUE", columns={"userId", "clientId"})
+ *          @ORM\UniqueConstraint(name="userId_clientId_UNIQUE", columns={"userId", "clientId"}),
+ *          @ORM\UniqueConstraint(name="refresh_token_UNIQUE", columns={"refreshToken"})
  *      },
  *      indexes={
  *          @ORM\Index(name="fk_UserToken_userId_idx", columns={"userId"}),
@@ -72,12 +73,12 @@ class UserToken
     private $token;
 
     /**
-     * @var \DateTime
+     * @var string
      *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @ORM\Column(name="refreshToken", type="string", length=64, nullable=false)
      * @Serializer\Groups({"main", "login"})
      */
-    private $creationDate;
+    private $refreshToken;
 
     /**
      * @var bool
@@ -86,6 +87,22 @@ class UserToken
      * @Serializer\Groups({"main"})
      */
     private $online = false;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main", "login"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Serializer\Groups({"main", "login"})
+     */
+    private $modificationDate;
 
     /**
      * Get id.
@@ -161,6 +178,22 @@ class UserToken
     public function setToken($token)
     {
         $this->token = $token;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRefreshToken()
+    {
+        return $this->refreshToken;
+    }
+
+    /**
+     * @param string $refreshToken
+     */
+    public function setRefreshToken($refreshToken)
+    {
+        $this->refreshToken = $refreshToken;
     }
 
     /**
@@ -251,5 +284,30 @@ class UserToken
     public function getOnline()
     {
         return $this->online;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * @param \DateTime $modificationDate
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * UserToken constructor.
+     */
+    public function __construct()
+    {
+        $this->creationDate = new \DateTime('now');
+        $this->modificationDate = new \DateTime('now');
     }
 }
