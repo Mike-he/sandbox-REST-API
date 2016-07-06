@@ -2,7 +2,9 @@
 
 namespace Sandbox\ClientApiBundle\Controller\User;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyUserCard;
 use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -52,6 +54,64 @@ class ClientUserAccountController extends SandboxRestController
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('account'))
         );
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/card")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getUserCardInformationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        // get default user card info
+        $defaultCard = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyUserCard')
+            ->findOneBy(array(
+                'type' => SalesCompanyUserCard::TYPE_OFFICIAL,
+                'companyId' => null,
+            ));
+
+        $salesUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')
+            ->findOneBy(array(
+                'userId' => $userId,
+                'isAuthorized' => true,
+            ));
+
+        $userCard = null;
+        if (!is_null($salesUser)) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($salesUser->getBuildingId());
+
+            if (!is_null($building)) {
+                $companyId = $building->getCompany()->getId();
+
+                // get card info according to sales company
+                $userCard = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyUserCard')
+                    ->findOneBy(array(
+                        'companyId' => $companyId,
+                    ));
+            }
+        }
+
+        if (is_null($userCard)) {
+            $userCard = $defaultCard;
+        }
+
+        $view = new View($userCard);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(array('client')));
 
         return $view;
     }
