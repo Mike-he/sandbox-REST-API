@@ -8,7 +8,7 @@ CREATE TABLE `Room` (
   `number` varchar(64) NOT NULL,
   `allowedPeople` int(11) NOT NULL,
   `area` int(11) NOT NULL,
-  `type` enum('office','meeting','flexible','fixed') NOT NULL,
+  `type` enum('office','meeting','flexible','fixed','studio') NOT NULL,
   `isDeleted` tinyint(1) NOT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
