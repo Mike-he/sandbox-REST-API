@@ -4,7 +4,7 @@ CREATE TABLE `RoomTypeUnit` (
   `unit` enum('hour','day','month') NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_RoomTypeUnit_typeId_idx` (`typeId`),
-  CONSTRAINT `fk_RoomTypeUnit_typeId` FOREIGN KEY (`typeId`) REFERENCES `RoomType` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `fk_RoomTypeUnit_typeId` FOREIGN KEY (`typeId`) REFERENCES `RoomTypes` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(1,'month');
