@@ -28,8 +28,9 @@ room:
   type:
     office: 独立办公室
     meeting: 会议室
-    flexible: 随机工位
+    flexible: 临时工位
     fixed: 固定工位
+    studio: 录音棚
   unit:
     hour: 小时
     day: 天

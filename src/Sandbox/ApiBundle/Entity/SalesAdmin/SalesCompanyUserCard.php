@@ -66,6 +66,15 @@ class SalesCompanyUserCard
     /**
      * @var string
      *
+     * @ORM\Column(name="lostCardBackgroundUrl", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $lostCardBackgroundUrl;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="cardNumberColor", type="string", length=64, nullable=true)
      *
      * @Serializer\Groups({"main", "client"})
@@ -194,6 +203,22 @@ class SalesCompanyUserCard
     public function getCardBackgroundUrl()
     {
         return $this->cardBackgroundUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLostCardBackgroundUrl()
+    {
+        return $this->lostCardBackgroundUrl;
+    }
+
+    /**
+     * @param string $lostCardBackgroundUrl
+     */
+    public function setLostCardBackgroundUrl($lostCardBackgroundUrl)
+    {
+        $this->lostCardBackgroundUrl = $lostCardBackgroundUrl;
     }
 
     /**

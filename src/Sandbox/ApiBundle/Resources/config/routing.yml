@@ -99,3 +99,9 @@ sandbox_api_bulletins:
     resource: "@SandboxApiBundle/Controller/Bulletin/BulletinController.php"
     type:     annotation
     prefix:   /
+
+# RoomTypes /rooms
+sandbox_api_rooms:
+    resource: "@SandboxApiBundle/Controller/Room/RoomController.php"
+    type:     annotation
+    prefix:   /rooms
