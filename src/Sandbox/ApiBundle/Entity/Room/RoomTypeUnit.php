@@ -41,9 +41,9 @@ class RoomTypeUnit
     private $typeId;
 
     /**
-     * @var RoomType
+     * @var RoomTypes
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomType")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomTypes")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="typeId", referencedColumnName="id", onDelete="CASCADE")
      * })
@@ -118,7 +118,7 @@ class RoomTypeUnit
     /**
      * Set type.
      *
-     * @param RoomType $type
+     * @param RoomTypes $type
      *
      * @return RoomTypeUnit
      */
@@ -132,7 +132,7 @@ class RoomTypeUnit
     /**
      * Get type.
      *
-     * @return RoomType
+     * @return RoomTypes
      */
     public function getType()
     {

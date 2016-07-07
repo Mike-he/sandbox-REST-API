@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * RoomType.
+ * RoomTypes.
  *
- * @ORM\Table(name="RoomType")
+ * @ORM\Table(name="RoomTypes")
  * @ORM\Entity
  */
-class RoomType
+class RoomTypes
 {
     /**
      * @var int
@@ -69,7 +69,7 @@ class RoomType
      *
      * @param string $name
      *
-     * @return RoomType
+     * @return RoomTypes
      */
     public function setName($name)
     {
@@ -93,7 +93,7 @@ class RoomType
      *
      * @param array $units
      *
-     * @return RoomType
+     * @return RoomTypes
      */
     public function setUnits($units)
     {
@@ -117,7 +117,7 @@ class RoomType
      *
      * @param string $description
      *
-     * @return RoomType
+     * @return RoomTypes
      */
     public function setDescription($description)
     {
