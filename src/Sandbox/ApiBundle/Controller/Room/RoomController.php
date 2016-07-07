@@ -34,7 +34,7 @@ class RoomController extends SandboxRestController
         Request $request
     ) {
         $types = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomType')
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->findAll();
 
         $language = $request->getPreferredLanguage();
