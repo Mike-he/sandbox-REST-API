@@ -14,6 +14,8 @@ use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderRefundFeePatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundPatch;
+use Sandbox\ApiBundle\Form\Order\OrderReserveType;
+use Sandbox\ApiBundle\Form\Order\PreOrderType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -835,6 +837,331 @@ class AdminOrderController extends OrderController
         $view->setData($order);
 
         return $view;
+    }
+
+    /**
+     * Reserve order.
+     *
+     * @Route("/orders/reserve")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function reserveRoomAction(
+        Request $request
+    ) {
+        $adminId = $this->getAdminId();
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+            ),
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $now = new \DateTime();
+        $adminId = $this->getAdminId();
+        $orderCheck = null;
+
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+            $order = new ProductOrder();
+
+            $form = $this->createForm(new OrderReserveType(), $order);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
+                );
+            }
+
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy(array(
+                    'xmppUsername' => User::XMPP_SERVICE,
+                ));
+            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+            $productId = $order->getProductId();
+            $product = $this->getRepo('Product\Product')->find($productId);
+
+            $startDate = new \DateTime($order->getStartDate());
+
+            // check product
+            $error = $this->checkIfProductAvailable(
+                $product,
+                $now,
+                $startDate
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $timeUnit = $product->getUnitPrice();
+            $period = $order->getRentPeriod();
+
+            // get endDate
+            $endDate = $this->getOrderEndDate(
+                $period,
+                $timeUnit,
+                $startDate
+            );
+
+            // check booking dates and order duplication
+            $type = $product->getRoom()->getType();
+            $error = $this->checkIfOrderAllowed(
+                $em,
+                $order,
+                $product,
+                $productId,
+                $now,
+                $startDate,
+                $endDate,
+                $user,
+                $type
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $order->setStatus(ProductOrder::STATUS_PAID);
+            $order->setAdminId($adminId);
+            $order->setPaymentDate($now);
+            $order->setType(ProductOrder::RESERVE_TYPE);
+            $order->setPrice(0);
+            $order->setDiscountPrice(0);
+            $order->setUser($user);
+
+            $em->persist($order);
+
+            // store order record
+            $this->storeRoomRecord(
+                $em,
+                $order,
+                $product
+            );
+
+            $em->flush();
+
+            $view = new View();
+            $view->setData(
+                ['order_id' => $order->getId()]
+            );
+
+            return $view;
+        } catch (\Exception $exception) {
+            if (!is_null($orderCheck)) {
+                $em->remove($orderCheck);
+                $em->flush();
+            }
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * pre-order room.
+     *
+     * @Route("/orders/preorder")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function preorderRoomAction(
+        Request $request
+    ) {
+        $adminId = $this->getAdminId();
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+            ),
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $now = new \DateTime();
+        $adminId = $this->getAdminId();
+        $orderCheck = null;
+
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+            $order = new ProductOrder();
+
+            $form = $this->createForm(new PreOrderType(), $order);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
+                );
+            }
+
+            $user = $this->getRepo('User\User')->find($order->getUserId());
+            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+            $productId = $order->getProductId();
+            $product = $this->getRepo('Product\Product')->find($productId);
+
+            $startDate = new \DateTime($order->getStartDate());
+
+            // check product
+            $error = $this->checkIfProductAvailable(
+                $product,
+                $now,
+                $startDate
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $timeUnit = $product->getUnitPrice();
+            $period = $order->getRentPeriod();
+
+            // get endDate
+            $endDate = $this->getOrderEndDate(
+                $period,
+                $timeUnit,
+                $startDate
+            );
+
+            // check if price match
+            $basePrice = $product->getBasePrice();
+            $calculatedPrice = $basePrice * $period;
+
+            if ($order->getPrice() != $calculatedPrice) {
+                return $this->customErrorView(
+                    400,
+                    self::PRICE_MISMATCH_CODE,
+                    self::PRICE_MISMATCH_MESSAGE
+                );
+            }
+
+            // check booking dates and order duplication
+            $type = $product->getRoom()->getType();
+            $error = $this->checkIfOrderAllowed(
+                $em,
+                $order,
+                $product,
+                $productId,
+                $now,
+                $startDate,
+                $endDate,
+                $user,
+                $type
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            // check for discount rule and price
+            $ruleId = $order->getRuleId();
+
+            if (!is_null($ruleId) && !empty($ruleId)) {
+                $result = $this->getSalesPriceRuleForOrder($ruleId);
+
+                if (is_null($result)) {
+                    return $this->customErrorView(
+                        400,
+                        self::PRICE_RULE_DOES_NOT_EXIST_CODE,
+                        self::PRICE_RULE_DOES_NOT_EXIST_MESSAGE
+                    );
+                }
+
+                if (array_key_exists('rule_name', $result)) {
+                    $order->setRuleName($result['rule_name']);
+                }
+
+                if (array_key_exists('rule_description', $result)) {
+                    $order->setRuleDescription($result['rule_description']);
+                }
+            }
+
+            $order->setAdminId($adminId);
+            $order->setType(ProductOrder::PREORDER_TYPE);
+
+            if (0 == $order->getDiscountPrice()) {
+                $order->setStatus(ProductOrder::STATUS_PAID);
+                $order->setPaymentDate($now);
+            }
+
+            $em->persist($order);
+
+            // store order record
+            $this->storeRoomRecord(
+                $em,
+                $order,
+                $product
+            );
+
+            // set sales user
+            $this->setSalesUser(
+                $em,
+                $user->getId(),
+                $product
+            );
+
+            $em->flush();
+
+            // set door access
+            if (0 == $order->getDiscountPrice()) {
+                $this->setDoorAccessForSingleOrder($order);
+            }
+
+            $view = new View();
+            $view->setData(
+                ['order_id' => $order->getId()]
+            );
+
+            return $view;
+        } catch (\Exception $exception) {
+            if (!is_null($orderCheck)) {
+                $em->remove($orderCheck);
+                $em->flush();
+            }
+
+            throw $exception;
+        }
     }
 
     /**

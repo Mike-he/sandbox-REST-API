@@ -148,6 +148,70 @@ class AdminProductController extends ProductController
      *    description="Filter by sales company id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="floor",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by floor id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_seat",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by seats minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_seat",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by seats maximum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_area",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by area minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_area",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by area maximum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_price",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by price minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_price",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by price maximum"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -171,6 +235,14 @@ class AdminProductController extends ProductController
         $visible = $paramFetcher->get('visible');
         $companyId = $paramFetcher->get('company');
 
+        $floor = $paramFetcher->get('floor');
+        $minSeat = $paramFetcher->get('min_seat');
+        $maxSeat = $paramFetcher->get('max_seat');
+        $minArea = $paramFetcher->get('min_area');
+        $maxArea = $paramFetcher->get('max_area');
+        $minPrice = $paramFetcher->get('min_price');
+        $maxPrice = $paramFetcher->get('max_price');
+
         // sort by
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
@@ -181,17 +253,26 @@ class AdminProductController extends ProductController
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getRepo('Product\Product')->getAdminProducts(
-            $type,
-            $city,
-            $building,
-            $visible,
-            $sortBy,
-            $direction,
-            $search,
-            false,
-            $companyId
-        );
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->getAdminProducts(
+                $type,
+                $city,
+                $building,
+                $visible,
+                $sortBy,
+                $direction,
+                $search,
+                false,
+                $companyId,
+                $floor,
+                $minSeat,
+                $maxSeat,
+                $minArea,
+                $maxArea,
+                $minPrice,
+                $maxPrice
+            );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
