@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\User\User;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
