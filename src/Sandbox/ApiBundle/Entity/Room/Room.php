@@ -24,6 +24,7 @@ class Room
     const TYPE_FIXED = 'fixed';
     const TYPE_OFFICE = 'office';
     const TYPE_MEETING = 'meeting';
+    const TYPE_STUDIO = 'studio';
 
     /**
      * @var int
@@ -136,6 +137,13 @@ class Room
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
      */
     private $type;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     */
+    private $typeDescription;
 
     /**
      * @var int
@@ -712,6 +720,26 @@ class Room
     public function setIsDeleted($isDeleted)
     {
         $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    /**
+     * @return Room
+     */
+    public function getTypeDescription()
+    {
+        return $this->typeDescription;
+    }
+
+    /**
+     * @param string $description
+     *
+     * @return string
+     */
+    public function setTypeDescription($description)
+    {
+        $this->typeDescription = $description;
 
         return $this;
     }

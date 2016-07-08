@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Component\HttpFoundation\Response;
@@ -86,6 +87,7 @@ class ClientOrderController extends OrderController
         $status = $paramFetcher->get('status');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $language = $request->getPreferredLanguage();
 
         if (!is_null($status) && !empty($status)) {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
@@ -104,6 +106,20 @@ class ClientOrderController extends OrderController
                 $limit,
                 $offset
             );
+        }
+
+        foreach ($orders as $order) {
+            $room = $order->getProduct()->getRoom();
+            $type = $room->getType();
+
+            $description = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$type,
+                array(),
+                null,
+                $language
+            );
+
+            $room->setTypeDescription($description);
         }
 
         $view = new View();
@@ -1002,7 +1018,7 @@ class ClientOrderController extends OrderController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
-        $view = $this->getOrderDetail($order);
+        $view = $this->getOrderDetail($request, $order);
 
         return $view;
     }
@@ -1027,17 +1043,19 @@ class ClientOrderController extends OrderController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
-        $view = $this->getOrderDetail($order);
+        $view = $this->getOrderDetail($request, $order);
 
         return $view;
     }
 
     /**
+     * @param Request $request
      * @param $order
      *
      * @return View
      */
     private function getOrderDetail(
+        $request,
         $order
     ) {
         $appointed = $order->getAppointed();
@@ -1070,7 +1088,18 @@ class ClientOrderController extends OrderController
             }
         }
 
-        $type = $order->getProduct()->getRoom()->getType();
+        $room = $order->getProduct()->getRoom();
+        $type = $room->getType();
+        $language = $request->getPreferredLanguage();
+
+        $description = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_ROOM_TYPE.$type,
+            array(),
+            null,
+            $language
+        );
+
+        $room->setTypeDescription($description);
         $productId = $order->getProductId();
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
