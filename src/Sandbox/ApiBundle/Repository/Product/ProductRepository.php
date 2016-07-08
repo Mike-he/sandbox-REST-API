@@ -24,6 +24,7 @@ class ProductRepository extends EntityRepository
      * @param $endHour
      * @param $limit
      * @param $offset
+     * @param $type
      *
      * @return array
      */
@@ -37,7 +38,8 @@ class ProductRepository extends EntityRepository
         $startHour,
         $endHour,
         $limit,
-        $offset
+        $offset,
+        $type
     ) {
         $now = new \DateTime();
 
@@ -48,7 +50,7 @@ class ProductRepository extends EntityRepository
             ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
-            ->setParameter('type', Room::TYPE_MEETING)
+            ->setParameter('type', $type)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
@@ -309,7 +311,7 @@ class ProductRepository extends EntityRepository
                         OR
                         p.id IN (
                             SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
-                            WHERE po2.status  != :status
+                            WHERE po2.status != :status
                             AND r.type = :roomType
                             AND
                             (
