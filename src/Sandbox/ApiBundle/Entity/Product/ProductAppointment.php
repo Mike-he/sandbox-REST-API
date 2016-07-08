@@ -99,7 +99,7 @@ class ProductAppointment
      *
      * @Assert\NotBlank()
      *
-     * @ORM\Column(name="rentTimeUnit", type="integer", nullable=false)
+     * @ORM\Column(name="rentTimeUnit", type="string", length=64, nullable=false)
      */
     private $rentTimeUnit;
 
@@ -341,7 +341,7 @@ class ProductAppointment
     /**
      * Set rentTimeUnit.
      *
-     * @param int $rentTimeUnit
+     * @param string $rentTimeUnit
      *
      * @return ProductAppointment
      */
@@ -355,7 +355,7 @@ class ProductAppointment
     /**
      * Get rentTimeUnit.
      *
-     * @return int
+     * @return string
      */
     public function getRentTimeUnit()
     {
