@@ -85,9 +85,12 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('o.status = \'paid\'')
             ->andWhere('o.startDate > :now')
-            ->andWhere('(r.type = \'meeting\' AND o.startDate <= :meetingTime)')
+            ->andWhere('(r.type = :meetingType OR r.type = :studioType)')
+            ->andWhere('o.startDate <= :meetingTime')
             ->setParameter('meetingTime', $meetingTime)
             ->setParameter('now', $now)
+            ->setParameter('meetingType', Room::TYPE_MEETING)
+            ->setParameter('studioType', Room::TYPE_STUDIO)
             ->getQuery();
 
         return $query->getResult();
@@ -108,9 +111,12 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('(o.status = \'paid\' OR o.status = \'completed\')')
             ->andWhere('o.endDate > :now')
-            ->andWhere('(r.type = \'meeting\' AND o.endDate <= :meetingTime)')
+            ->andWhere('(r.type = :meetingType OR r.type = :studioType)')
+            ->andWhere('o.endDate <= :meetingTime')
             ->setParameter('meetingTime', $meetingTime)
             ->setParameter('now', $now)
+            ->setParameter('meetingType', Room::TYPE_MEETING)
+            ->setParameter('studioType', Room::TYPE_STUDIO)
             ->getQuery();
 
         return $query->getResult();

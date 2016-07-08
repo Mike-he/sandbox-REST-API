@@ -81,6 +81,13 @@ class ClientProductController extends ProductController
      *    description="start of the page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default="meeting",
+     *    nullable=true,
+     *    description="room type"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -103,6 +110,7 @@ class ClientProductController extends ProductController
         $allowedPeople = $paramFetcher->get('allowed_people');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $type = $paramFetcher->get('type');
 
         $startTime = null;
         $endTime = null;
@@ -129,7 +137,8 @@ class ClientProductController extends ProductController
             $startHour,
             $endHour,
             $limit,
-            $offset
+            $offset,
+            $type
         );
 
         $products = [];
