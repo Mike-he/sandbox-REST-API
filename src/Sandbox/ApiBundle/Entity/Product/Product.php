@@ -164,6 +164,42 @@ class Product
     private $isDeleted = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isAnnualRent", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $isAnnualRent = false;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="annualRentUnitPrice", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $annualRentUnitPrice;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="annualRentUnit", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $annualRentUnit;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="annualRentDescription", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $annualRentDescription;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -462,6 +498,70 @@ class Product
     public function setIsDeleted($isDeleted)
     {
         $this->isDeleted = $isDeleted;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAnnualRent()
+    {
+        return $this->isAnnualRent;
+    }
+
+    /**
+     * @param bool $isAnnualRent
+     */
+    public function setIsAnnualRent($isAnnualRent)
+    {
+        $this->isAnnualRent = $isAnnualRent;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAnnualRentUnitPrice()
+    {
+        return $this->annualRentUnitPrice;
+    }
+
+    /**
+     * @param float $annualRentUnitPrice
+     */
+    public function setAnnualRentUnitPrice($annualRentUnitPrice)
+    {
+        $this->annualRentUnitPrice = $annualRentUnitPrice;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAnnualRentUnit()
+    {
+        return $this->annualRentUnit;
+    }
+
+    /**
+     * @param string $annualRentUnit
+     */
+    public function setAnnualRentUnit($annualRentUnit)
+    {
+        $this->annualRentUnit = $annualRentUnit;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAnnualRentDescription()
+    {
+        return $this->annualRentDescription;
+    }
+
+    /**
+     * @param string $annualRentDescription
+     */
+    public function setAnnualRentDescription($annualRentDescription)
+    {
+        $this->annualRentDescription = $annualRentDescription;
     }
 
     /**

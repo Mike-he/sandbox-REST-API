@@ -531,10 +531,12 @@ class AdminProductController extends ProductController
         // check user permission
         $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        $product = $this->getRepo('Product\Product')->find(array(
-            'id' => $id,
-            'isDeleted' => false,
-        ));
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->find(array(
+                'id' => $id,
+                'isDeleted' => false,
+            ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // bind data
@@ -544,6 +546,18 @@ class AdminProductController extends ProductController
 
         $form = $this->createForm(new ProductPatchType(), $product);
         $form->submit(json_decode($productJson, true));
+
+        // check data validation
+        if ($product->isAnnualRent()) {
+            if (is_null($product->getAnnualRentUnitPrice())
+            || is_null($product->getAnnualRentUnit())) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+        } else {
+            $product->setAnnualRentUnitPrice(null);
+            $product->setAnnualRentUnit(null);
+            $product->setAnnualRentDescription(null);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

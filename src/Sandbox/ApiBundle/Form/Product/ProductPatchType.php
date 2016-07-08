@@ -14,7 +14,12 @@ class ProductPatchType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('salesInvoice');
+        $builder
+            ->add('salesInvoice')
+            ->add('isAnnualRent')
+            ->add('annual_rent_unit_price')
+            ->add('annual_rent_unit')
+            ->add('annual_rent_description');
     }
 
     /**
