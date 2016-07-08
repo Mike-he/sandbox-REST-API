@@ -1,17 +1,17 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Order;
+namespace Sandbox\ApiBundle\Entity\Product;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * ProductOrderAppointment.
+ * ProductAppointment.
  *
- * @ORM\Table(name="ProductOrderAppointment")
+ * @ORM\Table(name="ProductAppointment")
  * @ORM\Entity
  */
-class ProductOrderAppointment
+class ProductAppointment
 {
     const STATUS_PENDING = 'pending';
     const STATUS_ACCEPTED = 'accepted';
@@ -132,6 +132,11 @@ class ProductOrderAppointment
     private $modificationDate;
 
     /**
+     * @var mixed
+     */
+    private $user;
+
+    /**
      * Get id.
      *
      * @return int
@@ -146,7 +151,7 @@ class ProductOrderAppointment
      *
      * @param int $userId
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setUserId($userId)
     {
@@ -170,7 +175,7 @@ class ProductOrderAppointment
      *
      * @param int $productId
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setProductId($productId)
     {
@@ -194,7 +199,7 @@ class ProductOrderAppointment
      *
      * @param string $applicantName
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setApplicantName($applicantName)
     {
@@ -218,7 +223,7 @@ class ProductOrderAppointment
      *
      * @param string $applicantCompany
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setApplicantCompany($applicantCompany)
     {
@@ -242,7 +247,7 @@ class ProductOrderAppointment
      *
      * @param string $applicantPhone
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setApplicantPhone($applicantPhone)
     {
@@ -266,7 +271,7 @@ class ProductOrderAppointment
      *
      * @param string $applicantEmail
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setApplicantEmail($applicantEmail)
     {
@@ -290,7 +295,7 @@ class ProductOrderAppointment
      *
      * @param \DateTime $startRentDate
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setStartRentDate($startRentDate)
     {
@@ -314,7 +319,7 @@ class ProductOrderAppointment
      *
      * @param int $rentTimeLength
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setRentTimeLength($rentTimeLength)
     {
@@ -338,7 +343,7 @@ class ProductOrderAppointment
      *
      * @param int $rentTimeUnit
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setRentTimeUnit($rentTimeUnit)
     {
@@ -362,7 +367,7 @@ class ProductOrderAppointment
      *
      * @param string $status
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setStatus($status)
     {
@@ -386,7 +391,7 @@ class ProductOrderAppointment
      *
      * @param string $comment
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setComment($comment)
     {
@@ -410,7 +415,7 @@ class ProductOrderAppointment
      *
      * @param \DateTime $creationDate
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setCreationDate($creationDate)
     {
@@ -434,7 +439,7 @@ class ProductOrderAppointment
      *
      * @param \DateTime $modificationDate
      *
-     * @return ProductOrderAppointment
+     * @return ProductAppointment
      */
     public function setModificationDate($modificationDate)
     {
@@ -454,7 +459,23 @@ class ProductOrderAppointment
     }
 
     /**
-     * ProductOrderAppointment constructor.
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * ProductAppointment constructor.
      */
     public function __construct()
     {
