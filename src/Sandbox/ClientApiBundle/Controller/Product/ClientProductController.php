@@ -3,13 +3,17 @@
 namespace Sandbox\ClientApiBundle\Controller\Product;
 
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Form\Product\ProductAppointmentPostType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for Client Product.
@@ -497,6 +501,52 @@ class ClientProductController extends ProductController
         }
 
         return new View($response);
+    }
+
+    /**
+     * @Post("/products/{id}/appointments")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @return View
+     */
+    public function postAnnualRentProductAppointmentsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->find($id);
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
+        $appointment = new ProductAppointment();
+
+        $form = $this->createForm(new ProductAppointmentPostType(), $appointment);
+        $form->submit(json_decode($request->getContent(), true));
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // set staff
+        $appointment->setUserId($userId);
+        $appointment->setProductId($product->getId());
+        $startRentDate = new \DateTime($appointment->getStartRentDate());
+        $startRentDate->setTime(00, 00, 00);
+        $appointment->setStartRentDate($startRentDate);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($appointment);
+        $em->flush();
+
+        return new View(array(
+            'id' => $appointment->getId(),
+        ));
     }
 
     /**
