@@ -372,6 +372,7 @@ class AdminShopMenuController extends ShopMenuController
             [
                 'shopId' => $shopId,
                 'name' => $menuName,
+                'invisible' => false,
             ]
         );
 

@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,15 +28,39 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
         $meetingTime = clone $now;
         $meetingTime->modify('+15 minutes');
 
+        $this->sendMessages(
+            $now,
+            $meetingTime,
+            Room::TYPE_MEETING,
+            ProductOrderMessage::MEETING_START_MESSAGE,
+            ProductOrderMessage::MEETING_END_MESSAGE
+        );
+
+        $this->sendMessages(
+            $now,
+            $meetingTime,
+            Room::TYPE_STUDIO,
+            ProductOrderMessage::STUDIO_START_MESSAGE,
+            ProductOrderMessage::STUDIO_END_MESSAGE
+        );
+    }
+
+    private function sendMessages(
+        $now,
+        $meetingTime,
+        $type,
+        $startMessage,
+        $endMessage
+    ) {
         $startOrders = $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getMeetingStartSoonOrders($now, $meetingTime);
+            ->getMeetingStartSoonOrders($now, $meetingTime, $type);
 
         $endOrders = $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getMeetingEndSoonOrders($now, $meetingTime);
+            ->getMeetingEndSoonOrders($now, $meetingTime, $type);
 
         if (!empty($startOrders)) {
             $this->sendXmppProductOrderNotification(
@@ -44,7 +69,7 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
                 ProductOrder::ACTION_START,
                 null,
                 $startOrders,
-                ProductOrderMessage::MEETING_START_MESSAGE
+                $startMessage
             );
         }
 
@@ -55,7 +80,7 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
                 ProductOrder::ACTION_END,
                 null,
                 $endOrders,
-                ProductOrderMessage::MEETING_END_MESSAGE
+                $endMessage
             );
         }
     }
