@@ -396,6 +396,20 @@ class ProductOrder
     private $refundComment;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $startAlert;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $endAlert;
+
+    /**
      * Set isRenew.
      *
      * @param bool $isRenew
@@ -1337,6 +1351,54 @@ class ProductOrder
     public function isSalesInvoice()
     {
         return $this->salesInvoice;
+    }
+
+    /**
+     * Set startAlert.
+     *
+     * @param string $startAlert
+     *
+     * @return ProductOrder
+     */
+    public function setStartAlert($startAlert)
+    {
+        $this->startAlert = $startAlert;
+
+        return $this;
+    }
+
+    /**
+     * Get startAlert.
+     *
+     * @return string
+     */
+    public function getStartAlert()
+    {
+        return $this->startAlert;
+    }
+
+    /**
+     * Set endAlert.
+     *
+     * @param string $endAlert
+     *
+     * @return ProductOrder
+     */
+    public function setEndAlert($endAlert)
+    {
+        $this->endAlert = $endAlert;
+
+        return $this;
+    }
+
+    /**
+     * Get endAlert.
+     *
+     * @return string
+     */
+    public function getEndAlert()
+    {
+        return $this->endAlert;
     }
 
     public function __construct()

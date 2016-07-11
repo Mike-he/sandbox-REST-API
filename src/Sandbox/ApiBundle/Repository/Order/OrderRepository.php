@@ -78,19 +78,19 @@ class OrderRepository extends EntityRepository
      */
     public function getMeetingStartSoonOrders(
         $now,
-        $meetingTime
+        $meetingTime,
+        $type
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('o.status = \'paid\'')
             ->andWhere('o.startDate > :now')
-            ->andWhere('(r.type = :meetingType OR r.type = :studioType)')
+            ->andWhere('r.type = :type')
             ->andWhere('o.startDate <= :meetingTime')
             ->setParameter('meetingTime', $meetingTime)
             ->setParameter('now', $now)
-            ->setParameter('meetingType', Room::TYPE_MEETING)
-            ->setParameter('studioType', Room::TYPE_STUDIO)
+            ->setParameter('type', $type)
             ->getQuery();
 
         return $query->getResult();
@@ -104,19 +104,19 @@ class OrderRepository extends EntityRepository
      */
     public function getMeetingEndSoonOrders(
         $now,
-        $meetingTime
+        $meetingTime,
+        $type
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('(o.status = \'paid\' OR o.status = \'completed\')')
             ->andWhere('o.endDate > :now')
-            ->andWhere('(r.type = :meetingType OR r.type = :studioType)')
+            ->andWhere('r.type = :type')
             ->andWhere('o.endDate <= :meetingTime')
             ->setParameter('meetingTime', $meetingTime)
             ->setParameter('now', $now)
-            ->setParameter('meetingType', Room::TYPE_MEETING)
-            ->setParameter('studioType', Room::TYPE_STUDIO)
+            ->setParameter('type', $type)
             ->getQuery();
 
         return $query->getResult();
