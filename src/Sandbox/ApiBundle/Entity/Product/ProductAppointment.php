@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ProductAppointment.
  *
  * @ORM\Table(name="ProductAppointment")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Product\ProductAppointmentRepository")
  */
 class ProductAppointment
 {

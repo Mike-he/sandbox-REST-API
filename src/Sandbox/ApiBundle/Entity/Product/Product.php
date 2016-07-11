@@ -237,6 +237,16 @@ class Product
     private $salesInvoice = false;
 
     /**
+     * @var int
+     */
+    private $pendingAppointmentCounts;
+
+    /**
+     * @var int
+     */
+    private $totalAppointmentCounts;
+
+    /**
      * Get id.
      *
      * @return int
@@ -730,5 +740,37 @@ class Product
     public function isSalesInvoice()
     {
         return $this->salesInvoice;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPendingAppointmentCounts()
+    {
+        return $this->pendingAppointmentCounts;
+    }
+
+    /**
+     * @param int $pendingAppointmentCounts
+     */
+    public function setPendingAppointmentCounts($pendingAppointmentCounts)
+    {
+        $this->pendingAppointmentCounts = $pendingAppointmentCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalAppointmentCounts()
+    {
+        return $this->totalAppointmentCounts;
+    }
+
+    /**
+     * @param int $totalAppointmentCounts
+     */
+    public function setTotalAppointmentCounts($totalAppointmentCounts)
+    {
+        $this->totalAppointmentCounts = $totalAppointmentCounts;
     }
 }
