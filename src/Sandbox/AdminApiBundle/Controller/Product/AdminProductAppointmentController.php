@@ -122,6 +122,8 @@ class AdminProductAppointmentController extends SandboxRestController
         $form = $this->createForm(new ProductAppointmentPatchType(), $appointment);
         $form->submit(json_decode($appointmentJson, true));
 
+        $appointment->setModificationDate(new \DateTime('now'));
+
         // save to db
         $em = $this->getDoctrine()->getManager();
         $em->flush();

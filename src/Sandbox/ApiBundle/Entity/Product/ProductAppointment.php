@@ -62,6 +62,7 @@ class ProductAppointment
      * @var string
      *
      * @Assert\NotBlank()
+     * @Assert\Regex("/^\d+$/")
      *
      * @ORM\Column(name="applicantPhone", type="string", length=255, nullable=false)
      */
@@ -71,6 +72,7 @@ class ProductAppointment
      * @var string
      *
      * @Assert\NotBlank()
+     * @Assert\Email()
      *
      * @ORM\Column(name="applicantEmail", type="string", length=255, nullable=false)
      */

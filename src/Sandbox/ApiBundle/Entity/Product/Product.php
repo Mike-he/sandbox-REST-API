@@ -168,7 +168,7 @@ class Product
      *
      * @ORM\Column(name="isAnnualRent", type="boolean", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $isAnnualRent = false;
 
@@ -177,7 +177,7 @@ class Product
      *
      * @ORM\Column(name="annualRentUnitPrice", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $annualRentUnitPrice;
 
@@ -186,7 +186,7 @@ class Product
      *
      * @ORM\Column(name="annualRentUnit", type="string", length=64, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $annualRentUnit;
 
@@ -195,7 +195,7 @@ class Product
      *
      * @ORM\Column(name="annualRentDescription", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $annualRentDescription;
 
