@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class ProductPatchType extends AbstractType
+class ProductAppointmentPostType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,11 +15,13 @@ class ProductPatchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('salesInvoice')
-            ->add('isAnnualRent')
-            ->add('annual_rent_unit_price')
-            ->add('annual_rent_unit')
-            ->add('annual_rent_description');
+            ->add('applicant_name')
+            ->add('applicant_company')
+            ->add('applicant_phone')
+            ->add('applicant_email')
+            ->add('start_rent_date')
+            ->add('rent_time_length')
+            ->add('rent_time_unit');
     }
 
     /**
@@ -28,7 +30,7 @@ class ProductPatchType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\product\Product',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Product\ProductAppointment',
         ));
     }
 

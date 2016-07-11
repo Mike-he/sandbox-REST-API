@@ -357,6 +357,7 @@ class ProductRepository extends EntityRepository
      * @param int          $maxArea
      * @param float        $minPrice
      * @param float        $maxPrice
+     * @param bool         $annualRent
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
@@ -376,7 +377,8 @@ class ProductRepository extends EntityRepository
         $minArea,
         $maxArea,
         $minPrice,
-        $maxPrice
+        $maxPrice,
+        $annualRent
     ) {
         $notFirst = false;
         $parameters = [];
@@ -516,6 +518,14 @@ class ProductRepository extends EntityRepository
             $where = 'p.basePrice <= :maxPrice';
             $this->addWhereQuery($query, $notFirst, $where);
             $parameters['maxPrice'] = $maxPrice;
+            $notFirst = true;
+        }
+
+        // filters by annual rent
+        if (!is_null($annualRent)) {
+            $where = 'p.isAnnualRent = :annualRent';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['annualRent'] = $annualRent;
             $notFirst = true;
         }
 

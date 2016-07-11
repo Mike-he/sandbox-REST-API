@@ -16,6 +16,12 @@ sandbox_admin_api_products_recommend:
     type:     annotation
     prefix:   /
 
+# products appointments /admin/products/{id}/appointments
+sandbox_admin_api_products_appoinments:
+    resource: "@SandboxAdminApiBundle/Controller/Product/AdminProductAppointmentController.php"
+    type:     annotation
+    prefix:   /
+
 # products /admin/products
 sandbox_admin_api_products:
     resource: "@SandboxAdminApiBundle/Controller/Product/AdminProductController.php"

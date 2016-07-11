@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Form\Product\ProductPatchType;
 use Sandbox\ApiBundle\Form\Product\ProductType;
@@ -212,6 +213,15 @@ class AdminProductController extends ProductController
      *    description="Filter by price maximum"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="annual_rent",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="tag of annual rent"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -242,6 +252,7 @@ class AdminProductController extends ProductController
         $maxArea = $paramFetcher->get('max_area');
         $minPrice = $paramFetcher->get('min_price');
         $maxPrice = $paramFetcher->get('max_price');
+        $annualRent = $paramFetcher->get('annual_rent');
 
         // sort by
         $sortBy = $paramFetcher->get('sortBy');
@@ -271,8 +282,15 @@ class AdminProductController extends ProductController
                 $minArea,
                 $maxArea,
                 $minPrice,
-                $maxPrice
+                $maxPrice,
+                $annualRent
             );
+
+        // set annual product appointment count
+        $this->setAnnualRentProductAppointmentCounts(
+            $query,
+            $annualRent
+        );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -531,10 +549,12 @@ class AdminProductController extends ProductController
         // check user permission
         $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
 
-        $product = $this->getRepo('Product\Product')->find(array(
-            'id' => $id,
-            'isDeleted' => false,
-        ));
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->find(array(
+                'id' => $id,
+                'isDeleted' => false,
+            ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // bind data
@@ -544,6 +564,18 @@ class AdminProductController extends ProductController
 
         $form = $this->createForm(new ProductPatchType(), $product);
         $form->submit(json_decode($productJson, true));
+
+        // check data validation
+        if ($product->isAnnualRent()) {
+            if (is_null($product->getAnnualRentUnitPrice())
+            || is_null($product->getAnnualRentUnit())) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+        } else {
+            $product->setAnnualRentUnitPrice(null);
+            $product->setAnnualRentUnit(null);
+            $product->setAnnualRentDescription(null);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -683,5 +715,34 @@ class AdminProductController extends ProductController
         //edit price rules
         self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
         self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
+    }
+
+    /**
+     * @param $products
+     * @param $annualRent
+     */
+    private function setAnnualRentProductAppointmentCounts(
+        $products,
+        $annualRent
+    ) {
+        if (is_null($annualRent) || $annualRent == false) {
+            return;
+        }
+
+        foreach ($products as $item) {
+            $totalAppointments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+                ->countProductAppointment($item->getId());
+
+            $pendingAppointments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+                ->countProductAppointment(
+                    $item->getId(),
+                    ProductAppointment::STATUS_PENDING
+                );
+
+            $item->setPendingAppointmentCounts($pendingAppointments);
+            $item->setTotalAppointmentCounts($totalAppointments);
+        }
     }
 }
