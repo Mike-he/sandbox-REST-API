@@ -1103,6 +1103,7 @@ class ClientOrderController extends OrderController
         $productId = $order->getProductId();
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
 
         $renewButton = false;
 
@@ -1130,6 +1131,16 @@ class ClientOrderController extends OrderController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
         }
+
+        $this->setPopUpMessage(
+            $order,
+            $now,
+            $startDate,
+            $endDate,
+            $status,
+            $type,
+            $language
+        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
@@ -1542,5 +1553,126 @@ class ClientOrderController extends OrderController
             $orderId,
             $base
         );
+    }
+
+    /**
+     * @param $order
+     * @param $now
+     * @param $startDate
+     * @param $endDate
+     * @param $status
+     * @param $type
+     * @param $language
+     */
+    private function setPopUpMessage(
+        $order,
+        $now,
+        $startDate,
+        $endDate,
+        $status,
+        $type,
+        $language
+    ) {
+        $keyStart = null;
+        $keyEnd = null;
+        $number = 0;
+
+        if ($status == ProductOrder::STATUS_PAID && !$order->isRejected()) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+                $time = clone $now;
+                $time->modify('+10 minutes');
+
+                if ($time >= $startDate) {
+                    $diff = $startDate->diff($now);
+                    $number = $diff->i + 1;
+
+                    if ($type == Room::TYPE_MEETING) {
+                        $keyStart = ProductOrderMessage::MEETING_START_MESSAGE;
+                    } else {
+                        $keyStart = ProductOrderMessage::STUDIO_START_MESSAGE;
+                    }
+                }
+            } else {
+                $time = clone $now;
+                $time->modify('+8 hours');
+
+                if ($time >= $startDate) {
+                    if ($type == Room::TYPE_OFFICE) {
+                        $keyStart = ProductOrderMessage::OFFICE_START_MESSAGE;
+                    } else {
+                        $keyStart = ProductOrderMessage::WORKSPACE_START_MESSAGE;
+                    }
+                }
+            }
+        } elseif ($status == ProductOrder::STATUS_COMPLETED &&
+            !$order->isRejected() &&
+            $endDate > $now
+        ) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+                $time = clone $now;
+                $time->modify('+10 minutes');
+
+                if ($time >= $endDate) {
+                    $diff = $endDate->diff($now);
+                    $number = $diff->i + 1;
+
+                    if ($type == Room::TYPE_MEETING) {
+                        $keyEnd = ProductOrderMessage::MEETING_END_MESSAGE;
+                    } else {
+                        $keyEnd = ProductOrderMessage::STUDIO_END_MESSAGE;
+                    }
+                }
+            } elseif ($type == Room::TYPE_OFFICE) {
+                $time = clone $now;
+                $time->modify('+8 hours');
+                $time->modify('+7 days');
+
+                if ($time >= $endDate) {
+                    $diff = $endDate->diff($now);
+                    $number = $diff->d;
+
+                    if ($number == 0) {
+                        $number = 1;
+                    }
+
+                    $keyEnd = ProductOrderMessage::OFFICE_END_MESSAGE;
+                }
+            } else {
+                $time = clone $now;
+                $time->modify('+8 hours');
+
+                if ($time >= $endDate) {
+                    $keyEnd = ProductOrderMessage::WORKSPACE_END_MESSAGE;
+                }
+            }
+        }
+
+        if (!is_null($keyStart)) {
+            $message = $this->get('translator')->trans(
+                $keyStart,
+                array(),
+                null,
+                $language
+            );
+
+            if ($number !== 0) {
+                $message = preg_replace('/[0-9]+/', "$number", $message);
+            }
+
+            $order->setStartAlert($message);
+        } elseif (!is_null($keyEnd)) {
+            $message = $this->get('translator')->trans(
+                $keyEnd,
+                array(),
+                null,
+                $language
+            );
+
+            if ($number !== 0) {
+                $message = preg_replace('/[0-9]+/', "$number", $message);
+            }
+
+            $order->setEndAlert($message);
+        }
     }
 }
