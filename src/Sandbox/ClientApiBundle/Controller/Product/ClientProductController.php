@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Product;
 
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPostType;
@@ -27,6 +28,185 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientProductController extends ProductController
 {
+    /**
+     * @Get("/products/search")
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    description="building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    default=null,
+     *    nullable=true,
+     *    description="start time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end",
+     *    default=null,
+     *    nullable=true,
+     *    description="end time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="allowed_people",
+     *    default=null,
+     *    nullable=true,
+     *    description="maximum allowed people"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default="meeting",
+     *    requirements="meeting|office|fixed|flexible|studio",
+     *    nullable=true,
+     *    description="room type"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getProductSearchAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
+
+        // get params
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
+        $start = $paramFetcher->get('start');
+        $end = $paramFetcher->get('end');
+        $allowedPeople = $paramFetcher->get('allowed_people');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $type = $paramFetcher->get('type');
+
+        $startTime = null;
+        $endTime = null;
+        $productIds = [];
+        $products = [];
+
+        if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+            $startHour = null;
+            $endHour = null;
+
+            if (!is_null($start) && !empty($start)) {
+                $startTime = new \DateTime($start);
+                $startHour = $startTime->format('H:i:s');
+            }
+
+            if (!is_null($end) && !empty($end)) {
+                $endTime = new \DateTime($end);
+                $endHour = $endTime->format('H:i:s');
+            }
+
+            $productIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getMeetingProductsForClient(
+                    $userId,
+                    $cityId,
+                    $buildingId,
+                    $allowedPeople,
+                    $startTime,
+                    $endTime,
+                    $startHour,
+                    $endHour,
+                    $limit,
+                    $offset,
+                    $type
+            );
+        } elseif ($type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
+            if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
+                $startTime = new \DateTime($start);
+                $startTime->setTime(0, 0, 0);
+                $endTime = new \DateTime($end);
+                $endTime->setTime(23, 59, 59);
+            }
+
+            $productIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getWorkspaceProductsForClient(
+                    $userId,
+                    $cityId,
+                    $buildingId,
+                    $allowedPeople,
+                    $startTime,
+                    $endTime,
+                    $limit,
+                    $offset,
+                    $type
+            );
+        } elseif ($type == Room::TYPE_OFFICE) {
+            if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
+                $startTime = new \DateTime($start);
+                $startTime->setTime(0, 0, 0);
+                $endTime = new \DateTime($end);
+                $endTime->setTime(23, 59, 59);
+            }
+
+            $productIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getOfficeProductsForClient(
+                    $userId,
+                    $cityId,
+                    $buildingId,
+                    $allowedPeople,
+                    $startTime,
+                    $endTime,
+                    $limit,
+                    $offset
+            );
+        }
+
+        foreach ($productIds as $productId) {
+            $product = $this->getRepo('Product\Product')->find($productId);
+            array_push($products, $product);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($products);
+
+        return $view;
+    }
+
     /**
      * @Get("/products/meeting")
      *
@@ -372,7 +552,8 @@ class ClientProductController extends ProductController
             $startDate,
             $endDate,
             $limit,
-            $offset
+            $offset,
+            Room::TYPE_FIXED
         );
 
         $products = [];
