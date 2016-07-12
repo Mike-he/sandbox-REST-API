@@ -243,6 +243,7 @@ class ProductRepository extends EntityRepository
      * @param $endDate
      * @param $limit
      * @param $offset
+     * @param $type
      *
      * @return array
      */
@@ -254,18 +255,18 @@ class ProductRepository extends EntityRepository
         $startDate,
         $endDate,
         $limit,
-        $offset
+        $offset,
+        $type
     ) {
         $now = new \DateTime();
 
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
-            ->where('r.type = :typeFixed OR r.type = :typeFlexible')
+            ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
-            ->setParameter('typeFixed', Room::TYPE_FIXED)
-            ->setParameter('typeFlexible', Room::TYPE_FLEXIBLE)
+            ->setParameter('type', $type)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
