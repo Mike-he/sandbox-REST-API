@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Shop;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Shop\Shop;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 
@@ -102,6 +103,9 @@ class ShopOrderRepository extends EntityRepository
      * @param $sort
      * @param $search
      * @param $user
+     * @param null $cityId
+     * @param null $buildingId
+     * @param $refundStatus
      *
      * @return array
      */
@@ -114,7 +118,8 @@ class ShopOrderRepository extends EntityRepository
         $search,
         $user,
         $cityId = null,
-        $buildingId = null
+        $buildingId = null,
+        $refundStatus
     ) {
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
@@ -167,6 +172,11 @@ class ShopOrderRepository extends EntityRepository
         if (!is_null($buildingId)) {
             $query->andWhere('b.id = :buildingId')
                 ->setParameter('buildingId', $buildingId);
+        }
+
+        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+            $query->andWhere('o.refunded = :refunded')
+                ->setParameter('refunded', true);
         }
 
         return $query->getQuery()->getResult();

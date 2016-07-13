@@ -538,6 +538,16 @@ class AdminOrderController extends OrderController
      *    description="filter for order end point. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="refundStatus",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="refunded",
+     *    strict=true,
+     *    description="refund status filter for order "
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -580,6 +590,7 @@ class AdminOrderController extends OrderController
         $payEnd = $paramFetcher->get('payEnd');
         $orderStartPoint = $paramFetcher->get('orderStartPoint');
         $orderEndPoint = $paramFetcher->get('orderEndPoint');
+        $refundStatus = $paramFetcher->get('refundStatus');
 
         //search by name and number
         $search = $paramFetcher->get('query');
@@ -601,12 +612,20 @@ class AdminOrderController extends OrderController
                 $payEnd,
                 $search,
                 $orderStartPoint,
-                $orderEndPoint
+                $orderEndPoint,
+                $refundStatus
             );
+
+        $orders = $this->get('serializer')->serialize(
+            $query,
+            'json',
+            SerializationContext::create()->setGroups(['admin_detail'])
+        );
+        $orders = json_decode($orders, true);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $orders,
             $pageIndex,
             $pageLimit
         );
