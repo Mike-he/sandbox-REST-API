@@ -507,6 +507,8 @@ class AdminRoomController extends RoomController
                 AdminPermission::KEY_PLATFORM_ROOM,
                 AdminPermission::KEY_PLATFORM_PRODUCT,
                 AdminPermission::KEY_PLATFORM_EVENT,
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
