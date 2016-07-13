@@ -1132,7 +1132,7 @@ class ClientOrderController extends OrderController
             $em->flush();
         }
 
-        $this->setPopUpMessage(
+        $alertArray = $this->setPopUpMessage(
             $order,
             $now,
             $startDate,
@@ -1142,15 +1142,19 @@ class ClientOrderController extends OrderController
             $language
         );
 
+        $viewArray = [
+            'renewButton' => $renewButton,
+            'order' => $order,
+            'appointedPerson' => $appointedPerson,
+        ];
+
+        if (!empty($alertArray)) {
+            $viewArray = array_merge($viewArray, $alertArray);
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData(
-            [
-                'renewButton' => $renewButton,
-                'order' => $order,
-                'appointedPerson' => $appointedPerson,
-            ]
-        );
+        $view->setData($viewArray);
 
         return $view;
     }
@@ -1563,6 +1567,8 @@ class ClientOrderController extends OrderController
      * @param $status
      * @param $type
      * @param $language
+     *
+     * @return array
      */
     private function setPopUpMessage(
         $order,
@@ -1576,6 +1582,7 @@ class ClientOrderController extends OrderController
         $keyStart = null;
         $keyEnd = null;
         $number = 0;
+        $alertArray = [];
 
         if ($status == ProductOrder::STATUS_PAID && !$order->isRejected()) {
             if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
@@ -1656,10 +1663,9 @@ class ClientOrderController extends OrderController
             );
 
             if ($number !== 0) {
-                $message = preg_replace('/[0-9]+/', "$number", $message);
+                $startMessage = preg_replace('/[0-9]+/', "$number", $message);
+                $alertArray = ['start_alert' => $startMessage];
             }
-
-            $order->setStartAlert($message);
         } elseif (!is_null($keyEnd)) {
             $message = $this->get('translator')->trans(
                 $keyEnd,
@@ -1669,10 +1675,11 @@ class ClientOrderController extends OrderController
             );
 
             if ($number !== 0) {
-                $message = preg_replace('/[0-9]+/', "$number", $message);
+                $endMessage = preg_replace('/[0-9]+/', "$number", $message);
+                $alertArray = ['end_alert' => $endMessage];
             }
-
-            $order->setEndAlert($message);
         }
+
+        return $alertArray;
     }
 }
