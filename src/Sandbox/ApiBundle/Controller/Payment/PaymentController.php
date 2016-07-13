@@ -118,7 +118,16 @@ class PaymentController extends DoorController
     public function getCreditTokenAction(
         Request $request
     ) {
-        return new View(json_decode($request->getContent(), true));
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->find(1778);
+
+        $order->setRuleDescription($request->getContent());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
