@@ -719,6 +719,7 @@ class OrderRepository extends EntityRepository
      * @param string       $search
      * @param DateTime     $orderStartPoint
      * @param DateTime     $orderEndPoint
+     * @param string       $refundStatus
      *
      * @return array
      */
@@ -734,7 +735,8 @@ class OrderRepository extends EntityRepository
         $payEnd,
         $search,
         $orderStartPoint,
-        $orderEndPoint
+        $orderEndPoint,
+        $refundStatus
     ) {
         $parameters = [];
 
@@ -830,6 +832,11 @@ class OrderRepository extends EntityRepository
                 $query->andWhere('o.startDate <= :orderEndPoint');
                 $parameters['orderEndPoint'] = $orderEndPoint;
             }
+        }
+
+        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+            $query->andWhere('o.refunded = :refunded');
+            $parameters['refunded'] = true;
         }
 
         //order by
