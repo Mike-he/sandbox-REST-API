@@ -23,6 +23,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use FOS\RestBundle\Controller\Annotations\Post;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Payment Controller.
@@ -105,6 +107,19 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    /**
+     * @Post("/payment/token")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getCreditTokenAction(
+        Request $request
+    ) {
+        return new View(json_decode($request->getContent(), true));
+    }
 
     /**
      * @param $channel
