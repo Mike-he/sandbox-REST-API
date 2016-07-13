@@ -1663,9 +1663,10 @@ class ClientOrderController extends OrderController
             );
 
             if ($number !== 0) {
-                $startMessage = preg_replace('/[0-9]+/', "$number", $message);
-                $alertArray = ['start_alert' => $startMessage];
+                $message = preg_replace('/[0-9]+/', "$number", $message);
             }
+
+            $alertArray = ['start_alert' => $message];
         } elseif (!is_null($keyEnd)) {
             $message = $this->get('translator')->trans(
                 $keyEnd,
@@ -1675,9 +1676,10 @@ class ClientOrderController extends OrderController
             );
 
             if ($number !== 0) {
-                $endMessage = preg_replace('/[0-9]+/', "$number", $message);
-                $alertArray = ['end_alert' => $endMessage];
+                $message = preg_replace('/[0-9]+/', "$number", $message);
             }
+
+            $alertArray = ['end_alert' => $message];
         }
 
         return $alertArray;
