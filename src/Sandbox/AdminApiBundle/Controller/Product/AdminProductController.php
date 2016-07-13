@@ -234,7 +234,17 @@ class AdminProductController extends ProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
