@@ -715,12 +715,16 @@ class ClientOrderController extends OrderController
 
         $price = $order->getDiscountPrice();
         $userId = $order->getUserId();
+        $status = $order->getStatus();
 
         // check if request user is the same as order user
         $this->throwAccessDeniedIfNotSameUser($userId);
 
         $now = new \DateTime();
-        if ($order->getStatus() !== 'paid' || $order->getStartDate() <= $now) {
+        if ($status !== ProductOrder::STATUS_PAID ||
+            $status !== ProductOrder::STATUS_UNPAID ||
+            $order->getStartDate() <= $now
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_PAYMENT_STATUS_CODE,
@@ -728,7 +732,17 @@ class ClientOrderController extends OrderController
             );
         }
 
-        $charge = [];
+        if ($status == ProductOrder::STATUS_UNPAID) {
+            $order->setStatus(ProductOrder::STATUS_CANCELLED);
+            $order->setCancelledDate(new \DateTime());
+            $order->setModificationDate(new \DateTime());
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+
+            return new View();
+        }
+
         $channel = $order->getPayChannel();
         $order->setModificationDate(new \DateTime());
 
@@ -757,7 +771,7 @@ class ClientOrderController extends OrderController
 
         $this->removeAccessByOrder($order);
 
-        return new View($charge);
+        return new View();
     }
 
     /**

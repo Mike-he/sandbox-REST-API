@@ -76,7 +76,7 @@ product_order:
     workspace_start: 您的工位将在明天开始使用
     workspace_end: 您的工位将在明天到期
     office_start: 您的办公室将在明天开始使用
-    office_end: 您的办公室将在七天后到期
+    office_end: 您的办公室将在7天后到期
     office_reject: 抱歉，您申请的办公室没有通过审核，钱款将在1~3个工作日退回到您的支付账户下
     office_order: 您的办公室已预定成功，使用前请先到前台登记
     office_accept: 您申请的办公室已通过
