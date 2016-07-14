@@ -409,7 +409,6 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -644,7 +643,6 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -1182,6 +1180,117 @@ class AdminOrderController extends OrderController
 
             throw $exception;
         }
+    }
+    /**
+     * @Route("/orders/{id}/cancel")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return View
+     */
+    public function cancelAdminOrderAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $adminId = $this->getAdminId();
+
+        if ($adminId != $order->getAdminId()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $type = $order->getType();
+
+        // check user permission
+        if (ProductOrder::RESERVE_TYPE == $type) {
+            $permission = AdminPermission::KEY_PLATFORM_ORDER_RESERVE;
+        } elseif (ProductOrder::PREORDER_TYPE) {
+            $permission = AdminPermission::KEY_PLATFORM_ORDER_PREORDER;
+        } else {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                $permission,
+            ),
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $now = new \DateTime();
+        $status = $order->getStatus();
+
+        if (ProductOrder::STATUS_CANCELLED == $status
+            || $order->getEndDate() <= $now
+            || $order->isInvoiced()
+        ) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_PAYMENT_STATUS_CODE,
+                self::WRONG_PAYMENT_STATUS_MESSAGE
+            );
+        }
+
+        if (ProductOrder::PREORDER_TYPE == $type) {
+            if (ProductOrder::STATUS_COMPLETED == $status) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_PAYMENT_STATUS_CODE,
+                    self::WRONG_PAYMENT_STATUS_MESSAGE
+                );
+            }
+
+            $price = $order->getDiscountPrice();
+            $channel = $order->getPayChannel();
+            $userId = $order->getUserId();
+            $order->setModificationDate($now);
+
+            if ($price > 0) {
+                $order->setNeedToRefund(true);
+
+                if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                    $balance = $this->postBalanceChange(
+                        $userId,
+                        $price,
+                        $order->getOrderNumber(),
+                        self::PAYMENT_CHANNEL_ACCOUNT,
+                        0,
+                        self::ORDER_REFUND
+                    );
+
+                    $order->setRefundProcessed(true);
+                    $order->setRefundProcessedDate($now);
+
+                    if (!is_null($balance)) {
+                        $order->setRefunded(true);
+                        $order->setNeedToRefund(false);
+                    }
+                }
+            }
+
+            $this->removeAccessByOrder($order);
+        } else {
+            $order->setStatus(ProductOrder::STATUS_CANCELLED);
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+        }
+
+        return new View();
     }
 
     /**

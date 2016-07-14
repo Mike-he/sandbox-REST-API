@@ -62,7 +62,6 @@ class AdminRoomController extends RoomController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -293,7 +292,6 @@ class AdminRoomController extends RoomController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -366,7 +364,6 @@ class AdminRoomController extends RoomController
      *    array=true,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
