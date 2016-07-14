@@ -13,6 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 class TopUpOrder
 {
     const TOP_UP_MAP = 'topup';
+    const PAYMENT_SUBJECT = 'SANDBOX3-会员余额充值';
+    const PAYMENT_BODY = 'TOPUP ORDER';
 
     /**
      * @var int

@@ -23,7 +23,7 @@ class ShopOrder
     const STATUS_CANCELLED = 'cancelled';
     const LETTER_HEAD = 'S';
     const PAYMENT_SUBJECT = 'SANDBOX3-店铺订单';
-    const PAYMENT_BODY = 'Shop Order';
+    const PAYMENT_BODY = 'SHOP ORDER';
     const READY_NOTIFICATION = 'shop_order.push_message.ready';
     const REFUNDED_NOTIFICATION = 'shop_order.push_message.refund';
     const ISSUE_NOTIFICATION = 'shop_order.push_message.issue';

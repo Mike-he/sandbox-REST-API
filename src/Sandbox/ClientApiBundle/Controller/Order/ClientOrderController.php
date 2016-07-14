@@ -37,9 +37,6 @@ class ClientOrderController extends OrderController
 {
     use SetStatusTrait;
 
-    const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
-    const PAYMENT_BODY = 'ROOM ORDER';
-
     /**
      * Get all orders for current user.
      *
@@ -680,8 +677,8 @@ class ClientOrderController extends OrderController
             $orderNumber,
             $order->getDiscountPrice(),
             $channel,
-            self::PAYMENT_SUBJECT,
-            self::PAYMENT_BODY
+            ProductOrder::PAYMENT_SUBJECT,
+            ProductOrder::PAYMENT_BODY
         );
         $charge = json_decode($charge, true);
 
