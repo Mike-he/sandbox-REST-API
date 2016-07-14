@@ -36,9 +36,6 @@ class ClientEventOrderController extends PaymentController
     const EVENT_ORDER_EXIST_CODE = 400034;
     const EVENT_ORDER_EXIST_MESSAGE = 'Event Order Already Exists';
 
-    const PAYMENT_SUBJECT = 'SANDBOX3-活动报名支付';
-    const PAYMENT_BODY = 'EVENT ORDER PAYMENT';
-
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -361,8 +358,8 @@ class ClientEventOrderController extends PaymentController
             $orderNumber,
             $order->getPrice(),
             $channel,
-            self::PAYMENT_SUBJECT,
-            self::PAYMENT_BODY
+            EventOrder::PAYMENT_SUBJECT,
+            EventOrder::PAYMENT_BODY
         );
         $charge = json_decode($charge, true);
 
