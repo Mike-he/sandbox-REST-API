@@ -19,6 +19,7 @@ use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
@@ -127,7 +128,7 @@ class PaymentController extends DoorController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        return new View();
+        return new Response();
     }
 
     /**
