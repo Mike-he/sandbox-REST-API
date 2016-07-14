@@ -113,9 +113,16 @@ class CheckStatusCommand extends ContainerAwareCommand
                 }
             }
         } else {
-            $order->setStatus(ProductOrder::STATUS_CANCELLED);
-            $order->setCancelledDate($now);
-            $order->setModificationDate($now);
+            $remainingTime = $now->diff($creationTime);
+            $minutes = $remainingTime->i;
+
+            $minutes = 4 - $minutes;
+
+            if ($minutes < 0) {
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
+            }
         }
     }
 

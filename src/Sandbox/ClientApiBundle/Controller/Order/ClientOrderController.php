@@ -1233,7 +1233,19 @@ class ClientOrderController extends OrderController
                         $seconds = $remainingTime->s;
                     }
                 } else {
-                    $this->setOrderStatusCancelled($order, $now);
+                    $remainingTime = $now->diff($creationTime);
+                    $minutes = $remainingTime->i;
+                    $seconds = $remainingTime->s;
+
+                    $minutes = 4 - $minutes;
+                    $seconds = 59 - $seconds;
+
+                    if ($minutes < 0) {
+                        $minutes = 0;
+                        $seconds = 0;
+
+                        $this->setOrderStatusCancelled($order, $now);
+                    }
                 }
             } else {
                 $remainingTime = $now->diff($creationTime);
