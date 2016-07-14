@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -23,8 +24,6 @@ use FOS\RestBundle\Controller\Annotations\Post;
  */
 class ClientTopUpOrderController extends PaymentController
 {
-    const PAYMENT_SUBJECT = 'SANDBOX3-会员余额充值';
-    const PAYMENT_BODY = 'TOPUP ORDER';
     const TOPUP_ORDER_LETTER_HEAD = 'T';
 
     /**
@@ -135,7 +134,7 @@ class ClientTopUpOrderController extends PaymentController
             $orderNumber,
             $price,
             $channel,
-            self::PAYMENT_SUBJECT,
+            TopUpOrder::PAYMENT_SUBJECT,
             $this->getUserId()
         );
 
