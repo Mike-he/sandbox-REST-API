@@ -256,7 +256,7 @@ fos_rest:
             html: true
     format_listener:
         rules:
-            - { path: ^/, priorities: [ html, json, xml ], fallback_format: ~, prefer_extension: false }
+            - { path: ^/, priorities: [ json, html, xml ], fallback_format: ~, prefer_extension: false }
         media_type:
             version_regex: '/(v|version)=(?P<version>[0-9\.]+)/'
     exception:
