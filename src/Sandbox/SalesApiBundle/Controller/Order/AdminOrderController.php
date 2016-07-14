@@ -239,7 +239,6 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -468,7 +467,6 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
