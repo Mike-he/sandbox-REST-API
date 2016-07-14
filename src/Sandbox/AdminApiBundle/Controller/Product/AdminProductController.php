@@ -571,7 +571,7 @@ class AdminProductController extends ProductController
             AdminType::KEY_PLATFORM,
             array(
                 AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
             ),
             AdminPermissionMap::OP_LEVEL_EDIT
         );

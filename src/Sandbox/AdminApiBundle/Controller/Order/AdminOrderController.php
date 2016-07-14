@@ -1205,10 +1205,6 @@ class AdminOrderController extends OrderController
 
         $adminId = $this->getAdminId();
 
-        if ($adminId != $order->getAdminId()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
         $type = $order->getType();
 
         // check user permission
@@ -1221,7 +1217,7 @@ class AdminOrderController extends OrderController
         }
 
         $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
+            $adminId,
             AdminType::KEY_PLATFORM,
             array(
                 $permission,

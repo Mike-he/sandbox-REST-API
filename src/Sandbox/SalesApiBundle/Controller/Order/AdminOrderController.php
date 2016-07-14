@@ -859,10 +859,6 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
         $adminId = $this->getAdminId();
 
-        if ($adminId != $order->getAdminId()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
         $type = $order->getType();
 
         if (ProductOrder::RESERVE_TYPE == $type) {
