@@ -121,9 +121,13 @@ class PaymentController extends DoorController
     ) {
         $content = json_decode($request->getContent(), true);
 
-        if (array_key_exists('order_no', $content) && array_key_exists('token_id', $content)) {
+        if (array_key_exists('order_no', $content) &&
+            array_key_exists('token_id', $content) &&
+            array_key_exists('channel', $content)
+        ) {
             $orderNumber = $content['order_no'];
             $token = $content['token_id'];
+            $channel = $content['channel'];
 
             $letter = substr($orderNumber, 0, 1);
 
@@ -185,7 +189,7 @@ class PaymentController extends DoorController
                     null,
                     $orderNumber,
                     $price,
-                    $order->getPayChannel(),
+                    $channel,
                     $subject,
                     $body
                 );
