@@ -743,8 +743,7 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('(o.status != :unpaid) AND (o.paymentDate IS NOT NULL)')
-            ->orWhere('o.type = :preOrder');
+            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder))');
 
         $parameters['preOrder'] = ProductOrder::PREORDER_TYPE;
         $parameters['unpaid'] = ProductOrder::STATUS_UNPAID;
@@ -1015,8 +1014,7 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('(o.status != :unpaid) AND (o.paymentDate IS NOT NULL)')
-            ->orWhere('o.type = :preOrder');
+            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder))');
 
         $parameters['preOrder'] = ProductOrder::PREORDER_TYPE;
         $parameters['unpaid'] = ProductOrder::STATUS_UNPAID;
