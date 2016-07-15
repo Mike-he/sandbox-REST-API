@@ -882,6 +882,7 @@ class AdminOrderController extends OrderController
             AdminType::KEY_PLATFORM,
             array(
                 AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
             ),
             AdminPermissionMap::OP_LEVEL_EDIT
         );
@@ -1023,6 +1024,7 @@ class AdminOrderController extends OrderController
             AdminType::KEY_PLATFORM,
             array(
                 AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
             ),
             AdminPermissionMap::OP_LEVEL_EDIT
         );
