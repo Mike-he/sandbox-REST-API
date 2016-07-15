@@ -400,6 +400,14 @@ class ProductOrder
     private $refundComment;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="cancelByUser", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order" ,"client"})
+     */
+    private $cancelByUser = false;
+
+    /**
      * Set isRenew.
      *
      * @param bool $isRenew
@@ -1341,6 +1349,30 @@ class ProductOrder
     public function isSalesInvoice()
     {
         return $this->salesInvoice;
+    }
+
+    /**
+     * Set cancelByUser.
+     *
+     * @param bool $cancelByUser
+     *
+     * @return ProductOrder
+     */
+    public function setCancelByUser($cancelByUser)
+    {
+        $this->cancelByUser = $cancelByUser;
+
+        return $this;
+    }
+
+    /**
+     * Get cancelByUser.
+     *
+     * @return bool
+     */
+    public function isCancelByUser()
+    {
+        return $this->cancelByUser;
     }
 
     public function __construct()
