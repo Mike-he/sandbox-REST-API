@@ -99,6 +99,7 @@ class AdminOrderController extends OrderController
             $order->setStatus(ProductOrder::STATUS_CANCELLED);
             $order->setCancelledDate($now);
             $order->setModificationDate($now);
+            $order->setCancelByUser(true);
 
             if ($price > 0) {
                 $order->setNeedToRefund(true);
@@ -895,6 +896,8 @@ class AdminOrderController extends OrderController
                 self::WRONG_PAYMENT_STATUS_MESSAGE
             );
         }
+
+        $order->setCancelByUser(true);
 
         if (ProductOrder::PREORDER_TYPE == $type) {
             if (ProductOrder::STATUS_COMPLETED == $status) {

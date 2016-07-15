@@ -715,6 +715,8 @@ class ClientOrderController extends OrderController
             );
         }
 
+        $order->setCancelByUser(true);
+
         if ($status == ProductOrder::STATUS_UNPAID) {
             $order->setStatus(ProductOrder::STATUS_CANCELLED);
             $order->setCancelledDate(new \DateTime());
