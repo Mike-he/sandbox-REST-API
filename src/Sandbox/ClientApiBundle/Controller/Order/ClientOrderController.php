@@ -705,8 +705,8 @@ class ClientOrderController extends OrderController
         $this->throwAccessDeniedIfNotSameUser($userId);
 
         $now = new \DateTime();
-        if (($status !== ProductOrder::STATUS_PAID && $status !== ProductOrder::STATUS_UNPAID) ||
-            $order->getStartDate() <= $now
+        if (ProductOrder::STATUS_CANCELLED == $status ||
+            ProductOrder::STATUS_COMPLETED == $status
         ) {
             return $this->customErrorView(
                 400,
