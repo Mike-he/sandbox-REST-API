@@ -635,7 +635,15 @@ class AdminProductController extends ProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            ),
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
 
         $product = $this->getRepo('Product\Product')->find(array(
             'id' => $id,

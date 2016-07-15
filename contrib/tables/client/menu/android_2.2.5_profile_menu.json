@@ -1,0 +1,111 @@
+[
+  {
+    "type": "list",
+    "menus": [
+      [
+        {
+          "key": "topup",
+          "type": "web",
+          "name": "client.menu.balance",
+          "web_url": {
+            "url": "https://mobile.sandbox3.cn/recharge"
+          },
+          "status": "active",
+          "login_need": true
+        }
+      ],
+      [
+        {
+          "key": "my_order",
+          "type": "app",
+          "name": "client.menu.my_order",
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_my_orders.png",
+          "status": "active",
+          "login_need": true
+        },
+        {
+          "key": "my_room",
+          "type": "app",
+          "name": "client.menu.my_room",
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_used_rooms.png",
+          "status": "active",
+          "login_need": true
+        },
+        {
+          "key": "announcement",
+          "type": "app",
+          "name": "client.menu.notification",
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_chat.png",
+          "status": "active",
+          "login_need": true
+        },
+        {
+          "key": "my_invoice",
+          "type": "web",
+          "name": "client.menu.my_invoice",
+          "web": {
+            "url": "https://testinvoice.sandbox3.cn/invoice"
+          },
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_acc_invoice.png",
+          "status": "active",
+          "login_need": true
+        },
+        {
+          "key": "member_card",
+          "type": "app",
+          "name": "client.menu.membership_card",
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_acc_card.png",
+          "status": "active",
+          "login_need": true
+        }
+      ],
+      [
+        {
+          "key": "reset_password",
+          "type": "app",
+          "name": "client.menu.reset_password",
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_acc_password.png",
+          "status": "active",
+          "login_need": true
+        },
+        {
+          "key": "email",
+          "type": "app",
+          "name": "client.menu.email",
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_acc_mail.png",
+          "status": "active",
+          "login_need": true
+        },
+        {
+          "key": "phone",
+          "type": "app",
+          "name": "client.menu.phone",
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_acc_phone.png",
+          "status": "active",
+          "login_need": true
+        }
+      ],
+      [
+        {
+          "key": "about_us",
+          "type": "web",
+          "name": "client.menu.about_us",
+          "web": {
+            "url": "https://mobile.sandbox3.cn/about?version=2.2.4"
+          },
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_about_sandbox.png",
+          "status": "active",
+          "login_need": true
+        },
+        {
+          "key": "setting",
+          "type": "app",
+          "name": "client.menu.setting",
+          "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_settings.png",
+          "status": "active",
+          "login_need": true
+        }
+      ]
+    ]
+  }
+]
