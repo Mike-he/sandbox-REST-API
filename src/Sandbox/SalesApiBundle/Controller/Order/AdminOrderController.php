@@ -94,6 +94,9 @@ class AdminOrderController extends OrderController
         $price = $order->getDiscountPrice();
         $userId = $order->getUserId();
         $channel = $order->getPayChannel();
+        $productId = $order->getProductId();
+        $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
 
         if ($newRejected) {
             $order->setStatus(ProductOrder::STATUS_CANCELLED);
@@ -167,6 +170,56 @@ class AdminOrderController extends OrderController
                 [$order],
                 ProductOrderMessage::OFFICE_ACCEPTED_MESSAGE
             );
+            
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getOfficeRejected(
+                    $productId, 
+                    $startDate, 
+                    $endDate
+                );
+
+            foreach ($orders as $order) {
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
+                $order->setCancelByUser(true);
+
+                if ($price > 0) {
+                    $order->setNeedToRefund(true);
+
+                    if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                        $balance = $this->postBalanceChange(
+                            $userId,
+                            $price,
+                            $order->getOrderNumber(),
+                            self::PAYMENT_CHANNEL_ACCOUNT,
+                            0,
+                            self::ORDER_REFUND
+                        );
+
+                        $order->setRefundProcessed(true);
+                        $order->setRefundProcessedDate($now);
+
+                        if (!is_null($balance)) {
+                            $order->setRefunded(true);
+                            $order->setNeedToRefund(false);
+                        }
+                    }
+                }
+            }
+
+            if (!empty($orders)) {
+                // send message
+                $this->sendXmppProductOrderNotification(
+                    null,
+                    null,
+                    ProductOrder::ACTION_REJECTED,
+                    null,
+                    $orders,
+                    ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+                );
+            }
         }
 
         $em = $this->getDoctrine()->getManager();
