@@ -65,7 +65,7 @@
         "type": "app",
         "name": "client.menu.community",
         "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_home.png",
-        "status": "inactive",
+        "status": "active",
         "login_need": false
       }
     ]
