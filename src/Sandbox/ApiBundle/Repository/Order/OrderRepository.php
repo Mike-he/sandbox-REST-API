@@ -667,9 +667,11 @@ class OrderRepository extends EntityRepository
             ->where('o.productId = :productId')
             ->andWhere('o.status <> \'cancelled\'')
             ->andWhere('o.endDate > :now')
+            ->andWhere('o.rejected = :rejected')
             ->orderBy('o.startDate', 'ASC')
             ->setParameter('productId', $id)
             ->setParameter('now', $now)
+            ->setParameter('rejected', false)
             ->getQuery();
 
         return $query->getResult();
