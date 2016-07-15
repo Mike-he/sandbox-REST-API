@@ -58,6 +58,8 @@ class AdminShopSpecController extends SpecController
             ShopAdminPermissionMap::OP_LEVEL_VIEW,
             array(
                 ShopAdminPermission::KEY_PLATFORM_SPEC,
+                ShopAdminPermission::KEY_SHOP_PRODUCT,
+                ShopAdminPermission::KEY_SHOP_KITCHEN,
             )
         );
 
