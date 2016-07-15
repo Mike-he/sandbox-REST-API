@@ -313,19 +313,6 @@ class ClientEventOrderController extends PaymentController
         $smsId = '';
         $smsCode = '';
 
-        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
-            $token = $requestContent['token_f'];
-
-            if (array_key_exists('sms_id', $requestContent) &&
-                array_key_exists('sms_code', $requestContent) &&
-                !empty($requestContent['sms_id']) &&
-                !empty($requestContent['sms_code'])
-            ) {
-                $smsId = $requestContent['sms_id'];
-                $smsCode = $requestContent['sms_code'];
-            }
-        }
-
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
             $channel !== self::PAYMENT_CHANNEL_UPACP &&
