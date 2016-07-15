@@ -176,7 +176,9 @@ class AdminOrderController extends OrderController
                 ->getOfficeRejected(
                     $productId, 
                     $startDate, 
-                    $endDate
+                    $endDate,
+                    null,
+                    $order->getId()
                 );
 
             foreach ($orders as $order) {
