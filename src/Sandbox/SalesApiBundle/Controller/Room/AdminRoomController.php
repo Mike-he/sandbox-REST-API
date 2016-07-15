@@ -584,6 +584,8 @@ class AdminRoomController extends SalesRestController
             array(
                 SalesAdminPermission::KEY_BUILDING_ROOM,
                 SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
             )
         );
 

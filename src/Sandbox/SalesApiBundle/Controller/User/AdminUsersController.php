@@ -139,6 +139,8 @@ class AdminUsersController extends DoorController
             SalesAdminType::KEY_PLATFORM,
             array(
                 SalesAdminPermission::KEY_BUILDING_USER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
             ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
@@ -278,6 +280,8 @@ class AdminUsersController extends DoorController
                 SalesAdminPermission::KEY_BUILDING_USER,
                 SalesAdminPermission::KEY_BUILDING_ORDER,
                 SalesAdminPermission::KEY_PLATFORM_INVOICE,
+                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
             ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
