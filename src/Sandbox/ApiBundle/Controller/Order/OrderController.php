@@ -341,6 +341,11 @@ class OrderController extends PaymentController
                         );
 
                     if (!empty($orders)) {
+                        if (!is_null($orderCheck)) {
+                            $em->remove($orderCheck);
+                            $em->flush();
+                        }
+
                         throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
                     }
                 }
