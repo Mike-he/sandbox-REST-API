@@ -680,6 +680,44 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * Get rejected office orders.
+     *
+     * @param $id
+     * @param $startDate
+     * @param $endDate
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getOfficeRejected(
+        $id,
+        $startDate,
+        $endDate,
+        $userId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.productId = :productId')
+            ->andWhere('o.status <> \'cancelled\'')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere(
+                '(o.startDate <= :startDate AND o.endDate > :startDate) OR
+                (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                (o.startDate >= :startDate AND o.endDate <= :endDate)'
+            )
+            ->setParameter('productId', $id)
+            ->setParameter('rejected', true)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
+
+        if (!is_null($userId)) {
+            $query = $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+        
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * Get Booked Times for flexible.
      *
      * @param $id
