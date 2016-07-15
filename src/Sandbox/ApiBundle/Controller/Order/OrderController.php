@@ -261,90 +261,100 @@ class OrderController extends PaymentController
         $endDate,
         $userId
     ) {
-        if ($type == Room::TYPE_FLEXIBLE) {
-            //check if flexible room is full before order creation
-            $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
+        $orderCheck = null;
+        try {
+            if ($type == Room::TYPE_FLEXIBLE) {
+                //check if flexible room is full before order creation
+                $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
 
-            if ($allowedPeople <= $orderCount) {
-                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
-            }
-
-            // check if flexible room is full after order check creation
-            // in case of duplicate submits
-            $orderCheck = $this->setProductOrderCheck(
-                $em,
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkFlexibleForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            if ($allowedPeople < ($orderCount + $orderCheckCount)) {
-                $em->remove($orderCheck);
-                $em->flush();
-
-                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
-            }
-        } else {
-            // check for room conflict before order creation
-            $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            if (!empty($checkOrder) && !is_null($checkOrder)) {
-                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
-            }
-
-            // check for room conflict after order check creation
-            // in case of duplicate submits
-            $orderCheck = $this->setProductOrderCheck(
-                $em,
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkProductForClient(
-                $productId,
-                $startDate,
-                $endDate
-            );
-
-            if ($orderCheckCount > 1) {
-                $em->remove($orderCheck);
-                $em->flush();
-
-                throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
-            }
-            
-            if ($type == Room::TYPE_OFFICE) {
-                $orders = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
-                    ->getOfficeRejected(
-                        $productId,
-                        $startDate,
-                        $endDate,
-                        $userId
-                    );
-
-                if (!empty($orders)) {
+                if ($allowedPeople <= $orderCount) {
                     throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
                 }
-            }
-        }
 
-        return $orderCheck;
+                // check if flexible room is full after order check creation
+                // in case of duplicate submits
+                $orderCheck = $this->setProductOrderCheck(
+                    $em,
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+
+                $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkFlexibleForClient(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+
+                if ($allowedPeople < ($orderCount + $orderCheckCount)) {
+                    $em->remove($orderCheck);
+                    $em->flush();
+
+                    throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+                }
+            } else {
+                // check for room conflict before order creation
+                $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+
+                if (!empty($checkOrder) && !is_null($checkOrder)) {
+                    throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+                }
+
+                // check for room conflict after order check creation
+                // in case of duplicate submits
+                $orderCheck = $this->setProductOrderCheck(
+                    $em,
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+
+                $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkProductForClient(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+
+                if ($orderCheckCount > 1) {
+                    $em->remove($orderCheck);
+                    $em->flush();
+
+                    throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+                }
+
+                if ($type == Room::TYPE_OFFICE) {
+                    $orders = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                        ->getOfficeRejected(
+                            $productId,
+                            $startDate,
+                            $endDate,
+                            $userId
+                        );
+
+                    if (!empty($orders)) {
+                        throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+                    }
+                }
+            }
+
+            return $orderCheck;
+        } catch (\Exception $exception) {
+            if (!is_null($orderCheck)) {
+                $em->remove($orderCheck);
+                $em->flush();
+            }
+
+            throw $exception;
+        }
     }
 
     /**
@@ -851,6 +861,7 @@ class OrderController extends PaymentController
         );
 
         $em->remove($orderCheck);
+        $em->flush();
     }
 
     /**
