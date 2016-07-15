@@ -576,6 +576,7 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
             ->andWhere('o.status <> \'cancelled\'')
+            ->andWhere('o.rejected = :rejected')
             ->andWhere(
                 '(
                     (o.startDate <= :startDate AND o.endDate > :startDate) OR
@@ -586,6 +587,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('productId', $productId)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate)
+            ->setParameter('rejected', false)
             ->getQuery();
 
         return $query->getResult();
