@@ -248,6 +248,7 @@ class OrderController extends PaymentController
      * @param $productId
      * @param $startDate
      * @param $endDate
+     * @param $userId
      *
      * @return View|ProductOrderCheck
      */
@@ -257,7 +258,8 @@ class OrderController extends PaymentController
         $allowedPeople,
         $productId,
         $startDate,
-        $endDate
+        $endDate,
+        $userId
     ) {
         if ($type == Room::TYPE_FLEXIBLE) {
             //check if flexible room is full before order creation
@@ -324,6 +326,21 @@ class OrderController extends PaymentController
                 $em->flush();
 
                 throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+            }
+            
+            if ($type == Room::TYPE_OFFICE) {
+                $orders = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                    ->getOfficeRejected(
+                        $productId,
+                        $startDate,
+                        $endDate,
+                        $userId
+                    );
+
+                if (!empty($orders)) {
+                    throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
+                }
             }
         }
 
@@ -819,7 +836,8 @@ class OrderController extends PaymentController
             $allowedPeople,
             $productId,
             $startDate,
-            $endDate
+            $endDate,
+            $user->getId()
         );
 
         // set product order
