@@ -280,7 +280,8 @@ class ClientShopOrderController extends ShopRestController
 
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
-                $order
+                $order,
+                $channel
             );
         }
 
@@ -366,15 +367,16 @@ class ClientShopOrderController extends ShopRestController
 
     /**
      * @param $order
+     * @param $channel
      *
      * @return View
      */
     private function payByAccount(
-        $order
+        $order,
+        $channel
     ) {
         $price = $order->getPrice();
         $orderNumber = $order->getOrderNumber();
-        $channel = $order->getPayChannel();
 
         $balance = $this->postBalanceChange(
             $order->getUserId(),
