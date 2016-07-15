@@ -682,7 +682,7 @@ class OrderRepository extends EntityRepository
     /**
      * Get rejected office orders.
      *
-     * @param $id
+     * @param $productId
      * @param $startDate
      * @param $endDate
      * @param $userId
@@ -690,10 +690,11 @@ class OrderRepository extends EntityRepository
      * @return array
      */
     public function getOfficeRejected(
-        $id,
+        $productId,
         $startDate,
         $endDate,
-        $userId = null
+        $userId = null,
+        $orderId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
@@ -704,7 +705,7 @@ class OrderRepository extends EntityRepository
                 (o.startDate < :endDate AND o.endDate >= :endDate) OR
                 (o.startDate >= :startDate AND o.endDate <= :endDate)'
             )
-            ->setParameter('productId', $id)
+            ->setParameter('productId', $productId)
             ->setParameter('rejected', true)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate);
@@ -712,6 +713,11 @@ class OrderRepository extends EntityRepository
         if (!is_null($userId)) {
             $query = $query->andWhere('o.userId = :userId')
                 ->setParameter('userId', $userId);
+        }
+
+        if (!is_null($orderId)) {
+            $query = $query->andWhere('o.id != :orderId')
+                ->setParameter('orderId', $orderId);
         }
         
         return $query->getQuery()->getResult();
