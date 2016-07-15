@@ -1327,6 +1327,27 @@ class AdminRoomController extends SalesRestController
                 $em->persist($roomMeeting);
                 $em->flush();
                 break;
+            case Room::TYPE_STUDIO:
+                $format = 'H:i:s';
+
+                $start = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['start_hour']
+                );
+
+                $end = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['end_hour']
+                );
+
+                $roomMeeting = new RoomMeeting();
+                $roomMeeting->setRoom($room);
+                $roomMeeting->setStartHour($start);
+                $roomMeeting->setEndHour($end);
+
+                $em->persist($roomMeeting);
+                $em->flush();
+                break;
             case Room::TYPE_FIXED:
                 foreach ($roomsFixed as $fixed) {
                     $roomFixed = new RoomFixed();
