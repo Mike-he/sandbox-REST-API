@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Form\Product\ProductPatchType;
 use Sandbox\ApiBundle\Form\Product\ProductType;
@@ -59,7 +60,6 @@ class AdminProductController extends ProductController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -148,6 +148,79 @@ class AdminProductController extends ProductController
      *    description="Filter by sales company id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="floor",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by floor id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_seat",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by seats minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_seat",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by seats maximum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_area",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by area minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_area",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by area maximum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_price",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by price minimum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_price",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by price maximum"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="annual_rent",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="tag of annual rent"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -160,7 +233,17 @@ class AdminProductController extends ProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -170,6 +253,15 @@ class AdminProductController extends ProductController
         $buildingId = $paramFetcher->get('building');
         $visible = $paramFetcher->get('visible');
         $companyId = $paramFetcher->get('company');
+
+        $floor = $paramFetcher->get('floor');
+        $minSeat = $paramFetcher->get('min_seat');
+        $maxSeat = $paramFetcher->get('max_seat');
+        $minArea = $paramFetcher->get('min_area');
+        $maxArea = $paramFetcher->get('max_area');
+        $minPrice = $paramFetcher->get('min_price');
+        $maxPrice = $paramFetcher->get('max_price');
+        $annualRent = $paramFetcher->get('annual_rent');
 
         // sort by
         $sortBy = $paramFetcher->get('sortBy');
@@ -181,16 +273,32 @@ class AdminProductController extends ProductController
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getRepo('Product\Product')->getAdminProducts(
-            $type,
-            $city,
-            $building,
-            $visible,
-            $sortBy,
-            $direction,
-            $search,
-            false,
-            $companyId
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->getAdminProducts(
+                $type,
+                $city,
+                $building,
+                $visible,
+                $sortBy,
+                $direction,
+                $search,
+                false,
+                $companyId,
+                $floor,
+                $minSeat,
+                $maxSeat,
+                $minArea,
+                $maxArea,
+                $minPrice,
+                $maxPrice,
+                $annualRent
+            );
+
+        // set annual product appointment count
+        $this->setAnnualRentProductAppointmentCounts(
+            $query,
+            $annualRent
         );
 
         $paginator = new Paginator();
@@ -228,7 +336,17 @@ class AdminProductController extends ProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $product = $this->getRepo('Product\Product')->find(array(
             'id' => $id,
@@ -448,12 +566,22 @@ class AdminProductController extends ProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            ),
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
 
-        $product = $this->getRepo('Product\Product')->find(array(
-            'id' => $id,
-            'isDeleted' => false,
-        ));
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->find(array(
+                'id' => $id,
+                'isDeleted' => false,
+            ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // bind data
@@ -463,6 +591,18 @@ class AdminProductController extends ProductController
 
         $form = $this->createForm(new ProductPatchType(), $product);
         $form->submit(json_decode($productJson, true));
+
+        // check data validation
+        if ($product->isAnnualRent()) {
+            if (is_null($product->getAnnualRentUnitPrice())
+            || is_null($product->getAnnualRentUnit())) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+        } else {
+            $product->setAnnualRentUnitPrice(null);
+            $product->setAnnualRentUnit(null);
+            $product->setAnnualRentDescription(null);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -495,7 +635,15 @@ class AdminProductController extends ProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            ),
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
 
         $product = $this->getRepo('Product\Product')->find(array(
             'id' => $id,
@@ -602,5 +750,34 @@ class AdminProductController extends ProductController
         //edit price rules
         self::postPriceRule($roomNumber, $buildingId, $rule_include, 'include');
         self::postPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
+    }
+
+    /**
+     * @param $products
+     * @param $annualRent
+     */
+    private function setAnnualRentProductAppointmentCounts(
+        $products,
+        $annualRent
+    ) {
+        if (is_null($annualRent) || $annualRent == false) {
+            return;
+        }
+
+        foreach ($products as $item) {
+            $totalAppointments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+                ->countProductAppointment($item->getId());
+
+            $pendingAppointments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+                ->countProductAppointment(
+                    $item->getId(),
+                    ProductAppointment::STATUS_PENDING
+                );
+
+            $item->setPendingAppointmentCounts($pendingAppointments);
+            $item->setTotalAppointmentCounts($totalAppointments);
+        }
     }
 }

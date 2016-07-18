@@ -24,6 +24,7 @@ class ProductRepository extends EntityRepository
      * @param $endHour
      * @param $limit
      * @param $offset
+     * @param $type
      *
      * @return array
      */
@@ -37,7 +38,8 @@ class ProductRepository extends EntityRepository
         $startHour,
         $endHour,
         $limit,
-        $offset
+        $offset,
+        $type
     ) {
         $now = new \DateTime();
 
@@ -48,7 +50,7 @@ class ProductRepository extends EntityRepository
             ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
-            ->setParameter('type', Room::TYPE_MEETING)
+            ->setParameter('type', $type)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
@@ -241,6 +243,7 @@ class ProductRepository extends EntityRepository
      * @param $endDate
      * @param $limit
      * @param $offset
+     * @param $type
      *
      * @return array
      */
@@ -252,18 +255,18 @@ class ProductRepository extends EntityRepository
         $startDate,
         $endDate,
         $limit,
-        $offset
+        $offset,
+        $type
     ) {
         $now = new \DateTime();
 
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
-            ->where('r.type = :typeFixed OR r.type = :typeFlexible')
+            ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
-            ->setParameter('typeFixed', Room::TYPE_FIXED)
-            ->setParameter('typeFlexible', Room::TYPE_FLEXIBLE)
+            ->setParameter('type', $type)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
@@ -309,7 +312,7 @@ class ProductRepository extends EntityRepository
                         OR
                         p.id IN (
                             SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
-                            WHERE po2.status  != :status
+                            WHERE po2.status != :status
                             AND r.type = :roomType
                             AND
                             (
@@ -348,6 +351,14 @@ class ProductRepository extends EntityRepository
      * @param string       $search
      * @param bool         $recommend
      * @param int          $companyId
+     * @param int          $floor
+     * @param int          $minSeat
+     * @param int          $maxSeat
+     * @param int          $minArea
+     * @param int          $maxArea
+     * @param float        $minPrice
+     * @param float        $maxPrice
+     * @param bool         $annualRent
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
@@ -360,7 +371,15 @@ class ProductRepository extends EntityRepository
         $direction,
         $search,
         $recommend = false,
-        $companyId = null
+        $companyId = null,
+        $floor,
+        $minSeat,
+        $maxSeat,
+        $minArea,
+        $maxArea,
+        $minPrice,
+        $maxPrice,
+        $annualRent
     ) {
         $notFirst = false;
         $parameters = [];
@@ -450,6 +469,64 @@ class ProductRepository extends EntityRepository
             $where = 'p.recommend = :recommend';
             $this->addWhereQuery($query, $notFirst, $where);
             $parameters['recommend'] = $recommend;
+            $notFirst = true;
+        }
+
+        if (!is_null($floor)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomFloor', 'rf', 'WITH', 'r.floorId = rf.id');
+            $where = 'rf.floorNumber = :floor';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['floor'] = $floor;
+            $notFirst = true;
+        }
+
+        if (!is_null($minSeat)) {
+            $where = 'r.allowedPeople >= :minSeat';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['minSeat'] = $minSeat;
+            $notFirst = true;
+        }
+
+        if (!is_null($maxSeat)) {
+            $where = 'r.allowedPeople <= :maxSeat';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['maxSeat'] = $maxSeat;
+            $notFirst = true;
+        }
+
+        if (!is_null($minArea)) {
+            $where = 'r.area >= :minArea';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['minArea'] = $minArea;
+            $notFirst = true;
+        }
+
+        if (!is_null($maxArea)) {
+            $where = 'r.area <= :maxArea';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['maxArea'] = $maxArea;
+            $notFirst = true;
+        }
+
+        if (!is_null($minPrice)) {
+            $where = 'p.basePrice >= :minPrice';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['minPrice'] = $minPrice;
+            $notFirst = true;
+        }
+
+        if (!is_null($maxPrice)) {
+            $where = 'p.basePrice <= :maxPrice';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['maxPrice'] = $maxPrice;
+            $notFirst = true;
+        }
+
+        // filters by annual rent
+        if (!is_null($annualRent)) {
+            $where = 'p.isAnnualRent = :annualRent';
+            $this->addWhereQuery($query, $notFirst, $where);
+            $parameters['annualRent'] = $annualRent;
             $notFirst = true;
         }
 

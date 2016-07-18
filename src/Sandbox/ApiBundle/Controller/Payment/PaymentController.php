@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Controller\Payment;
 
 use FOS\RestBundle\View\View;
 use Proxies\__CG__\Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
@@ -23,6 +24,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use FOS\RestBundle\Controller\Annotations\Post;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Payment Controller.
@@ -105,6 +108,100 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    /**
+     * @Post("/payment/token")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getCreditTokenAction(
+        Request $request
+    ) {
+        $content = json_decode($request->getContent(), true);
+
+        if (array_key_exists('order_no', $content) &&
+            array_key_exists('token_id', $content) &&
+            array_key_exists('channel', $content)
+        ) {
+            $orderNumber = $content['order_no'];
+            $token = $content['token_id'];
+            $channel = $content['channel'];
+
+            $letter = substr($orderNumber, 0, 1);
+
+            switch ($letter) {
+                case 'P':
+                    $order = $this->getDoctrine()
+                        ->getRepository(BundleConstants::PRODUCT_ORDER_ENTITY)
+                        ->findOneByOrderNumber($orderNumber);
+
+                    if (is_null($order)) {
+                        return new View();
+                    }
+
+                    $price = $order->getDiscountPrice();
+                    $subject = ProductOrder::PAYMENT_SUBJECT;
+                    $body = ProductOrder::PAYMENT_BODY;
+
+                    break;
+                case 'E':
+                    $order = $this->getDoctrine()
+                        ->getRepository(BundleConstants::EVENT_ORDER_ENTITY)
+                        ->findOneByOrderNumber($orderNumber);
+
+                    if (is_null($order)) {
+                        return new View();
+                    }
+
+                    $price = $order->getPrice();
+                    $subject = EventOrder::PAYMENT_SUBJECT;
+                    $body = EventOrder::PAYMENT_BODY;
+
+                    break;
+                case 'S':
+                    $order = $this->getDoctrine()
+                        ->getRepository(BundleConstants::SHOP_ORDER_ENTITY)
+                        ->findOneByOrderNumber($orderNumber);
+
+                    if (is_null($order)) {
+                        return new View();
+                    }
+
+                    $price = $order->getPrice();
+                    $subject = ShopOrder::PAYMENT_SUBJECT;
+                    $body = ShopOrder::PAYMENT_BODY;
+
+                    break;
+                default:
+                    $order = null;
+                    $subject = null;
+                    $body = null;
+                    $price = 0;
+                    break;
+            }
+
+            if (ProductOrder::STATUS_UNPAID == $order->getStatus()) {
+                $charge = $this->payForOrder(
+                    $token,
+                    null,
+                    null,
+                    $orderNumber,
+                    $price,
+                    $channel,
+                    $subject,
+                    $body
+                );
+
+                $charge = json_decode($charge, true);
+
+                return new View($charge);
+            }
+        }
+
+        return new View();
+    }
 
     /**
      * @param $channel

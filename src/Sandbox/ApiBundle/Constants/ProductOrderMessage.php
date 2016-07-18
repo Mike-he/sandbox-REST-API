@@ -10,6 +10,9 @@ class ProductOrderMessage
     const WORKSPACE_START_MESSAGE = 'product_order.push_message.workspace_start';
     const WORKSPACE_END_MESSAGE = 'product_order.push_message.workspace_end';
 
+    const STUDIO_START_MESSAGE = 'product_order.push_message.studio_start';
+    const STUDIO_END_MESSAGE = 'product_order.push_message.studio_end';
+
     const OFFICE_START_MESSAGE = 'product_order.push_message.office_start';
     const OFFICE_END_MESSAGE = 'product_order.push_message.office_end';
     const OFFICE_REJECTED_MESSAGE = 'product_order.push_message.office_reject';

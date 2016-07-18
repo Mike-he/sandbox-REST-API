@@ -64,7 +64,6 @@ class AdminRoomController extends SalesRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -325,7 +324,6 @@ class AdminRoomController extends SalesRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -410,7 +408,6 @@ class AdminRoomController extends SalesRestController
      *    array=true,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -587,6 +584,8 @@ class AdminRoomController extends SalesRestController
             array(
                 SalesAdminPermission::KEY_BUILDING_ROOM,
                 SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
             )
         );
 
@@ -603,6 +602,8 @@ class AdminRoomController extends SalesRestController
             array(
                 SalesAdminPermission::KEY_BUILDING_ROOM,
                 SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
             )
         );
 
@@ -1065,8 +1066,10 @@ class AdminRoomController extends SalesRestController
         $em->persist($room);
         $em->flush();
 
+        $type = $room->getType();
+
         // handle meeting rooms
-        if (!is_null($meeting) && $room->getType() == Room::TYPE_MEETING) {
+        if (!is_null($meeting) && ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO)) {
             $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneByRoom($room);
             // remove the old data
             if (!is_null($roomMeeting)) {
@@ -1306,6 +1309,27 @@ class AdminRoomController extends SalesRestController
     ) {
         switch ($room->getType()) {
             case Room::TYPE_MEETING:
+                $format = 'H:i:s';
+
+                $start = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['start_hour']
+                );
+
+                $end = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['end_hour']
+                );
+
+                $roomMeeting = new RoomMeeting();
+                $roomMeeting->setRoom($room);
+                $roomMeeting->setStartHour($start);
+                $roomMeeting->setEndHour($end);
+
+                $em->persist($roomMeeting);
+                $em->flush();
+                break;
+            case Room::TYPE_STUDIO:
                 $format = 'H:i:s';
 
                 $start = \DateTime::createFromFormat(

@@ -24,6 +24,9 @@ class EventOrder
     const EVENT_MAP = 'event';
     const ENTITY_PATH = 'Event\EventOrder';
 
+    const PAYMENT_SUBJECT = 'SANDBOX3-活动报名支付';
+    const PAYMENT_BODY = 'EVENT ORDER PAYMENT';
+
     /**
      * @var int
      *

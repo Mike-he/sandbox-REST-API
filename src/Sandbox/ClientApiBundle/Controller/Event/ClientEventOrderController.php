@@ -36,9 +36,6 @@ class ClientEventOrderController extends PaymentController
     const EVENT_ORDER_EXIST_CODE = 400034;
     const EVENT_ORDER_EXIST_MESSAGE = 'Event Order Already Exists';
 
-    const PAYMENT_SUBJECT = 'SANDBOX3-活动报名支付';
-    const PAYMENT_BODY = 'EVENT ORDER PAYMENT';
-
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -316,19 +313,6 @@ class ClientEventOrderController extends PaymentController
         $smsId = '';
         $smsCode = '';
 
-        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
-            $token = $requestContent['token_f'];
-
-            if (array_key_exists('sms_id', $requestContent) &&
-                array_key_exists('sms_code', $requestContent) &&
-                !empty($requestContent['sms_id']) &&
-                !empty($requestContent['sms_code'])
-            ) {
-                $smsId = $requestContent['sms_id'];
-                $smsCode = $requestContent['sms_code'];
-            }
-        }
-
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
             $channel !== self::PAYMENT_CHANNEL_UPACP &&
@@ -361,8 +345,8 @@ class ClientEventOrderController extends PaymentController
             $orderNumber,
             $order->getPrice(),
             $channel,
-            self::PAYMENT_SUBJECT,
-            self::PAYMENT_BODY
+            EventOrder::PAYMENT_SUBJECT,
+            EventOrder::PAYMENT_BODY
         );
         $charge = json_decode($charge, true);
 

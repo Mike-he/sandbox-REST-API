@@ -164,6 +164,42 @@ class Product
     private $isDeleted = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isAnnualRent", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $isAnnualRent = false;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="annualRentUnitPrice", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $annualRentUnitPrice;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="annualRentUnit", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $annualRentUnit;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="annualRentDescription", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $annualRentDescription;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -199,6 +235,16 @@ class Product
      * @Serializer\Groups({"main", "admin_room", "admin_detail"})
      */
     private $salesInvoice = false;
+
+    /**
+     * @var int
+     */
+    private $pendingAppointmentCounts;
+
+    /**
+     * @var int
+     */
+    private $totalAppointmentCounts;
 
     /**
      * Get id.
@@ -465,6 +511,70 @@ class Product
     }
 
     /**
+     * @return bool
+     */
+    public function isAnnualRent()
+    {
+        return $this->isAnnualRent;
+    }
+
+    /**
+     * @param bool $isAnnualRent
+     */
+    public function setIsAnnualRent($isAnnualRent)
+    {
+        $this->isAnnualRent = $isAnnualRent;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAnnualRentUnitPrice()
+    {
+        return $this->annualRentUnitPrice;
+    }
+
+    /**
+     * @param float $annualRentUnitPrice
+     */
+    public function setAnnualRentUnitPrice($annualRentUnitPrice)
+    {
+        $this->annualRentUnitPrice = $annualRentUnitPrice;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAnnualRentUnit()
+    {
+        return $this->annualRentUnit;
+    }
+
+    /**
+     * @param string $annualRentUnit
+     */
+    public function setAnnualRentUnit($annualRentUnit)
+    {
+        $this->annualRentUnit = $annualRentUnit;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAnnualRentDescription()
+    {
+        return $this->annualRentDescription;
+    }
+
+    /**
+     * @param string $annualRentDescription
+     */
+    public function setAnnualRentDescription($annualRentDescription)
+    {
+        $this->annualRentDescription = $annualRentDescription;
+    }
+
+    /**
      * Set creationDate.
      *
      * @param \DateTime $creationDate
@@ -630,5 +740,37 @@ class Product
     public function isSalesInvoice()
     {
         return $this->salesInvoice;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPendingAppointmentCounts()
+    {
+        return $this->pendingAppointmentCounts;
+    }
+
+    /**
+     * @param int $pendingAppointmentCounts
+     */
+    public function setPendingAppointmentCounts($pendingAppointmentCounts)
+    {
+        $this->pendingAppointmentCounts = $pendingAppointmentCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalAppointmentCounts()
+    {
+        return $this->totalAppointmentCounts;
+    }
+
+    /**
+     * @param int $totalAppointmentCounts
+     */
+    public function setTotalAppointmentCounts($totalAppointmentCounts)
+    {
+        $this->totalAppointmentCounts = $totalAppointmentCounts;
     }
 }

@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\User\User;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
@@ -14,6 +15,8 @@ use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderRefundFeePatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundPatch;
+use Sandbox\ApiBundle\Form\Order\OrderReserveType;
+use Sandbox\ApiBundle\Form\Order\PreOrderType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -406,7 +409,6 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -515,6 +517,36 @@ class AdminOrderController extends OrderController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="orderStartPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order start point. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderEndPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order end point. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="refundStatus",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="refunded",
+     *    strict=true,
+     *    description="refund status filter for order "
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -555,6 +587,9 @@ class AdminOrderController extends OrderController
         $endDate = $paramFetcher->get('endDate');
         $payStart = $paramFetcher->get('payStart');
         $payEnd = $paramFetcher->get('payEnd');
+        $orderStartPoint = $paramFetcher->get('orderStartPoint');
+        $orderEndPoint = $paramFetcher->get('orderEndPoint');
+        $refundStatus = $paramFetcher->get('refundStatus');
 
         //search by name and number
         $search = $paramFetcher->get('query');
@@ -562,22 +597,34 @@ class AdminOrderController extends OrderController
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getRepo('Order\ProductOrder')->getOrdersForAdmin(
-            $channel,
-            $type,
-            $city,
-            $building,
-            $userId,
-            $startDate,
-            $endDate,
-            $payStart,
-            $payEnd,
-            $search
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersForAdmin(
+                $channel,
+                $type,
+                $city,
+                $building,
+                $userId,
+                $startDate,
+                $endDate,
+                $payStart,
+                $payEnd,
+                $search,
+                $orderStartPoint,
+                $orderEndPoint,
+                $refundStatus
+            );
+
+        $orders = $this->get('serializer')->serialize(
+            $query,
+            'json',
+            SerializationContext::create()->setGroups(['admin_detail'])
         );
+        $orders = json_decode($orders, true);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $orders,
             $pageIndex,
             $pageLimit
         );
@@ -596,7 +643,6 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -687,6 +733,26 @@ class AdminOrderController extends OrderController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="orderStartPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order start point. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderEndPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order end point. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders/export")
      * @Method({"GET"})
      *
@@ -715,21 +781,28 @@ class AdminOrderController extends OrderController
         $endDate = $paramFetcher->get('endDate');
         $payStart = $paramFetcher->get('payStart');
         $payEnd = $paramFetcher->get('payEnd');
+        $orderStartPoint = $paramFetcher->get('orderStartPoint');
+        $orderEndPoint = $paramFetcher->get('orderEndPoint');
+
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         //get array of orders
-        $orders = $this->getRepo('Order\ProductOrder')->getOrdersToExport(
-            $channel,
-            $type,
-            $city,
-            $building,
-            $userId,
-            $startDate,
-            $endDate,
-            $payStart,
-            $payEnd
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersToExport(
+                $channel,
+                $type,
+                $city,
+                $building,
+                $userId,
+                $startDate,
+                $endDate,
+                $payStart,
+                $payEnd,
+                $orderStartPoint,
+                $orderEndPoint
+            );
 
         return $this->getProductOrderExport($orders, $language);
     }
@@ -768,6 +841,9 @@ class AdminOrderController extends OrderController
                 AdminPermission::KEY_PLATFORM_ORDER,
                 AdminPermission::KEY_PLATFORM_USER,
                 AdminPermission::KEY_PLATFORM_FINANCE,
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
@@ -782,6 +858,444 @@ class AdminOrderController extends OrderController
         $view->setData($order);
 
         return $view;
+    }
+
+    /**
+     * Reserve order.
+     *
+     * @Route("/orders/reserve")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function reserveRoomAction(
+        Request $request
+    ) {
+        $adminId = $this->getAdminId();
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            ),
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $now = new \DateTime();
+        $adminId = $this->getAdminId();
+        $orderCheck = null;
+
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+            $order = new ProductOrder();
+
+            $form = $this->createForm(new OrderReserveType(), $order);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
+                );
+            }
+
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy(array(
+                    'xmppUsername' => User::XMPP_SERVICE,
+                ));
+            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+            $productId = $order->getProductId();
+            $product = $this->getRepo('Product\Product')->find($productId);
+
+            $startDate = new \DateTime($order->getStartDate());
+
+            // check product
+            $error = $this->checkIfProductAvailable(
+                $product,
+                $now,
+                $startDate
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $timeUnit = $product->getUnitPrice();
+            $period = $order->getRentPeriod();
+
+            // get endDate
+            $endDate = $this->getOrderEndDate(
+                $period,
+                $timeUnit,
+                $startDate
+            );
+
+            // check booking dates and order duplication
+            $type = $product->getRoom()->getType();
+            $error = $this->checkIfOrderAllowed(
+                $em,
+                $order,
+                $product,
+                $productId,
+                $now,
+                $startDate,
+                $endDate,
+                $user,
+                $type
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $order->setStatus(ProductOrder::STATUS_PAID);
+            $order->setAdminId($adminId);
+            $order->setPaymentDate($now);
+            $order->setType(ProductOrder::RESERVE_TYPE);
+            $order->setPrice(0);
+            $order->setDiscountPrice(0);
+            $order->setUser($user);
+
+            $em->persist($order);
+
+            // store order record
+            $this->storeRoomRecord(
+                $em,
+                $order,
+                $product
+            );
+
+            $em->flush();
+
+            $view = new View();
+            $view->setData(
+                ['order_id' => $order->getId()]
+            );
+
+            return $view;
+        } catch (\Exception $exception) {
+            if (!is_null($orderCheck)) {
+                $em->remove($orderCheck);
+                $em->flush();
+            }
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * pre-order room.
+     *
+     * @Route("/orders/preorder")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function preorderRoomAction(
+        Request $request
+    ) {
+        $adminId = $this->getAdminId();
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            ),
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $now = new \DateTime();
+        $adminId = $this->getAdminId();
+        $orderCheck = null;
+
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+            $order = new ProductOrder();
+
+            $form = $this->createForm(new PreOrderType(), $order);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
+                );
+            }
+
+            $user = $this->getRepo('User\User')->find($order->getUserId());
+            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+            $productId = $order->getProductId();
+            $product = $this->getRepo('Product\Product')->find($productId);
+
+            $startDate = new \DateTime($order->getStartDate());
+
+            // check product
+            $error = $this->checkIfProductAvailable(
+                $product,
+                $now,
+                $startDate
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            $timeUnit = $product->getUnitPrice();
+            $period = $order->getRentPeriod();
+
+            // get endDate
+            $endDate = $this->getOrderEndDate(
+                $period,
+                $timeUnit,
+                $startDate
+            );
+
+            // check if price match
+            $basePrice = $product->getBasePrice();
+            $calculatedPrice = $basePrice * $period;
+
+            if ($order->getPrice() != $calculatedPrice) {
+                return $this->customErrorView(
+                    400,
+                    self::PRICE_MISMATCH_CODE,
+                    self::PRICE_MISMATCH_MESSAGE
+                );
+            }
+
+            // check booking dates and order duplication
+            $type = $product->getRoom()->getType();
+            $error = $this->checkIfOrderAllowed(
+                $em,
+                $order,
+                $product,
+                $productId,
+                $now,
+                $startDate,
+                $endDate,
+                $user,
+                $type
+            );
+
+            if (!empty($error)) {
+                return $this->customErrorView(
+                    400,
+                    $error['code'],
+                    $error['message']
+                );
+            }
+
+            // check for discount rule and price
+            $ruleId = $order->getRuleId();
+
+            if (!is_null($ruleId) && !empty($ruleId)) {
+                $result = $this->getSalesPriceRuleForOrder($ruleId);
+
+                if (is_null($result)) {
+                    return $this->customErrorView(
+                        400,
+                        self::PRICE_RULE_DOES_NOT_EXIST_CODE,
+                        self::PRICE_RULE_DOES_NOT_EXIST_MESSAGE
+                    );
+                }
+
+                if (array_key_exists('rule_name', $result)) {
+                    $order->setRuleName($result['rule_name']);
+                }
+
+                if (array_key_exists('rule_description', $result)) {
+                    $order->setRuleDescription($result['rule_description']);
+                }
+            }
+
+            $order->setAdminId($adminId);
+            $order->setType(ProductOrder::PREORDER_TYPE);
+
+            if (0 == $order->getDiscountPrice()) {
+                $order->setStatus(ProductOrder::STATUS_PAID);
+                $order->setPaymentDate($now);
+            }
+
+            $em->persist($order);
+
+            // store order record
+            $this->storeRoomRecord(
+                $em,
+                $order,
+                $product
+            );
+
+            // set sales user
+            $this->setSalesUser(
+                $em,
+                $user->getId(),
+                $product
+            );
+
+            $em->flush();
+
+            // set door access
+            if (0 == $order->getDiscountPrice()) {
+                $this->setDoorAccessForSingleOrder($order);
+            }
+
+            $view = new View();
+            $view->setData(
+                ['order_id' => $order->getId()]
+            );
+
+            return $view;
+        } catch (\Exception $exception) {
+            if (!is_null($orderCheck)) {
+                $em->remove($orderCheck);
+                $em->flush();
+            }
+
+            throw $exception;
+        }
+    }
+    /**
+     * @Route("/orders/{id}/cancel")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return View
+     */
+    public function cancelAdminOrderAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $adminId = $this->getAdminId();
+
+        $type = $order->getType();
+
+        // check user permission
+        $permissions = array(
+            AdminPermission::KEY_PLATFORM_ORDER,
+        );
+
+        if (ProductOrder::RESERVE_TYPE == $type) {
+            $permissions[] = AdminPermission::KEY_PLATFORM_ORDER_RESERVE;
+        } elseif (ProductOrder::PREORDER_TYPE) {
+            $permissions[] = AdminPermission::KEY_PLATFORM_ORDER_PREORDER;
+        } else {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            AdminType::KEY_PLATFORM,
+            $permissions,
+            AdminPermissionMap::OP_LEVEL_EDIT
+        );
+
+        $now = new \DateTime();
+        $status = $order->getStatus();
+
+        if (ProductOrder::STATUS_CANCELLED == $status
+            || $order->getEndDate() <= $now
+            || $order->isInvoiced()
+        ) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_PAYMENT_STATUS_CODE,
+                self::WRONG_PAYMENT_STATUS_MESSAGE
+            );
+        }
+
+        $order->setCancelByUser(true);
+
+        if (ProductOrder::PREORDER_TYPE == $type && $status != ProductOrder::STATUS_UNPAID) {
+            if (ProductOrder::STATUS_COMPLETED == $status) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_PAYMENT_STATUS_CODE,
+                    self::WRONG_PAYMENT_STATUS_MESSAGE
+                );
+            }
+
+            $price = $order->getDiscountPrice();
+            $channel = $order->getPayChannel();
+            $userId = $order->getUserId();
+            $order->setModificationDate($now);
+
+            if ($price > 0) {
+                $order->setNeedToRefund(true);
+
+                if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                    $balance = $this->postBalanceChange(
+                        $userId,
+                        $price,
+                        $order->getOrderNumber(),
+                        self::PAYMENT_CHANNEL_ACCOUNT,
+                        0,
+                        self::ORDER_REFUND
+                    );
+
+                    $order->setRefundProcessed(true);
+                    $order->setRefundProcessedDate($now);
+
+                    if (!is_null($balance)) {
+                        $order->setRefunded(true);
+                        $order->setNeedToRefund(false);
+                    }
+                }
+            }
+
+            $this->removeAccessByOrder($order);
+        } else {
+            $order->setStatus(ProductOrder::STATUS_CANCELLED);
+            $order->setCancelledDate($now);
+            $order->setModificationDate($now);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+        }
+
+        return new View();
     }
 
     /**

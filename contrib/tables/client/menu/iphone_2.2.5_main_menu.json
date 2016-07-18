@@ -1,0 +1,131 @@
+[
+  {
+    "type": "icons",
+    "items": [
+      {
+        "key": "order",
+        "type": "web",
+        "name": "client.menu.order",
+        "web": {
+          "url": "https://testmobile.sandbox3.cn/search",
+          "cookie": [
+            {
+              "key": "btype",
+              "value": "recommend"
+            }
+          ]
+        },
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_booking.png",
+        "status": "active",
+        "login_need": false
+      },
+      {
+        "key": "coffee",
+        "type": "web",
+        "name": "client.menu.coffee",
+        "web": {
+          "url": "https://testcoffee.sandbox3.cn"
+        },
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_coffee.png",
+        "status": "active",
+        "login_need": false
+      },
+      {
+        "key": "event",
+        "type": "web",
+        "name": "client.menu.event",
+        "web": {
+          "url": "https://testm.sandbox3.cn/event",
+          "cookie": [
+            {
+              "key": "btype",
+              "value": "all"
+            }
+          ]
+        },
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_events.png",
+        "status": "active",
+        "login_need": false
+      },
+      {
+        "key": "location",
+        "type": "app",
+        "name": "client.menu.location",
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_locations.png",
+        "status": "active",
+        "login_need": false
+      }
+    ]
+  },
+  {
+    "type": "list",
+    "items": [
+      {
+        "key": "community",
+        "type": "app",
+        "name": "client.menu.community",
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_home.png",
+        "status": "active",
+        "login_need": false
+      }
+    ]
+  },
+  {
+    "type": "list",
+    "items": [
+      {
+        "key": "feed",
+        "type": "app",
+        "name": "client.menu.blog",
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_posts.png",
+        "status": "active",
+        "login_need": false
+      },
+      {
+        "key": "message",
+        "type": "app",
+        "name": "client.menu.message",
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_chat.png",
+        "status": "active",
+        "login_need": true
+      },
+      {
+        "key": "contact",
+        "type": "app",
+        "name": "client.menu.contact",
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_contacts.png",
+        "status": "active",
+        "login_need": false
+      }
+    ]
+  },
+  {
+    "type": "list",
+    "items": [
+      {
+        "key": "member",
+        "type": "app",
+        "name": "client.menu.member",
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_members.png",
+        "status": "active",
+        "login_need": false
+      },
+      {
+        "key": "company",
+        "type": "app",
+        "name": "client.menu.company",
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_companies.png",
+        "status": "active",
+        "login_need": true
+      },
+      {
+        "key": "my_company",
+        "type": "app",
+        "name": "client.menu.my_company",
+        "icon_url": "https://testimage.sandbox3.cn/menu/client/v225/ic_my_companies.png",
+        "status": "active",
+        "login_need": true
+      }
+    ]
+  }
+]

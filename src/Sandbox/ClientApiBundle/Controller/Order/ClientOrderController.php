@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,9 +36,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class ClientOrderController extends OrderController
 {
     use SetStatusTrait;
-
-    const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
-    const PAYMENT_BODY = 'ROOM ORDER';
 
     /**
      * Get all orders for current user.
@@ -86,6 +84,7 @@ class ClientOrderController extends OrderController
         $status = $paramFetcher->get('status');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $language = $request->getPreferredLanguage();
 
         if (!is_null($status) && !empty($status)) {
             $orders = $this->getRepo('Order\ProductOrder')->findBy(
@@ -104,6 +103,20 @@ class ClientOrderController extends OrderController
                 $limit,
                 $offset
             );
+        }
+
+        foreach ($orders as $order) {
+            $room = $order->getProduct()->getRoom();
+            $type = $room->getType();
+
+            $description = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$type,
+                array(),
+                null,
+                $language
+            );
+
+            $room->setTypeDescription($description);
         }
 
         $view = new View();
@@ -174,11 +187,53 @@ class ClientOrderController extends OrderController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $orders = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersForApp(
-            $userId,
-            $limit,
-            $offset
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getInvoiceOrdersForApp(
+                $userId,
+                $limit,
+                $offset
+            );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
+     * @GET("/orders/my/sales/invoice/selected")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="ids of orders"
+     * )
+     *
+     * @return View
+     */
+    public function getUserSalesInvoiceOrdersByOrderIdsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $ids = $paramFetcher->get('id');
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getInvoiceOrdersForApp(
+                $userId,
+                null,
+                null,
+                $ids
+            );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
@@ -577,19 +632,6 @@ class ClientOrderController extends OrderController
         $smsId = '';
         $smsCode = '';
 
-        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
-            $token = $requestContent['token_f'];
-
-            if (array_key_exists('sms_id', $requestContent) &&
-                array_key_exists('sms_code', $requestContent) &&
-                !empty($requestContent['sms_id']) &&
-                !empty($requestContent['sms_code'])
-            ) {
-                $smsId = $requestContent['sms_id'];
-                $smsCode = $requestContent['sms_code'];
-            }
-        }
-
         if (
             $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
             $channel !== self::PAYMENT_CHANNEL_UPACP &&
@@ -622,8 +664,8 @@ class ClientOrderController extends OrderController
             $orderNumber,
             $order->getDiscountPrice(),
             $channel,
-            self::PAYMENT_SUBJECT,
-            self::PAYMENT_BODY
+            ProductOrder::PAYMENT_SUBJECT,
+            ProductOrder::PAYMENT_BODY
         );
         $charge = json_decode($charge, true);
 
@@ -657,12 +699,15 @@ class ClientOrderController extends OrderController
 
         $price = $order->getDiscountPrice();
         $userId = $order->getUserId();
+        $status = $order->getStatus();
 
         // check if request user is the same as order user
         $this->throwAccessDeniedIfNotSameUser($userId);
 
         $now = new \DateTime();
-        if ($order->getStatus() !== 'paid' || $order->getStartDate() <= $now) {
+        if (ProductOrder::STATUS_CANCELLED == $status ||
+            ProductOrder::STATUS_COMPLETED == $status
+        ) {
             return $this->customErrorView(
                 400,
                 self::WRONG_PAYMENT_STATUS_CODE,
@@ -670,7 +715,19 @@ class ClientOrderController extends OrderController
             );
         }
 
-        $charge = [];
+        $order->setCancelByUser(true);
+
+        if ($status == ProductOrder::STATUS_UNPAID) {
+            $order->setStatus(ProductOrder::STATUS_CANCELLED);
+            $order->setCancelledDate(new \DateTime());
+            $order->setModificationDate(new \DateTime());
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+
+            return new View();
+        }
+
         $channel = $order->getPayChannel();
         $order->setModificationDate(new \DateTime());
 
@@ -699,7 +756,7 @@ class ClientOrderController extends OrderController
 
         $this->removeAccessByOrder($order);
 
-        return new View($charge);
+        return new View();
     }
 
     /**
@@ -960,7 +1017,7 @@ class ClientOrderController extends OrderController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
-        $view = $this->getOrderDetail($order);
+        $view = $this->getOrderDetail($request, $order);
 
         return $view;
     }
@@ -985,17 +1042,19 @@ class ClientOrderController extends OrderController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
-        $view = $this->getOrderDetail($order);
+        $view = $this->getOrderDetail($request, $order);
 
         return $view;
     }
 
     /**
+     * @param Request $request
      * @param $order
      *
      * @return View
      */
     private function getOrderDetail(
+        $request,
         $order
     ) {
         $appointed = $order->getAppointed();
@@ -1028,10 +1087,22 @@ class ClientOrderController extends OrderController
             }
         }
 
-        $type = $order->getProduct()->getRoom()->getType();
+        $room = $order->getProduct()->getRoom();
+        $type = $room->getType();
+        $language = $request->getPreferredLanguage();
+
+        $description = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_ROOM_TYPE.$type,
+            array(),
+            null,
+            $language
+        );
+
+        $room->setTypeDescription($description);
         $productId = $order->getProductId();
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
 
         $renewButton = false;
 
@@ -1060,15 +1131,29 @@ class ClientOrderController extends OrderController
             $em->flush();
         }
 
+        $alertArray = $this->setPopUpMessage(
+            $order,
+            $now,
+            $startDate,
+            $endDate,
+            $status,
+            $type,
+            $language
+        );
+
+        $viewArray = [
+            'renewButton' => $renewButton,
+            'order' => $order,
+            'appointedPerson' => $appointedPerson,
+        ];
+
+        if (!empty($alertArray)) {
+            $viewArray = array_merge($viewArray, $alertArray);
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData(
-            [
-                'renewButton' => $renewButton,
-                'order' => $order,
-                'appointedPerson' => $appointedPerson,
-            ]
-        );
+        $view->setData($viewArray);
 
         return $view;
     }
@@ -1134,7 +1219,19 @@ class ClientOrderController extends OrderController
                         $seconds = $remainingTime->s;
                     }
                 } else {
-                    $this->setOrderStatusCancelled($order, $now);
+                    $remainingTime = $now->diff($creationTime);
+                    $minutes = $remainingTime->i;
+                    $seconds = $remainingTime->s;
+
+                    $minutes = 4 - $minutes;
+                    $seconds = 59 - $seconds;
+
+                    if ($minutes < 0) {
+                        $minutes = 0;
+                        $seconds = 0;
+
+                        $this->setOrderStatusCancelled($order, $now);
+                    }
                 }
             } else {
                 $remainingTime = $now->diff($creationTime);
@@ -1471,5 +1568,131 @@ class ClientOrderController extends OrderController
             $orderId,
             $base
         );
+    }
+
+    /**
+     * @param $order
+     * @param $now
+     * @param $startDate
+     * @param $endDate
+     * @param $status
+     * @param $type
+     * @param $language
+     *
+     * @return array
+     */
+    private function setPopUpMessage(
+        $order,
+        $now,
+        $startDate,
+        $endDate,
+        $status,
+        $type,
+        $language
+    ) {
+        $keyStart = null;
+        $keyEnd = null;
+        $number = 0;
+        $alertArray = [];
+
+        if ($status == ProductOrder::STATUS_PAID && !$order->isRejected()) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+                $time = clone $now;
+                $time->modify('+10 minutes');
+
+                if ($time >= $startDate) {
+                    $diff = $startDate->diff($now);
+                    $number = $diff->i + 1;
+
+                    if ($type == Room::TYPE_MEETING) {
+                        $keyStart = ProductOrderMessage::MEETING_START_MESSAGE;
+                    } else {
+                        $keyStart = ProductOrderMessage::STUDIO_START_MESSAGE;
+                    }
+                }
+            } else {
+                $time = clone $now;
+                $time->modify('+8 hours');
+
+                if ($time >= $startDate) {
+                    if ($type == Room::TYPE_OFFICE) {
+                        $keyStart = ProductOrderMessage::OFFICE_START_MESSAGE;
+                    } else {
+                        $keyStart = ProductOrderMessage::WORKSPACE_START_MESSAGE;
+                    }
+                }
+            }
+        } elseif ($status == ProductOrder::STATUS_COMPLETED &&
+            !$order->isRejected() &&
+            $endDate > $now
+        ) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+                $time = clone $now;
+                $time->modify('+10 minutes');
+
+                if ($time >= $endDate) {
+                    $diff = $endDate->diff($now);
+                    $number = $diff->i + 1;
+
+                    if ($type == Room::TYPE_MEETING) {
+                        $keyEnd = ProductOrderMessage::MEETING_END_MESSAGE;
+                    } else {
+                        $keyEnd = ProductOrderMessage::STUDIO_END_MESSAGE;
+                    }
+                }
+            } elseif ($type == Room::TYPE_OFFICE) {
+                $time = clone $now;
+                $time->modify('+8 hours');
+                $time->modify('+7 days');
+
+                if ($time >= $endDate) {
+                    $diff = $endDate->diff($now);
+                    $number = $diff->d;
+
+                    if ($number == 0) {
+                        $number = 1;
+                    }
+
+                    $keyEnd = ProductOrderMessage::OFFICE_END_MESSAGE;
+                }
+            } else {
+                $time = clone $now;
+                $time->modify('+8 hours');
+
+                if ($time >= $endDate) {
+                    $keyEnd = ProductOrderMessage::WORKSPACE_END_MESSAGE;
+                }
+            }
+        }
+
+        if (!is_null($keyStart)) {
+            $message = $this->get('translator')->trans(
+                $keyStart,
+                array(),
+                null,
+                $language
+            );
+
+            if ($number !== 0) {
+                $message = preg_replace('/[0-9]+/', "$number", $message);
+            }
+
+            $alertArray = ['start_alert' => $message];
+        } elseif (!is_null($keyEnd)) {
+            $message = $this->get('translator')->trans(
+                $keyEnd,
+                array(),
+                null,
+                $language
+            );
+
+            if ($number !== 0) {
+                $message = preg_replace('/[0-9]+/', "$number", $message);
+            }
+
+            $alertArray = ['end_alert' => $message];
+        }
+
+        return $alertArray;
     }
 }

@@ -261,6 +261,9 @@ class AdminUsersController extends DoorController
             array(
                 AdminPermission::KEY_PLATFORM_USER,
                 AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
@@ -287,24 +290,30 @@ class AdminUsersController extends DoorController
 //
 //        $paginator = $this->get('knp_paginator');
 
-        $results = $this->getRepo('User\UserView')->searchUser(
-            $banned,
-            $authorized,
-            $query,
-            $sortBy,
-            $direction
-        );
+        $results = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->searchUser(
+                $banned,
+                $authorized,
+                $query,
+                $sortBy,
+                $direction
+            );
 
         // set authorized building
         $response = array();
         foreach ($results as $user) {
-            $salesUser = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')->findOneBy(array(
-                'userId' => $user->getId(),
-                'isAuthorized' => true,
-            ));
+            $salesUser = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')
+                ->findOneBy(array(
+                    'userId' => $user->getId(),
+                    'isAuthorized' => true,
+                ));
 
             if (!is_null($salesUser)) {
-                $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($salesUser->getBuildingId());
+                $building = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($salesUser->getBuildingId());
 
                 if (!is_null($building)) {
                     $user->setBuilding($building->getName());
@@ -415,6 +424,9 @@ class AdminUsersController extends DoorController
                 AdminPermission::KEY_PLATFORM_USER,
                 AdminPermission::KEY_PLATFORM_ORDER,
                 AdminPermission::KEY_PLATFORM_FINANCE,
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
@@ -474,6 +486,10 @@ class AdminUsersController extends DoorController
             array(
                 AdminPermission::KEY_PLATFORM_USER,
                 AdminPermission::KEY_PLATFORM_ORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
+                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
+                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+                AdminPermission::KEY_PLATFORM_PRODUCT,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );

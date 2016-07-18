@@ -40,9 +40,13 @@ class ProductOrder
     const ACTION_OFFICE_ORDER = 'office_order';
     const LETTER_HEAD = 'P';
     const ENTITY_PATH = 'Order\ProductOrder';
+    const REFUNDED_STATUS = 'refunded';
 
     const RESERVE_TYPE = 'reserve';
     const PREORDER_TYPE = 'preorder';
+
+    const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
+    const PAYMENT_BODY = 'ROOM ORDER';
 
     /**
      * @var int
@@ -151,7 +155,7 @@ class ProductOrder
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
      *
-     * @Serializer\Groups({"main", "client"})
+     * @Serializer\Groups({"main", "client", "admin_detail"})
      */
     private $invitedPeople;
 
@@ -394,6 +398,14 @@ class ProductOrder
      * @Serializer\Groups({"main", "admin_detail", "admin_order"})
      */
     private $refundComment;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="cancelByUser", type="boolean", options={"default": false})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order" ,"client"})
+     */
+    private $cancelByUser = false;
 
     /**
      * Set isRenew.
@@ -1337,6 +1349,30 @@ class ProductOrder
     public function isSalesInvoice()
     {
         return $this->salesInvoice;
+    }
+
+    /**
+     * Set cancelByUser.
+     *
+     * @param bool $cancelByUser
+     *
+     * @return ProductOrder
+     */
+    public function setCancelByUser($cancelByUser)
+    {
+        $this->cancelByUser = $cancelByUser;
+
+        return $this;
+    }
+
+    /**
+     * Get cancelByUser.
+     *
+     * @return bool
+     */
+    public function isCancelByUser()
+    {
+        return $this->cancelByUser;
     }
 
     public function __construct()

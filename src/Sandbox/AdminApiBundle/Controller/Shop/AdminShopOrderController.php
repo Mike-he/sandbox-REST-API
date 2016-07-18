@@ -312,6 +312,16 @@ class AdminShopOrderController extends ShopController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="refundStatus",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="refunded",
+     *    strict=true,
+     *    description="refund status filter for order "
+     * )
+     *
      * @Method({"GET"})
      * @Route("/shop/orders")
      *
@@ -337,18 +347,22 @@ class AdminShopOrderController extends ShopController
         $user = $paramFetcher->get('user');
         $cityId = $paramFetcher->get('city');
         $buildingId = $paramFetcher->get('building');
+        $refundStatus = $paramFetcher->get('refundStatus');
 
-        $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrdersForBackend(
-            $shopId,
-            $status,
-            $start,
-            $end,
-            $sort,
-            $search,
-            $user,
-            $cityId,
-            $buildingId
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->getAdminShopOrdersForBackend(
+                $shopId,
+                $status,
+                $start,
+                $end,
+                $sort,
+                $search,
+                $user,
+                $cityId,
+                $buildingId,
+                $refundStatus
+            );
 
         $orders = $this->get('serializer')->serialize(
             $orders,
@@ -464,15 +478,20 @@ class AdminShopOrderController extends ShopController
             $status = explode(',', $status);
         }
 
-        $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrdersForBackend(
-            $shopId,
-            $status,
-            $start,
-            $end,
-            $sort,
-            $search,
-            null
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->getAdminShopOrdersForBackend(
+                $shopId,
+                $status,
+                $start,
+                $end,
+                $sort,
+                $search,
+                null,
+                null,
+                null,
+                null
+            );
 
         return $this->getShopOrderExport($orders, $language);
     }

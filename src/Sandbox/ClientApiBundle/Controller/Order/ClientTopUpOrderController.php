@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -23,8 +24,6 @@ use FOS\RestBundle\Controller\Annotations\Post;
  */
 class ClientTopUpOrderController extends PaymentController
 {
-    const PAYMENT_SUBJECT = 'SANDBOX3-会员余额充值';
-    const PAYMENT_BODY = 'TOPUP ORDER';
     const TOPUP_ORDER_LETTER_HEAD = 'T';
 
     /**
@@ -90,19 +89,6 @@ class ClientTopUpOrderController extends PaymentController
         $smsId = '';
         $smsCode = '';
 
-        if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
-            $token = $requestContent['token_f'];
-
-            if (array_key_exists('sms_id', $requestContent) &&
-                array_key_exists('sms_code', $requestContent) &&
-                !empty($requestContent['sms_id']) &&
-                !empty($requestContent['sms_code'])
-            ) {
-                $smsId = $requestContent['sms_id'];
-                $smsCode = $requestContent['sms_code'];
-            }
-        }
-
         if (is_null($price) || empty($price)) {
             return $this->customErrorView(
                 400,
@@ -135,7 +121,7 @@ class ClientTopUpOrderController extends PaymentController
             $orderNumber,
             $price,
             $channel,
-            self::PAYMENT_SUBJECT,
+            TopUpOrder::PAYMENT_SUBJECT,
             $this->getUserId()
         );
 

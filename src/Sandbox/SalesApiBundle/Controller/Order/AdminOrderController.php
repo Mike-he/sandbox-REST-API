@@ -27,6 +27,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Admin order controller.
@@ -94,11 +95,15 @@ class AdminOrderController extends OrderController
         $price = $order->getDiscountPrice();
         $userId = $order->getUserId();
         $channel = $order->getPayChannel();
+        $productId = $order->getProductId();
+        $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
 
         if ($newRejected) {
             $order->setStatus(ProductOrder::STATUS_CANCELLED);
             $order->setCancelledDate($now);
             $order->setModificationDate($now);
+            $order->setCancelByUser(true);
 
             if ($price > 0) {
                 $order->setNeedToRefund(true);
@@ -133,6 +138,18 @@ class AdminOrderController extends OrderController
                 ProductOrderMessage::OFFICE_REJECTED_MESSAGE
             );
         } else {
+            $acceptedOrders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getOfficeAccepted(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+
+            if (!empty($acceptedOrders)) {
+                throw new ConflictHttpException();
+            }
+
             // set door access
             $this->setDoorAccessForSingleOrder($order);
 
@@ -166,6 +183,58 @@ class AdminOrderController extends OrderController
                 [$order],
                 ProductOrderMessage::OFFICE_ACCEPTED_MESSAGE
             );
+
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getOfficeRejected(
+                    $productId,
+                    $startDate,
+                    $endDate,
+                    null,
+                    $order->getId()
+                );
+
+            foreach ($orders as $order) {
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
+                $order->setCancelByUser(true);
+
+                if ($price > 0) {
+                    $order->setNeedToRefund(true);
+
+                    if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                        $balance = $this->postBalanceChange(
+                            $userId,
+                            $price,
+                            $order->getOrderNumber(),
+                            self::PAYMENT_CHANNEL_ACCOUNT,
+                            0,
+                            self::ORDER_REFUND
+                        );
+
+                        $order->setRefundProcessed(true);
+                        $order->setRefundProcessedDate($now);
+
+                        if (!is_null($balance)) {
+                            $order->setRefunded(true);
+                            $order->setNeedToRefund(false);
+                        }
+                    }
+                }
+            }
+
+            if (!empty($orders)) {
+                // send message
+                $this->sendXmppProductOrderNotification(
+                    null,
+                    null,
+                    ProductOrder::ACTION_REJECTED,
+                    null,
+                    $orders,
+                    ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+                );
+            }
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -239,7 +308,6 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -348,6 +416,26 @@ class AdminOrderController extends OrderController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="orderStartPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order start point. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderEndPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order end point. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -388,6 +476,8 @@ class AdminOrderController extends OrderController
         $endDate = $paramFetcher->get('endDate');
         $payStart = $paramFetcher->get('payStart');
         $payEnd = $paramFetcher->get('payEnd');
+        $orderStartPoint = $paramFetcher->get('orderStartPoint');
+        $orderEndPoint = $paramFetcher->get('orderEndPoint');
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -407,19 +497,23 @@ class AdminOrderController extends OrderController
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getRepo('Order\ProductOrder')->getSalesOrdersForAdmin(
-            $channel,
-            $type,
-            $city,
-            $building,
-            $userId,
-            $startDate,
-            $endDate,
-            $payStart,
-            $payEnd,
-            $search,
-            $myBuildingIds
-        );
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getSalesOrdersForAdmin(
+                $channel,
+                $type,
+                $city,
+                $building,
+                $userId,
+                $startDate,
+                $endDate,
+                $payStart,
+                $payEnd,
+                $search,
+                $myBuildingIds,
+                $orderStartPoint,
+                $orderEndPoint
+            );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -442,7 +536,6 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -533,6 +626,26 @@ class AdminOrderController extends OrderController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="orderStartPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order start point. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderEndPoint",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for order end point. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders/export")
      * @Method({"GET"})
      *
@@ -565,6 +678,8 @@ class AdminOrderController extends OrderController
         $endDate = $paramFetcher->get('endDate');
         $payStart = $paramFetcher->get('payStart');
         $payEnd = $paramFetcher->get('payEnd');
+        $orderStartPoint = $paramFetcher->get('orderStartPoint');
+        $orderEndPoint = $paramFetcher->get('orderEndPoint');
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -582,18 +697,22 @@ class AdminOrderController extends OrderController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         //get array of orders
-        $orders = $this->getRepo('Order\ProductOrder')->getSalesOrdersToExport(
-            $channel,
-            $type,
-            $city,
-            $building,
-            $userId,
-            $startDate,
-            $endDate,
-            $payStart,
-            $payEnd,
-            $myBuildingIds
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getSalesOrdersToExport(
+                $channel,
+                $type,
+                $city,
+                $building,
+                $userId,
+                $startDate,
+                $endDate,
+                $payStart,
+                $payEnd,
+                $myBuildingIds,
+                $orderStartPoint,
+                $orderEndPoint
+            );
 
         return $this->getProductOrderExport($orders, $language);
     }
@@ -636,7 +755,9 @@ class AdminOrderController extends OrderController
             array(
                 SalesAdminPermission::KEY_BUILDING_ORDER,
                 SalesAdminPermission::KEY_BUILDING_USER,
-                SalesAdminPermission::KEY_PLATFORM_FINANCE,
+                SalesAdminPermission::KEY_PLATFORM_INVOICE,
+                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
             ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW,
             $buildingId
@@ -809,16 +930,17 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
         $adminId = $this->getAdminId();
 
-        if ($adminId != $order->getAdminId()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
         $type = $order->getType();
 
+        // check user permission
+        $permissions = array(
+            SalesAdminPermission::KEY_BUILDING_ORDER,
+        );
+
         if (ProductOrder::RESERVE_TYPE == $type) {
-            $permission = SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE;
+            $permissions[] = SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE;
         } elseif (ProductOrder::PREORDER_TYPE) {
-            $permission = SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER;
+            $permissions[] = SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER;
         } else {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
@@ -827,9 +949,7 @@ class AdminOrderController extends OrderController
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $adminId,
             SalesAdminType::KEY_PLATFORM,
-            array(
-                $permission,
-            ),
+            $permissions,
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             $buildingId
         );
@@ -847,6 +967,8 @@ class AdminOrderController extends OrderController
                 self::WRONG_PAYMENT_STATUS_MESSAGE
             );
         }
+
+        $order->setCancelByUser(true);
 
         if (ProductOrder::PREORDER_TYPE == $type) {
             if (ProductOrder::STATUS_COMPLETED == $status) {

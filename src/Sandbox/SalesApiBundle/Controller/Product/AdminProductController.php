@@ -60,7 +60,6 @@ class AdminProductController extends ProductController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(office|meeting|flexible|fixed)",
      *    strict=true,
      *    description="Filter by room type"
      * )
@@ -280,23 +279,25 @@ class AdminProductController extends ProductController
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getRepo('Product\Product')->getSalesAdminProducts(
-            $myBuildingIds,
-            $type,
-            $city,
-            $building,
-            $visible,
-            $sortBy,
-            $direction,
-            $search,
-            $floor,
-            $minSeat,
-            $maxSeat,
-            $minArea,
-            $maxArea,
-            $minPrice,
-            $maxPrice
-        );
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->getSalesAdminProducts(
+                $myBuildingIds,
+                $type,
+                $city,
+                $building,
+                $visible,
+                $sortBy,
+                $direction,
+                $search,
+                $floor,
+                $minSeat,
+                $maxSeat,
+                $minArea,
+                $maxArea,
+                $minPrice,
+                $maxPrice
+            );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(

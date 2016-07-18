@@ -20,7 +20,7 @@ class SalesAdminPermission
     const KEY_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_PLATFORM_ADMIN = 'sales.platform.admin';
     const KEY_PLATFORM_BUILDING = 'sales.platform.building';
-    const KEY_PLATFORM_FINANCE = 'sales.platform.finance';
+    const KEY_PLATFORM_INVOICE = 'sales.platform.invoice';
 
     const KEY_BUILDING_PRICE = 'sales.building.price';
     const KEY_BUILDING_ORDER = 'sales.building.order';
@@ -45,7 +45,7 @@ class SalesAdminPermission
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=32, nullable=false)
+     * @ORM\Column(name="key", type="string", length=128, nullable=false)
      * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $key;

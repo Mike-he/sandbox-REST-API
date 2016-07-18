@@ -34,7 +34,10 @@ class AdminPermission
     const KEY_PLATFORM_VERIFY = 'platform.verify';
     const KEY_PLATFORM_SALES = 'platform.sales';
     const KEY_PLATFORM_BULLETIN = 'platform.bulletin';
-    const KEY_PLATFORM_FINANCE = 'platform.finance';
+    const KEY_PLATFORM_FINANCE = 'platform.invoice';
+    const KEY_PLATFORM_ORDER_RESERVE = 'platform.order.reserve';
+    const KEY_PLATFORM_ORDER_PREORDER = 'platform.order.preorder';
+    const KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY = 'platform.product.appointment';
 
     /**
      * @var int
@@ -49,7 +52,7 @@ class AdminPermission
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=32, nullable=false)
+     * @ORM\Column(name="key", type="string", length=128, nullable=false)
      * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $key;

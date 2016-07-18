@@ -27,9 +27,10 @@ register:
 room:
   type:
     office: Office
-    meeting: Meeting room
-    flexible: Flexible station
-    fixed: Fixed station
+    meeting: Meeting Room
+    flexible: Flexible Seat
+    fixed: Fixed Seat
+    studio: Studio
   unit:
     hour: Hour
     day: Day

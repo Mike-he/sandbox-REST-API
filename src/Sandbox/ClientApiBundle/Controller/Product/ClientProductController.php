@@ -3,13 +3,18 @@
 namespace Sandbox\ClientApiBundle\Controller\Product;
 
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Form\Product\ProductAppointmentPostType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for Client Product.
@@ -23,6 +28,184 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientProductController extends ProductController
 {
+    /**
+     * @Get("/products/search")
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    description="building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    default=null,
+     *    nullable=true,
+     *    description="start time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end",
+     *    default=null,
+     *    nullable=true,
+     *    description="end time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="allowed_people",
+     *    default=null,
+     *    nullable=true,
+     *    description="maximum allowed people"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default="meeting",
+     *    nullable=true,
+     *    description="room type"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getProductSearchAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
+
+        // get params
+        $cityId = $paramFetcher->get('city');
+        $buildingId = $paramFetcher->get('building');
+        $start = $paramFetcher->get('start');
+        $end = $paramFetcher->get('end');
+        $allowedPeople = $paramFetcher->get('allowed_people');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $type = $paramFetcher->get('type');
+
+        $startTime = null;
+        $endTime = null;
+        $productIds = [];
+        $products = [];
+
+        if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+            $startHour = null;
+            $endHour = null;
+
+            if (!is_null($start) && !empty($start)) {
+                $startTime = new \DateTime($start);
+                $startHour = $startTime->format('H:i:s');
+            }
+
+            if (!is_null($end) && !empty($end)) {
+                $endTime = new \DateTime($end);
+                $endHour = $endTime->format('H:i:s');
+            }
+
+            $productIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getMeetingProductsForClient(
+                    $userId,
+                    $cityId,
+                    $buildingId,
+                    $allowedPeople,
+                    $startTime,
+                    $endTime,
+                    $startHour,
+                    $endHour,
+                    $limit,
+                    $offset,
+                    $type
+            );
+        } elseif ($type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
+            if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
+                $startTime = new \DateTime($start);
+                $startTime->setTime(0, 0, 0);
+                $endTime = new \DateTime($end);
+                $endTime->setTime(23, 59, 59);
+            }
+
+            $productIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getWorkspaceProductsForClient(
+                    $userId,
+                    $cityId,
+                    $buildingId,
+                    $allowedPeople,
+                    $startTime,
+                    $endTime,
+                    $limit,
+                    $offset,
+                    $type
+            );
+        } elseif ($type == Room::TYPE_OFFICE) {
+            if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
+                $startTime = new \DateTime($start);
+                $startTime->setTime(0, 0, 0);
+                $endTime = new \DateTime($end);
+                $endTime->setTime(23, 59, 59);
+            }
+
+            $productIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getOfficeProductsForClient(
+                    $userId,
+                    $cityId,
+                    $buildingId,
+                    $allowedPeople,
+                    $startTime,
+                    $endTime,
+                    $limit,
+                    $offset
+            );
+        }
+
+        foreach ($productIds as $productId) {
+            $product = $this->getRepo('Product\Product')->find($productId);
+            array_push($products, $product);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($products);
+
+        return $view;
+    }
+
     /**
      * @Get("/products/meeting")
      *
@@ -81,6 +264,13 @@ class ClientProductController extends ProductController
      *    description="start of the page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default="meeting",
+     *    nullable=true,
+     *    description="room type"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -103,6 +293,7 @@ class ClientProductController extends ProductController
         $allowedPeople = $paramFetcher->get('allowed_people');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $type = $paramFetcher->get('type');
 
         $startTime = null;
         $endTime = null;
@@ -129,7 +320,8 @@ class ClientProductController extends ProductController
             $startHour,
             $endHour,
             $limit,
-            $offset
+            $offset,
+            $type
         );
 
         $products = [];
@@ -359,7 +551,8 @@ class ClientProductController extends ProductController
             $startDate,
             $endDate,
             $limit,
-            $offset
+            $offset,
+            Room::TYPE_FIXED
         );
 
         $products = [];
@@ -443,7 +636,7 @@ class ClientProductController extends ProductController
         $response = [];
         $type = $product->getRoom()->getType();
         $rentDate = $paramFetcher->get('rent_date');
-        if ($type == Room::TYPE_MEETING && !is_null($rentDate) && !empty($rentDate)) {
+        if (($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) && !is_null($rentDate) && !empty($rentDate)) {
             $startDate = new \DateTime($rentDate);
             $endDate = clone $startDate;
             $endDate->setTime(23, 59, 59);
@@ -488,6 +681,52 @@ class ClientProductController extends ProductController
         }
 
         return new View($response);
+    }
+
+    /**
+     * @Post("/products/{id}/appointments")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @return View
+     */
+    public function postAnnualRentProductAppointmentsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->find($id);
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
+        $appointment = new ProductAppointment();
+
+        $form = $this->createForm(new ProductAppointmentPostType(), $appointment);
+        $form->submit(json_decode($request->getContent(), true));
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        // set staff
+        $appointment->setUserId($userId);
+        $appointment->setProductId($product->getId());
+        $startRentDate = new \DateTime($appointment->getStartRentDate());
+        $startRentDate->setTime(00, 00, 00);
+        $appointment->setStartRentDate($startRentDate);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($appointment);
+        $em->flush();
+
+        return new View(array(
+            'id' => $appointment->getId(),
+        ));
     }
 
     /**
