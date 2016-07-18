@@ -1213,10 +1213,14 @@ class AdminOrderController extends OrderController
         $type = $order->getType();
 
         // check user permission
+        $permissions = array(
+            AdminPermission::KEY_PLATFORM_ORDER,
+        );
+
         if (ProductOrder::RESERVE_TYPE == $type) {
-            $permission = AdminPermission::KEY_PLATFORM_ORDER_RESERVE;
+            $permissions[] = AdminPermission::KEY_PLATFORM_ORDER_RESERVE;
         } elseif (ProductOrder::PREORDER_TYPE) {
-            $permission = AdminPermission::KEY_PLATFORM_ORDER_PREORDER;
+            $permissions[] = AdminPermission::KEY_PLATFORM_ORDER_PREORDER;
         } else {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
@@ -1224,9 +1228,7 @@ class AdminOrderController extends OrderController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             AdminType::KEY_PLATFORM,
-            array(
-                $permission,
-            ),
+            $permissions,
             AdminPermissionMap::OP_LEVEL_EDIT
         );
 
