@@ -393,6 +393,7 @@ class AdminUsersController extends DoorController
                 SalesAdminPermission::KEY_BUILDING_ORDER,
                 SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
                 SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                SalesAdminPermission::KEY_BUILDING_PRODUCT,
             ),
             SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
