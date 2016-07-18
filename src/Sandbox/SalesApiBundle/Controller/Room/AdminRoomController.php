@@ -1066,8 +1066,10 @@ class AdminRoomController extends SalesRestController
         $em->persist($room);
         $em->flush();
 
+        $type = $room->getType();
+
         // handle meeting rooms
-        if (!is_null($meeting) && $room->getType() == Room::TYPE_MEETING) {
+        if (!is_null($meeting) && ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO)) {
             $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneByRoom($room);
             // remove the old data
             if (!is_null($roomMeeting)) {
