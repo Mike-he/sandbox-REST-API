@@ -919,10 +919,15 @@ class AdminOrderController extends OrderController
 
         $type = $order->getType();
 
+        // check user permission
+        $permissions = array(
+            SalesAdminPermission::KEY_BUILDING_ORDER,
+        );
+
         if (ProductOrder::RESERVE_TYPE == $type) {
-            $permission = SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE;
+            $permissions[] = SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE;
         } elseif (ProductOrder::PREORDER_TYPE) {
-            $permission = SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER;
+            $permissions[] = SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER;
         } else {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
@@ -931,9 +936,7 @@ class AdminOrderController extends OrderController
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $adminId,
             SalesAdminType::KEY_PLATFORM,
-            array(
-                $permission,
-            ),
+            $permissions,
             SalesAdminPermissionMap::OP_LEVEL_EDIT,
             $buildingId
         );
