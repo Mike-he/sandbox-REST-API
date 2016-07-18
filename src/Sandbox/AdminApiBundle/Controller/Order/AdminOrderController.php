@@ -1248,7 +1248,7 @@ class AdminOrderController extends OrderController
 
         $order->setCancelByUser(true);
 
-        if (ProductOrder::PREORDER_TYPE == $type) {
+        if (ProductOrder::PREORDER_TYPE == $type && $status != ProductOrder::STATUS_UNPAID) {
             if (ProductOrder::STATUS_COMPLETED == $status) {
                 return $this->customErrorView(
                     400,
