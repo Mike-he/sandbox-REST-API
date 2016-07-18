@@ -27,6 +27,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Admin order controller.
@@ -137,6 +138,18 @@ class AdminOrderController extends OrderController
                 ProductOrderMessage::OFFICE_REJECTED_MESSAGE
             );
         } else {
+            $acceptedOrders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getOfficeAccepted(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+
+            if (!empty($acceptedOrders)) {
+                throw new ConflictHttpException();
+            }
+
             // set door access
             $this->setDoorAccessForSingleOrder($order);
 
@@ -170,12 +183,12 @@ class AdminOrderController extends OrderController
                 [$order],
                 ProductOrderMessage::OFFICE_ACCEPTED_MESSAGE
             );
-            
+
             $orders = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Order\ProductOrder')
                 ->getOfficeRejected(
-                    $productId, 
-                    $startDate, 
+                    $productId,
+                    $startDate,
                     $endDate,
                     null,
                     $order->getId()
