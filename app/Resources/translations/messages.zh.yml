@@ -26,10 +26,10 @@ register:
 
 room:
   type:
-    office: 独立办公室
+    office: 独享办公室
     meeting: 会议室
-    flexible: 临时工位
-    fixed: 固定工位
+    flexible: 共享办公桌
+    fixed: 独享办公桌
     studio: 录音棚
   unit:
     hour: 小时
@@ -73,10 +73,14 @@ product_order:
   push_message:
     meeting_start: 您的会议室将在10分钟后开始使用
     meeting_end: 您的会议室将在10分钟后到期
-    workspace_start: 您的工位将在明天开始使用
-    workspace_end: 您的工位将在明天到期
-    office_start: 您的办公室将在明天开始使用
-    office_end: 您的办公室将在7天后到期
+    studio_start: 您的录音棚将在10分钟后开始使用
+    studio_end: 您的录音棚将在10分钟后到期
+    flexible_start: 您的共享办公桌将在明天开始使用
+    flexible_end: 您的共享办公桌将在明天到期
+    fixed_start: 您的独享办公桌将在明天开始使用
+    fixed_end: 您的独享办公桌将在明天到期
+    office_start: 您的独享办公室将在明天开始使用
+    office_end: 您的独享办公室将在7天后到期
     office_reject: 抱歉，您申请的办公室没有通过审核，钱款将在1~3个工作日退回到您的支付账户下
     office_order: 您的办公室已预定成功，使用前请先到前台登记
     office_accept: 您申请的办公室已通过

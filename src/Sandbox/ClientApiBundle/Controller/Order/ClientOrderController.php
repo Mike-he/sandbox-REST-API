@@ -1617,8 +1617,10 @@ class ClientOrderController extends OrderController
                 if ($time >= $startDate) {
                     if ($type == Room::TYPE_OFFICE) {
                         $keyStart = ProductOrderMessage::OFFICE_START_MESSAGE;
-                    } else {
-                        $keyStart = ProductOrderMessage::WORKSPACE_START_MESSAGE;
+                    } elseif ($type == Room::TYPE_FLEXIBLE) {
+                        $keyStart = ProductOrderMessage::FLEXIBLE_START_MESSAGE;
+                    } elseif ($type == Room::TYPE_FIXED) {
+                        $keyStart = ProductOrderMessage::FIXED_START_MESSAGE;
                     }
                 }
             }
@@ -1660,7 +1662,11 @@ class ClientOrderController extends OrderController
                 $time->modify('+8 hours');
 
                 if ($time >= $endDate) {
-                    $keyEnd = ProductOrderMessage::WORKSPACE_END_MESSAGE;
+                    if ($type == Room::TYPE_FLEXIBLE) {
+                        $keyEnd = ProductOrderMessage::FLEXIBLE_END_MESSAGE;
+                    } elseif ($type == Room::TYPE_FIXED) {
+                        $keyEnd = ProductOrderMessage::FIXED_END_MESSAGE;
+                    }
                 }
             }
         }

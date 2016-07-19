@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Proxies\__CG__\Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -106,41 +107,83 @@ class OrderNotificationCommand extends ContainerAwareCommand
         $now,
         $workspaceTime
     ) {
-        $startOrders = $this->getContainer()
+        $fixedStartOrders = $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getWorkspaceStartSoonOrders(
                 $now,
-                $workspaceTime
+                $workspaceTime,
+                Room::TYPE_FIXED
             );
 
-        $endOrders = $this->getContainer()
+        $fixedEndOrders = $this->getContainer()
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getWorkspaceEndSoonOrders(
                 $now,
-                $workspaceTime
+                $workspaceTime,
+                Room::TYPE_FIXED
             );
 
-        if (!empty($startOrders)) {
+        $flexStartOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getWorkspaceStartSoonOrders(
+                $now,
+                $workspaceTime,
+                Room::TYPE_FLEXIBLE
+            );
+
+        $flexEndOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getWorkspaceEndSoonOrders(
+                $now,
+                $workspaceTime,
+                Room::TYPE_FLEXIBLE
+            );
+
+        if (!empty($fixedStartOrders)) {
             $this->sendXmppProductOrderNotification(
                 null,
                 array(),
                 ProductOrder::ACTION_START,
                 null,
-                $startOrders,
-                ProductOrderMessage::WORKSPACE_START_MESSAGE
+                $fixedStartOrders,
+                ProductOrderMessage::FIXED_START_MESSAGE
             );
         }
 
-        if (!empty($endOrders)) {
+        if (!empty($fixedEndOrders)) {
             $this->sendXmppProductOrderNotification(
                 null,
                 array(),
                 ProductOrder::ACTION_END,
                 null,
-                $endOrders,
-                ProductOrderMessage::WORKSPACE_END_MESSAGE
+                $fixedEndOrders,
+                ProductOrderMessage::FIXED_END_MESSAGE
+            );
+        }
+
+        if (!empty($flexStartOrders)) {
+            $this->sendXmppProductOrderNotification(
+                null,
+                array(),
+                ProductOrder::ACTION_START,
+                null,
+                $flexStartOrders,
+                ProductOrderMessage::FLEXIBLE_START_MESSAGE
+            );
+        }
+
+        if (!empty($flexEndOrders)) {
+            $this->sendXmppProductOrderNotification(
+                null,
+                array(),
+                ProductOrder::ACTION_END,
+                null,
+                $fixedEndOrders,
+                ProductOrderMessage::FLEXIBLE_END_MESSAGE
             );
         }
     }

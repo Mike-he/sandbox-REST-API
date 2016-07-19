@@ -7,8 +7,11 @@ class ProductOrderMessage
     const MEETING_START_MESSAGE = 'product_order.push_message.meeting_start';
     const MEETING_END_MESSAGE = 'product_order.push_message.meeting_end';
 
-    const WORKSPACE_START_MESSAGE = 'product_order.push_message.workspace_start';
-    const WORKSPACE_END_MESSAGE = 'product_order.push_message.workspace_end';
+    const FLEXIBLE_START_MESSAGE = 'product_order.push_message.flexible_start';
+    const FLEXIBLE_END_MESSAGE = 'product_order.push_message.flexible_end';
+
+    const FIXED_START_MESSAGE = 'product_order.push_message.fixed_start';
+    const FIXED_END_MESSAGE = 'product_order.push_message.fixed_end';
 
     const STUDIO_START_MESSAGE = 'product_order.push_message.studio_start';
     const STUDIO_END_MESSAGE = 'product_order.push_message.studio_end';

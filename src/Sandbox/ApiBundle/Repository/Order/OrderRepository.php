@@ -180,12 +180,14 @@ class OrderRepository extends EntityRepository
     /**
      * @param $now
      * @param $workspaceTime
+     * @param $type
      *
      * @return array
      */
     public function getWorkspaceStartSoonOrders(
         $now,
-        $workspaceTime
+        $workspaceTime,
+        $type
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
@@ -194,13 +196,14 @@ class OrderRepository extends EntityRepository
             ->andWhere('o.startDate > :now')
             ->andWhere(
                 '(
-                    (r.type = \'fixed\' OR r.type = \'flexible\')
+                    (r.type = :type)
                     AND
                     o.startDate <= :workspaceTime
                 )'
             )
             ->setParameter('workspaceTime', $workspaceTime)
             ->setParameter('now', $now)
+            ->setParameter('type', $type)
             ->getQuery();
 
         return $query->getResult();
@@ -209,12 +212,14 @@ class OrderRepository extends EntityRepository
     /**
      * @param $now
      * @param $workspaceTime
+     * @param $type
      *
      * @return array
      */
     public function getWorkspaceEndSoonOrders(
         $now,
-        $workspaceTime
+        $workspaceTime,
+        $type
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
@@ -223,13 +228,14 @@ class OrderRepository extends EntityRepository
             ->andWhere('o.endDate > :now')
             ->andWhere(
                 '(
-                    (r.type = \'fixed\' OR r.type = \'flexible\')
+                    (r.type = :type)
                     AND
                     o.endDate <= :workspaceTime
                 )'
             )
             ->setParameter('workspaceTime', $workspaceTime)
             ->setParameter('now', $now)
+            ->setParameter('type', $type)
             ->getQuery();
 
         return $query->getResult();
