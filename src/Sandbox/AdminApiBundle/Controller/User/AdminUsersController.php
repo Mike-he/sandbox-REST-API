@@ -270,6 +270,7 @@ class AdminUsersController extends DoorController
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
         $banned = $paramFetcher->get('banned');
         $authorized = $paramFetcher->get('authorized');
         $query = $paramFetcher->get('query');
@@ -297,11 +298,21 @@ class AdminUsersController extends DoorController
                 $authorized,
                 $query,
                 $sortBy,
-                $direction
+                $direction,
+                $offset,
+                $pageLimit
+            );
+
+        // get total count
+        $usersCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->countUsers(
+                $banned,
+                $authorized,
+                $query
             );
 
         // set authorized building
-        $response = array();
         foreach ($results as $user) {
             $salesUser = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')
@@ -318,19 +329,15 @@ class AdminUsersController extends DoorController
                 if (!is_null($building)) {
                     $user->setBuilding($building->getName());
                 }
-
-                array_push($response, $user);
             }
         }
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $results,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
+        return new View(array(
+            'current_page_number' => $pageIndex,
+            'num_items_per_page' => $pageLimit,
+            'items' => $results,
+            'total_count' => $usersCount,
+        ));
     }
 
     /**
