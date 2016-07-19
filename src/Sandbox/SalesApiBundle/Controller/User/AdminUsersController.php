@@ -148,6 +148,7 @@ class AdminUsersController extends DoorController
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
         $banned = $paramFetcher->get('banned');
         $authorized = $paramFetcher->get('authorized');
         $query = $paramFetcher->get('query');
@@ -171,23 +172,35 @@ class AdminUsersController extends DoorController
         // get sales users
         $userIds = $this->getMySalesUserIds();
 
-        $results = $this->getRepo('User\UserView')->searchSalesUser(
-            $banned,
-            $authorized,
-            $query,
-            $sortBy,
-            $direction,
-            $userIds
-        );
+        $results = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->searchSalesUser(
+                $banned,
+                $authorized,
+                $query,
+                $sortBy,
+                $direction,
+                $userIds,
+                $offset,
+                $pageLimit
+            );
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $results,
-            $pageIndex,
-            $pageLimit
-        );
+        // get total count
+        $countSalesUsers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->countSalesUsers(
+                $banned,
+                $authorized,
+                $query,
+                $userIds
+            );
 
-        return new View($pagination);
+        return new View(array(
+            'current_page_number' => $pageIndex,
+            'num_items_per_page' => $pageLimit,
+            'items' => $results,
+            'total_count' => $countSalesUsers,
+        ));
     }
 
     /**

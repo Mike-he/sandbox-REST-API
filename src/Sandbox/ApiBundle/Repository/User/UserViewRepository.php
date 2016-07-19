@@ -77,6 +77,8 @@ class UserViewRepository extends EntityRepository
      * @param $query
      * @param $sortBy
      * @param $direction
+     * @param $offset
+     * @param $limit
      *
      * @return array
      */
@@ -85,9 +87,52 @@ class UserViewRepository extends EntityRepository
         $authorized,
         $query,
         $sortBy,
-        $direction
+        $direction,
+        $offset,
+        $limit
     ) {
         $queryResults = $this->createQueryBuilder('u')
+            ->where('u.id LIKE :query')
+            ->orWhere('u.name LIKE :query')
+            ->orWhere('u.email LIKE :query')
+            ->orWhere('u.phone LIKE :query')
+            ->orWhere('u.cardNo LIKE :query')
+            ->orWhere('u.credentialNo LIKE :query')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->setParameter('query', $query.'%');
+
+        if (!is_null($banned)) {
+            $queryResults->andWhere('u.banned = :banned')
+                ->setParameter('banned', $banned);
+        }
+
+        if (!is_null($authorized)) {
+            $queryResults->andWhere('u.authorized = :authorized')
+                ->setParameter('authorized', $authorized);
+        }
+
+        if (!is_null($sortBy)) {
+            $queryResults->orderBy('u.'.$sortBy, $direction);
+        }
+
+        return $queryResults->getQuery()->getResult();
+    }
+
+    /**
+     * @param $banned
+     * @param $authorized
+     * @param $query
+     *
+     * @return int
+     */
+    public function countUsers(
+        $banned,
+        $authorized,
+        $query
+    ) {
+        $queryResults = $this->createQueryBuilder('u')
+            ->select('COUNT(u)')
             ->where('u.id LIKE :query')
             ->orWhere('u.name LIKE :query')
             ->orWhere('u.email LIKE :query')
@@ -106,11 +151,7 @@ class UserViewRepository extends EntityRepository
                 ->setParameter('authorized', $authorized);
         }
 
-        if (!is_null($sortBy)) {
-            $queryResults->orderBy('u.'.$sortBy, $direction);
-        }
-
-        return $queryResults->getQuery()->getResult();
+        return (int) $queryResults->getQuery()->getSingleScalarResult();
     }
 
     /**
@@ -191,6 +232,8 @@ class UserViewRepository extends EntityRepository
      * @param $sortBy
      * @param $direction
      * @param $userIds
+     * @param $offset
+     * @param $pageLimit
      *
      * @return array
      */
@@ -200,9 +243,13 @@ class UserViewRepository extends EntityRepository
         $query,
         $sortBy,
         $direction,
-        $userIds
+        $userIds,
+        $offset,
+        $pageLimit
     ) {
-        $queryResults = $this->createQueryBuilder('u');
+        $queryResults = $this->createQueryBuilder('u')
+            ->setFirstResult($offset)
+            ->setMaxResults($pageLimit);
 
         // filters by query
         if (is_null($query)) {
@@ -232,5 +279,48 @@ class UserViewRepository extends EntityRepository
         }
 
         return $queryResults->getQuery()->getResult();
+    }
+
+    /**
+     * @param $banned
+     * @param $authorized
+     * @param $query
+     * @param $userIds
+     *
+     * @return int
+     */
+    public function countSalesUsers(
+        $banned,
+        $authorized,
+        $query,
+        $userIds
+    ) {
+        $queryResults = $this->createQueryBuilder('u')
+            ->select('COUNT(u)');
+
+        // filters by query
+        if (is_null($query)) {
+            $queryResults->where('u.id IN (:ids)');
+            $queryResults->setParameter('ids', $userIds);
+        } else {
+            $queryResults->where('u.name = :query')
+                ->orWhere('u.email = :query')
+                ->orWhere('u.phone = :query')
+                ->orWhere('u.cardNo = :query')
+                ->orWhere('u.credentialNo = :query')
+                ->setParameter('query', $query);
+        }
+
+        if (!is_null($banned)) {
+            $queryResults->andWhere('u.banned = :banned')
+                ->setParameter('banned', $banned);
+        }
+
+        if (!is_null($authorized)) {
+            $queryResults->andWhere('u.authorized = :authorized')
+                ->setParameter('authorized', $authorized);
+        }
+
+        return (int) $queryResults->getQuery()->getSingleScalarResult();
     }
 }
