@@ -19,7 +19,6 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Shop\ShopController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
-use Knp\Component\Pager\Paginator;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -235,9 +234,24 @@ class AdminShopOrderController extends ShopController
         $platform = $paramFetcher->get('platform');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $count = 0;
 
         if (!is_null($shopId) && !in_array((int) $shopId, $myShopIds)) {
             return new View();
+        }
+
+        if ($platform == ShopOrder::PLATFORM_BACKEND) {
+            $offset = ($pageIndex - 1) * $pageLimit;
+            $limit = $pageLimit;
+
+            $count = $this->getRepo('Shop\ShopOrder')->countAdminShopOrders(
+                $shopId,
+                $status,
+                $start,
+                $end,
+                $search,
+                $myShopIds
+            );
         }
 
         $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrders(
@@ -253,26 +267,24 @@ class AdminShopOrderController extends ShopController
             $offset
         );
 
-        $orders = $this->get('serializer')->serialize(
-            $orders,
-            'json',
-            SerializationContext::create()->setGroups(['admin_shop'])
-        );
-        $orders = json_decode($orders, true);
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
 
         // using limit and offset instead of pagination
         if ($platform == ShopOrder::PLATFORM_KITCHEN) {
-            return new View($orders);
+            $view->setData($orders);
+        } elseif ($platform == ShopOrder::PLATFORM_BACKEND) {
+            $view->setData(
+                array(
+                    'current_page_number' => $pageIndex,
+                    'num_items_per_page' => (int) $pageLimit,
+                    'items' => $orders,
+                    'total_count' => (int) $count,
+                )
+            );
         }
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $orders,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
+        return $view;
     }
 
     /**
