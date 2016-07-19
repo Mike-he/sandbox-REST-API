@@ -54,12 +54,6 @@ class ShopOrderRepository extends EntityRepository
             && (is_null($search) || empty($search))) {
             $query = $query->andWhere('o.unoriginal = :unoriginal')
                 ->setParameter('unoriginal', false);
-        } elseif ($platform == ShopOrder::PLATFORM_KITCHEN
-            && !is_null($limit)
-            && !is_null($offset)
-        ) {
-            $query = $query->setMaxResults($limit)
-                ->setFirstResult($offset);
         }
 
         if (!is_null($shopId) && !empty($shopId)) {
@@ -92,7 +86,67 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('search', "%$search%");
         }
 
+        if (!is_null($limit) && !is_null($offset)) {
+            $query = $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
         return $query->getQuery()->getResult();
+    }
+
+    public function countAdminShopOrders(
+        $shopId,
+        $status,
+        $start,
+        $end,
+        $search,
+        $myShopIds
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o)')
+            ->where('o.status != :unpaid')
+            ->andWhere('o.status != :cancelled')
+            ->andWhere('o.shopId IN (:shopIds)')
+            ->setParameter('shopIds', $myShopIds)
+            ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
+            ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED);
+
+        if (is_null($search) || empty($search)) {
+            $query = $query->andWhere('o.unoriginal = :unoriginal')
+                ->setParameter('unoriginal', false);
+        }
+
+        if (!is_null($shopId) && !empty($shopId)) {
+            $query = $query->andWhere('o.shopId = :shopId')
+                ->setParameter('shopId', $shopId);
+        }
+
+        if (!is_null($status) && !empty($status)) {
+            $query = $query->andWhere('o.status IN (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($start) && !empty($start)) {
+            $start = new \DateTime($start);
+            $query = $query->andWhere('o.paymentDate >= :start')
+                ->setParameter('start', $start);
+        }
+
+        if (!is_null($end) && !empty($end)) {
+            $end = new \DateTime($end);
+            $end->setTime(23, 59, 59);
+            $query = $query->andWhere('o.paymentDate <= :end')
+                ->setParameter('end', $end);
+        }
+
+        // Search products by product Id or product name.
+        if (!is_null($search) && !empty($search)) {
+            $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
+                ->andWhere('o.orderNumber LIKE :search OR u.name LIKE :search')
+                ->setParameter('search', "%$search%");
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 
     /**
@@ -106,6 +160,8 @@ class ShopOrderRepository extends EntityRepository
      * @param null $cityId
      * @param null $buildingId
      * @param $refundStatus
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
@@ -119,7 +175,9 @@ class ShopOrderRepository extends EntityRepository
         $user,
         $cityId = null,
         $buildingId = null,
-        $refundStatus
+        $refundStatus,
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
@@ -179,7 +237,97 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('refunded', true);
         }
 
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $shopId
+     * @param $status
+     * @param $start
+     * @param $end
+     * @param $search
+     * @param $user
+     * @param null $cityId
+     * @param null $buildingId
+     * @param $refundStatus
+     *
+     * @return mixed
+     */
+    public function countAdminShopOrdersForBackend(
+        $shopId,
+        $status,
+        $start,
+        $end,
+        $search,
+        $user,
+        $cityId = null,
+        $buildingId = null,
+        $refundStatus
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o)')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId');
+
+        if (is_null($search) || empty($search)) {
+            $query->where('o.unoriginal = :unoriginal')
+                ->setParameter('unoriginal', false);
+        } else {
+            $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
+                ->where('o.orderNumber LIKE :search OR u.name LIKE :search')
+                ->setParameter('search', "%$search%");
+        }
+
+        if (!is_null($shopId) && !empty($shopId)) {
+            $query = $query->andWhere('o.shopId = :shopId')
+                ->setParameter('shopId', $shopId);
+        }
+
+        if (!is_null($user) && !empty($user)) {
+            $query = $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $user);
+        }
+
+        if (!is_null($status) && !empty($status)) {
+            $query = $query->andWhere('o.status IN (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($start) && !empty($start)) {
+            $start = new \DateTime($start);
+            $query = $query->andWhere('o.paymentDate >= :start')
+                ->setParameter('start', $start);
+        }
+
+        if (!is_null($end) && !empty($end)) {
+            $end = new \DateTime($end);
+            $end->setTime(23, 59, 59);
+            $query = $query->andWhere('o.paymentDate <= :end')
+                ->setParameter('end', $end);
+        }
+
+        if (!is_null($cityId)) {
+            $query->andWhere('c.id = :cityId')
+                ->setParameter('cityId', $cityId);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+            $query->andWhere('o.refunded = :refunded')
+                ->setParameter('refunded', true);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 
     /**
