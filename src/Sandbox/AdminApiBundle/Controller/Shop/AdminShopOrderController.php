@@ -349,6 +349,9 @@ class AdminShopOrderController extends ShopController
         $buildingId = $paramFetcher->get('building');
         $refundStatus = $paramFetcher->get('refundStatus');
 
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
+
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Shop\ShopOrder')
             ->getAdminShopOrdersForBackend(
@@ -361,24 +364,37 @@ class AdminShopOrderController extends ShopController
                 $user,
                 $cityId,
                 $buildingId,
+                $refundStatus,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->countAdminShopOrdersForBackend(
+                $shopId,
+                $status,
+                $start,
+                $end,
+                $search,
+                $user,
+                $cityId,
+                $buildingId,
                 $refundStatus
             );
 
-        $orders = $this->get('serializer')->serialize(
-            $orders,
-            'json',
-            SerializationContext::create()->setGroups(['admin_shop'])
-        );
-        $orders = json_decode($orders, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $orders,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
