@@ -82,6 +82,11 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
 
         $responseArray = $this->handleClientUserLogin($request, $user, $login);
 
+        // set weChat user data
+        $responseArray = array_merge($responseArray, array(
+            'we_chat_sns_user_info' => $this->getWeChatSnsUserInfo($weChat),
+        ));
+
         // response
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
