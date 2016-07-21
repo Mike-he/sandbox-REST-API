@@ -575,12 +575,37 @@ class PaymentController extends DoorController
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
                 'orderNumber' => $orderNumber,
-                'status' => ProductOrder::STATUS_UNPAID,
             ]
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $order->setStatus(self::STATUS_PAID);
+        $status = $order->getStatus();
+
+        if ($status != ProductOrder::STATUS_CANCELLED &&
+            $status != ProductOrder::STATUS_UNPAID
+        ) {
+            throw new NotFoundHttpException();
+        }
+
+        if ($status == ProductOrder::STATUS_CANCELLED) {
+            // check if order conflict
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->checkProductForClient(
+                    $order->getProductId(),
+                    $order->getStartDate(),
+                    $order->getEndDate()
+                );
+
+            if (!empty($orders)) {
+                $order->setNeedToRefund(true);
+            } else {
+                $order->setStatus(self::STATUS_PAID);
+            }
+        } else {
+            $order->setStatus(self::STATUS_PAID);
+        }
+
         $order->setPaymentDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
 
@@ -596,7 +621,7 @@ class PaymentController extends DoorController
         //send message
         $type = $order->getProduct()->getRoom()->getType();
 
-        if (Room::TYPE_OFFICE == $type  && is_null($order->getType())) {
+        if (Room::TYPE_OFFICE == $type && is_null($order->getType())) {
             $this->sendXmppProductOrderNotification(
                 null,
                 null,
@@ -608,7 +633,7 @@ class PaymentController extends DoorController
         }
 
         // set door access
-        if (!$order->isRejected()) {
+        if (!$order->isRejected() && $status == ProductOrder::STATUS_PAID) {
             $this->setDoorAccessForSingleOrder($order);
         }
 
@@ -625,21 +650,83 @@ class PaymentController extends DoorController
         $orderNumber,
         $channel
     ) {
-        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
-            [
-                'orderNumber' => $orderNumber,
-                'status' => ShopOrder::STATUS_UNPAID,
-            ]
-        );
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->findOneBy(
+                [
+                    'orderNumber' => $orderNumber,
+                ]
+            );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
+        $status = $order->getStatus();
+
+        if ($status != ShopOrder::STATUS_CANCELLED &&
+            $status != ShopOrder::STATUS_UNPAID
+        ) {
+            throw new NotFoundHttpException();
+        }
+
+        $em = $this->getDoctrine()->getManager();
         $now = new \DateTime();
+
+        if ($status == ProductOrder::STATUS_CANCELLED) {
+            // check if shop still open
+            $shopId = $order->getShopId();
+
+            $shop = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\Shop')
+                ->findOneBy(
+                    [
+                        'id' => $shopId,
+                        'isDeleted' => false,
+                        'active' => true,
+                        'online' => true,
+                        'close' => false,
+                    ]
+                );
+            $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
+
+            $orderProducts = $order->getShopOrderProducts();
+
+            foreach ($orderProducts as $orderProduct) {
+                $orderProductSpecs = $orderProduct->getShopOrderProductSpecs();
+
+                foreach ($orderProductSpecs as $orderProductSpec) {
+                    $specInfo = $orderProductSpec->getshopProductSpecInfo();
+                    $specInfo = json_decode($specInfo, true);
+
+                    if ($specInfo['spec']['has_inventory']) {
+                        $orderProductSpecItems = $orderProductSpec->getShopOrderProductSpecItems();
+
+                        foreach ($orderProductSpecItems as $orderProductSpecItem) {
+                            $amount = $orderProductSpecItem->getAmount();
+                            $productSpecItem = $orderProductSpecItem->getItem();
+                            $inventory = $productSpecItem->getInventory();
+
+                            if ($amount > $inventory) {
+                                $order->setNeedToRefund(true);
+                                $order->setPayChannel($channel);
+                                $order->setPaymentDate($now);
+                                $order->setModificationDate($now);
+
+                                $em->flush();
+
+                                return $order;
+                            }
+
+                            $productSpecItem->setInventory($inventory - $amount);
+                        }
+                    }
+                }
+            }
+        }
+
         $order->setStatus(ShopOrder::STATUS_PAID);
         $order->setPayChannel($channel);
         $order->setPaymentDate($now);
         $order->setModificationDate($now);
 
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return $order;
