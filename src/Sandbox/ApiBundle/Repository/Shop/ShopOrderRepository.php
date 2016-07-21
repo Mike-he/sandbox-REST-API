@@ -182,8 +182,7 @@ class ShopOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
             ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
-            ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId')
-            ->orderBy('o.modificationDate', $sort);
+            ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId');
 
         if (is_null($search) || empty($search)) {
             $query->where('o.unoriginal = :unoriginal')
@@ -234,7 +233,20 @@ class ShopOrderRepository extends EntityRepository
 
         if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
             $query->andWhere('o.refunded = :refunded')
-                ->setParameter('refunded', true);
+                ->setParameter('refunded', true)
+                ->orderBy('o.modificationDate', 'DESC');
+        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+            $query->andWhere('o.refunded = :refunded')
+                ->andWhere('o.needToRefund = :needed')
+                ->andWhere('o.status = :refunded')
+                ->andWhere('o.unoriginal = :unoriginal')
+                ->setParameter('unoriginal', false)
+                ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
+                ->setParameter('needed', true)
+                ->setParameter('refunded', false)
+                ->orderBy('o.modificationDate', 'ASC');
+        } else {
+            $query->orderBy('o.modificationDate', $sort);
         }
 
         if (!is_null($limit) && !is_null($offset)) {
@@ -325,6 +337,15 @@ class ShopOrderRepository extends EntityRepository
         if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
             $query->andWhere('o.refunded = :refunded')
                 ->setParameter('refunded', true);
+        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+            $query->andWhere('o.refunded = :refunded')
+                ->andWhere('o.needToRefund = :needed')
+                ->andWhere('o.status = :refunded')
+                ->andWhere('o.unoriginal = :unoriginal')
+                ->setParameter('unoriginal', false)
+                ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
+                ->setParameter('needed', true)
+                ->setParameter('refunded', false);
         }
 
         return $query->getQuery()->getSingleScalarResult();
