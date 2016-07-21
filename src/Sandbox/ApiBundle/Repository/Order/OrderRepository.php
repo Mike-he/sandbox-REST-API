@@ -806,6 +806,8 @@ class OrderRepository extends EntityRepository
      * @param DateTime     $orderStartPoint
      * @param DateTime     $orderEndPoint
      * @param string       $refundStatus
+     * @param int          $limit
+     * @param int          $offset
      *
      * @return array
      */
@@ -822,7 +824,9 @@ class OrderRepository extends EntityRepository
         $search,
         $orderStartPoint,
         $orderEndPoint,
-        $refundStatus
+        $refundStatus,
+        $limit,
+        $offset
     ) {
         $parameters = [];
 
@@ -922,17 +926,181 @@ class OrderRepository extends EntityRepository
         }
 
         if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
-            $query->andWhere('o.refunded = :refunded');
+            $query->andWhere('o.refunded = :refunded')
+                ->orderBy('o.modificationDate', 'DESC');
             $parameters['refunded'] = true;
+        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+            $query->andWhere('o.refunded = :refunded')
+                ->andWhere('o.needToRefund = :needed')
+                ->andWhere('o.status = :cancelled')
+                ->orderBy('o.modificationDate', 'ASC');
+
+            $parameters['refunded'] = false;
+            $parameters['needed'] = true;
+            $parameters['cancelled'] = ProductOrder::STATUS_CANCELLED;
+        } else {
+            $query->orderBy('o.creationDate', 'DESC');
         }
 
-        //order by
-        $query->orderBy('o.creationDate', 'DESC');
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
 
         //set all parameters
         $query->setParameters($parameters);
 
         $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $channel
+     * @param $type
+     * @param $city
+     * @param $building
+     * @param $userId
+     * @param $startDate
+     * @param $endDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $search
+     * @param $orderStartPoint
+     * @param $orderEndPoint
+     * @param $refundStatus
+     *
+     * @return mixed
+     */
+    public function countOrdersForAdmin(
+        $channel,
+        $type,
+        $city,
+        $building,
+        $userId,
+        $startDate,
+        $endDate,
+        $payStart,
+        $payEnd,
+        $search,
+        $orderStartPoint,
+        $orderEndPoint,
+        $refundStatus
+    ) {
+        $parameters = [];
+
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o)')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
+            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder))');
+
+        $parameters['preOrder'] = ProductOrder::PREORDER_TYPE;
+        $parameters['unpaid'] = ProductOrder::STATUS_UNPAID;
+
+        //only needed when searching orders
+        if (!is_null($search)) {
+            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId');
+        }
+
+        // filter by payment channel
+        if (!is_null($channel)) {
+            $query->andWhere('o.payChannel = :channel');
+            $parameters['channel'] = $channel;
+        }
+
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId');
+            $parameters['userId'] = $userId;
+        }
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->andWhere('por.roomType = :type');
+            $parameters['type'] = $type;
+        }
+
+        // filter by city
+        if (!is_null($city)) {
+            $query->andWhere('por.cityId = :city');
+            $parameters['city'] = $city;
+        }
+
+        // filter by building
+        if (!is_null($building)) {
+            $query->andWhere('por.buildingId = :building');
+            $parameters['building'] = $building;
+        }
+
+        //filter by start date
+        if (!is_null($startDate)) {
+            $startDate = new \DateTime($startDate);
+            $query->andWhere('o.endDate > :startDate');
+            $parameters['startDate'] = $startDate;
+        }
+
+        //filter by end date
+        if (!is_null($endDate)) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+            $query->andWhere('o.startDate <= :endDate');
+            $parameters['endDate'] = $endDate;
+        }
+
+        //filter by payStart
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('o.creationDate >= :payStart');
+            $parameters['payStart'] = $payStart;
+        }
+
+        //filter by payEnd
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('o.creationDate <= :payEnd');
+            $parameters['payEnd'] = $payEnd;
+        }
+
+        //Search orders by order number and order owner name.
+        if (!is_null($search)) {
+            $query->andWhere('(o.orderNumber LIKE :search OR up.name LIKE :search)');
+            $parameters['search'] = "%$search%";
+        }
+
+        // filter by order start point
+        if (!is_null($orderStartPoint)) {
+            $orderStartPoint = new \DateTime($orderStartPoint);
+            $orderStartPoint->setTime(00, 00, 00);
+            $query->andWhere('o.startDate >= :orderStartPoint');
+            $parameters['orderStartPoint'] = $orderStartPoint;
+
+            // filter by order end point
+            if (!is_null($orderEndPoint)) {
+                $orderEndPoint = new \DateTime($orderEndPoint);
+                $orderEndPoint->setTime(23, 59, 59);
+                $query->andWhere('o.startDate <= :orderEndPoint');
+                $parameters['orderEndPoint'] = $orderEndPoint;
+            }
+        }
+
+        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+            $query->andWhere('o.refunded = :refunded');
+
+            $parameters['refunded'] = true;
+        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+            $query->andWhere('o.refunded = :refunded')
+                ->andWhere('o.needToRefund = :needed')
+                ->andWhere('o.status = :cancelled');
+
+            $parameters['refunded'] = false;
+            $parameters['needed'] = true;
+            $parameters['cancelled'] = ProductOrder::STATUS_CANCELLED;
+        }
+
+        //set all parameters
+        $query->setParameters($parameters);
+
+        $result = $query->getQuery()->getSingleScalarResult();
 
         return $result;
     }
