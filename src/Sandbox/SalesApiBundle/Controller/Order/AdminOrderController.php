@@ -969,8 +969,9 @@ class AdminOrderController extends OrderController
         }
 
         $order->setCancelByUser(true);
+        $payDate = $order->getPaymentDate();
 
-        if (ProductOrder::PREORDER_TYPE == $type) {
+        if (ProductOrder::PREORDER_TYPE == $type && !is_null($payDate)) {
             if (ProductOrder::STATUS_COMPLETED == $status) {
                 return $this->customErrorView(
                     400,
