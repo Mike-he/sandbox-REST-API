@@ -49,7 +49,7 @@ class UserLoginController extends SandboxRestController
      * @param User          $user
      * @param UserLoginData $login
      *
-     * @return View
+     * @return array
      *
      * @throws \Exception
      */
