@@ -131,7 +131,7 @@ class AdminEventController extends SandboxRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(ongoing|end|saved)",
+     *    requirements="(preheating|registering|ongoing|end|saved)",
      *    strict=true,
      *    description="event status"
      * )
@@ -174,10 +174,13 @@ class AdminEventController extends SandboxRestController
         $visible = $paramFetcher->get('visible');
 
         $eventsArray = array();
-        $events = $this->getRepo('Event\Event')->getEvents(
-            $status,
-            $visible
-        );
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->getEvents(
+                $status,
+                $visible
+            );
+
         foreach ($events as $eventArray) {
             $event = $eventArray['event'];
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);

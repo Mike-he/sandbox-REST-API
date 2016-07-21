@@ -10,6 +10,7 @@ class EventRepository extends EntityRepository
 {
     /**
      * @param string $status
+     * @param bool   $visible
      *
      * @return array
      */
@@ -27,15 +28,27 @@ class EventRepository extends EntityRepository
             ->where('e.isDeleted = FALSE');
 
         // filter by status
-        $now = new \DateTime('now');
-        if ($status == Event::STATUS_ONGOING) {
-            $query->andwhere('e.eventEndDate >= :now')
-                ->setParameter('now', $now);
-        } elseif ($status == Event::STATUS_END) {
-            $query->andwhere('e.eventEndDate < :now')
-                ->setParameter('now', $now);
-        } elseif ($status == Event::STATUS_SAVED) {
-            $query->andWhere('e.isSaved = TRUE');
+        if (!is_null($status)) {
+            switch ($status) {
+                case Event::STATUS_PREHEATING:
+                    $query->andWhere('e.registrationStartDate > :now');
+                    break;
+                case Event::STATUS_REGISTERING:
+                    $query->andWhere('e.registrationStartDate <= :now')
+                        ->andWhere('e.registrationEndDate >= :now');
+                    break;
+                case Event::STATUS_ONGOING:
+                    $query->andWhere('e.eventStartDate <= :now')
+                        ->andwhere('e.eventEndDate >= :now');
+                    break;
+                case $status == Event::STATUS_END:
+                    $query->andwhere('e.eventEndDate < :now');
+                    break;
+                case $status == Event::STATUS_SAVED:
+                    $query->andWhere('e.isSaved = TRUE');
+            }
+
+            $query->setParameter('now', new \DateTime('now'));
         }
 
         // filter by visible
