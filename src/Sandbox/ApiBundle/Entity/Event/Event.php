@@ -16,6 +16,8 @@ class Event
     const REGISTRATION_METHOD_ONLINE = 'online';
     const REGISTRATION_METHOD_OFFLINE = 'offline';
 
+    const STATUS_PREHEATING = 'preheating';
+    const STATUS_REGISTERING = 'registering';
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
     const STATUS_SAVED = 'saved';

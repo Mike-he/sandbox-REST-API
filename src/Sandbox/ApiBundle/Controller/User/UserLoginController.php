@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserToken;
 use Symfony\Component\HttpFoundation\Request;
 use Sandbox\ApiBundle\Traits\OpenfireApi;
-use FOS\RestBundle\View\View;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Error\Error;
