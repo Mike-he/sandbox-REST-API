@@ -49,8 +49,16 @@ class AdminAuthController extends AuthController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
             ->find($myAdminId);
 
+        $permissions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermission')
+            ->getSalesAdminPermissions($myAdmin->getCompanyId());
+
+        $adminJson = $this->container->get('serializer')->serialize($myAdmin, 'json');
+        $adminArray = json_decode($adminJson, true);
+        $adminArray['permissions'] = $permissions;
+
         // response
-        $view = new View($myAdmin);
+        $view = new View($adminArray);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('auth')));
 
         return $view;
