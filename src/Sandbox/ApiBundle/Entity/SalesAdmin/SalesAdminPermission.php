@@ -13,7 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})},
  *      indexes={@ORM\Index(name="fk_AdminPermission_typeId_idx", columns={"typeId"})}
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\SalesAdmin\SalesAdminPermissionRepository")
  */
 class SalesAdminPermission
 {
@@ -21,6 +21,7 @@ class SalesAdminPermission
     const KEY_PLATFORM_ADMIN = 'sales.platform.admin';
     const KEY_PLATFORM_BUILDING = 'sales.platform.building';
     const KEY_PLATFORM_INVOICE = 'sales.platform.invoice';
+    const KEY_PLATFORM_EVENT = 'sales.platform.event';
 
     const KEY_BUILDING_PRICE = 'sales.building.price';
     const KEY_BUILDING_ORDER = 'sales.building.order';

@@ -60,6 +60,9 @@ class AdminPermissionsController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // get sales company id
+        $salesCompanyId = $this->getUser()->getMyAdmin()->getSalesCompany()->getId();
+
         $typeId = $paramFetcher->get('type_id');
 
         // check user permission
@@ -72,17 +75,12 @@ class AdminPermissionsController extends SalesRestController
             SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
 
-        if ($typeId == null) {
-            // get all admin permissions
-            $query = $this->getRepo('SalesAdmin\SalesAdminPermission')->findAll();
-        } else {
-            // get admin permissions by typeId
-            $query = $this->getRepo('SalesAdmin\SalesAdminPermission')->findBy(array(
-                'typeId' => $typeId,
-            ));
-        }
+        // get admin permissions
+        $permissions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermission')
+            ->getSalesAdminPermissions($salesCompanyId, $typeId);
 
-        $view = new View($query);
+        $view = new View($permissions);
         $view->setSerializationContext(SerializationContext::create()
             ->setGroups(array('main')));
 

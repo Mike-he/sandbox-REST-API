@@ -45,7 +45,9 @@ class AdminAuthController extends AuthController
         Request $request
     ) {
         $myAdminId = $this->getAdminId();
-        $myAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->find($myAdminId);
+        $myAdmin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->find($myAdminId);
 
         // response
         $view = new View($myAdmin);
