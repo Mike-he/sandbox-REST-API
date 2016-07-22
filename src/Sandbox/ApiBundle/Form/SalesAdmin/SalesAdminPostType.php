@@ -31,6 +31,13 @@ class SalesAdminPostType extends AbstractType
                 array(
                     'mapped' => false,
                 )
+            )
+            ->add(
+                'exclude_permissions',
+                null,
+                array(
+                    'mapped' => false,
+                )
             );
     }
 

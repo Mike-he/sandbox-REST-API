@@ -32,7 +32,14 @@ class SalesAdminPutType extends AbstractType
                     'mapped' => false,
                 )
             )
-            ->add('banned');
+            ->add('banned')
+            ->add(
+                'exclude_permissions',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            );
     }
 
     /**
