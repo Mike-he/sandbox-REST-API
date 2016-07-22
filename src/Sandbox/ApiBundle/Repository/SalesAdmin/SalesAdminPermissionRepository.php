@@ -26,9 +26,14 @@ class SalesAdminPermissionRepository extends EntityRepository
         $excludePermissionIds = array_map('current', $excludePermissionIds);
 
         $query = $this->createQueryBuilder('p')
-            ->where('p.id NOT IN (:ids)')
-            ->orderBy('p.id', 'ASC')
-            ->setParameter('ids', $excludePermissionIds);
+            ->where('p.id IS NOT NULL')
+            ->orderBy('p.id', 'ASC');
+
+        // filter by exclude permission ids
+        if (!empty($excludePermissionIds)) {
+            $query->andWhere('p.id NOT IN (:ids)')
+                ->setParameter('ids', $excludePermissionIds);
+        }
 
         // filter by type id
         if (!is_null($typeId)) {
