@@ -261,11 +261,21 @@ class AdminSalesAdminsController extends SandboxRestController
             AdminPermissionMap::OP_LEVEL_VIEW
         );
 
-        // get all admins
-        $admins = $this->getRepo('SalesAdmin\SalesAdmin')->findOneBy(array('id' => $id));
+        // get admin
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(array('id' => $id));
+
+        $permissions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermission')
+            ->getSalesAdminPermissions($admin->getCompanyId());
+
+        $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
+        $adminArray = json_decode($adminJson, true);
+        $adminArray['permissions'] = $permissions;
 
         // set view
-        $view = new View($admins);
+        $view = new View($adminArray);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('admin'))
         );
