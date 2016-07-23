@@ -266,16 +266,21 @@ class AdminSalesAdminsController extends SandboxRestController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
             ->findOneBy(array('id' => $id));
 
-        $permissions = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermission')
-            ->getSalesAdminPermissions($admin->getCompanyId());
+        // select super admin permissions without auto ORM
+        if ($admin->getType()->getKey() == SalesAdminType::KEY_SUPER) {
+            $permissions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermission')
+                ->getSalesAdminPermissions($admin->getCompanyId());
 
-        $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
-        $adminArray = json_decode($adminJson, true);
-        $adminArray['permissions'] = $permissions;
+            $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
+            $adminArray = json_decode($adminJson, true);
+            $adminArray['permissions'] = $permissions;
+
+            $admin = $adminArray;
+        }
 
         // set view
-        $view = new View($adminArray);
+        $view = new View($admin);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('admin'))
         );
