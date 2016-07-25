@@ -31,24 +31,26 @@ class EventRepository extends EntityRepository
         if (!is_null($status)) {
             switch ($status) {
                 case Event::STATUS_PREHEATING:
-                    $query->andWhere('e.registrationStartDate > :now');
+                    $query->andWhere('e.registrationStartDate > :now')
+                        ->setParameter('now', new \DateTime('now'));
                     break;
                 case Event::STATUS_REGISTERING:
                     $query->andWhere('e.registrationStartDate <= :now')
-                        ->andWhere('e.registrationEndDate >= :now');
+                        ->andWhere('e.registrationEndDate >= :now')
+                        ->setParameter('now', new \DateTime('now'));
                     break;
                 case Event::STATUS_ONGOING:
                     $query->andWhere('e.eventStartDate <= :now')
-                        ->andwhere('e.eventEndDate >= :now');
+                        ->andwhere('e.eventEndDate >= :now')
+                        ->setParameter('now', new \DateTime('now'));
                     break;
                 case $status == Event::STATUS_END:
-                    $query->andwhere('e.eventEndDate < :now');
+                    $query->andwhere('e.eventEndDate < :now')
+                        ->setParameter('now', new \DateTime('now'));
                     break;
                 case $status == Event::STATUS_SAVED:
                     $query->andWhere('e.isSaved = TRUE');
             }
-
-            $query->setParameter('now', new \DateTime('now'));
         }
 
         // filter by visible
@@ -153,24 +155,26 @@ class EventRepository extends EntityRepository
         if (!is_null($status)) {
             switch ($status) {
                 case Event::STATUS_PREHEATING:
-                    $query->andWhere('e.registrationStartDate > :now');
+                    $query->andWhere('e.registrationStartDate > :now')
+                        ->setParameter('now', new \DateTime('now'));
                     break;
                 case Event::STATUS_REGISTERING:
                     $query->andWhere('e.registrationStartDate <= :now')
-                        ->andWhere('e.registrationEndDate >= :now');
+                        ->andWhere('e.registrationEndDate >= :now')
+                        ->setParameter('now', new \DateTime('now'));
                     break;
                 case Event::STATUS_ONGOING:
                     $query->andWhere('e.eventStartDate <= :now')
-                        ->andwhere('e.eventEndDate >= :now');
+                        ->andwhere('e.eventEndDate >= :now')
+                        ->setParameter('now', new \DateTime('now'));
                     break;
                 case $status == Event::STATUS_END:
-                    $query->andwhere('e.eventEndDate < :now');
+                    $query->andwhere('e.eventEndDate < :now')
+                        ->setParameter('now', new \DateTime('now'));
                     break;
                 case $status == Event::STATUS_SAVED:
                     $query->andWhere('e.isSaved = TRUE');
             }
-
-            $query->setParameter('now', new \DateTime('now'));
         }
 
         // filter by visible
