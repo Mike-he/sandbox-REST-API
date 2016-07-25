@@ -123,4 +123,64 @@ class EventRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /*********************************** sales api *********************************/
+
+    /**
+     * @param string $status
+     * @param bool   $visible
+     * @param int    $salesCompanyId
+     *
+     * @return array
+     */
+    public function getSalesEvents(
+        $status,
+        $visible,
+        $salesCompanyId
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->select('
+                e as event,
+                r.name as room_name,
+                r.number as room_number
+            ')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
+            ->where('e.isDeleted = FALSE')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+        // filter by status
+        if (!is_null($status)) {
+            switch ($status) {
+                case Event::STATUS_PREHEATING:
+                    $query->andWhere('e.registrationStartDate > :now');
+                    break;
+                case Event::STATUS_REGISTERING:
+                    $query->andWhere('e.registrationStartDate <= :now')
+                        ->andWhere('e.registrationEndDate >= :now');
+                    break;
+                case Event::STATUS_ONGOING:
+                    $query->andWhere('e.eventStartDate <= :now')
+                        ->andwhere('e.eventEndDate >= :now');
+                    break;
+                case $status == Event::STATUS_END:
+                    $query->andwhere('e.eventEndDate < :now');
+                    break;
+                case $status == Event::STATUS_SAVED:
+                    $query->andWhere('e.isSaved = TRUE');
+            }
+
+            $query->setParameter('now', new \DateTime('now'));
+        }
+
+        // filter by visible
+        if (!is_null($visible)) {
+            $query->andWhere('e.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        $query->orderBy('e.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

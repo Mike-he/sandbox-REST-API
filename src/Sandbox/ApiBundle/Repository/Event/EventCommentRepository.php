@@ -97,4 +97,24 @@ class EventCommentRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /*********************************** sales api *********************************/
+
+    /**
+     * @param $eventId
+     *
+     * @return array
+     */
+    public function getSalesAdminEventComments(
+        $eventId
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'c.authorId = u.id')
+            ->where('c.eventId = :eventId')
+            ->andWhere('u.banned = FALSE')
+            ->orderBy('c.creationDate', 'DESC')
+            ->setParameter('eventId', $eventId);
+
+        return $query->getQuery()->getResult();
+    }
 }

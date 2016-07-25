@@ -61,7 +61,7 @@ class AdminPermissionsController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // get sales company id
-        $salesCompanyId = $this->getUser()->getMyAdmin()->getSalesCompany()->getId();
+        $salesCompanyId = $this->getSalesCompanyId();
 
         $typeId = $paramFetcher->get('type_id');
 
