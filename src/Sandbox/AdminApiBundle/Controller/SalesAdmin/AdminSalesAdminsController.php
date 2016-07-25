@@ -279,8 +279,9 @@ class AdminSalesAdminsController extends SandboxRestController
             $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
             $adminArray = json_decode($adminJson, true);
 
+            $adminArray['permissions'] = array();
             foreach ($permissions as $permission) {
-                $adminArray['permissions']['permission'] = $permission;
+                array_push($adminArray['permissions'], array('permission' => $permission));
             }
 
             $admin = $adminArray;
