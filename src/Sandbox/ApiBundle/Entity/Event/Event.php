@@ -270,6 +270,13 @@ class Event
     private $isDeleted = false;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="salesCompanyId", type="integer", nullable=true)
+     */
+    private $salesCompanyId;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -737,6 +744,22 @@ class Event
     public function getEventEndDate()
     {
         return $this->eventEndDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSalesCompanyId()
+    {
+        return $this->salesCompanyId;
+    }
+
+    /**
+     * @param mixed $salesCompanyId
+     */
+    public function setSalesCompanyId($salesCompanyId)
+    {
+        $this->salesCompanyId = $salesCompanyId;
     }
 
     /**

@@ -18,6 +18,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
+use Pingpp\Customer;
 use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -108,6 +109,60 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    protected function createCustomer(
+        $token,
+        $smsId,
+        $smsCode
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+        $appId = $global['pingpp_app_id'];
+
+        Pingpp::setApiKey($key);
+        $customer = Customer::create(
+            [
+                'app' => $appId,
+                'source' => $token,
+                'sms_code' => [
+                    'code' => $smsCode,
+                    'id' => $smsId
+                ]
+            ]
+        );
+
+        return $customer;
+    }
+
+//    protected function createCustomer(
+//        $token,
+//        $smsId,
+//        $smsCode
+//    ) {
+//        $global = $this->get('twig')->getGlobals();
+//        $key = $global['pingpp_key'];
+//        $appId = $global['pingpp_app_id'];
+//
+//        $data = array(
+//            'app' => $appId,
+//            'source' => $token,
+//            'sms_code' => [
+//                'code' => $smsCode,
+//                'id' => $smsId
+//            ]
+//        );
+//
+//        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER);
+//
+//        $response = $this->callAPI(
+//            $ch,
+//            'POST',
+//            array('Authorization: Bearer '.$key),
+//            json_encode($data)
+//        );
+//
+//        return $response;
+//    }
 
     /**
      * @Post("/payment/token")

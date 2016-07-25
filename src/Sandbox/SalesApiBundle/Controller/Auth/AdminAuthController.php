@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Auth;
 
 use Sandbox\ApiBundle\Controller\Auth\AuthController;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -45,7 +46,26 @@ class AdminAuthController extends AuthController
         Request $request
     ) {
         $myAdminId = $this->getAdminId();
-        $myAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->find($myAdminId);
+        $myAdmin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->find($myAdminId);
+
+        // select super admin permissions without auto ORM
+        if ($myAdmin->getType()->getKey() == SalesAdminType::KEY_SUPER) {
+            $permissions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermission')
+                ->getSalesAdminPermissions($myAdmin->getCompanyId());
+
+            $adminJson = $this->container->get('serializer')->serialize($myAdmin, 'json');
+            $adminArray = json_decode($adminJson, true);
+
+            $adminArray['permissions'] = array();
+            foreach ($permissions as $permission) {
+                array_push($adminArray['permissions'], array('permission' => $permission));
+            }
+
+            $myAdmin = $adminArray;
+        }
 
         // response
         $view = new View($myAdmin);
