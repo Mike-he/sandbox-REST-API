@@ -119,69 +119,50 @@ class PaymentController extends DoorController
         $key = $global['pingpp_key'];
         $appId = $global['pingpp_app_id'];
 
-        $apiUrl = 'https://api.pingxx.com/v1/customers';
-
-        $data = array(
-            'app' => $appId,
-            'source' => $token,
-            'sms_code' => [
-                'code' => $smsCode,
-                'id' => $smsId
+        Pingpp::setApiKey($key);
+        $customer = Customer::create(
+            [
+                'app' => $appId,
+                'source' => $token,
+                'sms_code' => [
+                    'code' => $smsCode,
+                    'id' => $smsId
+                ]
             ]
         );
-        $data = json_encode($data);
 
-        $headers = [
-            'Content-Type: application/json',
-            "Authorization: Bearer $key"
-        ];
+        return $customer;
+    }
 
-        $ch = curl_init($apiUrl);
-
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-        $response = curl_exec($ch);
-
-        var_dump($response); exit;
-
-//        Pingpp::setApiKey($key);
+//    protected function createCustomer(
+//        $token,
+//        $smsId,
+//        $smsCode
+//    ) {
+//        $global = $this->get('twig')->getGlobals();
+//        $key = $global['pingpp_key'];
+//        $appId = $global['pingpp_app_id'];
 //
-//        $customer = Customer::create(
-//            array(
-//                'app' => $appId,
-//                'source' => $token,
-//                'sms_code' => [
-//                    'code' => $smsCode,
-//                    'id' => $smsId,
-//                ],
-//            )
+//        $data = array(
+//            'app' => $appId,
+//            'source' => $token,
+//            'sms_code' => [
+//                'code' => $smsCode,
+//                'id' => $smsId
+//            ]
 //        );
 //
-//        return $customer;
-
-
-
-        //curl_close($ch);
-
+//        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER);
+//
 //        $response = $this->callAPI(
 //            $ch,
 //            'POST',
 //            array('Authorization: Bearer '.$key),
 //            json_encode($data)
 //        );
-
-        //$result = json_decode($response, true);
-//        var_dump($customer); exit;
-
-        //} catch (Base $e) {
-        //    header('Status: '.$e->getHttpStatus());
-        //    echo $e->getHttpBody();
-        //}
-    }
+//
+//        return $response;
+//    }
 
     /**
      * @Post("/payment/token")

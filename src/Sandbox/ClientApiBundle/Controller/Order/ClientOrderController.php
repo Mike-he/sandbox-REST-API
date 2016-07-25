@@ -662,6 +662,19 @@ class ClientOrderController extends OrderController
             $customer = $this->createCustomer($token, $smsId, $smsCode);
             $customer = json_decode($customer, true);
 
+            if (array_key_exists('id', $customer)) {
+                $user = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($this->getUserId());
+
+                if (!is_null($user)) {
+                    $user->setCustomerId($customer['id']);
+                }
+
+                $em = $this->getDoctrine()->getManager();
+                $em->flush();
+            }
+
             return new View($customer);
         }
 

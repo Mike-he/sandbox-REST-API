@@ -144,6 +144,14 @@ class User implements UserInterface
     private $modificationDate;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="customerId", type="string", length=64, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $customerId;
+
+    /**
      * Get id.
      *
      * @return int
@@ -496,5 +504,27 @@ class User implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+    /**
+     * Get customerId.
+     *
+     * @return string
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * Set customerId.
+     *
+     * @param string $customerId
+     *
+     * @return User
+     */
+    public function setCustomerId($customerId)
+    {
+        $this->customerId = $customerId;
     }
 }
