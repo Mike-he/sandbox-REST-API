@@ -96,6 +96,12 @@ sandbox_sales_admin_shops:
 
 # Admin Events Orders
 sandbox_sales_admin_api_events_orders:
+    resource: "@SandboxSalesApiBundle/Controller/Event/AdminEventOrderController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Events Registrations
+sandbox_sales_admin_api_events_registrations:
     resource: "@SandboxSalesApiBundle/Controller/Event/AdminEventRegistrationController.php"
     type:     annotation
     prefix:   /admin
