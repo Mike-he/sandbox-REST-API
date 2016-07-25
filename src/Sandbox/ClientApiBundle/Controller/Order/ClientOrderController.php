@@ -627,29 +627,45 @@ class ClientOrderController extends OrderController
             );
         }
         $requestContent = json_decode($request->getContent(), true);
-        $channel = $requestContent['channel'];
+        $channel = '';
         $token = '';
         $smsId = '';
         $smsCode = '';
 
-        if (
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
-            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
-            );
+        if (array_key_exists('channel', $requestContent)) {
+            $channel = $requestContent['channel'];
+
+            if ($channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
+                $channel !== self::PAYMENT_CHANNEL_UPACP &&
+                $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
+                $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
+                $channel !== self::PAYMENT_CHANNEL_WECHAT &&
+                $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
+                $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT
+            ) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_CHANNEL_CODE,
+                    self::WRONG_CHANNEL_MESSAGE
+                );
+            }
         }
 
-        if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
+        if (array_key_exists('token_id', $requestContent) &&
+            array_key_exists('sms_id', $requestContent) &&
+            array_key_exists('sms_code', $requestContent)
+        ) {
+            $token = $requestContent['token_id'];
+            $smsId = $requestContent['sms_id'];
+            $smsCode = $requestContent['sms_code'];
+
+            $customer = $this->createCustomer($token, $smsId, $smsCode);
+            $customer = json_decode($customer, true);
+
+            return new View($customer);
+        }
+
+        if ($channel == self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
                 $order,
                 $channel
