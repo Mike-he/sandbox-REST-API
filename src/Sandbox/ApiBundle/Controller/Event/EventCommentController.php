@@ -2,8 +2,8 @@
 
 namespace Sandbox\ApiBundle\Controller\Event;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 
 /**
  * Event Controller.
@@ -15,7 +15,7 @@ use Sandbox\ApiBundle\Entity\Event\Event;
  *
  * @link     http://www.Sandbox.cn/
  */
-class EventCommentController extends SandboxRestController
+class EventCommentController extends SalesRestController
 {
     /**
      * @param $comments
