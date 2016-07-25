@@ -191,23 +191,27 @@ class AdminEventRegistrationController extends SalesRestController
         $status = $paramFetcher->get('status');
         $query = $paramFetcher->get('query');
         $event = $this->getRepo('Event\Event')->find($event_id);
-        $registrationCounts = $this->getRepo('Event\EventRegistration')
+        $registrationCounts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
             ->getRegistrationCounts($event_id);
         $customParameters['registration_person_number'] = (int) $registrationCounts;
 
         // set accepted person number
         if ($event->isVerify()) {
-            $acceptedCounts = $this->getRepo('Event\EventRegistration')
+            $acceptedCounts = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventRegistration')
                 ->getAcceptedPersonNumber($event_id);
             $customParameters['accepted_person_number'] = (int) $acceptedCounts;
         }
 
         // get query result
-        $eventRegistrations = $this->getRepo('Event\EventRegistration')->getEventRegistrations(
-            $event_id,
-            $status,
-            $query
-        );
+        $eventRegistrations = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->getEventRegistrations(
+                $event_id,
+                $status,
+                $query
+            );
 
         $registrationsArray = $this->generateRegistrationsArray($eventRegistrations);
 
@@ -252,9 +256,11 @@ class AdminEventRegistrationController extends SalesRestController
         $this->checkSalesAdminEventRegistrationPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
 
         // get query result
-        $eventRegistrationArray = $this->getRepo('Event\EventRegistration')->getEventRegistration(
-            $event_id,
-            $registration_id
+        $eventRegistrationArray = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->getEventRegistration(
+                $event_id,
+                $registration_id
             );
         if (is_null($eventRegistrationArray)) {
             return new View(array());

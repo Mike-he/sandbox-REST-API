@@ -60,7 +60,7 @@ class AdminAuthController extends AuthController
             $adminArray = json_decode($adminJson, true);
 
             foreach ($permissions as $permission) {
-                $adminArray['permissions'] = array('permission' => $permission);
+                $adminArray['permissions']['permission'] = $permission;
             }
 
             $myAdmin = $adminArray;

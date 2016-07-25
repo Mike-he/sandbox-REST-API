@@ -280,7 +280,7 @@ class AdminSalesAdminsController extends SandboxRestController
             $adminArray = json_decode($adminJson, true);
 
             foreach ($permissions as $permission) {
-                $adminArray['permissions'] = array('permission' => $permission);
+                $adminArray['permissions']['permission'] = $permission;
             }
 
             $admin = $adminArray;
