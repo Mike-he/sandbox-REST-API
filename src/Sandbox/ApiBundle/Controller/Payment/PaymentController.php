@@ -119,47 +119,51 @@ class PaymentController extends DoorController
         $key = $global['pingpp_key'];
         $appId = $global['pingpp_app_id'];
 
-        Pingpp::setApiKey($key);
+        $apiUrl = 'https://api.pingxx.com/v1/customers';
 
-        $customer = Customer::create(
-            array(
-                'app' => $appId,
-                'source' => $token,
-                'sms_code' => [
-                    'code' => $smsCode,
-                    'id' => $smsId,
-                ],
-            )
+        $data = array(
+            'app' => $appId,
+            'source' => $token,
+            'sms_code' => [
+                'code' => $smsCode,
+                'id' => $smsId
+            ]
         );
+        $data = json_encode($data);
 
-        return $customer;
+        $headers = [
+            'Content-Type: application/json',
+            "Authorization: Bearer $key"
+        ];
 
-//        $apiUrl = 'https://api.pingxx.com/v1/customers';
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $response = curl_exec($ch);
+
+        var_dump($response); exit;
+
+//        Pingpp::setApiKey($key);
 //
-//        $data = array(
-//            'app' => $appId,
-//            'source' => $token,
-//            'sms_code' => [
-//                'code' => $smsCode,
-//                'id' => $smsId
-//            ]
+//        $customer = Customer::create(
+//            array(
+//                'app' => $appId,
+//                'source' => $token,
+//                'sms_code' => [
+//                    'code' => $smsCode,
+//                    'id' => $smsId,
+//                ],
+//            )
 //        );
-//        $data = json_encode($data);
 //
-//        $headers = [
-//            'Content-Type: application/json',
-//            "Authorization: Bearer $key"
-//        ];
-//
-//        $ch = curl_init($apiUrl);
-//
-//        curl_setopt($ch, CURLOPT_POST, 1);
-//        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-//        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-//
-//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-//
-//        $response = curl_exec($ch);
+//        return $customer;
+
+
 
         //curl_close($ch);
 
