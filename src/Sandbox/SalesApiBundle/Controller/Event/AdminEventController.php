@@ -1082,7 +1082,9 @@ class AdminEventController extends SalesRestController
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
             SalesAdminType::KEY_PLATFORM,
-            SalesAdminPermission::KEY_PLATFORM_EVENT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_EVENT,
+            ),
             $opLevel
         );
     }

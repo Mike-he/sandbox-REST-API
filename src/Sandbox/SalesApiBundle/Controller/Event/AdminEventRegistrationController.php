@@ -370,10 +370,12 @@ class AdminEventRegistrationController extends SalesRestController
     private function checkSalesAdminEventRegistrationPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
             SalesAdminType::KEY_PLATFORM,
-            SalesAdminPermission::KEY_PLATFORM_EVENT,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_EVENT,
+            ),
             $opLevel
         );
     }
