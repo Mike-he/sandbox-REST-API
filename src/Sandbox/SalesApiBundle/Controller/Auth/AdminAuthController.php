@@ -58,7 +58,10 @@ class AdminAuthController extends AuthController
 
             $adminJson = $this->container->get('serializer')->serialize($myAdmin, 'json');
             $adminArray = json_decode($adminJson, true);
-            $adminArray['permissions'] = $permissions;
+
+            foreach ($permissions as $permission) {
+                $adminArray['permissions'] = array('permission' => $permission);
+            }
 
             $myAdmin = $adminArray;
         }

@@ -93,3 +93,15 @@ sandbox_sales_admin_shops:
     resource: "@SandboxSalesApiBundle/Controller/Shop/AdminShopController.php"
     type:     annotation
     prefix:   /admin
+
+# Events /sales/admin/events/{id}/comments
+sandbox_sales_admin_api_event_comments:
+    resource: "@SandboxSalesApiBundle/Controller/Event/AdminEventCommentController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Events /sales/admin/events
+sandbox_sales_admin_api_events:
+    resource: "@SandboxSalesApiBundle/Controller/Event/AdminEventController.php"
+    type:     annotation
+    prefix:   /

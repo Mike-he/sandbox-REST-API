@@ -6,7 +6,6 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventAttachment;
 use Sandbox\ApiBundle\Entity\Event\EventDate;
@@ -160,7 +159,7 @@ class AdminEventController extends SalesRestController
         // check user permission
         $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
+            SalesAdminType::KEY_PLATFORM,
             array(
                 SalesAdminPermission::KEY_PLATFORM_EVENT,
             ),
