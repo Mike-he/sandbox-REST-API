@@ -18,6 +18,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
+use Pingpp\Customer;
 use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -108,6 +109,75 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    protected function createCustomer(
+        $token,
+        $smsId,
+        $smsCode
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+        $appId = $global['pingpp_app_id'];
+
+        Pingpp::setApiKey($key);
+
+        $customer = Customer::create(
+            array(
+                'app' => $appId,
+                'source' => $token,
+                'sms_code' => [
+                    'code' => $smsCode,
+                    'id' => $smsId,
+                ],
+            )
+        );
+
+        return $customer;
+
+//        $apiUrl = 'https://api.pingxx.com/v1/customers';
+//
+//        $data = array(
+//            'app' => $appId,
+//            'source' => $token,
+//            'sms_code' => [
+//                'code' => $smsCode,
+//                'id' => $smsId
+//            ]
+//        );
+//        $data = json_encode($data);
+//
+//        $headers = [
+//            'Content-Type: application/json',
+//            "Authorization: Bearer $key"
+//        ];
+//
+//        $ch = curl_init($apiUrl);
+//
+//        curl_setopt($ch, CURLOPT_POST, 1);
+//        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+//        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+//
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//
+//        $response = curl_exec($ch);
+
+        //curl_close($ch);
+
+//        $response = $this->callAPI(
+//            $ch,
+//            'POST',
+//            array('Authorization: Bearer '.$key),
+//            json_encode($data)
+//        );
+
+        //$result = json_decode($response, true);
+//        var_dump($customer); exit;
+
+        //} catch (Base $e) {
+        //    header('Status: '.$e->getHttpStatus());
+        //    echo $e->getHttpBody();
+        //}
+    }
 
     /**
      * @Post("/payment/token")
