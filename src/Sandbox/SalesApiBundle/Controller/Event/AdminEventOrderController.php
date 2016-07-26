@@ -420,7 +420,11 @@ class AdminEventOrderController extends SalesRestController
         }
 
         $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('Admin\AdminToken')->findOneByToken($token);
+        $adminToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminToken')
+            ->findOneBy(array(
+                'token' => $token,
+            ));
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
