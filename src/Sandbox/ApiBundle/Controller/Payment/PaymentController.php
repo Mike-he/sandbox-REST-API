@@ -110,6 +110,195 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
 
+    /**
+     * @param $customerId
+     * @param $cardId
+     *
+     * @return mixed
+     */
+    protected function getSingleCustomerCard(
+        $customerId,
+        $cardId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId.'/sources/'.$cardId);
+
+        $response = $this->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: Bearer '.$key)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     *
+     * @return mixed
+     */
+    protected function getCustomerCards(
+        $customerId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId.'/sources');
+
+        $response = $this->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: Bearer '.$key)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     * @param $cardId
+     *
+     * @return mixed
+     */
+    protected function deleteCustomerCard(
+        $customerId,
+        $cardId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId.'/sources/'.$cardId);
+
+        $response = $this->callAPI(
+            $ch,
+            'DELETE',
+            array('Authorization: Bearer '.$key)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     * @param $token
+     * @param $smsId
+     * @param $smsCode
+     *
+     * @return mixed
+     */
+    protected function createCustomerCard(
+        $customerId,
+        $token,
+        $smsId,
+        $smsCode
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $data = array(
+            'source' => $token,
+            'sms_code' => [
+                'code' => $smsCode,
+                'id' => $smsId,
+            ],
+        );
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId.'/sources');
+
+        $response = $this->callAPI(
+            $ch,
+            'POST',
+            array('Authorization: Bearer '.$key),
+            json_encode($data)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     * @param $cardId
+     *
+     * @return mixed
+     */
+    protected function putCustomer(
+        $customerId,
+        $cardId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+        $appId = $global['pingpp_app_id'];
+
+        $data = array(
+            'app' => $appId,
+            'default_source' => $cardId,
+        );
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId);
+
+        $response = $this->callAPI(
+            $ch,
+            'PUT',
+            array('Authorization: Bearer '.$key),
+            json_encode($data)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     *
+     * @return mixed
+     */
+    protected function deleteCustomer(
+        $customerId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId);
+
+        $response = $this->callAPI(
+            $ch,
+            'DELETE',
+            array('Authorization: Bearer '.$key)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     *
+     * @return Customer
+     */
+    protected function retrieveCustomer(
+        $customerId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        Pingpp::setApiKey($key);
+        try {
+            $customer = Customer::retrieve($customerId);
+
+            return $customer;
+        } catch (Base $e) {
+            header('Status: '.$e->getHttpStatus());
+            echo $e->getHttpBody();
+        }
+    }
+
+    /**
+     * @param $token
+     * @param $smsId
+     * @param $smsCode
+     *
+     * @return Customer
+     */
     protected function createCustomer(
         $token,
         $smsId,
@@ -120,18 +309,23 @@ class PaymentController extends DoorController
         $appId = $global['pingpp_app_id'];
 
         Pingpp::setApiKey($key);
-        $customer = Customer::create(
-            [
-                'app' => $appId,
-                'source' => $token,
-                'sms_code' => [
-                    'code' => $smsCode,
-                    'id' => $smsId
+        try {
+            $customer = Customer::create(
+                [
+                    'app' => $appId,
+                    'source' => $token,
+                    'sms_code' => [
+                        'code' => $smsCode,
+                        'id' => $smsId,
+                    ],
                 ]
-            ]
-        );
+            );
 
-        return $customer;
+            return $customer;
+        } catch (Base $e) {
+            header('Status: '.$e->getHttpStatus());
+            echo $e->getHttpBody();
+        }
     }
 
 //    protected function createCustomer(
