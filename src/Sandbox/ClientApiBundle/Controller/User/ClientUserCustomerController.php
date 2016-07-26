@@ -102,7 +102,7 @@ class ClientUserCustomerController extends OrderController
         $customerId = $user->getCustomerId();
 
         if (is_null($customerId) || empty($customerId)) {
-            return new View();
+            $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
         }
 
         $requestContent = json_decode($request->getContent(), true);
@@ -133,7 +133,7 @@ class ClientUserCustomerController extends OrderController
         $customerId = $user->getCustomerId();
 
         if (is_null($customerId) || empty($customerId)) {
-            return new View();
+            $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
         }
 
         $customer = $this->retrieveCustomer($customerId);
@@ -176,26 +176,18 @@ class ClientUserCustomerController extends OrderController
             $smsCode = $requestContent['sms_code'];
             $customerId = $user->getCustomerId();
 
-            if (!is_null($customerId)) {
-                $result = $this->createCustomerCard(
-                    $customerId,
-                    $token,
-                    $smsId,
-                    $smsCode
-                );
-
-                $result = json_decode($result, true);
-            } else {
-                $result = $this->createCustomer($token, $smsId, $smsCode);
-                $result = json_decode($result, true);
-
-                if (array_key_exists('id', $result)) {
-                    $user->setCustomerId($result['id']);
-
-                    $em = $this->getDoctrine()->getManager();
-                    $em->flush();
-                }
+            if (is_null($customerId) || empty($customerId)) {
+                $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
             }
+
+            $result = $this->createCustomerCard(
+                $customerId,
+                $token,
+                $smsId,
+                $smsCode
+            );
+
+            $result = json_decode($result, true);
 
             return new View($result);
         }
@@ -217,7 +209,7 @@ class ClientUserCustomerController extends OrderController
         $customerId = $user->getCustomerId();
 
         if (is_null($customerId) || empty($customerId)) {
-            return new View();
+            $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
         }
 
         $requestContent = json_decode($request->getContent(), true);
@@ -248,7 +240,7 @@ class ClientUserCustomerController extends OrderController
         $customerId = $user->getCustomerId();
 
         if (is_null($customerId) || empty($customerId)) {
-            return new View();
+            $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
         }
 
         $result = $this->getCustomerCards($customerId);
@@ -273,7 +265,7 @@ class ClientUserCustomerController extends OrderController
         $customerId = $user->getCustomerId();
 
         if (is_null($customerId) || empty($customerId)) {
-            return new View();
+            $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
         }
 
         $requestContent = json_decode($request->getContent(), true);

@@ -229,11 +229,9 @@ class PaymentController extends DoorController
     ) {
         $global = $this->get('twig')->getGlobals();
         $key = $global['pingpp_key'];
-        $appId = $global['pingpp_app_id'];
 
         $data = array(
-            'app' => $appId,
-            'default_source' => $cardId,
+            'default_source' => $cardId
         );
 
         $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId);
