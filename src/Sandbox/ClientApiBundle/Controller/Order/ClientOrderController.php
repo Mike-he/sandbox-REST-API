@@ -651,33 +651,6 @@ class ClientOrderController extends OrderController
             }
         }
 
-        if (array_key_exists('token_id', $requestContent) &&
-            array_key_exists('sms_id', $requestContent) &&
-            array_key_exists('sms_code', $requestContent)
-        ) {
-            $token = $requestContent['token_id'];
-            $smsId = $requestContent['sms_id'];
-            $smsCode = $requestContent['sms_code'];
-
-            $customer = $this->createCustomer($token, $smsId, $smsCode);
-            $customer = json_decode($customer, true);
-
-            if (array_key_exists('id', $customer)) {
-                $user = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\User')
-                    ->find($this->getUserId());
-
-                if (!is_null($user)) {
-                    $user->setCustomerId($customer['id']);
-                }
-
-                $em = $this->getDoctrine()->getManager();
-                $em->flush();
-            }
-
-            return new View($customer);
-        }
-
         if ($channel == self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
                 $order,
