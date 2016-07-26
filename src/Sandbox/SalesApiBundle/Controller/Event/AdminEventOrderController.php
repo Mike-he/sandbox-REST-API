@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -229,7 +230,7 @@ class AdminEventOrderController extends SalesRestController
                 $startDate,
                 $endDate,
                 $search,
-                $this->getSalesCompanyId()
+                $admin->getSalesCompany()->getId()
             );
 
         return $this->getEventOrderExport($orders, $language);
@@ -411,6 +412,8 @@ class AdminEventOrderController extends SalesRestController
 
     /**
      * authenticate with web browser cookie.
+     *
+     * @return SalesAdmin
      */
     protected function authenticateAdminCookie()
     {
