@@ -180,13 +180,14 @@ class ClientUserCustomerController extends OrderController
                 $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
             }
 
-            $result = $this->createCustomerCard(
+            $this->createCustomerCard(
                 $customerId,
                 $token,
                 $smsId,
                 $smsCode
             );
 
+            $result = $this->retrieveCustomer($customerId);
             $result = json_decode($result, true);
 
             return new View($result);
@@ -217,7 +218,9 @@ class ClientUserCustomerController extends OrderController
         if (array_key_exists('card_id', $requestContent)) {
             $cardId = $requestContent['card_id'];
 
-            $result = $this->deleteCustomerCard($customerId, $cardId);
+            $this->deleteCustomerCard($customerId, $cardId);
+
+            $result = $this->retrieveCustomer($customerId);
             $result = json_decode($result, true);
 
             return new View($result);
