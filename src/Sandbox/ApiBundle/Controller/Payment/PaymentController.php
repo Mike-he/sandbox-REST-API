@@ -422,11 +422,8 @@ class PaymentController extends DoorController
 
                     break;
                 default:
-                    $order = null;
-                    $subject = null;
-                    $body = null;
-                    $price = 0;
-                    break;
+
+                    return new View();
             }
 
             if (ProductOrder::STATUS_UNPAID == $order->getStatus()) {
