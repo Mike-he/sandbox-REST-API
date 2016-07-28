@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Log\Log;
 
 /**
@@ -32,7 +33,12 @@ trait LogsTrait
         switch ($objectKey) {
             case Log::OBJECT_USER:
                 $json = $this->getUserJson($objectId);
-            break;
+
+                break;
+            case Log::OBJECT_ROOM:
+                $json = $this->getRoomJson($objectId);
+
+                break;
             default:
                 return false;
         }
@@ -44,6 +50,23 @@ trait LogsTrait
         }
 
         return false;
+    }
+
+    /**
+     * @param $objectId
+     */
+    private function getRoomJson(
+        $objectId
+    ) {
+        $object = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->find($objectId);
+
+        if (is_null($object)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup($object, 'admin_room');
     }
 
     /**
@@ -65,6 +88,25 @@ trait LogsTrait
         }
 
         return '';
+    }
+
+    /**
+     * @param $input
+     * @param $group
+     *
+     * @return mixed
+     */
+    private function transferToJsonWithViewGroup(
+        $input,
+        $group
+    ) {
+        return $this->getContainer()
+            ->get('serializer')
+            ->serialize(
+                $input,
+                'json',
+                SerializationContext::create()->setGroups([$group])
+            );
     }
 
     /**

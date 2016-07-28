@@ -24,6 +24,7 @@ class Log
 
     const MODULE_ADMIN = 'admin';
     const MODULE_BUILDING = 'building';
+    const MODULE_ROOM = 'room';
     const MODULE_INVOICE = 'invoice';
     const MODULE_EVENT = 'event';
     const MODULE_PRICE_RULE = 'price_rule';
