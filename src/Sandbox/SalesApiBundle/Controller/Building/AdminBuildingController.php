@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
@@ -278,9 +279,22 @@ class AdminBuildingController extends LocationController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        return $this->handleAdminBuildingPost(
+        $response =  $this->handleAdminBuildingPost(
             $building
         );
+
+        // add log
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_BUILDING,
+            'logAction' => Log::ACTION_CREATE,
+            'logObjectKey' => Log::OBJECT_BUILDING,
+            'logObjectId' => $building->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
+        return $response;
     }
 
     /**
@@ -330,9 +344,22 @@ class AdminBuildingController extends LocationController
         }
 
         // handle building form
-        return $this->handleAdminBuildingPut(
+        $response =  $this->handleAdminBuildingPut(
             $building
         );
+
+        // add log
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_BUILDING,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_BUILDING,
+            'logObjectId' => $building->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
+        return $response;
     }
 
     /**
@@ -364,11 +391,13 @@ class AdminBuildingController extends LocationController
             $id
         );
 
-        $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
-            'id' => $id,
-            'isDeleted' => false,
-            'status' => RoomBuilding::STATUS_ACCEPT,
-        ));
+        $building = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->findOneBy(array(
+                'id' => $id,
+                'isDeleted' => false,
+                'status' => RoomBuilding::STATUS_ACCEPT,
+            ));
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         $statusOld = $building->getStatus();
@@ -388,6 +417,23 @@ class AdminBuildingController extends LocationController
             $visibleOld,
             $building
         );
+
+        // add log
+        if ($visibleOld && !$building->isVisible()) {
+            $action = Log::ACTION_OFF_SALE;
+        } else {
+            $action = Log::ACTION_ON_SALE;
+        }
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_BUILDING,
+            'logAction' => $action,
+            'logObjectKey' => Log::OBJECT_BUILDING,
+            'logObjectId' => $building->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
 
         return new View();
     }
@@ -540,6 +586,17 @@ class AdminBuildingController extends LocationController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        // add log
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_BUILDING,
+            'logAction' => Log::ACTION_DELETE,
+            'logObjectKey' => Log::OBJECT_BUILDING,
+            'logObjectId' => $building->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
 
         return new View();
     }
