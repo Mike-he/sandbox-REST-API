@@ -7,6 +7,7 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
@@ -105,6 +106,8 @@ class AdminOrderController extends OrderController
             $order->setModificationDate($now);
             $order->setCancelByUser(true);
 
+            $action = Log::ACTION_REJECT;
+
             if ($price > 0) {
                 $order->setNeedToRefund(true);
 
@@ -138,6 +141,8 @@ class AdminOrderController extends OrderController
                 ProductOrderMessage::OFFICE_REJECTED_MESSAGE
             );
         } else {
+            $action = Log::ACTION_AGREE;
+
             $acceptedOrders = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Order\ProductOrder')
                 ->getOfficeAccepted(
@@ -222,6 +227,16 @@ class AdminOrderController extends OrderController
                         }
                     }
                 }
+
+                $this->generateAdminLogs(array(
+                    'platform' => Log::PLATFORM_SALES,
+                    'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                    'logModule' => Log::MODULE_ROOM_ORDER,
+                    'logAction' => Log::ACTION_REJECT,
+                    'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+                    'logObjectId' => $order->getId(),
+                    'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+                ));
             }
 
             if (!empty($orders)) {
@@ -239,6 +254,16 @@ class AdminOrderController extends OrderController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_ROOM_ORDER,
+            'logAction' => $action,
+            'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+            'logObjectId' => $id,
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
 
         return new View();
     }
@@ -891,6 +916,16 @@ class AdminOrderController extends OrderController
 
             $em->flush();
 
+            $this->generateAdminLogs(array(
+                'platform' => Log::PLATFORM_SALES,
+                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                'logModule' => Log::MODULE_ORDER_RESERVE,
+                'logAction' => Log::ACTION_CREATE,
+                'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+                'logObjectId' => $order->getId(),
+                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+            ));
+
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
@@ -931,6 +966,7 @@ class AdminOrderController extends OrderController
         $adminId = $this->getAdminId();
 
         $type = $order->getType();
+        $module = Log::MODULE_ORDER_PREORDER;
 
         // check user permission
         $permissions = array(
@@ -938,8 +974,9 @@ class AdminOrderController extends OrderController
         );
 
         if (ProductOrder::RESERVE_TYPE == $type) {
+            $module = Log::MODULE_ORDER_RESERVE;
             $permissions[] = SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE;
-        } elseif (ProductOrder::PREORDER_TYPE) {
+        } elseif (ProductOrder::PREORDER_TYPE == $type) {
             $permissions[] = SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER;
         } else {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
@@ -1017,6 +1054,16 @@ class AdminOrderController extends OrderController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
         }
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => $module,
+            'logAction' => Log::ACTION_CANCEL,
+            'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+            'logObjectId' => $order->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
 
         return new View();
     }
@@ -1190,6 +1237,16 @@ class AdminOrderController extends OrderController
             if (0 == $order->getDiscountPrice()) {
                 $this->setDoorAccessForSingleOrder($order);
             }
+
+            $this->generateAdminLogs(array(
+                'platform' => Log::PLATFORM_SALES,
+                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                'logModule' => Log::MODULE_ORDER_PREORDER,
+                'logAction' => Log::ACTION_CREATE,
+                'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+                'logObjectId' => $order->getId(),
+                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+            ));
 
             $view = new View();
             $view->setData(
