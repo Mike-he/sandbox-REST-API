@@ -118,7 +118,7 @@ class AdminAdminsController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="type",
      *    array=false,
-     *    default="platform",
+     *    default=null,
      *    nullable=true,
      *    requirements="(super | platform)",
      *    strict=true,
@@ -169,14 +169,24 @@ class AdminAdminsController extends SalesRestController
         $typeKey = $paramFetcher->get('type');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
+
+        $filters = array(
+            'companyId' => $companyId,
+        );
+
+        if (!is_null($typeKey)) {
+            $type = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminType')
+                ->findOneBy(array(
+                    'key' => $typeKey,
+                ));
+
+            $filters['typeId'] = $type->getId();
+        }
 
         // get all admins id and username
-        $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
-        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
-        $query = $this->getRepo('SalesAdmin\SalesAdmin')->findBy(array(
-            'typeId' => $type->getId(),
-            'companyId' => $companyId,
-        ));
+        $query = $this->getRepo('SalesAdmin\SalesAdmin')->findBy($filters);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
