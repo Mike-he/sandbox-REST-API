@@ -40,6 +40,9 @@ trait LogsTrait
             case Log::OBJECT_PRODUCT:
                 $json = $this->getProductJson($objectId);
                 break;
+            case Log::OBJECT_ROOM_ORDER:
+                $json = $this->getRoomOrderJson($objectId);
+                break;
             case Log::OBJECT_BUILDING:
                 $json = $this->getBuildingJson($objectId);
                 break;
@@ -57,6 +60,25 @@ trait LogsTrait
         }
 
         return false;
+    }
+
+    /**
+     * @param $objectId
+     *
+     * @return mixed|void
+     */
+    private function getRoomOrderJson(
+        $objectId
+    ) {
+        $object = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->find($objectId);
+
+        if (is_null($object)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup($object, 'admin_detail');
     }
 
     /**
