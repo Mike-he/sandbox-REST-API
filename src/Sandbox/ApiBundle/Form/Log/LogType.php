@@ -21,7 +21,8 @@ class LogType extends AbstractType
             ->add('logModule')
             ->add('logAction')
             ->add('logObjectKey')
-            ->add('logObjectId');
+            ->add('logObjectId')
+            ->add('logObjectJson');
     }
 
     /**

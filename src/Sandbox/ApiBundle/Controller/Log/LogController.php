@@ -39,17 +39,12 @@ class LogController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $logJson = $this->container->get('serializer')->serialize($log, 'json');
-        $logArray = json_decode($logJson, true);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($log);
+        $em->flush();
 
-        return $this->generateAdminLogs(array(
-            'platform' => $logArray['platform'],
-            'adminUsername' => $logArray['admin_username'],
-            'logModule' => $logArray['log_module'],
-            'logAction' => $logArray['log_action'],
-            'logObjectKey' => $logArray['log_object_key'],
-            'logObjectId' => (int) $logArray['log_object_id'],
-            'salesCompanyId' => (int) $logArray['sales_company_id'],
+        return new View(array(
+            'id' => $log->getId(),
         ));
     }
 }
