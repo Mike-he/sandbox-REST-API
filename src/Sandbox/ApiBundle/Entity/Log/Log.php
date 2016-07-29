@@ -44,11 +44,13 @@ class Log
     const ACTION_ON_SALE = 'on_sale';
     const ACTION_OFF_SALE = 'off_sale';
     const ACTION_RECOMMEND = 'recommend';
+    const ACTION_REMOVE_RECOMMEND = 'remove_recommend';
     const ACTION_AGREE = 'agree';
     const ACTION_REJECT = 'reject';
     const ACTION_RESERVE = 'reserve';
     const ACTION_PREORDER = 'preorder';
     const ACTION_PRIVATE = 'private';
+    const ACTION_REMOVE_PRIVATE = 'remove_private';
 
     const OBJECT_SALES_ADMIN = 'sales_admin';
     const OBJECT_BUILDING = 'building';
