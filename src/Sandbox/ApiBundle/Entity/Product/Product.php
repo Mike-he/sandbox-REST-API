@@ -223,7 +223,7 @@ class Product
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room"})
      */
     private $room;
 
