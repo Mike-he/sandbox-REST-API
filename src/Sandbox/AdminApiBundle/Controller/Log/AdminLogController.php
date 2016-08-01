@@ -182,7 +182,7 @@ class AdminLogController extends LogController
         Request $request
     ) {
         // check user permission
-        //$this->checkAdminLogPermission();
+        $this->checkAdminLogPermission();
 
         $modules = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Log\LogModules')
