@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="logModule_idx", columns="logModule")
  *     }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Log\LogRepository")
  */
 class Log
 {
@@ -82,6 +82,11 @@ class Log
      * @ORM\Column(name="salesCompanyId", type="integer", nullable=true)
      */
     private $salesCompanyId;
+
+    /**
+     * @var string
+     */
+    private $salesCompanyName;
 
     /**
      * @var string
@@ -348,6 +353,24 @@ class Log
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalesCompanyName()
+    {
+        return $this->salesCompanyName;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Log
+     */
+    public function setSalesCompanyName($name)
+    {
+        $this->salesCompanyName = $name;
     }
 
     /**
