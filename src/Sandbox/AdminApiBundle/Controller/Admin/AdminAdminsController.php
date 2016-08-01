@@ -102,7 +102,7 @@ class AdminAdminsController extends SandboxRestController
         );
 
         // get all admins id and username
-        $query = $this->getRepo('Admin\Admin')->findAll();
+        $query = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\Admin')->getAllAdmins();
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
