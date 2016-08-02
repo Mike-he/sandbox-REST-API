@@ -127,18 +127,18 @@ trait LogsTrait
     private function getUserJson(
         $objectId
     ) {
-        $userProfile = $this->getContainer()
+        $user = $this->getContainer()
             ->get('doctrine')
-            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->getRepository('SandboxApiBundle:User\UserView')
             ->findOneBy(array(
-                'userId' => $objectId,
+                'id' => $objectId,
             ));
 
-        if (is_null($userProfile)) {
+        if (is_null($user)) {
             return;
         }
 
-        return $this->transferToJson($userProfile);
+        return $this->transferToJson($user);
     }
 
     /**
