@@ -118,7 +118,7 @@ class AdminAdminsController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="type",
      *    array=false,
-     *    default=null,
+     *    default="platform",
      *    nullable=true,
      *    requirements="(super | platform)",
      *    strict=true,
