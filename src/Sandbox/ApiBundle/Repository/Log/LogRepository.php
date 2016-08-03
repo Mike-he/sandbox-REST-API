@@ -35,7 +35,7 @@ class LogRepository extends EntityRepository
         $notFirst = false;
 
         $query = $this->createQueryBuilder('l')
-            ->orderBy('l.logObjectId', 'DESC');
+            ->orderBy('l.creationDate', 'DESC');
 
         if (!is_null($companyId) && !empty($companyId)) {
             $where = 'l.salesCompanyId = :companyId';
