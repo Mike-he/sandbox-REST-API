@@ -32,7 +32,7 @@ class WeChat
     /**
      * @var User
      *
-     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User"))
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User"))
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $user;
