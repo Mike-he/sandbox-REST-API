@@ -80,7 +80,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             $user = $weChat->getUser();
         }
 
-        $responseArray = $this->handleClientUserLogin($request, $user, $login);
+        $responseArray = $this->handleClientUserLogin($request, $user, $login, $weChat);
 
         // set weChat user data
         $responseArray = array_merge($responseArray, array(
