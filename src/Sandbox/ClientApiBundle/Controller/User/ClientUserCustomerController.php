@@ -195,12 +195,14 @@ class ClientUserCustomerController extends OrderController
     }
 
     /**
-     * @Delete("/customers/card")
+     * @Delete("/customers/card/{cardId}")
      *
      * @param Request $request
+     * @param string  $cardId
      */
     public function deleteCustomerCardAction(
-        Request $request
+        Request $request,
+        $cardId
     ) {
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
@@ -213,18 +215,12 @@ class ClientUserCustomerController extends OrderController
             $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
         }
 
-        $requestContent = json_decode($request->getContent(), true);
+        $this->deleteCustomerCard($customerId, $cardId);
 
-        if (array_key_exists('card_id', $requestContent)) {
-            $cardId = $requestContent['card_id'];
+        $result = $this->retrieveCustomer($customerId);
+        $result = json_decode($result, true);
 
-            $this->deleteCustomerCard($customerId, $cardId);
-
-            $result = $this->retrieveCustomer($customerId);
-            $result = json_decode($result, true);
-
-            return new View($result);
-        }
+        return new View($result);
     }
 
     /**
@@ -253,12 +249,14 @@ class ClientUserCustomerController extends OrderController
     }
 
     /**
-     * @Get("/customers/cards/single")
+     * @Get("/customers/cards/{cardId}")
      *
      * @param Request $request
+     * @param string  $cardId
      */
     public function getSingleCustomerCardAction(
-        Request $request
+        Request $request,
+        $cardId
     ) {
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
@@ -271,15 +269,9 @@ class ClientUserCustomerController extends OrderController
             $this->throwNotFoundIfNull($customerId, self::NOT_FOUND_MESSAGE);
         }
 
-        $requestContent = json_decode($request->getContent(), true);
+        $result = $this->getSingleCustomerCard($customerId, $cardId);
+        $result = json_decode($result, true);
 
-        if (array_key_exists('card_id', $requestContent)) {
-            $cardId = $requestContent['card_id'];
-
-            $result = $this->getSingleCustomerCard($customerId, $cardId);
-            $result = json_decode($result, true);
-
-            return new View($result);
-        }
+        return new View($result);
     }
 }
