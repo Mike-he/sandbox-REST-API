@@ -140,7 +140,19 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         $weChat->setModificationDate($now);
 
         if (array_key_exists('unionid', $result)) {
-            $weChat->setUnionId($result['unionid']);
+            $unionId = $result['unionid'];
+            $weChat->setUnionId($unionId);
+
+            // bind wechat login with current account
+            $currentAccount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(array(
+                    'unionid' => $unionId,
+                ));
+
+            if (!is_null($currentAccount)) {
+                $weChat->setUser($currentAccount->getUser());
+            }
         }
 
         $em->flush();

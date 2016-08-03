@@ -251,7 +251,7 @@ trait LogsTrait
             $permission->setBuilding($building);
         }
 
-        return $this->transferToJson($admin);
+        return $this->transferToJsonWithViewGroup($admin, 'admin');
     }
 
     /**
