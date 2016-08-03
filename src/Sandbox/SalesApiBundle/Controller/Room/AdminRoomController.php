@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Room;
 use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomDoors;
@@ -1041,6 +1042,16 @@ class AdminRoomController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_ROOM,
+            'logAction' => Log::ACTION_DELETE,
+            'logObjectKey' => Log::OBJECT_ROOM,
+            'logObjectId' => $room->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
         return new View();
     }
 
@@ -1121,6 +1132,16 @@ class AdminRoomController extends SalesRestController
                 $this->addOfficeSupplies($em, $room, $office_supplies);
             }
         }
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_ROOM,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_ROOM,
+            'logObjectId' => $room->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
 
         $response = array(
             'id' => $room->getId(),
@@ -1224,6 +1245,16 @@ class AdminRoomController extends SalesRestController
                 $office_supplies
             );
         }
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_ROOM,
+            'logAction' => Log::ACTION_CREATE,
+            'logObjectKey' => Log::OBJECT_ROOM,
+            'logObjectId' => $room->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
 
         $response = array(
             'id' => $room->getId(),

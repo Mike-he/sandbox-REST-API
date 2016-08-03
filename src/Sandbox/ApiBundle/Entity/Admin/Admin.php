@@ -16,7 +16,7 @@ use JMS\Serializer\Annotation as Serializer;
  *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Admin\AdminRepository")
  */
 class Admin implements UserInterface
 {

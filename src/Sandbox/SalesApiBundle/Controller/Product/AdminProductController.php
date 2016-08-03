@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Product;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -417,6 +418,16 @@ class AdminProductController extends ProductController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_PRODUCT,
+            'logAction' => Log::ACTION_DELETE,
+            'logObjectKey' => Log::OBJECT_PRODUCT,
+            'logObjectId' => $product->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
     }
 
     /**
@@ -556,6 +567,16 @@ class AdminProductController extends ProductController
             $rule_exclude
         );
 
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_PRODUCT,
+            'logAction' => Log::ACTION_CREATE,
+            'logObjectKey' => Log::OBJECT_PRODUCT,
+            'logObjectId' => $product->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
         $response = array(
             'id' => $product->getId(),
         );
@@ -591,6 +612,8 @@ class AdminProductController extends ProductController
             'id' => $id,
             'isDeleted' => false,
         ));
+
+        $oldPrivate = $product->getPrivate();
 
         $form = $this->createForm(
             new ProductType(),
@@ -640,6 +663,36 @@ class AdminProductController extends ProductController
             $rule_include,
             $rule_exclude
         );
+
+        $private = $product->getPrivate();
+
+        if ($private != $oldPrivate) {
+            $action = Log::ACTION_PRIVATE;
+
+            if ($oldPrivate && !$private) {
+                $action = Log::ACTION_REMOVE_PRIVATE;
+            }
+
+            $this->generateAdminLogs(array(
+                'platform' => Log::PLATFORM_SALES,
+                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                'logModule' => Log::MODULE_PRODUCT,
+                'logAction' => $action,
+                'logObjectKey' => Log::OBJECT_PRODUCT,
+                'logObjectId' => $product->getId(),
+                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+            ));
+        }
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_PRODUCT,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_PRODUCT,
+            'logObjectId' => $product->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
 
         $response = array(
             'id' => $product->getId(),

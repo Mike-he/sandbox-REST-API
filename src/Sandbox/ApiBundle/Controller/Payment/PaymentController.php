@@ -231,7 +231,7 @@ class PaymentController extends DoorController
         $key = $global['pingpp_key'];
 
         $data = array(
-            'default_source' => $cardId
+            'default_source' => $cardId,
         );
 
         $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId);

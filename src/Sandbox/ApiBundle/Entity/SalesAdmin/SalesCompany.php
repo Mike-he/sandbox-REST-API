@@ -20,7 +20,7 @@ class SalesCompany
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin", "dropdown", "client", "auth"})
+     * @Serializer\Groups({"main", "admin", "dropdown", "client", "auth", "admin_detail"})
      */
     private $id;
 
