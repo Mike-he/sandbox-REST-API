@@ -139,6 +139,8 @@ class ClientUserBasicProfileController extends UserProfileController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $userId = $this->getUserId();
+
         $path = $data['avatar_url'];
         $data = file_get_contents($path);
         $base64 = base64_encode($data);
@@ -153,7 +155,7 @@ class ClientUserBasicProfileController extends UserProfileController
 
         $apiUrl = $globals['openfire_innet_url'].
             $globals['openfire_plugin_file_server'].
-            '?target=person&id=94&type=base64';
+            '?target=person&type=base64&id='.$userId;
         $ch = curl_init($apiUrl);
 
         $response = $this->callAPI(
