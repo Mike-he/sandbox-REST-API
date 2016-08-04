@@ -1639,6 +1639,12 @@ class SandboxRestController extends FOSRestController
     protected function generateAdminLogs(
         $logParams
     ) {
+        $em = $this->getDoctrine()->getManager();
+
+        // clear doctrine cache, then get object
+        $em->clear();
+
+        // create log object
         $log = new Log();
 
         $form = $this->createForm(new LogType(), $log);
@@ -1649,7 +1655,6 @@ class SandboxRestController extends FOSRestController
         }
 
         if ($this->handleLog($log)) {
-            $em = $this->getDoctrine()->getManager();
             $em->persist($log);
             $em->flush();
 
