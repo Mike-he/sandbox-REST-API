@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Rs\Json\Patch;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for user`s basic profile.
@@ -115,6 +116,54 @@ class ClientUserBasicProfileController extends UserProfileController
             $myUser,
             $profile
         );
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/avatar")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function sendAvatarAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $auth = $request->headers->get(self::HTTP_HEADER_AUTH);
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('avatar_url', $data)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $path = $data['avatar_url'];
+        $data = file_get_contents($path);
+        $base64 = base64_encode($data);
+
+        $payload = json_encode(array(
+            'avatar_b64' => $base64,
+        ));
+
+        // upload user avatar
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $apiUrl = $globals['openfire_innet_url'].
+            $globals['openfire_plugin_file_server'].
+            '?target=person&id=94&type=base64';
+        $ch = curl_init($apiUrl);
+
+        $response = $this->callAPI(
+            $ch,
+            'POST',
+            array(self::HTTP_HEADER_AUTH.':'.$auth),
+            $payload
+        );
+
+        return new View($response);
     }
 
     /**
