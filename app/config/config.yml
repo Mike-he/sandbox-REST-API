@@ -41,6 +41,7 @@ twig:
         openfire_plugin_bstios: "%openfire_plugin_bstios%"
         openfire_plugin_bstios_chatconfig: "%openfire_plugin_bstios_chatconfig%"
         openfire_plugin_bstios_apns: "%openfire_plugin_bstios_apns%"
+        openfire_plugin_file_server: "%openfire_plugin_file_server%"
         sms_api_url: "%sms_api_url%"
         sms_api_key: "%sms_api_key%"
         email_from_address: "%email_from_address%"
