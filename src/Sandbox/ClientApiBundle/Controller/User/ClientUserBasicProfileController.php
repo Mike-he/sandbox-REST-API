@@ -165,7 +165,7 @@ class ClientUserBasicProfileController extends UserProfileController
             $payload
         );
 
-        return new View($response);
+        return new View(json_decode($response, true));
     }
 
     /**
