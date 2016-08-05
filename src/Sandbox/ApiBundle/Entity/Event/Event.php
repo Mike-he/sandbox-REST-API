@@ -393,6 +393,16 @@ class Event
     private $myLikeId;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $salesCompany;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1068,5 +1078,21 @@ class Event
     public function setMyLikeId($myLikeId)
     {
         $this->myLikeId = $myLikeId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSalesCompany()
+    {
+        return $this->salesCompany;
+    }
+
+    /**
+     * @param array $salesCompany
+     */
+    public function setSalesCompany($salesCompany)
+    {
+        $this->salesCompany = $salesCompany;
     }
 }
