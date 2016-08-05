@@ -497,6 +497,7 @@ class AdminUsersController extends DoorController
                 AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
                 AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
                 AdminPermission::KEY_PLATFORM_PRODUCT,
+                AdminPermission::KEY_PLATFORM_LOG,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
