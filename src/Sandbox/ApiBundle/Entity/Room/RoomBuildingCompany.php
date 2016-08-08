@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * RoomBuildingCompany.
@@ -68,6 +69,11 @@ class RoomBuildingCompany
 
     /**
      * @var string
+     *
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      *
      * @ORM\Column(name="email", type="string", length=255, nullable=true)
      * @Serializer\Groups({"main", "admin_building"})

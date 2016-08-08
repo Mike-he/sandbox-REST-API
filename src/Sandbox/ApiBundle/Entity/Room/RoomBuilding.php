@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * RoomBuilding.
@@ -247,6 +248,11 @@ class RoomBuilding implements JsonSerializable
 
     /**
      * @var string
+     *
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      *
      * @ORM\Column(name="email", type="string", nullable=true)
      *
