@@ -188,13 +188,19 @@ class AdminEventController extends SandboxRestController
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
             $registrationCounts = $this->getRepo('Event\EventRegistration')
                 ->getRegistrationCounts($event->getId());
-            $salesCompany = $this->getRepo('SalesAdmin\SalesCompany')->find($event->getSalesCompanyId());
+
+            // set sales company
+            if (!is_null($event->getSalesCompanyId())) {
+                $salesCompany = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                    ->find($event->getSalesCompanyId());
+                $event->setSalesCompany($salesCompany);
+            }
 
             $event->setAttachments($attachments);
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
-            $event->setSalesCompany($salesCompany);
 
             array_push($eventsArray, $event);
         }
