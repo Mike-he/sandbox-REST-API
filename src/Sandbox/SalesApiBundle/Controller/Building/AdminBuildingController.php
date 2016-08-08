@@ -985,7 +985,7 @@ class AdminBuildingController extends LocationController
         }
 
         foreach ($phones['add'] as $phone) {
-            if(!is_numeric($phone['phone_number'])){
+            if (!is_numeric($phone['phone_number'])) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
             $adminPhones = new RoomBuildingPhones();
@@ -1012,7 +1012,7 @@ class AdminBuildingController extends LocationController
             return;
         }
 
-        if(!is_numeric($buildingCompany['phone'])){
+        if (!is_numeric($buildingCompany['phone'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -1045,7 +1045,7 @@ class AdminBuildingController extends LocationController
             return;
         }
 
-        if(!is_numeric($buildingCompany['phone'])){
+        if (!is_numeric($buildingCompany['phone'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -1102,7 +1102,7 @@ class AdminBuildingController extends LocationController
         }
 
         foreach ($phones['modify'] as $phone) {
-            if(!is_numeric($phone['phone_number'])){
+            if (!is_numeric($phone['phone_number'])) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
 
