@@ -139,6 +139,46 @@ class ClientUserBasicProfileController extends UserProfileController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $payload = json_encode(array(
+            'avatar_url' => $data['avatar_url'],
+        ));
+
+        // upload user avatar
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $apiUrl = $globals['rest_api_url'].'/client/user/profile/async/avatar';
+        $ch = curl_init($apiUrl);
+
+        $this->asyncCallAPI(
+            $ch,
+            'POST',
+            array(self::HTTP_HEADER_AUTH.':'.$auth),
+            $payload
+        );
+
+        return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/async/avatar")
+     * @Method({"POST"})
+     */
+    public function asyncSendAvatarAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $auth = $request->headers->get(self::HTTP_HEADER_AUTH);
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('avatar_url', $data)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
         $userId = $this->getUserId();
 
         $path = $data['avatar_url'];
@@ -158,14 +198,12 @@ class ClientUserBasicProfileController extends UserProfileController
             '?target=person&type=base64&id='.$userId;
         $ch = curl_init($apiUrl);
 
-        $response = $this->callAPI(
+        $this->callAPI(
             $ch,
             'POST',
             array(self::HTTP_HEADER_AUTH.':'.$auth),
             $payload
         );
-
-        return new View(json_decode($response, true));
     }
 
     /**

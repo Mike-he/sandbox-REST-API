@@ -100,3 +100,4 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
+    rest_api_url: localhost.api.rest
