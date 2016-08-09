@@ -1012,7 +1012,7 @@ class AdminBuildingController extends LocationController
             return;
         }
 
-        if (!is_numeric($buildingCompany['phone'])) {
+        if (!empty($buildingCompany['phone']) && !is_numeric($buildingCompany['phone'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -1045,7 +1045,7 @@ class AdminBuildingController extends LocationController
             return;
         }
 
-        if (!is_numeric($buildingCompany['phone'])) {
+        if (!empty($buildingCompany['phone']) && !is_numeric($buildingCompany['phone'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
