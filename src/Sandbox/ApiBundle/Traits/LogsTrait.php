@@ -31,9 +31,6 @@ trait LogsTrait
         $objectId = $log->getLogObjectId();
 
         switch ($objectKey) {
-            case Log::OBJECT_USER:
-                $json = $this->getUserJson($objectId);
-                break;
             case Log::OBJECT_ROOM:
                 $json = $this->getRoomJson($objectId);
                 break;
@@ -117,28 +114,6 @@ trait LogsTrait
         }
 
         return $this->transferToJsonWithViewGroup($object, 'admin_room');
-    }
-
-    /**
-     * @param $objectId
-     *
-     * @return string
-     */
-    private function getUserJson(
-        $objectId
-    ) {
-        $user = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:User\UserView')
-            ->findOneBy(array(
-                'id' => $objectId,
-            ));
-
-        if (is_null($user)) {
-            return;
-        }
-
-        return $this->transferToJson($user);
     }
 
     /**

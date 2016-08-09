@@ -596,17 +596,6 @@ class AdminUsersController extends DoorController
         // update to db
         $em->flush();
 
-        // add log
-        $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
-            'logModule' => Log::MODULE_USER,
-            'logAction' => Log::ACTION_AUTHORIZE,
-            'logObjectKey' => Log::OBJECT_USER,
-            'logObjectId' => $id,
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
-        ));
-
         return new View();
     }
 
