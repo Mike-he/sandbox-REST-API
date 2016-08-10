@@ -317,7 +317,7 @@ class AdminShopOrderController extends ShopController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="refunded",
+     *    requirements="refunded|needToRefund",
      *    strict=true,
      *    description="refund status filter for order "
      * )

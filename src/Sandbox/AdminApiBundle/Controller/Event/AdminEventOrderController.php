@@ -185,6 +185,13 @@ class AdminEventOrderController extends AdminOrderController
      *    description="end date. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
      * @Route("/events/orders/export")
      * @Method({"GET"})
      *
@@ -206,6 +213,7 @@ class AdminEventOrderController extends AdminOrderController
         $flag = $paramFetcher->get('flag');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
+        $search = $paramFetcher->get('query');
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
 
@@ -213,7 +221,8 @@ class AdminEventOrderController extends AdminOrderController
             $city,
             $flag,
             $startDate,
-            $endDate
+            $endDate,
+            $search
         );
 
         return $this->getEventOrderExport($orders, $language);

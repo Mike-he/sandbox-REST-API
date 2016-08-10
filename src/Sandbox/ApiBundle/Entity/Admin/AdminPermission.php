@@ -34,10 +34,11 @@ class AdminPermission
     const KEY_PLATFORM_VERIFY = 'platform.verify';
     const KEY_PLATFORM_SALES = 'platform.sales';
     const KEY_PLATFORM_BULLETIN = 'platform.bulletin';
-    const KEY_PLATFORM_FINANCE = 'platform.invoice';
+    const KEY_PLATFORM_INVOICE = 'platform.invoice';
     const KEY_PLATFORM_ORDER_RESERVE = 'platform.order.reserve';
     const KEY_PLATFORM_ORDER_PREORDER = 'platform.order.preorder';
     const KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY = 'platform.product.appointment';
+    const KEY_PLATFORM_LOG = 'platform.log';
 
     /**
      * @var int

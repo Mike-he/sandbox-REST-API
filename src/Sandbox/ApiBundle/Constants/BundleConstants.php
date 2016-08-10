@@ -14,4 +14,6 @@ class BundleConstants
     const SHOP_ORDER_ENTITY = 'SandboxApiBundle:Shop\ShopOrder';
     const EVENT_ORDER_ENTITY = 'SandboxApiBundle:Event\EventOrder';
     const TOP_UP_ORDER_ENTITY = 'SandboxApiBundle:Order\TopUpOrder';
+
+    const PING_CREATE_CUSTOMER = 'https://api.pingxx.com/v1/customers';
 }

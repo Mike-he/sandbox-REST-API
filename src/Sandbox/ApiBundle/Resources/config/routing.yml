@@ -105,3 +105,15 @@ sandbox_api_rooms:
     resource: "@SandboxApiBundle/Controller/Room/RoomController.php"
     type:     annotation
     prefix:   /rooms
+
+# Logs
+sandbox_api_logs:
+    resource: "@SandboxApiBundle/Controller/Log/LogController.php"
+    type:     annotation
+    prefix:   /
+
+# FileServer
+sandbox_api_file_server:
+    resource: "@SandboxApiBundle/Controller/FileServer/FileServerController.php"
+    type:     annotation
+    prefix:   /

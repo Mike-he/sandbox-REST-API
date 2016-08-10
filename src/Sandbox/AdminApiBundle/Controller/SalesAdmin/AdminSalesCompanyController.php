@@ -43,6 +43,8 @@ class AdminSalesCompanyController extends LocationController
                 AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
                 AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
                 AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+                AdminPermission::KEY_PLATFORM_LOG,
+                AdminPermission::KEY_PLATFORM_INVOICE,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );

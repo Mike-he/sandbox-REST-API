@@ -10,10 +10,10 @@ use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserToken;
 use Symfony\Component\HttpFoundation\Request;
 use Sandbox\ApiBundle\Traits\OpenfireApi;
-use FOS\RestBundle\View\View;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Error\Error;
+use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 
 /**
  * User Login Controller.
@@ -48,15 +48,17 @@ class UserLoginController extends SandboxRestController
      * @param Request       $request
      * @param User          $user
      * @param UserLoginData $login
+     * @param WeChat        $weChat
      *
-     * @return View
+     * @return array
      *
      * @throws \Exception
      */
     protected function handleClientUserLogin(
         Request $request,
         $user,
-        $login
+        $login,
+        $weChat = null
     ) {
         $data = array();
 
@@ -70,6 +72,11 @@ class UserLoginController extends SandboxRestController
                                             $request,
                                             $userClient);
         $data['client'] = $userClient;
+
+        // set weChat user client
+        if (!is_null($weChat)) {
+            $weChat->setUserClient($userClient);
+        }
 
         if (!is_null($user)) {
             // force to set other token offline

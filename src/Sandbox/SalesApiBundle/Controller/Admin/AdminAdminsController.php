@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Admin;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
@@ -168,14 +169,24 @@ class AdminAdminsController extends SalesRestController
         $typeKey = $paramFetcher->get('type');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
+
+        $filters = array(
+            'companyId' => $companyId,
+        );
+
+        if (!is_null($typeKey)) {
+            $type = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminType')
+                ->findOneBy(array(
+                    'key' => $typeKey,
+                ));
+
+            $filters['typeId'] = $type->getId();
+        }
 
         // get all admins id and username
-        $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
-        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
-        $query = $this->getRepo('SalesAdmin\SalesAdmin')->findBy(array(
-            'typeId' => $type->getId(),
-            'companyId' => $companyId,
-        ));
+        $query = $this->getRepo('SalesAdmin\SalesAdmin')->findBy($filters);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -297,11 +308,24 @@ class AdminAdminsController extends SalesRestController
         $permission = $form['permission']->getData();
 
         if ($form->isValid()) {
-            return $this->handleAdminCreate(
+            $response = $this->handleAdminCreate(
                 $admin,
                 $type_key,
                 $permission
             );
+
+            // add log
+            $this->generateAdminLogs(array(
+                'platform' => Log::PLATFORM_SALES,
+                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                'logModule' => Log::MODULE_ADMIN,
+                'logAction' => Log::ACTION_CREATE,
+                'logObjectKey' => Log::OBJECT_SALES_ADMIN,
+                'logObjectId' => $admin->getId(),
+                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+            ));
+
+            return $response;
         }
 
         throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -362,7 +386,7 @@ class AdminAdminsController extends SalesRestController
         $type_key = $form['type_key']->getData();
         $permission = $form['permission']->getData();
 
-        return $this->handleAdminPatch(
+        $response = $this->handleAdminPatch(
             $id,
             $admin,
             $type_key,
@@ -370,6 +394,19 @@ class AdminAdminsController extends SalesRestController
             $passwordOld,
             $usernameOld
         );
+
+        // add log
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_ADMIN,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_SALES_ADMIN,
+            'logObjectId' => $admin->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
+        return $response;
     }
 
     /**
@@ -462,6 +499,17 @@ class AdminAdminsController extends SalesRestController
             $em = $this->getDoctrine()->getManager();
             $em->remove($admin);
             $em->flush();
+
+            // add log
+            $this->generateAdminLogs(array(
+                'platform' => Log::PLATFORM_SALES,
+                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                'logModule' => Log::MODULE_ADMIN,
+                'logAction' => Log::ACTION_DELETE,
+                'logObjectKey' => Log::OBJECT_SALES_ADMIN,
+                'logObjectId' => $admin->getId(),
+                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+            ));
         }
 
         return new View();

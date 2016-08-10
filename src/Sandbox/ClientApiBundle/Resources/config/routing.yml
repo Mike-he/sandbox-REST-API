@@ -305,3 +305,9 @@ sandbox_client_user_client:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserClientController.php"
     type:     annotation
     prefix:   /user
+
+# User Client /client/user/customer
+sandbox_client_user_customer:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserCustomerController.php"
+    type:     annotation
+    prefix:   /user

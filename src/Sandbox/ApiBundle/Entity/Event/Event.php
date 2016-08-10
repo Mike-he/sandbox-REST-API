@@ -16,6 +16,8 @@ class Event
     const REGISTRATION_METHOD_ONLINE = 'online';
     const REGISTRATION_METHOD_OFFLINE = 'offline';
 
+    const STATUS_PREHEATING = 'preheating';
+    const STATUS_REGISTERING = 'registering';
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
     const STATUS_SAVED = 'saved';
@@ -268,6 +270,13 @@ class Event
     private $isDeleted = false;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="salesCompanyId", type="integer", nullable=true)
+     */
+    private $salesCompanyId;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -382,6 +391,16 @@ class Event
      * })
      */
     private $myLikeId;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $salesCompany;
 
     /**
      * Get id.
@@ -738,6 +757,22 @@ class Event
     }
 
     /**
+     * @return mixed
+     */
+    public function getSalesCompanyId()
+    {
+        return $this->salesCompanyId;
+    }
+
+    /**
+     * @param mixed $salesCompanyId
+     */
+    public function setSalesCompanyId($salesCompanyId)
+    {
+        $this->salesCompanyId = $salesCompanyId;
+    }
+
+    /**
      * Set creationDate.
      *
      * @param \DateTime $creationDate
@@ -1043,5 +1078,21 @@ class Event
     public function setMyLikeId($myLikeId)
     {
         $this->myLikeId = $myLikeId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSalesCompany()
+    {
+        return $this->salesCompany;
+    }
+
+    /**
+     * @param array $salesCompany
+     */
+    public function setSalesCompany($salesCompany)
+    {
+        $this->salesCompany = $salesCompany;
     }
 }

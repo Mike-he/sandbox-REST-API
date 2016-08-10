@@ -159,4 +159,12 @@ class SalesRestController extends SandboxRestController
 
         return $admin;
     }
+
+    /**
+     * @return mixed
+     */
+    protected function getSalesCompanyId()
+    {
+        return $this->getUser()->getMyAdmin()->getSalesCompany()->getId();
+    }
 }

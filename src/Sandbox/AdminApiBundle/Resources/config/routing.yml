@@ -231,3 +231,9 @@ sandbox_admin_api_bulletins:
     resource: "@SandboxAdminApiBundle/Controller/Bulletin/AdminBulletinPostController.php"
     type:     annotation
     prefix:   /
+
+# Logs /admin/logs
+sandbox_admin_api_logs:
+    resource: "@SandboxAdminApiBundle/Controller/Log/AdminLogController.php"
+    type:     annotation
+    prefix:   /

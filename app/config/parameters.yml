@@ -42,6 +42,7 @@ parameters:
     openfire_plugin_bstios: /plugins/bstios
     openfire_plugin_bstios_chatconfig: /chatconfig
     openfire_plugin_bstios_apns: /apns
+    openfire_plugin_file_server: /plugins/fileServer/fileservice
     sms_api_url: http://yunpian.com/v1/sms/send.json
     sms_api_key: 21c29536f85636a862306aa6f8ffdf74
     email_from_address: notification@sandbox3.cn
@@ -99,3 +100,4 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
+    rest_api_local_url: localhost.api.rest

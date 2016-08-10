@@ -164,14 +164,24 @@ class AdminAdminsController extends ShopRestController
         $typeKey = $paramFetcher->get('type');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
+
+        $filters = array(
+            'companyId' => $companyId,
+        );
+
+        if (!is_null($typeKey)) {
+            $type = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\ShopAdminType')
+                ->findOneBy(array(
+                    'key' => $typeKey,
+                ));
+
+            $filters['typeId'] = $type->getId();
+        }
 
         // get all admins id and username
-        $type = $this->getRepo('Shop\ShopAdminType')->findOneByKey($typeKey);
-        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
-        $query = $this->getRepo('Shop\ShopAdmin')->findBy(array(
-            'typeId' => $type->getId(),
-            'companyId' => $companyId,
-        ));
+        $query = $this->getRepo('Shop\ShopAdmin')->findBy($filters);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(

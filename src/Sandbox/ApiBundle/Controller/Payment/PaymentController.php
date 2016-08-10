@@ -18,6 +18,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Pingpp\Pingpp;
 use Pingpp\Charge;
+use Pingpp\Customer;
 use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -110,6 +111,252 @@ class PaymentController extends DoorController
     const ORDER_REFUND = 'refund';
 
     /**
+     * @param $customerId
+     * @param $cardId
+     *
+     * @return mixed
+     */
+    protected function getSingleCustomerCard(
+        $customerId,
+        $cardId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId.'/sources/'.$cardId);
+
+        $response = $this->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: Bearer '.$key)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     *
+     * @return mixed
+     */
+    protected function getCustomerCards(
+        $customerId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId.'/sources');
+
+        $response = $this->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: Bearer '.$key)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     * @param $cardId
+     *
+     * @return mixed
+     */
+    protected function deleteCustomerCard(
+        $customerId,
+        $cardId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId.'/sources/'.$cardId);
+
+        $response = $this->callAPI(
+            $ch,
+            'DELETE',
+            array('Authorization: Bearer '.$key)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     * @param $token
+     * @param $smsId
+     * @param $smsCode
+     *
+     * @return mixed
+     */
+    protected function createCustomerCard(
+        $customerId,
+        $token,
+        $smsId,
+        $smsCode
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $data = array(
+            'source' => $token,
+            'sms_code' => [
+                'code' => $smsCode,
+                'id' => $smsId,
+            ],
+        );
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId.'/sources');
+
+        $response = $this->callAPI(
+            $ch,
+            'POST',
+            array('Authorization: Bearer '.$key),
+            json_encode($data)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     * @param $cardId
+     *
+     * @return mixed
+     */
+    protected function putCustomer(
+        $customerId,
+        $cardId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $data = array(
+            'default_source' => $cardId,
+        );
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId);
+
+        $response = $this->callAPI(
+            $ch,
+            'PUT',
+            array('Authorization: Bearer '.$key),
+            json_encode($data)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     *
+     * @return mixed
+     */
+    protected function deleteCustomer(
+        $customerId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER.'/'.$customerId);
+
+        $response = $this->callAPI(
+            $ch,
+            'DELETE',
+            array('Authorization: Bearer '.$key)
+        );
+
+        return $response;
+    }
+
+    /**
+     * @param $customerId
+     *
+     * @return Customer
+     */
+    protected function retrieveCustomer(
+        $customerId
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+
+        Pingpp::setApiKey($key);
+        try {
+            $customer = Customer::retrieve($customerId);
+
+            return $customer;
+        } catch (Base $e) {
+            header('Status: '.$e->getHttpStatus());
+            echo $e->getHttpBody();
+        }
+    }
+
+    /**
+     * @param $token
+     * @param $smsId
+     * @param $smsCode
+     *
+     * @return Customer
+     */
+    protected function createCustomer(
+        $token,
+        $smsId,
+        $smsCode
+    ) {
+        $global = $this->get('twig')->getGlobals();
+        $key = $global['pingpp_key'];
+        $appId = $global['pingpp_app_id'];
+
+        Pingpp::setApiKey($key);
+        try {
+            $customer = Customer::create(
+                [
+                    'app' => $appId,
+                    'source' => $token,
+                    'sms_code' => [
+                        'code' => $smsCode,
+                        'id' => $smsId,
+                    ],
+                ]
+            );
+
+            return $customer;
+        } catch (Base $e) {
+            header('Status: '.$e->getHttpStatus());
+            echo $e->getHttpBody();
+        }
+    }
+
+//    protected function createCustomer(
+//        $token,
+//        $smsId,
+//        $smsCode
+//    ) {
+//        $global = $this->get('twig')->getGlobals();
+//        $key = $global['pingpp_key'];
+//        $appId = $global['pingpp_app_id'];
+//
+//        $data = array(
+//            'app' => $appId,
+//            'source' => $token,
+//            'sms_code' => [
+//                'code' => $smsCode,
+//                'id' => $smsId
+//            ]
+//        );
+//
+//        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER);
+//
+//        $response = $this->callAPI(
+//            $ch,
+//            'POST',
+//            array('Authorization: Bearer '.$key),
+//            json_encode($data)
+//        );
+//
+//        return $response;
+//    }
+
+    /**
      * @Post("/payment/token")
      *
      * @param Request $request
@@ -175,11 +422,8 @@ class PaymentController extends DoorController
 
                     break;
                 default:
-                    $order = null;
-                    $subject = null;
-                    $body = null;
-                    $price = 0;
-                    break;
+
+                    return new View();
             }
 
             if (ProductOrder::STATUS_UNPAID == $order->getStatus()) {
@@ -575,12 +819,37 @@ class PaymentController extends DoorController
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
                 'orderNumber' => $orderNumber,
-                'status' => ProductOrder::STATUS_UNPAID,
             ]
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $order->setStatus(self::STATUS_PAID);
+        $status = $order->getStatus();
+
+        if ($status != ProductOrder::STATUS_CANCELLED &&
+            $status != ProductOrder::STATUS_UNPAID
+        ) {
+            throw new NotFoundHttpException();
+        }
+
+        if ($status == ProductOrder::STATUS_CANCELLED) {
+            // check if order conflict
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->checkProductForClient(
+                    $order->getProductId(),
+                    $order->getStartDate(),
+                    $order->getEndDate()
+                );
+
+            if (!empty($orders)) {
+                $order->setNeedToRefund(true);
+            } else {
+                $order->setStatus(self::STATUS_PAID);
+            }
+        } else {
+            $order->setStatus(self::STATUS_PAID);
+        }
+
         $order->setPaymentDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
 
@@ -596,7 +865,7 @@ class PaymentController extends DoorController
         //send message
         $type = $order->getProduct()->getRoom()->getType();
 
-        if (Room::TYPE_OFFICE == $type  && is_null($order->getType())) {
+        if (Room::TYPE_OFFICE == $type && is_null($order->getType())) {
             $this->sendXmppProductOrderNotification(
                 null,
                 null,
@@ -608,7 +877,7 @@ class PaymentController extends DoorController
         }
 
         // set door access
-        if (!$order->isRejected()) {
+        if (!$order->isRejected() && $status == ProductOrder::STATUS_PAID) {
             $this->setDoorAccessForSingleOrder($order);
         }
 
@@ -625,21 +894,84 @@ class PaymentController extends DoorController
         $orderNumber,
         $channel
     ) {
-        $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
-            [
-                'orderNumber' => $orderNumber,
-                'status' => ShopOrder::STATUS_UNPAID,
-            ]
-        );
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->findOneBy(
+                [
+                    'orderNumber' => $orderNumber,
+                ]
+            );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
+        $status = $order->getStatus();
+
+        if ($status != ShopOrder::STATUS_CANCELLED &&
+            $status != ShopOrder::STATUS_UNPAID
+        ) {
+            throw new NotFoundHttpException();
+        }
+
+        $em = $this->getDoctrine()->getManager();
         $now = new \DateTime();
+
+        if ($status == ProductOrder::STATUS_CANCELLED) {
+            // check if shop still open
+            $shopId = $order->getShopId();
+
+            $shop = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\Shop')
+                ->findOneBy(
+                    [
+                        'id' => $shopId,
+                        'isDeleted' => false,
+                        'active' => true,
+                        'online' => true,
+                        'close' => false,
+                    ]
+                );
+            $this->throwNotFoundIfNull($shop, self::NOT_FOUND_MESSAGE);
+
+            $orderProducts = $order->getShopOrderProducts();
+
+            foreach ($orderProducts as $orderProduct) {
+                $orderProductSpecs = $orderProduct->getShopOrderProductSpecs();
+
+                foreach ($orderProductSpecs as $orderProductSpec) {
+                    $specInfo = $orderProductSpec->getshopProductSpecInfo();
+                    $specInfo = json_decode($specInfo, true);
+
+                    if ($specInfo['spec']['has_inventory']) {
+                        $orderProductSpecItems = $orderProductSpec->getShopOrderProductSpecItems();
+
+                        foreach ($orderProductSpecItems as $orderProductSpecItem) {
+                            $amount = $orderProductSpecItem->getAmount();
+                            $productSpecItem = $orderProductSpecItem->getItem();
+                            $inventory = $productSpecItem->getInventory();
+
+                            if ($amount > $inventory) {
+                                $order->setRefundAmount($order->getPrice());
+                                $order->setPayChannel($channel);
+                                $order->setPaymentDate($now);
+                                $order->setModificationDate($now);
+                                $order->setStatus(ShopOrder::STATUS_TO_BE_REFUNDED);
+
+                                $em->flush();
+
+                                return $order;
+                            }
+
+                            $productSpecItem->setInventory($inventory - $amount);
+                        }
+                    }
+                }
+            }
+        }
+
         $order->setStatus(ShopOrder::STATUS_PAID);
         $order->setPayChannel($channel);
         $order->setPaymentDate($now);
         $order->setModificationDate($now);
 
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return $order;

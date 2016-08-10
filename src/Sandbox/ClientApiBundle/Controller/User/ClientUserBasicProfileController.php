@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Rs\Json\Patch;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for user`s basic profile.
@@ -114,6 +115,94 @@ class ClientUserBasicProfileController extends UserProfileController
             $request,
             $myUser,
             $profile
+        );
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/avatar")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function sendAvatarAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $auth = $request->headers->get(self::HTTP_HEADER_AUTH);
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('avatar_url', $data)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $payload = json_encode(array(
+            'avatar_url' => $data['avatar_url'],
+        ));
+
+        // upload user avatar
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $apiUrl = $globals['rest_api_local_url'].'/client/user/profile/async/avatar';
+        $ch = curl_init($apiUrl);
+
+        $this->asyncCallAPI(
+            $ch,
+            'POST',
+            array(self::HTTP_HEADER_AUTH.':'.$auth),
+            $payload
+        );
+
+        return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/async/avatar")
+     * @Method({"POST"})
+     */
+    public function asyncSendAvatarAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $auth = $request->headers->get(self::HTTP_HEADER_AUTH);
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('avatar_url', $data)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $userId = $this->getUserId();
+
+        $path = $data['avatar_url'];
+        $data = file_get_contents($path);
+        $base64 = base64_encode($data);
+
+        $payload = json_encode(array(
+            'avatar_b64' => $base64,
+        ));
+
+        // upload user avatar
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $apiUrl = $globals['openfire_innet_url'].
+            $globals['openfire_plugin_file_server'].
+            '?target=person&type=base64&id='.$userId;
+        $ch = curl_init($apiUrl);
+
+        $this->callAPI(
+            $ch,
+            'POST',
+            array(self::HTTP_HEADER_AUTH.':'.$auth),
+            $payload
         );
     }
 

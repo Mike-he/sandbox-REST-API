@@ -6,8 +6,11 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Form\Log\LogType;
 use Sandbox\ApiBundle\Traits\CurlUtil;
+use Sandbox\ApiBundle\Traits\LogsTrait;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
@@ -30,6 +33,7 @@ class SandboxRestController extends FOSRestController
 {
     use DoorAccessTrait;
     use CurlUtil;
+    use LogsTrait;
 
     // TODO move constants to constant folder
 
@@ -1614,5 +1618,49 @@ class SandboxRestController extends FOSRestController
         $auth->setPassword($adminArray[1]);
 
         return $auth;
+    }
+
+    /**
+     * @param array $logParams
+     *
+     * Example:
+     * $logParams = array(
+     *      'platform' => $platform,
+     *      'adminUsername' => $adminUsername,
+     *      'logModule' => $module,
+     *      'logAction' => $action,
+     *      'logObjectKey' => $objectKey,
+     *      'logObjectId' => $objectId,
+     *      'salesCompanyId' => $salesCompanyId,
+     * )
+     *
+     * @return bool
+     */
+    protected function generateAdminLogs(
+        $logParams
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        // clear doctrine cache, then get object
+        $em->clear();
+
+        // create log object
+        $log = new Log();
+
+        $form = $this->createForm(new LogType(), $log);
+        $form->submit($logParams);
+
+        if (!$form->isValid()) {
+            return false;
+        }
+
+        if ($this->handleLog($log)) {
+            $em->persist($log);
+            $em->flush();
+
+            return true;
+        }
+
+        return false;
     }
 }

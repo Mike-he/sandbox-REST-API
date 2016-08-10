@@ -356,6 +356,16 @@ class AdminShopMenuController extends ShopMenuController
             }
 
             $menu->setInvisible(true);
+
+            $products = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\ShopProduct')
+                ->findByMenu($menu);
+
+            foreach ($products as $product) {
+                $product->setInvisible(true);
+                $product->setOnline(false);
+                $product->setModificationDate(new \DateTime());
+            }
         }
     }
 

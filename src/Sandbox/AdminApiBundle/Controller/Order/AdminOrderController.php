@@ -542,7 +542,7 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="refunded",
+     *    requirements="refunded|needToRefund",
      *    strict=true,
      *    description="refund status filter for order "
      * )
@@ -591,15 +591,38 @@ class AdminOrderController extends OrderController
         $orderEndPoint = $paramFetcher->get('orderEndPoint');
         $refundStatus = $paramFetcher->get('refundStatus');
 
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         //search by name and number
         $search = $paramFetcher->get('query');
 
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
-        $query = $this->getDoctrine()
+        $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getOrdersForAdmin(
+                $channel,
+                $type,
+                $city,
+                $building,
+                $userId,
+                $startDate,
+                $endDate,
+                $payStart,
+                $payEnd,
+                $search,
+                $orderStartPoint,
+                $orderEndPoint,
+                $refundStatus,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countOrdersForAdmin(
                 $channel,
                 $type,
                 $city,
@@ -615,21 +638,18 @@ class AdminOrderController extends OrderController
                 $refundStatus
             );
 
-        $orders = $this->get('serializer')->serialize(
-            $query,
-            'json',
-            SerializationContext::create()->setGroups(['admin_detail'])
-        );
-        $orders = json_decode($orders, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $orders,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_detail']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
@@ -840,7 +860,7 @@ class AdminOrderController extends OrderController
             array(
                 AdminPermission::KEY_PLATFORM_ORDER,
                 AdminPermission::KEY_PLATFORM_USER,
-                AdminPermission::KEY_PLATFORM_FINANCE,
+                AdminPermission::KEY_PLATFORM_INVOICE,
                 AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
                 AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
                 AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,

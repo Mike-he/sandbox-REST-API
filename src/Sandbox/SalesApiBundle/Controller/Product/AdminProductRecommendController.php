@@ -6,6 +6,7 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 use Sandbox\AdminApiBundle\Form\Product\ProductRecommendPositionType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
@@ -185,6 +186,31 @@ class AdminProductRecommendController extends AdminProductController
         // enable recommend
         $this->setProductRecommend($productIds, true);
 
+        foreach ($productIds as $productId) {
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->findOneBy(
+                    [
+                        'id' => $productId,
+                        'recommend' => true,
+                    ]
+                );
+
+            if (is_null($product)) {
+                continue;
+            }
+
+            $this->generateAdminLogs(array(
+                'platform' => Log::PLATFORM_SALES,
+                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                'logModule' => Log::MODULE_PRODUCT,
+                'logAction' => Log::ACTION_RECOMMEND,
+                'logObjectKey' => Log::OBJECT_PRODUCT,
+                'logObjectId' => $product->getId(),
+                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+            ));
+        }
+
         return new View();
     }
 
@@ -229,6 +255,31 @@ class AdminProductRecommendController extends AdminProductController
 
         // disable recommend
         $this->setProductRecommend($productIds, false);
+
+        foreach ($productIds as $productId) {
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->findOneBy(
+                    [
+                        'id' => $productId,
+                        'recommend' => false,
+                    ]
+                );
+
+            if (is_null($product)) {
+                continue;
+            }
+
+            $this->generateAdminLogs(array(
+                'platform' => Log::PLATFORM_SALES,
+                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                'logModule' => Log::MODULE_PRODUCT,
+                'logAction' => Log::ACTION_REMOVE_RECOMMEND,
+                'logObjectKey' => Log::OBJECT_PRODUCT,
+                'logObjectId' => $product->getId(),
+                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+            ));
+        }
 
         return new View();
     }

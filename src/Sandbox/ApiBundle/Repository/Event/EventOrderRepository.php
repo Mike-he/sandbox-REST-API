@@ -111,8 +111,80 @@ class EventOrderRepository extends EntityRepository
 
         // searching orders
         if (!is_null($search)) {
-            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId');
-            $query->andWhere('(o.orderNumber LIKE :search OR up.name LIKE :search)');
+            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = eo.userId');
+            $query->andWhere('(eo.orderNumber LIKE :search OR up.name LIKE :search)');
+            $parameters['search'] = "%$search%";
+        }
+
+        // filter by city
+        if (!is_null($city)) {
+            $query->andWhere('e.city = :city');
+            $query->setParameter('city', $city);
+        }
+
+        // filter by start date
+        if (!is_null($startDate)) {
+            $startDate = new \DateTime($startDate);
+
+            if (self::FLAG_EVENT == $flag) {
+                $query->andWhere('e.eventEndDate > :startDate');
+            } elseif (self::FLAG_EVENT_REGISTRATION == $flag) {
+                $query->andWhere('e.registrationEndDate > :startDate');
+            }
+            $query->setParameter('startDate', $startDate);
+        }
+
+        // filter by end date
+        if (!is_null($endDate)) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            if (self::FLAG_EVENT == $flag) {
+                $query->andWhere('e.eventStartDate <= :endDate');
+            } elseif (self::FLAG_EVENT_REGISTRATION == $flag) {
+                $query->andWhere('e.registrationStartDate <= :endDate');
+            }
+            $query->setParameter('endDate', $endDate);
+        }
+
+        // order by
+        $query->orderBy('eo.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /*********************************** sales api *********************************/
+
+    /**
+     * @param $city
+     * @param $flag
+     * @param $startDate
+     * @param $endDate
+     * @param $search
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
+    public function getEventOrdersForSalesAdmin(
+        $city,
+        $flag,
+        $startDate,
+        $endDate,
+        $search = null,
+        $salesCompanyId
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.status != :unpaid')
+            ->andWhere('eo.paymentDate IS NOT NULL')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+        // searching orders
+        if (!is_null($search)) {
+            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = eo.userId');
+            $query->andWhere('(eo.orderNumber LIKE :search OR up.name LIKE :search)');
             $parameters['search'] = "%$search%";
         }
 

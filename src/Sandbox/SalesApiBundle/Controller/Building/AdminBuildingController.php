@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
@@ -49,6 +50,8 @@ use Doctrine\ORM\EntityManager;
  */
 class AdminBuildingController extends LocationController
 {
+    const ROOM_FLOOR_BAK = '.bak';
+
     /**
      * @Route("/buildings/{id}/sync")
      * @Method({"POST"})
@@ -278,9 +281,22 @@ class AdminBuildingController extends LocationController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        return $this->handleAdminBuildingPost(
+        $response = $this->handleAdminBuildingPost(
             $building
         );
+
+        // add log
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_BUILDING,
+            'logAction' => Log::ACTION_CREATE,
+            'logObjectKey' => Log::OBJECT_BUILDING,
+            'logObjectId' => $building->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
+        return $response;
     }
 
     /**
@@ -330,9 +346,22 @@ class AdminBuildingController extends LocationController
         }
 
         // handle building form
-        return $this->handleAdminBuildingPut(
+        $response = $this->handleAdminBuildingPut(
             $building
         );
+
+        // add log
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_BUILDING,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_BUILDING,
+            'logObjectId' => $building->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
+        return $response;
     }
 
     /**
@@ -364,11 +393,13 @@ class AdminBuildingController extends LocationController
             $id
         );
 
-        $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
-            'id' => $id,
-            'isDeleted' => false,
-            'status' => RoomBuilding::STATUS_ACCEPT,
-        ));
+        $building = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->findOneBy(array(
+                'id' => $id,
+                'isDeleted' => false,
+                'status' => RoomBuilding::STATUS_ACCEPT,
+            ));
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         $statusOld = $building->getStatus();
@@ -388,6 +419,23 @@ class AdminBuildingController extends LocationController
             $visibleOld,
             $building
         );
+
+        // add log
+        if ($visibleOld && !$building->isVisible()) {
+            $action = Log::ACTION_OFF_SALE;
+        } else {
+            $action = Log::ACTION_ON_SALE;
+        }
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_BUILDING,
+            'logAction' => $action,
+            'logObjectKey' => Log::OBJECT_BUILDING,
+            'logObjectId' => $building->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
 
         return new View();
     }
@@ -541,6 +589,17 @@ class AdminBuildingController extends LocationController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
+        // add log
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_BUILDING,
+            'logAction' => Log::ACTION_DELETE,
+            'logObjectKey' => Log::OBJECT_BUILDING,
+            'logObjectId' => $building->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
         return new View();
     }
 
@@ -673,20 +732,6 @@ class AdminBuildingController extends LocationController
             $em
         );
 
-        // modify floors
-        $this->modifyFloors(
-            $building,
-            $floors,
-            $em
-        );
-
-        // add floor number
-        $this->addFloors(
-            $building,
-            $floors,
-            $em
-        );
-
         if (!is_null($phones) && !empty($phones)) {
             // add admin phones
             $this->addPhones(
@@ -723,6 +768,20 @@ class AdminBuildingController extends LocationController
         $this->modifyBuildingCompany(
             $building,
             $buildingCompany,
+            $em
+        );
+
+        // modify floors
+        $this->modifyFloors(
+            $building,
+            $floors,
+            $em
+        );
+
+        // add floor number
+        $this->addFloors(
+            $building,
+            $floors,
             $em
         );
 
@@ -812,12 +871,23 @@ class AdminBuildingController extends LocationController
             return;
         }
 
+        //modify to prevent duplicate
+        foreach ($floors['modify'] as $floor) {
+            $roomFloor = $this->getRepo('Room\RoomFloor')->find($floor['id']);
+            $roomFloor->setFloorNumber($roomFloor->getFloorNumber().self::ROOM_FLOOR_BAK);
+
+            $em->persist($roomFloor);
+        }
+        $em->flush();
+
+        //modify floors
         foreach ($floors['modify'] as $floor) {
             $roomFloor = $this->getRepo('Room\RoomFloor')->find($floor['id']);
             $roomFloor->setFloorNumber($floor['floor_number']);
 
             $em->persist($roomFloor);
         }
+        $em->flush();
     }
 
     /**
@@ -915,6 +985,9 @@ class AdminBuildingController extends LocationController
         }
 
         foreach ($phones['add'] as $phone) {
+            if (!is_numeric($phone['phone_number'])) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
             $adminPhones = new RoomBuildingPhones();
             $adminPhones->setBuilding($building);
             $adminPhones->setPhone($phone['phone_number']);
@@ -937,6 +1010,10 @@ class AdminBuildingController extends LocationController
     ) {
         if (empty($buildingCompany)) {
             return;
+        }
+
+        if (!empty($buildingCompany['phone']) && !is_numeric($buildingCompany['phone'])) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $company = new RoomBuildingCompany();
@@ -966,6 +1043,10 @@ class AdminBuildingController extends LocationController
     ) {
         if (empty($buildingCompany)) {
             return;
+        }
+
+        if (!empty($buildingCompany['phone']) && !is_numeric($buildingCompany['phone'])) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $company = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($building);
@@ -1021,6 +1102,10 @@ class AdminBuildingController extends LocationController
         }
 
         foreach ($phones['modify'] as $phone) {
+            if (!is_numeric($phone['phone_number'])) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
             $adminPhone = $this->getRepo('Room\RoomBuildingPhones')->find($phone['id']);
             if (!is_null($adminPhone)) {
                 $adminPhone->setPhone($phone['phone_number']);

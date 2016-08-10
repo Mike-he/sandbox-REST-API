@@ -118,8 +118,7 @@ trait ShopNotification
         $data = $this->getNotificationJsonData(
             $receiversArray,
             $contentArray,
-            $messageArray,
-            $apns
+            $messageArray
         );
 
         return json_encode(array($data));

@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminExcludePermission;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminPostType;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesAdminPutType;
@@ -24,6 +25,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Doctrine\ORM\EntityManager;
 
 /**
  * SalesAdmin controller.
@@ -259,11 +261,34 @@ class AdminSalesAdminsController extends SandboxRestController
             AdminPermissionMap::OP_LEVEL_VIEW
         );
 
-        // get all admins
-        $admins = $this->getRepo('SalesAdmin\SalesAdmin')->findOneBy(array('id' => $id));
+        // get admin
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(array('id' => $id));
+
+        if (is_null($admin)) {
+            return new View();
+        }
+
+        // select super admin permissions without auto ORM
+        if ($admin->getType()->getKey() == SalesAdminType::KEY_SUPER) {
+            $permissions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermission')
+                ->getSalesAdminPermissions($admin->getCompanyId());
+
+            $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
+            $adminArray = json_decode($adminJson, true);
+
+            $adminArray['permissions'] = array();
+            foreach ($permissions as $permission) {
+                array_push($adminArray['permissions'], array('permission' => $permission));
+            }
+
+            $admin = $adminArray;
+        }
 
         // set view
-        $view = new View($admins);
+        $view = new View($admin);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('admin'))
         );
@@ -306,8 +331,9 @@ class AdminSalesAdminsController extends SandboxRestController
         $form = $this->createForm(new SalesAdminPostType(), $admin);
         $form->handleRequest($request);
 
-        $type_key = $form['type_key']->getData();
+        $typeKey = $form['type_key']->getData();
         $company = $form['company']->getData();
+        $excludePermissions = $form['exclude_permissions']->getData();
 
         if (is_null($company)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -316,8 +342,9 @@ class AdminSalesAdminsController extends SandboxRestController
         if ($form->isValid()) {
             return $this->handleAdminCreate(
                 $admin,
-                $type_key,
-                $company
+                $typeKey,
+                $company,
+                $excludePermissions
             );
         }
 
@@ -380,6 +407,7 @@ class AdminSalesAdminsController extends SandboxRestController
 
         $type_key = $form['type_key']->getData();
         $company = $form['company']->getData();
+        $excludePermissions = $form['exclude_permissions']->getData();
 
         // handle admin banned
         $this->handleAdminBanned(
@@ -392,7 +420,8 @@ class AdminSalesAdminsController extends SandboxRestController
             $type_key,
             $company,
             $passwordOld,
-            $usernameOrigin
+            $usernameOrigin,
+            $excludePermissions
         );
     }
 
@@ -451,6 +480,7 @@ class AdminSalesAdminsController extends SandboxRestController
      * @param SalesCompany   $company
      * @param string         $passwordOrigin
      * @param string         $usernameOrigin
+     * @param array          $excludePermissions
      *
      * @return View
      */
@@ -459,7 +489,8 @@ class AdminSalesAdminsController extends SandboxRestController
         $typeKey,
         $company,
         $passwordOrigin,
-        $usernameOrigin
+        $usernameOrigin,
+        $excludePermissions
     ) {
         $em = $this->getDoctrine()->getManager();
         if (!is_null($typeKey)) {
@@ -478,6 +509,13 @@ class AdminSalesAdminsController extends SandboxRestController
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
         }
+
+        // set admin exclude permissions
+        $this->saveExcludePermissions(
+            $em,
+            $excludePermissions,
+            $admin->getSalesCompany()
+        );
 
         //save data
         $em->flush();
@@ -498,13 +536,15 @@ class AdminSalesAdminsController extends SandboxRestController
      * @param SalesAdmin     $admin
      * @param SalesAdminType $typeKey
      * @param SalesCompany   $company
+     * @param array          $excludePermissions
      *
      * @return View
      */
     private function handleAdminCreate(
         $admin,
         $typeKey,
-        $company
+        $company,
+        $excludePermissions
     ) {
         $type = $this->getRepo('SalesAdmin\SalesAdminType')->findOneByKey($typeKey);
         $admin->setType($type);
@@ -516,7 +556,11 @@ class AdminSalesAdminsController extends SandboxRestController
         }
 
         // save admin to db
-        $admin = $this->saveAdmin($admin, $company);
+        $admin = $this->saveAdmin(
+            $admin,
+            $company,
+            $excludePermissions
+        );
 
         // set view
         $view = new View();
@@ -530,12 +574,14 @@ class AdminSalesAdminsController extends SandboxRestController
     /**
      * @param SalesAdmin   $admin
      * @param SalesCompany $company
+     * @param array        $excludePermissions
      *
      * @return SalesAdmin
      */
     private function saveAdmin(
         $admin,
-        $company
+        $company,
+        $excludePermissions
     ) {
         $em = $this->getDoctrine()->getManager();
 
@@ -551,6 +597,13 @@ class AdminSalesAdminsController extends SandboxRestController
         }
 
         $admin->setSalesCompany($salesCompany);
+
+        // set admin exclude permissions
+        $this->saveExcludePermissions(
+            $em,
+            $excludePermissions,
+            $salesCompany
+        );
 
         // set dates
         $salesCompany->setCreationDate($now);
@@ -731,6 +784,58 @@ class AdminSalesAdminsController extends SandboxRestController
 
         foreach ($products as $product) {
             $product->setVisible(false);
+        }
+    }
+
+    /**
+     * @param EntityManager $em
+     * @param array         $excludePermissions
+     * @param SalesCompany  $salesCompany
+     */
+    private function saveExcludePermissions(
+        $em,
+        $excludePermissions,
+        $salesCompany
+    ) {
+        // check input data, "null" means do not set exclude permission
+        if (is_null($excludePermissions)) {
+            return;
+        }
+
+        // remove old data
+        $excludePermissionsRemove = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminExcludePermission')
+            ->findBy(array(
+                'salesCompany' => $salesCompany,
+            ));
+        if (!empty($excludePermissionsRemove)) {
+            foreach ($excludePermissionsRemove as $excludePermission) {
+                $em->remove($excludePermission);
+            }
+        }
+        $em->flush();
+
+        // check input data, "empty" means set all permissions include
+        if (empty($excludePermissions)) {
+            return;
+        }
+
+        foreach ($excludePermissions as $excludePermission) {
+            if (!array_key_exists('key', $excludePermission)) {
+                continue;
+            }
+
+            $permission = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminPermission')
+                ->findOneBy(array(
+                    'key' => $excludePermission['key'],
+                ));
+
+            $excludePermissionEm = new SalesAdminExcludePermission();
+            $excludePermissionEm->setSalesCompany($salesCompany);
+            $excludePermissionEm->setPermission($permission);
+
+            $em->persist($excludePermissionEm);
         }
     }
 }

@@ -256,17 +256,17 @@ class ClientBuddyController extends BuddyController
             }
 
             $em->flush();
+
+            $fromUser = $this->getRepo('User\User')->find($userId);
+            $recvUser = $this->getRepo('User\User')->find($buddy->getBuddyId());
+
+            // send buddy notification by xmpp
+            $this->sendXmppBuddyNotification(
+                $fromUser,
+                $recvUser,
+                'remove'
+            );
         }
-
-        $fromUser = $this->getRepo('User\User')->find($userId);
-        $recvUser = $this->getRepo('User\User')->find($buddy->getBuddyId());
-
-        // send buddy notification by xmpp
-        $this->sendXmppBuddyNotification(
-            $fromUser,
-            $recvUser,
-            'remove'
-        );
 
         return new View();
     }
