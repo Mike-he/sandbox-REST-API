@@ -115,7 +115,7 @@ twig:
         union_refund_fee_multiplier: "%union_refund_fee_multiplier%"
         wechat_refund_fee_multiplier: "%wechat_refund_fee_multiplier%"
         foreign_credit_refund_fee_multiplier: "%foreign_credit_refund_fee_multiplier%"
-        rest_api_url: "%rest_api_url%"
+        rest_api_local_url: "%rest_api_local_url%"
 
 # Assetic Configuration
 assetic:
