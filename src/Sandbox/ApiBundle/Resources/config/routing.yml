@@ -111,3 +111,9 @@ sandbox_api_logs:
     resource: "@SandboxApiBundle/Controller/Log/LogController.php"
     type:     annotation
     prefix:   /
+
+# FileServer
+sandbox_api_file_server:
+    resource: "@SandboxApiBundle/Controller/FileServer/FileServerController.php"
+    type:     annotation
+    prefix:   /

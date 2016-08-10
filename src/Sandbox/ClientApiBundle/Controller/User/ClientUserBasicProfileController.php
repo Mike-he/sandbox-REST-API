@@ -147,7 +147,7 @@ class ClientUserBasicProfileController extends UserProfileController
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
-        $apiUrl = $globals['rest_api_url'].'/client/user/profile/async/avatar';
+        $apiUrl = $globals['rest_api_local_url'].'/client/user/profile/async/avatar';
         $ch = curl_init($apiUrl);
 
         $this->asyncCallAPI(
