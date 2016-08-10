@@ -360,16 +360,6 @@ class AdminUsersController extends DoorController
     ) {
         $ids = $paramFetcher->get('id');
 
-        // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
-            array(
-                SalesAdminPermission::KEY_PLATFORM_INVOICE,
-            ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
-        );
-
         return $this->getUsersByIds($ids);
     }
 
