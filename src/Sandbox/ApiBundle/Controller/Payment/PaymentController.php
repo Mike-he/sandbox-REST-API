@@ -949,10 +949,11 @@ class PaymentController extends DoorController
                             $inventory = $productSpecItem->getInventory();
 
                             if ($amount > $inventory) {
-                                $order->setNeedToRefund(true);
+                                $order->setRefundAmount($order->getPrice());
                                 $order->setPayChannel($channel);
                                 $order->setPaymentDate($now);
                                 $order->setModificationDate($now);
+                                $order->setStatus(ShopOrder::STATUS_TO_BE_REFUNDED);
 
                                 $em->flush();
 
