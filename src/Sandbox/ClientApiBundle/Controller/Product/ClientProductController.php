@@ -93,6 +93,20 @@ class ClientProductController extends ProductController
      *    description="room type"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="include_company_id",
+     *    array=true,
+     *    nullable=true,
+     *    description="include_company_id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="exclude_company_id",
+     *    array=true,
+     *    nullable=true,
+     *    description="exclude_company_id"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -116,13 +130,18 @@ class ClientProductController extends ProductController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
         $type = $paramFetcher->get('type');
+        $includeIds = $paramFetcher->get('include_company_id');
+        $excludeIds = $paramFetcher->get('exclude_company_id');
 
         $startTime = null;
         $endTime = null;
         $productIds = [];
         $products = [];
 
-        if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+        if ($type == Room::TYPE_MEETING ||
+            $type == Room::TYPE_STUDIO ||
+            $type == Room::TYPE_SPACE
+        ) {
             $startHour = null;
             $endHour = null;
 
@@ -149,7 +168,9 @@ class ClientProductController extends ProductController
                     $endHour,
                     $limit,
                     $offset,
-                    $type
+                    $type,
+                    $includeIds,
+                    $excludeIds
             );
         } elseif ($type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
@@ -170,7 +191,9 @@ class ClientProductController extends ProductController
                     $endTime,
                     $limit,
                     $offset,
-                    $type
+                    $type,
+                    $includeIds,
+                    $excludeIds
             );
         } elseif ($type == Room::TYPE_OFFICE) {
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
@@ -190,7 +213,9 @@ class ClientProductController extends ProductController
                     $startTime,
                     $endTime,
                     $limit,
-                    $offset
+                    $offset,
+                    $includeIds,
+                    $excludeIds
             );
         }
 
