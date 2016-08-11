@@ -25,6 +25,8 @@ class ProductRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param $type
+     * @param $includeIds
+     * @param $excludeIds
      *
      * @return array
      */
@@ -39,7 +41,9 @@ class ProductRepository extends EntityRepository
         $endHour,
         $limit,
         $offset,
-        $type
+        $type,
+        $includeIds,
+        $excludeIds
     ) {
         $now = new \DateTime();
 
@@ -47,12 +51,23 @@ class ProductRepository extends EntityRepository
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'm', 'WITH', 'p.roomId = m.room')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
             ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('type', $type)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->andWhere('b.companyId IN (:includeIds)')
+                ->setParameter('includeIds', $includeIds);
+        }
+
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $query->andWhere('b.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
 
         if (!is_null($userId)) {
             $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
@@ -157,6 +172,8 @@ class ProductRepository extends EntityRepository
      * @param $endDate
      * @param $limit
      * @param $offset
+     * @param $includeIds
+     * @param $excludeIds
      *
      * @return array
      */
@@ -168,19 +185,32 @@ class ProductRepository extends EntityRepository
         $startDate,
         $endDate,
         $limit,
-        $offset
+        $offset,
+        $includeIds,
+        $excludeIds
     ) {
         $now = new \DateTime();
 
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
             ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('type', Room::TYPE_OFFICE)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->andWhere('b.companyId IN (:includeIds)')
+                ->setParameter('includeIds', $includeIds);
+        }
+
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $query->andWhere('b.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
 
         if (!is_null($userId)) {
             $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
@@ -244,6 +274,8 @@ class ProductRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param $type
+     * @param $includeIds
+     * @param $excludeIds
      *
      * @return array
      */
@@ -256,19 +288,32 @@ class ProductRepository extends EntityRepository
         $endDate,
         $limit,
         $offset,
-        $type
+        $type,
+        $includeIds,
+        $excludeIds
     ) {
         $now = new \DateTime();
 
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
             ->where('r.type = :type')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('type', $type)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->andWhere('b.companyId IN (:includeIds)')
+                ->setParameter('includeIds', $includeIds);
+        }
+
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $query->andWhere('b.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
 
         if (!is_null($userId)) {
             $query->andWhere('p.visibleUserId = :userId OR p.private = :private')

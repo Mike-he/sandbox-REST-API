@@ -25,6 +25,7 @@ class Room
     const TYPE_OFFICE = 'office';
     const TYPE_MEETING = 'meeting';
     const TYPE_STUDIO = 'studio';
+    const TYPE_SPACE = 'space';
 
     /**
      * @var int
