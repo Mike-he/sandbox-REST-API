@@ -54,6 +54,13 @@ class RoomBuildingPutType extends AbstractType
             )
             ->add('building_attachments')
             ->add('building_company')
+            ->add(
+                'order_remind_phones',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
         ;
     }
 

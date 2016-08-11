@@ -249,10 +249,6 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @Assert\Email(
-     *     checkMX = true
-     * )
-     *
      * @ORM\Column(name="email", type="string", nullable=true)
      *
      * @Serializer\Groups({"main", "admin_building"})
@@ -346,6 +342,15 @@ class RoomBuilding implements JsonSerializable
      * @var int
      */
     private $orderCounts;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="order_remind_phones", type="string", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $orderRemindPhones;
 
     /**
      * Get id.
@@ -953,5 +958,28 @@ class RoomBuilding implements JsonSerializable
             'id' => $this->id,
             'name' => $this->name,
         );
+    }
+
+    /**
+     * Set orderRemindPhones
+     *
+     * @param string $orderRemindPhones
+     * @return RoomBuilding
+     */
+    public function setOrderRemindPhones($orderRemindPhones)
+    {
+        $this->orderRemindPhones = $orderRemindPhones;
+
+        return $this;
+    }
+
+    /**
+     * Get orderRemindPhones
+     *
+     * @return string 
+     */
+    public function getOrderRemindPhones()
+    {
+        return $this->orderRemindPhones;
     }
 }
