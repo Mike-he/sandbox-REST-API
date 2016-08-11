@@ -286,10 +286,12 @@ class ClientOrderController extends OrderController
     ) {
         $userId = $this->getUserId();
 
-        $order = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersForInvoiced(
-            $id,
-            $userId
-        );
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy(array(
+                'id' => $id,
+                'userId' => $userId,
+            ));
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $order->setInvoiced(false);
