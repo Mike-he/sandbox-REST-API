@@ -273,6 +273,34 @@ class ClientOrderController extends OrderController
     }
 
     /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Post("/orders/{id}/sales/invoice/cancel")
+     *
+     * @return View
+     */
+    public function postUserOrderInvoicedCancelAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersForInvoiced(
+            $id,
+            $userId
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $order->setInvoiced(false);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * Get user's current available rooms.
      *
      * @Get("/orders/current")
