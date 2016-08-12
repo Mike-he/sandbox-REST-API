@@ -345,7 +345,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="orderRemindPhones", type="string", nullable=true)
+     * @ORM\Column(name="orderRemindPhones", type="string", length=2048, nullable=true)
      *
      * @Serializer\Groups({"main", "admin_building"})
      */

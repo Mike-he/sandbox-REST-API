@@ -1393,10 +1393,6 @@ class PaymentController extends DoorController
         $order
     ) {
         try {
-            //            $email = $order->getProduct()->getRoom()->getBuilding()->getEmail();
-//            if (is_null($email)) {
-//                return;
-//            }
             $building = $order->getProduct()->getRoom()->getBuilding();
 
             $payChannel = $this->get('translator')->trans('product_order.channel.'.$order->getPayChannel());
@@ -1455,7 +1451,7 @@ class PaymentController extends DoorController
                 $rent_time = $order->getStartDate()->format('Y/m/d H:i').' - '.$order->getEndDate()->format('Y/m/d H:i');
                 $payment = $order->getDiscountPrice();
 
-                $smsText = '【展想创合】您有一笔来自'.$username.'于'.$time_action.$txt.'的新订单:'.$orderNumber.'。订单商品为:'.$product.';租赁时间为:'.$rent_time.';付款金额为：￥'.$payment;
+                $smsText = '【展想创合】您有一笔来自'.$username.'于'.$time_action.$txt.'的新订单：'.$orderNumber.'。订单商品为：'.$product.'；租赁时间为：'.$rent_time.'；付款金额为：￥'.$payment;
 
                 $phones = explode(',', $building->getOrderRemindPhones());
                 foreach ($phones as $phone) {
