@@ -1,6 +1,6 @@
 CREATE TABLE `RoomTypes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` enum('office','meeting','flexible','fixed','studio', 'space') NOT NULL,
+  `name` VARCHAR(16) NOT NULL,
   PRIMARY KEY (`id`)
 );
 
