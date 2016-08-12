@@ -74,7 +74,7 @@ class SalesAdminRepository extends EntityRepository
         if (!is_null($search)) {
             $query->andWhere('
                     (a.name LIKE :search OR
-                    a.username LIKE :search )
+                    a.username LIKE :search)
                 ')
                 ->setParameter('search', '%'.$search.'%');
         }

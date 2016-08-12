@@ -158,7 +158,6 @@ class AdminAdminsController extends SalesRestController
      *
      * @return View
      *
-     *@return View
      * @throws \Exception
      */
     public function getSalesAdminsAction(
@@ -181,7 +180,7 @@ class AdminAdminsController extends SalesRestController
         $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
         $search = $paramFetcher->get('search');
 
-        $typeId = '';
+        $typeId = null;
         if (!is_null($typeKey)) {
             $type = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminType')
@@ -192,7 +191,7 @@ class AdminAdminsController extends SalesRestController
             $typeId = $type->getId();
         }
 
-        $query = $this->getRepo('SalesAdmin\SalesAdmin')->getSalesAdminList($companyId,$typeId,$search);
+        $query = $this->getRepo('SalesAdmin\SalesAdmin')->getSalesAdminList($companyId, $typeId, $search);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
