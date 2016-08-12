@@ -416,6 +416,40 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * @param $salesCompanyId
+     *
+     * @return \Doctrine\ORM\Query
+     */
+    public function getAdminNotInvoicedOrders(
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->orderBy('b.companyId', 'ASC')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0);
+
+        // filter by sales company
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('b.companyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * get order that need to set invoice.
      */
     public function getInvoiceOrdersForInvoiced(

@@ -191,7 +191,9 @@ class AdminAdminsController extends SalesRestController
             $typeId = $type->getId();
         }
 
-        $query = $this->getRepo('SalesAdmin\SalesAdmin')->getSalesAdminList($companyId, $typeId, $search);
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->getSalesAdminList($companyId, $typeId, $search);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(

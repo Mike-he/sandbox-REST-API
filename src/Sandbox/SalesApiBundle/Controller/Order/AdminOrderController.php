@@ -45,6 +45,70 @@ class AdminOrderController extends OrderController
     use ProductOrderNotification;
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     * @Route("/orders/sales/notinvoiced")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSalesInvoiceOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_INVOICE,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_VIEW
+        );
+
+        // get sales company id
+        $salesCompanyId = $this->getSalesCompanyId();
+
+        // filters
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $pageLimit = $paramFetcher->get('pageLimit');
+
+        $ordersQuery = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getAdminNotInvoicedOrders($salesCompanyId);
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $ordersQuery,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
      * set rejected.
      *
      * @Route("/orders/{id}/rejected")

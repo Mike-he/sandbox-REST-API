@@ -41,6 +41,65 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminOrderController extends OrderController
 {
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     * @Route("/orders/sales/notinvoiced")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSalesInvoiceOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_INVOICE,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
+
+        // filters
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $pageLimit = $paramFetcher->get('pageLimit');
+
+        $ordersQuery = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getAdminNotInvoicedOrders();
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $ordersQuery,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
      * patch order refund status.
      *
      * @param Request $request
