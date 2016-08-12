@@ -62,11 +62,13 @@ class SalesAdminRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('a');
 
-        $query->where('a.typeId = :type')
-            ->andWhere('a.companyId = :company')
-            ->setParameter('type', $typeId)
+        $query->where('a.companyId = :company')
             ->setParameter('company', $companyId);
 
+        if (!is_null($typeId)) {
+            $query->andWhere('a.typeId = :type')
+                ->setParameter('type', $typeId);
+        }
 
         // filter by search
         if (!is_null($search)) {
