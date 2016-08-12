@@ -1407,8 +1407,10 @@ class PaymentController extends DoorController
             $orderStatus = $order->getStatus();
             if ($orderStatus == ProductOrder::STATUS_PAID) {
                 $title = '新的订单';
+                $txt =  '已付款';
             } elseif ($orderStatus == ProductOrder::STATUS_CANCELLED) {
                 $title = '订单取消';
+                $txt =  '已取消';
             } else {
                 return;
             }
@@ -1444,10 +1446,20 @@ class PaymentController extends DoorController
 
             // send sms
             if(!is_null($building->getOrderRemindPhones())) {
-                $smsText = '【展想创合】您有一条'.$title;
+                $orderRoom = $order->getProduct()->getRoom();
+                $phoneInfo = $user->getPhone() ? $user->getPhone() : $user->getEmail();
+                $username = $user->getName().'('.$phoneInfo.')';
+                $time_action = $order->getCreationDate()->format('Y/m/d H:i');
+                $orderNumber = $order->getOrderNumber();
+                $product = $orderRoom->getCity()->getName().','.$orderRoom->getBuilding()->getName().','.$orderRoom->getNumber().','.$orderRoom->getName();
+                $rent_time = $order->getStartDate()->format('Y/m/d H:i').' - '.$order->getEndDate()->format('Y/m/d H:i');
+                $payment = $order->getDiscountPrice();
+
+                $smsText = '【展想创合】您有一笔来自'.$username.'于'.$time_action.$txt.'的新订单:'.$orderNumber.'。订单商品为:'.$product.';租赁时间为:'.$rent_time.';付款金额为：￥'.$payment;
+
                 $phones = explode(',',$building->getOrderRemindPhones());
                 foreach ($phones as $phone) {
-//                    $this->send_sms($phone, $smsText);
+                    $this->send_sms($phone, $smsText);
                 }
             }
 
