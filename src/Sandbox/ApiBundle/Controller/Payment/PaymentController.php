@@ -1422,8 +1422,8 @@ class PaymentController extends DoorController
             $user = $this->getRepo('User\UserProfile')->find($order->getUserId());
 
             // send email
-            $subject = '【展想创合】'.$title;
             if(!is_null($building->getEmail())) {
+                $subject = '【展想创合】'.$title;
                 $emails = explode(',',$building->getEmail());
                 foreach ($emails as $email) {
                     $this->sendEmail($subject, $email, $this->before('@', $email),
@@ -1444,17 +1444,15 @@ class PaymentController extends DoorController
 
             // send sms
             if(!is_null($building->getOrderRemindPhones())) {
+                $smsText = '【展想创合】您有一条'.$title;
                 $phones = explode(',',$building->getOrderRemindPhones());
                 foreach ($phones as $phone) {
-                    $smsText = '【展想创合】您有一条'.$title;
-
 //                    $this->send_sms($phone, $smsText);
                 }
             }
 
-
         } catch (\Exception $e) {
-            error_log('Send order email went wrong!');
+            error_log('Send order email and sms went wrong!');
         }
     }
 }
