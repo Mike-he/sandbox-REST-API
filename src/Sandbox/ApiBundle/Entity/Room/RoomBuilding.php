@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * RoomBuilding.
@@ -249,10 +248,6 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @Assert\Email(
-     *     checkMX = true
-     * )
-     *
      * @ORM\Column(name="email", type="string", nullable=true)
      *
      * @Serializer\Groups({"main", "admin_building"})
@@ -346,6 +341,15 @@ class RoomBuilding implements JsonSerializable
      * @var int
      */
     private $orderCounts;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="orderRemindPhones", type="string", length=2048, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $orderRemindPhones;
 
     /**
      * Get id.
@@ -953,5 +957,29 @@ class RoomBuilding implements JsonSerializable
             'id' => $this->id,
             'name' => $this->name,
         );
+    }
+
+    /**
+     * Set orderRemindPhones.
+     *
+     * @param string $orderRemindPhones
+     *
+     * @return RoomBuilding
+     */
+    public function setOrderRemindPhones($orderRemindPhones)
+    {
+        $this->orderRemindPhones = $orderRemindPhones;
+
+        return $this;
+    }
+
+    /**
+     * Get orderRemindPhones.
+     *
+     * @return string
+     */
+    public function getOrderRemindPhones()
+    {
+        return $this->orderRemindPhones;
     }
 }
