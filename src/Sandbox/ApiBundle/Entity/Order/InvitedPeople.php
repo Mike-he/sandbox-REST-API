@@ -41,7 +41,7 @@ class InvitedPeople
      *
      * @ORM\Column(name="userId", type="integer")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "room_usage"})
      */
     private $userId;
 

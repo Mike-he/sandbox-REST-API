@@ -279,27 +279,51 @@ class AdminRoomController extends SalesRestController
 
         $roomIds = $paramFetcher->get('room_id');
         $statusArray = [];
+
         if (!is_null($roomIds) && !empty($roomIds)) {
             foreach ($roomIds as $roomId) {
                 $room = $this->getRepo('Room\Room')->findOneById($roomId);
 
                 // check room valid and belong to my buildings
-                if (is_null($room) || !in_array($room->getBuildingId(), $myBuildingIds)) {
+                if (is_null($room) || !in_array($room->getBuildingId(), [50])) {
                     continue;
                 }
 
                 if (!$room->isDeleted()) {
-                    $usage = $this->getRepo('Room\Room')->getSalesRoomUsageStatus($roomId);
+                    $usages = $this->getRepo('Room\Room')->getSalesRoomUsageStatus($roomId);
+                    $user = [];
+                    $appointed = '';
+                    $invited = [];
 
-                    if (!is_null($usage) && !empty($usage)) {
+                    if (!is_null($usages) && !empty($usages)) {
                         $status = true;
+
+                        $userArray = $usages[0];
+                        $user = [
+                            'userId' => $userArray['userId'],
+                            'name' => $userArray['name'],
+                            'phone' => $userArray['phone'],
+                            'startDate' => $userArray['startDate'],
+                            'endDate' => $userArray['endDate'],
+                        ];
+
+                        $appointed = $userArray['appointed'];
                     } else {
                         $status = false;
                     }
+
+                    foreach ($usages as $usage) {
+                        $people = ['userId' => $usage['invited_people']];
+
+                        array_push($invited, $people);
+                    }
+
                     $status = [
                         'room_id' => $roomId,
                         'usage' => $status,
-                        'user' => $usage,
+                        'user' => $user,
+                        'appointed_user' => $appointed,
+                        'invited' => $invited,
                     ];
                     array_push($statusArray, $status);
                 }
@@ -1708,6 +1732,7 @@ class AdminRoomController extends SalesRestController
                     $endDate = $result->getEndDate();
                     $user = $result->getUser();
                     $appointed = $result->getAppointedUser();
+                    $invited = $result->getInvitedPeople();
                     $days = new \DatePeriod(
                         $startDate,
                         new \DateInterval('P1D'),
@@ -1719,7 +1744,7 @@ class AdminRoomController extends SalesRestController
                             'date' => $day->format('Y-m-d'),
                             'user' => $user,
                             'appointed_user' => $appointed,
-
+                            'invited_people' => $invited,
                         ];
 
                         array_push($resultArray, $dayArray);
