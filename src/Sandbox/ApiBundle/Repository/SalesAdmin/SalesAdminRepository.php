@@ -47,4 +47,38 @@ class SalesAdminRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $companyId
+     * @param $typeId
+     * @param $search
+     *
+     * @return \Doctrine\ORM\Query
+     */
+    public function getSalesAdminList(
+        $companyId,
+        $typeId,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('a');
+
+        $query->where('a.typeId = :type')
+            ->andWhere('a.companyId = :company')
+            ->setParameter('type', $typeId)
+            ->setParameter('company', $companyId);
+
+
+        // filter by search
+        if (!is_null($search)) {
+            $query->andWhere('
+                    (a.name LIKE :search OR
+                    a.username LIKE :search )
+                ')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $query->orderBy('a.username', 'ASC');
+
+        return $query->getQuery();
+    }
 }
