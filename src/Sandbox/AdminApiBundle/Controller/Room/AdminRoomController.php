@@ -457,7 +457,14 @@ class AdminRoomController extends RoomController
     public function getRoomTypes(
         Request $request
     ) {
-        $roomKeys = array(Room::TYPE_OFFICE, Room::TYPE_MEETING, Room::TYPE_FLEXIBLE, Room::TYPE_FIXED);
+        $roomKeys = array(
+            Room::TYPE_OFFICE,
+            Room::TYPE_MEETING,
+            Room::TYPE_FLEXIBLE,
+            Room::TYPE_FIXED,
+            Room::TYPE_STUDIO,
+            Room::TYPE_SPACE,
+        );
 
         // get rooms types
         $roomTypes = array();
@@ -921,8 +928,12 @@ class AdminRoomController extends RoomController
         $em->persist($room);
         $em->flush();
 
+        $type = $room->getType();
+
         // handle meeting rooms
-        if (!is_null($meeting) && $room->getType() == Room::TYPE_MEETING) {
+        if (!is_null($meeting) &&
+            ($type == Room::TYPE_MEETING || $type == Room::TYPE_SPACE || $type == Room::TYPE_STUDIO)
+        ) {
             $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneByRoom($room);
             // remove the old data
             if (!is_null($roomMeeting)) {
@@ -939,7 +950,7 @@ class AdminRoomController extends RoomController
         }
 
         // handle fixed rooms
-        if (!is_null($fixed) && $room->getType() == Room::TYPE_FIXED) {
+        if (!is_null($fixed) && $type == Room::TYPE_FIXED) {
             $roomsFixed = $this->getRepo('Room\RoomFixed')->findByRoom($room);
             array_map($this->removeFixedSeatNumbers($em), $roomsFixed);
             $this->addRoomTypeData(
@@ -1162,6 +1173,48 @@ class AdminRoomController extends RoomController
     ) {
         switch ($room->getType()) {
             case Room::TYPE_MEETING:
+                $format = 'H:i:s';
+
+                $start = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['start_hour']
+                );
+
+                $end = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['end_hour']
+                );
+
+                $roomMeeting = new RoomMeeting();
+                $roomMeeting->setRoom($room);
+                $roomMeeting->setStartHour($start);
+                $roomMeeting->setEndHour($end);
+
+                $em->persist($roomMeeting);
+                $em->flush();
+                break;
+            case Room::TYPE_SPACE:
+                $format = 'H:i:s';
+
+                $start = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['start_hour']
+                );
+
+                $end = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['end_hour']
+                );
+
+                $roomMeeting = new RoomMeeting();
+                $roomMeeting->setRoom($room);
+                $roomMeeting->setStartHour($start);
+                $roomMeeting->setEndHour($end);
+
+                $em->persist($roomMeeting);
+                $em->flush();
+                break;
+            case Room::TYPE_STUDIO:
                 $format = 'H:i:s';
 
                 $start = \DateTime::createFromFormat(

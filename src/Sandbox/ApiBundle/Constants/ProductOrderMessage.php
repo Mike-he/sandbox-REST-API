@@ -16,6 +16,9 @@ class ProductOrderMessage
     const STUDIO_START_MESSAGE = 'product_order.push_message.studio_start';
     const STUDIO_END_MESSAGE = 'product_order.push_message.studio_end';
 
+    const SPACE_START_MESSAGE = 'product_order.push_message.space_start';
+    const SPACE_END_MESSAGE = 'product_order.push_message.space_end';
+
     const OFFICE_START_MESSAGE = 'product_order.push_message.office_start';
     const OFFICE_END_MESSAGE = 'product_order.push_message.office_end';
     const OFFICE_REJECTED_MESSAGE = 'product_order.push_message.office_reject';

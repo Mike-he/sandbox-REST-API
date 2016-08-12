@@ -13,3 +13,4 @@ INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(3,'day');
 INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(4,'day');
 INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(4,'month');
 INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(5,'hour');
+INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(6,'hour');
