@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * RoomBuilding.
@@ -961,9 +960,10 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
-     * Set orderRemindPhones
+     * Set orderRemindPhones.
      *
      * @param string $orderRemindPhones
+     *
      * @return RoomBuilding
      */
     public function setOrderRemindPhones($orderRemindPhones)
@@ -974,9 +974,9 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
-     * Get orderRemindPhones
+     * Get orderRemindPhones.
      *
-     * @return string 
+     * @return string
      */
     public function getOrderRemindPhones()
     {
