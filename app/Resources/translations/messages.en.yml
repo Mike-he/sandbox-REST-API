@@ -31,6 +31,7 @@ room:
     flexible: Hot Desk
     fixed: Dedicate Desk
     studio: Recording Studio
+    space: Activity Space
   unit:
     hour: Hour
     day: Day
@@ -75,6 +76,8 @@ product_order:
     meeting_end: Your meeting room will end in 10 minutes
     studio_start: Your recording studio will start in 10 minutes
     studio_end: Your recording studio will end in 10 minutes
+    space_start: Your activity space will start in 10 minutes
+    space_end: Your activity space will end in 10 minutes
     flexible_start: Your hot desk will start tomorrow
     flexible_end: Your hot desk will end tomorrow
     fixed_start: Your dedicate desk will start tomorrow

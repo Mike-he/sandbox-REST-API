@@ -661,7 +661,9 @@ class ClientProductController extends ProductController
         $response = [];
         $type = $product->getRoom()->getType();
         $rentDate = $paramFetcher->get('rent_date');
-        if (($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) && !is_null($rentDate) && !empty($rentDate)) {
+        if (($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) &&
+            !is_null($rentDate) && !empty($rentDate)
+        ) {
             $startDate = new \DateTime($rentDate);
             $endDate = clone $startDate;
             $endDate->setTime(23, 59, 59);

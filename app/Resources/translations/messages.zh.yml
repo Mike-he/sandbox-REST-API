@@ -31,6 +31,7 @@ room:
     flexible: 共享办公桌
     fixed: 独享办公桌
     studio: 录音棚
+    space: 活动空间
   unit:
     hour: 小时
     day: 天
@@ -75,6 +76,8 @@ product_order:
     meeting_end: 您的会议室将在10分钟后到期
     studio_start: 您的录音棚将在10分钟后开始使用
     studio_end: 您的录音棚将在10分钟后到期
+    space_start: 您的活动空间将在10分钟后开始使用
+    space_end: 您的活动空间将在10分钟后到期
     flexible_start: 您的共享办公桌将在明天开始使用
     flexible_end: 您的共享办公桌将在明天到期
     fixed_start: 您的独享办公桌将在明天开始使用
