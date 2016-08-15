@@ -323,4 +323,24 @@ class UserViewRepository extends EntityRepository
 
         return (int) $queryResults->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $start
+     * @param $end
+     *
+     * @return int
+     */
+    public function countRegUsers(
+        $start,
+        $end
+    ) {
+        $queryResults = $this->createQueryBuilder('u')
+            ->select('COUNT(u)')
+            ->where('u.userRegistrationDate >= :start')
+            ->andWhere('u.userRegistrationDate <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        return (int) $queryResults->getQuery()->getSingleScalarResult();
+    }
 }
