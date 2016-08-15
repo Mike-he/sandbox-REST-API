@@ -773,4 +773,10 @@ class Product
     {
         $this->totalAppointmentCounts = $totalAppointmentCounts;
     }
+
+    public function __construct()
+    {
+        $date = new \DateTime('2099-12-30 23:59:59');
+        $this->setEndDate($date);
+    }
 }
