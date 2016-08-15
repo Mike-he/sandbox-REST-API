@@ -324,6 +324,9 @@ class UserViewRepository extends EntityRepository
         return (int) $queryResults->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @return int
+     */
     public function countTotalUsers()
     {
         $queryResults = $this->createQueryBuilder('u')
