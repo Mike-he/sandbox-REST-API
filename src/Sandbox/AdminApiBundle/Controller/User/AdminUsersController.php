@@ -796,11 +796,7 @@ class AdminUsersController extends DoorController
     public function getUsersTotalAction()
     {
         $repo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView');
-
-        $qb = $repo->createQueryBuilder('a');
-        $qb->select('COUNT(a)');
-
-        $count = $qb->getQuery()->getSingleScalarResult();
+        $count = $repo->countTotalUsers();
 
         return new View(array(
             'total' => $count,
@@ -813,21 +809,21 @@ class AdminUsersController extends DoorController
      * @param Request $request
      *
      * @Annotations\QueryParam(
-     *    name="start",
+     *    name="startDate",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    description="starttime"
+     *    description="startDate"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="end",
+     *    name="endDate",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    description="endtime"
+     *    description="endDate"
      * )
      *
      * @Route("/users/reg/number")
@@ -839,8 +835,8 @@ class AdminUsersController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $start = $paramFetcher->get('start');
-        $end = $paramFetcher->get('end');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
         $now = new \DateTime('now');
         $yest = new \DateTime('now');
         $yest = $yest->modify('-1 day');
@@ -850,8 +846,8 @@ class AdminUsersController extends DoorController
         $yesterday = $repo->countRegUsers($yest->format('Y-m-d 00:00:00'), $yest->format('Y-m-d 23:59:59'));
 
         $month = 0;
-        if ($start && $end) {
-            $month = $repo->countRegUsers($start.' 00:00:00', $end.' 23:59:59');
+        if ($startDate && $endDate) {
+            $month = $repo->countRegUsers($startDate.' 00:00:00', $endDate.' 23:59:59');
         }
 
         return new View(array(
