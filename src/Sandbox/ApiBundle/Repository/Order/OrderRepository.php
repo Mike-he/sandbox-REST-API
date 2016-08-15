@@ -416,11 +416,31 @@ class OrderRepository extends EntityRepository
     }
 
     /**
-     * @param $salesCompanyId
+     * @param $type
+     * @param $buildingId
+     * @param $orderStartDate
+     * @param $orderEndDate
+     * @param $payStartDate
+     * @param $payEndDate
+     * @param $rentStartDate
+     * @param $rentEndDate
+     * @param $invoiceStartDate
+     * @param $invoiceEndDate
+     * @param null $salesCompanyId
      *
-     * @return \Doctrine\ORM\Query
+     * @return array
      */
     public function getAdminNotInvoicedOrders(
+        $type,
+        $buildingId,
+        $orderStartDate,
+        $orderEndDate,
+        $payStartDate,
+        $payEndDate,
+        $rentStartDate,
+        $rentEndDate,
+        $invoiceStartDate,
+        $invoiceEndDate,
         $salesCompanyId = null
     ) {
         $query = $this->createQueryBuilder('o')
@@ -439,6 +459,66 @@ class OrderRepository extends EntityRepository
             ->setParameter('rejected', false)
             ->setParameter('salesInvoice', true)
             ->setParameter('price', 0);
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->andWhere('por.roomType = :type')
+                ->setParameter('type', $type);
+        }
+
+        // filter by building
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        // filter by order create start date
+        if (!is_null($orderStartDate)) {
+            $query->andWhere('o.creationDate > :orderStartDate')
+                ->setParameter('orderStartDate', $orderStartDate);
+        }
+
+        // filter by order create end date
+        if (!is_null($orderEndDate)) {
+            $query->andWhere('o.creationDate < :orderEndDate')
+                ->setParameter('orderEndDate', $orderEndDate);
+        }
+
+        // filter by pay start date
+        if (!is_null($payStartDate)) {
+            $query->andWhere('o.paymentDate > :payStartDate')
+                ->setParameter('payStartDate', $payStartDate);
+        }
+
+        // filter by pay end date
+        if (!is_null($payEndDate)) {
+            $query->andWhere('o.paymentDate < :payEndDate')
+                ->setParameter('payEndDate', $payEndDate);
+        }
+
+        // filter by rent start date
+        if (!is_null($rentStartDate)) {
+            $query->andWhere('o.endDate > :rentStartDate')
+                ->setParameter('rentStartDate', $rentStartDate);
+        }
+
+        // filter by rent end date
+        if (!is_null($rentEndDate)) {
+            $query->andWhere('o.startDate < :rentEndDate')
+                ->setParameter('rentEndDate', $rentEndDate);
+        }
+
+        // filter by invoice start date
+        if (!is_null($invoiceStartDate)) {
+            $query->andWhere('o.startDate > :invoiceStartDate')
+                ->setParameter('invoiceStartDate', $invoiceStartDate);
+        }
+
+        // filter by invoice end date
+        if (!is_null($invoiceEndDate)) {
+            $query->andWhere('o.startDate < :invoiceEndDare')
+                ->setParameter('invoiceEndDare', $invoiceEndDate);
+        }
 
         // filter by sales company
         if (!is_null($salesCompanyId)) {

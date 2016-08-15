@@ -64,6 +64,105 @@ class AdminOrderController extends OrderController
      *    description="page number"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="orderEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="payStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="payEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rentStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rentEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="invoiceStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="invoiceEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders/sales/notinvoiced")
      * @Method({"GET"})
      *
@@ -84,10 +183,31 @@ class AdminOrderController extends OrderController
         // filters
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
+        $type = $paramFetcher->get('type');
+        $buildingId = $paramFetcher->get('building');
+        $orderStartDate = $paramFetcher->get('orderStartDate');
+        $orderEndDate = $paramFetcher->get('orderEndDate');
+        $payStartDate = $paramFetcher->get('payStartDate');
+        $payEndDate = $paramFetcher->get('payEndDate');
+        $rentStartDate = $paramFetcher->get('rentStartDate');
+        $rentEndDate = $paramFetcher->get('rentEndDate');
+        $invoiceStartDate = $paramFetcher->get('invoiceStartDate');
+        $invoiceEndDate = $paramFetcher->get('invoiceEndDate');
 
         $ordersQuery = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getAdminNotInvoicedOrders();
+            ->getAdminNotInvoicedOrders(
+                $type,
+                $buildingId,
+                $orderStartDate,
+                $orderEndDate,
+                $payStartDate,
+                $payEndDate,
+                $rentStartDate,
+                $rentEndDate,
+                $invoiceStartDate,
+                $invoiceEndDate
+            );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
