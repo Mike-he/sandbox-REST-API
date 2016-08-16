@@ -21,6 +21,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
  */
 class ClientUserProfileCenterController extends UserProfileController
 {
+    const CLIENT_PROFILE_PREFIX = 'client.profile.';
+
     /**
      * Get User Profile Center.
      *
@@ -40,17 +42,18 @@ class ClientUserProfileCenterController extends UserProfileController
 
         $center = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserProfileCenter')->findCenter();
 
-        $userCenter = array();
         foreach ($center as $c) {
-            $userCenter[] = array(
-                'name' => $this->get('translator')->trans('client.profile.'.$c->getName(), array(), null, $language),
-                'icons' => $c->getIcons(),
-                'url' => $c->getUrl(),
+            $serviceText = $this->get('translator')->trans(
+                self::CLIENT_PROFILE_PREFIX.$c->getName(),
+                array(),
+                null,
+                $language
             );
+            $c->setName($serviceText);
         }
 
         $view = new View();
-        $view->setData($userCenter);
+        $view->setData($center);
 
         return $view;
     }
