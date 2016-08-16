@@ -199,9 +199,9 @@ class ClientUserProfileController extends UserProfileController
         $userCenter = array();
         foreach ($center as $c) {
             $userCenter[] = array(
-                'name' => $this->get('translator')->trans('client.profile.'.$c->getName(), array(), null,$language),
+                'name' => $this->get('translator')->trans('client.profile.'.$c->getName(), array(), null, $language),
                 'icons' => $c->getIcons(),
-                'url' => $c->getUrl()
+                'url' => $c->getUrl(),
             );
         }
 

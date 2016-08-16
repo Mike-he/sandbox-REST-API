@@ -43,9 +43,9 @@ class UserProfileCenter
     private $url;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -53,10 +53,11 @@ class UserProfileCenter
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
-     * @return OrderType
+     *
+     * @return UserProfileCenter
      */
     public function setName($name)
     {
@@ -66,9 +67,9 @@ class UserProfileCenter
     }
 
     /**
-     * Get name
+     * Get name.
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -76,10 +77,11 @@ class UserProfileCenter
     }
 
     /**
-     * Set icons
+     * Set icons.
      *
      * @param string $icons
-     * @return OrderType
+     *
+     * @return UserProfileCenter
      */
     public function setIcons($icons)
     {
@@ -89,9 +91,9 @@ class UserProfileCenter
     }
 
     /**
-     * Get icons
+     * Get icons.
      *
-     * @return string 
+     * @return string
      */
     public function getIcons()
     {
@@ -99,10 +101,11 @@ class UserProfileCenter
     }
 
     /**
-     * Set url
+     * Set url.
      *
      * @param string $url
-     * @return OrderType
+     *
+     * @return UserProfileCenter
      */
     public function setUrl($url)
     {
@@ -112,9 +115,9 @@ class UserProfileCenter
     }
 
     /**
-     * Get url
+     * Get url.
      *
-     * @return string 
+     * @return string
      */
     public function getUrl()
     {

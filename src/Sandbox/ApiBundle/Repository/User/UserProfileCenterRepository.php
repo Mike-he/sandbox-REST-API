@@ -9,7 +9,8 @@ class UserProfileCenterRepository extends EntityRepository
     /**
      * @return array
      */
-    public function findCenter() {
+    public function findCenter()
+    {
         $query = $this->createQueryBuilder('u')
             ->getQuery();
 
