@@ -28,6 +28,7 @@ use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -114,7 +115,7 @@ class PaymentController extends DoorController
     const ORDER_REFUND = 'refund';
 
     /**
-     * @POST("/payment/testing")
+     * @Post("/payment/testing")
      */
     public function testingAction(
         Request $request
@@ -126,7 +127,7 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @GET("/payment/test")
+     * @Get("/payment/test")
      */
     public function testAction(
         Request $request
