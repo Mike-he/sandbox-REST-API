@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Feature;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Feature\Feature;
@@ -10,6 +11,7 @@ use Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -27,13 +29,21 @@ class FeatureController extends SandboxRestController
     /**
      * List all features.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
      *
      *  @ApiDoc(
      *   resource = true,
      *   statusCodes = {
      *     200 = "Returned when successful"
      *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="app",
+     *     array=false,
+     *     default="sandbox",
+     *     nullable=false
      * )
      *
      * @Method({"GET"})
@@ -44,10 +54,17 @@ class FeatureController extends SandboxRestController
      * @throws \Exception
      */
     public function getFeaturesAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        $app = $paramFetcher->get('app');
+
         // get features
-        $features = $this->getRepo('Feature\Feature')->findAll();
+        $features = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Feature\Feature')
+            ->findBy(array(
+                'app' => $app,
+            ));
 
         if (!$this->isAuthProvided()) {
             return new View($features);
