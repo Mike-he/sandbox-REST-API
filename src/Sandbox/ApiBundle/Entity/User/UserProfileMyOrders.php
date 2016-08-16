@@ -31,9 +31,9 @@ class UserProfileMyOrders
     /**
      * @var string
      *
-     * @ORM\Column(name="icons", type="text", nullable=true)
+     * @ORM\Column(name="icon", type="text", nullable=true)
      */
-    private $icons;
+    private $icon;
 
     /**
      * @var string
@@ -77,27 +77,27 @@ class UserProfileMyOrders
     }
 
     /**
-     * Set icons.
+     * Set icon.
      *
-     * @param string $icons
+     * @param string $icon
      *
      * @return UserProfileMyOrders
      */
-    public function setIcons($icons)
+    public function setIcon($icon)
     {
-        $this->icons = $icons;
+        $this->icon = $icon;
 
         return $this;
     }
 
     /**
-     * Get icons.
+     * Get icon.
      *
      * @return string
      */
-    public function getIcons()
+    public function getIcon()
     {
-        return $this->icons;
+        return $this->icon;
     }
 
     /**
