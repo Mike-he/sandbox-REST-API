@@ -175,4 +175,39 @@ class ClientUserProfileController extends UserProfileController
 
         return $view;
     }
+
+    /**
+     * Get User Profile Center.
+     *
+     * @Route("/profile/center")
+     * @Method({"GET"})
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getProfileCenterAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $language = $request->getPreferredLanguage();
+
+        $userCenterRepo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserProfileCenter');
+        $center = $userCenterRepo->findCenter();
+
+        $userCenter = array();
+        foreach ($center as $c) {
+            $userCenter[] = array(
+                'name' => $this->get('translator')->trans('client.profile.'.$c->getName(), array(), null,$language),
+                'icons' => $c->getIcons(),
+                'url' => $c->getUrl()
+            );
+        }
+
+        $view = new View();
+        $view->setData($userCenter);
+
+        return $view;
+    }
 }

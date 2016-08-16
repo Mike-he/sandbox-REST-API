@@ -207,6 +207,10 @@ client:
     phone: Phone
     about_us: About Us
     setting: Settings
+  profile:
+    room_order: Room Order
+    shop_order: Shop Order
+    event_order: Event Order
 
 event_order:
   status:
