@@ -206,6 +206,10 @@ client:
     phone: 绑定手机
     about_us: 关于展想创合
     setting: 设置
+  profile:
+    room_order: 空间订单
+    shop_order: 店铺订单
+    event_order: 活动订单
 
 event_order:
   status:
