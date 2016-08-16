@@ -26,7 +26,7 @@ class ClientUserProfileCenterController extends UserProfileController
     /**
      * Get User Profile Center.
      *
-     * @Route("/profile/center")
+     * @Route("/profile/myorder")
      * @Method({"GET"})
      *
      * @param Request               $request
