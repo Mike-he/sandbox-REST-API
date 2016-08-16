@@ -5,12 +5,12 @@ namespace Sandbox\ApiBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User Profile Center.
+ * User Profile My Orders.
  *
- * @ORM\Table(name="UserProfileCenter")
- * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\User\UserProfileCenterRepository")
+ * @ORM\Table(name="UserProfileMyOrders")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\User\UserProfileMyOrdersRepository")
  */
-class UserProfileCenter
+class UserProfileMyOrders
 {
     /**
      * @var int
@@ -57,7 +57,7 @@ class UserProfileCenter
      *
      * @param string $name
      *
-     * @return UserProfileCenter
+     * @return UserProfileMyOrders
      */
     public function setName($name)
     {
@@ -81,7 +81,7 @@ class UserProfileCenter
      *
      * @param string $icons
      *
-     * @return UserProfileCenter
+     * @return UserProfileMyOrders
      */
     public function setIcons($icons)
     {
@@ -105,7 +105,7 @@ class UserProfileCenter
      *
      * @param string $url
      *
-     * @return UserProfileCenter
+     * @return UserProfileMyOrders
      */
     public function setUrl($url)
     {
