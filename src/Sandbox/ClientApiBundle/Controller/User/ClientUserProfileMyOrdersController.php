@@ -19,14 +19,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
  *
  * @link     http://www.Sandbox.cn/
  */
-class ClientUserProfileCenterController extends UserProfileController
+class ClientUserProfileMyOrdersController extends UserProfileController
 {
     const CLIENT_PROFILE_PREFIX = 'client.profile.';
 
     /**
      * Get User Profile Center.
      *
-     * @Route("/profile/myorder")
+     * @Route("/profile/myorders")
      * @Method({"GET"})
      *
      * @param Request               $request
@@ -40,7 +40,7 @@ class ClientUserProfileCenterController extends UserProfileController
     ) {
         $language = $request->getPreferredLanguage();
 
-        $center = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserProfileCenter')->findCenter();
+        $center = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserProfileMyOrders')->findCenter();
 
         foreach ($center as $c) {
             $serviceText = $this->get('translator')->trans(
