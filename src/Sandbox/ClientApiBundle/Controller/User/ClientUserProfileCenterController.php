@@ -38,8 +38,7 @@ class ClientUserProfileCenterController extends UserProfileController
     ) {
         $language = $request->getPreferredLanguage();
 
-        $userCenterRepo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserProfileCenter');
-        $center = $userCenterRepo->findCenter();
+        $center = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserProfileCenter')->findCenter();
 
         $userCenter = array();
         foreach ($center as $c) {
