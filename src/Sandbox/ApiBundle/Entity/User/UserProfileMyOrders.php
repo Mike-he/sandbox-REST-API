@@ -24,7 +24,7 @@ class UserProfileMyOrders
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", length=64)
+     * @ORM\Column(name="name", type="string", length=64)
      */
     private $name;
 
