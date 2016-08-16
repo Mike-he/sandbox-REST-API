@@ -1211,7 +1211,7 @@ class ClientOrderController extends OrderController
             );
         }
 
-        $modifyTime = $this->getGlobal('time_for_preorder_cancel');
+        //$modifyTime = $this->getGlobal('time_for_preorder_cancel');
         $status = $order->getStatus();
         $now = new \DateTime();
         $hours = 0;
@@ -1222,49 +1222,52 @@ class ClientOrderController extends OrderController
             $creationTime = $order->getCreationDate();
 
             if (ProductOrder::PREORDER_TYPE == $order->getType()) {
-                $start = $order->getStartDate();
+                return new View();
 
-                if ($start > $now) {
-                    $remainingTime = $start->diff($creationTime);
-                    $days = $remainingTime->d;
-
-                    if ($days > 0) {
-                        $endTime = clone $creationTime;
-                        $endTime->modify($modifyTime);
-
-                        $remainingTime = $endTime->diff($now);
-                        $hours = $remainingTime->h;
-                        $minutes = $remainingTime->i;
-                        $seconds = $remainingTime->s;
-
-                        if ($now >= $endTime) {
-                            $hours = 0;
-                            $minutes = 0;
-                            $seconds = 0;
-
-                            $this->setOrderStatusCancelled($order, $now);
-                        }
-                    } else {
-                        $remainingTime = $start->diff($now);
-                        $hours = $remainingTime->h;
-                        $minutes = $remainingTime->i;
-                        $seconds = $remainingTime->s;
-                    }
-                } else {
-                    $remainingTime = $now->diff($creationTime);
-                    $minutes = $remainingTime->i;
-                    $seconds = $remainingTime->s;
-
-                    $minutes = 4 - $minutes;
-                    $seconds = 59 - $seconds;
-
-                    if ($minutes < 0) {
-                        $minutes = 0;
-                        $seconds = 0;
-
-                        $this->setOrderStatusCancelled($order, $now);
-                    }
-                }
+                // removed for preorder
+//                $start = $order->getStartDate();
+//
+//                if ($start > $now) {
+//                    $remainingTime = $start->diff($creationTime);
+//                    $days = $remainingTime->d;
+//
+//                    if ($days > 0) {
+//                        $endTime = clone $creationTime;
+//                        $endTime->modify($modifyTime);
+//
+//                        $remainingTime = $endTime->diff($now);
+//                        $hours = $remainingTime->h;
+//                        $minutes = $remainingTime->i;
+//                        $seconds = $remainingTime->s;
+//
+//                        if ($now >= $endTime) {
+//                            $hours = 0;
+//                            $minutes = 0;
+//                            $seconds = 0;
+//
+//                            $this->setOrderStatusCancelled($order, $now);
+//                        }
+//                    } else {
+//                        $remainingTime = $start->diff($now);
+//                        $hours = $remainingTime->h;
+//                        $minutes = $remainingTime->i;
+//                        $seconds = $remainingTime->s;
+//                    }
+//                } else {
+//                    $remainingTime = $now->diff($creationTime);
+//                    $minutes = $remainingTime->i;
+//                    $seconds = $remainingTime->s;
+//
+//                    $minutes = 4 - $minutes;
+//                    $seconds = 59 - $seconds;
+//
+//                    if ($minutes < 0) {
+//                        $minutes = 0;
+//                        $seconds = 0;
+//
+//                        $this->setOrderStatusCancelled($order, $now);
+//                    }
+//                }
             } else {
                 $remainingTime = $now->diff($creationTime);
                 $minutes = $remainingTime->i;
