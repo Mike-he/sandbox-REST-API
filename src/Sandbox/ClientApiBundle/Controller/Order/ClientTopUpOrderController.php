@@ -3,7 +3,6 @@
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -94,21 +93,6 @@ class ClientTopUpOrderController extends PaymentController
                 400,
                 self::NO_PRICE_CODE,
                 self::NO_PRICE_MESSAGE
-            );
-        }
-        if (
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
-            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
             );
         }
 

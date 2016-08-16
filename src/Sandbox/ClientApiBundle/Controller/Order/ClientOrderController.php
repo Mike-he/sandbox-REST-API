@@ -664,21 +664,6 @@ class ClientOrderController extends OrderController
 
         if (array_key_exists('channel', $requestContent)) {
             $channel = $requestContent['channel'];
-
-            if ($channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-                $channel !== self::PAYMENT_CHANNEL_UPACP &&
-                $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-                $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-                $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-                $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-                $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT
-            ) {
-                return $this->customErrorView(
-                    400,
-                    self::WRONG_CHANNEL_CODE,
-                    self::WRONG_CHANNEL_MESSAGE
-                );
-            }
         }
 
         if ($channel == self::PAYMENT_CHANNEL_ACCOUNT) {

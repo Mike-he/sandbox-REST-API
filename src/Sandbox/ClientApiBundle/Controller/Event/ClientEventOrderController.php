@@ -8,7 +8,6 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\Event;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -312,23 +311,6 @@ class ClientEventOrderController extends PaymentController
         $token = '';
         $smsId = '';
         $smsCode = '';
-
-        if (
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
-            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
-            );
-        }
 
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
