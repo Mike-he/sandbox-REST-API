@@ -570,6 +570,14 @@ class LocationController extends SalesRestController
         $orderCounts = $this->getRepo('Order\ProductOrder')->countsOrderByBuilding($building);
         $building->setOrderCounts((int) $orderCounts);
 
+        // set building services
+        $services = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceBinding')
+            ->findBy(array(
+                'building' => $building,
+            ));
+        $building->setBuildingServices($services);
+
         return $building;
     }
 

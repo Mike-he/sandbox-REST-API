@@ -32,6 +32,7 @@ room:
     fixed: 独享办公桌
     studio: 录音棚
     space: 活动空间
+    video_studio: 演播厅
   unit:
     hour: 小时
     day: 天
@@ -234,3 +235,24 @@ event_order:
     user_phone: 手机
     user_email: 邮箱
     pay_channel: 支付渠道
+
+building:
+  service:
+    free_wifi: 免费WIFI
+    printing_devices: 打印设备
+    tea: 茶水间
+    coffee: 免费咖啡茶水
+    enterprise_incubation: 企业孵化服务
+    register_agent: 注册流程代办
+    cleaning: 清洁服务
+    telephone_booth: 私人电话间
+    meeting_service: 提供会议服务
+    community_manager: 社区经理
+    enterprise_service: 企业服务
+  tag:
+    sandbox3_manage: 创合管理
+    round_the_clock_service: 7×24小时
+    certification_of_incubator: 认证孵化器
+    food_and_beverage: 餐饮配套
+    vip_space: 会员空间
+    fast_preorder: 快速预定

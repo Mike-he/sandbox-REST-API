@@ -55,6 +55,15 @@ class RoomTypes
     private $description;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="icon", type="text")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $icon;
+
+    /**
      * Get id.
      *
      * @return int
@@ -134,5 +143,21 @@ class RoomTypes
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @param string $icon
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
     }
 }

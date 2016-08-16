@@ -61,6 +61,13 @@ class RoomBuildingPutType extends AbstractType
                     'required' => false,
                 )
             )
+            ->add(
+                'building_services',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
         ;
     }
 

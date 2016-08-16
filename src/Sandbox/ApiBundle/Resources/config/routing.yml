@@ -117,3 +117,9 @@ sandbox_api_file_server:
     resource: "@SandboxApiBundle/Controller/FileServer/FileServerController.php"
     type:     annotation
     prefix:   /
+
+# Building /building
+sandbox_api_building:
+    resource: "@SandboxApiBundle/Controller/Building/BuildingController.php"
+    type:     annotation
+    prefix:   /

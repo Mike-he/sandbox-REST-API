@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingCompany;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingPhones;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
@@ -620,6 +621,7 @@ class AdminBuildingController extends LocationController
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
         $salesCompany = $this->getUser()->getMyAdmin()->getSalesCompany();
+        $buildingServices = $building->getBuildingServices();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -671,6 +673,14 @@ class AdminBuildingController extends LocationController
             $buildingAttachments,
             $em
         );
+
+        // add building services
+        $this->addBuildingServices(
+            $building,
+            $buildingServices,
+            $em
+        );
+
         $em->flush();
 
         $buildingId = $building->getId();
@@ -705,6 +715,7 @@ class AdminBuildingController extends LocationController
         $phones = $building->getPhones();
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
+        $buildingServices = $building->getBuildingServices();
 
         // check city
         $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
@@ -782,6 +793,19 @@ class AdminBuildingController extends LocationController
         $this->addFloors(
             $building,
             $floors,
+            $em
+        );
+
+        // remove old building services
+        $this->removeBuildingServices(
+            $building,
+            $em
+        );
+
+        // add new building services
+        $this->addBuildingServices(
+            $building,
+            $buildingServices,
             $em
         );
 
@@ -1154,6 +1178,66 @@ class AdminBuildingController extends LocationController
         $permissionMap->setCreationDate(new \DateTime('now'));
         $em->persist($permissionMap);
         $em->flush();
+    }
+
+    /**
+     * @param $building
+     * @param $buildingServices
+     * @param $em
+     */
+    private function addBuildingServices(
+        $building,
+        $buildingServices,
+        $em
+    ) {
+        if (empty($buildingServices)) {
+            return;
+        }
+
+        foreach ($buildingServices as $service) {
+            if (!isset($service['id'])) {
+                continue;
+            }
+
+            $serviceObject = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingServices')
+                ->find($service['id']);
+            if (is_null($serviceObject)) {
+                continue;
+            }
+
+            $buildingServiceBinding = new RoomBuildingServiceBinding();
+
+            $buildingServiceBinding->setBuilding($building);
+            $buildingServiceBinding->setService($serviceObject);
+
+            $em->persist($buildingServiceBinding);
+        }
+    }
+
+    /**
+     * @param $building
+     * @param $em
+     */
+    private function removeBuildingServices(
+        $building,
+        $em
+    ) {
+        if (empty($building)) {
+            return;
+        }
+
+        $services = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceBinding')
+            ->findBy(array(
+                'building' => $building,
+            ));
+
+        if (!empty($services)) {
+            foreach ($services as $service) {
+                $em->remove($service);
+            }
+        }
     }
 
     /**

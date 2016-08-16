@@ -32,6 +32,7 @@ room:
     fixed: Dedicate Desk
     studio: Recording Studio
     space: Activity Space
+    video_studio: Studio
   unit:
     hour: Hour
     day: Day
@@ -235,3 +236,24 @@ event_order:
     user_phone: Renter Mobile
     user_email: Renter Email
     pay_channel: Payment Channel
+
+building:
+  service:
+    free_wifi: Free WIFI
+    printing_devices: Printing Devices
+    tea: Tea Room
+    coffee: Coffee
+    enterprise_incubation: Enterprise Incubation Services
+    register_agent: Registered Agent
+    cleaning: Cleaning Services
+    telephone_booth: Private Telephone Booth
+    meeting_service: Meeting Services
+    community_manager: Community Manager
+    enterprise_service: Enterprise Services
+  tag:
+    sandbox3_manage: Sandbox Management
+    round_the_clock_service: 7x24h
+    certification_of_incubator: Authorized Incubator
+    food_and_beverage: Catering Services
+    vip_space: Member Space
+    fast_preorder: Fast Booking

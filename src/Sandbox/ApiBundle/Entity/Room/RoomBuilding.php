@@ -352,6 +352,13 @@ class RoomBuilding implements JsonSerializable
     private $orderRemindPhones;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $buildingServices;
+
+    /**
      * Get id.
      *
      * @return int
@@ -562,7 +569,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * Get floors.
      *
-     * @return int
+     * @return array
      */
     public function getFloors()
     {
@@ -981,5 +988,21 @@ class RoomBuilding implements JsonSerializable
     public function getOrderRemindPhones()
     {
         return $this->orderRemindPhones;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingServices()
+    {
+        return $this->buildingServices;
+    }
+
+    /**
+     * @param array $buildingServices
+     */
+    public function setBuildingServices($buildingServices)
+    {
+        $this->buildingServices = $buildingServices;
     }
 }
