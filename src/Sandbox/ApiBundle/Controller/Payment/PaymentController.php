@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use FOS\RestBundle\View\View;
+use Pingpp\WxpubOAuth;
 use Proxies\__CG__\Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
@@ -111,6 +112,31 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    /**
+     * @POST("/payment/testing")
+     */
+    public function testingAction(
+        Request $request
+    ) {
+        $rawData = file_get_contents('php://input');
+        $data = json_decode($rawData, true);
+
+        return new View($data);
+    }
+
+    /**
+     * @GET("/payment/test")
+     */
+    public function testAction(
+        Request $request
+    ) {
+        $wxId = 'wx3ada402af6480db0';
+        $wxSecret = 'cb013671b7d43e92ea7df28848053e70';
+        $url = 'devrest.sandbox3.cn/payment/testing';
+
+        WxpubOAuth::createOauthUrlForCode($wxId, $url);
+    }
 
     /**
      * @param $customerId
