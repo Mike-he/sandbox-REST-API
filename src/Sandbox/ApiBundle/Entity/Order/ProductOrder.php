@@ -25,6 +25,7 @@ class ProductOrder
     const CHANNEL_WECHAT = 'wx';
     const CHANNEL_FOREIGN_CREDIT = 'cnp_f';
     const CHANNEL_UNION_CREDIT = 'cnp_u';
+    const CHANNEL_WECHAT_PUB = 'wx_pub';
 
     const PRODUCT_MAP = 'product';
 
