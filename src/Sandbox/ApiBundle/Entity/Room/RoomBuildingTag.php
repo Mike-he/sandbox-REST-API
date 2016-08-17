@@ -22,7 +22,7 @@ class RoomBuildingTag
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "list"})
+     * @Serializer\Groups({"main", "list", "admin_building"})
      */
     private $id;
 

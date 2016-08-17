@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomBuildingTypeBinding.
@@ -44,6 +45,8 @@ class RoomBuildingTypeBinding
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomTypes")
      * @ORM\JoinColumn(name="typeId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main", "admin_building"})
      */
     private $type;
 

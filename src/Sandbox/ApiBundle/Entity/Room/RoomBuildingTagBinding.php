@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * RoomBuildingTagBinding.
@@ -44,6 +45,8 @@ class RoomBuildingTagBinding
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuildingTag")
      * @ORM\JoinColumn(name="tagId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main", "admin_building"})
      */
     private $tag;
 
