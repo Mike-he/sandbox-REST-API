@@ -95,6 +95,13 @@ class WeChat
     private $authCode;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="from", type="string", length=64, nullable=true)
+     */
+    private $from;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -258,6 +265,22 @@ class WeChat
     public function setAuthCode($authCode)
     {
         $this->authCode = $authCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFrom()
+    {
+        return $this->from;
+    }
+
+    /**
+     * @param string $from
+     */
+    public function setFrom($from)
+    {
+        $this->from = $from;
     }
 
     /**
