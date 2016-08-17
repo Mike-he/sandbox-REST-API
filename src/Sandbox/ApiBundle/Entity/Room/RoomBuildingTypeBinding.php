@@ -7,10 +7,20 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * RoomBuildingTypeBinding.
  *
- * @ORM\Table(name="RoomBuildingTypeBinding")
+ * @ORM\Table(
+ *     name="RoomBuildingTypeBinding",
+ *     uniqueConstraints={
+ *          @ORM\UniqueConstraint(
+ *              name="typeId_buildingId", columns={"typeId", "buildingId"}
+ *          )
+ *      },
+ *      indexes={
+ *          @ORM\Index(name="fk_RoomType_buildingId_idx",columns={"buildingId"})
+ *      }
+ * )
  * @ORM\Entity
  */
-class RoomBindingTypeBinding
+class RoomBuildingTypeBinding
 {
     /**
      * @var int
@@ -108,5 +118,13 @@ class RoomBindingTypeBinding
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * RoomBuildingTypeBinding constructor.
+     */
+    public function __construct()
+    {
+        $this->creationDate = new \DateTime('now');
     }
 }

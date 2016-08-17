@@ -359,6 +359,20 @@ class RoomBuilding implements JsonSerializable
     private $buildingServices;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $buildingTags;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $buildingRoomTypes;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1004,5 +1018,37 @@ class RoomBuilding implements JsonSerializable
     public function setBuildingServices($buildingServices)
     {
         $this->buildingServices = $buildingServices;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingTags()
+    {
+        return $this->buildingTags;
+    }
+
+    /**
+     * @param array $buildingTags
+     */
+    public function setBuildingTags($buildingTags)
+    {
+        $this->buildingTags = $buildingTags;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingRoomTypes()
+    {
+        return $this->buildingRoomTypes;
+    }
+
+    /**
+     * @param array $buildingRoomTypes
+     */
+    public function setBuildingRoomTypes($buildingRoomTypes)
+    {
+        $this->buildingRoomTypes = $buildingRoomTypes;
     }
 }

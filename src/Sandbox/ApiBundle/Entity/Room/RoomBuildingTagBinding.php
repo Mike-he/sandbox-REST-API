@@ -7,7 +7,17 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * RoomBuildingTagBinding.
  *
- * @ORM\Table(name="RoomBuildingTagBinding")
+ * @ORM\Table(
+ *     name="RoomBuildingTagBinding",
+ *     uniqueConstraints={
+ *          @ORM\UniqueConstraint(
+ *              name="tagId_buildingId", columns={"tagId", "buildingId"}
+ *          )
+ *      },
+ *      indexes={
+ *          @ORM\Index(name="fk_Tag_buildingId_idx",columns={"buildingId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class RoomBuildingTagBinding

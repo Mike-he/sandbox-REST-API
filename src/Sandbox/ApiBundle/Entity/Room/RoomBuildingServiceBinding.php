@@ -8,7 +8,17 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * RoomBuildingServiceBinding.
  *
- * @ORM\Table(name="RoomBuildingServiceBinding")
+ * @ORM\Table(
+ *     name="RoomBuildingServiceBinding",
+ *     uniqueConstraints={
+ *          @ORM\UniqueConstraint(
+ *              name="serviceId_buildingId", columns={"serviceId", "buildingId"}
+ *          )
+ *      },
+ *      indexes={
+ *          @ORM\Index(name="fk_Service_buildingId_idx",columns={"buildingId"})
+ *      }
+ * )
  * @ORM\Entity
  */
 class RoomBuildingServiceBinding
