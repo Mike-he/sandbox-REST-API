@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\OrderRefundFeePatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundPatch;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
@@ -283,6 +284,48 @@ class AdminOrderController extends OrderController
         $em->flush();
 
         return $view;
+    }
+
+    /**
+     * @Route("/orders/{id}/transfer")
+     * @Method({"PATCH"})
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function patchTransferNoAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $existTransfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+            ->findOneByOrderId($id);
+        $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $transferJson = $this->container->get('serializer')->serialize($existTransfer, 'json');
+        $patch = new Patch($transferJson, $request->getContent());
+        $transferJson = $patch->apply();
+
+        $form = $this->createForm(new OrderOfflineTransferPost(), $existTransfer);
+        $form->submit(json_decode($transferJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**

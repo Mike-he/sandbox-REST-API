@@ -269,7 +269,8 @@ class ClientFoodOrderController extends PaymentController
                 $totalPrice,
                 $channel,
                 self::PAYMENT_SUBJECT,
-                self::PAYMENT_BODY
+                self::PAYMENT_BODY,
+                null
             );
             $charge = json_decode($charge, true);
 

@@ -456,7 +456,8 @@ class PaymentController extends DoorController
                     $price,
                     $channel,
                     $subject,
-                    $body
+                    $body,
+                    null
                 );
 
                 $charge = json_decode($charge, true);
@@ -736,6 +737,7 @@ class PaymentController extends DoorController
      * @param $channel
      * @param $subject
      * @param $body
+     * @param $openId
      *
      * @return Charge
      */
@@ -747,7 +749,8 @@ class PaymentController extends DoorController
         $price,
         $channel,
         $subject,
-        $body
+        $body,
+        $openId
     ) {
         $extra = [];
         switch ($channel) {
@@ -773,6 +776,12 @@ class PaymentController extends DoorController
                     'source' => $token,
                     'sms_code[id]' => $smsId,
                     'sms_code[code]' => $smsCode,
+                );
+
+                break;
+            case ProductOrder::CHANNEL_WECHAT_PUB:
+                $extra = array(
+                    'open_id' => $openId,
                 );
 
                 break;

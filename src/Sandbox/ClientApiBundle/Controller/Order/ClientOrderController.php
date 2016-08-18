@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
@@ -663,6 +664,7 @@ class ClientOrderController extends OrderController
         $token = '';
         $smsId = '';
         $smsCode = '';
+        $openId = null;
 
         if (array_key_exists('channel', $requestContent)) {
             $channel = $requestContent['channel'];
@@ -678,6 +680,18 @@ class ClientOrderController extends OrderController
                 $order,
                 $channel
             );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $order->getUserId(),
+                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $orderNumber = $order->getOrderNumber();
@@ -689,7 +703,8 @@ class ClientOrderController extends OrderController
             $order->getDiscountPrice(),
             $channel,
             ProductOrder::PAYMENT_SUBJECT,
-            ProductOrder::PAYMENT_BODY
+            ProductOrder::PAYMENT_BODY,
+            $openId
         );
         $charge = json_decode($charge, true);
 
