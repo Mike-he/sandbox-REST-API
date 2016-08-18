@@ -136,10 +136,12 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('o.status = \'paid\'')
+            ->andWhere('o.rejected = :rejected')
             ->andWhere('o.startDate > :now')
             ->andWhere('(r.type = \'office\' AND o.startDate <= :workspaceTime)')
             ->setParameter('workspaceTime', $workspaceTime)
             ->setParameter('now', $now)
+            ->setParameter('rejected', false)
             ->getQuery();
 
         return $query->getResult();
@@ -600,10 +602,12 @@ class OrderRepository extends EntityRepository
             ->set('o.cancelledDate', $nowString)
             ->set('o.modificationDate', $nowString)
             ->where('o.status = \'unpaid\'')
+            ->andWhere('o.payChannel != :channel')
             ->andWhere('(o.type != :preorder OR o.type is NULL)')
             ->andWhere('o.creationDate <= :start')
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
             ->setParameter('start', $start)
+            ->setParameter('channel', ProductOrder::CHANNEL_OFFLINE)
             ->getQuery();
 
         $query->execute();

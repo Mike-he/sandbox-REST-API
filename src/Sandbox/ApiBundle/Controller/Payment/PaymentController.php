@@ -114,6 +114,24 @@ class PaymentController extends DoorController
     const ORDER_REFUND = 'refund';
 
     /**
+     * @param $order
+     * @param $channel
+     *
+     * @return View
+     */
+    protected function setOfflineChannel(
+        $order,
+        $channel
+    ) {
+        $order->setPayChannel($channel);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @param $customerId
      * @param $cardId
      *

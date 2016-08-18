@@ -26,6 +26,7 @@ class ProductOrder
     const CHANNEL_FOREIGN_CREDIT = 'cnp_f';
     const CHANNEL_UNION_CREDIT = 'cnp_u';
     const CHANNEL_WECHAT_PUB = 'wx_pub';
+    const CHANNEL_OFFLINE = 'offline';
 
     const PRODUCT_MAP = 'product';
 
@@ -408,6 +409,43 @@ class ProductOrder
      * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $cancelByUser = false;
+
+    /**
+     * @var OrderOfflineTransfer
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer",
+     *      mappedBy="orderId"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
+     *
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
+     */
+    private $transfer;
+
+    /**
+     * Set transfer.
+     *
+     * @param OrderOfflineTransfer $transfer
+     *
+     * @return ProductOrder
+     */
+    public function setTransfer($transfer)
+    {
+        $this->transfer = $transfer;
+
+        return $this;
+    }
+
+    /**
+     * Get transfer.
+     *
+     * @return OrderOfflineTransfer
+     */
+    public function getTransfer()
+    {
+        return $this->transfer;
+    }
 
     /**
      * Set isRenew.

@@ -4,6 +4,8 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
+use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
@@ -671,6 +673,11 @@ class ClientOrderController extends OrderController
                 $order,
                 $channel
             );
+        } elseif ($channel == ProductOrder::CHANNEL_OFFLINE) {
+            return $this->setOfflineChannel(
+                $order,
+                $channel
+            );
         }
 
         $orderNumber = $order->getOrderNumber();
@@ -687,6 +694,68 @@ class ClientOrderController extends OrderController
         $charge = json_decode($charge, true);
 
         return new View($charge);
+    }
+
+    /**
+     * @Post("/orders/{id}/transfer")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function setTransferAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ProductOrder::STATUS_UNPAID,
+                'userId' => $userId,
+                'payChannel' => ProductOrder::CHANNEL_OFFLINE,
+            ]
+        );
+
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $existTransfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+            ->findOneByOrderId($id);
+
+        if (is_null($existTransfer)) {
+            $transfer = new OrderOfflineTransfer();
+
+            $form = $this->createForm(new OrderOfflineTransferPost(), $transfer);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
+                );
+            }
+
+            $now = new \DateTime('now');
+            $order->setStatus(ProductOrder::STATUS_PAID);
+            $order->setModificationDate($now);
+            $order->setPaymentDate($now);
+
+            $transfer->setOrder($order);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($transfer);
+            $em->flush();
+        }
+
+        return new View();
     }
 
     /**
@@ -1202,8 +1271,9 @@ class ClientOrderController extends OrderController
         $hours = 0;
         $minutes = 0;
         $seconds = 0;
+        $channel = $order->getPayChannel();
 
-        if ($status == ProductOrder::STATUS_UNPAID) {
+        if ($status == ProductOrder::STATUS_UNPAID && $channel != ProductOrder::CHANNEL_OFFLINE) {
             $creationTime = $order->getCreationDate();
 
             if (ProductOrder::PREORDER_TYPE == $order->getType()) {
