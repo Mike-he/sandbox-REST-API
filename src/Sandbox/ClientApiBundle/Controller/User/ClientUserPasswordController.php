@@ -281,7 +281,7 @@ class ClientUserPasswordController extends UserPasswordController
         if (is_null($forgetPassword)) {
             $forgetPassword = $this->saveForgetPassword($userId, $status, $type, $email, $phone, $phoneCode);
         } else {
-            $forgetPassword = $this->updateForgetPassword($forgetPassword, $status);
+            $forgetPassword = $this->updateForgetPassword($forgetPassword, $status, $email, $phone, $phoneCode);
         }
 
         return $forgetPassword;
@@ -326,16 +326,31 @@ class ClientUserPasswordController extends UserPasswordController
     /**
      * @param UserForgetPassword $forgetPassword
      * @param string             $status
+     * @param                    $email
+     * @param                    $phone
+     * @param                    $phoneCode
      *
      * @return UserForgetPassword
      */
     private function updateForgetPassword(
         $forgetPassword,
-        $status
+        $status,
+        $email = null,
+        $phone = null,
+        $phoneCode = null
     ) {
         $forgetPassword->setStatus($status);
 
         if ($status === 'submit') {
+            if (!is_null($email)) {
+                $forgetPassword->setEmail($email);
+            }
+
+            if (!is_null($phone) || !is_null($phoneCode)) {
+                $forgetPassword->setPhone($phone);
+                $forgetPassword->setPhoneCode($phoneCode);
+            }
+
             $forgetPassword->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
             $forgetPassword->setCreationDate(new \DateTime('now'));
         } else {
