@@ -1168,6 +1168,10 @@ class AdminOrderController extends OrderController
                 $order->setPaymentDate($now);
             }
 
+            if ($product->isSalesInvoice()) {
+                $order->setSalesInvoice(true);
+            }
+
             $em->persist($order);
 
             // store order record

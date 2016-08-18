@@ -877,7 +877,7 @@ class PaymentController extends DoorController
         }
 
         $newStatus = $order->getStatus();
-        
+
         // set door access
         if (!$order->isRejected() && $newStatus == ProductOrder::STATUS_PAID) {
             $this->setDoorAccessForSingleOrder($order);
