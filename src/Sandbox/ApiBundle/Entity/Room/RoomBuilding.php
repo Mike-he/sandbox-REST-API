@@ -151,6 +151,41 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
+     * @ORM\Column(name="subtitle", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "profile",
+     *      "profile_basic",
+     *      "profile_stranger",
+     *      "profile_basic_stranger",
+     *      "buddy",
+     *      "member",
+     *      "admin_detail",
+     *      "company_info",
+     *      "company_basic",
+     *      "feed",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
+     *  }
+     * )
+     */
+    private $subtitle;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
      * @Serializer\Groups({
@@ -492,6 +527,22 @@ class RoomBuilding implements JsonSerializable
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSubtitle()
+    {
+        return $this->subtitle;
+    }
+
+    /**
+     * @param string $subtitle
+     */
+    public function setSubtitle($subtitle)
+    {
+        $this->subtitle = $subtitle;
     }
 
     /**
