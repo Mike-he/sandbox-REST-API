@@ -244,7 +244,6 @@ class AdminOrderController extends OrderController
                 'needToRefund' => true,
                 'refunded' => false,
                 'refundProcessed' => true,
-                'payChannel' => ProductOrder::CHANNEL_UNIONPAY,
             ]
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -258,20 +257,23 @@ class AdminOrderController extends OrderController
         $form->submit(json_decode($orderJson, true));
 
         $refunded = $order->isRefunded();
+        $channel = $order->getPayChannel();
         $view = new View();
 
         if (!$refunded) {
             return $view;
         }
 
-        $ssn = $order->getRefundSSN();
+        if ($channel == ProductOrder::CHANNEL_UNIONPAY) {
+            $ssn = $order->getRefundSSN();
 
-        if (is_null($ssn) || empty($ssn)) {
-            return $this->customErrorView(
-                400,
-                self::REFUND_SSN_NOT_FOUND_CODE,
-                self::REFUND_SSN_NOT_FOUND_MESSAGE
-            );
+            if (is_null($ssn) || empty($ssn)) {
+                return $this->customErrorView(
+                    400,
+                    self::REFUND_SSN_NOT_FOUND_CODE,
+                    self::REFUND_SSN_NOT_FOUND_MESSAGE
+                );
+            }
         }
 
         $order->setNeedToRefund(false);

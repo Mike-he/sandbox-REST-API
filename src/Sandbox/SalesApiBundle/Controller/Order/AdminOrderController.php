@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
 use Sandbox\ApiBundle\Form\Order\PatchOrderRejectedType;
 use Sandbox\ApiBundle\Form\Order\PreOrderType;
@@ -1125,6 +1126,63 @@ class AdminOrderController extends OrderController
 
             throw $exception;
         }
+    }
+
+    /**
+     * @Route("/orders/{id}/transfer")
+     * @Method({"PATCH"})
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function patchTransferNoAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $buildingId = $order->getProduct()->getRoom()->getBuildingId();
+
+        // check user permission
+        $this->checkAdminOrderPermission(
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            $buildingId
+        );
+
+        $existTransfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+            ->findOneByOrderId($id);
+        $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $transferJson = $this->container->get('serializer')->serialize($existTransfer, 'json');
+        $patch = new Patch($transferJson, $request->getContent());
+        $transferJson = $patch->apply();
+
+        $form = $this->createForm(new OrderOfflineTransferPost(), $existTransfer);
+        $form->submit(json_decode($transferJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_ROOM_ORDER,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+            'logObjectId' => $id,
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
+        return new View();
     }
 
     /**
