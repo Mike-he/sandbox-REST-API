@@ -8,6 +8,8 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -311,12 +313,25 @@ class ClientEventOrderController extends PaymentController
         $token = '';
         $smsId = '';
         $smsCode = '';
+        $openId = null;
 
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
                 $order,
                 $channel
             );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $order->getUserId(),
+                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $orderNumber = $order->getOrderNumber();
@@ -328,7 +343,8 @@ class ClientEventOrderController extends PaymentController
             $order->getPrice(),
             $channel,
             EventOrder::PAYMENT_SUBJECT,
-            EventOrder::PAYMENT_BODY
+            EventOrder::PAYMENT_BODY,
+            $openId
         );
         $charge = json_decode($charge, true);
 

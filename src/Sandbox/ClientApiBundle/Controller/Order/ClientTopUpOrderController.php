@@ -3,7 +3,9 @@
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -87,6 +89,7 @@ class ClientTopUpOrderController extends PaymentController
         $token = '';
         $smsId = '';
         $smsCode = '';
+        $openId = null;
 
         if (is_null($price) || empty($price)) {
             return $this->customErrorView(
@@ -98,6 +101,20 @@ class ClientTopUpOrderController extends PaymentController
 
         $orderNumber = $this->getOrderNumber(self::TOPUP_ORDER_LETTER_HEAD);
 
+        if ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $this->getUserId(),
+                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
+        }
+
         $charge = $this->payForOrder(
             $token,
             $smsId,
@@ -106,7 +123,8 @@ class ClientTopUpOrderController extends PaymentController
             $price,
             $channel,
             TopUpOrder::PAYMENT_SUBJECT,
-            $this->getUserId()
+            $this->getUserId(),
+            $openId
         );
 
         $charge = json_decode($charge, true);

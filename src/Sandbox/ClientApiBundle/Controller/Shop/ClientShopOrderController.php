@@ -4,8 +4,10 @@ namespace Sandbox\ClientApiBundle\Controller\Shop;
 
 use Sandbox\AdminShopApiBundle\Controller\ShopRestController;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -246,12 +248,25 @@ class ClientShopOrderController extends ShopRestController
         $token = '';
         $smsId = '';
         $smsCode = '';
+        $openId = null;
 
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
                 $order,
                 $channel
             );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $userId,
+                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $orderNumber = $order->getOrderNumber();
@@ -264,7 +279,8 @@ class ClientShopOrderController extends ShopRestController
             $order->getPrice(),
             $channel,
             ShopOrder::PAYMENT_SUBJECT,
-            ShopOrder::PAYMENT_BODY
+            ShopOrder::PAYMENT_BODY,
+            $openId
         );
 
         $charge = json_decode($charge, true);
