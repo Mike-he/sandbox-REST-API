@@ -861,6 +861,11 @@ class AdminEventController extends SandboxRestController
 
         $eventEndDate = $this->getEventEndDate($dates);
 
+        // set price
+        if (!$event->isCharge()) {
+            $event->setPrice(0.00);
+        }
+
         $event->setCity($city);
         $event->setBuildingId($buildingId);
         $event->setRegistrationStartDate($startDate);
