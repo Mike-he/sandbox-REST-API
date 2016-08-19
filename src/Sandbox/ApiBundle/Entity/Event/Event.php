@@ -221,7 +221,7 @@ class Event
      *      "client_event"
      * })
      */
-    private $isCharge = false;
+    private $isCharge = true;
 
     /**
      * @var float

@@ -52,8 +52,6 @@ class AdminEventController extends SandboxRestController
     const ERROR_INVALID_EVENT_START_DATE_MESSAGE = 'Registration end date should before event start date';
     const ERROR_INVALID_EVENT_TIME_CODE = 400006;
     const ERROR_INVALID_EVENT_TIME_MESSAGE = 'Event start time should before event end time';
-    const ERROR_INVALID_EVENT_PRICE_CODE = 400007;
-    const ERROR_INVALID_EVENT_PRICE_MESSAGE = 'Event can not be null while need charge';
 
     const ERROR_ROOM_INVALID = 'Invalid room';
 
@@ -310,19 +308,6 @@ class AdminEventController extends SandboxRestController
         $submit = $requestContent['submit'];
         if (is_null($submit)) {
             $submit = true;
-        }
-
-        // check charge valid
-        if ($event->isCharge()) {
-            if (is_null($event->getPrice())) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_INVALID_EVENT_PRICE_CODE,
-                    self::ERROR_INVALID_EVENT_PRICE_MESSAGE
-                );
-            }
-        } else {
-            $event->setPrice(null);
         }
 
         return $this->handleEventPost(
@@ -882,6 +867,7 @@ class AdminEventController extends SandboxRestController
         $event->setRegistrationEndDate($endDate);
         $event->setEventStartDate($eventStartDate);
         $event->setEventEndDate($eventEndDate);
+        $event->setIsCharge(true);
         $event->setCreationDate($now);
         $event->setModificationDate($now);
 

@@ -206,8 +206,14 @@ class ClientEventOrderController extends PaymentController
         $order->setEvent($event);
         $order->setUserId($userId);
         $order->setPrice($event->getPrice());
-        $order->setStatus(EventOrder::STATUS_UNPAID);
         $order->setOrderNumber($orderNumber);
+
+        // set status
+        if ($order->getPrice() == 0) {
+            $order->setStatus(EventOrder::STATUS_PAID);
+        } else {
+            $order->setStatus(EventOrder::STATUS_UNPAID);
+        }
 
         $em->persist($order);
         $em->flush();
