@@ -460,7 +460,7 @@ class AdminAdvertisingController extends AdvertisingController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_BANNER,
+            AdminPermission::KEY_PLATFORM_ADVERTISING,
             $OpLevel
         );
     }
