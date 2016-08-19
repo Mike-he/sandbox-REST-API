@@ -237,3 +237,9 @@ sandbox_admin_api_logs:
     resource: "@SandboxAdminApiBundle/Controller/Log/AdminLogController.php"
     type:     annotation
     prefix:   /
+
+# Advertising /admin/advertising
+sandbox_admin_api_advertising:
+    resource: "@SandboxAdminApiBundle/Controller/Advertising/AdminAdvertisingController.php"
+    type:     annotation
+    prefix:   /
