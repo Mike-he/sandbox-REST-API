@@ -60,9 +60,11 @@ class ClientAdvertisingController extends AdvertisingController
         $width = $paramFetcher->get('width');
 
         $advertising = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\Advertising")->findOneBy(array('visible' => true));
-        $attachment = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\AdvertisingAttachment")->findAttachment($advertising, $height, $width);
+        if (!is_null($advertising)) {
+            $attachment = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\AdvertisingAttachment")->findAttachment($advertising, $height, $width);
 
-        $advertising->setAttachments($attachment);
+            $advertising->setAttachments($attachment);
+        }
 
         $view = new View($advertising);
         $view->setSerializationContext(
