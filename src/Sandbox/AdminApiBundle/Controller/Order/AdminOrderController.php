@@ -75,13 +75,13 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="building",
+     *    name="company",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="Filter by building id"
+     *    description="Filter by sales company id"
      * )
      *
      * @Annotations\QueryParam(
@@ -185,7 +185,7 @@ class AdminOrderController extends OrderController
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
         $type = $paramFetcher->get('type');
-        $buildingId = $paramFetcher->get('building');
+        $salesCompanyId = $paramFetcher->get('company');
         $orderStartDate = $paramFetcher->get('orderStartDate');
         $orderEndDate = $paramFetcher->get('orderEndDate');
         $payStartDate = $paramFetcher->get('payStartDate');
@@ -199,7 +199,7 @@ class AdminOrderController extends OrderController
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getAdminNotInvoicedOrders(
                 $type,
-                $buildingId,
+                null,
                 $orderStartDate,
                 $orderEndDate,
                 $payStartDate,
@@ -207,7 +207,8 @@ class AdminOrderController extends OrderController
                 $rentStartDate,
                 $rentEndDate,
                 $invoiceStartDate,
-                $invoiceEndDate
+                $invoiceEndDate,
+                $salesCompanyId
             );
 
         $paginator = new Paginator();

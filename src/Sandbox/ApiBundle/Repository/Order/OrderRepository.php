@@ -434,7 +434,7 @@ class OrderRepository extends EntityRepository
      */
     public function getAdminNotInvoicedOrders(
         $type,
-        $buildingId,
+        $buildingId = null,
         $orderStartDate,
         $orderEndDate,
         $payStartDate,
