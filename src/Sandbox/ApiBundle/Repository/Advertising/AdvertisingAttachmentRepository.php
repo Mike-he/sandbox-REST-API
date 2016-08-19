@@ -12,26 +12,33 @@ use Doctrine\ORM\EntityRepository;
  */
 class AdvertisingAttachmentRepository extends EntityRepository
 {
+    /**
+     * @param $advertising
+     * @param null $height
+     * @param null $width
+     *
+     * @return array
+     */
     public function findAttachment(
         $advertising,
-        $height,
-        $width
+        $height = null,
+        $width = null
     ) {
         $query = $this->createQueryBuilder('a')
-            ->select('a.content')
             ->where('a.advertising = :advertising')
-            ->andWhere('a.height = :height')
-            ->andWhere('a.width = :width')
-            ->setParameter('advertising', $advertising)
-            ->setParameter('height', $height)
-            ->setParameter('width', $width)
-            ->getQuery();
+            ->setParameter('advertising', $advertising);
 
-        try {
-            $result = $query->getSingleResult();
-        } catch (\Doctrine\Orm\NoResultException $e) {
-            $result = null;
+        if (!is_null($height)) {
+            $query->andWhere('a.height = :height')
+                    ->setParameter('height', $height);
         }
+
+        if (!is_null($width)) {
+            $query->andWhere('a.width = :width')
+                ->setParameter('width', $width);
+        }
+
+        $result = $query->getQuery()->getResult();
 
         return $result;
     }

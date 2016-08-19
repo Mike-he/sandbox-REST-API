@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Advertising;
 
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
@@ -10,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Advertising\Advertising;
 use Sandbox\ApiBundle\Entity\Advertising\AdvertisingAttachment;
 use Sandbox\ApiBundle\Form\Advertising\AdvertisingPostType;
 use Sandbox\ApiBundle\Form\Advertising\AdvertisingPutType;
+use Sandbox\ApiBundle\Form\Advertising\AdvertisingPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -218,6 +220,55 @@ class AdminAdvertisingController extends AdvertisingController
         return $this->handleAdvertisingPut(
             $advertising
         );
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/advertising/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchAdvertisingAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminAdvertisingPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $advertising = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\Advertising')->find($id);
+        $this->throwNotFoundIfNull($advertising, self::NOT_FOUND_MESSAGE);
+
+        $advertisingJson = $this->container->get('serializer')->serialize($advertising, 'json');
+        $patch = new Patch($advertisingJson, $request->getContent());
+        $advertisingJson = $patch->apply();
+
+        $form = $this->createForm(new AdvertisingPatchType(), $advertising);
+        $form->submit(json_decode($advertisingJson, true));
+
+        if ($advertising->getVisible()) {
+            $advertising->setIsSaved(false);
+
+            $this->handleUnvisible();
+        } else {
+            $advertising->setIsSaved(true);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
