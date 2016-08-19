@@ -147,6 +147,14 @@ class AdminBuildingController extends LocationController
      *    description="query key word"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    description="building id"
+     * )
+     *
      * @Route("/buildings")
      * @Method({"GET"})
      *
@@ -159,14 +167,13 @@ class AdminBuildingController extends LocationController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
-
-        // get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
             $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_BUILDING,
-            )
+                SalesAdminPermission::KEY_PLATFORM_BUILDING,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_VIEW
         );
 
         // filters
@@ -174,12 +181,36 @@ class AdminBuildingController extends LocationController
         $pageIndex = $paramFetcher->get('pageIndex');
         $cityId = $paramFetcher->get('city');
         $query = $paramFetcher->get('query');
+        $buildingIds = $paramFetcher->get('id');
 
-        $buildings = $this->getRepo('Room\RoomBuilding')->getSalesRoomBuildings(
-            $cityId,
-            $query,
-            $myBuildingIds
+        // custom building ids
+        if (!empty($buildingIds)) {
+            $buildings = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->getSalesRoomBuildings(
+                    $cityId,
+                    $query,
+                    $buildingIds
+                );
+
+            return new View($buildings);
+        }
+
+        // get my buildings list
+        $buildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                SalesAdminPermission::KEY_BUILDING_BUILDING,
+            )
         );
+
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->getSalesRoomBuildings(
+                $cityId,
+                $query,
+                $buildingIds
+            );
         foreach ($buildings as $building) {
             // set more information
             $this->setRoomBuildingMoreInformation($building);
