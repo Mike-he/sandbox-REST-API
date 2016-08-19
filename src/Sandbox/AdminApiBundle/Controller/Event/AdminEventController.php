@@ -52,6 +52,8 @@ class AdminEventController extends SandboxRestController
     const ERROR_INVALID_EVENT_START_DATE_MESSAGE = 'Registration end date should before event start date';
     const ERROR_INVALID_EVENT_TIME_CODE = 400006;
     const ERROR_INVALID_EVENT_TIME_MESSAGE = 'Event start time should before event end time';
+    const ERROR_INVALID_EVENT_PRICE_CODE = 400007;
+    const ERROR_INVALID_EVENT_PRICE_MESSAGE = 'Event price can not be null';
 
     const ERROR_ROOM_INVALID = 'Invalid room';
 
