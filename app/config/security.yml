@@ -73,6 +73,7 @@ security:
         - { path: ^/client/shops, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/shops/orders, role: ROLE_CLIENT_API}
         - { path: ^/client/banners, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/client/advertising, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/news, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/companies, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/members, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
