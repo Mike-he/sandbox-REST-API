@@ -1639,28 +1639,32 @@ class SandboxRestController extends FOSRestController
     protected function generateAdminLogs(
         $logParams
     ) {
-        $em = $this->getDoctrine()->getManager();
+        try {
+            $em = $this->getDoctrine()->getManager();
 
-        // clear doctrine cache, then get object
-        $em->clear();
+            // clear doctrine cache, then get object
+            $em->clear();
 
-        // create log object
-        $log = new Log();
+            // create log object
+            $log = new Log();
 
-        $form = $this->createForm(new LogType(), $log);
-        $form->submit($logParams);
+            $form = $this->createForm(new LogType(), $log);
+            $form->submit($logParams);
 
-        if (!$form->isValid()) {
+            if (!$form->isValid()) {
+                return false;
+            }
+
+            if ($this->handleLog($log)) {
+                $em->persist($log);
+                $em->flush();
+
+                return true;
+            }
+
             return false;
+        } catch (\Exception $e) {
+            error_log('generate log went wrong!');
         }
-
-        if ($this->handleLog($log)) {
-            $em->persist($log);
-            $em->flush();
-
-            return true;
-        }
-
-        return false;
     }
 }
