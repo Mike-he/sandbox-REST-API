@@ -36,16 +36,16 @@ class ClientUserPhoneBindingController extends UserPhoneBindingController
 
     // Constants
     const ERROR_INVALID_PHONE_NUMBER_CODE = 400001;
-    const ERROR_INVALID_PHONE_NUMBER_MESSAGE = 'Invalid phone number.-该手机号无效';
+    const ERROR_INVALID_PHONE_NUMBER_MESSAGE = 'client.account.invalid_phone_number';
 
     const ERROR_PHONE_NUMBER_USED_CODE = 400002;
-    const ERROR_PHONE_NUMBER_USED_MESSAGE = 'Phone number already used.-该手机号已被使用';
+    const ERROR_PHONE_NUMBER_USED_MESSAGE = 'client.account.phone_number_used';
 
     const ERROR_INVALID_VERIFICATION_CODE = 400003;
-    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.-该验证无效';
+    const ERROR_INVALID_VERIFICATION_MESSAGE = 'client.account.invalid_verification';
 
     const ERROR_EXPIRED_VERIFICATION_CODE = 400004;
-    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.-该验证已过期';
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'client.account.expired_verification';
 
     const ZH_SMS_VERIFICATION_BEFORE = '【展想创合】您正在申请绑定当前手机，如确认是本人行为，请提交以下验证码完成操作：';
     const ZH_SMS_VERIFICATION_AFTER = '。验证码在10分钟内有效。';

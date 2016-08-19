@@ -41,37 +41,37 @@ class ClientUserPasswordController extends UserPasswordController
 
     // Constants
     const ERROR_MISSING_PHONE_OR_EMAIL_CODE = 400001;
-    const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'Missing phone number or email address.-手机号和邮箱不能同时为空';
+    const ERROR_MISSING_PHONE_OR_EMAIL_MESSAGE = 'client.account.missing_phone_or_email';
 
     const ERROR_INVALID_EMAIL_ADDRESS_CODE = 400002;
-    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'Invalid email address.-邮箱地址无效';
+    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'client.account.invalid_email_address';
 
     const ERROR_INVALID_PHONE_CODE = 400003;
-    const ERROR_INVALID_PHONE_MESSAGE = 'Invalid phone number.-手机号无效';
+    const ERROR_INVALID_PHONE_MESSAGE = 'client.account.invalid_phone_number';
 
     const ERROR_ACCOUNT_NOT_FOUND_CODE = 400004;
-    const ERROR_ACCOUNT_NOT_FOUND_MESSAGE = 'Account not found.-账号不存在';
+    const ERROR_ACCOUNT_NOT_FOUND_MESSAGE = 'client.account.account_not_found';
 
     const ERROR_ACCOUNT_NOT_ACTIVATED_CODE = 400005;
-    const ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE = 'Account not activated.-账号未激活';
+    const ERROR_ACCOUNT_NOT_ACTIVATED_MESSAGE = 'client.account.account_not_activated';
 
     const ERROR_INVALID_VERIFICATION_CODE = 400006;
-    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.-验证无效';
+    const ERROR_INVALID_VERIFICATION_MESSAGE = 'client.account.invalid_verification';
 
     const ERROR_EXPIRED_VERIFICATION_CODE = 400007;
-    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.-验证过期';
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'client.account.expired_verification';
 
     const ERROR_INVALID_TOKEN_CODE = 400008;
-    const ERROR_INVALID_TOKEN_MESSAGE = 'Invalid token.-令牌无效';
+    const ERROR_INVALID_TOKEN_MESSAGE = 'client.account.invalid_token';
 
     const ERROR_EXPIRED_TOKEN_CODE = 400009;
-    const ERROR_EXPIRED_TOKEN_MESSAGE = 'Expired token.-令牌过期';
+    const ERROR_EXPIRED_TOKEN_MESSAGE = 'client.account.expired_token';
 
     const ERROR_INVALID_PASSWORD_CODE = 400010;
-    const ERROR_INVALID_PASSWORD_MESSAGE = 'Invalid password.-密码无效';
+    const ERROR_INVALID_PASSWORD_MESSAGE = 'client.account.invalid_password';
 
     const ERROR_SAME_PASSWORD_CODE = 400011;
-    const ERROR_SAME_PASSWORD_MESSAGE = 'Same password.-新密码与旧密码不能相同';
+    const ERROR_SAME_PASSWORD_MESSAGE = 'client.account.same_password';
 
     const ZH_SMS_RESET_PASSWORD_BEFORE = '【展想创合】您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：';
     const ZH_SMS_RESET_PASSWORD_AFTER = '。验证码在10分钟内有效。';

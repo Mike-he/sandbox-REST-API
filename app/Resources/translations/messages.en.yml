@@ -212,6 +212,20 @@ client:
     room_order: Room Order
     shop_order: Shop Order
     event_order: Event Order
+  account:
+    invalid_phone_number: Invalid phone number.
+    invalid_email_address: Invalid email address.
+    missing_phone_or_email: Missing phone number or email address.
+    account_not_found: Account not found.
+    account_not_activated: Account not activated.
+    invalid_verification: Invalid verification.
+    expired_verification: Expired verification.
+    invalid_token: Invalid token.
+    expired_token: Expired token.
+    invalid_password: Invalid password.
+    same_password: Same password.
+    phone_number_used: Phone number already used.
+    email_already_used: Email address already used.
 
 event_order:
   status:
