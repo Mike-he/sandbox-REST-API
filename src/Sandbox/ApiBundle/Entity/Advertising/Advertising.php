@@ -76,7 +76,7 @@ class Advertising
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "client_event"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $attachments;
 

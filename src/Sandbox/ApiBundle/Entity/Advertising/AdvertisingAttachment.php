@@ -20,7 +20,7 @@ class AdvertisingAttachment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class AdvertisingAttachment
      *
      * @ORM\Column(name="advertisingId", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $advertisingId;
 
@@ -46,7 +46,7 @@ class AdvertisingAttachment
      *
      * @ORM\Column(name="content", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $content;
 
@@ -55,7 +55,7 @@ class AdvertisingAttachment
      *
      * @ORM\Column(name="attachmentType", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $attachmentType;
 
@@ -64,7 +64,7 @@ class AdvertisingAttachment
      *
      * @ORM\Column(name="filename", type="string", length=255, nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $filename;
 
@@ -73,7 +73,7 @@ class AdvertisingAttachment
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $preview;
 
@@ -82,7 +82,7 @@ class AdvertisingAttachment
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $size;
 
@@ -91,7 +91,7 @@ class AdvertisingAttachment
      *
      * @ORM\Column(name="height", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $height;
 
@@ -100,7 +100,7 @@ class AdvertisingAttachment
      *
      * @ORM\Column(name="width", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $width;
 

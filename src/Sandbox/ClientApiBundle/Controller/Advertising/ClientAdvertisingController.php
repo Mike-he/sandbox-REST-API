@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use JMS\Serializer\SerializationContext;
 
 /**
  *  Client Advertising Controller.
@@ -61,8 +62,12 @@ class ClientAdvertisingController extends AdvertisingController
         $advertising = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\Advertising")->findOneBy(array('visible' => true));
         $attachment = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\AdvertisingAttachment")->findAttachment($advertising, $height, $width);
 
-        $view = new View();
-        $view->setData($attachment);
+        $advertising->setAttachments($attachment);
+
+        $view = new View($advertising);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('client_list'))
+        );
 
         return $view;
     }
