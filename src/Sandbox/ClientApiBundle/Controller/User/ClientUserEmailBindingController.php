@@ -34,16 +34,16 @@ class ClientUserEmailBindingController extends UserEmailBindingController
     use StringUtil;
 
     const ERROR_INVALID_EMAIL_ADDRESS_CODE = 400001;
-    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'Invalid email address.-该邮箱无效';
+    const ERROR_INVALID_EMAIL_ADDRESS_MESSAGE = 'client.account.invalid_email_address';
 
     const ERROR_EMAIL_ALREADY_USED_CODE = 400002;
-    const ERROR_EMAIL_ALREADY_USED_MESSAGE = 'Email address already used.-该邮箱已被使用';
+    const ERROR_EMAIL_ALREADY_USED_MESSAGE = 'client.account.email_already_used';
 
     const ERROR_INVALID_VERIFICATION_CODE = 400003;
-    const ERROR_INVALID_VERIFICATION_MESSAGE = 'Invalid verification.-该验证无效';
+    const ERROR_INVALID_VERIFICATION_MESSAGE = 'client.account.invalid_verification';
 
     const ERROR_EXPIRED_VERIFICATION_CODE = 400004;
-    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'Expired verification.-该验证已过期';
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'client.account.expired_verification';
 
     /**
      * Email bind submit email.

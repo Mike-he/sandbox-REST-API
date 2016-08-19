@@ -211,6 +211,20 @@ client:
     room_order: 空间订单
     shop_order: 店铺订单
     event_order: 活动订单
+  account:
+    invalid_phone_number: 该手机号无效
+    invalid_email_address: 该邮箱无效
+    missing_phone_or_email: 手机号和邮箱不能同时为空
+    account_not_found: 账号不存在
+    account_not_activated: 账号未激活
+    invalid_verification: 该验证无效
+    expired_verification: 该验证已过期
+    invalid_token: 令牌无效
+    expired_token: 令牌过期
+    invalid_password: 密码无效
+    same_password: 新密码与旧密码不能相同
+    phone_number_used: 该手机号已被使用
+    email_already_used: 该邮箱已被使用
 
 event_order:
   status:
