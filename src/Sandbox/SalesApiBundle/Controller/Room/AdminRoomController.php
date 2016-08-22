@@ -285,7 +285,7 @@ class AdminRoomController extends SalesRestController
                 $room = $this->getRepo('Room\Room')->findOneById($roomId);
 
                 // check room valid and belong to my buildings
-                if (is_null($room) || !in_array($room->getBuildingId(), [50])) {
+                if (is_null($room) || !in_array($room->getBuildingId(), $myBuildingIds)) {
                     continue;
                 }
 
