@@ -70,6 +70,15 @@ class ClientEventOrderController extends PaymentController
      *     description="order status"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="search key"
+     * )
+     *
      * @Route("/events/orders")
      * @Method({"GET"})
      *
@@ -83,6 +92,7 @@ class ClientEventOrderController extends PaymentController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
         $status = $paramFetcher->get('status');
+        $search = $paramFetcher->get('query');
 
         $eventOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
@@ -90,7 +100,8 @@ class ClientEventOrderController extends PaymentController
                 $userId,
                 $status,
                 $limit,
-                $offset
+                $offset,
+                $search
             );
 
         foreach ($eventOrders as $eventOrder) {

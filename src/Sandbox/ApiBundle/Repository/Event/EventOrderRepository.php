@@ -231,6 +231,7 @@ class EventOrderRepository extends EntityRepository
      * @param $status
      * @param $limit
      * @param $offset
+     * @param $search
      *
      * @return array
      */
@@ -238,9 +239,11 @@ class EventOrderRepository extends EntityRepository
         $userId,
         $status,
         $limit,
-        $offset
+        $offset,
+        $search
     ) {
         $query = $this->createQueryBuilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
             ->where('eo.userId = :userId')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
@@ -250,8 +253,7 @@ class EventOrderRepository extends EntityRepository
         if (!is_null($status)) {
             switch ($status) {
                 case EventOrder::CLIENT_STATUS_IN_PROCESS:
-                    $query->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
-                        ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
+                    $query->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
                         ->andWhere('
                             eo.status = :unpaid OR
                             (e.verify = TRUE AND er.userId = :userId AND er.status = :pending)
@@ -268,6 +270,15 @@ class EventOrderRepository extends EntityRepository
                 default:
                     break;
             }
+        }
+
+        // filter by search
+        if (!is_null($search)) {
+            $query->andWhere('
+                    e.name LIKE :search OR
+                    eo.orderNumber LIKE :search
+                ')
+                ->setParameter('search', $search.'%');
         }
 
         return $query->getQuery()->getResult();
