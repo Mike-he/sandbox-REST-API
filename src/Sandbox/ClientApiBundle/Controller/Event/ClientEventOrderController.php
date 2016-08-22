@@ -61,6 +61,15 @@ class ClientEventOrderController extends PaymentController
      *    description="Offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="status",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="order status"
+     * )
+     *
      * @Route("/events/orders")
      * @Method({"GET"})
      *
@@ -73,20 +82,42 @@ class ClientEventOrderController extends PaymentController
         $userId = $this->getUserId();
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $status = $paramFetcher->get('status');
 
-        $orders = $this->getRepo('Event\EventOrder')->findBy(
-            [
-                'userId' => $userId,
-                'status' => EventOrder::STATUS_COMPLETED,
-            ],
-            ['modificationDate' => 'DESC'],
-            $limit,
-            $offset
-        );
+        $eventOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getClientEventOrders(
+                $userId,
+                $status,
+                $limit,
+                $offset
+            );
+
+        foreach ($eventOrders as $eventOrder) {
+            $event = $eventOrder->getEvent();
+            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+            $registrationCounts = $this->getRepo('Event\EventRegistration')
+                ->getRegistrationCounts($event->getId());
+
+            // set sales company
+            if (!is_null($event->getSalesCompanyId())) {
+                $salesCompany = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                    ->find($event->getSalesCompanyId());
+                $event->setSalesCompany($salesCompany);
+            }
+
+            $event->setAttachments($attachments);
+            $event->setDates($dates);
+            $event->setForms($forms);
+            $event->setRegisteredPersonNumber((int) $registrationCounts);
+        }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
-        $view->setData($orders);
+        $view->setData($eventOrders);
 
         return $view;
     }

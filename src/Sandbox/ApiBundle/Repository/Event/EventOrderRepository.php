@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Repository\Event;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
+use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 
 class EventOrderRepository extends EntityRepository
 {
@@ -221,6 +222,53 @@ class EventOrderRepository extends EntityRepository
 
         // order by
         $query->orderBy('eo.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $status
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getClientEventOrders(
+        $userId,
+        $status,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->where('eo.userId = :userId')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->setParameter('userId', $userId);
+
+        // filter by status
+        if (!is_null($status)) {
+            switch ($status) {
+                case EventOrder::CLIENT_STATUS_IN_PROCESS:
+                    $query->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
+                        ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
+                        ->andWhere('
+                            eo.status = :unpaid OR
+                            (e.verify = TRUE AND er.userId = :userId AND er.status = :pending)
+                        ')
+                        ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+                        ->setParameter('userId', $userId)
+                        ->setParameter('pending', EventRegistration::STATUS_PENDING);
+                    break;
+                case EventOrder::CLIENT_STATUS_PASSED:
+                    $query->andWhere('eo.status = :paid OR eo.status = :completed')
+                        ->setParameter('paid', EventOrder::STATUS_PAID)
+                        ->setParameter('completed', EventOrder::STATUS_COMPLETED);
+                    break;
+                default:
+                    break;
+            }
+        }
 
         return $query->getQuery()->getResult();
     }
