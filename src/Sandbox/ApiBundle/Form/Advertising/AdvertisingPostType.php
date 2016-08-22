@@ -15,7 +15,7 @@ class AdvertisingPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('content')
+            ->add('url')
             ->add('source')
             ->add(
                 'source_id',
