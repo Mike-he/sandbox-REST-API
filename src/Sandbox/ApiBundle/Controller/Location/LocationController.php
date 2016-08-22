@@ -218,7 +218,7 @@ class LocationController extends SalesRestController
         $permissionArray = $paramFetcher->get('permission');
         $platform = $paramFetcher->get('platform');
         $salesCompanyId = $paramFetcher->get('sales_company');
-        $excludeIds = $paramFetcher->get('exclude_company_id');
+        $excludeIds = [9];
 
         $visible = true;
         if (RoomBuilding::PLATFORM_SALES_USER_BUILDING == $platform) {
@@ -477,7 +477,7 @@ class LocationController extends SalesRestController
         $lat = $paramFetcher->get('lat');
         $lng = $paramFetcher->get('lng');
         $addon = $paramFetcher->get('addon');
-        $excludeIds = $paramFetcher->get('exclude_company_id');
+        $excludeIds = [9];
 
         $globals = $this->getGlobals();
         $range = $globals['nearby_range_km'];
