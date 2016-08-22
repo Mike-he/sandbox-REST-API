@@ -31,11 +31,11 @@ class Advertising
     /**
      * @var string
      *
-     * @ORM\Column(name="content", type="text")
+     * @ORM\Column(name="url", type="text")
      *
      * @Serializer\Groups({"main", "client_list"})
      */
-    private $content;
+    private $url;
 
     /**
      * @var string
@@ -109,27 +109,19 @@ class Advertising
     }
 
     /**
-     * Set content.
-     *
-     * @param string $content
-     *
-     * @return Advertising
+     * @return string
      */
-    public function setContent($content)
+    public function getUrl()
     {
-        $this->content = $content;
-
-        return $this;
+        return $this->url;
     }
 
     /**
-     * Get content.
-     *
-     * @return string
+     * @param string $url
      */
-    public function getContent()
+    public function setUrl($url)
     {
-        return $this->content;
+        $this->url = $url;
     }
 
     /**
