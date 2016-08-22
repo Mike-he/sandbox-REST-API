@@ -195,6 +195,13 @@ class LocationController extends SalesRestController
      *    description="id of sales admin"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="exclude_company_id",
+     *    array=true,
+     *    nullable=true,
+     *    description="exclude_company_id"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -211,6 +218,7 @@ class LocationController extends SalesRestController
         $permissionArray = $paramFetcher->get('permission');
         $platform = $paramFetcher->get('platform');
         $salesCompanyId = $paramFetcher->get('sales_company');
+        $excludeIds = $paramFetcher->get('exclude_company_id');
 
         $visible = true;
         if (RoomBuilding::PLATFORM_SALES_USER_BUILDING == $platform) {
@@ -223,7 +231,8 @@ class LocationController extends SalesRestController
             $ids,
             $salesCompanyId,
             RoomBuilding::STATUS_ACCEPT,
-            $visible
+            $visible,
+            $excludeIds
         );
 
         $headers = apache_request_headers();
@@ -447,6 +456,13 @@ class LocationController extends SalesRestController
      *    description="shop addon"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="exclude_company_id",
+     *    array=true,
+     *    nullable=true,
+     *    description="exclude_company_id"
+     * )
+     *
      * @Route("/buildings/nearby")
      * @Method({"GET"})
      *
@@ -461,6 +477,7 @@ class LocationController extends SalesRestController
         $lat = $paramFetcher->get('lat');
         $lng = $paramFetcher->get('lng');
         $addon = $paramFetcher->get('addon');
+        $excludeIds = $paramFetcher->get('exclude_company_id');
 
         $globals = $this->getGlobals();
         $range = $globals['nearby_range_km'];
@@ -474,7 +491,8 @@ class LocationController extends SalesRestController
         $buildings = $this->getRepo('Room\RoomBuilding')->findNearbyBuildings(
             $lat,
             $lng,
-            $range
+            $range,
+            $excludeIds
         );
 
         if ($addon == 'shop') {
