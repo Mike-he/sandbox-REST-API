@@ -130,6 +130,104 @@ class ClientOrderController extends OrderController
     }
 
     /**
+     * Get all orders for current user.
+     *
+     * @Get("/orders/mylist")
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        order status
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getUserOrderListAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $status = $paramFetcher->get('status');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $language = $request->getPreferredLanguage();
+        $orders = [];
+
+        switch ($status) {
+            case ProductOrder::COMBINE_STATUS_PENDING :
+                $orders = $this->getRepo('Order\ProductOrder')->getUserPendingOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
+            case ProductOrder::STATUS_COMPLETED :
+                $orders = $this->getRepo('Order\ProductOrder')->getUserCompletedOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
+            case ProductOrder::COMBINE_STATUS_REFUND :
+                $orders = $this->getRepo('Order\ProductOrder')->getUserRefundOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
+        }
+
+        foreach ($orders as $order) {
+            $room = $order->getProduct()->getRoom();
+            $type = $room->getType();
+
+            $description = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$type,
+                array(),
+                null,
+                $language
+            );
+
+            $room->setTypeDescription($description);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
      * Get sales invoice orders amount.
      *
      * @Get("/orders/my/sales/invoice/amount")

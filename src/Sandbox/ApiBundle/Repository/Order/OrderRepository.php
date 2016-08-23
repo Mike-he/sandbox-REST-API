@@ -15,6 +15,95 @@ class OrderRepository extends EntityRepository
     const CANCELLED = "'cancelled'";
 
     /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserPendingOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = \'paid\' OR o.status = \'unpaid\'')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserCompletedOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('
+                o.status = \'completed\' OR 
+                (o.status = \'cancelled\' AND o.payChannel IS NULL) OR
+                (
+                    o.status = \'cancelled\' AND 
+                    o.payChannel = :offline AND
+                    o.needToRefund = :needToRefund AND 
+                    o.refunded = :refunded
+                )    
+            ')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setParameter('needToRefund', false)
+            ->setParameter('refunded', false)
+            ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserRefundOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('
+                o.needToRefund = :needToRefund OR
+                o.refunded = :refunded
+            ')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setParameter('needToRefund', true)
+            ->setParameter('refunded', true)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
      * @param $id
      *
      * @return mixed

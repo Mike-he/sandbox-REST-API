@@ -88,6 +88,147 @@ class ClientShopOrderController extends ShopRestController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        order status
+     *    "
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/shops/orders/mylist")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getShopOrderListByUserAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $status = $paramFetcher->get('status');
+        $orders = [];
+
+        switch ($status) {
+            case ProductOrder::COMBINE_STATUS_PENDING :
+                $orders = $this->getRepo('Shop\ShopOrder')->getUserPendingOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                $count = count($orders);
+
+                for ($i = 0; $i < $count; ++$i) {
+                    $orderStatus = $orders[$i]->getStatus();
+
+                    if ($orderStatus == ShopOrder::STATUS_TO_BE_REFUNDED) {
+                        $linkedOrderId = $orders[$i]->getLinkedOrderId();
+
+                        $linkedOrder = $this->getDoctrine()
+                            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+                            ->findOneBy(['id' => $linkedOrderId]);
+
+                        if (!is_null($linkedOrder)) {
+                            $linkedOrderStatus = $linkedOrder->getStatus();
+
+                            if ($linkedOrderStatus == ShopOrder::STATUS_TO_BE_REFUNDED ||
+                                $linkedOrderStatus == ShopOrder::STATUS_COMPLETED
+                            ) {
+                                unset($orders[$i]);
+                            }
+                        }
+                    }
+                }
+
+                $orders = array_values($orders);
+
+                break;
+            case ProductOrder::STATUS_COMPLETED :
+                $orders = $this->getRepo('Shop\ShopOrder')->getUserCompletedOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
+            case ProductOrder::COMBINE_STATUS_REFUND :
+                $orders = $this->getRepo('Shop\ShopOrder')->getUserRefundOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                $count = count($orders);
+
+                for ($i = 0; $i < $count; ++$i) {
+                    $orderStatus = $orders[$i]->getStatus();
+
+                    if ($orderStatus == ShopOrder::STATUS_TO_BE_REFUNDED) {
+                        $linkedOrderId = $orders[$i]->getLinkedOrderId();
+
+                        if (is_null($linkedOrderId)) {
+                            continue;
+                        }
+
+                        $linkedOrder = $this->getDoctrine()
+                            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+                            ->findOneBy(['id' => $linkedOrderId]);
+
+                        if (!is_null($linkedOrder)) {
+                            $linkedOrderStatus = $linkedOrder->getStatus();
+
+                            if ($linkedOrderStatus != ShopOrder::STATUS_TO_BE_REFUNDED &&
+                                $linkedOrderStatus != ShopOrder::STATUS_COMPLETED
+                            ) {
+                                unset($orders[$i]);
+                            }
+                        }
+                    }
+                }
+
+                $orders = array_values($orders);
+
+                break;
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
      * @param Request $request
      * @param int     $id
      *

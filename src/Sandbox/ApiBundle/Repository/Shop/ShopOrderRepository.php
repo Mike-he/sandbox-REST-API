@@ -419,4 +419,103 @@ class ShopOrderRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserPendingOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('
+                o.status = :unpaid OR
+                o.status = :paid OR
+                o.status = :issue OR
+                o.status = :ready OR
+                (o.status = :waiting AND o.linkedOrderId IS NOT NULL)
+            ')
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
+            ->setParameter('paid', ShopOrder::STATUS_PAID)
+            ->setParameter('issue', ShopOrder::STATUS_ISSUE)
+            ->setParameter('ready', ShopOrder::STATUS_READY)
+            ->setParameter('waiting', ShopOrder::STATUS_TO_BE_REFUNDED)
+            ->setParameter('unoriginal', false)
+            ->setParameter('userId', $userId)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserCompletedOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('
+                o.status = :completed OR
+                o.status = :cancelled 
+            ')
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED)
+            ->setParameter('unoriginal', false)
+            ->setParameter('userId', $userId)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserRefundOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('
+                o.status = :refunded OR
+                o.status = :waiting
+            ')
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setParameter('waiting', ShopOrder::STATUS_TO_BE_REFUNDED)
+            ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
+            ->setParameter('unoriginal', false)
+            ->setParameter('userId', $userId)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }
