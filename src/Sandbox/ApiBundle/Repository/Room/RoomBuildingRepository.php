@@ -53,13 +53,15 @@ class RoomBuildingRepository extends EntityRepository
      * @param string $lat
      * @param string $lng
      * @param int    $range
+     * @param array  $excludeIds
      *
      * @return array
      */
     public function findNearbyBuildings(
         $lat,
         $lng,
-        $range
+        $range,
+        $excludeIds
     ) {
         $query = $this->getEntityManager()
             ->createQuery(
@@ -75,6 +77,7 @@ class RoomBuildingRepository extends EntityRepository
                     WHERE rb.status = :accept
                     AND rb.visible = TRUE
                     AND rb.isDeleted = FALSE
+                    AND rb.companyId NOT IN (:ids)
                     HAVING distance < :range
                     ORDER BY distance ASC
                 '
@@ -82,6 +85,7 @@ class RoomBuildingRepository extends EntityRepository
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
             ->setParameter('range', $range)
+            ->setParameter('ids', $excludeIds)
             ->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
 
         return $query->getResult();
@@ -176,6 +180,7 @@ class RoomBuildingRepository extends EntityRepository
      * @param $companyId
      * @param $status
      * @param $visible
+     * @param $excludeIds
      *
      * @return array
      */
@@ -184,7 +189,8 @@ class RoomBuildingRepository extends EntityRepository
         $myBuildingIds = null,
         $companyId = null,
         $status = null,
-        $visible = null
+        $visible = null,
+        $excludeIds = null
     ) {
         $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -230,6 +236,11 @@ class RoomBuildingRepository extends EntityRepository
         if (!is_null($visible)) {
             $buildingsQuery->andWhere('rb.visible = :visible');
             $buildingsQuery->setParameter('visible', $visible);
+        }
+
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $buildingsQuery->andWhere('rb.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
         }
 
         // order by creation date

@@ -54,6 +54,13 @@ class Feature
     private $ready = false;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="app", type="string", length=64)
+     */
+    private $app;
+
+    /**
      * Get id.
      *
      * @return int
@@ -157,5 +164,21 @@ class Feature
     public function getReady()
     {
         return $this->ready;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApp()
+    {
+        return $this->app;
+    }
+
+    /**
+     * @param string $app
+     */
+    public function setApp($app)
+    {
+        $this->app = $app;
     }
 }
