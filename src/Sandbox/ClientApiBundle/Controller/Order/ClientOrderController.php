@@ -209,6 +209,15 @@ class ClientOrderController extends OrderController
         foreach ($orders as $order) {
             $room = $order->getProduct()->getRoom();
             $type = $room->getType();
+            $appointed = $order->getAppointed();
+
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneByUserId($appointed);
+
+            if (!is_null($profile)) {
+                $order->setAppointedName($profile->getName());
+            }
 
             $description = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_ROOM_TYPE.$type,
