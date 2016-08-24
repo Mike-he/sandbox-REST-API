@@ -312,7 +312,7 @@ class ProductOrder
      * @var bool
      *
      * @ORM\Column(name="needToRefund", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $needToRefund = false;
 
@@ -320,7 +320,7 @@ class ProductOrder
      * @var bool
      *
      * @ORM\Column(name="refunded", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $refunded = false;
 
@@ -328,7 +328,7 @@ class ProductOrder
      * @var bool
      *
      * @ORM\Column(name="refundProcessed", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $refundProcessed = false;
 
@@ -337,7 +337,7 @@ class ProductOrder
      *
      * @ORM\Column(name="refundProcessedDate", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client"})
      */
     private $refundProcessedDate;
 
