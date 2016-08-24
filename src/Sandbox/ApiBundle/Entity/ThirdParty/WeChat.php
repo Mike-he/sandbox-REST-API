@@ -104,7 +104,7 @@ class WeChat
     /**
      * @var string
      *
-     * @ORM\Column(name="from", type="string", length=64, nullable=true)
+     * @ORM\Column(name="loginFrom", type="string", length=64, nullable=true)
      */
     private $loginFrom;
 
