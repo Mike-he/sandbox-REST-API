@@ -346,7 +346,7 @@ class ClientShopOrderController extends ShopRestController
                 ->findOneBy(
                     [
                         'userId' => $userId,
-                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                        'loginFrom' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
                     ]
                 );
             $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
