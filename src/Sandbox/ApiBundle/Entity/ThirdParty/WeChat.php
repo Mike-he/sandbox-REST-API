@@ -106,7 +106,7 @@ class WeChat
      *
      * @ORM\Column(name="from", type="string", length=64, nullable=true)
      */
-    private $from;
+    private $loginFrom;
 
     /**
      * @var \DateTime
@@ -293,17 +293,17 @@ class WeChat
     /**
      * @return string
      */
-    public function getFrom()
+    public function getLoginFrom()
     {
-        return $this->from;
+        return $this->loginFrom;
     }
 
     /**
-     * @param string $from
+     * @param string $loginFrom
      */
-    public function setFrom($from)
+    public function setLoginFrom($loginFrom)
     {
-        $this->from = $from;
+        $this->loginFrom = $loginFrom;
     }
 
     /**
