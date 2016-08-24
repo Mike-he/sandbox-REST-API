@@ -433,6 +433,7 @@ class ShopOrderRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->where('o.unoriginal = :unoriginal')
             ->andWhere('o.userId = :userId')
             ->andWhere('
@@ -440,7 +441,11 @@ class ShopOrderRepository extends EntityRepository
                 o.status = :paid OR
                 o.status = :issue OR
                 o.status = :ready OR
-                (o.status = :waiting AND o.linkedOrderId IS NOT NULL)
+                (
+                    o.status = :waiting AND 
+                    o.linkedOrderId IS NOT NULL AND
+                    (so.status != :waiting OR so.status != :completed)
+                )
             ')
             ->orderBy('o.modificationDate', 'DESC')
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
@@ -448,6 +453,7 @@ class ShopOrderRepository extends EntityRepository
             ->setParameter('issue', ShopOrder::STATUS_ISSUE)
             ->setParameter('ready', ShopOrder::STATUS_READY)
             ->setParameter('waiting', ShopOrder::STATUS_TO_BE_REFUNDED)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
             ->setParameter('unoriginal', false)
             ->setParameter('userId', $userId)
             ->setFirstResult($offset)
@@ -501,15 +507,20 @@ class ShopOrderRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->where('o.unoriginal = :unoriginal')
             ->andWhere('o.userId = :userId')
             ->andWhere('
                 o.status = :refunded OR
-                o.status = :waiting
+                (
+                    o.status = :waiting AND 
+                    (so.status = :waiting OR so.status = :completed)
+                )
             ')
             ->orderBy('o.modificationDate', 'DESC')
             ->setParameter('waiting', ShopOrder::STATUS_TO_BE_REFUNDED)
             ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
             ->setParameter('unoriginal', false)
             ->setParameter('userId', $userId)
             ->setFirstResult($offset)

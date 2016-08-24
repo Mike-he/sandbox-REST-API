@@ -146,32 +146,6 @@ class ClientShopOrderController extends ShopRestController
                     $offset
                 );
 
-                $count = count($orders);
-
-                for ($i = 0; $i < $count; ++$i) {
-                    $orderStatus = $orders[$i]->getStatus();
-
-                    if ($orderStatus == ShopOrder::STATUS_TO_BE_REFUNDED) {
-                        $linkedOrderId = $orders[$i]->getLinkedOrderId();
-
-                        $linkedOrder = $this->getDoctrine()
-                            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
-                            ->findOneBy(['id' => $linkedOrderId]);
-
-                        if (!is_null($linkedOrder)) {
-                            $linkedOrderStatus = $linkedOrder->getStatus();
-
-                            if ($linkedOrderStatus == ShopOrder::STATUS_TO_BE_REFUNDED ||
-                                $linkedOrderStatus == ShopOrder::STATUS_COMPLETED
-                            ) {
-                                unset($orders[$i]);
-                            }
-                        }
-                    }
-                }
-
-                $orders = array_values($orders);
-
                 break;
             case ProductOrder::STATUS_COMPLETED :
                 $orders = $this->getRepo('Shop\ShopOrder')->getUserCompletedOrders(
@@ -187,36 +161,6 @@ class ClientShopOrderController extends ShopRestController
                     $limit,
                     $offset
                 );
-
-                $count = count($orders);
-
-                for ($i = 0; $i < $count; ++$i) {
-                    $orderStatus = $orders[$i]->getStatus();
-
-                    if ($orderStatus == ShopOrder::STATUS_TO_BE_REFUNDED) {
-                        $linkedOrderId = $orders[$i]->getLinkedOrderId();
-
-                        if (is_null($linkedOrderId)) {
-                            continue;
-                        }
-
-                        $linkedOrder = $this->getDoctrine()
-                            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
-                            ->findOneBy(['id' => $linkedOrderId]);
-
-                        if (!is_null($linkedOrder)) {
-                            $linkedOrderStatus = $linkedOrder->getStatus();
-
-                            if ($linkedOrderStatus != ShopOrder::STATUS_TO_BE_REFUNDED &&
-                                $linkedOrderStatus != ShopOrder::STATUS_COMPLETED
-                            ) {
-                                unset($orders[$i]);
-                            }
-                        }
-                    }
-                }
-
-                $orders = array_values($orders);
 
                 break;
         }
