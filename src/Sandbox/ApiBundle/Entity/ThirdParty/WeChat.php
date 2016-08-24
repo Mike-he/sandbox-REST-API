@@ -32,7 +32,7 @@ class WeChat
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer")
+     * @ORM\Column(name="userId", type="integer", nullable=true)
      */
     private $userId;
 
