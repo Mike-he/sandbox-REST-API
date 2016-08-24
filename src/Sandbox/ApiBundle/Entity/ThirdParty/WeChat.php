@@ -30,6 +30,13 @@ class WeChat
     private $id;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="userId", type="integer")
+     */
+    private $userId;
+
+    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User"))
@@ -137,6 +144,22 @@ class WeChat
     public function setUser($user)
     {
         $this->user = $user;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param int $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
     }
 
     /**
