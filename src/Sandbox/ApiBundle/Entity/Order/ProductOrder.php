@@ -178,6 +178,13 @@ class ProductOrder
     /**
      * @var string
      *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $appointedName;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="location", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "client"})
@@ -912,6 +919,30 @@ class ProductOrder
     public function getAppointed()
     {
         return $this->appointed;
+    }
+
+    /**
+     * Set appointedName.
+     *
+     * @param string $name
+     *
+     * @return ProductOrder
+     */
+    public function setAppointedName($name)
+    {
+        $this->appointedName = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get appointedName.
+     *
+     * @return string
+     */
+    public function getAppointedName()
+    {
+        return $this->appointedName;
     }
 
     /**
