@@ -137,6 +137,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         $weChat->setExpiresIn($result['expires_in']);
         $weChat->setScope($result['scope']);
         $weChat->setAuthCode($code);
+        $weChat->setFrom($from);
         $weChat->setModificationDate($now);
 
         if (array_key_exists('unionid', $result)) {

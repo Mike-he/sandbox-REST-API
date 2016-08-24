@@ -4,7 +4,10 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
+use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
@@ -103,6 +106,104 @@ class ClientOrderController extends OrderController
                 $limit,
                 $offset
             );
+        }
+
+        foreach ($orders as $order) {
+            $room = $order->getProduct()->getRoom();
+            $type = $room->getType();
+
+            $description = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$type,
+                array(),
+                null,
+                $language
+            );
+
+            $room->setTypeDescription($description);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
+     * Get all orders for current user.
+     *
+     * @Get("/orders/mylist")
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        order status
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function getUserOrderListAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $status = $paramFetcher->get('status');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $language = $request->getPreferredLanguage();
+        $orders = [];
+
+        switch ($status) {
+            case ProductOrder::COMBINE_STATUS_PENDING :
+                $orders = $this->getRepo('Order\ProductOrder')->getUserPendingOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
+            case ProductOrder::STATUS_COMPLETED :
+                $orders = $this->getRepo('Order\ProductOrder')->getUserCompletedOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
+            case ProductOrder::COMBINE_STATUS_REFUND :
+                $orders = $this->getRepo('Order\ProductOrder')->getUserRefundOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
         }
 
         foreach ($orders as $order) {
@@ -265,6 +366,36 @@ class ClientOrderController extends OrderController
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $order->setInvoiced(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Post("/orders/{id}/sales/invoice/cancel")
+     *
+     * @return View
+     */
+    public function postUserOrderInvoicedCancelAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy(array(
+                'id' => $id,
+                'userId' => $userId,
+            ));
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $order->setInvoiced(false);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -631,24 +762,10 @@ class ClientOrderController extends OrderController
         $token = '';
         $smsId = '';
         $smsCode = '';
+        $openId = null;
 
         if (array_key_exists('channel', $requestContent)) {
             $channel = $requestContent['channel'];
-
-            if ($channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-                $channel !== self::PAYMENT_CHANNEL_UPACP &&
-                $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-                $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-                $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-                $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-                $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT
-            ) {
-                return $this->customErrorView(
-                    400,
-                    self::WRONG_CHANNEL_CODE,
-                    self::WRONG_CHANNEL_MESSAGE
-                );
-            }
         }
 
         if ($channel == self::PAYMENT_CHANNEL_ACCOUNT) {
@@ -656,6 +773,23 @@ class ClientOrderController extends OrderController
                 $order,
                 $channel
             );
+        } elseif ($channel == ProductOrder::CHANNEL_OFFLINE) {
+            return $this->setOfflineChannel(
+                $order,
+                $channel
+            );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $order->getUserId(),
+                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $orderNumber = $order->getOrderNumber();
@@ -667,11 +801,74 @@ class ClientOrderController extends OrderController
             $order->getDiscountPrice(),
             $channel,
             ProductOrder::PAYMENT_SUBJECT,
-            ProductOrder::PAYMENT_BODY
+            ProductOrder::PAYMENT_BODY,
+            $openId
         );
         $charge = json_decode($charge, true);
 
         return new View($charge);
+    }
+
+    /**
+     * @Post("/orders/{id}/transfer")
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function setTransferAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'id' => $id,
+                'status' => ProductOrder::STATUS_UNPAID,
+                'userId' => $userId,
+                'payChannel' => ProductOrder::CHANNEL_OFFLINE,
+            ]
+        );
+
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $existTransfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+            ->findOneByOrderId($id);
+
+        if (is_null($existTransfer)) {
+            $transfer = new OrderOfflineTransfer();
+
+            $form = $this->createForm(new OrderOfflineTransferPost(), $transfer);
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_FORM_CODE,
+                    self::INVALID_FORM_MESSAGE
+                );
+            }
+
+            $now = new \DateTime('now');
+            $order->setStatus(ProductOrder::STATUS_PAID);
+            $order->setModificationDate($now);
+            $order->setPaymentDate($now);
+
+            $transfer->setOrder($order);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($transfer);
+            $em->flush();
+        }
+
+        return new View();
     }
 
     /**
@@ -1181,60 +1378,64 @@ class ClientOrderController extends OrderController
             );
         }
 
-        $modifyTime = $this->getGlobal('time_for_preorder_cancel');
+        //$modifyTime = $this->getGlobal('time_for_preorder_cancel');
         $status = $order->getStatus();
         $now = new \DateTime();
         $hours = 0;
         $minutes = 0;
         $seconds = 0;
+        $channel = $order->getPayChannel();
 
-        if ($status == ProductOrder::STATUS_UNPAID) {
+        if ($status == ProductOrder::STATUS_UNPAID && $channel != ProductOrder::CHANNEL_OFFLINE) {
             $creationTime = $order->getCreationDate();
 
             if (ProductOrder::PREORDER_TYPE == $order->getType()) {
-                $start = $order->getStartDate();
+                return new View();
 
-                if ($start > $now) {
-                    $remainingTime = $start->diff($creationTime);
-                    $days = $remainingTime->d;
-
-                    if ($days > 0) {
-                        $endTime = clone $creationTime;
-                        $endTime->modify($modifyTime);
-
-                        $remainingTime = $endTime->diff($now);
-                        $hours = $remainingTime->h;
-                        $minutes = $remainingTime->i;
-                        $seconds = $remainingTime->s;
-
-                        if ($now >= $endTime) {
-                            $hours = 0;
-                            $minutes = 0;
-                            $seconds = 0;
-
-                            $this->setOrderStatusCancelled($order, $now);
-                        }
-                    } else {
-                        $remainingTime = $start->diff($now);
-                        $hours = $remainingTime->h;
-                        $minutes = $remainingTime->i;
-                        $seconds = $remainingTime->s;
-                    }
-                } else {
-                    $remainingTime = $now->diff($creationTime);
-                    $minutes = $remainingTime->i;
-                    $seconds = $remainingTime->s;
-
-                    $minutes = 4 - $minutes;
-                    $seconds = 59 - $seconds;
-
-                    if ($minutes < 0) {
-                        $minutes = 0;
-                        $seconds = 0;
-
-                        $this->setOrderStatusCancelled($order, $now);
-                    }
-                }
+                // removed for preorder
+//                $start = $order->getStartDate();
+//
+//                if ($start > $now) {
+//                    $remainingTime = $start->diff($creationTime);
+//                    $days = $remainingTime->d;
+//
+//                    if ($days > 0) {
+//                        $endTime = clone $creationTime;
+//                        $endTime->modify($modifyTime);
+//
+//                        $remainingTime = $endTime->diff($now);
+//                        $hours = $remainingTime->h;
+//                        $minutes = $remainingTime->i;
+//                        $seconds = $remainingTime->s;
+//
+//                        if ($now >= $endTime) {
+//                            $hours = 0;
+//                            $minutes = 0;
+//                            $seconds = 0;
+//
+//                            $this->setOrderStatusCancelled($order, $now);
+//                        }
+//                    } else {
+//                        $remainingTime = $start->diff($now);
+//                        $hours = $remainingTime->h;
+//                        $minutes = $remainingTime->i;
+//                        $seconds = $remainingTime->s;
+//                    }
+//                } else {
+//                    $remainingTime = $now->diff($creationTime);
+//                    $minutes = $remainingTime->i;
+//                    $seconds = $remainingTime->s;
+//
+//                    $minutes = 4 - $minutes;
+//                    $seconds = 59 - $seconds;
+//
+//                    if ($minutes < 0) {
+//                        $minutes = 0;
+//                        $seconds = 0;
+//
+//                        $this->setOrderStatusCancelled($order, $now);
+//                    }
+//                }
             } else {
                 $remainingTime = $now->diff($creationTime);
                 $minutes = $remainingTime->i;
@@ -1598,7 +1799,7 @@ class ClientOrderController extends OrderController
         $alertArray = [];
 
         if ($status == ProductOrder::STATUS_PAID && !$order->isRejected()) {
-            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) {
                 $time = clone $now;
                 $time->modify('+10 minutes');
 
@@ -1608,8 +1809,10 @@ class ClientOrderController extends OrderController
 
                     if ($type == Room::TYPE_MEETING) {
                         $keyStart = ProductOrderMessage::MEETING_START_MESSAGE;
-                    } else {
+                    } elseif ($type == Room::TYPE_STUDIO) {
                         $keyStart = ProductOrderMessage::STUDIO_START_MESSAGE;
+                    } else {
+                        $keyStart = ProductOrderMessage::SPACE_START_MESSAGE;
                     }
                 }
             } else {
@@ -1630,7 +1833,7 @@ class ClientOrderController extends OrderController
             !$order->isRejected() &&
             $endDate > $now
         ) {
-            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) {
                 $time = clone $now;
                 $time->modify('+10 minutes');
 
@@ -1640,8 +1843,10 @@ class ClientOrderController extends OrderController
 
                     if ($type == Room::TYPE_MEETING) {
                         $keyEnd = ProductOrderMessage::MEETING_END_MESSAGE;
-                    } else {
+                    } elseif ($type == Room::TYPE_STUDIO) {
                         $keyEnd = ProductOrderMessage::STUDIO_END_MESSAGE;
+                    } else {
+                        $keyEnd = ProductOrderMessage::SPACE_END_MESSAGE;
                     }
                 }
             } elseif ($type == Room::TYPE_OFFICE) {

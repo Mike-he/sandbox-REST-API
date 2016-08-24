@@ -66,18 +66,20 @@ class CheckStatusCommand extends ContainerAwareCommand
             ->setVisibleFalse();
 
         // get unpaid preorder product orders
-        $twig = $this->getContainer()->get('twig');
-        $globals = $twig->getGlobals();
-        $modifyTime = $globals['time_for_preorder_cancel'];
+        // removed for preorder
 
-        $preorders = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getUnpaidPreOrders();
+        //$twig = $this->getContainer()->get('twig');
+        //$globals = $twig->getGlobals();
+        //$modifyTime = $globals['time_for_preorder_cancel'];
 
-        foreach ($preorders as $preorder) {
-            $this->checkPreOrders($preorder, $modifyTime);
-        }
+//        $preorders = $this->getContainer()
+//            ->get('doctrine')
+//            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+//            ->getUnpaidPreOrders();
+//
+//        foreach ($preorders as $preorder) {
+//            $this->checkPreOrders($preorder, $modifyTime);
+//        }
 
         // get paid product order and set status completed
         $orders = $this->getContainer()

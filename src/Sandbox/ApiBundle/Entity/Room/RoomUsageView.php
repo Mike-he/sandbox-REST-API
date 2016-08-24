@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
 
 /**
  * RoomUsageView.
@@ -73,6 +74,19 @@ class RoomUsageView
      * @Serializer\Groups({"main", "room_usage"})
      */
     private $appointedUser;
+
+    /**
+     * @var InvitedPeople
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Order\InvitedPeople",
+     *      mappedBy="orderId"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
+     *
+     * @Serializer\Groups({"main", "room_usage"})
+     */
+    private $invitedPeople;
 
     /**
      * Get id.
@@ -226,5 +240,29 @@ class RoomUsageView
     public function getAppointedUser()
     {
         return $this->appointedUser;
+    }
+
+    /**
+     * Set invitedPeople.
+     *
+     * @param array $invitedPeople
+     *
+     * @return RoomUsageView
+     */
+    public function setInvitedPeople($invitedPeople)
+    {
+        $this->invitedPeople = $invitedPeople;
+
+        return $this;
+    }
+
+    /**
+     * Get invitedPeople.
+     *
+     * @return array
+     */
+    public function getInvitedPeople()
+    {
+        return $this->invitedPeople;
     }
 }

@@ -28,11 +28,6 @@ class ProductType extends AbstractType
                     'mapped' => false,
                 )
             )
-            ->add('end_date', 'date', array(
-                    'widget' => 'single_text',
-                    'mapped' => false,
-                )
-            )
             ->add(
                 'price_rule_include_ids',
                 null,

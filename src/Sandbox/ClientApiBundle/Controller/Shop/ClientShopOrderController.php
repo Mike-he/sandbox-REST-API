@@ -7,6 +7,7 @@ use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -82,6 +83,147 @@ class ClientShopOrderController extends ShopRestController
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
         $view->setData($order);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        order status
+     *    "
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/shops/orders/mylist")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getShopOrderListByUserAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $status = $paramFetcher->get('status');
+        $orders = [];
+
+        switch ($status) {
+            case ProductOrder::COMBINE_STATUS_PENDING :
+                $orders = $this->getRepo('Shop\ShopOrder')->getUserPendingOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                $count = count($orders);
+
+                for ($i = 0; $i < $count; ++$i) {
+                    $orderStatus = $orders[$i]->getStatus();
+
+                    if ($orderStatus == ShopOrder::STATUS_TO_BE_REFUNDED) {
+                        $linkedOrderId = $orders[$i]->getLinkedOrderId();
+
+                        $linkedOrder = $this->getDoctrine()
+                            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+                            ->findOneBy(['id' => $linkedOrderId]);
+
+                        if (!is_null($linkedOrder)) {
+                            $linkedOrderStatus = $linkedOrder->getStatus();
+
+                            if ($linkedOrderStatus == ShopOrder::STATUS_TO_BE_REFUNDED ||
+                                $linkedOrderStatus == ShopOrder::STATUS_COMPLETED
+                            ) {
+                                unset($orders[$i]);
+                            }
+                        }
+                    }
+                }
+
+                $orders = array_values($orders);
+
+                break;
+            case ProductOrder::STATUS_COMPLETED :
+                $orders = $this->getRepo('Shop\ShopOrder')->getUserCompletedOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
+            case ProductOrder::COMBINE_STATUS_REFUND :
+                $orders = $this->getRepo('Shop\ShopOrder')->getUserRefundOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                $count = count($orders);
+
+                for ($i = 0; $i < $count; ++$i) {
+                    $orderStatus = $orders[$i]->getStatus();
+
+                    if ($orderStatus == ShopOrder::STATUS_TO_BE_REFUNDED) {
+                        $linkedOrderId = $orders[$i]->getLinkedOrderId();
+
+                        if (is_null($linkedOrderId)) {
+                            continue;
+                        }
+
+                        $linkedOrder = $this->getDoctrine()
+                            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+                            ->findOneBy(['id' => $linkedOrderId]);
+
+                        if (!is_null($linkedOrder)) {
+                            $linkedOrderStatus = $linkedOrder->getStatus();
+
+                            if ($linkedOrderStatus != ShopOrder::STATUS_TO_BE_REFUNDED &&
+                                $linkedOrderStatus != ShopOrder::STATUS_COMPLETED
+                            ) {
+                                unset($orders[$i]);
+                            }
+                        }
+                    }
+                }
+
+                $orders = array_values($orders);
+
+                break;
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+        $view->setData($orders);
 
         return $view;
     }
@@ -247,29 +389,25 @@ class ClientShopOrderController extends ShopRestController
         $token = '';
         $smsId = '';
         $smsCode = '';
-
-        if (
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
-            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
-            );
-        }
+        $openId = null;
 
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
                 $order,
                 $channel
             );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $userId,
+                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $orderNumber = $order->getOrderNumber();
@@ -282,7 +420,8 @@ class ClientShopOrderController extends ShopRestController
             $order->getPrice(),
             $channel,
             ShopOrder::PAYMENT_SUBJECT,
-            ShopOrder::PAYMENT_BODY
+            ShopOrder::PAYMENT_BODY,
+            $openId
         );
 
         $charge = json_decode($charge, true);

@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
 use Sandbox\ApiBundle\Form\Order\PatchOrderRejectedType;
 use Sandbox\ApiBundle\Form\Order\PreOrderType;
@@ -43,6 +44,191 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 class AdminOrderController extends OrderController
 {
     use ProductOrderNotification;
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="orderEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="payStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="payEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rentStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rentEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="invoiceStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="invoiceEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Route("/orders/sales/notinvoiced")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSalesInvoiceOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->getAdminId(),
+            SalesAdminType::KEY_PLATFORM,
+            array(
+                SalesAdminPermission::KEY_PLATFORM_INVOICE,
+            ),
+            SalesAdminPermissionMap::OP_LEVEL_VIEW
+        );
+
+        // get sales company id
+        $salesCompanyId = $this->getSalesCompanyId();
+
+        // filters
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $type = $paramFetcher->get('type');
+        $buildingId = $paramFetcher->get('building');
+        $orderStartDate = $paramFetcher->get('orderStartDate');
+        $orderEndDate = $paramFetcher->get('orderEndDate');
+        $payStartDate = $paramFetcher->get('payStartDate');
+        $payEndDate = $paramFetcher->get('payEndDate');
+        $rentStartDate = $paramFetcher->get('rentStartDate');
+        $rentEndDate = $paramFetcher->get('rentEndDate');
+        $invoiceStartDate = $paramFetcher->get('invoiceStartDate');
+        $invoiceEndDate = $paramFetcher->get('invoiceEndDate');
+
+        $ordersQuery = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getAdminNotInvoicedOrders(
+                $type,
+                $buildingId,
+                $orderStartDate,
+                $orderEndDate,
+                $payStartDate,
+                $payEndDate,
+                $rentStartDate,
+                $rentEndDate,
+                $invoiceStartDate,
+                $invoiceEndDate,
+                $salesCompanyId
+            );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $ordersQuery,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
 
     /**
      * set rejected.
@@ -940,6 +1126,63 @@ class AdminOrderController extends OrderController
 
             throw $exception;
         }
+    }
+
+    /**
+     * @Route("/orders/{id}/transfer")
+     * @Method({"PATCH"})
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function patchTransferNoAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $buildingId = $order->getProduct()->getRoom()->getBuildingId();
+
+        // check user permission
+        $this->checkAdminOrderPermission(
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            $buildingId
+        );
+
+        $existTransfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+            ->findOneByOrderId($id);
+        $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $transferJson = $this->container->get('serializer')->serialize($existTransfer, 'json');
+        $patch = new Patch($transferJson, $request->getContent());
+        $transferJson = $patch->apply();
+
+        $form = $this->createForm(new OrderOfflineTransferPost(), $existTransfer);
+        $form->submit(json_decode($transferJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_ROOM_ORDER,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+            'logObjectId' => $id,
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
+
+        return new View();
     }
 
     /**

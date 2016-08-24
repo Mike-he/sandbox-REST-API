@@ -19,7 +19,8 @@ class ProductPatchType extends AbstractType
             ->add('isAnnualRent')
             ->add('annual_rent_unit_price')
             ->add('annual_rent_unit')
-            ->add('annual_rent_description');
+            ->add('annual_rent_description')
+            ->add('visible');
     }
 
     /**

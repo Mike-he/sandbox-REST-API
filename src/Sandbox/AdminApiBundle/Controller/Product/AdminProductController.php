@@ -495,8 +495,6 @@ class AdminProductController extends ProductController
 
         $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
-        $endDate = $form['end_date']->getData();
-        $endDate->setTime(23, 59, 59);
 
         if (!is_null($seatNumber) && !empty($seatNumber) && $type == Room::TYPE_FIXED) {
             $product->setSeatNumber($seatNumber);
@@ -515,7 +513,6 @@ class AdminProductController extends ProductController
 
         $now = new \DateTime('now');
         $product->setStartDate($startDate);
-        $product->setEndDate($endDate);
         $product->setCreationDate($now);
         $product->setModificationDate($now);
 
@@ -669,12 +666,9 @@ class AdminProductController extends ProductController
 
         $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
-        $endDate = $form['end_date']->getData();
-        $endDate->setTime(23, 59, 59);
 
         $product->setRoom($room);
         $product->setStartDate($startDate);
-        $product->setEndDate($endDate);
         $product->setModificationDate(new \DateTime('now'));
 
         $em = $this->getDoctrine()->getManager();

@@ -43,7 +43,7 @@ class FeatureController extends SandboxRestController
      *     name="app",
      *     array=false,
      *     default="sandbox",
-     *     nullable=false
+     *     nullable=true
      * )
      *
      * @Method({"GET"})

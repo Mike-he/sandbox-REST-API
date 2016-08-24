@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -60,6 +61,24 @@ class ClientEventOrderController extends PaymentController
      *    description="Offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="status",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="order status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="search key"
+     * )
+     *
      * @Route("/events/orders")
      * @Method({"GET"})
      *
@@ -72,20 +91,44 @@ class ClientEventOrderController extends PaymentController
         $userId = $this->getUserId();
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $status = $paramFetcher->get('status');
+        $search = $paramFetcher->get('query');
 
-        $orders = $this->getRepo('Event\EventOrder')->findBy(
-            [
-                'userId' => $userId,
-                'status' => EventOrder::STATUS_COMPLETED,
-            ],
-            ['modificationDate' => 'DESC'],
-            $limit,
-            $offset
-        );
+        $eventOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getClientEventOrders(
+                $userId,
+                $status,
+                $limit,
+                $offset,
+                $search
+            );
+
+        foreach ($eventOrders as $eventOrder) {
+            $event = $eventOrder->getEvent();
+            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+            $registrationCounts = $this->getRepo('Event\EventRegistration')
+                ->getRegistrationCounts($event->getId());
+
+            // set sales company
+            if (!is_null($event->getSalesCompanyId())) {
+                $salesCompany = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                    ->find($event->getSalesCompanyId());
+                $event->setSalesCompany($salesCompany);
+            }
+
+            $event->setAttachments($attachments);
+            $event->setDates($dates);
+            $event->setForms($forms);
+            $event->setRegisteredPersonNumber((int) $registrationCounts);
+        }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
-        $view->setData($orders);
+        $view->setData($eventOrders);
 
         return $view;
     }
@@ -205,8 +248,14 @@ class ClientEventOrderController extends PaymentController
         $order->setEvent($event);
         $order->setUserId($userId);
         $order->setPrice($event->getPrice());
-        $order->setStatus(EventOrder::STATUS_UNPAID);
         $order->setOrderNumber($orderNumber);
+
+        // set status
+        if ($order->getPrice() == 0) {
+            $order->setStatus(EventOrder::STATUS_PAID);
+        } else {
+            $order->setStatus(EventOrder::STATUS_UNPAID);
+        }
 
         $em->persist($order);
         $em->flush();
@@ -312,29 +361,25 @@ class ClientEventOrderController extends PaymentController
         $token = '';
         $smsId = '';
         $smsCode = '';
-
-        if (
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
-            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
-            );
-        }
+        $openId = null;
 
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
                 $order,
                 $channel
             );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $order->getUserId(),
+                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $orderNumber = $order->getOrderNumber();
@@ -346,7 +391,8 @@ class ClientEventOrderController extends PaymentController
             $order->getPrice(),
             $channel,
             EventOrder::PAYMENT_SUBJECT,
-            EventOrder::PAYMENT_BODY
+            EventOrder::PAYMENT_BODY,
+            $openId
         );
         $charge = json_decode($charge, true);
 

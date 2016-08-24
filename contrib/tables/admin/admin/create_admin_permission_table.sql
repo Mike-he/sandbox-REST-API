@@ -33,3 +33,4 @@ INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDa
 INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.order.preorder','订单预定','2015-08-24 00:00:00','2015-08-24 00:00:00');
 INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.product.appointment','预约审核','2016-07-08 00:00:00','2016-07-08 00:00:00');
 INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.log','日志管理','2016-07-08 00:00:00','2016-07-08 00:00:00');
+INSERT INTO AdminPermission(`typeId`,`key`,`name`,`creationDate`,`modificationDate`) VALUES(2,'platform.advertising','广告管理','2016-07-08 00:00:00','2016-07-08 00:00:00');

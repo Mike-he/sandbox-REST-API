@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -223,23 +224,7 @@ class ClientPaymentController extends PaymentController
         $token = '';
         $smsId = '';
         $smsCode = '';
-
-        if (
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
-            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
-            );
-        }
+        $openId = null;
 
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->accountPayment(
@@ -247,6 +232,18 @@ class ClientPaymentController extends PaymentController
                 $orderNo,
                 $amount
             );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $userId,
+                        'from' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $chargeJson = $this->payForOrder(
@@ -257,7 +254,8 @@ class ClientPaymentController extends PaymentController
             $amount,
             $channel,
             $subject,
-            "$userId"
+            "$userId",
+            $openId
         );
 
         $charge = json_decode($chargeJson, true);

@@ -784,4 +784,76 @@ class AdminUsersController extends DoorController
 
         return new View();
     }
+
+    /**
+     * Get Total Number Of Users.
+     *
+     * @Route("/users/total/number")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getUsersTotalAction()
+    {
+        $repo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView');
+        $count = $repo->countTotalUsers();
+
+        return new View(array(
+            'total' => $count,
+        ));
+    }
+
+    /**
+     * Get Registration Number Of Users.
+     *
+     * @param Request $request
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="startDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="endDate"
+     * )
+     *
+     * @Route("/users/reg/number")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getUsersRegNumberAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+        $now = new \DateTime('now');
+        $yest = new \DateTime('now');
+        $yest = $yest->modify('-1 day');
+
+        $repo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView');
+        $today = $repo->countRegUsers($now->format('Y-m-d 00:00:00'), $now->format('Y-m-d 23:59:59'));
+        $yesterday = $repo->countRegUsers($yest->format('Y-m-d 00:00:00'), $yest->format('Y-m-d 23:59:59'));
+
+        $month = 0;
+        if ($startDate && $endDate) {
+            $month = $repo->countRegUsers($startDate.' 00:00:00', $endDate.' 23:59:59');
+        }
+
+        return new View(array(
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'month' => $month,
+        ));
+    }
 }

@@ -15,6 +15,95 @@ class OrderRepository extends EntityRepository
     const CANCELLED = "'cancelled'";
 
     /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserPendingOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = \'paid\' OR o.status = \'unpaid\'')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserCompletedOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('
+                o.status = \'completed\' OR 
+                (o.status = \'cancelled\' AND o.payChannel IS NULL) OR
+                (
+                    o.status = \'cancelled\' AND 
+                    o.payChannel = :offline AND
+                    o.needToRefund = :needToRefund AND 
+                    o.refunded = :refunded
+                )    
+            ')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setParameter('needToRefund', false)
+            ->setParameter('refunded', false)
+            ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserRefundOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('
+                o.needToRefund = :needToRefund OR
+                o.refunded = :refunded
+            ')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setParameter('needToRefund', true)
+            ->setParameter('refunded', true)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
      * @param $id
      *
      * @return mixed
@@ -136,10 +225,12 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('o.status = \'paid\'')
+            ->andWhere('o.rejected = :rejected')
             ->andWhere('o.startDate > :now')
             ->andWhere('(r.type = \'office\' AND o.startDate <= :workspaceTime)')
             ->setParameter('workspaceTime', $workspaceTime)
             ->setParameter('now', $now)
+            ->setParameter('rejected', false)
             ->getQuery();
 
         return $query->getResult();
@@ -416,6 +507,120 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * @param $type
+     * @param $buildingId
+     * @param $orderStartDate
+     * @param $orderEndDate
+     * @param $payStartDate
+     * @param $payEndDate
+     * @param $rentStartDate
+     * @param $rentEndDate
+     * @param $invoiceStartDate
+     * @param $invoiceEndDate
+     * @param null $salesCompanyId
+     *
+     * @return array
+     */
+    public function getAdminNotInvoicedOrders(
+        $type,
+        $buildingId = null,
+        $orderStartDate,
+        $orderEndDate,
+        $payStartDate,
+        $payEndDate,
+        $rentStartDate,
+        $rentEndDate,
+        $invoiceStartDate,
+        $invoiceEndDate,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->orderBy('b.companyId', 'ASC')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0);
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->andWhere('por.roomType = :type')
+                ->setParameter('type', $type);
+        }
+
+        // filter by building
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        // filter by order create start date
+        if (!is_null($orderStartDate)) {
+            $query->andWhere('o.creationDate > :orderStartDate')
+                ->setParameter('orderStartDate', $orderStartDate);
+        }
+
+        // filter by order create end date
+        if (!is_null($orderEndDate)) {
+            $query->andWhere('o.creationDate < :orderEndDate')
+                ->setParameter('orderEndDate', $orderEndDate);
+        }
+
+        // filter by pay start date
+        if (!is_null($payStartDate)) {
+            $query->andWhere('o.paymentDate > :payStartDate')
+                ->setParameter('payStartDate', $payStartDate);
+        }
+
+        // filter by pay end date
+        if (!is_null($payEndDate)) {
+            $query->andWhere('o.paymentDate < :payEndDate')
+                ->setParameter('payEndDate', $payEndDate);
+        }
+
+        // filter by rent start date
+        if (!is_null($rentStartDate)) {
+            $query->andWhere('o.endDate > :rentStartDate')
+                ->setParameter('rentStartDate', $rentStartDate);
+        }
+
+        // filter by rent end date
+        if (!is_null($rentEndDate)) {
+            $query->andWhere('o.startDate < :rentEndDate')
+                ->setParameter('rentEndDate', $rentEndDate);
+        }
+
+        // filter by invoice start date
+        if (!is_null($invoiceStartDate)) {
+            $query->andWhere('o.startDate > :invoiceStartDate')
+                ->setParameter('invoiceStartDate', $invoiceStartDate);
+        }
+
+        // filter by invoice end date
+        if (!is_null($invoiceEndDate)) {
+            $query->andWhere('o.startDate < :invoiceEndDare')
+                ->setParameter('invoiceEndDare', $invoiceEndDate);
+        }
+
+        // filter by sales company
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('b.companyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * get order that need to set invoice.
      */
     public function getInvoiceOrdersForInvoiced(
@@ -486,10 +691,12 @@ class OrderRepository extends EntityRepository
             ->set('o.cancelledDate', $nowString)
             ->set('o.modificationDate', $nowString)
             ->where('o.status = \'unpaid\'')
+            ->andWhere('o.payChannel != :channel')
             ->andWhere('(o.type != :preorder OR o.type is NULL)')
             ->andWhere('o.creationDate <= :start')
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
             ->setParameter('start', $start)
+            ->setParameter('channel', ProductOrder::CHANNEL_OFFLINE)
             ->getQuery();
 
         $query->execute();

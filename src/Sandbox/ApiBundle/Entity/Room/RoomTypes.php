@@ -20,7 +20,7 @@ class RoomTypes
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_building"})
      */
     private $id;
 
@@ -53,6 +53,15 @@ class RoomTypes
      * @Serializer\Groups({"main", "drop_down"})
      */
     private $description;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="icon", type="text")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $icon;
 
     /**
      * Get id.
@@ -134,5 +143,21 @@ class RoomTypes
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @param string $icon
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
     }
 }

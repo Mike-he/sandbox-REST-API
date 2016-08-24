@@ -31,6 +31,8 @@ room:
     flexible: Hot Desk
     fixed: Dedicate Desk
     studio: Recording Studio
+    space: Activity Space
+    video_studio: Studio
   unit:
     hour: Hour
     day: Day
@@ -75,6 +77,8 @@ product_order:
     meeting_end: Your meeting room will end in 10 minutes
     studio_start: Your recording studio will start in 10 minutes
     studio_end: Your recording studio will end in 10 minutes
+    space_start: Your activity space will start in 10 minutes
+    space_end: Your activity space will end in 10 minutes
     flexible_start: Your hot desk will start tomorrow
     flexible_end: Your hot desk will end tomorrow
     fixed_start: Your dedicate desk will start tomorrow
@@ -204,6 +208,24 @@ client:
     phone: Phone
     about_us: About Us
     setting: Settings
+  profile:
+    room_order: Room Order
+    shop_order: Shop Order
+    event_order: Event Order
+  account:
+    invalid_phone_number: Invalid phone number.
+    invalid_email_address: Invalid email address.
+    missing_phone_or_email: Missing phone number or email address.
+    account_not_found: Account not found.
+    account_not_activated: Account not activated.
+    invalid_verification: Invalid verification.
+    expired_verification: Expired verification.
+    invalid_token: Invalid token.
+    expired_token: Expired token.
+    invalid_password: Invalid password.
+    same_password: Same password.
+    phone_number_used: Phone number already used.
+    email_already_used: Email address already used.
 
 event_order:
   status:
@@ -228,3 +250,24 @@ event_order:
     user_phone: Renter Mobile
     user_email: Renter Email
     pay_channel: Payment Channel
+
+building:
+  service:
+    free_wifi: Free WIFI
+    printing_devices: Printing Devices
+    tea: Tea Room
+    coffee: Coffee
+    enterprise_incubation: Enterprise Incubation Services
+    register_agent: Registered Agent
+    cleaning: Cleaning Services
+    telephone_booth: Private Telephone Booth
+    meeting_service: Meeting Services
+    community_manager: Community Manager
+    enterprise_service: Enterprise Services
+  tag:
+    sandbox3_manage: Sandbox Management
+    round_the_clock_service: 7x24h
+    certification_of_incubator: Authorized Incubator
+    food_and_beverage: Catering Services
+    vip_space: Member Space
+    fast_preorder: Fast Booking
