@@ -98,6 +98,139 @@ class AdminDashBoardController extends SandboxRestController
     }
 
     /**
+     * Get Shop Orders.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="startDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="endDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="buildingId",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="buildingId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="payChannel",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="$payChannel"
+     * )
+     *
+     * @Route("/dashboard/shop/orders")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getShopOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+        $buildingId = $paramFetcher->get('buildingId');
+        $payChannel = $paramFetcher->get('payChannel');
+        $now = new \DateTime('now');
+        $yesterday = new \DateTime('now');
+        $yesterday = $yesterday->modify('-1 day');
+
+        $repo = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\ShopOrder');
+        $todayCompleted = $repo->countCompletedOrders(
+            $now->format('Y-m-d 00:00:00'),
+            $now->format('Y-m-d 23:59:59'),
+            $payChannel,
+            $buildingId
+        );
+
+        $todayRefunded = $repo->countRefundOrders(
+            $now->format('Y-m-d 00:00:00'),
+            $now->format('Y-m-d 23:59:59'),
+            $payChannel,
+            $buildingId
+        );
+
+        $yestCompleted = $repo->countCompletedOrders(
+            $yesterday->format('Y-m-d 00:00:00'),
+            $yesterday->format('Y-m-d 23:59:59'),
+            $payChannel,
+            $buildingId
+        );
+
+        $yestRefunded = $repo->countRefundOrders(
+            $yesterday->format('Y-m-d 00:00:00'),
+            $yesterday->format('Y-m-d 23:59:59'),
+            $payChannel,
+            $buildingId
+        );
+
+        $monthCompleted = $repo->countCompletedOrders(
+            $now->format('Y-m-01 00:00:00'),
+            $now->format('Y-m-31 23:59:59'),
+            $payChannel,
+            $buildingId
+        );
+
+        $monthRefunded = $repo->countRefundOrders(
+            $now->format('Y-m-01 00:00:00'),
+            $now->format('Y-m-31 23:59:59'),
+            $payChannel,
+            $buildingId
+        );
+
+        $monthlyCompleted = $repo->countCompletedOrders(
+            $startDate.' 00:00:00',
+            $endDate.' 23:59:59',
+            $payChannel,
+            $buildingId
+        );
+
+        $monthlyRefunded = $repo->countRefundOrders(
+            $startDate.' 00:00:00',
+            $endDate.' 23:59:59',
+            $payChannel,
+            $buildingId
+        );
+
+        $result = array(
+            'today_complate' => $todayCompleted,
+            'today_refunded' => $todayRefunded,
+            'yestday_complate' => $yestCompleted,
+            'yestday_refunded' => $yestRefunded,
+            'month_complate' => $monthCompleted,
+            'month_refunded' => $monthRefunded,
+            'monthly_complate' => $monthlyCompleted,
+            'monthly_refunded' => $monthlyRefunded
+        );
+
+        return new View($result);
+    }
+
+    /**
      * Check user permission.
      *
      * @param int $OpLevel

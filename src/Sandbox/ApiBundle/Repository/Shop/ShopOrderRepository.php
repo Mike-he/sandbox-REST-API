@@ -529,4 +529,90 @@ class ShopOrderRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     *
+     * @return mixed
+     */
+    public function countCompletedOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->select('count(o.id) as number , SUM(o.price) as price')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.status = :completed')
+            ->andWhere('o.modificationDate >= :start')
+            ->andWhere('o.modificationDate <= :end')
+            ->setParameter('unoriginal', false)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if(!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        $query = $query->getQuery();
+
+        return  $query->getSingleResult();
+
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     *
+     * @return mixed
+     */
+    public function countRefundOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->select('count(o.id) as number , SUM(o.price) as price')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.status = :refunded')
+            ->andWhere('o.modificationDate >= :start')
+            ->andWhere('o.modificationDate <= :end')
+            ->setParameter('unoriginal', false)
+            ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if(!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        $query = $query->getQuery();
+
+        return  $query->getSingleResult();
+
+    }
 }
