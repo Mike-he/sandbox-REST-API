@@ -9,6 +9,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminType;
 
 /**
  * Class AdminDashBoardController.
@@ -25,6 +28,9 @@ class AdminDashBoardController extends SandboxRestController
      */
     public function getUsersTotalAction()
     {
+        // check user permission
+        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $repo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView');
         $count = $repo->countTotalUsers();
 
@@ -36,7 +42,8 @@ class AdminDashBoardController extends SandboxRestController
     /**
      * Get Registration Number Of Users.
      *
-     * @param Request $request
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
      *    name="startDate",
@@ -65,6 +72,9 @@ class AdminDashBoardController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
         $now = new \DateTime('now');
@@ -85,5 +95,21 @@ class AdminDashBoardController extends SandboxRestController
             'yesterday' => $yesterday,
             'month' => $month,
         ));
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $OpLevel
+     */
+    private function checkAdminDashboardPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_DASHBOARD,
+            $OpLevel
+        );
     }
 }
