@@ -784,6 +784,4 @@ class AdminUsersController extends DoorController
 
         return new View();
     }
-
-
 }

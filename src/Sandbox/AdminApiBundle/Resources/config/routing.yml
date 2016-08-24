@@ -243,3 +243,9 @@ sandbox_admin_api_advertising:
     resource: "@SandboxAdminApiBundle/Controller/Advertising/AdminAdvertisingController.php"
     type:     annotation
     prefix:   /
+
+# Dashboard /admin/dashboard
+sandbox_admin_api_dashboard:
+    resource: "@SandboxAdminApiBundle/Controller/DashBoard/AdminDashBoardController.php"
+    type:     annotation
+    prefix:   /
