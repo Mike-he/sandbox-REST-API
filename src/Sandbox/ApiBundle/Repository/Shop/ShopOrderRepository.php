@@ -676,12 +676,52 @@ class ShopOrderRepository extends EntityRepository
      * @param $endDate
      * @param null $payChannel
      * @param null $buildingId
+     *
+     * @return int
+     */
+    public function countCompletedOrdersList(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->select('COUNT(o)')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.status = :completed')
+            ->andWhere('o.modificationDate >= :start')
+            ->andWhere('o.modificationDate <= :end')
+            ->setParameter('unoriginal', false)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
      * @param null $limit
      * @param null $offset
      *
      * @return array
      */
-    public function getRushedOrdersList(
+    public function getRefundedOrdersList(
         $startDate,
         $endDate,
         $payChannel = null,
@@ -726,5 +766,54 @@ class ShopOrderRepository extends EntityRepository
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     *
+     * @return int
+     */
+    public function countRefundedOrdersList(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
+            ->select('COUNT(o)')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('
+                o.status = :refunded OR
+                (
+                    o.status = :waiting AND 
+                    (so.status = :waiting OR so.status = :completed)
+                )
+            ')
+            ->andWhere('o.modificationDate >= :start')
+            ->andWhere('o.modificationDate <= :end')
+            ->setParameter('unoriginal', false)
+            ->setParameter('waiting', ShopOrder::STATUS_TO_BE_REFUNDED)
+            ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

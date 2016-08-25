@@ -294,23 +294,23 @@ class AdminDashBoardController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="limit",
+     *    name="pageLimit",
      *    array=false,
-     *    default="10",
+     *    default="20",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="limit for page"
+     *    description="How many orders to return "
      * )
      *
      * @Annotations\QueryParam(
-     *    name="offset",
+     *    name="pageIndex",
      *    array=false,
-     *    default="0",
+     *    default="1",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="Offset of page"
+     *    description="page number "
      * )
      *
      * @Route("/dashboard/shop/orders/list")
@@ -331,8 +331,10 @@ class AdminDashBoardController extends SandboxRestController
         $endDate = $paramFetcher->get('endDate');
         $buildingId = $paramFetcher->get('buildingId');
         $payChannel = $paramFetcher->get('payChannel');
-        $limit = $paramFetcher->get('limit');
-        $offset = $paramFetcher->get('offset');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
 
         $building = !is_null($buildingId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId) : null;
 
@@ -368,8 +370,14 @@ class AdminDashBoardController extends SandboxRestController
                 $limit,
                 $offset
             );
+            $count = $repo->countCompletedOrdersList(
+                $startDate,
+                $endDate,
+                $payChannel,
+                $building
+            );
         } elseif ($status == ShopOrder::STATUS_REFUNDED) {
-            $orders = $repo->getRushedOrdersList(
+            $orders = $repo->getRefundedOrdersList(
                 $startDate,
                 $endDate,
                 $payChannel,
@@ -377,11 +385,28 @@ class AdminDashBoardController extends SandboxRestController
                 $limit,
                 $offset
             );
+            $count = $repo->countRefundedOrdersList(
+                $startDate,
+                $endDate,
+                $payChannel,
+                $building
+            );
         } else {
             $orders = null;
+            $count = 0;
         }
 
-        return new View($orders);
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
+        );
+
+        return $view;
     }
 
     /**
