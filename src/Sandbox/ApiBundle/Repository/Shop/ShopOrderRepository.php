@@ -433,7 +433,7 @@ class ShopOrderRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
-            ->join('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
+            ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->where('o.unoriginal = :unoriginal')
             ->andWhere('o.userId = :userId')
             ->andWhere('
@@ -507,7 +507,7 @@ class ShopOrderRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
-            ->join('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
+            ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->where('o.unoriginal = :unoriginal')
             ->andWhere('o.userId = :userId')
             ->andWhere('
