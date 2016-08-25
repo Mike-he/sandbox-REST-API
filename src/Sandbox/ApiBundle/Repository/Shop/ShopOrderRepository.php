@@ -557,7 +557,7 @@ class ShopOrderRepository extends EntityRepository
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
-        if(!is_null($payChannel)) {
+        if (!is_null($payChannel)) {
             $query->andWhere('o.payChannel = :payChannel')
                 ->setParameter('payChannel', $payChannel);
         }
@@ -570,7 +570,6 @@ class ShopOrderRepository extends EntityRepository
         $query = $query->getQuery();
 
         return  $query->getSingleResult();
-
     }
 
     /**
@@ -590,17 +589,26 @@ class ShopOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
             ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
-            ->select('count(o.id) as number , SUM(o.price) as price')
+            ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
+            ->select('count(o.id) as number , SUM(o.refundAmount) as refundAmount')
             ->where('o.unoriginal = :unoriginal')
-            ->andWhere('o.status = :refunded')
+            ->andWhere('
+                o.status = :refunded OR
+                (
+                    o.status = :waiting AND 
+                    (so.status = :waiting OR so.status = :completed)
+                )
+            ')
             ->andWhere('o.modificationDate >= :start')
             ->andWhere('o.modificationDate <= :end')
             ->setParameter('unoriginal', false)
+            ->setParameter('waiting', ShopOrder::STATUS_TO_BE_REFUNDED)
             ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
-        if(!is_null($payChannel)) {
+        if (!is_null($payChannel)) {
             $query->andWhere('o.payChannel = :payChannel')
                 ->setParameter('payChannel', $payChannel);
         }
@@ -613,6 +621,110 @@ class ShopOrderRepository extends EntityRepository
         $query = $query->getQuery();
 
         return  $query->getSingleResult();
+    }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     * @param null $limit
+     * @param null $offset
+     *
+     * @return array
+     */
+    public function getCompletedOrdersList(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null,
+        $limit = null,
+        $offset = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.status = :completed')
+            ->andWhere('o.modificationDate >= :start')
+            ->andWhere('o.modificationDate <= :end')
+            ->setParameter('unoriginal', false)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     * @param null $limit
+     * @param null $offset
+     *
+     * @return array
+     */
+    public function getRushedOrdersList(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null,
+        $limit = null,
+        $offset = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('
+                o.status = :refunded OR
+                (
+                    o.status = :waiting AND 
+                    (so.status = :waiting OR so.status = :completed)
+                )
+            ')
+            ->andWhere('o.modificationDate >= :start')
+            ->andWhere('o.modificationDate <= :end')
+            ->setParameter('unoriginal', false)
+            ->setParameter('waiting', ShopOrder::STATUS_TO_BE_REFUNDED)
+            ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        return $query->getQuery()->getResult();
     }
 }
