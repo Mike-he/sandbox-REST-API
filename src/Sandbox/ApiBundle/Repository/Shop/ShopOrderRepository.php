@@ -444,7 +444,7 @@ class ShopOrderRepository extends EntityRepository
                 (
                     o.status = :waiting AND 
                     o.linkedOrderId IS NOT NULL AND
-                    (so.status != :waiting OR so.status != :completed)
+                    (so.status != :waiting AND so.status != :completed)
                 )
             ')
             ->orderBy('o.modificationDate', 'DESC')
