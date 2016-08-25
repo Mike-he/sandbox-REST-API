@@ -25,6 +25,9 @@ use FOS\RestBundle\View\View;
  */
 class ClientPaymentController extends PaymentController
 {
+    const PINGPLUSPLUS_SIGNATURE_HEADER = 'x-pingplusplus-signature';
+    const PINGPLUSPLUS_RSA_PATH = '/rsa_public_key.pem';
+
     /**
      * @Post("/payment/webhooks")
      *
@@ -35,6 +38,25 @@ class ClientPaymentController extends PaymentController
     public function getWebhooksAction(
         Request $request
     ) {
+        // verify webhooks signature
+        $signatureHeaderKey = self::PINGPLUSPLUS_SIGNATURE_HEADER;
+
+        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+        if (!array_key_exists($signatureHeaderKey, $headers)) {
+            return new Response();
+        }
+
+        $signature = $headers[$signatureHeaderKey];
+        $pub_key_path = __DIR__.self::PINGPLUSPLUS_RSA_PATH;
+        $rawData = file_get_contents('php://input');
+
+        $result = $this->verify_signature($rawData, $signature, $pub_key_path);
+
+        if ($result !== 1) {
+            return new Response();
+        }
+
+        // handle payment webhooks
         $rawData = file_get_contents('php://input');
         $data = json_decode($rawData, true);
         $type = $data['type'];
@@ -300,5 +322,24 @@ class ClientPaymentController extends PaymentController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+    }
+
+    /**
+     * @param $raw_data
+     * @param $signature
+     * @param $pub_key_path
+     *
+     * @return int
+     */
+    private function verify_signature($raw_data, $signature, $pub_key_path)
+    {
+        $pub_key_contents = file_get_contents($pub_key_path);
+
+        return openssl_verify(
+            $raw_data,
+            base64_decode($signature),
+            $pub_key_contents,
+            OPENSSL_ALGO_SHA256
+        );
     }
 }
