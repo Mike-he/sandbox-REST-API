@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\User\User;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
@@ -13,7 +14,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
+use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundFeePatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundPatch;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
@@ -294,14 +295,19 @@ class AdminOrderController extends OrderController
      * @param Request $request
      * @param $id
      */
-    public function patchTransferNoAction(
+    public function patchTransferStatusAction(
         Request $request,
         $id
     ) {
         // check user permission
         $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
 
-        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'id' => $id,
+                'payChannel' => ProductOrder::CHANNEL_OFFLINE,
+            ]
+        );
         if (is_null($order)) {
             return $this->customErrorView(
                 400,
@@ -315,13 +321,80 @@ class AdminOrderController extends OrderController
             ->findOneByOrderId($id);
         $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
+        $oldStatus = $existTransfer->getTransferStatus();
+
         // bind data
         $transferJson = $this->container->get('serializer')->serialize($existTransfer, 'json');
         $patch = new Patch($transferJson, $request->getContent());
         $transferJson = $patch->apply();
 
-        $form = $this->createForm(new OrderOfflineTransferPost(), $existTransfer);
+        $form = $this->createForm(new OrderOfflineTransferPatch(), $existTransfer);
         $form->submit(json_decode($transferJson, true));
+
+        $status = $existTransfer->getTransferStatus();
+        $now = new \DateTime();
+
+        switch ($status) {
+            case OrderOfflineTransfer::STATUS_PAID :
+                if ($oldStatus != OrderOfflineTransfer::STATUS_PENDING) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_ORDER_STATUS_CODE,
+                        self::WRONG_ORDER_STATUS_MESSAGE
+                    );
+                }
+
+                $order->setStatus(ProductOrder::STATUS_PAID);
+                $order->setPaymentDate($now);
+                $order->setModificationDate($now);
+
+                break;
+            case OrderOfflineTransfer::STATUS_RETURNED :
+                if ($oldStatus != OrderOfflineTransfer::STATUS_PENDING) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_ORDER_STATUS_CODE,
+                        self::WRONG_ORDER_STATUS_MESSAGE
+                    );
+                }
+
+                break;
+            case OrderOfflineTransfer::STATUS_REJECT_REFUND :
+                if ($oldStatus != OrderOfflineTransfer::STATUS_VERIFY) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_ORDER_STATUS_CODE,
+                        self::WRONG_ORDER_STATUS_MESSAGE
+                    );
+                }
+
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate(new \DateTime());
+                $order->setModificationDate(new \DateTime());
+
+                break;
+            case OrderOfflineTransfer::STATUS_ACCEPT_REFUND :
+                if ($oldStatus != OrderOfflineTransfer::STATUS_VERIFY) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_ORDER_STATUS_CODE,
+                        self::WRONG_ORDER_STATUS_MESSAGE
+                    );
+                }
+
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate(new \DateTime());
+                $order->setModificationDate(new \DateTime());
+                $price = $order->getDiscountPrice();
+
+                if ($price > 0) {
+                    $order->setNeedToRefund(true);
+                }
+
+                break;
+        }
+
+        $existTransfer->setModificationDate($now);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
