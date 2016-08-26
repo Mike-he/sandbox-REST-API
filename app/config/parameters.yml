@@ -101,3 +101,4 @@ parameters:
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
     rest_api_local_url: localhost.api.rest
+    image_url: http://devimage.sandbox3.cn
