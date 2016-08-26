@@ -263,6 +263,8 @@ class AdminAdvertisingController extends AdvertisingController
             $this->handleUnvisible();
         } else {
             $advertising->setIsSaved(true);
+
+            $this->handleVisibleDefault();
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -295,14 +297,16 @@ class AdminAdvertisingController extends AdvertisingController
         $advertising = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\Advertising')->find($id);
         $this->throwNotFoundIfNull($advertising, self::NOT_FOUND_MESSAGE);
 
-        $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\AdvertisingAttachment')->findByAdvertising($advertising);
+        if($advertising->getIsDefault() == false ) {
+            $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\AdvertisingAttachment')->findByAdvertising($advertising);
 
-        foreach ($attachments as $attachment) {
-            $em->remove($attachment);
+            foreach ($attachments as $attachment) {
+                $em->remove($attachment);
+            }
+
+            $em->remove($advertising);
+            $em->flush();
         }
-
-        $em->remove($advertising);
-        $em->flush();
 
         return new View();
     }
@@ -399,6 +403,16 @@ class AdminAdvertisingController extends AdvertisingController
         if ($advertising) {
             $advertising->setVisible(false);
             $advertising->setIsSaved(true);
+        }
+    }
+
+    private function handleVisibleDefault()
+    {
+        $em = $this->getDoctrine()->getManager();
+        $advertising = $em->getRepository('SandboxApiBundle:Advertising\Advertising')->findOneBy(array('isDefault' => true));
+        if ($advertising) {
+            $advertising->setVisible(true);
+            $advertising->setIsSaved(false);
         }
     }
 

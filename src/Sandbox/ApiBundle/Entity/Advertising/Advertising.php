@@ -74,6 +74,15 @@ class Advertising
     private $isSaved = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDefault", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $isDefault = false;
+
+    /**
      * @var array
      *
      * @Serializer\Groups({"main", "client_list"})
@@ -287,4 +296,21 @@ class Advertising
     {
         return $this->attachments;
     }
+
+    /**
+     * @return boolean
+     */
+    public function getIsDefault()
+    {
+        return $this->isDefault;
+    }
+
+    /**
+     * @param boolean $isDefault
+     */
+    public function setIsDefault($isDefault)
+    {
+        $this->isDefault = $isDefault;
+    }
+
 }
