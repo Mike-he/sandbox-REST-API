@@ -8,6 +8,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
@@ -285,37 +286,47 @@ class AdminOrderController extends OrderController
         $productId = $order->getProductId();
         $startDate = $order->getStartDate();
         $endDate = $order->getEndDate();
+        $status = $order->getStatus();
 
         if ($newRejected) {
-            $order->setStatus(ProductOrder::STATUS_CANCELLED);
-            $order->setCancelledDate($now);
-            $order->setModificationDate($now);
-            $order->setCancelByUser(true);
+            if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
+                $existTransfer = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+                    ->findOneByOrderId($order->getId());
+                $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
-            $action = Log::ACTION_REJECT;
+                $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+            } else {
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
+                $order->setCancelByUser(true);
 
-            if ($price > 0) {
-                $order->setNeedToRefund(true);
+                if ($price > 0) {
+                    $order->setNeedToRefund(true);
 
-                if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
-                    $balance = $this->postBalanceChange(
-                        $userId,
-                        $price,
-                        $order->getOrderNumber(),
-                        self::PAYMENT_CHANNEL_ACCOUNT,
-                        0,
-                        self::ORDER_REFUND
-                    );
+                    if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                        $balance = $this->postBalanceChange(
+                            $userId,
+                            $price,
+                            $order->getOrderNumber(),
+                            self::PAYMENT_CHANNEL_ACCOUNT,
+                            0,
+                            self::ORDER_REFUND
+                        );
 
-                    $order->setRefundProcessed(true);
-                    $order->setRefundProcessedDate($now);
+                        $order->setRefundProcessed(true);
+                        $order->setRefundProcessedDate($now);
 
-                    if (!is_null($balance)) {
-                        $order->setRefunded(true);
-                        $order->setNeedToRefund(false);
+                        if (!is_null($balance)) {
+                            $order->setRefunded(true);
+                            $order->setNeedToRefund(false);
+                        }
                     }
                 }
             }
+
+            $action = Log::ACTION_REJECT;
 
             // send message
             $this->sendXmppProductOrderNotification(
@@ -328,6 +339,14 @@ class AdminOrderController extends OrderController
             );
         } else {
             $action = Log::ACTION_AGREE;
+
+            if ($status != ProductOrder::STATUS_PAID) {
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_ORDER_STATUS_CODE,
+                    self::WRONG_ORDER_STATUS_MESSAGE
+                );
+            }
 
             $acceptedOrders = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -386,55 +405,67 @@ class AdminOrderController extends OrderController
                 );
 
             foreach ($orders as $order) {
-                $order->setStatus(ProductOrder::STATUS_CANCELLED);
-                $order->setCancelledDate($now);
-                $order->setModificationDate($now);
-                $order->setCancelByUser(true);
+                $status = $order->getStatus();
+                $channel = $order->getPayChannel();
 
-                if ($price > 0) {
-                    $order->setNeedToRefund(true);
+                if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
+                    $existTransfer = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+                        ->findOneByOrderId($order->getId());
+                    $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
-                    if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
-                        $balance = $this->postBalanceChange(
-                            $userId,
-                            $price,
-                            $order->getOrderNumber(),
-                            self::PAYMENT_CHANNEL_ACCOUNT,
-                            0,
-                            self::ORDER_REFUND
-                        );
+                    $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                } else {
+                    $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $order->setCancelledDate($now);
+                    $order->setModificationDate($now);
+                    $order->setCancelByUser(true);
 
-                        $order->setRefundProcessed(true);
-                        $order->setRefundProcessedDate($now);
+                    if ($price > 0) {
+                        $order->setNeedToRefund(true);
 
-                        if (!is_null($balance)) {
-                            $order->setRefunded(true);
-                            $order->setNeedToRefund(false);
+                        if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                            $balance = $this->postBalanceChange(
+                                $userId,
+                                $price,
+                                $order->getOrderNumber(),
+                                self::PAYMENT_CHANNEL_ACCOUNT,
+                                0,
+                                self::ORDER_REFUND
+                            );
+
+                            $order->setRefundProcessed(true);
+                            $order->setRefundProcessedDate($now);
+
+                            if (!is_null($balance)) {
+                                $order->setRefunded(true);
+                                $order->setNeedToRefund(false);
+                            }
                         }
                     }
+
+                    $this->generateAdminLogs(array(
+                        'platform' => Log::PLATFORM_SALES,
+                        'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+                        'logModule' => Log::MODULE_ROOM_ORDER,
+                        'logAction' => Log::ACTION_REJECT,
+                        'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+                        'logObjectId' => $order->getId(),
+                        'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+                    ));
                 }
 
-                $this->generateAdminLogs(array(
-                    'platform' => Log::PLATFORM_SALES,
-                    'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
-                    'logModule' => Log::MODULE_ROOM_ORDER,
-                    'logAction' => Log::ACTION_REJECT,
-                    'logObjectKey' => Log::OBJECT_ROOM_ORDER,
-                    'logObjectId' => $order->getId(),
-                    'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
-                ));
-            }
-
-            if (!empty($orders)) {
-                // send message
-                $this->sendXmppProductOrderNotification(
-                    null,
-                    null,
-                    ProductOrder::ACTION_REJECTED,
-                    null,
-                    $orders,
-                    ProductOrderMessage::OFFICE_REJECTED_MESSAGE
-                );
+                if (!empty($orders)) {
+                    // send message
+                    $this->sendXmppProductOrderNotification(
+                        null,
+                        null,
+                        ProductOrder::ACTION_REJECTED,
+                        null,
+                        $orders,
+                        ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+                    );
+                }
             }
         }
 

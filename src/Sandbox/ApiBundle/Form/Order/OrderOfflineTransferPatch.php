@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class OrderOfflineTransferPost extends AbstractType
+class OrderOfflineTransferPatch extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,9 +15,7 @@ class OrderOfflineTransferPost extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('accountName')
-            ->add('accountNo')
-            ->add('attachments')
+            ->add('transferStatus')
         ;
     }
 

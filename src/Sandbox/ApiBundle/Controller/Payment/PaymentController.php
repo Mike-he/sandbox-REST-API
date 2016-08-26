@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
@@ -125,7 +126,11 @@ class PaymentController extends DoorController
     ) {
         $order->setPayChannel($channel);
 
+        $transfer = new OrderOfflineTransfer();
+        $transfer->setOrder($order);
+
         $em = $this->getDoctrine()->getManager();
+        $em->persist($transfer);
         $em->flush();
 
         return new View();

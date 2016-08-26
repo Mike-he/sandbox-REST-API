@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class OrderOfflineTransferPost extends AbstractType
+class TransferAttachmentType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,10 +15,11 @@ class OrderOfflineTransferPost extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('accountName')
-            ->add('accountNo')
-            ->add('attachments')
-        ;
+            ->add('content')
+            ->add('attachmentType')
+            ->add('filename')
+            ->add('preview')
+            ->add('size');
     }
 
     /**
@@ -27,7 +28,7 @@ class OrderOfflineTransferPost extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Order\TransferAttachment',
         ));
     }
 
