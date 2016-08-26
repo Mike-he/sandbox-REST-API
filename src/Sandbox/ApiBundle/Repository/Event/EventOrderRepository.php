@@ -256,9 +256,10 @@ class EventOrderRepository extends EntityRepository
                     $query->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
                         ->andWhere('
                             eo.status = :unpaid OR
-                            (e.verify = TRUE AND er.userId = :userId AND er.status = :pending)
+                            (e.verify = TRUE AND er.userId = :userId AND er.status = :pending AND eo.status = :paid)
                         ')
                         ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+                        ->setParameter('paid', EventOrder::STATUS_PAID)
                         ->setParameter('userId', $userId)
                         ->setParameter('pending', EventRegistration::STATUS_PENDING);
                     break;
