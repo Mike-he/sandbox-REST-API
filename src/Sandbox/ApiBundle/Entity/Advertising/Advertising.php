@@ -298,7 +298,7 @@ class Advertising
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getIsDefault()
     {
@@ -306,11 +306,10 @@ class Advertising
     }
 
     /**
-     * @param boolean $isDefault
+     * @param bool $isDefault
      */
     public function setIsDefault($isDefault)
     {
         $this->isDefault = $isDefault;
     }
-
 }
