@@ -7,7 +7,8 @@ CREATE TABLE `Advertising` (
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   `isSaved` tinyint(1) NOT NULL,
+  `isDefault` tinyint(1) NOT NULL
   PRIMARY KEY (`id`)
 )
 
-INSERT INTO `Advertising` (`url`,`source`,`sourceId`,`visible`,`isSaved`,`creationDate`,`modificationDate`) VALUES ("https://m.sandbox3.cn/event?ptype=detail&id=50","event",50,1,0,"2016-08-19 15:19:34","2016-08-19 15:19:34");
+INSERT INTO `Advertising` (`url`,`source`,`sourceId`,`visible`,`isSaved`,`isDefault`,`creationDate`,`modificationDate`) VALUES ("https://m.sandbox3.cn/event?ptype=detail&id=50","event",50,1,0,1,"2016-08-19 15:19:34","2016-08-19 15:19:34");
