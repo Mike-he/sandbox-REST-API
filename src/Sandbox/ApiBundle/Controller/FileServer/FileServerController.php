@@ -31,7 +31,7 @@ class FileServerController extends SandboxRestController
         $twig = $this->container->get('twig');
         $globals = $twig->getGlobals();
 
-        $domain = $globals['xmpp_domain'];
+        $domain = $globals['file_server_url'];
 
         return new View(array(
             'file_server_domain' => $domain,
