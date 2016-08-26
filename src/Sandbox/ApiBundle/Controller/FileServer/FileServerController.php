@@ -39,15 +39,86 @@ class FileServerController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/fileserver/upload")
+     * @Route("/plugins/fileServer/fileservice")
      * @Method({"POST"})
      *
      * @return View
      */
-    public function UploadAction(
-        Request $request
+    public function PostFileServerAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $result = $this->upload($request, $paramFetcher);
+
+        return new View($result);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/plugins/fileServer/fileservice/admin")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function PostFileServerAdminAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $result = $this->upload($request, $paramFetcher);
+
+        return new View($result);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/plugins/fileServer/fileservice/sales/admin")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function PostFileServerSalesAdminAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $result = $this->upload($request, $paramFetcher);
+
+        return new View($result);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/plugins/fileServer/fileservice/shop/admin")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function PostFileServerShopAdminAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $result = $this->upload($request, $paramFetcher);
+
+        return new View($result);
+    }
+
+    /**
+     * @param $request
+     * @param $paramFetcher
+     *
+     * @return array
+     */
+    private function upload(
+        $request,
+        $paramFetcher
     ) {
         $type = $request->get('type');
         $target = $request->get('target');
@@ -70,7 +141,12 @@ class FileServerController extends SandboxRestController
                 $newfile = $path.'/'.$filename;
 
                 preg_match('/(?<=base64,)[\S|\s]+/', $file, $streamForW);
-                file_put_contents($newfile, base64_decode($streamForW[0]));
+                if(!file_put_contents($newfile, base64_decode($streamForW[0]))) {
+                    $result = array(
+                        'result' => 1,
+                    );
+                    return $result;
+                };
                 break;
             default:
                 $file = $request->files->get('file');
@@ -84,7 +160,12 @@ class FileServerController extends SandboxRestController
                 $filename = $fileid.$this->getFileExt($dataArray['original_name']);
 
                 $newfile = $path.'/'.$filename;
-                move_uploaded_file($file->getPathName(), $newfile);
+                if(!move_uploaded_file($file->getPathName(), $newfile)) {
+                    $result = array(
+                        'result' => 1,
+                    );
+                    return $result;
+                };
         }
 
         if ($type == 'avatar' || $type == 'background') {
@@ -114,7 +195,7 @@ class FileServerController extends SandboxRestController
             'result' => 0,
         );
 
-        return new View($result);
+        return $result;
     }
 
     /**
@@ -148,7 +229,8 @@ class FileServerController extends SandboxRestController
         $target,
         $id
     ) {
-        $dir = '/data/openfire/image';
+        //        $dir = '/data/openfire/image';
+        $dir = '/Users/sandbox3/Documents';
 
         if (!is_null($target)) {
             $dir = $dir.'/'.$target;
@@ -159,7 +241,9 @@ class FileServerController extends SandboxRestController
         }
 
         if (!file_exists($dir)) {
-            mkdir($dir, 0777, true);
+            if ( !mkdir( $dir , 0777 , true ) ) {
+                return false;
+            }
         }
 
         return $dir;
