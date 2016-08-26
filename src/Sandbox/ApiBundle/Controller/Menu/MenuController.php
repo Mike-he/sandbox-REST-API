@@ -96,17 +96,31 @@ class MenuController extends SandboxRestController
         $version = $paramFetcher->get('version');
         $position = $paramFetcher->get('position');
 
-        $menu = $this->getDoctrine()
+        $menuVersions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Menu\Menu')
-            ->findOneBy(array(
-                'component' => $component,
-                'platform' => $platform,
-                'version' => $version,
-                'position' => $position,
-            ));
-        if (is_null($menu)) {
+            ->getAllMenuVersion(
+                $component,
+                $platform
+            );
+
+        foreach ($menuVersions as $menuVersion) {
+            $minVersion = $menuVersion['minVersion'];
+            $maxVersion = $menuVersion['maxVersion'];
+
+            if (
+                version_compare($minVersion, $version, '<=') &&
+                version_compare($maxVersion, $version, '>=')
+            ) {
+                $menuId = $menuVersion['id'];
+                break;
+            }
+        }
+
+        if (!isset($menuId) || is_null($menuId)) {
             return new View();
         }
+
+        $menu = $this->getDoctrine()->getRepository('SandboxApiBundle:Menu\Menu')->find($menuId);
 
         $items = array(
             self::CLIENT_MENU_ORDER,
@@ -134,7 +148,17 @@ class MenuController extends SandboxRestController
         );
 
         // translate json
-        $menuJson = $menu->getMenuJson();
+        switch ($position) {
+            case Menu::POSITION_MAIN:
+                $menuJson = $menu->getMainJson();
+                break;
+            case Menu::POSITION_PROFILE:
+                $menuJson = $menu->getProfileJson();
+                break;
+            default:
+                return new View();
+        }
+
         foreach ($items as $item) {
             $translate = $this->get('translator')->trans($item);
             $menuJson = preg_replace('/'.$item.'/', "$translate", $menuJson);
