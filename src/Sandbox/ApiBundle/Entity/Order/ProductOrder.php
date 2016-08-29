@@ -425,7 +425,7 @@ class ProductOrder
      *
      * @ORM\OneToMany(
      *      targetEntity="Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer",
-     *      mappedBy="orderId"
+     *      mappedBy="order"
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
      *

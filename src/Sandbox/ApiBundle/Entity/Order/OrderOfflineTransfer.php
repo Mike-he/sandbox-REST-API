@@ -96,7 +96,7 @@ class OrderOfflineTransfer
     private $modificationDate;
 
     /**
-     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Order\TransferAttachment", mappedBy="transferId")
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Order\TransferAttachment", mappedBy="transfer")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id", referencedColumnName="transferId")
      * })
