@@ -5,7 +5,9 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
+use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
+use Sandbox\ApiBundle\Form\Order\TransferAttachmentType;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +22,7 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
@@ -819,12 +822,12 @@ class ClientOrderController extends OrderController
     }
 
     /**
-     * @Post("/orders/{id}/transfer")
+     * @Put("/orders/{id}/transfer")
      *
      * @param Request $request
      * @param $id
      */
-    public function setTransferAction(
+    public function updateTransferAction(
         Request $request,
         $id
     ) {
@@ -847,35 +850,63 @@ class ClientOrderController extends OrderController
             );
         }
 
-        $existTransfer = $this->getDoctrine()
+        $transfer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
             ->findOneByOrderId($id);
 
-        if (is_null($existTransfer)) {
-            $transfer = new OrderOfflineTransfer();
-
-            $form = $this->createForm(new OrderOfflineTransferPost(), $transfer);
-            $form->handleRequest($request);
-
-            if (!$form->isValid()) {
-                return $this->customErrorView(
-                    400,
-                    self::INVALID_FORM_CODE,
-                    self::INVALID_FORM_MESSAGE
-                );
-            }
-
-            $now = new \DateTime('now');
-            $order->setStatus(ProductOrder::STATUS_PAID);
-            $order->setModificationDate($now);
-            $order->setPaymentDate($now);
-
-            $transfer->setOrder($order);
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($transfer);
-            $em->flush();
+        if (is_null($transfer)) {
+            return new View();
         }
+
+        $transferStatus = $transfer->getTransferStatus();
+        if ($transferStatus == OrderOfflineTransfer::STATUS_PAID ||
+            $transferStatus == OrderOfflineTransfer::STATUS_VERIFY
+        ) {
+            return new View();
+        } elseif ($transferStatus == OrderOfflineTransfer::STATUS_PENDING) {
+            $name = $transfer->getAccountName();
+            $number = $transfer->getAccountNo();
+
+            if (!is_null($name) || !is_null($number)) {
+                return new View();
+            }
+        }
+
+        $form = $this->createForm(new OrderOfflineTransferPost(), $transfer);
+        $form->submit(json_decode($request->getContent(), true));
+
+        if (!$form->isValid()) {
+            return $this->customErrorView(
+                400,
+                self::INVALID_FORM_CODE,
+                self::INVALID_FORM_MESSAGE
+            );
+        }
+
+        $attachmentArray = $transfer->getAttachments();
+        if (empty($attachmentArray)) {
+            return new View();
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $transferAttachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TransferAttachment')
+            ->findByTransfer($transfer);
+
+        foreach ($transferAttachments as $transferAttachment) {
+            $em->remove($transferAttachment);
+        }
+
+        $attachment = new TransferAttachment();
+
+        $form = $this->createForm(new TransferAttachmentType(), $attachment);
+        $form->submit($attachmentArray[0]);
+
+        $attachment->setTransfer($transfer);
+        $em->persist($attachment);
+
+        $em->flush();
 
         return new View();
     }
@@ -924,11 +955,21 @@ class ClientOrderController extends OrderController
         }
 
         $order->setCancelByUser(true);
+        $channel = $order->getPayChannel();
 
         if ($status == ProductOrder::STATUS_UNPAID) {
-            $order->setStatus(ProductOrder::STATUS_CANCELLED);
-            $order->setCancelledDate(new \DateTime());
-            $order->setModificationDate(new \DateTime());
+            if ($channel == ProductOrder::CHANNEL_OFFLINE) {
+                $existTransfer = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+                    ->findOneByOrderId($id);
+                $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
+
+                $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+            } else {
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate(new \DateTime());
+                $order->setModificationDate(new \DateTime());
+            }
 
             $em = $this->getDoctrine()->getManager();
             $em->flush();
@@ -936,7 +977,6 @@ class ClientOrderController extends OrderController
             return new View();
         }
 
-        $channel = $order->getPayChannel();
         $order->setModificationDate(new \DateTime());
 
         if ($price > 0) {

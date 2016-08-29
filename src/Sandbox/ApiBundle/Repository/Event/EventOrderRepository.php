@@ -244,6 +244,7 @@ class EventOrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
+            ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('eo.userId = :userId')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
@@ -253,8 +254,7 @@ class EventOrderRepository extends EntityRepository
         if (!is_null($status)) {
             switch ($status) {
                 case EventOrder::CLIENT_STATUS_IN_PROCESS:
-                    $query->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
-                        ->andWhere('
+                    $query->andWhere('
                             eo.status = :unpaid OR
                             (e.verify = TRUE AND er.userId = :userId AND er.status = :pending AND eo.status = :paid)
                         ')
@@ -264,8 +264,13 @@ class EventOrderRepository extends EntityRepository
                         ->setParameter('pending', EventRegistration::STATUS_PENDING);
                     break;
                 case EventOrder::CLIENT_STATUS_PASSED:
-                    $query->andWhere('eo.status = :paid OR eo.status = :completed')
+                    $query->andWhere('
+                            (e.verify = TRUE AND er.userId = :userId AND er.status = :accepted) OR 
+                            (e.verify = FAlSE AND (eo.status = :paid OR eo.status = :completed))
+                        ')
                         ->setParameter('paid', EventOrder::STATUS_PAID)
+                        ->setParameter('userId', $userId)
+                        ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
                         ->setParameter('completed', EventOrder::STATUS_COMPLETED);
                     break;
                 default:
@@ -281,6 +286,9 @@ class EventOrderRepository extends EntityRepository
                 ')
                 ->setParameter('search', $search.'%');
         }
+
+        // order by
+        $query->orderBy('eo.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
     }

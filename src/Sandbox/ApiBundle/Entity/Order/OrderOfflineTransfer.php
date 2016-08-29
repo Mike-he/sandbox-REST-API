@@ -13,6 +13,13 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class OrderOfflineTransfer
 {
+    const STATUS_PENDING = 'pending';
+    const STATUS_RETURNED = 'returned';
+    const STATUS_PAID = 'paid';
+    const STATUS_VERIFY = 'verify';
+    const STATUS_REJECT_REFUND = 'reject_refund';
+    const STATUS_ACCEPT_REFUND = 'accept_refund';
+
     /**
      * @var int
      *
@@ -46,11 +53,29 @@ class OrderOfflineTransfer
     /**
      * @var string
      *
-     * @ORM\Column(name="transferNo", type="string", length=64)
+     * @ORM\Column(name="accountName", type="string", length=64, nullable=true)
      *
      * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
-    private $transferNo;
+    private $accountName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="accountNo", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
+     */
+    private $accountNo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="transferStatus", type="string", length=16)
+     *
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
+     */
+    private $transferStatus = self::STATUS_PENDING;
 
     /**
      * @var \DateTime
@@ -60,6 +85,104 @@ class OrderOfflineTransfer
      * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modificationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
+     */
+    private $modificationDate;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Order\TransferAttachment", mappedBy="transfer")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="id", referencedColumnName="transferId")
+     * })
+     *
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
+     */
+    private $transferAttachments;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $attachments;
+
+    /**
+     * Set transferAttachments.
+     *
+     * @param array $transferAttachments
+     *
+     * @return OrderOfflineTransfer
+     */
+    public function setTransferAttachments($transferAttachments)
+    {
+        $this->transferAttachments = $transferAttachments;
+
+        return $this;
+    }
+
+    /**
+     * Get transferAttachments.
+     *
+     * @return array
+     */
+    public function getTransferAttachments()
+    {
+        return $this->transferAttachments;
+    }
+
+    /**
+     * Set attachment.
+     *
+     * @param array $attachment
+     *
+     * @return OrderOfflineTransfer
+     */
+    public function setAttachments($attachment)
+    {
+        $this->attachments = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment.
+     *
+     * @return array
+     */
+    public function getAttachments()
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * Set modificationDate.
+     *
+     * @param \DateTime $modificationDate
+     *
+     * @return OrderOfflineTransfer
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modificationDate.
+     *
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
 
     /**
      * Get id.
@@ -96,6 +219,54 @@ class OrderOfflineTransfer
     }
 
     /**
+     * Set accountName.
+     *
+     * @param string $name
+     *
+     * @return OrderOfflineTransfer
+     */
+    public function setAccountName($name)
+    {
+        $this->accountName = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get accountName.
+     *
+     * @return string
+     */
+    public function getAccountName()
+    {
+        return $this->accountName;
+    }
+
+    /**
+     * Set transferStatus.
+     *
+     * @param string $status
+     *
+     * @return OrderOfflineTransfer
+     */
+    public function setTransferStatus($status)
+    {
+        $this->transferStatus = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get transferStatus.
+     *
+     * @return string
+     */
+    public function getTransferStatus()
+    {
+        return $this->transferStatus;
+    }
+
+    /**
      * Set order.
      *
      * @param ProductOrder $order
@@ -120,27 +291,27 @@ class OrderOfflineTransfer
     }
 
     /**
-     * Set transferNo.
+     * Set accountNo.
      *
-     * @param string $transferNo
+     * @param string $accountNo
      *
      * @return OrderOfflineTransfer
      */
-    public function setTransferNo($transferNo)
+    public function setAccountNo($accountNo)
     {
-        $this->transferNo = $transferNo;
+        $this->accountNo = $accountNo;
 
         return $this;
     }
 
     /**
-     * Get transferNo.
+     * Get accountNo.
      *
      * @return string
      */
-    public function getTransferNo()
+    public function getAccountNo()
     {
-        return $this->transferNo;
+        return $this->accountNo;
     }
 
     /**
@@ -171,5 +342,6 @@ class OrderOfflineTransfer
     {
         $now = new \DateTime('now');
         $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 }
