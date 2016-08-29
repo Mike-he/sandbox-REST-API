@@ -1745,4 +1745,275 @@ class OrderRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     *
+     * @return mixed
+     */
+    public function countPaidOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->select('count(o.id) as number , SUM(o.discountPrice) as price')
+            ->where('o.status = :paid')
+            ->andWhere('o.paymentDate >= :start')
+            ->andWhere('o.paymentDate <= :end')
+            ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        $query = $query->getQuery();
+
+        return  $query->getSingleResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     *
+     * @return mixed
+     */
+    public function countCompletedOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->select('count(o.id) as number , SUM(o.discountPrice) as price')
+            ->where('o.status = :completed')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.startDate <= :end')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        $query = $query->getQuery();
+
+        return  $query->getSingleResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     *
+     * @return mixed
+     */
+    public function countRefundOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->select('count(o.id) as number , SUM(o.actualRefundAmount) as price')
+            ->where('o.status = :cancelled')
+            ->andWhere('
+                o.needToRefund = :needToRefund OR
+                o.refunded = :refunded
+            ')
+            ->andWhere('o.cancelledDate >= :start')
+            ->andWhere('o.cancelledDate <= :end')
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+            ->setParameter('needToRefund', true)
+            ->setParameter('refunded', true)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        $query = $query->getQuery();
+
+        return  $query->getSingleResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     * @param null $limit
+     * @param null $offset
+     *
+     * @return array
+     */
+    public function getOrdersList(
+        $status,
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null,
+        $limit = null,
+        $offset = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id');
+
+        switch ($status) {
+            case ProductOrder::STATUS_PAID :
+                $query->where('o.status = :paid')
+                    ->andWhere('o.paymentDate >= :start')
+                    ->andWhere('o.paymentDate <= :end')
+                    ->setParameter('paid', ProductOrder::STATUS_PAID)
+                    ->setParameter('start', $startDate)
+                    ->setParameter('end', $endDate);
+                break;
+            case ProductOrder::STATUS_COMPLETED :
+                $query->where('o.status = :completed')
+                    ->andWhere('o.startDate >= :start')
+                    ->andWhere('o.startDate <= :end')
+                    ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+                    ->setParameter('start', $startDate)
+                    ->setParameter('end', $endDate);
+                break;
+            case ProductOrder::STATUS_CANCELLED :
+                $query->where('o.status = :cancelled')
+                    ->andWhere('
+                        o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded
+                    ')
+                    ->andWhere('o.cancelledDate >= :start')
+                    ->andWhere('o.cancelledDate <= :end')
+                    ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+                    ->setParameter('needToRefund', true)
+                    ->setParameter('refunded', true)
+                    ->setParameter('start', $startDate)
+                    ->setParameter('end', $endDate);
+                break;
+            default:
+                return;
+        }
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building= :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $status
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     *
+     * @return int|mixed
+     */
+    public function countOrdersList(
+        $status,
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->select('COUNT(o)');
+
+        switch ($status) {
+           case ProductOrder::STATUS_PAID :
+               $query->where('o.status = :paid')
+                   ->andWhere('o.paymentDate >= :start')
+                   ->andWhere('o.paymentDate <= :end')
+                   ->setParameter('paid', ProductOrder::STATUS_PAID)
+                   ->setParameter('start', $startDate)
+                   ->setParameter('end', $endDate);
+               break;
+           case ProductOrder::STATUS_COMPLETED :
+               $query->where('o.status = :completed')
+                   ->andWhere('o.startDate >= :start')
+                   ->andWhere('o.startDate <= :end')
+                   ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+                   ->setParameter('start', $startDate)
+                   ->setParameter('end', $endDate);
+               break;
+           case ProductOrder::STATUS_CANCELLED :
+               $query->where('o.status = :cancelled')
+                   ->andWhere('
+                        o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded
+                    ')
+                   ->andWhere('o.cancelledDate >= :start')
+                   ->andWhere('o.cancelledDate <= :end')
+                   ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+                   ->setParameter('needToRefund', true)
+                   ->setParameter('refunded', true)
+                   ->setParameter('start', $startDate)
+                   ->setParameter('end', $endDate);
+               break;
+           default:
+               return 0;
+       }
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
