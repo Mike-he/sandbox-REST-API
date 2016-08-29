@@ -3,12 +3,13 @@
 namespace Sandbox\ApiBundle\Controller\FileServer;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use FOS\RestBundle\View\View;
 
 /**
  * Class FileServerController.
@@ -41,6 +42,60 @@ class FileServerController extends SandboxRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="target",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="target"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="preview_height",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="preview_height"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="preview_width",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="preview_width"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="file",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="file"
+     * )
      *
      * @Route("/plugins/fileServer/fileservice")
      * @Method({"POST"})
@@ -120,52 +175,36 @@ class FileServerController extends SandboxRestController
         $request,
         $paramFetcher
     ) {
-        $type = $request->get('type');
-        $target = $request->get('target');
-        $id = $request->get('id');
-        $preview_height = $request->get('preview_height');
-        $preview_width = $request->get('preview_width');
+        $type = $paramFetcher->get('type');
+        $target = $paramFetcher->get('target');
+        $id = $paramFetcher->get('id');
+        $preview_height = $paramFetcher->get('preview_height');
+        $preview_width = $paramFetcher->get('preview_width');
 
         $path = $this->getPath($target, $id);
         $fileid = $this->getName();
-        $content_type = null;
 
-        switch ($type) {
-            case 'base64':
-                $file = $request->get('file');
-                if (!preg_match('/(?<=\/)[^\/]+(?=\;)/', $file, $pregR)) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-                };
-                $content_type = 'image/'.$pregR[0];
-                $filename = $fileid.'.'.$pregR[0];
-                $newfile = $path.'/'.$filename;
+        if ($type == 'base64') {
+            $file = $paramFetcher->get('file');
+            if (!preg_match('/(?<=\/)[^\/]+(?=\;)/', $file, $pregR)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            };
+            $content_type = 'image/'.$pregR[0];
+            $filename = $fileid.'.'.$pregR[0];
+            $newfile = $path.'/'.$filename;
 
-                preg_match('/(?<=base64,)[\S|\s]+/', $file, $streamForW);
-                if(!file_put_contents($newfile, base64_decode($streamForW[0]))) {
-                    $result = array(
-                        'result' => 1,
-                    );
-                    return $result;
-                };
-                break;
-            default:
-                $file = $request->files->get('file');
-                if (is_null($file)) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-                }
-                $dataJson = $this->container->get('serializer')->serialize($file, 'json');
-                $dataArray = json_decode($dataJson, true);
+            preg_match('/(?<=base64,)[\S|\s]+/', $file, $streamForW);
+            file_put_contents($newfile, base64_decode($streamForW[0]));
+        } else {
+            $file = $request->files->get('file');
+            if (is_null($file)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+            $content_type = 'image/'.$file->guessExtension();
+            $filename = $fileid.'.'.$file->guessExtension();
+            $file->move($path, $filename);
 
-                $content_type = $dataArray['mime_type'];
-                $filename = $fileid.$this->getFileExt($dataArray['original_name']);
-
-                $newfile = $path.'/'.$filename;
-                if(!move_uploaded_file($file->getPathName(), $newfile)) {
-                    $result = array(
-                        'result' => 1,
-                    );
-                    return $result;
-                };
+            $newfile = $path.'/'.$filename;
         }
 
         if ($type == 'avatar' || $type == 'background') {
@@ -173,6 +212,10 @@ class FileServerController extends SandboxRestController
             $this->createThumb($newfile, $path.'/'.$type.'_small.jpg', 92, 92);
             $this->createThumb($newfile, $path.'/'.$type.'_medium.jpg', 192, 192);
             $this->createThumb($newfile, $path.'/'.$type.'_large.jpg', 400, 400);
+        }
+
+        if ($type == 'image') {
+            $this->resizeImage($newfile, $newfile, 800, 800);
         }
 
         if (!is_null($preview_height) && !is_null($preview_width)) {
@@ -241,7 +284,7 @@ class FileServerController extends SandboxRestController
         }
 
         if (!file_exists($dir)) {
-            if ( !mkdir( $dir , 0777 , true ) ) {
+            if (!mkdir($dir, 0777, true)) {
                 return false;
             }
         }
@@ -303,5 +346,70 @@ class FileServerController extends SandboxRestController
         }
 
         return $im;
+    }
+
+    /**
+     * @param $srcImgPath
+     * @param $targetImgPath
+     * @param $dstW
+     * @param $dstH
+     */
+    private function resizeImage(
+        $srcImgPath,
+        $targetImgPath,
+        $dstW,
+        $dstH
+    ) {
+        $src_image = $this->imgCreate($srcImgPath);
+        $srcW = imagesx($src_image); //获得图片宽
+        $srcH = imagesy($src_image); //获得图片高
+
+        if (($dstW && $srcW > $dstW) || ($dstH && $srcH > $dstH)) {
+            if ($dstW && $srcW > $dstW) {
+                $widthratio = $dstW / $srcW;
+                $resizewidth_tag = true;
+            }
+
+            if ($dstH && $srcH > $dstH) {
+                $heightratio = $dstH / $srcH;
+                $resizeheight_tag = true;
+            }
+
+            if ($resizewidth_tag && $resizeheight_tag) {
+                if ($widthratio < $heightratio) {
+                    $ratio = $widthratio;
+                } else {
+                    $ratio = $heightratio;
+                }
+            }
+
+            if ($resizewidth_tag && !$resizeheight_tag) {
+                $ratio = $widthratio;
+            }
+
+            if ($resizeheight_tag && !$resizewidth_tag) {
+                $ratio = $heightratio;
+            }
+
+            $newwidth = $dstW * $ratio;
+
+            $newheight = $srcH * $ratio;
+
+            if (function_exists('imagecopyresampled')) {
+                $newim = imagecreatetruecolor($newwidth, $newheight);
+
+                imagecopyresampled($newim, $src_image, 0, 0, 0, 0, $newwidth, $newheight, $srcW, $srcH);
+            } else {
+                $newim = imagecreate($newwidth, $newheight);
+
+                imagecopyresized($newim, $src_image, 0, 0, 0, 0, $newwidth, $newheight, $srcW, $srcH);
+            }
+
+            imagejpeg($newim, $targetImgPath);
+
+            imagedestroy($newim);
+        } else {
+            imagejpeg($src_image, $targetImgPath);
+        }
     }
 }
