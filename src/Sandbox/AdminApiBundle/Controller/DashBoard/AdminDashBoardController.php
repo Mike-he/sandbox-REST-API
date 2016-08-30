@@ -560,17 +560,17 @@ class AdminDashBoardController extends SandboxRestController
 
         $result = array(
             'today_paid' => $todayPaid,
-            'today_complated' => $todayCompleted,
-            'today_refunded' => $todayRefunded,
+            'today_completed' => $todayCompleted,
+            'today_cancelled' => $todayRefunded,
             'yestday_paid' => $yestPaid,
-            'yestday_complated' => $yestCompleted,
-            'yestday_refunded' => $yestRefunded,
+            'yestday_completed' => $yestCompleted,
+            'yestday_cancelled' => $yestRefunded,
             'month_paid' => $monthPaid,
-            'month_complated' => $monthCompleted,
-            'month_refunded' => $monthRefunded,
+            'month_completed' => $monthCompleted,
+            'month_cancelled' => $monthRefunded,
             'monthly_paid' => $monthlyPaid,
-            'monthly_complated' => $monthlyCompleted,
-            'monthly_refunded' => $monthlyRefunded,
+            'monthly_completed' => $monthlyCompleted,
+            'monthly_cancelled' => $monthlyRefunded,
         );
 
         return new View($result);
