@@ -40,6 +40,8 @@ class TransferAttachment
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="transferId", referencedColumnName="id", onDelete="CASCADE")
      * })
+     *
+     * @Serializer\Groups({"main"})
      */
     private $transfer;
 
@@ -48,7 +50,7 @@ class TransferAttachment
      *
      * @ORM\Column(name="content", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $content;
 
@@ -57,7 +59,7 @@ class TransferAttachment
      *
      * @ORM\Column(name="attachmentType", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $attachmentType;
 
@@ -66,7 +68,7 @@ class TransferAttachment
      *
      * @ORM\Column(name="filename", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $filename;
 
@@ -75,7 +77,7 @@ class TransferAttachment
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $preview;
 
@@ -84,7 +86,7 @@ class TransferAttachment
      *
      * @ORM\Column(name="size", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $size;
 
