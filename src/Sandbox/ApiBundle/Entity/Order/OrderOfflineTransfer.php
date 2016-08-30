@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class OrderOfflineTransfer
 {
+    const STATUS_UNPAID = 'unpaid';
     const STATUS_PENDING = 'pending';
     const STATUS_RETURNED = 'returned';
     const STATUS_PAID = 'paid';
@@ -75,7 +76,7 @@ class OrderOfflineTransfer
      *
      * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
-    private $transferStatus = self::STATUS_PENDING;
+    private $transferStatus = self::STATUS_UNPAID;
 
     /**
      * @var \DateTime

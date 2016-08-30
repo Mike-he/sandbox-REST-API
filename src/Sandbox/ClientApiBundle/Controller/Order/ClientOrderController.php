@@ -859,17 +859,14 @@ class ClientOrderController extends OrderController
         }
 
         $transferStatus = $transfer->getTransferStatus();
-        if ($transferStatus == OrderOfflineTransfer::STATUS_PAID ||
-            $transferStatus == OrderOfflineTransfer::STATUS_VERIFY
+        if ($transferStatus != OrderOfflineTransfer::STATUS_UNPAID &&
+            $transferStatus != OrderOfflineTransfer::STATUS_RETURNED
         ) {
-            return new View();
-        } elseif ($transferStatus == OrderOfflineTransfer::STATUS_PENDING) {
-            $name = $transfer->getAccountName();
-            $number = $transfer->getAccountNo();
-
-            if (!is_null($name) || !is_null($number)) {
-                return new View();
-            }
+            return $this->customErrorView(
+                400,
+                self::WRONG_ORDER_STATUS_CODE,
+                self::WRONG_ORDER_STATUS_MESSAGE
+            );
         }
 
         $form = $this->createForm(new OrderOfflineTransferPost(), $transfer);
@@ -903,6 +900,7 @@ class ClientOrderController extends OrderController
         $form = $this->createForm(new TransferAttachmentType(), $attachment);
         $form->submit($attachmentArray[0]);
 
+        $transfer->setTransferStatus(OrderOfflineTransfer::STATUS_PENDING);
         $attachment->setTransfer($transfer);
         $em->persist($attachment);
 
