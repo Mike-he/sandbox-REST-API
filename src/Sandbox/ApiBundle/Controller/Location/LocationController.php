@@ -539,6 +539,12 @@ class LocationController extends SalesRestController
         // set more information
         $this->setRoomBuildingMoreInformation($building);
 
+        // set building room types according to present data
+        $types = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
+            ->getPresentRoomTypes($building);
+        $building->setBuildingRoomTypes($types);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
         $view->setData($building);
@@ -603,14 +609,6 @@ class LocationController extends SalesRestController
                 'building' => $building,
             ));
         $building->setBuildingTags($tags);
-
-        // set building room types
-        $types = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuildingTypeBinding')
-            ->findBy(array(
-                'building' => $building,
-            ));
-        $building->setBuildingRoomTypes($types);
 
         return $building;
     }
