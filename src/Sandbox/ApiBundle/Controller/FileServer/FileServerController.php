@@ -115,6 +115,60 @@ class FileServerController extends SandboxRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="target",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="target"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="preview_height",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="preview_height"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="preview_width",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="preview_width"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="file",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="file"
+     * )
+     *
      * @Route("/plugins/fileServer/fileservice/admin")
      * @Method({"POST"})
      *
@@ -133,6 +187,60 @@ class FileServerController extends SandboxRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="target",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="target"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="preview_height",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="preview_height"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="preview_width",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="preview_width"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="file",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="file"
+     * )
+     *
      * @Route("/plugins/fileServer/fileservice/sales/admin")
      * @Method({"POST"})
      *
@@ -150,6 +258,60 @@ class FileServerController extends SandboxRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="target",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="target"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="preview_height",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="preview_height"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="preview_width",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="preview_width"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="file",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="file"
+     * )
      *
      * @Route("/plugins/fileServer/fileservice/shop/admin")
      * @Method({"POST"})
@@ -272,8 +434,7 @@ class FileServerController extends SandboxRestController
         $target,
         $id
     ) {
-        //        $dir = '/data/openfire/image';
-        $dir = '/Users/sandbox3/Documents';
+        $dir = '/data/openfire/image';
 
         if (!is_null($target)) {
             $dir = $dir.'/'.$target;
