@@ -59,7 +59,7 @@ class RoomTypes
      *
      * @ORM\Column(name="icon", type="text")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "drop_down"})
      */
     private $icon;
 
