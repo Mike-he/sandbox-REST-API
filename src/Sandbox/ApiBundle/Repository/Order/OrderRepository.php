@@ -1040,10 +1040,11 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder))');
+            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder) OR (o.payChannel = :offline))');
 
         $parameters['preOrder'] = ProductOrder::PREORDER_TYPE;
         $parameters['unpaid'] = ProductOrder::STATUS_UNPAID;
+        $parameters['offline'] = ProductOrder::CHANNEL_OFFLINE;
 
         //only needed when searching orders
         if (!is_null($search)) {
@@ -1198,10 +1199,11 @@ class OrderRepository extends EntityRepository
             ->select('COUNT(o)')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder))');
+            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder) OR (o.payChannel = :offline))');
 
         $parameters['preOrder'] = ProductOrder::PREORDER_TYPE;
         $parameters['unpaid'] = ProductOrder::STATUS_UNPAID;
+        $parameters['offline'] = ProductOrder::CHANNEL_OFFLINE;
 
         //only needed when searching orders
         if (!is_null($search)) {
