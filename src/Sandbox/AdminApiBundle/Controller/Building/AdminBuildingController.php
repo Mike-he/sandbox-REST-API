@@ -903,6 +903,11 @@ class AdminBuildingController extends LocationController
 
             $em->persist($rba);
 
+            $roomFloor = new RoomFloor();
+            $roomFloor->setFloorNumber('1');
+            $roomFloor->setBuilding($bd);
+            $em->persist($roomFloor);
+
             $buildingCompany = new RoomBuildingCompany();
             $buildingCompany->setBuilding($bd);
             $buildingCompany->setName('Sandbox3');
