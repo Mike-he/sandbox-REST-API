@@ -916,4 +916,60 @@ class AdminBuildingController extends LocationController
 
         $em->flush();
     }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/building/location/sync")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function syncBuildingLocationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $buildings = $this->getDoctrine()->getManager()
+            ->createQuery('
+                select b
+                from SandboxApiBundle:Room\RoomBuilding b
+                where b.companyId = 45
+            ')
+            ->getResult();
+
+        foreach ($buildings as $building) {
+            $address = $building->getAddress();
+
+            $apiURL = 'http://restapi.amap.com/v3/geocode/geo?key=aa4a48297242d22d2b3fd6eddfe62217&s=rsv3&address='.$address;
+
+            $ch = curl_init($apiURL);
+
+            $result = $this->callAPI(
+                $ch,
+                'GET'
+            );
+
+            if (is_null($result)) {
+                continue;
+            }
+
+            $resultArray = json_decode($result, true);
+
+            if (!isset($resultArray['geocodes'][0]['location'])) {
+                continue;
+            }
+
+            $resultLocation = $resultArray['geocodes'][0]['location'];
+
+            $location = explode(',', $resultLocation);
+            $lng = $location[0];
+            $lat = $location[1];
+
+            $building->setLat($lat);
+            $building->setLng($lng);
+        }
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+    }
 }

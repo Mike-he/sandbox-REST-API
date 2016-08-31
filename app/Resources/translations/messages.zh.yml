@@ -270,3 +270,10 @@ building:
     food_and_beverage: 餐饮配套
     vip_space: 会员空间
     fast_preorder: 快速预定
+
+banner:
+  tag:
+    activity: 活动
+    news: 新闻
+    product: 商品
+    advertisement: 广告

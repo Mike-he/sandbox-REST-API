@@ -83,6 +83,34 @@ class Banner
     private $sortTime;
 
     /**
+     * @var BannerTag
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Banner\BannerTag")
+     * @ORM\JoinColumn(name="tagId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main", "client_list"})
+     */
+    private $tag;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="tagId", type="integer")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $tagId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="subtitle", type="string", length=128, nullable=true)
+     *
+     * @Serializer\Groups({"main", "client_list"})
+     */
+    private $subtitle;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -252,6 +280,54 @@ class Banner
     public function getSortTime()
     {
         return $this->sortTime;
+    }
+
+    /**
+     * @return BannerTag
+     */
+    public function getTag()
+    {
+        return $this->tag;
+    }
+
+    /**
+     * @param BannerTag $tag
+     */
+    public function setTag($tag)
+    {
+        $this->tag = $tag;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTagId()
+    {
+        return $this->tagId;
+    }
+
+    /**
+     * @param int $tagId
+     */
+    public function setTagId($tagId)
+    {
+        $this->tagId = $tagId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSubtitle()
+    {
+        return $this->subtitle;
+    }
+
+    /**
+     * @param string $subtitle
+     */
+    public function setSubtitle($subtitle)
+    {
+        $this->subtitle = $subtitle;
     }
 
     /**

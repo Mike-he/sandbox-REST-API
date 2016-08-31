@@ -271,3 +271,10 @@ building:
     food_and_beverage: Catering Services
     vip_space: Member Space
     fast_preorder: Fast Booking
+
+banner:
+  tag:
+    activity: Activity
+    news: News
+    product: Product
+    advertisement: Advertisement

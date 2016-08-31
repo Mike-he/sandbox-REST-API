@@ -124,6 +124,12 @@ sandbox_admin_api_food:
     type:     annotation
     prefix:   /
 
+# Banner Tags /admin/banner/tags
+sandbox_admin_api_banner_tags:
+    resource: "@SandboxAdminApiBundle/Controller/Banner/AdminBannerTagController.php"
+    type:     annotation
+    prefix:   /
+
 # Banners /admin/banners
 sandbox_admin_api_banners:
     resource: "@SandboxAdminApiBundle/Controller/Banner/AdminBannerController.php"

@@ -20,7 +20,7 @@ class RoomTypes
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "drop_down"})
      */
     private $id;
 
