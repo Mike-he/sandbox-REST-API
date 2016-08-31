@@ -804,7 +804,7 @@ class AdminBuildingController extends LocationController
             $opLevel
         );
     }
-    
+
     /**
      * @param Request $request
      *
@@ -825,8 +825,7 @@ class AdminBuildingController extends LocationController
     public function generateBuildingAction(
         Request $request
     ) {
-
-        $json = json_decode($request->getContent(), true) ;
+        $json = json_decode($request->getContent(), true);
         $param['server_name'] = $request->query->get('server_name');
         $param['sales_company_id'] = $request->query->get('sales_company_id');
 

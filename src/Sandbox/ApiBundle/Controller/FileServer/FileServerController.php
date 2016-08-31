@@ -44,6 +44,45 @@ class FileServerController extends SandboxRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *    name="target",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="target"
+     * )
+     *
+     * @Route("/fileserver/url")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getFileServerUploadUrlAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $alltargets = array('advertising', 'banner', 'building', 'bulletin', 'chatgroup', 'company', 'event', 'id_photo', 'menu', 'news', 'person', 'room', 'shop', 'user_card');
+        $target = $paramFetcher->get('target');
+
+        $domain = null;
+        if (!is_null($target)) {
+            if (in_array($target, $alltargets)) {
+                $domain = $this->container->getParameter('file_server_url');
+            } else {
+                $domain = $this->container->getParameter('rest_file_server_url');
+            }
+        }
+
+        return new View(array(
+            'file_server_domain' => $domain,
+        ));
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
      *    name="type",
      *    array=false,
      *    default=null,
@@ -106,9 +145,7 @@ class FileServerController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-
-//        $result = $this->upload($request, $paramFetcher);
-        $result = $this->setData($request, $paramFetcher);
+        $result = $this->upload($request, $paramFetcher);
 
         return new View($result);
     }
@@ -575,52 +612,4 @@ class FileServerController extends SandboxRestController
             imagejpeg($src_image, $targetImgPath);
         }
     }
-
-
-
-    public function setData(
-        $request,
-        $paramFetcher
-    ) {
-        $type = $paramFetcher->get('type');
-        $target = $paramFetcher->get('target');
-
-        $url = "http://devxmpp.sandbox3.cn/plugins/fileServer/fileservice";
-        $filename = $_FILES['file']['name'];
-        $filedata = $_FILES['file']['tmp_name'];
-
-        $headers = array("Content-Type:multipart/form-data");
-        $Authorization = base64_encode($_SERVER['PHP_AUTH_USER'] . ':' . $_SERVER['PHP_AUTH_PW']);
-
-        $headers[]= 'Authorization: Basic '.$Authorization;
-
-        var_dump($headers);
-        $postfields = array(
-                    "filedata" => $filedata,
-                    "filename" => $filename,
-                    "target"=>$target,
-                    'type'=>$type
-                );
-        var_dump($postfields);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_POST, 1);
-
-
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-
-        return $result;
-
-
-    }
-
-
 }
