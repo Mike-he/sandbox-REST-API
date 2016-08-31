@@ -17,6 +17,8 @@ class BannerPutType extends AbstractType
         $builder
             ->add('title', 'text')
             ->add('cover', 'text')
+            ->add('tag_id')
+            ->add('subtitle')
         ;
     }
 

@@ -1269,6 +1269,8 @@ class AdminBuildingController extends LocationController
                 $em->remove($service);
             }
         }
+
+        $em->flush();
     }
 
     /**

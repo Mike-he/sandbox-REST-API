@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Banner;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Banner\BannerController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -21,6 +22,24 @@ use JMS\Serializer\SerializationContext;
  */
 class ClientBannerController extends BannerController
 {
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/banners/top/limit")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getTopBannerNumberAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        return new View(array(
+            'banner_top_counts' => 5,
+        ));
+    }
+
     /**
      * Get list of banners.
      *

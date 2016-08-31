@@ -66,7 +66,6 @@ class AdminBannerController extends BannerController
      *    description="page number "
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="search",
      *    default=null,
@@ -220,6 +219,17 @@ class AdminBannerController extends BannerController
         );
         $form->handleRequest($request);
 
+        $tagId = $banner->getTagId();
+        $tag = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\BannerTag')
+            ->find($tagId);
+        if (is_null($tag)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $banner->setTag($tag);
+        $banner->setModificationDate(new \DateTime('now'));
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
@@ -300,6 +310,17 @@ class AdminBannerController extends BannerController
 
         $source = $banner->getSource();
         $sourceId = $banner->getSourceId();
+
+        $tagId = $banner->getTagId();
+        $tag = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\BannerTag')
+            ->find($tagId);
+        if (is_null($tag)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $banner->setTag($tag);
+
         switch ($source) {
             case Banner::SOURCE_EVENT:
                 $this->setBannerContentForEvent(
