@@ -804,4 +804,112 @@ class AdminBuildingController extends LocationController
             $opLevel
         );
     }
+    
+    /**
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Method({"POST"})
+     * @Route("/generate-buildings")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function generateBuildingAction(
+        Request $request
+    ) {
+
+        $json = json_decode($request->getContent(), true) ;
+        $param['server_name'] = $request->query->get('server_name');
+        $param['sales_company_id'] = $request->query->get('sales_company_id');
+
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($json as $arr) {
+            $cityName = mb_substr($arr['address'], 0, 2);
+
+            $query = $em->createQuery(
+                "
+                  SELECT rc
+                  FROM SandboxApiBundle:Room\RoomCity rc
+                  WHERE
+                  rc.name LIKE :cityName
+                "
+            )
+                ->setParameter('cityName', '%'.$cityName.'%');
+
+            $city = $query->getOneOrNullResult();
+
+            if (is_null($city)) {
+                continue;
+            }
+
+            $cityId = $city->getId();
+
+            $city = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($cityId);
+            $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                ->find($param['sales_company_id']);
+
+            if (is_null($company)) {
+                continue;
+            }
+
+            $building['city'] = $city;
+            $building['name'] = $arr['name'];
+            $building['detail'] = $arr['type'];
+            $building['address'] = $arr['address'];
+            $building['lat'] = 121.632682;
+            $building['lng'] = 31.216193;
+            $building['avatar'] = $param['server_name'].'image.sandbox3.cn/building/'.$arr['avatar'];
+            $building['businessHour'] = '9:00am - 18:00pm';
+            $building['company'] = $company;
+            $building['status'] = 'accept';
+
+            $bd = new RoomBuilding();
+
+            $bd->setAddress($building['address']);
+            $bd->setAvatar($building['avatar']);
+            $bd->setBusinessHour($building['businessHour']);
+            $bd->setCity($building['city']);
+            $bd->setDetail($building['detail']);
+            $bd->setName($building['name']);
+            $bd->setCompany($building['company']);
+            $bd->setLat($building['lat']);
+            $bd->setLng($building['lng']);
+            $bd->setStatus($building['status']);
+            $bd->setCreationDate(new \DateTime('now'));
+            $bd->setModificationDate(new \DateTime('now'));
+
+            $em->persist($bd);
+
+            $rbaData['content'] = $param['server_name'].'image.sandbox3.cn/building/'.$arr['url'];
+            $rbaData['attachmentType'] = 'image/jpg';
+            $rbaData['filename'] = $arr['url'];
+
+            $rba = new RoomBuildingAttachment();
+            $rba->setAttachmentType($rbaData['attachmentType']);
+            $rba->setContent($rbaData['content']);
+            $rba->setFilename($rbaData['filename']);
+            $rba->setBuilding($bd);
+            $rba->setSize(1024);
+
+            $em->persist($rba);
+
+            $buildingCompany = new RoomBuildingCompany();
+            $buildingCompany->setBuilding($bd);
+            $buildingCompany->setName('Sandbox3');
+
+            $em->persist($buildingCompany);
+        }
+
+        $em->flush();
+    }
 }
