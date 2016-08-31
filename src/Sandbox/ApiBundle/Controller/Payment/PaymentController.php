@@ -126,6 +126,14 @@ class PaymentController extends DoorController
     ) {
         $order->setPayChannel($channel);
 
+        $transfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+            ->findOneByOrder($order);
+
+        if (!is_null($transfer)) {
+            return new View();
+        }
+
         $transfer = new OrderOfflineTransfer();
         $transfer->setOrder($order);
 
