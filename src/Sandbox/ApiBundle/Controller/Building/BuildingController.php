@@ -34,14 +34,9 @@ class BuildingController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Room\RoomBuildingServices')
             ->findAll();
 
-        $language = $request->getPreferredLanguage();
-
         foreach ($services as $service) {
             $serviceText = $this->get('translator')->trans(
-                RoomBuildingServices::TRANS_PREFIX.$service->getName(),
-                array(),
-                null,
-                $language
+                RoomBuildingServices::TRANS_PREFIX.$service->getName()
             );
             $service->setName($serviceText);
         }
@@ -69,14 +64,9 @@ class BuildingController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Room\RoomBuildingTag')
             ->findAll();
 
-        $language = $request->getPreferredLanguage();
-
         foreach ($tags as $tag) {
             $serviceText = $this->get('translator')->trans(
-                RoomBuildingTag::TRANS_PREFIX.$tag->getName(),
-                array(),
-                null,
-                $language
+                RoomBuildingTag::TRANS_PREFIX.$tag->getName()
             );
             $tag->setName($serviceText);
         }
