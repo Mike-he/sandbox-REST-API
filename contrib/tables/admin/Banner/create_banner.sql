@@ -5,7 +5,9 @@ CREATE TABLE `Banner` (
   `cover` text NOT NULL,
   `source` enum('event','news','url') NOT NULL,
   `sourceId` int(11),
-  `sortTime` timestamp NOT NULL,
+  `sortTime` timestamp NOT NULL,,
+  `tagId` int(11) NOT NULL,
+  `subtitle` varchar(128) DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`)
