@@ -603,6 +603,10 @@ class LocationController extends SalesRestController
                 'building' => $building,
             ));
         foreach ($services as $service) {
+            if (is_null($service)) {
+                continue;
+            }
+
             $serviceText = $this->get('translator')->trans(
                 RoomBuildingServices::TRANS_PREFIX.$service->getName()
             );
@@ -617,6 +621,10 @@ class LocationController extends SalesRestController
                 'building' => $building,
             ));
         foreach ($tags as $tag) {
+            if (is_null($tag)) {
+                continue;
+            }
+
             $serviceText = $this->get('translator')->trans(
                 RoomBuildingTag::TRANS_PREFIX.$tag->getName()
             );
