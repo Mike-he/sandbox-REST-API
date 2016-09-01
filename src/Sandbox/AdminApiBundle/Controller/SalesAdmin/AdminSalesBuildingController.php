@@ -411,6 +411,8 @@ class AdminSalesBuildingController extends LocationController
             $em->remove($binding);
         }
 
+        $em->flush();
+
         if (empty($types)) {
             return;
         }

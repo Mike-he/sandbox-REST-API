@@ -92,13 +92,22 @@ class AdminBannerController extends BannerController
         $pageIndex = $paramFetcher->get('pageIndex');
         $search = $paramFetcher->get('search');
 
-        $query = $this->getRepo('Banner\Banner')->getBannerList(
-            $search
-        );
+        $banners = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->getBannerList(
+                $search
+            );
+
+        foreach ($banners as $banner) {
+            // translate tag name
+            $tagName = $banner->getTag()->getName();
+            $trans = $this->get('translator')->trans($tagName);
+            $banner->getTag()->setName($trans);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $banners,
             $pageIndex,
             $pageLimit
         );
@@ -289,8 +298,15 @@ class AdminBannerController extends BannerController
         $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get banner
-        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $banner = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->find($id);
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        // translate tag name
+        $tag = $banner->getTag();
+        $trans = $this->container->get('translator')->trans(self::BANNER_TRANS_PREFIX.$tag->getName());
+        $tag->setName($trans);
 
         return new View($banner);
     }
