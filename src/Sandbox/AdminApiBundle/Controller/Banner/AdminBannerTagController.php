@@ -12,10 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Class AdminBannerTagController.
  */
-class AdminBannerTagController extends AdminRestController
+class AdminBannerTagController extends AdminBannerController
 {
-    const TRANS_PREFIX = 'banner.tag.';
-
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -34,7 +32,7 @@ class AdminBannerTagController extends AdminRestController
             ->findAll();
 
         foreach ($tags as $tag) {
-            $trans = $this->container->get('translator')->trans(self::TRANS_PREFIX.$tag->getName());
+            $trans = $this->container->get('translator')->trans(self::BANNER_TRANS_PREFIX.$tag->getName());
 
             $tag->setName($trans);
         }

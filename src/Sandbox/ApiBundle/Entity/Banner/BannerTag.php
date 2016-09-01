@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Banner;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * BannerTag.
@@ -18,6 +19,8 @@ class BannerTag
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $id;
 
@@ -25,6 +28,8 @@ class BannerTag
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $name;
 
