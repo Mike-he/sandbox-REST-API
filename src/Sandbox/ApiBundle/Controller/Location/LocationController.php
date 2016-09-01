@@ -3,6 +3,8 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
@@ -600,6 +602,12 @@ class LocationController extends SalesRestController
             ->findBy(array(
                 'building' => $building,
             ));
+        foreach ($services as $service) {
+            $serviceText = $this->get('translator')->trans(
+                RoomBuildingServices::TRANS_PREFIX.$service->getName()
+            );
+            $service->setName($serviceText);
+        }
         $building->setBuildingServices($services);
 
         // set building tags
@@ -608,6 +616,12 @@ class LocationController extends SalesRestController
             ->findBy(array(
                 'building' => $building,
             ));
+        foreach ($tags as $tag) {
+            $serviceText = $this->get('translator')->trans(
+                RoomBuildingTag::TRANS_PREFIX.$tag->getName()
+            );
+            $tag->setName($serviceText);
+        }
         $building->setBuildingTags($tags);
 
         return $building;
