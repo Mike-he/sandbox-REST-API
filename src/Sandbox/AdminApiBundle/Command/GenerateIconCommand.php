@@ -37,13 +37,17 @@ EOT
         $entityManager = $this->getContainer()->get('doctrine')->getEntityManager();
         $imageServer = $this->getContainer()->getParameter('image_url');
 
+        $ImagePath = '/data/openfire/image/icon';
+
+        if (!file_exists($ImagePath)) {
+            mkdir($ImagePath, 0777, true);
+        }
+        
         $types = $entityManager
             ->getRepository(
                 'SandboxApiBundle:'.$input->getOption('entity-name')
             )
             ->findBy(array());
-
-        $ImagePath = '/data/openfire/image/icon/';
 
         foreach ($types as $type) {
             $icon = $type->getIcon();
@@ -62,7 +66,7 @@ EOT
                 continue;
             }
 
-            file_put_contents($ImagePath.$imageName, base64_decode($imageBase64[0]));
+            file_put_contents($ImagePath.'/'.$imageName, base64_decode($imageBase64[0]));
 
             $imageUrl = $imageServer.'/icon/'.$imageName;
             $type->setIcon($imageUrl);
