@@ -303,7 +303,7 @@ class ProductOrder
      * @var string
      *
      * @ORM\Column(name="type", type="string", nullable=true)
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $type;
 

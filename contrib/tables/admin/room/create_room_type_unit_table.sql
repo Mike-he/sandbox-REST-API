@@ -7,10 +7,10 @@ CREATE TABLE `RoomTypeUnit` (
   CONSTRAINT `fk_RoomTypeUnit_typeId` FOREIGN KEY (`typeId`) REFERENCES `RoomTypes` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(1,'month');
-INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(2,'hour');
-INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(3,'day');
-INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(4,'day');
-INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(4,'month');
-INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(5,'hour');
-INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(6,'hour');
+INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(7,'month');
+INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(8,'hour');
+INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(9,'day');
+INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(10,'day');
+INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(10,'month');
+INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(11,'hour');
+INSERT INTO RoomTypeUnit(`typeId`,`unit`) VALUES(12,'hour');
