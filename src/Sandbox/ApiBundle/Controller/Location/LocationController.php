@@ -628,7 +628,7 @@ class LocationController extends SalesRestController
             $serviceText = $this->get('translator')->trans(
                 RoomBuildingTag::TRANS_PREFIX.$tag->getTag()->getKey()
             );
-            $tag->getTag()>setName($serviceText);
+            $tag->getTag()->setName($serviceText);
         }
         $building->setBuildingTags($tags);
 
