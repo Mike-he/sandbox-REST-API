@@ -273,6 +273,9 @@ class MenuController extends SandboxRestController
         $menuJson
     ) {
         $menuArray = json_decode($menuJson, true);
+        $bannerCarouselMenu = array();
+        $iconsMenu = array();
+        $bannerMenu = array();
         foreach ($menuArray as $menu) {
             switch ($menu['type']) {
                 case 'bannerCarousel':
