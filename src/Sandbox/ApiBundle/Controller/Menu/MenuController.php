@@ -426,7 +426,7 @@ class MenuController extends SandboxRestController
                             'type' => 'web',
                             'title' => $d->getTitle(),
                             'subtitle' => $d->getSubtitle(),
-                            'tag' => $this->get('translator')->trans($d->getTag()->getName()),
+                            'tag' => $this->get('translator')->trans($d->getTag()->getKey()),
                             'image_url' => $d->getCover(),
                             'web' => array(
                                 'url' => $url,
