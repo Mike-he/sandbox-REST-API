@@ -215,12 +215,12 @@ class MenuController extends SandboxRestController
      *    description=""
      * )
      *
-     * @Route("/menus/more")
+     * @Route("/menus/loadmore")
      * @Method({"GET"})
      *
      * @return View
      */
-    public function getMoreInfoAction(
+    public function getLoadMoreAction(
        Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -278,37 +278,7 @@ class MenuController extends SandboxRestController
                 case 'bannerCarousel':
                     $items = $menu['items'];
                     if (!empty($menu['hidden_asserts'])) {
-                        foreach ($menu['hidden_asserts'] as $assert) {
-                            $item_key = $assert['item_key'];
-                            $limit = $assert['limit'];
-                            $offset = ($assert['offset'] - 1) * $limit;
-                            switch ($item_key) {
-                                case 'banner':
-                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
-                                    $bannerItem = array();
-                                    foreach ($data as $d) {
-                                        if ($d->getSource() == 'url') {
-                                            $url = $d->getContent();
-                                        } else {
-                                            $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
-                                        }
-                                        $bannerItem[] = array(
-                                            'type' => 'web',
-                                            'title' => $d->getTitle(),
-                                            'image_url' => $d->getCover(),
-                                            'web' => array(
-                                                'url' => $url,
-                                                'cookie' => array(
-                                                    'key' => 'btype',
-                                                    'value' => 'bannerCarousel',
-                                                ),
-                                            ),
-                                        );
-                                    }
-                                    $items = array_merge_recursive($menu['items'], $bannerItem);
-                                    break;
-                            }
-                        }
+                        $items = $this->handleBannerCarousel($items, $menu['hidden_asserts']);
                     }
                     $bannerCarouselMenu = array(
                         'type' => 'bannerCarousel',
@@ -318,32 +288,7 @@ class MenuController extends SandboxRestController
                 case 'icons':
                     $items = array();
                     if (!empty($menu['hidden_asserts'])) {
-                        foreach ($menu['hidden_asserts'] as $assert) {
-                            $item_key = $assert['item_key'];
-                            $limit = $assert['limit'];
-                            $offset = ($assert['offset'] - 1) * $limit;
-                            switch ($item_key) {
-                                case 'room_types':
-                                    $roomTypeItem = array();
-                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Room\RoomTypes")->getLimitList($limit, $offset);
-                                    foreach ($data as $d) {
-                                        $roomTypeItem[] = array(
-                                            'type' => 'web',
-                                            'title' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
-                                            'image_url' => $d->getIcon(),
-                                            'web' => array(
-                                                'url' => $this->container->getParameter('mobile_url').'/search',
-                                                'cookie' => array(
-                                                    'key' => 'btype',
-                                                    'value' => $d->getName(),
-                                                ),
-                                            ),
-                                        );
-                                    }
-                                    $items = array_merge_recursive($roomTypeItem);
-                                    break;
-                            }
-                        }
+                        $items = $this->handleIcons($items, $menu['hidden_asserts']);
                     }
                     $iconsMenu = array(
                         'type' => 'icons',
@@ -353,39 +298,7 @@ class MenuController extends SandboxRestController
                 case 'banner':
                     $items = $menu['items'];
                     if (!empty($menu['hidden_asserts'])) {
-                        foreach ($menu['hidden_asserts'] as $assert) {
-                            $item_key = $assert['item_key'];
-                            $limit = $assert['limit'];
-                            $offset = ($assert['offset'] - 1) * $limit;
-                            switch ($item_key) {
-                                case 'banner':
-                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
-                                    $bannerItem = array();
-                                    foreach ($data as $d) {
-                                        if ($d->getSource() == 'url') {
-                                            $url = $d->getContent();
-                                        } else {
-                                            $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
-                                        }
-                                        $bannerItem[] = array(
-                                            'type' => 'web',
-                                            'title' => $d->getTitle(),
-                                            'subtitle' => $d->getSubtitle(),
-                                            'tag' => $this->get('translator')->trans($d->getTag()->getName()),
-                                            'image_url' => $d->getCover(),
-                                            'web' => array(
-                                                'url' => $url,
-                                                'cookie' => array(
-                                                    'key' => 'btype',
-                                                    'value' => 'banner',
-                                                ),
-                                            ),
-                                        );
-                                    }
-                                    $items = array_merge_recursive($menu['items'], $bannerItem);
-                                    break;
-                            }
-                        }
+                        $items = $this->handleBanner($items, $menu['hidden_asserts']);
                     }
                     $bannerMenu = array(
                         'type' => 'banner',
@@ -398,6 +311,138 @@ class MenuController extends SandboxRestController
         $newMenuArray = array($bannerCarouselMenu, $iconsMenu, $bannerMenu);
 
         return json_encode($newMenuArray);
+    }
+
+    /**
+     * @param $items
+     * @param $asserts
+     *
+     * @return array
+     */
+    private function handleBannerCarousel(
+        $items,
+        $asserts
+    ) {
+        foreach ($asserts as $assert) {
+            $item_key = $assert['item_key'];
+            $limit = $assert['limit'];
+            $offset = ($assert['offset'] - 1) * $limit;
+            switch ($item_key) {
+                case 'banner':
+                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
+                    $bannerItem = array();
+                    foreach ($data as $d) {
+                        if ($d->getSource() == 'url') {
+                            $url = $d->getContent();
+                        } else {
+                            $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
+                        }
+                        $bannerItem[] = array(
+                            'type' => 'web',
+                            'title' => $d->getTitle(),
+                            'image_url' => $d->getCover(),
+                            'web' => array(
+                                'url' => $url,
+                                'cookie' => array(
+                                    'key' => 'btype',
+                                    'value' => 'bannerCarousel',
+                                ),
+                            ),
+                        );
+                    }
+                    $newItems = array_merge_recursive($items, $bannerItem);
+                    break;
+            }
+        }
+
+        return $newItems;
+    }
+
+    /**
+     * @param $items
+     * @param $asserts
+     *
+     * @return array
+     */
+    private function handleIcons(
+        $items,
+        $asserts
+    ) {
+        foreach ($asserts as $assert) {
+            $item_key = $assert['item_key'];
+            $limit = $assert['limit'];
+            $offset = ($assert['offset'] - 1) * $limit;
+            switch ($item_key) {
+                case 'room_types':
+                    $roomTypeItem = array();
+                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Room\RoomTypes")->getLimitList($limit, $offset);
+                    foreach ($data as $d) {
+                        $roomTypeItem[] = array(
+                            'type' => 'web',
+                            'title' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
+                            'image_url' => $d->getIcon(),
+                            'web' => array(
+                                'url' => $this->container->getParameter('mobile_url').'/search',
+                                'cookie' => array(
+                                    'key' => 'btype',
+                                    'value' => $d->getName(),
+                                ),
+                            ),
+                        );
+                    }
+                    $items = array_merge_recursive($items, $roomTypeItem);
+                    break;
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * @param $items
+     * @param $asserts
+     *
+     * @return array
+     */
+    private function handleBanner(
+        $items,
+        $asserts
+    ) {
+        foreach ($asserts as $assert) {
+            $item_key = $assert['item_key'];
+            $limit = $assert['limit'];
+            $offset = ($assert['offset'] - 1) * $limit;
+            switch ($item_key) {
+                case 'banner':
+                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
+                    $bannerItem = array();
+                    foreach ($data as $d) {
+                        if ($d->getSource() == 'url') {
+                            $url = $d->getContent();
+                        } else {
+                            $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
+                        }
+                        $bannerItem[] = array(
+                            'type' => 'web',
+                            'title' => $d->getTitle(),
+                            'subtitle' => $d->getSubtitle(),
+                            'tag' => $this->get('translator')->trans($d->getTag()->getName()),
+                            'image_url' => $d->getCover(),
+                            'web' => array(
+                                'url' => $url,
+                                'cookie' => array(
+                                    'key' => 'btype',
+                                    'value' => 'banner',
+                                ),
+                            ),
+                        );
+                    }
+                    $items = array_merge_recursive($items, $bannerItem);
+                    break;
+            }
+        }
+
+        return $items;
     }
 
 //    /**
