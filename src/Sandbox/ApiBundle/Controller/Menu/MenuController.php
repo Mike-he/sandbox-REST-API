@@ -46,7 +46,7 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_PHONE = 'client.menu.phone';
     const CLIENT_MENU_ABOUT_US = 'client.menu.about_us';
     const CLIENT_MENU_SETTING = 'client.menu.setting';
-    const ROOM_TYPE = "room.type.";
+    const ROOM_TYPE = 'room.type.';
 
     /**
      * @param Request               $request
@@ -162,8 +162,8 @@ class MenuController extends SandboxRestController
             default:
                 return new View();
         }
-        if($position == Menu::POSITION_HOME){
-            $menuJson =  $this->getHomeJson($menuJson);
+        if ($position == Menu::POSITION_HOME) {
+            $menuJson = $this->getHomeJson($menuJson);
         }
 
         foreach ($items as $item) {
@@ -232,26 +232,26 @@ class MenuController extends SandboxRestController
 
         switch ($target) {
             case 'banner':
-                $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit,$offset);
-                foreach ($data as $d){
-                    if($d->getSource() == 'url'){
+                $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
+                foreach ($data as $d) {
+                    if ($d->getSource() == 'url') {
                         $url = $d->getContent();
-                    }else{
-                        $url = $this->container->getParameter('mobile_url')."/".$d->getSource()."?ptype=detail&id=".$d->getSourceId();
+                    } else {
+                        $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
                     }
                     $items[] = array(
-                        'type'=> 'web',
+                        'type' => 'web',
                         'title' => $d->getTitle(),
-                        'subtitle'=>$d->getSubtitle(),
-                        'tag'=> $this->get('translator')->trans($d->getTag()->getName()),
+                        'subtitle' => $d->getSubtitle(),
+                        'tag' => $this->get('translator')->trans($d->getTag()->getName()),
                         'image_url' => $d->getCover(),
                         'web' => array(
-                            'url'=>$url,
-                            'cookie'=> array(
-                                'key'=>'btype',
-                                'value'=>'banner'
-                            )
-                        )
+                            'url' => $url,
+                            'cookie' => array(
+                                'key' => 'btype',
+                                'value' => 'banner',
+                            ),
+                        ),
                     );
                 }
                 break;
@@ -271,73 +271,73 @@ class MenuController extends SandboxRestController
      */
     private function getHomeJson(
         $menuJson
-    ){
+    ) {
         $menuArray = json_decode($menuJson, true);
-        foreach ($menuArray as $menu){
+        foreach ($menuArray as $menu) {
             switch ($menu['type']) {
                 case 'bannerCarousel':
                     $items = $menu['items'];
-                    if(!empty($menu['hidden_asserts'])){
-                        foreach ($menu['hidden_asserts'] as $assert ){
+                    if (!empty($menu['hidden_asserts'])) {
+                        foreach ($menu['hidden_asserts'] as $assert) {
                             $item_key = $assert['item_key'];
                             $limit = $assert['limit'];
                             $offset = ($assert['offset'] - 1) * $limit;
                             switch ($item_key) {
                                 case 'banner':
-                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit,$offset);
+                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
                                     $bannerItem = array();
-                                    foreach ($data as $d){
-                                        if($d->getSource() == 'url'){
+                                    foreach ($data as $d) {
+                                        if ($d->getSource() == 'url') {
                                             $url = $d->getContent();
-                                        }else{
-                                            $url = $this->container->getParameter('mobile_url')."/".$d->getSource()."?ptype=detail&id=".$d->getSourceId();
+                                        } else {
+                                            $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
                                         }
                                         $bannerItem[] = array(
-                                            'type'=> 'web',
+                                            'type' => 'web',
                                             'title' => $d->getTitle(),
                                             'image_url' => $d->getCover(),
                                             'web' => array(
-                                                'url'=>$url,
-                                                'cookie'=> array(
-                                                    'key'=>'btype',
-                                                    'value'=>'bannerCarousel'
-                                                )
-                                            )
+                                                'url' => $url,
+                                                'cookie' => array(
+                                                    'key' => 'btype',
+                                                    'value' => 'bannerCarousel',
+                                                ),
+                                            ),
                                         );
                                     }
-                                    $items = array_merge_recursive($menu['items'],$bannerItem);
+                                    $items = array_merge_recursive($menu['items'], $bannerItem);
                                     break;
                             }
                         }
                     }
                     $bannerCarouselMenu = array(
                         'type' => 'bannerCarousel',
-                        'items' => $items
+                        'items' => $items,
                     );
                     break;
                 case 'icons':
-                    $items =array();
-                    if(!empty($menu['hidden_asserts'])){
-                        foreach ($menu['hidden_asserts'] as $assert ){
+                    $items = array();
+                    if (!empty($menu['hidden_asserts'])) {
+                        foreach ($menu['hidden_asserts'] as $assert) {
                             $item_key = $assert['item_key'];
                             $limit = $assert['limit'];
                             $offset = ($assert['offset'] - 1) * $limit;
                             switch ($item_key) {
                                 case 'room_types':
                                     $roomTypeItem = array();
-                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Room\RoomTypes")->getLimitList($limit,$offset);
-                                    foreach ($data as $d){
+                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Room\RoomTypes")->getLimitList($limit, $offset);
+                                    foreach ($data as $d) {
                                         $roomTypeItem[] = array(
-                                            'type'=> 'web',
+                                            'type' => 'web',
                                             'title' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
                                             'image_url' => $d->getIcon(),
                                             'web' => array(
-                                                'url'=>$this->container->getParameter('mobile_url')."/search",
-                                                'cookie'=> array(
-                                                    'key'=>'btype',
-                                                    'value'=>$d->getName()
-                                                )
-                                            )
+                                                'url' => $this->container->getParameter('mobile_url').'/search',
+                                                'cookie' => array(
+                                                    'key' => 'btype',
+                                                    'value' => $d->getName(),
+                                                ),
+                                            ),
                                         );
                                     }
                                     $items = array_merge_recursive($roomTypeItem);
@@ -347,58 +347,57 @@ class MenuController extends SandboxRestController
                     }
                     $iconsMenu = array(
                         'type' => 'icons',
-                        'items' => $items
+                        'items' => $items,
                     );
                     break;
                 case 'banner':
                     $items = $menu['items'];
-                    if(!empty($menu['hidden_asserts'])){
-                        foreach ($menu['hidden_asserts'] as $assert ){
+                    if (!empty($menu['hidden_asserts'])) {
+                        foreach ($menu['hidden_asserts'] as $assert) {
                             $item_key = $assert['item_key'];
                             $limit = $assert['limit'];
                             $offset = ($assert['offset'] - 1) * $limit;
                             switch ($item_key) {
                                 case 'banner':
-                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit,$offset);
+                                    $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
                                     $bannerItem = array();
-                                    foreach ($data as $d){
-                                        if($d->getSource() == 'url'){
+                                    foreach ($data as $d) {
+                                        if ($d->getSource() == 'url') {
                                             $url = $d->getContent();
-                                        }else{
-                                            $url = $this->container->getParameter('mobile_url')."/".$d->getSource()."?ptype=detail&id=".$d->getSourceId();
+                                        } else {
+                                            $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
                                         }
                                         $bannerItem[] = array(
-                                            'type'=> 'web',
+                                            'type' => 'web',
                                             'title' => $d->getTitle(),
-                                            'subtitle'=>$d->getSubtitle(),
-                                            'tag'=> $this->get('translator')->trans($d->getTag()->getName()),
+                                            'subtitle' => $d->getSubtitle(),
+                                            'tag' => $this->get('translator')->trans($d->getTag()->getName()),
                                             'image_url' => $d->getCover(),
                                             'web' => array(
-                                                'url'=>$url,
-                                                'cookie'=> array(
-                                                    'key'=>'btype',
-                                                    'value'=>'banner'
-                                                )
-                                            )
+                                                'url' => $url,
+                                                'cookie' => array(
+                                                    'key' => 'btype',
+                                                    'value' => 'banner',
+                                                ),
+                                            ),
                                         );
                                     }
-                                    $items = array_merge_recursive($menu['items'],$bannerItem);
+                                    $items = array_merge_recursive($menu['items'], $bannerItem);
                                     break;
                             }
                         }
                     }
                     $bannerMenu = array(
                         'type' => 'banner',
-                        'items' => $items
+                        'items' => $items,
                     );
                     break;
                 default;
             }
         }
-        $newMenuArray = array($bannerCarouselMenu,$iconsMenu,$bannerMenu);
+        $newMenuArray = array($bannerCarouselMenu, $iconsMenu, $bannerMenu);
 
         return json_encode($newMenuArray);
-
     }
 
 //    /**

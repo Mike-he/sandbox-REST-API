@@ -214,6 +214,4 @@ class Menu
     {
         $this->homeJson = $homeJson;
     }
-
-
 }
