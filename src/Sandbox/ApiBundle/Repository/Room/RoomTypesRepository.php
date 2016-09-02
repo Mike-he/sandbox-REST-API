@@ -22,4 +22,24 @@ class RoomTypesRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getLimitList(
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('rt')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        $result = $query->getResult();
+
+        return $result;
+    }
 }
