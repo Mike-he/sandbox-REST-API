@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Banner;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
+use Sandbox\ApiBundle\Entity\Banner\Banner;
 
 /**
  * BannerRepository.
@@ -24,7 +25,9 @@ class BannerRepository extends EntityRepository
         $search = null
     ) {
         $query = $this->createQueryBuilder('b')
-            ->orderBy('b.sortTime', 'DESC');
+            ->where('b.source != :blank_block')
+            ->orderBy('b.sortTime', 'DESC')
+            ->setParameter('blank_block', Banner::SOURCE_BLANK_BLOCK);
 
         // search by
         if (!is_null($search)) {
