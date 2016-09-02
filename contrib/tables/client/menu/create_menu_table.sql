@@ -6,6 +6,7 @@ CREATE TABLE `Menu` (
   `minVersion` varchar(16) NOT NULL,
   `maxVersion` varchar(16) NOT NULL,
   `profileJson` longtext NOT NULL,
+  `homeJson` longtext NOT NULL,
   PRIMARY KEY (`id`)
 )
 

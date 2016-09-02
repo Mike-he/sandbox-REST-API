@@ -64,4 +64,25 @@ class BannerRepository extends EntityRepository
 
         return $query->getSingleResult();
     }
+
+    /**
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getLimitList(
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('b')
+                ->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->orderBy('b.sortTime', 'DESC')
+                ->getQuery();
+
+        $result = $query->getResult();
+
+        return $result;
+    }
 }
