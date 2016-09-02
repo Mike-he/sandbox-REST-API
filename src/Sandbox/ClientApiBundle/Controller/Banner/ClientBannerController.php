@@ -23,24 +23,6 @@ use JMS\Serializer\SerializationContext;
 class ClientBannerController extends BannerController
 {
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/banners/top/limit")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getTopBannerNumberAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        return new View(array(
-            'banner_top_counts' => 5,
-        ));
-    }
-
-    /**
      * Get list of banners.
      *
      * @Route("/banners")
@@ -53,7 +35,9 @@ class ClientBannerController extends BannerController
     public function getBannersAction(
         Request $request
     ) {
-        $banners = $this->getRepo('Banner\Banner')->getBannerList();
+        $banners = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->getBannerList();
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_list']));

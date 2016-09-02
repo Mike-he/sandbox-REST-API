@@ -16,6 +16,7 @@ class Banner
     const SOURCE_EVENT = 'event';
     const SOURCE_NEWS = 'news';
     const SOURCE_URL = 'url';
+    const SOURCE_BLANK_BLOCK = 'blank_block';
 
     /**
      * @var int
@@ -40,7 +41,7 @@ class Banner
     /**
      * @var string
      *
-     * @ORM\Column(name="content", type="text")
+     * @ORM\Column(name="content", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "client_list"})
      */
