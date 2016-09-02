@@ -100,7 +100,7 @@ class AdminBannerController extends BannerController
 
         foreach ($banners as $banner) {
             // translate tag name
-            $tagName = $banner->getTag()->getName();
+            $tagName = $banner->getTag()->getKey();
             $trans = $this->get('translator')->trans($tagName);
             $banner->getTag()->setName($trans);
         }
