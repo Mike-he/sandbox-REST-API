@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
@@ -545,6 +546,11 @@ class LocationController extends SalesRestController
         $types = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->getPresentRoomTypes($building);
+
+        foreach ($types as $type) {
+            $typeText = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type->getName());
+            $type->setDescription($typeText);
+        }
         $building->setBuildingRoomTypes($types);
 
         $view = new View();
