@@ -17,6 +17,7 @@ class Menu
 
     const POSITION_MAIN = 'main';
     const POSITION_PROFILE = 'profile';
+    const POSITION_HOME = 'home';
 
     /**
      * @var int
@@ -68,6 +69,13 @@ class Menu
      * @ORM\Column(name="profileJson", type="text")
      */
     private $profileJson;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="homeJson", type="text")
+     */
+    private $homeJson;
 
     /**
      * Get id.
@@ -190,4 +198,22 @@ class Menu
     {
         $this->profileJson = $profileJson;
     }
+
+    /**
+     * @return string
+     */
+    public function getHomeJson()
+    {
+        return $this->homeJson;
+    }
+
+    /**
+     * @param string $homeJson
+     */
+    public function setHomeJson($homeJson)
+    {
+        $this->homeJson = $homeJson;
+    }
+
+
 }
