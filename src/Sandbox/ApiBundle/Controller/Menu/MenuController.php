@@ -157,13 +157,10 @@ class MenuController extends SandboxRestController
                 $menuJson = $menu->getProfileJson();
                 break;
             case Menu::POSITION_HOME:
-                $menuJson = $menu->getHomeJson();
+                $menuJson = $this->generateHomeJson($menu->getHomeJson());
                 break;
             default:
                 return new View();
-        }
-        if ($position == Menu::POSITION_HOME) {
-            $menuJson = $this->getHomeJson($menuJson);
         }
 
         foreach ($items as $item) {
@@ -269,7 +266,7 @@ class MenuController extends SandboxRestController
      *
      * @return string
      */
-    private function getHomeJson(
+    private function generateHomeJson(
         $menuJson
     ) {
         $menuArray = json_decode($menuJson, true);
