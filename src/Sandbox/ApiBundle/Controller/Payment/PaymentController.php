@@ -648,7 +648,9 @@ class PaymentController extends DoorController
                 $link = $this->getRefundLink($refund);
                 $order->setRefundUrl($link);
             }
-        } elseif (ProductOrder::CHANNEL_UNIONPAY == $channel) {
+        } elseif (ProductOrder::CHANNEL_UNIONPAY == $channel ||
+            ProductOrder::CHANNEL_OFFLINE == $channel
+        ) {
             $order->setRefundProcessed(true);
             $order->setRefundProcessedDate(new \DateTime());
             $order->setModificationDate(new \DateTime());
