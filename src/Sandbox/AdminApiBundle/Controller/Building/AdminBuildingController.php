@@ -46,6 +46,15 @@ use Doctrine\ORM\EntityManager;
  */
 class AdminBuildingController extends LocationController
 {
+    const DEFAULT_BUILDING_LATITUDE = 31.210792; //zhanxiang latitude
+    const DEFAULT_BUILDING_LONGITUDE = 121.628685; //zhanxiang longitude
+    const DEFAULT_BUILDING_BUSINESS_HOURS = '9:00am - 18:00pm';
+    const DEFAULT_BUILDING_STATUS = 'accept';
+    const DEFAULT_BUILDING_ATTACHMENT_TYPE = 'image/jpg';
+    const DEFAULT_BUILDING_ATTACHMENT_SIZE = 1024;
+    const DEFAULT_ROOM_FLOOR_NUMBER = 1;
+    const DEFAULT_BUILDING_COMPANY_NAME = 'Sandbox3';
+
     /**
      * @Route("/buildings/{id}/sync")
      * @Method({"POST"})
@@ -826,12 +835,20 @@ class AdminBuildingController extends LocationController
         Request $request
     ) {
         $json = json_decode($request->getContent(), true);
-        $param['server_name'] = $request->query->get('server_name');
         $param['sales_company_id'] = $request->query->get('sales_company_id');
 
         $em = $this->getDoctrine()->getManager();
 
         foreach ($json as $arr) {
+            $existedBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->findOneBy(array(
+                    'name' => $arr['name'],
+                ));
+
+            if (!is_null($existedBuilding)) {
+                continue;
+            }
+
             $cityName = mb_substr($arr['address'], 0, 2);
 
             $query = $em->createQuery(
@@ -839,10 +856,10 @@ class AdminBuildingController extends LocationController
                   SELECT rc
                   FROM SandboxApiBundle:Room\RoomCity rc
                   WHERE
-                  rc.name LIKE :cityName
+                    rc.name LIKE :cityName
                 "
             )
-                ->setParameter('cityName', '%'.$cityName.'%');
+            ->setParameter('cityName', '%'.$cityName.'%');
 
             $city = $query->getOneOrNullResult();
 
@@ -854,122 +871,85 @@ class AdminBuildingController extends LocationController
 
             $city = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')
                 ->find($cityId);
-            $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            $salesCompany = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
                 ->find($param['sales_company_id']);
 
-            if (is_null($company)) {
+            if (is_null($salesCompany)) {
                 continue;
             }
 
-            $building['city'] = $city;
-            $building['name'] = $arr['name'];
-            $building['detail'] = $arr['type'];
-            $building['address'] = $arr['address'];
-            $building['lat'] = 121.632682;
-            $building['lng'] = 31.216193;
-            $building['avatar'] = $param['server_name'].'image.sandbox3.cn/building/'.$arr['avatar'];
-            $building['businessHour'] = '9:00am - 18:00pm';
-            $building['company'] = $company;
-            $building['status'] = 'accept';
+            $imageUrl = $this->getParameter('image_url').$arr['avatar'];
 
             $bd = new RoomBuilding();
-
-            $bd->setAddress($building['address']);
-            $bd->setAvatar($building['avatar']);
-            $bd->setBusinessHour($building['businessHour']);
-            $bd->setCity($building['city']);
-            $bd->setDetail($building['detail']);
-            $bd->setName($building['name']);
-            $bd->setCompany($building['company']);
-            $bd->setLat($building['lat']);
-            $bd->setLng($building['lng']);
-            $bd->setStatus($building['status']);
+            $bd->setAddress($arr['address']);
+            $bd->setAvatar($imageUrl);
+            $bd->setBusinessHour(self::DEFAULT_BUILDING_BUSINESS_HOURS);
+            $bd->setCity($city);
+            $bd->setDetail($arr['type']);
+            $bd->setName($arr['name']);
+            $bd->setCompany($salesCompany);
+            $bd->setStatus(self::DEFAULT_BUILDING_STATUS);
             $bd->setCreationDate(new \DateTime('now'));
             $bd->setModificationDate(new \DateTime('now'));
 
+            $location = $this->syncBuildingLocation($bd->getAddress());
+            if (empty($location)) {
+                $bd->setLat(self::DEFAULT_BUILDING_LATITUDE);
+                $bd->setLng(self::DEFAULT_BUILDING_LONGITUDE);
+            } else {
+                $bd->setLat($location[1]);
+                $bd->setLng($location[0]);
+            }
+
             $em->persist($bd);
 
-            $rbaData['content'] = $param['server_name'].'image.sandbox3.cn/building/'.$arr['url'];
-            $rbaData['attachmentType'] = 'image/jpg';
-            $rbaData['filename'] = $arr['url'];
-
             $rba = new RoomBuildingAttachment();
-            $rba->setAttachmentType($rbaData['attachmentType']);
-            $rba->setContent($rbaData['content']);
-            $rba->setFilename($rbaData['filename']);
+            $rba->setAttachmentType(self::DEFAULT_BUILDING_ATTACHMENT_TYPE);
+            $rba->setContent($imageUrl);
+            $rba->setFilename($arr['url']);
             $rba->setBuilding($bd);
-            $rba->setSize(1024);
-
+            $rba->setSize(self::DEFAULT_BUILDING_ATTACHMENT_SIZE);
             $em->persist($rba);
 
             $roomFloor = new RoomFloor();
-            $roomFloor->setFloorNumber('1');
+            $roomFloor->setFloorNumber(self::DEFAULT_ROOM_FLOOR_NUMBER);
             $roomFloor->setBuilding($bd);
             $em->persist($roomFloor);
 
             $buildingCompany = new RoomBuildingCompany();
             $buildingCompany->setBuilding($bd);
-            $buildingCompany->setName('Sandbox3');
-
+            $buildingCompany->setName(self::DEFAULT_BUILDING_COMPANY_NAME);
             $em->persist($buildingCompany);
         }
 
         $em->flush();
     }
 
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/building/location/sync")
-     * @Method({"POST"})
-     *
-     * @return View
-     */
-    public function syncBuildingLocationAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
+    public function syncBuildingLocation(
+        $address
     ) {
-        $buildings = $this->getDoctrine()->getManager()
-            ->createQuery('
-                select b
-                from SandboxApiBundle:Room\RoomBuilding b
-                where b.companyId = 45
-            ')
-            ->getResult();
+        $apiURL = 'http://restapi.amap.com/v3/geocode/geo?key=aa4a48297242d22d2b3fd6eddfe62217&s=rsv3&address='.$address;
+        $ch = curl_init($apiURL);
 
-        foreach ($buildings as $building) {
-            $address = $building->getAddress();
+        $result = $this->callAPI(
+            $ch,
+            'GET'
+        );
 
-            $apiURL = 'http://restapi.amap.com/v3/geocode/geo?key=aa4a48297242d22d2b3fd6eddfe62217&s=rsv3&address='.$address;
-
-            $ch = curl_init($apiURL);
-
-            $result = $this->callAPI(
-                $ch,
-                'GET'
-            );
-
-            if (is_null($result)) {
-                continue;
-            }
-
-            $resultArray = json_decode($result, true);
-
-            if (!isset($resultArray['geocodes'][0]['location'])) {
-                continue;
-            }
-
-            $resultLocation = $resultArray['geocodes'][0]['location'];
-
-            $location = explode(',', $resultLocation);
-            $lng = $location[0];
-            $lat = $location[1];
-
-            $building->setLat($lat);
-            $building->setLng($lng);
+        if (is_null($result)) {
+            return;
         }
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
+
+        $resultArray = json_decode($result, true);
+
+        if (!isset($resultArray['geocodes'][0]['location'])) {
+            return;
+        }
+
+        $resultLocation = $resultArray['geocodes'][0]['location'];
+
+        $location = explode(',', $resultLocation);
+
+        return $location;
     }
 }
