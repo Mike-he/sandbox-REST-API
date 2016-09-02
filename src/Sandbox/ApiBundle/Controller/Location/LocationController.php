@@ -608,9 +608,9 @@ class LocationController extends SalesRestController
             }
 
             $serviceText = $this->get('translator')->trans(
-                RoomBuildingServices::TRANS_PREFIX.$service->getName()
+                RoomBuildingServices::TRANS_PREFIX.$service->getService()->getKey()
             );
-            $service->setName($serviceText);
+            $service->getService()->setName($serviceText);
         }
         $building->setBuildingServices($services);
 
@@ -626,9 +626,9 @@ class LocationController extends SalesRestController
             }
 
             $serviceText = $this->get('translator')->trans(
-                RoomBuildingTag::TRANS_PREFIX.$tag->getName()
+                RoomBuildingTag::TRANS_PREFIX.$tag->getTag()->getKey()
             );
-            $tag->setName($serviceText);
+            $tag->getTag()>setName($serviceText);
         }
         $building->setBuildingTags($tags);
 

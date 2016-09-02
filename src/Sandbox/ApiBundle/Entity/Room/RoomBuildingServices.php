@@ -29,11 +29,18 @@ class RoomBuildingServices
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=64)
-     *
      * @Serializer\Groups({"main", "list"})
      */
     private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="key", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "list"})
+     */
+    private $key;
 
     /**
      * @var string
@@ -76,6 +83,22 @@ class RoomBuildingServices
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
     }
 
     /**

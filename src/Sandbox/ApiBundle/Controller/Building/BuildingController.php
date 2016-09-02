@@ -36,7 +36,7 @@ class BuildingController extends SandboxRestController
 
         foreach ($services as $service) {
             $serviceText = $this->get('translator')->trans(
-                RoomBuildingServices::TRANS_PREFIX.$service->getName()
+                RoomBuildingServices::TRANS_PREFIX.$service->getKey()
             );
             $service->setName($serviceText);
         }
@@ -66,7 +66,7 @@ class BuildingController extends SandboxRestController
 
         foreach ($tags as $tag) {
             $serviceText = $this->get('translator')->trans(
-                RoomBuildingTag::TRANS_PREFIX.$tag->getName()
+                RoomBuildingTag::TRANS_PREFIX.$tag->getKey()
             );
             $tag->setName($serviceText);
         }
