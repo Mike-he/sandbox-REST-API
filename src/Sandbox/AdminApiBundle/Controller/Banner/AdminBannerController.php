@@ -305,7 +305,7 @@ class AdminBannerController extends BannerController
 
         // translate tag name
         $tag = $banner->getTag();
-        $trans = $this->container->get('translator')->trans(self::BANNER_TRANS_PREFIX.$tag->getName());
+        $trans = $this->container->get('translator')->trans($tag->getKey());
         $tag->setName($trans);
 
         return new View($banner);

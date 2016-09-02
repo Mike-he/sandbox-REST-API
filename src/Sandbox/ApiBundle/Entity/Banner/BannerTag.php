@@ -27,7 +27,14 @@ class BannerTag
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=64)
+     * @ORM\Column(name="key", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "client_list"})
+     */
+    private $key;
+
+    /**
+     * @var string
      *
      * @Serializer\Groups({"main", "client_list"})
      */
@@ -41,6 +48,22 @@ class BannerTag
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
     }
 
     /**

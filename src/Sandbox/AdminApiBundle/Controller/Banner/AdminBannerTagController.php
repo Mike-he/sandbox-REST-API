@@ -32,7 +32,7 @@ class AdminBannerTagController extends AdminBannerController
             ->findAll();
 
         foreach ($tags as $tag) {
-            $trans = $this->container->get('translator')->trans($tag->getName());
+            $trans = $this->container->get('translator')->trans($tag->getKey());
 
             $tag->setName($trans);
         }
