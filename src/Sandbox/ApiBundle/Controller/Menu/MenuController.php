@@ -356,7 +356,7 @@ class MenuController extends SandboxRestController
                             'name' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
                             'icon_url' => $d->getIcon(),
                             'web' => array(
-                                'url' => $this->container->getParameter('mobile_url').'/search',
+                                'url' => $this->container->getParameter('room_mobile_url').'/search',
                                 'cookie' => array(
                                     array(
                                         'key' => 'btype',
