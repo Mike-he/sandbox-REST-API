@@ -11,4 +11,4 @@ CREATE TABLE `Advertising` (
   PRIMARY KEY (`id`)
 )
 
-INSERT INTO `Advertising` (`url`,`source`,`sourceId`,`visible`,`isSaved`,`isDefault`,`creationDate`,`modificationDate`) VALUES ("https://m.sandbox3.cn/event?ptype=detail&id=50","event",50,1,0,1,"2016-08-19 15:19:34","2016-08-19 15:19:34");
+INSERT INTO `Advertising` (`url`,`source`,`sourceId`,`visible`,`isSaved`,`isDefault`,`creationDate`,`modificationDate`) VALUES ("","url","",1,0,1,"2016-08-19 15:19:34","2016-08-19 15:19:34");
