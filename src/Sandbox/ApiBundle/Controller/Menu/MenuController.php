@@ -351,8 +351,8 @@ class MenuController extends SandboxRestController
                     foreach ($data as $d) {
                         $roomTypeItem[] = array(
                             'type' => 'web',
-                            'title' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
-                            'image_url' => $d->getIcon(),
+                            'name' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
+                            'icon_url' => $d->getIcon(),
                             'web' => array(
                                 'url' => $this->container->getParameter('mobile_url').'/search',
                                 'cookie' => array(
