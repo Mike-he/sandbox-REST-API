@@ -316,8 +316,10 @@ class MenuController extends SandboxRestController
                             'web' => array(
                                 'url' => $url,
                                 'cookie' => array(
-                                    'key' => 'btype',
-                                    'value' => 'bannerCarousel',
+                                    array(
+                                        'key' => 'btype',
+                                        'value' => 'bannerCarousel',
+                                    ),
                                 ),
                             ),
                         );
@@ -356,8 +358,10 @@ class MenuController extends SandboxRestController
                             'web' => array(
                                 'url' => $this->container->getParameter('mobile_url').'/search',
                                 'cookie' => array(
-                                    'key' => 'btype',
-                                    'value' => $d->getName(),
+                                    array(
+                                        'key' => 'btype',
+                                        'value' => $d->getName(),
+                                    ),
                                 ),
                             ),
                         );
@@ -403,8 +407,10 @@ class MenuController extends SandboxRestController
                             'web' => array(
                                 'url' => $url,
                                 'cookie' => array(
-                                    'key' => 'btype',
-                                    'value' => 'banner',
+                                    array(
+                                        'key' => 'btype',
+                                        'value' => 'banner',
+                                    ),
                                 ),
                             ),
                         ),
