@@ -123,6 +123,7 @@ class AdminNewsController extends SandboxRestController
             array(
                 AdminPermission::KEY_PLATFORM_NEWS,
                 AdminPermission::KEY_PLATFORM_BANNER,
+                AdminPermission::KEY_PLATFORM_ADVERTISING,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );

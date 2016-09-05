@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
@@ -163,6 +164,7 @@ class AdminEventController extends SandboxRestController
             array(
                 AdminPermission::KEY_PLATFORM_EVENT,
                 AdminPermission::KEY_PLATFORM_BANNER,
+                AdminPermission::KEY_PLATFORM_ADVERTISING,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
