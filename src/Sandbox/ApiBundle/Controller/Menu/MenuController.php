@@ -272,7 +272,7 @@ class MenuController extends SandboxRestController
                         foreach ($menu['hidden_asserts'] as $assert) {
                             $item_key = $assert['item_key'];
                             $limit = $assert['limit'];
-                            $offset = ($assert['offset'] - 1) * $limit;
+                            $offset = (($assert['offset'] - 1) * $limit) + 5;
                             $bannerMenu = $this->handleBanner($item_key, $limit, $offset);
                         }
                     }
@@ -280,9 +280,11 @@ class MenuController extends SandboxRestController
                 default;
             }
         }
-        $newMenuArray = array($bannerCarouselMenu, $iconsMenu, $bannerMenu);
+        $newMenuArray = array($bannerCarouselMenu, $iconsMenu);
 
-        return json_encode($newMenuArray);
+        $finalArray = array_merge($newMenuArray, $bannerMenu);
+
+        return json_encode($finalArray);
     }
 
     /**
