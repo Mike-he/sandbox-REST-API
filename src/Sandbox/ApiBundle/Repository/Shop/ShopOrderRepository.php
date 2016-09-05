@@ -542,7 +542,8 @@ class ShopOrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $payChannel = null,
-        $buildingId = null
+        $buildingId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
@@ -567,6 +568,11 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
         $query = $query->getQuery();
 
         return  $query->getSingleResult();
@@ -584,7 +590,8 @@ class ShopOrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $payChannel = null,
-        $buildingId = null
+        $buildingId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
@@ -618,6 +625,11 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
         $query = $query->getQuery();
 
         return  $query->getSingleResult();
@@ -638,6 +650,7 @@ class ShopOrderRepository extends EntityRepository
         $endDate,
         $payChannel = null,
         $buildingId = null,
+        $companyId = null,
         $limit = null,
         $offset = null
     ) {
@@ -661,6 +674,11 @@ class ShopOrderRepository extends EntityRepository
         if (!is_null($buildingId)) {
             $query->andWhere('b.id = :buildingId')
                 ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
         }
 
         if (!is_null($limit) && !is_null($offset)) {
@@ -683,7 +701,8 @@ class ShopOrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $payChannel = null,
-        $buildingId = null
+        $buildingId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
@@ -708,6 +727,11 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
         return $query->getQuery()->getSingleScalarResult();
     }
 
@@ -726,6 +750,7 @@ class ShopOrderRepository extends EntityRepository
         $endDate,
         $payChannel = null,
         $buildingId = null,
+        $companyId = null,
         $limit = null,
         $offset = null
     ) {
@@ -760,6 +785,11 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
         if (!is_null($limit) && !is_null($offset)) {
             $query->setFirstResult($offset)
                 ->setMaxResults($limit);
@@ -780,7 +810,8 @@ class ShopOrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $payChannel = null,
-        $buildingId = null
+        $buildingId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
@@ -812,6 +843,11 @@ class ShopOrderRepository extends EntityRepository
         if (!is_null($buildingId)) {
             $query->andWhere('b.id = :buildingId')
                 ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
         }
 
         return $query->getQuery()->getSingleScalarResult();

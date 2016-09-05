@@ -42,7 +42,7 @@ EOT
         if (!file_exists($ImagePath)) {
             mkdir($ImagePath, 0777, true);
         }
-        
+
         $types = $entityManager
             ->getRepository(
                 'SandboxApiBundle:'.$input->getOption('entity-name')
