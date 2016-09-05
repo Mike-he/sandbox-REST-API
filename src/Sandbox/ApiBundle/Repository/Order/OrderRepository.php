@@ -1867,8 +1867,8 @@ class OrderRepository extends EntityRepository
             ->select('count(o.id) as number , SUM(o.actualRefundAmount) as price')
             ->where('o.status = :cancelled')
             ->andWhere('
-                o.needToRefund = :needToRefund OR
-                o.refunded = :refunded
+                (o.needToRefund = :needToRefund OR
+                o.refunded = :refunded)
             ')
             ->andWhere('o.cancelledDate >= :start')
             ->andWhere('o.cancelledDate <= :end')
@@ -1943,8 +1943,8 @@ class OrderRepository extends EntityRepository
             case ProductOrder::STATUS_CANCELLED :
                 $query->where('o.status = :cancelled')
                     ->andWhere('
-                        o.needToRefund = :needToRefund OR
-                        o.refunded = :refunded
+                        (o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded)
                     ')
                     ->andWhere('o.cancelledDate >= :start')
                     ->andWhere('o.cancelledDate <= :end')
@@ -2022,8 +2022,8 @@ class OrderRepository extends EntityRepository
            case ProductOrder::STATUS_CANCELLED :
                $query->where('o.status = :cancelled')
                    ->andWhere('
-                        o.needToRefund = :needToRefund OR
-                        o.refunded = :refunded
+                        (o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded)
                     ')
                    ->andWhere('o.cancelledDate >= :start')
                    ->andWhere('o.cancelledDate <= :end')
