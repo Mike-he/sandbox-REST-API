@@ -140,6 +140,15 @@ class AdminDashBoardController extends SandboxRestController
      *    description="payChannel"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="companyId",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="companyId"
+     * )
+     *
      * @Route("/dashboard/shop/orders")
      * @Method({"GET"})
      *
@@ -155,6 +164,7 @@ class AdminDashBoardController extends SandboxRestController
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
         $buildingId = $paramFetcher->get('buildingId');
+        $companyId = $paramFetcher->get('companyId');
         $payChannel = $paramFetcher->get('payChannel');
         $now = new \DateTime('now');
         $yesterday = new \DateTime('now');
@@ -167,56 +177,64 @@ class AdminDashBoardController extends SandboxRestController
             $now->format('Y-m-d 00:00:00'),
             $now->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $todayRefunded = $repo->countRefundOrders(
             $now->format('Y-m-d 00:00:00'),
             $now->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $yestCompleted = $repo->countCompletedOrders(
             $yesterday->format('Y-m-d 00:00:00'),
             $yesterday->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $yestRefunded = $repo->countRefundOrders(
             $yesterday->format('Y-m-d 00:00:00'),
             $yesterday->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthCompleted = $repo->countCompletedOrders(
             $now->format('Y-m-01 00:00:00'),
             $now->format('Y-m-31 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthRefunded = $repo->countRefundOrders(
             $now->format('Y-m-01 00:00:00'),
             $now->format('Y-m-31 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthlyCompleted = $repo->countCompletedOrders(
             $startDate.' 00:00:00',
             $endDate.' 23:59:59',
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthlyRefunded = $repo->countRefundOrders(
             $startDate.' 00:00:00',
             $endDate.' 23:59:59',
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $result = array(
@@ -294,6 +312,15 @@ class AdminDashBoardController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="companyId",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="companyId"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -330,6 +357,7 @@ class AdminDashBoardController extends SandboxRestController
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
         $buildingId = $paramFetcher->get('buildingId');
+        $companyId = $paramFetcher->get('companyId');
         $payChannel = $paramFetcher->get('payChannel');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -367,6 +395,7 @@ class AdminDashBoardController extends SandboxRestController
                 $endDate,
                 $payChannel,
                 $building,
+                $companyId,
                 $limit,
                 $offset
             );
@@ -374,7 +403,8 @@ class AdminDashBoardController extends SandboxRestController
                 $startDate,
                 $endDate,
                 $payChannel,
-                $building
+                $building,
+                $companyId
             );
         } elseif ($status == ShopOrder::STATUS_REFUNDED) {
             $orders = $repo->getRefundedOrdersList(
@@ -382,6 +412,7 @@ class AdminDashBoardController extends SandboxRestController
                 $endDate,
                 $payChannel,
                 $building,
+                $companyId,
                 $limit,
                 $offset
             );
@@ -389,7 +420,8 @@ class AdminDashBoardController extends SandboxRestController
                 $startDate,
                 $endDate,
                 $payChannel,
-                $building
+                $building,
+                $companyId
             );
         } else {
             $orders = null;
@@ -443,6 +475,15 @@ class AdminDashBoardController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="companyId",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="companyId"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="payChannel",
      *    array=false,
      *    default=null,
@@ -466,6 +507,7 @@ class AdminDashBoardController extends SandboxRestController
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
         $buildingId = $paramFetcher->get('buildingId');
+        $companyId = $paramFetcher->get('companyId');
         $payChannel = $paramFetcher->get('payChannel');
         $now = new \DateTime('now');
         $yesterday = new \DateTime('now');
@@ -478,84 +520,96 @@ class AdminDashBoardController extends SandboxRestController
             $now->format('Y-m-d 00:00:00'),
             $now->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $todayCompleted = $repo->countCompletedOrders(
             $now->format('Y-m-d 00:00:00'),
             $now->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $todayRefunded = $repo->countRefundOrders(
             $now->format('Y-m-d 00:00:00'),
             $now->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $yestPaid = $repo->countPaidOrders(
             $yesterday->format('Y-m-d 00:00:00'),
             $yesterday->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $yestCompleted = $repo->countCompletedOrders(
             $yesterday->format('Y-m-d 00:00:00'),
             $yesterday->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $yestRefunded = $repo->countRefundOrders(
             $yesterday->format('Y-m-d 00:00:00'),
             $yesterday->format('Y-m-d 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthPaid = $repo->countPaidOrders(
             $now->format('Y-m-01 00:00:00'),
             $now->format('Y-m-31 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthCompleted = $repo->countCompletedOrders(
             $now->format('Y-m-01 00:00:00'),
             $now->format('Y-m-31 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthRefunded = $repo->countRefundOrders(
             $now->format('Y-m-01 00:00:00'),
             $now->format('Y-m-31 23:59:59'),
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthlyPaid = $repo->countPaidOrders(
             $startDate.' 00:00:00',
             $endDate.' 23:59:59',
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthlyCompleted = $repo->countCompletedOrders(
             $startDate.' 00:00:00',
             $endDate.' 23:59:59',
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $monthlyRefunded = $repo->countRefundOrders(
             $startDate.' 00:00:00',
             $endDate.' 23:59:59',
             $payChannel,
-            $building
+            $building,
+            $companyId
         );
 
         $result = array(
@@ -628,6 +682,15 @@ class AdminDashBoardController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="companyId",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="companyId"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="payChannel",
      *    array=false,
      *    default=null,
@@ -673,6 +736,7 @@ class AdminDashBoardController extends SandboxRestController
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
         $buildingId = $paramFetcher->get('buildingId');
+        $companyId = $paramFetcher->get('companyId');
         $payChannel = $paramFetcher->get('payChannel');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -712,6 +776,7 @@ class AdminDashBoardController extends SandboxRestController
                 $endDate,
                 $payChannel,
                 $building,
+                $companyId,
                 $limit,
                 $offset
             );
@@ -720,7 +785,8 @@ class AdminDashBoardController extends SandboxRestController
                 $startDate,
                 $endDate,
                 $payChannel,
-                $building
+                $building,
+                $companyId
             );
         } else {
             $orders = null;

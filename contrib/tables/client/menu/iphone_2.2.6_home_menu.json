@@ -26,8 +26,8 @@
     "hidden_asserts": [
       {
         "item_key": "banner",
-        "limit": 5,
-        "offset": 2
+        "limit":100,
+        "offset": 1
       }
     ],
     "items": []
