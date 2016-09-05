@@ -225,38 +225,7 @@ class MenuController extends SandboxRestController
         $limit = $paramFetcher->get('limit');
         $offset = ($paramFetcher->get('offset') - 1) * $limit;
 
-        $items = array();
-
-        switch ($target) {
-            case 'banner':
-                $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
-                foreach ($data as $d) {
-                    if ($d->getSource() == 'url') {
-                        $url = $d->getContent();
-                    } else {
-                        $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
-                    }
-                    $items[] = array(
-                        'type' => 'banner',
-                        'item' => array(
-                            'type' => 'web',
-                            'title' => $d->getTitle(),
-                            'subtitle' => $d->getSubtitle(),
-                            'tag' => $this->get('translator')->trans($d->getTag()->getName()),
-                            'image_url' => $d->getCover(),
-                            'web' => array(
-                                'url' => $url,
-                                'cookie' => array(
-                                    'key' => 'btype',
-                                    'value' => 'banner',
-                                ),
-                            ),
-                        ),
-                    );
-                }
-                break;
-            default;
-        }
+        $items = $this->handleBanner($target, $limit, $offset);
 
         $view = new View();
         $view->setData($items);
@@ -402,19 +371,19 @@ class MenuController extends SandboxRestController
     }
 
     /**
-     * @param $item_key
+     * @param $key
      * @param $limit
      * @param $offset
      *
      * @return array
      */
     private function handleBanner(
-        $item_key,
+        $key,
         $limit,
         $offset
     ) {
         $bannerMenu = array();
-        switch ($item_key) {
+        switch ($key) {
             case 'banner':
                 $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
                 foreach ($data as $d) {
