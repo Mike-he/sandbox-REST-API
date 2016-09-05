@@ -1753,6 +1753,7 @@ class OrderRepository extends EntityRepository
      * @param $endDate
      * @param null $payChannel
      * @param null $buildingId
+     * @param null $companyId
      *
      * @return mixed
      */
@@ -1760,11 +1761,13 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $payChannel = null,
-        $buildingId = null
+        $buildingId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->select('count(o.id) as number , SUM(o.discountPrice) as price')
             ->where('o.status = :paid')
             ->andWhere('o.paymentDate >= :start')
@@ -1783,6 +1786,11 @@ class OrderRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
         $query = $query->getQuery();
 
         return  $query->getSingleResult();
@@ -1793,6 +1801,7 @@ class OrderRepository extends EntityRepository
      * @param $endDate
      * @param null $payChannel
      * @param null $buildingId
+     * @param null $companyId
      *
      * @return mixed
      */
@@ -1800,11 +1809,13 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $payChannel = null,
-        $buildingId = null
+        $buildingId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->select('count(o.id) as number , SUM(o.discountPrice) as price')
             ->where('o.status = :completed')
             ->andWhere('o.startDate >= :start')
@@ -1823,6 +1834,11 @@ class OrderRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
         $query = $query->getQuery();
 
         return  $query->getSingleResult();
@@ -1833,6 +1849,7 @@ class OrderRepository extends EntityRepository
      * @param $endDate
      * @param null $payChannel
      * @param null $buildingId
+     * @param null $companyId
      *
      * @return mixed
      */
@@ -1840,11 +1857,13 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $payChannel = null,
-        $buildingId = null
+        $buildingId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->select('count(o.id) as number , SUM(o.actualRefundAmount) as price')
             ->where('o.status = :cancelled')
             ->andWhere('
@@ -1869,6 +1888,11 @@ class OrderRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
         $query = $query->getQuery();
 
         return  $query->getSingleResult();
@@ -1890,12 +1914,14 @@ class OrderRepository extends EntityRepository
         $endDate,
         $payChannel = null,
         $buildingId = null,
+        $companyId = null,
         $limit = null,
         $offset = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id');
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id');
 
         switch ($status) {
             case ProductOrder::STATUS_PAID :
@@ -1940,6 +1966,11 @@ class OrderRepository extends EntityRepository
         if (!is_null($buildingId)) {
             $query->andWhere('r.building= :buildingId')
                 ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
         }
 
         if (!is_null($limit) && !is_null($offset)) {
