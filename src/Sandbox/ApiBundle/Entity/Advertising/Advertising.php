@@ -31,7 +31,7 @@ class Advertising
     /**
      * @var string
      *
-     * @ORM\Column(name="url", type="text")
+     * @ORM\Column(name="url", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "client_list"})
      */
