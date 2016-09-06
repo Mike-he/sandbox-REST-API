@@ -47,7 +47,7 @@ class RoomBuildingTag
      *
      * @ORM\Column(name="icon", type="text")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "list"})
      */
     private $icon;
 
