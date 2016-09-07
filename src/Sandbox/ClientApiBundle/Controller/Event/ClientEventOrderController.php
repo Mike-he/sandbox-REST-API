@@ -519,7 +519,7 @@ class ClientEventOrderController extends PaymentController
         $eventOrderCheck = new EventOrderCheck();
         $eventOrderCheck->setEventId($eventId);
         $eventOrderCheck->setUserId($userId);
-        $em->persit($eventOrderCheck);
+        $em->persist($eventOrderCheck);
         $em->flush();
 
         $eventOrderCheckCount = $this->getDoctrine()
