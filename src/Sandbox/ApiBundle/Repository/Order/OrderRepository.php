@@ -88,8 +88,8 @@ class OrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('
-                o.needToRefund = :needToRefund OR
-                o.refunded = :refunded
+                (o.needToRefund = :needToRefund OR
+                o.refunded = :refunded)
             ')
             ->andWhere('o.userId = :userId')
             ->setParameter('userId', $userId)
