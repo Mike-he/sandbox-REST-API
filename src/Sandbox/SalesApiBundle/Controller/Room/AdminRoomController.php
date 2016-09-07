@@ -1502,8 +1502,10 @@ class AdminRoomController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
-        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+        $room = $this->getRepo('Room\Room')->find($id);
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+
+        $products = $this->getRepo('Product\Product')->findBy(['roomId' => $id]);
 
         // check user permission
         $this->checkAdminRoomPermission(
@@ -1511,24 +1513,28 @@ class AdminRoomController extends SalesRestController
             array(
                 SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
-            $product->getRoom()->getBuildingId()
+            $room->getBuildingId()
         );
 
         $yearString = $paramFetcher->get('year');
         $results = [];
-        if (!is_null($product) && !is_null($yearString) && !empty($yearString)) {
-            $productId = $product->getId();
+        if (!is_null($yearString) && !empty($yearString)) {
             $yearStart = new \DateTime($yearString);
             $yearStart = $yearStart->modify('first day of January'.$yearString);
             $yearStart->setTime(0, 0, 0);
             $yearEnd = new \DateTime($yearString);
             $yearEnd = $yearEnd->modify('last day of December'.$yearString);
             $yearEnd->setTime(23, 59, 59);
-            $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
-                $productId,
-                $yearStart,
-                $yearEnd
-            );
+
+            foreach ($products as $product) {
+                $productId = $product->getId();
+
+                $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
+                    $productId,
+                    $yearStart,
+                    $yearEnd
+                );
+            }
         }
 
         $view = new View();
