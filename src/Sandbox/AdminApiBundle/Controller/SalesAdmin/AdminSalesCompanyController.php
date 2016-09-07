@@ -35,7 +35,7 @@ class AdminSalesCompanyController extends LocationController
     public function getSalesCompaniesAction(
         Request $request
     ) {
-//        $this->throwAccessDeniedIfAdminNotAllowed(
+        //        $this->throwAccessDeniedIfAdminNotAllowed(
 //            $this->getAdminId(),
 //            AdminType::KEY_PLATFORM,
 //            array(
