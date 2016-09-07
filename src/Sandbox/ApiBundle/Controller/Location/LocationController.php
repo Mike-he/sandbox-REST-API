@@ -638,6 +638,18 @@ class LocationController extends SalesRestController
         }
         $building->setBuildingTags($tags);
 
+        //set building rooms types
+        $roomTypes = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingTypeBinding')
+            ->findBy(array(
+                'building' => $building,
+            ));
+        foreach ($roomTypes as $type) {
+            $typeText = $this->container->get('translator')->trans($type->getType()->getName());
+            $type->getType()->setDescription($typeText);
+        }
+        $building->setBuildingRoomTypes($roomTypes);
+
         return $building;
     }
 
