@@ -553,7 +553,7 @@ class OrderRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('por.roomType = :type')
+            $query->andWhere('r.type = :type')
                 ->setParameter('type', $type);
         }
 

@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Event\EventOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Class ClientEventOrderController.
@@ -221,7 +223,9 @@ class ClientEventOrderController extends PaymentController
         $order = new EventOrder();
 
         // check if event exists
-        $event = $this->getRepo('Event\Event')->find($id);
+        $event = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
         // check event
@@ -240,6 +244,13 @@ class ClientEventOrderController extends PaymentController
                 $error->getMessage()
             );
         }
+
+        // check duplication
+        $this->eventOrderDuplicationCheck(
+            $em,
+            $event->getId(),
+            $userId
+        );
 
         // generate order number
         $orderNumber = $this->getOrderNumber(EventOrder::LETTER_HEAD);
@@ -491,6 +502,37 @@ class ClientEventOrderController extends PaymentController
         if (!is_null($order) && $order->getStatus() != EventOrder::STATUS_CANCELLED) {
             $error->setCode(self::EVENT_ORDER_EXIST_CODE);
             $error->setMessage(self::EVENT_ORDER_EXIST_MESSAGE);
+        }
+    }
+
+    /**
+     * @param $em
+     * @param $eventId
+     * @param $userId
+     */
+    private function eventOrderDuplicationCheck(
+        $em,
+        $eventId,
+        $userId
+    ) {
+        // set event order check
+        $eventOrderCheck = new EventOrderCheck();
+        $eventOrderCheck->setEventId($eventId);
+        $eventOrderCheck->setUserId($userId);
+        $em->persit($eventOrderCheck);
+        $em->flush();
+
+        $eventOrderCheckCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrderCheck')
+            ->countEventOrderCheck(
+                $eventId,
+                $userId
+            );
+        if ($eventOrderCheckCount > 1) {
+            $em->remove($eventOrderCheck);
+            $em->flush();
+
+            throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
         }
     }
 }
