@@ -160,6 +160,7 @@ class ClientEventOrderController extends PaymentController
             ->getRepository('SandboxApiBundle:Event\EventRegistration')
             ->findOneBy(array(
                 'event' => $event,
+                'userId' => $userId,
             ));
         $event->setEventRegistration($registration);
 
