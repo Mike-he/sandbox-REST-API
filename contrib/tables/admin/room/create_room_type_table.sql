@@ -10,4 +10,3 @@ INSERT INTO `RoomTypes` (`name`, `icon`) VALUES('flexible', 'https://image.sandb
 INSERT INTO `RoomTypes` (`name`, `icon`) VALUES('fixed', 'https://image.sandbox3.cn/icon/room_type_fixed.png');
 INSERT INTO `RoomTypes` (`name`, `icon`) VALUES('studio', 'https://image.sandbox3.cn/icon/room_type_studio.png');
 INSERT INTO `RoomTypes` (`name`, `icon`) VALUES('space', 'https://image.sandbox3.cn/icon/room_type_space.png');
-INSERT INTO `RoomTypes` (`name`, `icon`) VALUES('video_studio', 'https://image.sandbox3.cn/icon/room_type_video_studio.png');
