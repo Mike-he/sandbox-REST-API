@@ -17,7 +17,7 @@ class EventOrderCheckRepository extends EntityRepository
         $userId
     ) {
         $query = $this->createQueryBuilder('eoc')
-            ->select('COUNT(*)')
+            ->select('COUNT(eoc.id)')
             ->where('eoc.eventId = :eventId')
             ->andWhere('eoc.userId = :userId')
             ->setParameter('eventId', $eventId)
