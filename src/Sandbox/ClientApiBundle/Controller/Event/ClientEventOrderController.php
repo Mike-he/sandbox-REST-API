@@ -150,14 +150,22 @@ class ClientEventOrderController extends PaymentController
     ) {
         $userId = $this->getUserId();
 
-        $orders = $this->getRepo('Event\EventOrder')->findOneBy(array(
+        $order = $this->getRepo('Event\EventOrder')->findOneBy(array(
             'id' => $id,
             'userId' => $userId,
         ));
 
+        $event = $order->getEvent();
+        $registration = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->findOneBy(array(
+                'event' => $event,
+            ));
+        $event->setEventRegistration($registration);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
-        $view->setData($orders);
+        $view->setData($order);
 
         return $view;
     }
