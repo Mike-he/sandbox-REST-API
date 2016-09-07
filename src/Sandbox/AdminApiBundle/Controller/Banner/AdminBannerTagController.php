@@ -3,7 +3,6 @@
 namespace Sandbox\AdminApiBundle\Controller\Banner;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;

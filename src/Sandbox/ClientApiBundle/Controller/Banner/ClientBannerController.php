@@ -2,7 +2,6 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Banner;
 
-use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Banner\BannerController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
