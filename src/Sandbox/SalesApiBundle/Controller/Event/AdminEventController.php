@@ -905,7 +905,7 @@ class AdminEventController extends SalesRestController
         }
 
         // no verify if price is set
-        if (!is_null($event->getPrice())) {
+        if (!is_null($event->getPrice()) && $event->getPrice() != 0) {
             $event->setVerify(false);
         }
 
