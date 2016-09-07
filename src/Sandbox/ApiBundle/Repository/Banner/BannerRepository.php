@@ -21,7 +21,31 @@ class BannerRepository extends EntityRepository
      *
      * @return array
      */
-    public function getBannerList(
+    public function getAdminBannerList(
+        $search = null
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->orderBy('b.sortTime', 'DESC');
+
+        // search by
+        if (!is_null($search)) {
+            $query = $query->where('b.title LIKE :search OR b.content LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $query = $query->getQuery()->getResult();
+
+        return $query;
+    }
+
+    /**
+     * Get banner list.
+     *
+     * @param string $search
+     *
+     * @return array
+     */
+    public function getClientBannerList(
         $search = null
     ) {
         $query = $this->createQueryBuilder('b')

@@ -94,7 +94,7 @@ class AdminBannerController extends BannerController
 
         $banners = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Banner\Banner')
-            ->getBannerList(
+            ->getAdminBannerList(
                 $search
             );
 
