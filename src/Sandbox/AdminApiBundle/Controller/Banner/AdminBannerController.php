@@ -363,6 +363,8 @@ class AdminBannerController extends BannerController
                 $banner->setContent($url);
 
                 break;
+            case Banner::SOURCE_BLANK_BLOCK:
+                break;
             default:
                 return $this->customErrorView(
                     400,
@@ -374,18 +376,20 @@ class AdminBannerController extends BannerController
         }
 
         // check if banner already exists
-        $existBanner = $this->getExistingBanner(
-            $source,
-            $sourceId,
-            $url
-        );
-
-        if (!is_null($existBanner)) {
-            return $this->customErrorView(
-                400,
-                self::BANNER_ALREADY_EXIST_CODE,
-                self::BANNER_ALREADY_EXIST_MESSAGE
+        if ($source != Banner::SOURCE_BLANK_BLOCK) {
+            $existBanner = $this->getExistingBanner(
+                $source,
+                $sourceId,
+                $url
             );
+
+            if (!is_null($existBanner)) {
+                return $this->customErrorView(
+                    400,
+                    self::BANNER_ALREADY_EXIST_CODE,
+                    self::BANNER_ALREADY_EXIST_MESSAGE
+                );
+            }
         }
 
         $em->persist($banner);
