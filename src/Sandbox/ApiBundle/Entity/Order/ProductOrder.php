@@ -14,6 +14,9 @@ use Sandbox\ApiBundle\Entity\User\User;
  */
 class ProductOrder
 {
+    const COMBINE_STATUS_PENDING = 'pending';
+    const COMBINE_STATUS_REFUND = 'refund';
+
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_PAID = 'paid';
     const STATUS_UNPAID = 'unpaid';
@@ -25,6 +28,8 @@ class ProductOrder
     const CHANNEL_WECHAT = 'wx';
     const CHANNEL_FOREIGN_CREDIT = 'cnp_f';
     const CHANNEL_UNION_CREDIT = 'cnp_u';
+    const CHANNEL_WECHAT_PUB = 'wx_pub';
+    const CHANNEL_OFFLINE = 'offline';
 
     const PRODUCT_MAP = 'product';
 
@@ -173,6 +178,13 @@ class ProductOrder
     /**
      * @var string
      *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $appointedName;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="location", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "client"})
@@ -291,7 +303,7 @@ class ProductOrder
      * @var string
      *
      * @ORM\Column(name="type", type="string", nullable=true)
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $type;
 
@@ -307,7 +319,7 @@ class ProductOrder
      * @var bool
      *
      * @ORM\Column(name="needToRefund", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $needToRefund = false;
 
@@ -315,7 +327,7 @@ class ProductOrder
      * @var bool
      *
      * @ORM\Column(name="refunded", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $refunded = false;
 
@@ -323,7 +335,7 @@ class ProductOrder
      * @var bool
      *
      * @ORM\Column(name="refundProcessed", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order", "client"})
      */
     private $refundProcessed = false;
 
@@ -332,7 +344,7 @@ class ProductOrder
      *
      * @ORM\Column(name="refundProcessedDate", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client"})
      */
     private $refundProcessedDate;
 
@@ -407,6 +419,43 @@ class ProductOrder
      * @Serializer\Groups({"main", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $cancelByUser = false;
+
+    /**
+     * @var OrderOfflineTransfer
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer",
+     *      mappedBy="order"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="orderId")
+     *
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
+     */
+    private $transfer;
+
+    /**
+     * Set transfer.
+     *
+     * @param OrderOfflineTransfer $transfer
+     *
+     * @return ProductOrder
+     */
+    public function setTransfer($transfer)
+    {
+        $this->transfer = $transfer;
+
+        return $this;
+    }
+
+    /**
+     * Get transfer.
+     *
+     * @return OrderOfflineTransfer
+     */
+    public function getTransfer()
+    {
+        return $this->transfer;
+    }
 
     /**
      * Set isRenew.
@@ -870,6 +919,30 @@ class ProductOrder
     public function getAppointed()
     {
         return $this->appointed;
+    }
+
+    /**
+     * Set appointedName.
+     *
+     * @param string $name
+     *
+     * @return ProductOrder
+     */
+    public function setAppointedName($name)
+    {
+        $this->appointedName = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get appointedName.
+     *
+     * @return string
+     */
+    public function getAppointedName()
+    {
+        return $this->appointedName;
     }
 
     /**

@@ -11,6 +11,8 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingTagBinding;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingTypeBinding;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesBuildingPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -21,6 +23,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Doctrine\ORM\EntityManager;
 
 /**
  * Class AdminBuildingController.
@@ -274,16 +277,26 @@ class AdminSalesBuildingController extends LocationController
         // bind data
         $buildingJson = $this->container->get('serializer')->serialize($building, 'json');
         $patch = new Patch($buildingJson, $request->getContent());
-        $adminJson = $patch->apply();
+        $buildingJson = $patch->apply();
 
         $form = $this->createForm(new SalesBuildingPatchType(), $building);
-        $form->submit(json_decode($adminJson, true));
+        $form->submit(json_decode($buildingJson, true));
+
+        $em = $this->getDoctrine()->getManager();
 
         // handle building status
         $this->handleBuildingStatus(
             $statusOld,
             $building
         );
+
+        // add building tags
+        $this->addBuildingTags($building, $em);
+
+        // add building room types
+        $this->addBuildingRoomTypes($building, $em);
+
+        $em->flush();
 
         return new View();
     }
@@ -301,8 +314,6 @@ class AdminSalesBuildingController extends LocationController
         if ($statusOld == $status) {
             return;
         }
-
-        $em = $this->getDoctrine()->getManager();
 
         if (!in_array($status, array(
             RoomBuilding::STATUS_ACCEPT,
@@ -323,8 +334,110 @@ class AdminSalesBuildingController extends LocationController
         ) {
             $building->setVisible(true);
         }
+    }
+
+    /**
+     * @param RoomBuilding  $building
+     * @param EntityManager $em
+     */
+    private function addBuildingTags(
+        $building,
+        $em
+    ) {
+        $tags = $building->getBuildingTags();
+
+        if (is_null($tags)) {
+            return;
+        }
+
+        // remove old tags
+        $tagBindings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingTagBinding')
+            ->findBy(array(
+                'building' => $building,
+            ));
+
+        foreach ($tagBindings as $binding) {
+            $em->remove($binding);
+        }
 
         $em->flush();
+
+        if (empty($tags)) {
+            return;
+        }
+
+        // add new tags
+        foreach ($tags as $tag) {
+            if (!isset($tag['id'])) {
+                continue;
+            }
+
+            $tagEntity = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingTag')
+                ->find($tag['id']);
+            if (is_null($tagEntity)) {
+                continue;
+            }
+
+            $tagBindingObject = new RoomBuildingTagBinding();
+            $tagBindingObject->setBuilding($building);
+            $tagBindingObject->setTag($tagEntity);
+
+            $em->persist($tagBindingObject);
+        }
+    }
+
+    /**
+     * @param RoomBuilding  $building
+     * @param EntityManager $em
+     */
+    private function addBuildingRoomTypes(
+        $building,
+        $em
+    ) {
+        $types = $building->getBuildingRoomTypes();
+
+        if (is_null($types)) {
+            return;
+        }
+
+        // remove old types
+        $typeBindings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingTypeBinding')
+            ->findBy(array(
+                'building' => $building,
+            ));
+
+        foreach ($typeBindings as $binding) {
+            $em->remove($binding);
+        }
+
+        $em->flush();
+
+        if (empty($types)) {
+            return;
+        }
+
+        // add new types
+        foreach ($types as $type) {
+            if (!isset($type['id'])) {
+                continue;
+            }
+
+            $typeEntity = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomTypes')
+                ->find($type['id']);
+            if (is_null($typeEntity)) {
+                continue;
+            }
+
+            $typeBindingObject = new RoomBuildingTypeBinding();
+            $typeBindingObject->setBuilding($building);
+            $typeBindingObject->setType($typeEntity);
+
+            $em->persist($typeBindingObject);
+        }
     }
 
     /**

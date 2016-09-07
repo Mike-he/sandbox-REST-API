@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Product;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
@@ -12,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Form\Product\ProductPatchVisibleType;
 use Sandbox\ApiBundle\Form\Product\ProductType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -528,8 +530,6 @@ class AdminProductController extends ProductController
 
         $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
-        $endDate = $form['end_date']->getData();
-        $endDate->setTime(23, 59, 59);
 
         if (!is_null($seatNumber) && !empty($seatNumber) && $type == Room::TYPE_FIXED) {
             $product->setSeatNumber($seatNumber);
@@ -548,7 +548,6 @@ class AdminProductController extends ProductController
 
         $now = new \DateTime('now');
         $product->setStartDate($startDate);
-        $product->setEndDate($endDate);
         $product->setCreationDate($now);
         $product->setModificationDate($now);
 
@@ -642,12 +641,9 @@ class AdminProductController extends ProductController
 
         $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
-        $endDate = $form['end_date']->getData();
-        $endDate->setTime(23, 59, 59);
 
         $product->setRoom($room);
         $product->setStartDate($startDate);
-        $product->setEndDate($endDate);
         $product->setModificationDate(new \DateTime('now'));
 
         $em = $this->getDoctrine()->getManager();
@@ -699,6 +695,66 @@ class AdminProductController extends ProductController
         );
 
         return new View($response);
+    }
+
+    /**
+     * Delete a product.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     204 = "OK"
+     *  }
+     * )
+     *
+     * @Route("/products/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchProductAction(
+        Request $request,
+        $id
+    ) {
+        // get product
+        $product = $this->getRepo('Product\Product')->find($id);
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
+        $buildingId = $product->getRoom()->getBuildingId();
+
+        // check user permission
+        $this->checkAdminProductPermission(
+            SalesAdminPermissionMap::OP_LEVEL_EDIT,
+            $buildingId
+        );
+
+        // bind data
+        $productJson = $this->container->get('serializer')->serialize($product, 'json');
+        $patch = new Patch($productJson, $request->getContent());
+        $productJson = $patch->apply();
+
+        $form = $this->createForm(new ProductPatchVisibleType(), $product);
+        $form->submit(json_decode($productJson, true));
+
+        $product->setModificationDate(new \DateTime('now'));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $this->generateAdminLogs(array(
+            'platform' => Log::PLATFORM_SALES,
+            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
+            'logModule' => Log::MODULE_PRODUCT,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_PRODUCT,
+            'logObjectId' => $product->getId(),
+            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
+        ));
     }
 
     /**

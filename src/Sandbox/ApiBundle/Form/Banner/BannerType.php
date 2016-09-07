@@ -16,6 +16,8 @@ class BannerType extends AbstractType
     {
         $builder
             ->add('title', 'text')
+            ->add('tag_id')
+            ->add('subtitle')
             ->add('source', 'text')
             ->add(
                 'source_id',

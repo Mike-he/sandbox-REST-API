@@ -53,7 +53,7 @@ class AdminEventController extends SandboxRestController
     const ERROR_INVALID_EVENT_TIME_CODE = 400006;
     const ERROR_INVALID_EVENT_TIME_MESSAGE = 'Event start time should before event end time';
     const ERROR_INVALID_EVENT_PRICE_CODE = 400007;
-    const ERROR_INVALID_EVENT_PRICE_MESSAGE = 'Event can not be null while need charge';
+    const ERROR_INVALID_EVENT_PRICE_MESSAGE = 'Event price can not be null';
 
     const ERROR_ROOM_INVALID = 'Invalid room';
 
@@ -163,6 +163,7 @@ class AdminEventController extends SandboxRestController
             array(
                 AdminPermission::KEY_PLATFORM_EVENT,
                 AdminPermission::KEY_PLATFORM_BANNER,
+                AdminPermission::KEY_PLATFORM_ADVERTISING,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
@@ -240,7 +241,15 @@ class AdminEventController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_EVENT,
+                AdminPermission::KEY_PLATFORM_ADVERTISING,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // get an event
         $event = $this->getRepo('Event\Event')->findOneBy(array(
@@ -310,19 +319,6 @@ class AdminEventController extends SandboxRestController
         $submit = $requestContent['submit'];
         if (is_null($submit)) {
             $submit = true;
-        }
-
-        // check charge valid
-        if ($event->isCharge()) {
-            if (is_null($event->getPrice())) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_INVALID_EVENT_PRICE_CODE,
-                    self::ERROR_INVALID_EVENT_PRICE_MESSAGE
-                );
-            }
-        } else {
-            $event->setPrice(null);
         }
 
         return $this->handleEventPost(
@@ -876,12 +872,18 @@ class AdminEventController extends SandboxRestController
 
         $eventEndDate = $this->getEventEndDate($dates);
 
+        // set price
+        if (!$event->isCharge()) {
+            $event->setPrice(0.00);
+        }
+
         $event->setCity($city);
         $event->setBuildingId($buildingId);
         $event->setRegistrationStartDate($startDate);
         $event->setRegistrationEndDate($endDate);
         $event->setEventStartDate($eventStartDate);
         $event->setEventEndDate($eventEndDate);
+        $event->setIsCharge(true);
         $event->setCreationDate($now);
         $event->setModificationDate($now);
 
@@ -894,8 +896,8 @@ class AdminEventController extends SandboxRestController
             $event->setIsSaved(true);
         }
 
-        // no verify if price is set
-        if (!is_null($event->getPrice())) {
+        // no verify if not free
+        if (!is_null($event->getPrice()) && $event->getPrice() != 0) {
             $event->setVerify(false);
         }
 

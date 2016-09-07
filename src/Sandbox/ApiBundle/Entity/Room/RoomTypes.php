@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * RoomTypes.
  *
  * @ORM\Table(name="RoomTypes")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomTypesRepository")
  */
 class RoomTypes
 {
@@ -20,7 +20,7 @@ class RoomTypes
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_building", "drop_down"})
      */
     private $id;
 
@@ -53,6 +53,15 @@ class RoomTypes
      * @Serializer\Groups({"main", "drop_down"})
      */
     private $description;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="icon", type="text")
+     *
+     * @Serializer\Groups({"main", "drop_down"})
+     */
+    private $icon;
 
     /**
      * Get id.
@@ -134,5 +143,21 @@ class RoomTypes
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @param string $icon
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
     }
 }

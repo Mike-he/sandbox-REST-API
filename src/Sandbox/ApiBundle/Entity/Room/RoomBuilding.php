@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * RoomBuilding.
@@ -152,6 +151,41 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
+     * @ORM\Column(name="subtitle", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "profile",
+     *      "profile_basic",
+     *      "profile_stranger",
+     *      "profile_basic_stranger",
+     *      "buddy",
+     *      "member",
+     *      "admin_detail",
+     *      "company_info",
+     *      "company_basic",
+     *      "feed",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
+     *  }
+     * )
+     */
+    private $subtitle;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="address", type="string", length=255, nullable=false)
      *
      * @Serializer\Groups({
@@ -249,10 +283,6 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @Assert\Email(
-     *     checkMX = true
-     * )
-     *
      * @ORM\Column(name="email", type="string", nullable=true)
      *
      * @Serializer\Groups({"main", "admin_building"})
@@ -346,6 +376,36 @@ class RoomBuilding implements JsonSerializable
      * @var int
      */
     private $orderCounts;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="orderRemindPhones", type="string", length=2048, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $orderRemindPhones;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $buildingServices;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $buildingTags;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $buildingRoomTypes;
 
     /**
      * Get id.
@@ -470,6 +530,22 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
+     * @return string
+     */
+    public function getSubtitle()
+    {
+        return $this->subtitle;
+    }
+
+    /**
+     * @param string $subtitle
+     */
+    public function setSubtitle($subtitle)
+    {
+        $this->subtitle = $subtitle;
+    }
+
+    /**
      * Set address.
      *
      * @param string $address
@@ -558,7 +634,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * Get floors.
      *
-     * @return int
+     * @return array
      */
     public function getFloors()
     {
@@ -953,5 +1029,77 @@ class RoomBuilding implements JsonSerializable
             'id' => $this->id,
             'name' => $this->name,
         );
+    }
+
+    /**
+     * Set orderRemindPhones.
+     *
+     * @param string $orderRemindPhones
+     *
+     * @return RoomBuilding
+     */
+    public function setOrderRemindPhones($orderRemindPhones)
+    {
+        $this->orderRemindPhones = $orderRemindPhones;
+
+        return $this;
+    }
+
+    /**
+     * Get orderRemindPhones.
+     *
+     * @return string
+     */
+    public function getOrderRemindPhones()
+    {
+        return $this->orderRemindPhones;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingServices()
+    {
+        return $this->buildingServices;
+    }
+
+    /**
+     * @param array $buildingServices
+     */
+    public function setBuildingServices($buildingServices)
+    {
+        $this->buildingServices = $buildingServices;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingTags()
+    {
+        return $this->buildingTags;
+    }
+
+    /**
+     * @param array $buildingTags
+     */
+    public function setBuildingTags($buildingTags)
+    {
+        $this->buildingTags = $buildingTags;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingRoomTypes()
+    {
+        return $this->buildingRoomTypes;
+    }
+
+    /**
+     * @param array $buildingRoomTypes
+     */
+    public function setBuildingRoomTypes($buildingRoomTypes)
+    {
+        $this->buildingRoomTypes = $buildingRoomTypes;
     }
 }

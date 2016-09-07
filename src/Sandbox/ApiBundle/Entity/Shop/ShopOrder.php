@@ -241,7 +241,7 @@ class ShopOrder
      *
      * @ORM\Column(name="refundProcessedDate", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "admin_shop"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_shop", "client_order"})
      */
     private $refundProcessedDate;
 
@@ -249,7 +249,7 @@ class ShopOrder
      * @var string
      *
      * @ORM\Column(name="refundUrl", type="text", nullable=true)
-     * @Serializer\Groups({"main", "admin_shop", "client_order", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_shop", "admin_detail"})
      */
     private $refundUrl;
 

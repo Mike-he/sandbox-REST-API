@@ -15,6 +15,95 @@ class OrderRepository extends EntityRepository
     const CANCELLED = "'cancelled'";
 
     /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserPendingOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = \'paid\' OR o.status = \'unpaid\'')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserCompletedOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('
+                o.status = \'completed\' OR 
+                (o.status = \'cancelled\' AND o.payChannel IS NULL) OR
+                (
+                    o.status = \'cancelled\' AND 
+                    o.payChannel = :offline AND
+                    o.needToRefund = :needToRefund AND 
+                    o.refunded = :refunded
+                )    
+            ')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setParameter('needToRefund', false)
+            ->setParameter('refunded', false)
+            ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserRefundOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('
+                (o.needToRefund = :needToRefund OR
+                o.refunded = :refunded)
+            ')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setParameter('needToRefund', true)
+            ->setParameter('refunded', true)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
      * @param $id
      *
      * @return mixed
@@ -136,10 +225,12 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('o.status = \'paid\'')
+            ->andWhere('o.rejected = :rejected')
             ->andWhere('o.startDate > :now')
             ->andWhere('(r.type = \'office\' AND o.startDate <= :workspaceTime)')
             ->setParameter('workspaceTime', $workspaceTime)
             ->setParameter('now', $now)
+            ->setParameter('rejected', false)
             ->getQuery();
 
         return $query->getResult();
@@ -416,6 +507,120 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * @param $type
+     * @param $buildingId
+     * @param $orderStartDate
+     * @param $orderEndDate
+     * @param $payStartDate
+     * @param $payEndDate
+     * @param $rentStartDate
+     * @param $rentEndDate
+     * @param $invoiceStartDate
+     * @param $invoiceEndDate
+     * @param null $salesCompanyId
+     *
+     * @return array
+     */
+    public function getAdminNotInvoicedOrders(
+        $type,
+        $buildingId = null,
+        $orderStartDate,
+        $orderEndDate,
+        $payStartDate,
+        $payEndDate,
+        $rentStartDate,
+        $rentEndDate,
+        $invoiceStartDate,
+        $invoiceEndDate,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->where('o.status = \'completed\'')
+            ->andWhere('o.discountPrice > :price')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.rejected = :rejected')
+            ->andWhere('o.invoiced = :invoiced')
+            ->andWhere('o.salesInvoice = :salesInvoice')
+            ->orderBy('b.companyId', 'ASC')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('invoiced', false)
+            ->setParameter('rejected', false)
+            ->setParameter('salesInvoice', true)
+            ->setParameter('price', 0);
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->andWhere('r.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        // filter by building
+        if (!is_null($buildingId)) {
+            $query->andWhere('b.id = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        // filter by order create start date
+        if (!is_null($orderStartDate)) {
+            $query->andWhere('o.creationDate > :orderStartDate')
+                ->setParameter('orderStartDate', $orderStartDate);
+        }
+
+        // filter by order create end date
+        if (!is_null($orderEndDate)) {
+            $query->andWhere('o.creationDate < :orderEndDate')
+                ->setParameter('orderEndDate', $orderEndDate);
+        }
+
+        // filter by pay start date
+        if (!is_null($payStartDate)) {
+            $query->andWhere('o.paymentDate > :payStartDate')
+                ->setParameter('payStartDate', $payStartDate);
+        }
+
+        // filter by pay end date
+        if (!is_null($payEndDate)) {
+            $query->andWhere('o.paymentDate < :payEndDate')
+                ->setParameter('payEndDate', $payEndDate);
+        }
+
+        // filter by rent start date
+        if (!is_null($rentStartDate)) {
+            $query->andWhere('o.endDate > :rentStartDate')
+                ->setParameter('rentStartDate', $rentStartDate);
+        }
+
+        // filter by rent end date
+        if (!is_null($rentEndDate)) {
+            $query->andWhere('o.startDate < :rentEndDate')
+                ->setParameter('rentEndDate', $rentEndDate);
+        }
+
+        // filter by invoice start date
+        if (!is_null($invoiceStartDate)) {
+            $query->andWhere('o.startDate > :invoiceStartDate')
+                ->setParameter('invoiceStartDate', $invoiceStartDate);
+        }
+
+        // filter by invoice end date
+        if (!is_null($invoiceEndDate)) {
+            $query->andWhere('o.startDate < :invoiceEndDare')
+                ->setParameter('invoiceEndDare', $invoiceEndDate);
+        }
+
+        // filter by sales company
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('b.companyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * get order that need to set invoice.
      */
     public function getInvoiceOrdersForInvoiced(
@@ -486,10 +691,12 @@ class OrderRepository extends EntityRepository
             ->set('o.cancelledDate', $nowString)
             ->set('o.modificationDate', $nowString)
             ->where('o.status = \'unpaid\'')
+            ->andWhere('o.payChannel != :channel')
             ->andWhere('(o.type != :preorder OR o.type is NULL)')
             ->andWhere('o.creationDate <= :start')
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
             ->setParameter('start', $start)
+            ->setParameter('channel', ProductOrder::CHANNEL_OFFLINE)
             ->getQuery();
 
         $query->execute();
@@ -833,10 +1040,11 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder))');
+            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder) OR (o.payChannel = :offline))');
 
         $parameters['preOrder'] = ProductOrder::PREORDER_TYPE;
         $parameters['unpaid'] = ProductOrder::STATUS_UNPAID;
+        $parameters['offline'] = ProductOrder::CHANNEL_OFFLINE;
 
         //only needed when searching orders
         if (!is_null($search)) {
@@ -991,10 +1199,11 @@ class OrderRepository extends EntityRepository
             ->select('COUNT(o)')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder))');
+            ->where('((o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR (o.type = :preOrder) OR (o.payChannel = :offline))');
 
         $parameters['preOrder'] = ProductOrder::PREORDER_TYPE;
         $parameters['unpaid'] = ProductOrder::STATUS_UNPAID;
+        $parameters['offline'] = ProductOrder::CHANNEL_OFFLINE;
 
         //only needed when searching orders
         if (!is_null($search)) {
@@ -1535,6 +1744,308 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('r.building = :building')
             ->setParameter('building', $building);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     * @param null $companyId
+     *
+     * @return mixed
+     */
+    public function countPaidOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null,
+        $companyId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('count(o.id) as number , SUM(o.discountPrice) as price')
+            ->where('o.status = :paid')
+            ->andWhere('o.paymentDate >= :start')
+            ->andWhere('o.paymentDate <= :end')
+            ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        $query = $query->getQuery();
+
+        return  $query->getSingleResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     * @param null $companyId
+     *
+     * @return mixed
+     */
+    public function countCompletedOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null,
+        $companyId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('count(o.id) as number , SUM(o.discountPrice) as price')
+            ->where('o.status = :completed')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.startDate <= :end')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        $query = $query->getQuery();
+
+        return  $query->getSingleResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     * @param null $companyId
+     *
+     * @return mixed
+     */
+    public function countRefundOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null,
+        $companyId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('count(o.id) as number , SUM(o.actualRefundAmount) as price')
+            ->where('o.status = :cancelled')
+            ->andWhere('
+                (o.needToRefund = :needToRefund OR
+                o.refunded = :refunded)
+            ')
+            ->andWhere('o.cancelledDate >= :start')
+            ->andWhere('o.cancelledDate <= :end')
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+            ->setParameter('needToRefund', true)
+            ->setParameter('refunded', true)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        $query = $query->getQuery();
+
+        return  $query->getSingleResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     * @param null $limit
+     * @param null $offset
+     *
+     * @return array
+     */
+    public function getOrdersList(
+        $status,
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null,
+        $companyId = null,
+        $limit = null,
+        $offset = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id');
+
+        switch ($status) {
+            case ProductOrder::STATUS_PAID :
+                $query->where('o.status = :paid')
+                    ->andWhere('o.paymentDate >= :start')
+                    ->andWhere('o.paymentDate <= :end')
+                    ->setParameter('paid', ProductOrder::STATUS_PAID)
+                    ->setParameter('start', $startDate)
+                    ->setParameter('end', $endDate);
+                break;
+            case ProductOrder::STATUS_COMPLETED :
+                $query->where('o.status = :completed')
+                    ->andWhere('o.startDate >= :start')
+                    ->andWhere('o.startDate <= :end')
+                    ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+                    ->setParameter('start', $startDate)
+                    ->setParameter('end', $endDate);
+                break;
+            case ProductOrder::STATUS_CANCELLED :
+                $query->where('o.status = :cancelled')
+                    ->andWhere('
+                        (o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded)
+                    ')
+                    ->andWhere('o.cancelledDate >= :start')
+                    ->andWhere('o.cancelledDate <= :end')
+                    ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+                    ->setParameter('needToRefund', true)
+                    ->setParameter('refunded', true)
+                    ->setParameter('start', $startDate)
+                    ->setParameter('end', $endDate);
+                break;
+            default:
+                return;
+        }
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building= :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $status
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     * @param null $buildingId
+     *
+     * @return int|mixed
+     */
+    public function countOrdersList(
+        $status,
+        $startDate,
+        $endDate,
+        $payChannel = null,
+        $buildingId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->select('COUNT(o)');
+
+        switch ($status) {
+           case ProductOrder::STATUS_PAID :
+               $query->where('o.status = :paid')
+                   ->andWhere('o.paymentDate >= :start')
+                   ->andWhere('o.paymentDate <= :end')
+                   ->setParameter('paid', ProductOrder::STATUS_PAID)
+                   ->setParameter('start', $startDate)
+                   ->setParameter('end', $endDate);
+               break;
+           case ProductOrder::STATUS_COMPLETED :
+               $query->where('o.status = :completed')
+                   ->andWhere('o.startDate >= :start')
+                   ->andWhere('o.startDate <= :end')
+                   ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+                   ->setParameter('start', $startDate)
+                   ->setParameter('end', $endDate);
+               break;
+           case ProductOrder::STATUS_CANCELLED :
+               $query->where('o.status = :cancelled')
+                   ->andWhere('
+                        (o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded)
+                    ')
+                   ->andWhere('o.cancelledDate >= :start')
+                   ->andWhere('o.cancelledDate <= :end')
+                   ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+                   ->setParameter('needToRefund', true)
+                   ->setParameter('refunded', true)
+                   ->setParameter('start', $startDate)
+                   ->setParameter('end', $endDate);
+               break;
+           default:
+               return 0;
+       }
+
+        if (!is_null($payChannel)) {
+            $query->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
 
         return $query->getQuery()->getSingleScalarResult();
     }

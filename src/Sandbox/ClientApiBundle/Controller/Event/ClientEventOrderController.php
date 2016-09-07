@@ -8,12 +8,15 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Event\EventOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Class ClientEventOrderController.
@@ -60,6 +63,24 @@ class ClientEventOrderController extends PaymentController
      *    description="Offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="status",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="order status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="search key"
+     * )
+     *
      * @Route("/events/orders")
      * @Method({"GET"})
      *
@@ -72,20 +93,44 @@ class ClientEventOrderController extends PaymentController
         $userId = $this->getUserId();
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $status = $paramFetcher->get('status');
+        $search = $paramFetcher->get('query');
 
-        $orders = $this->getRepo('Event\EventOrder')->findBy(
-            [
-                'userId' => $userId,
-                'status' => EventOrder::STATUS_COMPLETED,
-            ],
-            ['modificationDate' => 'DESC'],
-            $limit,
-            $offset
-        );
+        $eventOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getClientEventOrders(
+                $userId,
+                $status,
+                $limit,
+                $offset,
+                $search
+            );
+
+        foreach ($eventOrders as $eventOrder) {
+            $event = $eventOrder->getEvent();
+            $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
+            $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
+            $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+            $registrationCounts = $this->getRepo('Event\EventRegistration')
+                ->getRegistrationCounts($event->getId());
+
+            // set sales company
+            if (!is_null($event->getSalesCompanyId())) {
+                $salesCompany = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                    ->find($event->getSalesCompanyId());
+                $event->setSalesCompany($salesCompany);
+            }
+
+            $event->setAttachments($attachments);
+            $event->setDates($dates);
+            $event->setForms($forms);
+            $event->setRegisteredPersonNumber((int) $registrationCounts);
+        }
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
-        $view->setData($orders);
+        $view->setData($eventOrders);
 
         return $view;
     }
@@ -105,14 +150,23 @@ class ClientEventOrderController extends PaymentController
     ) {
         $userId = $this->getUserId();
 
-        $orders = $this->getRepo('Event\EventOrder')->findOneBy(array(
+        $order = $this->getRepo('Event\EventOrder')->findOneBy(array(
             'id' => $id,
             'userId' => $userId,
         ));
 
+        $event = $order->getEvent();
+        $registration = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->findOneBy(array(
+                'event' => $event,
+                'userId' => $userId,
+            ));
+        $event->setEventRegistration($registration);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
-        $view->setData($orders);
+        $view->setData($order);
 
         return $view;
     }
@@ -178,7 +232,9 @@ class ClientEventOrderController extends PaymentController
         $order = new EventOrder();
 
         // check if event exists
-        $event = $this->getRepo('Event\Event')->find($id);
+        $event = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
         // check event
@@ -198,6 +254,13 @@ class ClientEventOrderController extends PaymentController
             );
         }
 
+        // check duplication
+        $this->eventOrderDuplicationCheck(
+            $em,
+            $event->getId(),
+            $userId
+        );
+
         // generate order number
         $orderNumber = $this->getOrderNumber(EventOrder::LETTER_HEAD);
 
@@ -205,8 +268,14 @@ class ClientEventOrderController extends PaymentController
         $order->setEvent($event);
         $order->setUserId($userId);
         $order->setPrice($event->getPrice());
-        $order->setStatus(EventOrder::STATUS_UNPAID);
         $order->setOrderNumber($orderNumber);
+
+        // set status
+        if ($order->getPrice() == 0) {
+            $order->setStatus(EventOrder::STATUS_PAID);
+        } else {
+            $order->setStatus(EventOrder::STATUS_UNPAID);
+        }
 
         $em->persist($order);
         $em->flush();
@@ -312,29 +381,25 @@ class ClientEventOrderController extends PaymentController
         $token = '';
         $smsId = '';
         $smsCode = '';
-
-        if (
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
-            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_CHANNEL_CODE,
-                self::WRONG_CHANNEL_MESSAGE
-            );
-        }
+        $openId = null;
 
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
                 $order,
                 $channel
             );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $order->getUserId(),
+                        'loginFrom' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $orderNumber = $order->getOrderNumber();
@@ -346,7 +411,8 @@ class ClientEventOrderController extends PaymentController
             $order->getPrice(),
             $channel,
             EventOrder::PAYMENT_SUBJECT,
-            EventOrder::PAYMENT_BODY
+            EventOrder::PAYMENT_BODY,
+            $openId
         );
         $charge = json_decode($charge, true);
 
@@ -445,6 +511,37 @@ class ClientEventOrderController extends PaymentController
         if (!is_null($order) && $order->getStatus() != EventOrder::STATUS_CANCELLED) {
             $error->setCode(self::EVENT_ORDER_EXIST_CODE);
             $error->setMessage(self::EVENT_ORDER_EXIST_MESSAGE);
+        }
+    }
+
+    /**
+     * @param $em
+     * @param $eventId
+     * @param $userId
+     */
+    private function eventOrderDuplicationCheck(
+        $em,
+        $eventId,
+        $userId
+    ) {
+        // set event order check
+        $eventOrderCheck = new EventOrderCheck();
+        $eventOrderCheck->setEventId($eventId);
+        $eventOrderCheck->setUserId($userId);
+        $em->persist($eventOrderCheck);
+        $em->flush();
+
+        $eventOrderCheckCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrderCheck')
+            ->countEventOrderCheck(
+                $eventId,
+                $userId
+            );
+        if ($eventOrderCheckCount > 1) {
+            $em->remove($eventOrderCheck);
+            $em->flush();
+
+            throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
         }
     }
 }

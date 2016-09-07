@@ -15,7 +15,9 @@ class SalesBuildingPatchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('status');
+            ->add('status')
+            ->add('building_tags')
+            ->add('building_room_types');
     }
 
     /**

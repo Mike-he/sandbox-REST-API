@@ -3,6 +3,9 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
@@ -539,6 +542,17 @@ class LocationController extends SalesRestController
         // set more information
         $this->setRoomBuildingMoreInformation($building);
 
+        // set building room types according to present data
+        $types = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
+            ->getPresentRoomTypes($building);
+
+        foreach ($types as $type) {
+            $typeText = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type->getName());
+            $type->setDescription($typeText);
+        }
+        $building->setBuildingRoomTypes($types);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
         $view->setData($building);
@@ -587,6 +601,54 @@ class LocationController extends SalesRestController
         // set order counts
         $orderCounts = $this->getRepo('Order\ProductOrder')->countsOrderByBuilding($building);
         $building->setOrderCounts((int) $orderCounts);
+
+        // set building services
+        $services = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceBinding')
+            ->findBy(array(
+                'building' => $building,
+            ));
+        foreach ($services as $service) {
+            if (is_null($service)) {
+                continue;
+            }
+
+            $serviceText = $this->get('translator')->trans(
+                RoomBuildingServices::TRANS_PREFIX.$service->getService()->getKey()
+            );
+            $service->getService()->setName($serviceText);
+        }
+        $building->setBuildingServices($services);
+
+        // set building tags
+        $tags = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingTagBinding')
+            ->findBy(array(
+                'building' => $building,
+            ));
+        foreach ($tags as $tag) {
+            if (is_null($tag)) {
+                continue;
+            }
+
+            $serviceText = $this->get('translator')->trans(
+                RoomBuildingTag::TRANS_PREFIX.$tag->getTag()->getKey()
+            );
+            $tag->getTag()->setName($serviceText);
+        }
+        $building->setBuildingTags($tags);
+
+        //set building rooms types
+        $roomTypes = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingTypeBinding')
+            ->findBy(array(
+                'building' => $building,
+            ));
+        foreach ($roomTypes as $type) {
+            $typeText = $this->container->get('translator')->trans($type->getType()->getName());
+            $type->getType()->setDescription($typeText);
+        }
+        $building->setBuildingRoomTypes($roomTypes);
 
         return $building;
     }

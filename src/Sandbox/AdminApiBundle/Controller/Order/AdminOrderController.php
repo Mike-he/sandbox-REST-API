@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\User\User;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
@@ -13,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundFeePatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundPatch;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
@@ -41,6 +43,186 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminOrderController extends OrderController
 {
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by sales company id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="orderStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="orderEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="payStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="payEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rentStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rentEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="invoiceStartDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="invoiceEndDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Route("/orders/sales/notinvoiced")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSalesInvoiceOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            AdminPermission::KEY_PLATFORM_INVOICE,
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
+
+        // filters
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $type = $paramFetcher->get('type');
+        $salesCompanyId = $paramFetcher->get('company');
+        $orderStartDate = $paramFetcher->get('orderStartDate');
+        $orderEndDate = $paramFetcher->get('orderEndDate');
+        $payStartDate = $paramFetcher->get('payStartDate');
+        $payEndDate = $paramFetcher->get('payEndDate');
+        $rentStartDate = $paramFetcher->get('rentStartDate');
+        $rentEndDate = $paramFetcher->get('rentEndDate');
+        $invoiceStartDate = $paramFetcher->get('invoiceStartDate');
+        $invoiceEndDate = $paramFetcher->get('invoiceEndDate');
+
+        $ordersQuery = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getAdminNotInvoicedOrders(
+                $type,
+                null,
+                $orderStartDate,
+                $orderEndDate,
+                $payStartDate,
+                $payEndDate,
+                $rentStartDate,
+                $rentEndDate,
+                $invoiceStartDate,
+                $invoiceEndDate,
+                $salesCompanyId
+            );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $ordersQuery,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
      * patch order refund status.
      *
      * @param Request $request
@@ -65,7 +247,6 @@ class AdminOrderController extends OrderController
                 'needToRefund' => true,
                 'refunded' => false,
                 'refundProcessed' => true,
-                'payChannel' => ProductOrder::CHANNEL_UNIONPAY,
             ]
         );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -79,20 +260,23 @@ class AdminOrderController extends OrderController
         $form->submit(json_decode($orderJson, true));
 
         $refunded = $order->isRefunded();
+        $channel = $order->getPayChannel();
         $view = new View();
 
         if (!$refunded) {
             return $view;
         }
 
-        $ssn = $order->getRefundSSN();
+        if ($channel == ProductOrder::CHANNEL_UNIONPAY) {
+            $ssn = $order->getRefundSSN();
 
-        if (is_null($ssn) || empty($ssn)) {
-            return $this->customErrorView(
-                400,
-                self::REFUND_SSN_NOT_FOUND_CODE,
-                self::REFUND_SSN_NOT_FOUND_MESSAGE
-            );
+            if (is_null($ssn) || empty($ssn)) {
+                return $this->customErrorView(
+                    400,
+                    self::REFUND_SSN_NOT_FOUND_CODE,
+                    self::REFUND_SSN_NOT_FOUND_MESSAGE
+                );
+            }
         }
 
         $order->setNeedToRefund(false);
@@ -102,6 +286,120 @@ class AdminOrderController extends OrderController
         $em->flush();
 
         return $view;
+    }
+
+    /**
+     * @Route("/orders/{id}/transfer")
+     * @Method({"PATCH"})
+     *
+     * @param Request $request
+     * @param $id
+     */
+    public function patchTransferStatusAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+
+        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
+            [
+                'id' => $id,
+                'payChannel' => ProductOrder::CHANNEL_OFFLINE,
+            ]
+        );
+        if (is_null($order)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $existTransfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+            ->findOneByOrderId($id);
+        $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
+
+        $oldStatus = $existTransfer->getTransferStatus();
+
+        // bind data
+        $transferJson = $this->container->get('serializer')->serialize($existTransfer, 'json');
+        $patch = new Patch($transferJson, $request->getContent());
+        $transferJson = $patch->apply();
+
+        $form = $this->createForm(new OrderOfflineTransferPatch(), $existTransfer);
+        $form->submit(json_decode($transferJson, true));
+
+        $status = $existTransfer->getTransferStatus();
+        $now = new \DateTime();
+
+        switch ($status) {
+            case OrderOfflineTransfer::STATUS_PAID :
+                if ($oldStatus != OrderOfflineTransfer::STATUS_PENDING) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_ORDER_STATUS_CODE,
+                        self::WRONG_ORDER_STATUS_MESSAGE
+                    );
+                }
+
+                $order->setStatus(ProductOrder::STATUS_PAID);
+                $order->setPaymentDate($now);
+                $order->setModificationDate($now);
+
+                break;
+            case OrderOfflineTransfer::STATUS_RETURNED :
+                if ($oldStatus != OrderOfflineTransfer::STATUS_PENDING) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_ORDER_STATUS_CODE,
+                        self::WRONG_ORDER_STATUS_MESSAGE
+                    );
+                }
+
+                break;
+            case OrderOfflineTransfer::STATUS_REJECT_REFUND :
+                if ($oldStatus != OrderOfflineTransfer::STATUS_VERIFY) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_ORDER_STATUS_CODE,
+                        self::WRONG_ORDER_STATUS_MESSAGE
+                    );
+                }
+
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate(new \DateTime());
+                $order->setModificationDate(new \DateTime());
+
+                break;
+            case OrderOfflineTransfer::STATUS_ACCEPT_REFUND :
+                if ($oldStatus != OrderOfflineTransfer::STATUS_VERIFY) {
+                    return $this->customErrorView(
+                        400,
+                        self::WRONG_ORDER_STATUS_CODE,
+                        self::WRONG_ORDER_STATUS_MESSAGE
+                    );
+                }
+
+                $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                $order->setCancelledDate(new \DateTime());
+                $order->setModificationDate(new \DateTime());
+                $price = $order->getDiscountPrice();
+
+                if ($price > 0) {
+                    $order->setNeedToRefund(true);
+                }
+
+                break;
+        }
+
+        $existTransfer->setModificationDate($now);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -864,6 +1162,7 @@ class AdminOrderController extends OrderController
                 AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
                 AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
                 AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+                AdminPermission::KEY_PLATFORM_DASHBOARD,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );

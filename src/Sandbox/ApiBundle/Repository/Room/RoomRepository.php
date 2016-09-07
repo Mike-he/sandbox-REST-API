@@ -549,10 +549,13 @@ class RoomRepository extends EntityRepository
                 v.email,
                 v.phone,
                 o.startDate,
-                o.endDate
+                o.endDate,
+                o.appointed,
+                i.userId as invited_people
             ')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:Order\InvitedPeople', 'i', 'WITH', 'o.id = i.orderId')
             ->leftJoin('SandboxApiBundle:User\UserView', 'v', 'WITH', 'o.userId = v.id')
             ->where('o.startDate <= :now AND o.endDate >= :now')
             ->andWhere('r.id = :roomId')

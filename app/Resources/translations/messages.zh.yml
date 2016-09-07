@@ -31,6 +31,8 @@ room:
     flexible: 共享办公桌
     fixed: 独享办公桌
     studio: 录音棚
+    space: 活动空间
+    video_studio: 演播厅
   unit:
     hour: 小时
     day: 天
@@ -75,6 +77,8 @@ product_order:
     meeting_end: 您的会议室将在10分钟后到期
     studio_start: 您的录音棚将在10分钟后开始使用
     studio_end: 您的录音棚将在10分钟后到期
+    space_start: 您的活动空间将在10分钟后开始使用
+    space_end: 您的活动空间将在10分钟后到期
     flexible_start: 您的共享办公桌将在明天开始使用
     flexible_end: 您的共享办公桌将在明天到期
     fixed_start: 您的独享办公桌将在明天开始使用
@@ -203,6 +207,24 @@ client:
     phone: 绑定手机
     about_us: 关于展想创合
     setting: 设置
+  profile:
+    room_order: 空间订单
+    shop_order: 店铺订单
+    event_order: 活动订单
+  account:
+    invalid_phone_number: 该手机号无效
+    invalid_email_address: 该邮箱无效
+    missing_phone_or_email: 手机号和邮箱不能同时为空
+    account_not_found: 账号不存在
+    account_not_activated: 账号未激活
+    invalid_verification: 该验证无效
+    expired_verification: 该验证已过期
+    invalid_token: 令牌无效
+    expired_token: 令牌过期
+    invalid_password: 密码无效
+    same_password: 新密码与旧密码不能相同
+    phone_number_used: 该手机号已被使用
+    email_already_used: 该邮箱已被使用
 
 event_order:
   status:
@@ -227,3 +249,31 @@ event_order:
     user_phone: 手机
     user_email: 邮箱
     pay_channel: 支付渠道
+
+building:
+  service:
+    free_wifi: 免费WIFI
+    printing_devices: 打印设备
+    tea: 茶水间
+    coffee: 免费咖啡茶水
+    enterprise_incubation: 企业孵化服务
+    register_agent: 注册流程代办
+    cleaning: 清洁服务
+    telephone_booth: 私人电话间
+    meeting_service: 提供会议服务
+    community_manager: 社区经理
+    enterprise_service: 企业服务
+  tag:
+    sandbox3_manage: 创合管理
+    round_the_clock_service: 7×24小时
+    certification_of_incubator: 认证孵化器
+    food_and_beverage: 餐饮配套
+    vip_space: 会员空间
+    fast_preorder: 快速预定
+
+banner:
+  tag:
+    activity: 活动
+    news: 新闻
+    product: 商品
+    advertisement: 广告

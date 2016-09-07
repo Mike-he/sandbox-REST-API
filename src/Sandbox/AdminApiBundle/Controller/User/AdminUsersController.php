@@ -435,6 +435,8 @@ class AdminUsersController extends DoorController
                 AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
                 AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
                 AdminPermission::KEY_PLATFORM_LOG,
+                AdminPermission::KEY_PLATFORM_ADVERTISING,
+                AdminPermission::KEY_PLATFORM_DASHBOARD,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );
@@ -499,6 +501,9 @@ class AdminUsersController extends DoorController
                 AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
                 AdminPermission::KEY_PLATFORM_PRODUCT,
                 AdminPermission::KEY_PLATFORM_LOG,
+                AdminPermission::KEY_PLATFORM_INVOICE,
+                AdminPermission::KEY_PLATFORM_ADVERTISING,
+                AdminPermission::KEY_PLATFORM_DASHBOARD,
             ),
             AdminPermissionMap::OP_LEVEL_VIEW
         );

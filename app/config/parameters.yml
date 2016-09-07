@@ -19,7 +19,7 @@ parameters:
     wechat_public_platform_app_id: wxd0bc8ff918c8e593
     wechat_public_platform_secret: be4ed95443a324b27d19e313ad7dd2e0
     wechat_website_app_id: wx3ada402af6480db0
-    wechat_website_secret: d442eeb84fd02af914e12234bed493b9
+    wechat_website_secret: cb013671b7d43e92ea7df28848053e70
     server_order_id: s
     load_more_limit: 20
     nearby_range_km: 100
@@ -101,3 +101,8 @@ parameters:
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
     rest_api_local_url: localhost.api.rest
+    image_url: http://devimage.sandbox3.cn
+    file_server_url: http://devxmpp.sandbox3.cn/plugins/fileServer/fileservice
+    rest_file_server_url: http://devrest.sandbox3.cn/plugins/fileServer/fileservice
+    mobile_url: http://devm.sandbox3.cn
+    room_mobile_url: http://devmobile.sandbox3.cn

@@ -5,8 +5,9 @@ namespace Sandbox\ApiBundle\Controller\ThirdParty;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\WeChatConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Sandbox\ApiBundle\Entity\ThirdParty\WeChatShare;
+use Sandbox\ApiBundle\Entity\ThirdParty\WeChatShares;
 use Sandbox\ApiBundle\Traits\CurlUtil;
+use Sandbox\ApiBundle\Form\ThirdParty\ThirdPartyWeChatShareType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,59 +43,68 @@ class WeChatShareController extends SandboxRestController
         // check authorization
         $this->checkAuthorization();
 
-        $data = json_decode($request->getContent(), true);
-
-        if (is_null($data) || empty($data) || !array_key_exists('url', $data)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
+        // bind form
+        $weChatShareInput = new WeChatShares();
+        $form = $this->createForm(new ThirdPartyWeChatShareType(), $weChatShareInput);
+        $form->handleRequest($request);
 
         $em = $this->getDoctrine()->getManager();
 
-        $now = new \DateTime('now');
-        $expiresTime = $now->modify('-2 hours');
+        $weChatShare = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ThirdParty\WeChatShares')
+            ->findOneBy(array(
+                'appId' => $weChatShareInput->getAppId(),
+            ));
+
+        if (is_null($weChatShare)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
 
         // get app access token
-        $accessToken = $this->getAccessToken(
-            $em,
-            $expiresTime
-        );
+        $now = new \DateTime('now');
 
-        if (is_null($accessToken)) {
-            return $this->customErrorView(
-                400,
-                self::INVALID_ACCESS_TOKEN_CODE,
-                self::INVALID_ACCESS_TOKEN_MESSAGE
-            );
+        $expiresIn = $weChatShare->getExpiresIn();
+        $appId = $weChatShare->getAppId();
+        $expiresTime = $now->modify('-'.$expiresIn.' seconds');
+        $jsapiTicket = $weChatShare->getJsapiTicket();
+
+        // updat access token
+        if ($weChatShare->getModificationDate() < $expiresTime) {
+            $accessToken = $this->generateAccessTokenByCurl();
+
+            if (is_null($accessToken)) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_ACCESS_TOKEN_CODE,
+                    self::INVALID_ACCESS_TOKEN_MESSAGE
+                );
+            }
+
+            // get jsapi_ticket
+            $jsapiTicket = $this->generateJsApiTicketByCurl($accessToken);
+
+            if (is_null($jsapiTicket)) {
+                return $this->customErrorView(
+                    400,
+                    self::INVALID_JSPAI_TICKET_CODE,
+                    self::INVALID_JSAPI_TICKET_MESSAGE
+                );
+            }
+
+            $weChatShare->setAccessToken($accessToken);
+            $weChatShare->setJsapiTicket($jsapiTicket);
+            $weChatShare->setModificationDate(new \DateTime());
         }
 
-        // get jsapi_ticket
-        $ticket = $this->getJsApiTicket(
-            $em,
-            $expiresTime,
-            $accessToken
-        );
-
-        if (is_null($ticket)) {
-            return $this->customErrorView(
-                400,
-                self::INVALID_JSPAI_TICKET_CODE,
-                self::INVALID_JSAPI_TICKET_MESSAGE
-            );
-        }
-
+        $data['url'] = $weChatShare->getUrl();
         $data['noncestr'] = $this->createNonceStr();
         $data['timestamp'] = time();
-        $data['jsapi_ticket'] = $ticket;
+        $data['jsapi_ticket'] = $jsapiTicket;
 
         // generate signature
         $signature = $this->generateSignature($data);
 
         $em->flush();
-
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        $appId = $globals['wechat_public_platform_app_id'];
 
         return new View(array(
             'appId' => $appId,
@@ -129,66 +139,6 @@ class WeChatShareController extends SandboxRestController
         }
 
         return;
-    }
-
-    /**
-     * @param $em
-     * @param $expiresTime
-     *
-     * @return string
-     */
-    private function getAccessToken(
-        $em,
-        $expiresTime
-    ) {
-        $accessToken = $this->getRepo('ThirdParty\WeChatShare')->findOneByKeyName(self::KEY_ACCESS_TOKEN);
-
-        if (is_null($accessToken)) {
-            $accessToken = new WeChatShare();
-
-            $accessToken->setKeyName(self::KEY_ACCESS_TOKEN);
-            $accessToken->setValue($this->generateAccessTokenByCurl());
-
-            $em->persist($accessToken);
-        }
-
-        if ($accessToken->getModificationDate() < $expiresTime) {
-            $accessToken->setValue($this->generateAccessTokenByCurl());
-            $accessToken->setModificationDate(new \DateTime());
-        }
-
-        return $accessToken->getValue();
-    }
-
-    /**
-     * @param $em
-     * @param $expiresTime
-     * @param $accessToken
-     *
-     * @return string
-     */
-    private function getJsApiTicket(
-        $em,
-        $expiresTime,
-        $accessToken
-    ) {
-        $ticket = $this->getRepo('ThirdParty\WeChatShare')->findOneByKeyName(self::KEY_JSAPI_TICKET);
-
-        if (is_null($ticket)) {
-            $ticket = new WeChatShare();
-
-            $ticket->setKeyName(self::KEY_JSAPI_TICKET);
-            $ticket->setValue($this->generateJsApiTicketByCurl($accessToken));
-
-            $em->persist($ticket);
-        }
-
-        if ($ticket->getModificationDate() < $expiresTime) {
-            $ticket->setValue($this->generateJsApiTicketByCurl($accessToken));
-            $ticket->setModificationDate(new \DateTime());
-        }
-
-        return $ticket->getValue();
     }
 
     /**

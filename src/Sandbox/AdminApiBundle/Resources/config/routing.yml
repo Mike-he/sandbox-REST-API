@@ -124,6 +124,12 @@ sandbox_admin_api_food:
     type:     annotation
     prefix:   /
 
+# Banner Tags /admin/banner/tags
+sandbox_admin_api_banner_tags:
+    resource: "@SandboxAdminApiBundle/Controller/Banner/AdminBannerTagController.php"
+    type:     annotation
+    prefix:   /
+
 # Banners /admin/banners
 sandbox_admin_api_banners:
     resource: "@SandboxAdminApiBundle/Controller/Banner/AdminBannerController.php"
@@ -235,5 +241,17 @@ sandbox_admin_api_bulletins:
 # Logs /admin/logs
 sandbox_admin_api_logs:
     resource: "@SandboxAdminApiBundle/Controller/Log/AdminLogController.php"
+    type:     annotation
+    prefix:   /
+
+# Advertising /admin/advertising
+sandbox_admin_api_advertising:
+    resource: "@SandboxAdminApiBundle/Controller/Advertising/AdminAdvertisingController.php"
+    type:     annotation
+    prefix:   /
+
+# Dashboard /admin/dashboard
+sandbox_admin_api_dashboard:
+    resource: "@SandboxAdminApiBundle/Controller/DashBoard/AdminDashBoardController.php"
     type:     annotation
     prefix:   /

@@ -8,15 +8,16 @@ use Doctrine\ORM\Mapping as ORM;
  * MenuBar.
  *
  * @ORM\Table(name="Menu")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Menu\MenuRepository")
  */
 class Menu
 {
     const COMPONENT_CLIENT = 'client';
     const COMPONENT_ADMIN = 'admin';
 
-    const POSITION_LEFT = 'left';
-    const POSITION_RIGHT = 'right';
+    const POSITION_MAIN = 'main';
+    const POSITION_PROFILE = 'profile';
+    const POSITION_HOME = 'home';
 
     /**
      * @var int
@@ -44,23 +45,37 @@ class Menu
     /**
      * @var string
      *
-     * @ORM\Column(name="version", type="string", length=16)
+     * @ORM\Column(name="minVersion", type="string", length=16)
      */
-    private $version;
+    private $minVersion;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="position", type="string", length=16)
+     * @ORM\Column(name="maxVersion", type="string", length=16)
      */
-    private $position;
+    private $maxVersion;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="menuJson", type="text")
+     * @ORM\Column(name="mainJson", type="text")
      */
-    private $menuJson;
+    private $mainJson;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="profileJson", type="text")
+     */
+    private $profileJson;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="homeJson", type="text")
+     */
+    private $homeJson;
 
     /**
      * Get id.
@@ -121,66 +136,82 @@ class Menu
     }
 
     /**
-     * Set version.
-     *
-     * @param string $version
-     *
-     * @return Menu
+     * @return string
      */
-    public function setVersion($version)
+    public function getMinVersion()
     {
-        $this->version = $version;
-
-        return $this;
+        return $this->minVersion;
     }
 
     /**
-     * Get version.
-     *
-     * @return string
+     * @param string $minVersion
      */
-    public function getVersion()
+    public function setMinVersion($minVersion)
     {
-        return $this->version;
+        $this->minVersion = $minVersion;
     }
 
     /**
      * @return string
      */
-    public function getPosition()
+    public function getMaxVersion()
     {
-        return $this->position;
+        return $this->maxVersion;
     }
 
     /**
-     * @param string $position
+     * @param string $maxVersion
      */
-    public function setPosition($position)
+    public function setMaxVersion($maxVersion)
     {
-        $this->position = $position;
+        $this->maxVersion = $maxVersion;
     }
 
     /**
-     * Set menuJson.
-     *
-     * @param string $menuJson
-     *
-     * @return Menu
-     */
-    public function setMenuJson($menuJson)
-    {
-        $this->menuJson = $menuJson;
-
-        return $this;
-    }
-
-    /**
-     * Get menuJson.
-     *
      * @return string
      */
-    public function getMenuJson()
+    public function getMainJson()
     {
-        return $this->menuJson;
+        return $this->mainJson;
+    }
+
+    /**
+     * @param string $mainJson
+     */
+    public function setMainJson($mainJson)
+    {
+        $this->mainJson = $mainJson;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProfileJson()
+    {
+        return $this->profileJson;
+    }
+
+    /**
+     * @param string $profileJson
+     */
+    public function setProfileJson($profileJson)
+    {
+        $this->profileJson = $profileJson;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHomeJson()
+    {
+        return $this->homeJson;
+    }
+
+    /**
+     * @param string $homeJson
+     */
+    public function setHomeJson($homeJson)
+    {
+        $this->homeJson = $homeJson;
     }
 }

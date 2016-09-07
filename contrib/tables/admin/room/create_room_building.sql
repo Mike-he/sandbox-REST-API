@@ -14,6 +14,7 @@ CREATE TABLE `RoomBuilding` (
   `companyId` int(11) NOT NULL,
   `status` enum('pending','accept','refuse','banned') NOT NULL,
   `isDeleted` tinyint(1) NOT NULL,
+  `orderRemindPhones` varchar(2048) DEFAULT NULL,
   `creationDate` datetime NOT NULL,
   `modificationDate` datetime NOT NULL,
   PRIMARY KEY (`id`),

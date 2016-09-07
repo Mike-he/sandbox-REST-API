@@ -528,7 +528,15 @@ class AdminShopOrderController extends ShopController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_ORDER,
+                AdminPermission::KEY_PLATFORM_DASHBOARD,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         $order = $this->getRepo('Shop\ShopOrder')->find($id);
 

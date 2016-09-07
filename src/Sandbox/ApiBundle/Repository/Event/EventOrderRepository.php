@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Repository\Event;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
+use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 
 class EventOrderRepository extends EntityRepository
 {
@@ -217,6 +218,78 @@ class EventOrderRepository extends EntityRepository
                 $query->andWhere('e.registrationStartDate <= :endDate');
             }
             $query->setParameter('endDate', $endDate);
+        }
+
+        // order by
+        $query->orderBy('eo.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $status
+     * @param $limit
+     * @param $offset
+     * @param $search
+     *
+     * @return array
+     */
+    public function getClientEventOrders(
+        $userId,
+        $status,
+        $limit,
+        $offset,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
+            ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
+            ->where('eo.userId = :userId')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->setParameter('userId', $userId);
+
+        // filter by status
+        if (!is_null($status)) {
+            switch ($status) {
+                case EventOrder::CLIENT_STATUS_IN_PROCESS:
+                    $query->andWhere('
+                            (
+                                eo.status = :unpaid OR
+                                (e.verify = TRUE AND er.userId = :userId AND er.status = :pending AND eo.status = :paid)
+                            )
+                        ')
+                        ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+                        ->setParameter('paid', EventOrder::STATUS_PAID)
+                        ->setParameter('userId', $userId)
+                        ->setParameter('pending', EventRegistration::STATUS_PENDING);
+                    break;
+                case EventOrder::CLIENT_STATUS_PASSED:
+                    $query->andWhere('
+                            (
+                                (e.verify = TRUE AND er.userId = :userId AND (er.status = :accepted OR er.status = :rejected)) OR 
+                                (e.verify = FAlSE AND (eo.status = :paid OR eo.status = :completed))
+                            )
+                        ')
+                        ->setParameter('rejected', EventRegistration::STATUS_REJECTED)
+                        ->setParameter('paid', EventOrder::STATUS_PAID)
+                        ->setParameter('userId', $userId)
+                        ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
+                        ->setParameter('completed', EventOrder::STATUS_COMPLETED);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // filter by search
+        if (!is_null($search)) {
+            $query->andWhere('
+                    e.name LIKE :search OR
+                    eo.orderNumber LIKE :search
+                ')
+                ->setParameter('search', $search.'%');
         }
 
         // order by

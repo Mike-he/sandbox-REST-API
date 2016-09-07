@@ -29,7 +29,7 @@ class SalesCompany
      *
      * @ORM\Column(name="name", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin", "auth", "dropdown", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "admin", "auth", "dropdown", "client", "admin_detail", "client_event"})
      */
     private $name;
 

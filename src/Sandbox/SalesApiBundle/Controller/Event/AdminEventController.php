@@ -313,19 +313,6 @@ class AdminEventController extends SalesRestController
             $submit = true;
         }
 
-        // check charge valid
-        if ($event->isCharge()) {
-            if (is_null($event->getPrice())) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_INVALID_EVENT_PRICE_CODE,
-                    self::ERROR_INVALID_EVENT_PRICE_MESSAGE
-                );
-            }
-        } else {
-            $event->setPrice(null);
-        }
-
         return $this->handleEventPost(
             $event,
             $submit
@@ -892,6 +879,11 @@ class AdminEventController extends SalesRestController
 
         $eventEndDate = $this->getEventEndDate($dates);
 
+        // set price
+        if (!$event->isCharge()) {
+            $event->setPrice(0.00);
+        }
+
         $event->setCity($city);
         $event->setBuildingId($buildingId);
         $event->setRegistrationStartDate($startDate);
@@ -899,6 +891,7 @@ class AdminEventController extends SalesRestController
         $event->setEventStartDate($eventStartDate);
         $event->setEventEndDate($eventEndDate);
         $event->setSalesCompanyId($this->getSalesCompanyId());
+        $event->setIsCharge(true);
         $event->setCreationDate($now);
         $event->setModificationDate($now);
 
@@ -912,7 +905,7 @@ class AdminEventController extends SalesRestController
         }
 
         // no verify if price is set
-        if (!is_null($event->getPrice())) {
+        if (!is_null($event->getPrice()) && $event->getPrice() != 0) {
             $event->setVerify(false);
         }
 

@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -90,6 +91,7 @@ class ClientMembershipOrderController extends PaymentController
         $token = '';
         $smsId = '';
         $smsCode = '';
+        $openId = null;
 
         if (array_key_exists('token_f', $requestContent) && !empty($requestContent['token_f'])) {
             $token = $requestContent['token_f'];
@@ -118,27 +120,24 @@ class ClientMembershipOrderController extends PaymentController
                 self::NO_PRICE_MESSAGE
             );
         }
-        if (
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP &&
-            $channel !== self::PAYMENT_CHANNEL_UPACP_WAP &&
-            $channel !== self::PAYMENT_CHANNEL_ACCOUNT &&
-            $channel !== self::PAYMENT_CHANNEL_WECHAT &&
-            $channel !== self::PAYMENT_CHANNEL_ALIPAY &&
-            $channel !== ProductOrder::CHANNEL_FOREIGN_CREDIT &&
-            $channel !== ProductOrder::CHANNEL_UNION_CREDIT
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_PAYMENT_STATUS_CODE,
-                self::WRONG_PAYMENT_STATUS_MESSAGE
-            );
-        }
+
         if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payMembershipByAccount(
                 $productId,
                 $price
             );
+        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $wechat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $this->getUserId(),
+                        'loginFrom' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($wechat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $wechat->getOpenId();
         }
 
         $orderNumber = $this->getOrderNumber(self::VIP_ORDER_LETTER_HEAD);
@@ -151,7 +150,8 @@ class ClientMembershipOrderController extends PaymentController
             $price,
             $channel,
             self::PAYMENT_SUBJECT,
-            $this->getUserId()
+            $this->getUserId(),
+            $openId
         );
         $charge = json_decode($charge, true);
 

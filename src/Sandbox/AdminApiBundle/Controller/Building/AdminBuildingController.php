@@ -46,6 +46,15 @@ use Doctrine\ORM\EntityManager;
  */
 class AdminBuildingController extends LocationController
 {
+    const DEFAULT_BUILDING_LATITUDE = 31.210792; //zhanxiang latitude
+    const DEFAULT_BUILDING_LONGITUDE = 121.628685; //zhanxiang longitude
+    const DEFAULT_BUILDING_BUSINESS_HOURS = '9:00am - 18:00pm';
+    const DEFAULT_BUILDING_STATUS = 'accept';
+    const DEFAULT_BUILDING_ATTACHMENT_TYPE = 'image/jpg';
+    const DEFAULT_BUILDING_ATTACHMENT_SIZE = 1024;
+    const DEFAULT_ROOM_FLOOR_NUMBER = 1;
+    const DEFAULT_BUILDING_COMPANY_NAME = 'Sandbox3';
+
     /**
      * @Route("/buildings/{id}/sync")
      * @Method({"POST"})
@@ -803,5 +812,144 @@ class AdminBuildingController extends LocationController
             AdminPermission::KEY_PLATFORM_BUILDING,
             $opLevel
         );
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Method({"POST"})
+     * @Route("/generate-buildings")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function generateBuildingAction(
+        Request $request
+    ) {
+        $json = json_decode($request->getContent(), true);
+        $param['sales_company_id'] = $request->query->get('sales_company_id');
+
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($json as $arr) {
+            $existedBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->findOneBy(array(
+                    'name' => $arr['name'],
+                ));
+
+            if (!is_null($existedBuilding)) {
+                continue;
+            }
+
+            $cityName = mb_substr($arr['address'], 0, 2);
+
+            $query = $em->createQuery(
+                "
+                  SELECT rc
+                  FROM SandboxApiBundle:Room\RoomCity rc
+                  WHERE
+                    rc.name LIKE :cityName
+                "
+            )
+            ->setParameter('cityName', '%'.$cityName.'%');
+
+            $city = $query->getOneOrNullResult();
+
+            if (is_null($city)) {
+                continue;
+            }
+
+            $cityId = $city->getId();
+
+            $city = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($cityId);
+            $salesCompany = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                ->find($param['sales_company_id']);
+
+            if (is_null($salesCompany)) {
+                continue;
+            }
+
+            $imageUrl = $this->getParameter('image_url').$arr['avatar'];
+
+            $bd = new RoomBuilding();
+            $bd->setAddress($arr['address']);
+            $bd->setAvatar($imageUrl);
+            $bd->setBusinessHour(self::DEFAULT_BUILDING_BUSINESS_HOURS);
+            $bd->setCity($city);
+            $bd->setDetail($arr['type']);
+            $bd->setName($arr['name']);
+            $bd->setCompany($salesCompany);
+            $bd->setStatus(self::DEFAULT_BUILDING_STATUS);
+            $bd->setCreationDate(new \DateTime('now'));
+            $bd->setModificationDate(new \DateTime('now'));
+
+            $location = $this->syncBuildingLocation($bd->getAddress());
+            if (empty($location)) {
+                $bd->setLat(self::DEFAULT_BUILDING_LATITUDE);
+                $bd->setLng(self::DEFAULT_BUILDING_LONGITUDE);
+            } else {
+                $bd->setLat($location[1]);
+                $bd->setLng($location[0]);
+            }
+
+            $em->persist($bd);
+
+            $rba = new RoomBuildingAttachment();
+            $rba->setAttachmentType(self::DEFAULT_BUILDING_ATTACHMENT_TYPE);
+            $rba->setContent($imageUrl);
+            $rba->setFilename($arr['url']);
+            $rba->setBuilding($bd);
+            $rba->setSize(self::DEFAULT_BUILDING_ATTACHMENT_SIZE);
+            $em->persist($rba);
+
+            $roomFloor = new RoomFloor();
+            $roomFloor->setFloorNumber(self::DEFAULT_ROOM_FLOOR_NUMBER);
+            $roomFloor->setBuilding($bd);
+            $em->persist($roomFloor);
+
+            $buildingCompany = new RoomBuildingCompany();
+            $buildingCompany->setBuilding($bd);
+            $buildingCompany->setName(self::DEFAULT_BUILDING_COMPANY_NAME);
+            $em->persist($buildingCompany);
+        }
+
+        $em->flush();
+    }
+
+    public function syncBuildingLocation(
+        $address
+    ) {
+        $apiURL = 'http://restapi.amap.com/v3/geocode/geo?key=aa4a48297242d22d2b3fd6eddfe62217&s=rsv3&address='.$address;
+        $ch = curl_init($apiURL);
+
+        $result = $this->callAPI(
+            $ch,
+            'GET'
+        );
+
+        if (is_null($result)) {
+            return;
+        }
+
+        $resultArray = json_decode($result, true);
+
+        if (!isset($resultArray['geocodes'][0]['location'])) {
+            return;
+        }
+
+        $resultLocation = $resultArray['geocodes'][0]['location'];
+
+        $location = explode(',', $resultLocation);
+
+        return $location;
     }
 }

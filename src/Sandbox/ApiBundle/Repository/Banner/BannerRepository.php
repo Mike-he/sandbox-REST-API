@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Banner;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
+use Sandbox\ApiBundle\Entity\Banner\Banner;
 
 /**
  * BannerRepository.
@@ -20,11 +21,37 @@ class BannerRepository extends EntityRepository
      *
      * @return array
      */
-    public function getBannerList(
+    public function getAdminBannerList(
         $search = null
     ) {
         $query = $this->createQueryBuilder('b')
             ->orderBy('b.sortTime', 'DESC');
+
+        // search by
+        if (!is_null($search)) {
+            $query = $query->where('b.title LIKE :search OR b.content LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $query = $query->getQuery()->getResult();
+
+        return $query;
+    }
+
+    /**
+     * Get banner list.
+     *
+     * @param string $search
+     *
+     * @return array
+     */
+    public function getClientBannerList(
+        $search = null
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->where('b.source != :blank_block')
+            ->orderBy('b.sortTime', 'DESC')
+            ->setParameter('blank_block', Banner::SOURCE_BLANK_BLOCK);
 
         // search by
         if (!is_null($search)) {
@@ -63,5 +90,26 @@ class BannerRepository extends EntityRepository
             ->getQuery();
 
         return $query->getSingleResult();
+    }
+
+    /**
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getLimitList(
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('b')
+                ->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->orderBy('b.sortTime', 'DESC')
+                ->getQuery();
+
+        $result = $query->getResult();
+
+        return $result;
     }
 }

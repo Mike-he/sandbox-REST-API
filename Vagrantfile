@@ -16,8 +16,9 @@ END
   config.vm.network :forwarded_port, host: 8042, guest: 80 #Apache server
   config.vm.hostname = "sandbox-rest-api.dev"
   config.vm.box_check_update = false
-  config.vm.synced_folder "./", "/vagrant", id: "vagrant-root",
-      owner: "vagrant",
-      group: "www-data",
-      mount_options: ["dmode=775,fmode=764"]
+
+  ## type 'nfs' only for mac, if windows, change it to 'smb'
+  config.vm.synced_folder "./", "/vagrant", type: "nfs"
+  config.vm.network "private_network", ip: "192.168.50.21"
+
 end

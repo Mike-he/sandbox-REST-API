@@ -66,7 +66,6 @@ class AdminBannerController extends BannerController
      *    description="page number "
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="search",
      *    default=null,
@@ -93,13 +92,22 @@ class AdminBannerController extends BannerController
         $pageIndex = $paramFetcher->get('pageIndex');
         $search = $paramFetcher->get('search');
 
-        $query = $this->getRepo('Banner\Banner')->getBannerList(
-            $search
-        );
+        $banners = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->getAdminBannerList(
+                $search
+            );
+
+        foreach ($banners as $banner) {
+            // translate tag name
+            $tagName = $banner->getTag()->getKey();
+            $trans = $this->get('translator')->trans($tagName);
+            $banner->getTag()->setName($trans);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $banners,
             $pageIndex,
             $pageLimit
         );
@@ -220,6 +228,17 @@ class AdminBannerController extends BannerController
         );
         $form->handleRequest($request);
 
+        $tagId = $banner->getTagId();
+        $tag = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\BannerTag')
+            ->find($tagId);
+        if (is_null($tag)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $banner->setTag($tag);
+        $banner->setModificationDate(new \DateTime('now'));
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
@@ -279,8 +298,15 @@ class AdminBannerController extends BannerController
         $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_VIEW);
 
         // get banner
-        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $banner = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->find($id);
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        // translate tag name
+        $tag = $banner->getTag();
+        $trans = $this->container->get('translator')->trans($tag->getKey());
+        $tag->setName($trans);
 
         return new View($banner);
     }
@@ -300,6 +326,17 @@ class AdminBannerController extends BannerController
 
         $source = $banner->getSource();
         $sourceId = $banner->getSourceId();
+
+        $tagId = $banner->getTagId();
+        $tag = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\BannerTag')
+            ->find($tagId);
+        if (is_null($tag)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $banner->setTag($tag);
+
         switch ($source) {
             case Banner::SOURCE_EVENT:
                 $this->setBannerContentForEvent(
@@ -326,6 +363,8 @@ class AdminBannerController extends BannerController
                 $banner->setContent($url);
 
                 break;
+            case Banner::SOURCE_BLANK_BLOCK:
+                break;
             default:
                 return $this->customErrorView(
                     400,
@@ -337,18 +376,20 @@ class AdminBannerController extends BannerController
         }
 
         // check if banner already exists
-        $existBanner = $this->getExistingBanner(
-            $source,
-            $sourceId,
-            $url
-        );
-
-        if (!is_null($existBanner)) {
-            return $this->customErrorView(
-                400,
-                self::BANNER_ALREADY_EXIST_CODE,
-                self::BANNER_ALREADY_EXIST_MESSAGE
+        if ($source != Banner::SOURCE_BLANK_BLOCK) {
+            $existBanner = $this->getExistingBanner(
+                $source,
+                $sourceId,
+                $url
             );
+
+            if (!is_null($existBanner)) {
+                return $this->customErrorView(
+                    400,
+                    self::BANNER_ALREADY_EXIST_CODE,
+                    self::BANNER_ALREADY_EXIST_MESSAGE
+                );
+            }
         }
 
         $em->persist($banner);

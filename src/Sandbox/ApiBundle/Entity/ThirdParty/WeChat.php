@@ -30,6 +30,13 @@ class WeChat
     private $id;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="userId", type="integer", nullable=true)
+     */
+    private $userId;
+
+    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User"))
@@ -95,6 +102,13 @@ class WeChat
     private $authCode;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="loginFrom", type="string", length=64, nullable=true)
+     */
+    private $loginFrom;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -130,6 +144,22 @@ class WeChat
     public function setUser($user)
     {
         $this->user = $user;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param int $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
     }
 
     /**
@@ -258,6 +288,22 @@ class WeChat
     public function setAuthCode($authCode)
     {
         $this->authCode = $authCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLoginFrom()
+    {
+        return $this->loginFrom;
+    }
+
+    /**
+     * @param string $loginFrom
+     */
+    public function setLoginFrom($loginFrom)
+    {
+        $this->loginFrom = $loginFrom;
     }
 
     /**

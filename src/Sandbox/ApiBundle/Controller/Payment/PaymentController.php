@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
@@ -21,11 +22,13 @@ use Pingpp\Charge;
 use Pingpp\Customer;
 use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -43,6 +46,7 @@ class PaymentController extends DoorController
     use StringUtil;
     use DoorAccessTrait;
     use ProductOrderNotification;
+    use YunPianSms;
 
     const STATUS_PAID = 'paid';
     const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
@@ -109,6 +113,36 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    /**
+     * @param $order
+     * @param $channel
+     *
+     * @return View
+     */
+    protected function setOfflineChannel(
+        $order,
+        $channel
+    ) {
+        $order->setPayChannel($channel);
+
+        $transfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+            ->findOneByOrder($order);
+
+        if (!is_null($transfer)) {
+            return new View();
+        }
+
+        $transfer = new OrderOfflineTransfer();
+        $transfer->setOrder($order);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($transfer);
+        $em->flush();
+
+        return new View();
+    }
 
     /**
      * @param $customerId
@@ -435,7 +469,8 @@ class PaymentController extends DoorController
                     $price,
                     $channel,
                     $subject,
-                    $body
+                    $body,
+                    null
                 );
 
                 $charge = json_decode($charge, true);
@@ -613,7 +648,9 @@ class PaymentController extends DoorController
                 $link = $this->getRefundLink($refund);
                 $order->setRefundUrl($link);
             }
-        } elseif (ProductOrder::CHANNEL_UNIONPAY == $channel) {
+        } elseif (ProductOrder::CHANNEL_UNIONPAY == $channel ||
+            ProductOrder::CHANNEL_OFFLINE == $channel
+        ) {
             $order->setRefundProcessed(true);
             $order->setRefundProcessedDate(new \DateTime());
             $order->setModificationDate(new \DateTime());
@@ -715,6 +752,7 @@ class PaymentController extends DoorController
      * @param $channel
      * @param $subject
      * @param $body
+     * @param $openId
      *
      * @return Charge
      */
@@ -726,7 +764,8 @@ class PaymentController extends DoorController
         $price,
         $channel,
         $subject,
-        $body
+        $body,
+        $openId
     ) {
         $extra = [];
         switch ($channel) {
@@ -752,6 +791,12 @@ class PaymentController extends DoorController
                     'source' => $token,
                     'sms_code[id]' => $smsId,
                     'sms_code[code]' => $smsCode,
+                );
+
+                break;
+            case ProductOrder::CHANNEL_WECHAT_PUB:
+                $extra = array(
+                    'open_id' => $openId,
                 );
 
                 break;
@@ -1393,10 +1438,7 @@ class PaymentController extends DoorController
         $order
     ) {
         try {
-            $email = $order->getProduct()->getRoom()->getBuilding()->getEmail();
-            if (is_null($email)) {
-                return;
-            }
+            $building = $order->getProduct()->getRoom()->getBuilding();
 
             $payChannel = $this->get('translator')->trans('product_order.channel.'.$order->getPayChannel());
             if (is_null($payChannel)) {
@@ -1406,8 +1448,10 @@ class PaymentController extends DoorController
             $orderStatus = $order->getStatus();
             if ($orderStatus == ProductOrder::STATUS_PAID) {
                 $title = '新的订单';
+                $txt = '已付款';
             } elseif ($orderStatus == ProductOrder::STATUS_CANCELLED) {
                 $title = '订单取消';
+                $txt = '已取消';
             } else {
                 return;
             }
@@ -1421,22 +1465,46 @@ class PaymentController extends DoorController
             $user = $this->getRepo('User\UserProfile')->find($order->getUserId());
 
             // send email
-            $subject = '【展想创合】'.$title;
-            $this->sendEmail($subject, $email, $this->before('@', $email),
-                'Emails/order_email_notification.html.twig',
-                array(
-                    'title' => $title,
-                    'order' => $order,
-                    'product_info' => $productInfo,
-                    'status' => $status,
-                    'user' => $user,
-                    'pay_channel' => $payChannel,
-                    'room_type' => $roomType,
-                    'unit_price' => $unitPrice,
-                )
-            );
+            if (!is_null($building->getEmail())) {
+                $subject = '【展想创合】'.$title;
+                $emails = explode(',', $building->getEmail());
+                foreach ($emails as $email) {
+                    $this->sendEmail($subject, $email, $this->before('@', $email),
+                        'Emails/order_email_notification.html.twig',
+                        array(
+                            'title' => $title,
+                            'order' => $order,
+                            'product_info' => $productInfo,
+                            'status' => $status,
+                            'user' => $user,
+                            'pay_channel' => $payChannel,
+                            'room_type' => $roomType,
+                            'unit_price' => $unitPrice,
+                        )
+                    );
+                }
+            }
+
+            // send sms
+            if (!is_null($building->getOrderRemindPhones())) {
+                $orderRoom = $order->getProduct()->getRoom();
+                $phoneInfo = $user->getPhone() ? $user->getPhone() : $user->getEmail();
+                $username = $user->getName().'('.$phoneInfo.')';
+                $time_action = $order->getCreationDate()->format('Y/m/d H:i');
+                $orderNumber = $order->getOrderNumber();
+                $product = $orderRoom->getCity()->getName().','.$orderRoom->getBuilding()->getName().','.$orderRoom->getNumber().','.$orderRoom->getName();
+                $rent_time = $order->getStartDate()->format('Y/m/d H:i').' - '.$order->getEndDate()->format('Y/m/d H:i');
+                $payment = $order->getDiscountPrice();
+
+                $smsText = '【展想创合】您有一笔来自'.$username.'于'.$time_action.$txt.'的新订单：'.$orderNumber.'。订单商品为：'.$product.'；租赁时间为：'.$rent_time.'；付款金额为：￥'.$payment;
+
+                $phones = explode(',', $building->getOrderRemindPhones());
+                foreach ($phones as $phone) {
+                    $this->send_sms($phone, $smsText);
+                }
+            }
         } catch (\Exception $e) {
-            error_log('Send order email went wrong!');
+            error_log('Send order email and sms went wrong!');
         }
     }
 }

@@ -39,6 +39,7 @@ class AdminPermission
     const KEY_PLATFORM_ORDER_PREORDER = 'platform.order.preorder';
     const KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY = 'platform.product.appointment';
     const KEY_PLATFORM_LOG = 'platform.log';
+    const KEY_PLATFORM_ADVERTISING = 'platform.advertising';
 
     /**
      * @var int

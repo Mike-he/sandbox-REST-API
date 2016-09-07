@@ -279,6 +279,7 @@ class AdminRoomController extends SalesRestController
 
         $roomIds = $paramFetcher->get('room_id');
         $statusArray = [];
+
         if (!is_null($roomIds) && !empty($roomIds)) {
             foreach ($roomIds as $roomId) {
                 $room = $this->getRepo('Room\Room')->findOneById($roomId);
@@ -289,17 +290,40 @@ class AdminRoomController extends SalesRestController
                 }
 
                 if (!$room->isDeleted()) {
-                    $usage = $this->getRepo('Room\Room')->getSalesRoomUsageStatus($roomId);
+                    $usages = $this->getRepo('Room\Room')->getSalesRoomUsageStatus($roomId);
+                    $user = [];
+                    $appointed = '';
+                    $invited = [];
 
-                    if (!is_null($usage) && !empty($usage)) {
+                    if (!is_null($usages) && !empty($usages)) {
                         $status = true;
+
+                        $userArray = $usages[0];
+                        $user = [
+                            'userId' => $userArray['userId'],
+                            'name' => $userArray['name'],
+                            'phone' => $userArray['phone'],
+                            'startDate' => $userArray['startDate'],
+                            'endDate' => $userArray['endDate'],
+                        ];
+
+                        $appointed = $userArray['appointed'];
                     } else {
                         $status = false;
                     }
+
+                    foreach ($usages as $usage) {
+                        $people = ['userId' => $usage['invited_people']];
+
+                        array_push($invited, $people);
+                    }
+
                     $status = [
                         'room_id' => $roomId,
                         'usage' => $status,
-                        'user' => $usage,
+                        'user' => $user,
+                        'appointed_user' => $appointed,
+                        'invited' => $invited,
                     ];
                     array_push($statusArray, $status);
                 }
@@ -518,41 +542,6 @@ class AdminRoomController extends SalesRestController
         );
 
         return new View($usage);
-    }
-
-    /**
-     * Get rooms types.
-     *
-     * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful created"
-     *  }
-     * )
-     *
-     * @Route("/rooms/types")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getRoomTypes(
-        Request $request
-    ) {
-        $roomKeys = array(Room::TYPE_OFFICE, Room::TYPE_MEETING, Room::TYPE_FLEXIBLE, Room::TYPE_FIXED);
-
-        // get rooms types
-        $roomTypes = array();
-        foreach ($roomKeys as $roomKey) {
-            $roomType = array(
-                'key' => $roomKey,
-                'description' => $this->get('translator')->trans(self::ROOM_TYPE_PREFIX.$roomKey),
-            );
-            array_push($roomTypes, $roomType);
-        }
-
-        return new View($roomTypes);
     }
 
     /**
@@ -1080,7 +1069,9 @@ class AdminRoomController extends SalesRestController
         $type = $room->getType();
 
         // handle meeting rooms
-        if (!is_null($meeting) && ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO)) {
+        if (!is_null($meeting) &&
+            ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE)
+        ) {
             $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneByRoom($room);
             // remove the old data
             if (!is_null($roomMeeting)) {
@@ -1381,6 +1372,27 @@ class AdminRoomController extends SalesRestController
                 $em->persist($roomMeeting);
                 $em->flush();
                 break;
+            case Room::TYPE_SPACE:
+                $format = 'H:i:s';
+
+                $start = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['start_hour']
+                );
+
+                $end = \DateTime::createFromFormat(
+                    $format,
+                    $meeting['end_hour']
+                );
+
+                $roomMeeting = new RoomMeeting();
+                $roomMeeting->setRoom($room);
+                $roomMeeting->setStartHour($start);
+                $roomMeeting->setEndHour($end);
+
+                $em->persist($roomMeeting);
+                $em->flush();
+                break;
             case Room::TYPE_FIXED:
                 foreach ($roomsFixed as $fixed) {
                     $roomFixed = new RoomFixed();
@@ -1490,8 +1502,10 @@ class AdminRoomController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
-        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+        $room = $this->getRepo('Room\Room')->find($id);
+        $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+
+        $products = $this->getRepo('Product\Product')->findBy(['roomId' => $id]);
 
         // check user permission
         $this->checkAdminRoomPermission(
@@ -1499,24 +1513,28 @@ class AdminRoomController extends SalesRestController
             array(
                 SalesAdminPermission::KEY_BUILDING_ROOM,
             ),
-            $product->getRoom()->getBuildingId()
+            $room->getBuildingId()
         );
 
         $yearString = $paramFetcher->get('year');
         $results = [];
-        if (!is_null($product) && !is_null($yearString) && !empty($yearString)) {
-            $productId = $product->getId();
+        if (!is_null($yearString) && !empty($yearString)) {
             $yearStart = new \DateTime($yearString);
             $yearStart = $yearStart->modify('first day of January'.$yearString);
             $yearStart->setTime(0, 0, 0);
             $yearEnd = new \DateTime($yearString);
             $yearEnd = $yearEnd->modify('last day of December'.$yearString);
             $yearEnd->setTime(23, 59, 59);
-            $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
-                $productId,
-                $yearStart,
-                $yearEnd
-            );
+
+            foreach ($products as $product) {
+                $productId = $product->getId();
+
+                $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
+                    $productId,
+                    $yearStart,
+                    $yearEnd
+                );
+            }
         }
 
         $view = new View();
@@ -1678,6 +1696,7 @@ class AdminRoomController extends SalesRestController
                     $endDate = $result->getEndDate();
                     $user = $result->getUser();
                     $appointed = $result->getAppointedUser();
+                    $invited = $result->getInvitedPeople();
                     $days = new \DatePeriod(
                         $startDate,
                         new \DateInterval('P1D'),
@@ -1689,7 +1708,7 @@ class AdminRoomController extends SalesRestController
                             'date' => $day->format('Y-m-d'),
                             'user' => $user,
                             'appointed_user' => $appointed,
-
+                            'invited_people' => $invited,
                         ];
 
                         array_push($resultArray, $dayArray);

@@ -16,6 +16,7 @@ class RoomBuildingPutType extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('subtitle')
             ->add('detail')
             ->add('avatar')
             ->add('city_id')
@@ -54,6 +55,20 @@ class RoomBuildingPutType extends AbstractType
             )
             ->add('building_attachments')
             ->add('building_company')
+            ->add(
+                'order_remind_phones',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
+            ->add(
+                'building_services',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
         ;
     }
 
