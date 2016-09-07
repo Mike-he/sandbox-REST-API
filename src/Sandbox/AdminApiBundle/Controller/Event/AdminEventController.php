@@ -888,8 +888,8 @@ class AdminEventController extends SandboxRestController
             $event->setIsSaved(true);
         }
 
-        // no verify if price is set
-        if (!is_null($event->getPrice())) {
+        // no verify if not free
+        if (!is_null($event->getPrice()) && $event->getPrice() != 0) {
             $event->setVerify(false);
         }
 
