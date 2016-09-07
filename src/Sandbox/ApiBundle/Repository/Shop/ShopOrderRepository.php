@@ -436,7 +436,7 @@ class ShopOrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->where('o.unoriginal = :unoriginal')
             ->andWhere('o.userId = :userId')
-            ->andWhere('
+            ->andWhere('(
                 o.status = :unpaid OR
                 o.status = :paid OR
                 o.status = :issue OR
@@ -446,7 +446,7 @@ class ShopOrderRepository extends EntityRepository
                     o.linkedOrderId IS NOT NULL AND
                     (so.status != :waiting AND so.status != :completed)
                 )
-            ')
+            )')
             ->orderBy('o.modificationDate', 'DESC')
             ->setParameter('unpaid', ShopOrder::STATUS_UNPAID)
             ->setParameter('paid', ShopOrder::STATUS_PAID)
@@ -478,10 +478,10 @@ class ShopOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->where('o.unoriginal = :unoriginal')
             ->andWhere('o.userId = :userId')
-            ->andWhere('
+            ->andWhere('(
                 o.status = :completed OR
                 o.status = :cancelled 
-            ')
+            )')
             ->orderBy('o.modificationDate', 'DESC')
             ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
             ->setParameter('cancelled', ShopOrder::STATUS_CANCELLED)
@@ -510,17 +510,13 @@ class ShopOrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->where('o.unoriginal = :unoriginal')
             ->andWhere('o.userId = :userId')
-            ->andWhere('
+            ->andWhere('(
                 o.status = :refunded OR
-                (
-                    o.status = :waiting AND 
-                    (so.status = :waiting OR so.status = :completed)
-                )
-            ')
+                o.status = :waiting
+            )')
             ->orderBy('o.modificationDate', 'DESC')
             ->setParameter('waiting', ShopOrder::STATUS_TO_BE_REFUNDED)
             ->setParameter('refunded', ShopOrder::STATUS_REFUNDED)
-            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
             ->setParameter('unoriginal', false)
             ->setParameter('userId', $userId)
             ->setFirstResult($offset)
@@ -599,13 +595,13 @@ class ShopOrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->select('count(o.id) as number , SUM(o.refundAmount) as refundAmount')
             ->where('o.unoriginal = :unoriginal')
-            ->andWhere('
+            ->andWhere('(
                 o.status = :refunded OR
                 (
                     o.status = :waiting AND 
                     (so.status = :waiting OR so.status = :completed)
                 )
-            ')
+            )')
             ->andWhere('o.modificationDate >= :start')
             ->andWhere('o.modificationDate <= :end')
             ->setParameter('unoriginal', false)
@@ -759,13 +755,13 @@ class ShopOrderRepository extends EntityRepository
             ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
             ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->where('o.unoriginal = :unoriginal')
-            ->andWhere('
+            ->andWhere('(
                 o.status = :refunded OR
                 (
                     o.status = :waiting AND 
                     (so.status = :waiting OR so.status = :completed)
                 )
-            ')
+            )')
             ->andWhere('o.modificationDate >= :start')
             ->andWhere('o.modificationDate <= :end')
             ->setParameter('unoriginal', false)
@@ -819,13 +815,13 @@ class ShopOrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Shop\ShopOrder', 'so', 'WITH', 'so.id = o.linkedOrderId')
             ->select('COUNT(o)')
             ->where('o.unoriginal = :unoriginal')
-            ->andWhere('
+            ->andWhere('(
                 o.status = :refunded OR
                 (
                     o.status = :waiting AND 
                     (so.status = :waiting OR so.status = :completed)
                 )
-            ')
+            )')
             ->andWhere('o.modificationDate >= :start')
             ->andWhere('o.modificationDate <= :end')
             ->setParameter('unoriginal', false)
