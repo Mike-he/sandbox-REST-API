@@ -36,7 +36,7 @@ class ClientBannerController extends BannerController
     ) {
         $banners = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Banner\Banner')
-            ->getBannerList();
+            ->getClientBannerList();
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_list']));
