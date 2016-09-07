@@ -241,7 +241,15 @@ class AdminEventController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_EVENT,
+                AdminPermission::KEY_PLATFORM_ADVERTISING,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // get an event
         $event = $this->getRepo('Event\Event')->findOneBy(array(

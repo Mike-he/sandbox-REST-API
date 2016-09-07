@@ -176,7 +176,15 @@ class AdminNewsController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            AdminType::KEY_PLATFORM,
+            array(
+                AdminPermission::KEY_PLATFORM_NEWS,
+                AdminPermission::KEY_PLATFORM_ADVERTISING,
+            ),
+            AdminPermissionMap::OP_LEVEL_VIEW
+        );
 
         // get an news
         $news = $this->getRepo('News\News')->findOneBy(array(
