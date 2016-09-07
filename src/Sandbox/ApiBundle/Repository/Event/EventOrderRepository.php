@@ -255,8 +255,10 @@ class EventOrderRepository extends EntityRepository
             switch ($status) {
                 case EventOrder::CLIENT_STATUS_IN_PROCESS:
                     $query->andWhere('
-                            eo.status = :unpaid OR
-                            (e.verify = TRUE AND er.userId = :userId AND er.status = :pending AND eo.status = :paid)
+                            (
+                                eo.status = :unpaid OR
+                                (e.verify = TRUE AND er.userId = :userId AND er.status = :pending AND eo.status = :paid)
+                            )
                         ')
                         ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
                         ->setParameter('paid', EventOrder::STATUS_PAID)
@@ -265,9 +267,12 @@ class EventOrderRepository extends EntityRepository
                     break;
                 case EventOrder::CLIENT_STATUS_PASSED:
                     $query->andWhere('
-                            (e.verify = TRUE AND er.userId = :userId AND er.status = :accepted) OR 
-                            (e.verify = FAlSE AND (eo.status = :paid OR eo.status = :completed))
+                            (
+                                (e.verify = TRUE AND er.userId = :userId AND (er.status = :accepted OR er.status = :rejected)) OR 
+                                (e.verify = FAlSE AND (eo.status = :paid OR eo.status = :completed))
+                            )
                         ')
+                        ->setParameter('rejected', EventRegistration::STATUS_REJECTED)
                         ->setParameter('paid', EventOrder::STATUS_PAID)
                         ->setParameter('userId', $userId)
                         ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
