@@ -925,7 +925,7 @@ class PaymentController extends DoorController
 
         // set door access
         if (!$order->isRejected() && $newStatus == ProductOrder::STATUS_PAID) {
-            $this->setDoorAccessForSingleOrder($order);
+            $this->setDoorAccessForSingleOrder($order, $em);
         }
 
         return $order;
@@ -1058,7 +1058,8 @@ class PaymentController extends DoorController
      * @param ProductOrder $order
      */
     public function setDoorAccessForSingleOrder(
-        $order
+        $order,
+        $em
     ) {
         if ($order->isRejected()) {
             return;
@@ -1084,8 +1085,6 @@ class PaymentController extends DoorController
             return;
         }
 
-        $em = $this->getDoctrine()->getManager();
-
         $userId = $order->getUserId();
         $this->storeDoorAccess(
             $em,
@@ -1094,7 +1093,9 @@ class PaymentController extends DoorController
             $buildingId,
             $roomId
         );
+
         $em->flush();
+
         $result = $this->getCardNoByUser($userId);
         if (
             !is_null($result) &&

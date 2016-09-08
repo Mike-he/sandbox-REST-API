@@ -246,6 +246,7 @@ class AdminOrderController extends OrderController
         Request $request,
         $id
     ) {
+        $em = $this->getDoctrine()->getManager();
         $order = $this->getRepo('Order\ProductOrder')->getOrderByIdAndStatus($id);
 
         if (is_null($order)) {
@@ -368,7 +369,7 @@ class AdminOrderController extends OrderController
             }
 
             // set door access
-            $this->setDoorAccessForSingleOrder($order);
+            $this->setDoorAccessForSingleOrder($order, $em);
 
             // set invoice amount
             if ($order->getStartDate() <= $now) {
@@ -483,7 +484,6 @@ class AdminOrderController extends OrderController
             }
         }
 
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         $this->generateAdminLogs(array(
@@ -1523,7 +1523,7 @@ class AdminOrderController extends OrderController
 
             // set door access
             if (0 == $order->getDiscountPrice()) {
-                $this->setDoorAccessForSingleOrder($order);
+                $this->setDoorAccessForSingleOrder($order, $em);
             }
 
             $this->generateAdminLogs(array(
