@@ -295,7 +295,14 @@ class AdminOrderController extends OrderController
                     ->findOneByOrderId($order->getId());
                 $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
-                $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                $transferStatus = $existTransfer->getTransferStatus();
+                if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+                    $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $order->setCancelledDate(new \DateTime());
+                    $order->setModificationDate(new \DateTime());
+                } else {
+                    $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                }
             } else {
                 $order->setStatus(ProductOrder::STATUS_CANCELLED);
                 $order->setCancelledDate($now);
@@ -414,7 +421,14 @@ class AdminOrderController extends OrderController
                         ->findOneByOrderId($order->getId());
                     $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
-                    $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                    $transferStatus = $existTransfer->getTransferStatus();
+                    if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+                        $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                        $order->setCancelledDate(new \DateTime());
+                        $order->setModificationDate(new \DateTime());
+                    } else {
+                        $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                    }
                 } else {
                     $order->setStatus(ProductOrder::STATUS_CANCELLED);
                     $order->setCancelledDate($now);
