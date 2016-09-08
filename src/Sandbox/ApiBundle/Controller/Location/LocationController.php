@@ -221,7 +221,7 @@ class LocationController extends SalesRestController
         $permissionArray = $paramFetcher->get('permission');
         $platform = $paramFetcher->get('platform');
         $salesCompanyId = $paramFetcher->get('sales_company');
-        $excludeIds = [9];
+        $excludeIds = $paramFetcher->get('exclude_company_id');
 
         $visible = true;
         if (RoomBuilding::PLATFORM_SALES_USER_BUILDING == $platform) {
