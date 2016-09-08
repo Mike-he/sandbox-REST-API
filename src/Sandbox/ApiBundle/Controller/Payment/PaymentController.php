@@ -1462,7 +1462,8 @@ class PaymentController extends DoorController
             $roomType = $this->get('translator')->trans('room.type.'.$order->getProduct()->getRoom()->getType());
             $unitPrice = $this->get('translator')->trans('room.unit.'.$productInfo['unit_price']);
 
-            $user = $this->getRepo('User\UserProfile')->find($order->getUserId());
+            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+            $user = $userProfile->getUser();
 
             // send email
             if (!is_null($building->getEmail())) {
@@ -1489,7 +1490,7 @@ class PaymentController extends DoorController
             if (!is_null($building->getOrderRemindPhones())) {
                 $orderRoom = $order->getProduct()->getRoom();
                 $phoneInfo = $user->getPhone() ? $user->getPhone() : $user->getEmail();
-                $username = $user->getName().'('.$phoneInfo.')';
+                $username = $userProfile->getName().'('.$phoneInfo.')';
                 $time_action = $order->getCreationDate()->format('Y/m/d H:i');
                 $orderNumber = $order->getOrderNumber();
                 $product = $orderRoom->getCity()->getName().','.$orderRoom->getBuilding()->getName().','.$orderRoom->getNumber().','.$orderRoom->getName();
