@@ -187,7 +187,8 @@ trait ProductOrderNotification
         return $this->getNotificationJsonData(
             $receiversArray,
             $contentArray,
-            $messageArray
+            $messageArray,
+            $apns
         );
     }
 
