@@ -727,7 +727,7 @@ class ClientOrderController extends OrderController
 
         // set door access
         if (!$order->isRejected()) {
-            $this->setDoorAccessForSingleOrder($order);
+            $this->setDoorAccessForSingleOrder($order, $em);
         }
 
         $view = new View();
