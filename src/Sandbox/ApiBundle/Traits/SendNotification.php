@@ -97,6 +97,9 @@ trait SendNotification
     ) {
         $jsonDataArray = array('receivers' => $receivers);
 
+        // removed chat message to send push notification only
+        $messageArray = null;
+
         return $this->setJsonDataArrayBody(
             $jsonDataArray,
             $contentArray,
