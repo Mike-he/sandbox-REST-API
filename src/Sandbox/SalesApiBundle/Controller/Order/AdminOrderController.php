@@ -459,6 +459,8 @@ class AdminOrderController extends OrderController
                         }
                     }
 
+                    $em->flush();
+
                     $this->generateAdminLogs(array(
                         'platform' => Log::PLATFORM_SALES,
                         'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
