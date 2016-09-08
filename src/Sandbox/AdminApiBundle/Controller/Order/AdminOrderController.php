@@ -1491,7 +1491,7 @@ class AdminOrderController extends OrderController
 
             // set door access
             if (0 == $order->getDiscountPrice()) {
-                $this->setDoorAccessForSingleOrder($order);
+                $this->setDoorAccessForSingleOrder($order, $em);
             }
 
             $view = new View();

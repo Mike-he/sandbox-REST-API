@@ -246,6 +246,7 @@ class AdminOrderController extends OrderController
         Request $request,
         $id
     ) {
+        $em = $this->getDoctrine()->getManager();
         $order = $this->getRepo('Order\ProductOrder')->getOrderByIdAndStatus($id);
 
         if (is_null($order)) {
@@ -295,7 +296,14 @@ class AdminOrderController extends OrderController
                     ->findOneByOrderId($order->getId());
                 $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
-                $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                $transferStatus = $existTransfer->getTransferStatus();
+                if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+                    $order->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $order->setCancelledDate(new \DateTime());
+                    $order->setModificationDate(new \DateTime());
+                } else {
+                    $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                }
             } else {
                 $order->setStatus(ProductOrder::STATUS_CANCELLED);
                 $order->setCancelledDate($now);
@@ -361,7 +369,7 @@ class AdminOrderController extends OrderController
             }
 
             // set door access
-            $this->setDoorAccessForSingleOrder($order);
+            $this->setDoorAccessForSingleOrder($order, $em);
 
             // set invoice amount
             if ($order->getStartDate() <= $now) {
@@ -404,45 +412,54 @@ class AdminOrderController extends OrderController
                     $order->getId()
                 );
 
-            foreach ($orders as $order) {
-                $status = $order->getStatus();
-                $channel = $order->getPayChannel();
+            foreach ($orders as $rejectedOrder) {
+                $status = $rejectedOrder->getStatus();
+                $channel = $rejectedOrder->getPayChannel();
 
                 if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
                     $existTransfer = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
-                        ->findOneByOrderId($order->getId());
+                        ->findOneByOrderId($rejectedOrder->getId());
                     $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
-                    $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                    $transferStatus = $existTransfer->getTransferStatus();
+                    if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+                        $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
+                        $rejectedOrder->setCancelledDate(new \DateTime());
+                        $rejectedOrder->setModificationDate(new \DateTime());
+                    } else {
+                        $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                    }
                 } else {
-                    $order->setStatus(ProductOrder::STATUS_CANCELLED);
-                    $order->setCancelledDate($now);
-                    $order->setModificationDate($now);
-                    $order->setCancelByUser(true);
+                    $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $rejectedOrder->setCancelledDate($now);
+                    $rejectedOrder->setModificationDate($now);
+                    $rejectedOrder->setCancelByUser(true);
 
                     if ($price > 0) {
-                        $order->setNeedToRefund(true);
+                        $rejectedOrder->setNeedToRefund(true);
 
                         if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
                             $balance = $this->postBalanceChange(
                                 $userId,
                                 $price,
-                                $order->getOrderNumber(),
+                                $rejectedOrder->getOrderNumber(),
                                 self::PAYMENT_CHANNEL_ACCOUNT,
                                 0,
                                 self::ORDER_REFUND
                             );
 
-                            $order->setRefundProcessed(true);
-                            $order->setRefundProcessedDate($now);
+                            $rejectedOrder->setRefundProcessed(true);
+                            $rejectedOrder->setRefundProcessedDate($now);
 
                             if (!is_null($balance)) {
-                                $order->setRefunded(true);
-                                $order->setNeedToRefund(false);
+                                $rejectedOrder->setRefunded(true);
+                                $rejectedOrder->setNeedToRefund(false);
                             }
                         }
                     }
+
+                    $em->flush();
 
                     $this->generateAdminLogs(array(
                         'platform' => Log::PLATFORM_SALES,
@@ -450,7 +467,7 @@ class AdminOrderController extends OrderController
                         'logModule' => Log::MODULE_ROOM_ORDER,
                         'logAction' => Log::ACTION_REJECT,
                         'logObjectKey' => Log::OBJECT_ROOM_ORDER,
-                        'logObjectId' => $order->getId(),
+                        'logObjectId' => $rejectedOrder->getId(),
                         'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
                     ));
                 }
@@ -469,7 +486,6 @@ class AdminOrderController extends OrderController
             }
         }
 
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         $this->generateAdminLogs(array(
@@ -1509,7 +1525,7 @@ class AdminOrderController extends OrderController
 
             // set door access
             if (0 == $order->getDiscountPrice()) {
-                $this->setDoorAccessForSingleOrder($order);
+                $this->setDoorAccessForSingleOrder($order, $em);
             }
 
             $this->generateAdminLogs(array(
