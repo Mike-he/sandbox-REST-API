@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  * Admin.
  *
  * @ORM\Table(
- *      name="Admin",
+ *      name="admin",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"})
  *      }

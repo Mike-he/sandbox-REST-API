@@ -9,7 +9,7 @@ use JsonSerializable;
 /**
  * Food.
  *
- * @ORM\Table(name="Food")
+ * @ORM\Table(name="food")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Food\FoodRepository")
  */
 class Food implements JsonSerializable

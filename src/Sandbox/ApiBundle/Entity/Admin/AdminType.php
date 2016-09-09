@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * AdminType.
  *
  * @ORM\Table(
- *      name="AdminType",
+ *      name="admin_types",
  *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})}
  * )
  * @ORM\Entity

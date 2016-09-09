@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Log.
  *
  * @ORM\Table(
- *     name="Log",
+ *     name="log",
  *     indexes={
  *          @ORM\Index(name="salesCompanyId_idx", columns="salesCompanyId"),
  *          @ORM\Index(name="logModule_idx", columns="logModule")

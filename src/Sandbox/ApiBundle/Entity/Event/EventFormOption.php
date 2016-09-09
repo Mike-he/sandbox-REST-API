@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * EventFormOption.
  *
- * @ORM\Table(name = "EventFormOption")
+ * @ORM\Table(name = "event_form_option")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Event\EventFormOptionRepository")
  */
 class EventFormOption

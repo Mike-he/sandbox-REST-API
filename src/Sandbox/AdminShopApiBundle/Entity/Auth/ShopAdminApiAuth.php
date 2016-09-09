@@ -11,7 +11,7 @@ use Sandbox\ApiBundle\Entity\Shop\ShopAdmin;
  * AdminApiAuth.
  *
  * @ORM\Table(
- *      name="ShopAdminApiAuthView",
+ *      name="shop_admin_api_auth_view",
  *      uniqueConstraints={@ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"})}
  * )
  * @ORM\Entity

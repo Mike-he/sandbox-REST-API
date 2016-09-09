@@ -9,7 +9,7 @@ use JsonSerializable;
 /**
  * FoodForm.
  *
- * @ORM\Table(name="FoodForm")
+ * @ORM\Table(name="food_form")
  * @ORM\Entity
  */
 class FoodForm implements JsonSerializable

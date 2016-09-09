@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * FeedLike.
  *
  * @ORM\Table(
- *  name="FeedLike",
+ *  name="feed_likes",
  *  indexes={
  *      @ORM\Index(name="fk_feedLike_feedId_idx", columns={"feedId"})
  *  })

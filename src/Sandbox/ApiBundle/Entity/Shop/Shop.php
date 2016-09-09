@@ -11,7 +11,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
  * Shop.
  *
  * @ORM\Table(
- *     name="Shop",
+ *     name="shop",
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(name="buildingId_name_UNIQUE", columns={"buildingId", "name"})
  *     }

@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * User Portfolio.
  *
- * @ORM\Table(name="UserPortfolio")
+ * @ORM\Table(name="user_portfolio")
  * @ORM\Entity(
  *     repositoryClass="Sandbox\ApiBundle\Repository\User\UserPortfolioRepository"
  * )

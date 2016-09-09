@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * MenuBar.
  *
- * @ORM\Table(name="Menu")
+ * @ORM\Table(name="menu")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Menu\MenuRepository")
  */
 class Menu

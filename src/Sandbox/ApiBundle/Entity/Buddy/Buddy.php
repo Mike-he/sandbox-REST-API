@@ -9,7 +9,7 @@ use Sandbox\ApiBundle\Entity\User\User;
  * Buddy.
  *
  * @ORM\Table(
- *      name="Buddy",
+ *      name="buddy",
  *      indexes={
  *          @ORM\Index(name="fk_Buddy_userId_idx", columns={"userId"}),
  *          @ORM\Index(name="fk_Buddy_buddyId_idx", columns={"buddyId"})

@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * SalesAdminToken.
  *
  * @ORM\Table(
- *      name="SalesAdminToken",
+ *      name="sales_admin_token",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"}),
  *          @ORM\UniqueConstraint(name="adminId_clientId_UNIQUE", columns={"adminId", "clientId"})

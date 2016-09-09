@@ -9,9 +9,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 /**
  * Product.
  *
- * @ORM\Table(
- *  name="Product"
- * )
+ * @ORM\Table(name="product")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Product\ProductRepository")
  */
 class Product

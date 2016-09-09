@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  * User.
  *
  * @ORM\Table(
- *      name="User",
+ *      name="user",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="xmppUsername_UNIQUE", columns={"xmppUsername"}),
  *          @ORM\UniqueConstraint(name="email_UNIQUE", columns={"email"}),

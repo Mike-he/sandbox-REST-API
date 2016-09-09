@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * AppInfo.
  *
  * @ORM\Table(
- *      name="AppInfo"
+ *      name="app_info"
  * )
  * @ORM\Entity
  */

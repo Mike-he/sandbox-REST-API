@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * RoomDoors.
  *
  * @ORM\Table(
- *  name="RoomDoors",
+ *  name="room_doors",
  *  uniqueConstraints={
  *      @ORM\UniqueConstraint(name="roomId_doorControlId", columns={"roomId", "doorControlId"})
  *  },

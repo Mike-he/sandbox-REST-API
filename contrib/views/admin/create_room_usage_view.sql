@@ -1,11 +1,11 @@
-CREATE VIEW RoomUsageView AS
+CREATE VIEW room_usage_view AS
 SELECT
-    id,
+  id,
 	productId,
 	status,
 	startDate,
 	endDate,
 	userId as user,
 	appointedPerson as appointedUser
-FROM ProductOrder
+FROM product_order
 ;

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * OrderCount.
  *
- * @ORM\Table(name="OrderCount")
+ * @ORM\Table(name="order_count")
  * @ORM\Entity
  */
 class OrderCount

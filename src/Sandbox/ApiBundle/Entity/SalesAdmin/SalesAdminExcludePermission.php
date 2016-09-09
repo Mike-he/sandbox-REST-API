@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * SalesAdminExcludePermission.
  *
  * @ORM\Table(
- *     name="SalesAdminExcludePermission",
+ *     name="sales_admin_exclude_permission",
  *     uniqueConstraints={
  *          @ORM\UniqueConstraint(name="permissionId_companyId_UNIQUE", columns={"permissionId", "salesCompanyId"})
  *      }
