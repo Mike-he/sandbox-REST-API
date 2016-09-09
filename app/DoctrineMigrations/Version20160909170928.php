@@ -165,6 +165,10 @@ class Version20160909170928 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         foreach ($this->tableNames as $oldName => $newName) {
+            $oldName = strtolower($oldName);
+            if ($oldName == $newName) {
+                continue;
+            }
             $this->addSql("RENAME TABLE $oldName TO $newName");
         }
 
