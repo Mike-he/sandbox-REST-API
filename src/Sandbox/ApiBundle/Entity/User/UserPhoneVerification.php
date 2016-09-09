@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Phone verification.
  *
- * @ORM\Table(name="PhoneVerification")
+ * @ORM\Table(name="user_phone_verification")
  * @ORM\Entity
  */
 class UserPhoneVerification

@@ -11,7 +11,7 @@ use Sandbox\ApiBundle\Entity\User\User;
  * ClientApiAuth.
  *
  * @ORM\Table(
- *      name="ClientApiAuthView",
+ *      name="client_api_auth_view",
  *      uniqueConstraints={@ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"})}
  * )
  * @ORM\Entity

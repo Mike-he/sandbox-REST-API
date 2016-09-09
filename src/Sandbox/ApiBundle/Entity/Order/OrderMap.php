@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * OrderMap.
  *
- * @ORM\Table(name="OrderMap")
+ * @ORM\Table(name="order_map")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\OrderMapRepository")
  */
 class OrderMap

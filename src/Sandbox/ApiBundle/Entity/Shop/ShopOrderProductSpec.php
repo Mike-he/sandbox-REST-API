@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * ShopOrderProduct.
  *
  * @ORM\Table(
- *     name="ShopOrderProductSpec",
+ *     name="shop_order_product_spec",
  *     uniqueConstraints={
  *      @ORM\UniqueConstraint(name="specId_productId", columns={"specId", "productId"})
  *     }

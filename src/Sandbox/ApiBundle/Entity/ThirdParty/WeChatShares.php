@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * WeChatShares.
  *
- * @ORM\Table(name="WeChatShares")
+ * @ORM\Table(name="we_chat_shares")
  * @ORM\Entity
  */
 class WeChatShares

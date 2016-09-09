@@ -9,7 +9,7 @@ use Sandbox\ApiBundle\Entity\User\User;
 /**
  * ProductOrder.
  *
- * @ORM\Table(name="ProductOrder")
+ * @ORM\Table(name="product_order")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\OrderRepository")
  */
 class ProductOrder

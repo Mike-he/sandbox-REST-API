@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * EventComment.
  *
  * @ORM\Table(
- *     name="EventComment",
+ *     name="event_comment",
  *     indexes={
  *      @ORM\Index(name="fk_eventComment_eventId_idx", columns={"eventId"})
  *  }

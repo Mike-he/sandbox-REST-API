@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * CompanyIndustryMap.
  *
- * @ORM\Table(name="CompanyIndustryMap", uniqueConstraints={@ORM\UniqueConstraint(name="companyId_industryId_UNIQUE", columns={"companyId", "industryId"})}, indexes={@ORM\Index(name="fk_CompanyIndustryMap_companyId_idx", columns={"companyId"}), @ORM\Index(name="fk_CompanyIndustryMap_industryId_idx", columns={"industryId"})})
+ * @ORM\Table(name="company_industry_map", uniqueConstraints={@ORM\UniqueConstraint(name="companyId_industryId_UNIQUE", columns={"companyId", "industryId"})}, indexes={@ORM\Index(name="fk_CompanyIndustryMap_companyId_idx", columns={"companyId"}), @ORM\Index(name="fk_CompanyIndustryMap_industryId_idx", columns={"industryId"})})
  * @ORM\Entity(
  *      repositoryClass="Sandbox\ApiBundle\Repository\Company\CompanyIndustryMapRepository"
  * )

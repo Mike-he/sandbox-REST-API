@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * Company.
  *
- * @ORM\Table(name="Company", indexes={
+ * @ORM\Table(name="company", indexes={
  *     @ORM\Index(name="fk_company_creatorId_idx",columns={"creatorId"})}
  * )
  * @ORM\Entity(

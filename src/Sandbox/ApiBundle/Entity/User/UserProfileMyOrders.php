@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * User Profile My Orders.
  *
- * @ORM\Table(name="UserProfileMyOrders")
+ * @ORM\Table(name="user_profile_my_orders")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\User\UserProfileMyOrdersRepository")
  */
 class UserProfileMyOrders

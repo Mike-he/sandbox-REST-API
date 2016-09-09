@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * EventOrder.
  *
- * @ORM\Table(name="EventOrder")
+ * @ORM\Table(name="event_order")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Event\EventOrderRepository")
  */
 class EventOrder

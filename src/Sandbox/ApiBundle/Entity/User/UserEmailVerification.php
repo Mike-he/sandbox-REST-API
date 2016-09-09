@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Email verification.
  *
- * @ORM\Table(name="EmailVerification")
+ * @ORM\Table(name="email_verification")
  * @ORM\Entity
  */
 class UserEmailVerification

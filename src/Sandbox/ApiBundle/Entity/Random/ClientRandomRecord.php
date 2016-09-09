@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Client Random Record.
  *
- * @ORM\Table(name="ClientRandomRecord")
+ * @ORM\Table(name="client_random_record")
  * @ORM\Entity
  */
 class ClientRandomRecord

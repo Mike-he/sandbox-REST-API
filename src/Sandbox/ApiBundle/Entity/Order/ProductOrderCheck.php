@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * ProductOrderCheck.
  *
- * @ORM\Table(name="ProductOrderCheck")
+ * @ORM\Table(name="product_order_check")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\OrderCheckRepository")
  */
 class ProductOrderCheck

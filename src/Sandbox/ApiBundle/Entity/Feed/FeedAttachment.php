@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * FeedAttachment.
  *
  * @ORM\Table(
- *  name="FeedAttachment",
+ *  name="feed_attachment",
  *  indexes={
  *      @ORM\Index(name="fk_feedAttachment_feedId_idx", columns={"feedId"})
  *  }

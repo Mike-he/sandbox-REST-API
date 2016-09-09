@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * MembershipOrder.
  *
- * @ORM\Table(name="MembershipOrder")
+ * @ORM\Table(name="membership_order")
  * @ORM\Entity
  */
 class MembershipOrder

@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * EventForm.
  *
- * @ORM\Table(name = "EventForm")
+ * @ORM\Table(name = "event_form")
  * @ORM\Entity
  */
 class EventForm

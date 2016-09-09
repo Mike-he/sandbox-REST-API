@@ -11,7 +11,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
  * RoomBuilding.
  *
  * @ORM\Table(
- *      name="RoomBuilding",
+ *      name="room_building",
  *      indexes={
  *          @ORM\Index(name="fk_Building_cityId_idx", columns={"cityId"})
  *      }

@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
  * ChatGroupMember.
  *
  * @ORM\Table(
- *      name="ChatGroupMember",
+ *      name="chat_group_member",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="chatGroupId_userId_UNIQUE", columns={"chatGroupId", "userId"})
  *      },
