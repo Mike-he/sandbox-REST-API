@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * UserBackground.
  *
  * @ORM\Table(
- *      name="UserBackground"
+ *      name="user_background"
  * )
  * @ORM\Entity
  */

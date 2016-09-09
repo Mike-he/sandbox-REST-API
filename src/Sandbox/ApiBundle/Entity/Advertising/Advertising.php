@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * Advertising.
  *
- * @ORM\Table(name="Advertising")
+ * @ORM\Table(name="advertising")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Advertising\AdvertisingRepository")
  */
 class Advertising

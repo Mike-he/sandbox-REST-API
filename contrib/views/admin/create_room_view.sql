@@ -1,4 +1,4 @@
-CREATE VIEW RoomView AS
+CREATE VIEW room_view AS
 SELECT
 	r.*,
 	o.status,
@@ -7,9 +7,9 @@ SELECT
 	up.userId as renterId,
 	up.name as renterName,
 	up.email as renterEmail
-FROM Room r
-JOIN RoomFloor rf ON rf.id = r.floorId
-LEFT JOIN Product p ON r.id = p.roomId
-LEFT JOIN ProductOrder o ON p.id = o.productId
-LEFT JOIN UserProfile up ON o.userId = up.userId
+FROM room r
+JOIN room_floor rf ON rf.id = r.floorId
+LEFT JOIN product p ON r.id = p.roomId
+LEFT JOIN product_order o ON p.id = o.productId
+LEFT JOIN user_profiles up ON o.userId = up.userId
 ;

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * TopUpOrder.
  *
- * @ORM\Table(name="TopUpOrder")
+ * @ORM\Table(name="top_up_order")
  * @ORM\Entity
  */
 class TopUpOrder

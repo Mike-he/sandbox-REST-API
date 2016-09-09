@@ -8,7 +8,7 @@ use JsonSerializable;
 /**
  * FoodItemOption.
  *
- * @ORM\Table()
+ * @ORM\Table(name="food_item_option")
  * @ORM\Entity
  */
 class FoodItemOption implements JsonSerializable

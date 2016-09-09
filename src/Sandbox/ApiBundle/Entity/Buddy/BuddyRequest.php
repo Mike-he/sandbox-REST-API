@@ -9,7 +9,7 @@ use Sandbox\ApiBundle\Entity\User\User;
  * BuddyRequest.
  *
  * @ORM\Table(
- *      name="BuddyRequest",
+ *      name="buddy_request",
  *      indexes={
  *          @ORM\Index(name="fk_BuddyRequest_askUserId_idx", columns={"askUserId"}),
  *          @ORM\Index(name="fk_BuddyRequest_recvUserId_idx", columns={"recvUserId"})

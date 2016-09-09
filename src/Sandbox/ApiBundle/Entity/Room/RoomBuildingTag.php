@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * RoomBuildingTag.
  *
- * @ORM\Table(name="RoomBuildingTag")
+ * @ORM\Table(name="room_building_tag")
  * @ORM\Entity
  */
 class RoomBuildingTag

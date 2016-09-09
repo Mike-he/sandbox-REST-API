@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * AdminPermission.
  *
  * @ORM\Table(
- *      name="SalesAdminPermission",
+ *      name="sales_admin_permission",
  *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})},
  *      indexes={@ORM\Index(name="fk_AdminPermission_typeId_idx", columns={"typeId"})}
  * )

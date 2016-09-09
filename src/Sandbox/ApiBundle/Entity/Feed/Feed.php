@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Feed.
  *
- * @ORM\Table(name="Feed")
+ * @ORM\Table(name="feed")
  * @ORM\Entity
  */
 class Feed

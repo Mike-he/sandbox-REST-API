@@ -1,4 +1,4 @@
-CREATE VIEW UserView AS
+CREATE VIEW user_view AS
 SELECT
        u.id,
        u.phone,
@@ -12,6 +12,6 @@ SELECT
        up.name,
 	     up.gender,
 	     u.creationDate as userRegistrationDate
-FROM User u
-LEFT JOIN UserProfile up ON u.id = up.userId
+FROM user u
+LEFT JOIN user_profiles up ON u.id = up.userId
 ;

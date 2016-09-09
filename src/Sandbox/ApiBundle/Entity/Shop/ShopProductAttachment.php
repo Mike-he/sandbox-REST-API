@@ -9,7 +9,7 @@ use JsonSerializable;
 /**
  * ShopProductAttachment.
  *
- * @ORM\Table(name="ShopProductAttachment")
+ * @ORM\Table(name="shop_product_attachment")
  * @ORM\Entity
  */
 class ShopProductAttachment implements JsonSerializable

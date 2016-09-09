@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * UserToken.
  *
  * @ORM\Table(
- *      name="UserToken",
+ *      name="user_token",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="token_UNIQUE", columns={"token"}),
  *          @ORM\UniqueConstraint(name="userId_clientId_UNIQUE", columns={"userId", "clientId"}),

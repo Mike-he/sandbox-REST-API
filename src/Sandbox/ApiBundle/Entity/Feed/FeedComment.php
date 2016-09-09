@@ -10,7 +10,7 @@ use Sandbox\ApiBundle\Entity\User\User;
  * FeedComment.
  *
  * @ORM\Table(
- *  name="FeedComment",
+ *  name="feed_comment",
  *  indexes={
  *      @ORM\Index(name="fk_feedComment_feedId_idx", columns={"feedId"})
  *  }

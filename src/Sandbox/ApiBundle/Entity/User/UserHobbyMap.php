@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * User Hobby Map.
  *
  * @ORM\Table(
- *      name="UserHobbyMap",
+ *      name="user_hobby_map",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(
  *              name="userId_hobbyId_UNIQUE",

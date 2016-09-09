@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * OrderOfflineTransfer.
  *
- * @ORM\Table(name="OrderOfflineTransfer")
+ * @ORM\Table(name="order_offline_transfer")
  * @ORM\Entity
  */
 class OrderOfflineTransfer

@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * AdminPermissionMap.
  *
  * @ORM\Table(
- *      name="ShopAdminPermissionMap",
+ *      name="shop_admin_permission_map",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="adminId_permissionId_shopId_UNIQUE", columns={"adminId", "permissionId", "shopId"})
  *      },

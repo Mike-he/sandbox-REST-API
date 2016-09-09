@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * ShopSpecItem.
  *
- * @ORM\Table(name="ShopSpecItem")
+ * @ORM\Table(name="shop_spec_item")
  * @ORM\Entity
  */
 class ShopSpecItem implements JsonSerializable

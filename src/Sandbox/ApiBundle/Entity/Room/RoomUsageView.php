@@ -9,7 +9,7 @@ use Sandbox\ApiBundle\Entity\Order\InvitedPeople;
 /**
  * RoomUsageView.
  *
- * @ORM\Table(name="RoomUsageView")
+ * @ORM\Table(name="room_usage_view")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomUsageViewRepository")
  */
 class RoomUsageView

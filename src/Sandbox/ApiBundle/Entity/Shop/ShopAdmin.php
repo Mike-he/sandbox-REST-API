@@ -12,7 +12,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
  * Admin.
  *
  * @ORM\Table(
- *      name="ShopAdmin",
+ *      name="shop_admin",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"})
  *      }

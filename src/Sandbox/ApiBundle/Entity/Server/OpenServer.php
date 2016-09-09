@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * OpenServer.
  *
- * @ORM\Table(name="OpenServer")
+ * @ORM\Table(name="open_server")
  * @ORM\Entity
  */
 class OpenServer

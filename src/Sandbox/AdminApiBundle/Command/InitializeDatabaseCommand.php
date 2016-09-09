@@ -8,7 +8,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InitializeDatabaseCommand extends ContainerAwareCommand
 {
-
     protected function configure()
     {
         $this->setName('sandbox:api-bundle:initialize:database')
@@ -26,6 +25,5 @@ class InitializeDatabaseCommand extends ContainerAwareCommand
         $em->flush();
 
         $output->writeln('Initial Success!');
-
     }
 }

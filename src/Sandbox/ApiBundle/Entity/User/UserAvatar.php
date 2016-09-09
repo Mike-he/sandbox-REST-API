@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * UserAvatar.
  *
  * @ORM\Table(
- *      name="UserAvatar"
+ *      name="user_avatar"
  * )
  * @ORM\Entity
  */
