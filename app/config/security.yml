@@ -58,6 +58,7 @@ security:
             stateless:  true
 
     access_control:
+        - { path: ^/rooms/types$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
