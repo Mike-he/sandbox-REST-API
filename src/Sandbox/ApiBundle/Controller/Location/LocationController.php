@@ -223,9 +223,14 @@ class LocationController extends SalesRestController
         $salesCompanyId = $paramFetcher->get('sales_company');
         $excludeIds = [9];
 
+        if (RoomBuilding::PLATFORM_BACKEND_USER_BUILDING == $platform) {
+            $excludeIds = null;
+        }
+
         $visible = true;
         if (RoomBuilding::PLATFORM_SALES_USER_BUILDING == $platform) {
             $visible = null;
+            $excludeIds = null;
         }
 
         // get all buildings
