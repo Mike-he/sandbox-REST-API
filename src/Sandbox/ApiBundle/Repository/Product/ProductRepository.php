@@ -14,6 +14,45 @@ use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 class ProductRepository extends EntityRepository
 {
     /**
+     * @param $lat
+     * @param $lng
+     * @param $productIds
+     *
+     * @return array
+     */
+    public function productSortByNearestBuilding(
+        $lat,
+        $lng,
+        $productIds
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('
+                p,
+                (
+                    6371
+                    * acos(cos(radians(:latitude)) * cos(radians(b.lat))
+                    * cos(radians(b.lng) - radians(:longitude))
+                    + sin(radians(:latitude)) * sin(radians(b.lat)))
+                ) as HIDDEN distance
+            ')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+            ->where('p.id IN (:productIds)')
+            ->andWhere('b.status = :accept')
+            ->andWhere('b.visible = TRUE')
+            ->andWhere('b.isDeleted = FALSE')
+            ->setParameter('productIds', $productIds)
+            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT)
+            ->setParameter('latitude', $lat)
+            ->setParameter('longitude', $lng)
+            ->orderBy('distance', 'ASC')
+            ->orderBy('p.creationDate', 'DESC')
+        ;
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param $userId
      * @param $cityId
      * @param $buildingId

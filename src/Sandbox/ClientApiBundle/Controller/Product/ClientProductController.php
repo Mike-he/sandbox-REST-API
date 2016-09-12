@@ -107,6 +107,26 @@ class ClientProductController extends ProductController
      *    description="exclude_company_id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="lat",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="coordinate lat"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lng",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="coordinate lng"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -132,6 +152,8 @@ class ClientProductController extends ProductController
         $type = $paramFetcher->get('type');
         $includeIds = $paramFetcher->get('include_company_id');
         $excludeIds = $paramFetcher->get('exclude_company_id');
+        $lat = $paramFetcher->get('lat');
+        $lng = $paramFetcher->get('lng');
 
         $startTime = null;
         $endTime = null;
@@ -219,9 +241,22 @@ class ClientProductController extends ProductController
             );
         }
 
-        foreach ($productIds as $productId) {
-            $product = $this->getRepo('Product\Product')->find($productId);
-            array_push($products, $product);
+        if (!is_null($lat) &&
+            !is_null($lng) &&
+            !empty($lat) &&
+            !empty($lng) &&
+            (is_null($buildingId) || empty($buildingId))
+        ) {
+            $products = $this->getRepo('Product\Product')->productSortByNearestBuilding(
+                $lat,
+                $lng,
+                $productIds
+            );
+        } else {
+            foreach ($productIds as $productId) {
+                $product = $this->getRepo('Product\Product')->find($productId);
+                array_push($products, $product);
+            }
         }
 
         $view = new View();
