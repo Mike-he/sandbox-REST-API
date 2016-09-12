@@ -5,9 +5,13 @@ CREATE TABLE `Feature` (
   PRIMARY KEY (`id`)
 );
 
-INSERT INTO Feature(`name`,`ready`) VALUES('food', false);
-INSERT INTO Feature(`name`,`ready`) VALUES('print', false);
-INSERT INTO Feature(`name`,`ready`) VALUES('coffee', false);
-INSERT INTO Feature(`name`,`type`,`url`,`ready`) VALUES('coffee', 'web', 'https://cafe.sandbox3.cn', false);
-INSERT INTO `Feature` (`name`, `type`, `url`, `ready`) VALUES ('xiehe_about', 'web', 'https://testmobile.sandbox3.cn/about-xiehe', '1');
-INSERT INTO `Feature` (`name`, `type`, `url`, `ready`) VALUES ('xiehe_main', 'web', 'https://testmobile.sandbox3.cn/search-xiehe', '1');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (1,'food','web','https://testcoffee.sandbox3.cn/',1,'sandbox');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (2,'print','web','https://testprint.sandbox3.cn/',0,'sandbox');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (3,'coffee','web','https://testcoffee.sandbox3.cn/',1,'sandbox');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (4,'forward','web','https://testcafe.sandbox3.cn',1,'sandbox');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (5,'news','web','https://testm.sandbox3.cn/news',1,'sandbox');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (6,'event','web','https://testm.sandbox3.cn/event',1,'sandbox');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (7,'reservation','web','https://testmobile.sandbox3.cn/search',1,'sandbox');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (8,'invoice','web','https://testinvoice.sandbox3.cn/invoice',1,'sandbox');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (9,'about','web','https://testmobile.sandbox3.cn/about-xiehe',1,'xiehe');
+INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`) VALUES (10,'reservation','web','https://testmobile.sandbox3.cn/search-xiehe',1,'xiehe');
