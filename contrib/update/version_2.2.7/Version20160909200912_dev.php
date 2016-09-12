@@ -57,7 +57,7 @@ class Version20160909200912_dev extends AbstractMigration
 
         $this->addSql("
             INSERT INTO `advertising` (`url`,`source`,`sourceId`,`visible`,`isSaved`,`isDefault`,`creationDate`,`modificationDate`)
-            VALUES ('','url','',1,0,1,'2016-08-19 15:19:34','2016-08-19 15:19:34');
+            VALUES ('','url',null,1,0,1,'2016-08-19 15:19:34','2016-08-19 15:19:34');
         ");
 
         $this->addSql("
@@ -235,9 +235,9 @@ class Version20160909200912_dev extends AbstractMigration
         ");
 
         $this->addSql("
-            INSERT INTO app_info(`platform`,`version`,`url`,`date`)
-            VALUES('ios','1.0','itms-services://?action=download-manifest&url=https://testgitcafe.com/kiddx/sandbox/raw/master/production.plist','2015-10-10'),
-                  ('android','1.0','http://www.gobeta.com.cn/sandbox/SandBox_pro.apk','2015-10-10');
+            INSERT INTO app_info(`platform`,`version`,`url`,`date`,`environment`,`copyrightYear`)
+            VALUES('ios','2.2.4','https://itunes.apple.com/cn/app/sandbox3-chuang-he-she-qu/id1015843788?l=en&mt=8','2016-04-20','production','2016'),
+                  ('android','2.2.4','http://download.sandbox3.cn/Sandbox3.apk','2016-04-20','production','2016');
         ");
 
         $this->addSql("
