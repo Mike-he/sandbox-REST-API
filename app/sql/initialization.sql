@@ -497,3 +497,5 @@ INSERT INTO `user_profile_my_orders` (`name`, `icon`, `url`)
 VALUES('room_order', 'https://image.sandbox3.cn/icon/profile_orders_room_order.png', 'https://orders.sandbox3.cn/room'),
       ('shop_order', 'https://image.sandbox3.cn/icon/profile_orders_shop_order.png', 'https://orders.sandbox3.cn/shop'),
       ('event_order', 'https://image.sandbox3.cn/icon/profile_orders_event_order.png', 'https://orders.sandbox3.cn/event');
+
+INSERT INTO `parameter` (`key`, `value`) VALUES ('banner_top', '5');

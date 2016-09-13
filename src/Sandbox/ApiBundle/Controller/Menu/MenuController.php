@@ -241,6 +241,9 @@ class MenuController extends SandboxRestController
     private function generateHomeJson(
         $menuJson
     ) {
+        $bannerTop = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => 'banner_top'));
         $menuArray = json_decode($menuJson, true);
         $bannerCarouselMenu = array();
         $iconsMenu = array();
@@ -250,7 +253,7 @@ class MenuController extends SandboxRestController
                 case 'bannerCarousel':
                     $items = $menu['items'];
                     if (!empty($menu['hidden_asserts'])) {
-                        $items = $this->handleBannerCarousel($items, $menu['hidden_asserts']);
+                        $items = $this->handleBannerCarousel($items, $menu['hidden_asserts'], $bannerTop);
                     }
                     $bannerCarouselMenu = array(
                         'type' => 'bannerCarousel',
@@ -272,7 +275,7 @@ class MenuController extends SandboxRestController
                         foreach ($menu['hidden_asserts'] as $assert) {
                             $item_key = $assert['item_key'];
                             $limit = $assert['limit'];
-                            $offset = (($assert['offset'] - 1) * $limit) + 5;
+                            $offset = (($assert['offset'] - 1) * $limit) + $bannerTop->getValue();
                             $bannerMenu = $this->handleBanner($item_key, $limit, $offset);
                         }
                     }
@@ -290,17 +293,19 @@ class MenuController extends SandboxRestController
     /**
      * @param $items
      * @param $asserts
+     * @param $bannerTop
      *
      * @return array
      */
     private function handleBannerCarousel(
         $items,
-        $asserts
+        $asserts,
+        $bannerTop
     ) {
         foreach ($asserts as $assert) {
             $item_key = $assert['item_key'];
-            $limit = $assert['limit'];
-            $offset = ($assert['offset'] - 1) * $limit;
+            $limit = $bannerTop->getValue();
+            $offset = 0;
             switch ($item_key) {
                 case 'banner':
                     $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);

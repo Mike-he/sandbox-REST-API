@@ -123,3 +123,9 @@ sandbox_api_building:
     resource: "@SandboxApiBundle/Controller/Building/BuildingController.php"
     type:     annotation
     prefix:   /
+
+# Parameter /parameter
+sandbox_api_parameter:
+    resource: "@SandboxApiBundle/Controller/Parameter/ParameterController.php"
+    type:     annotation
+    prefix:   /
