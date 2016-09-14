@@ -74,9 +74,9 @@ class ShopProductRepository extends EntityRepository
      */
     public function getShopProductsByShopId(
         $shopId,
-        $menuId = null,
-        $online = null,
-        $search = null,
+        $menuId,
+        $online,
+        $search,
         $limit,
         $offset
     ) {

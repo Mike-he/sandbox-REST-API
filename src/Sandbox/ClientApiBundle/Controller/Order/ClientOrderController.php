@@ -183,7 +183,7 @@ class ClientOrderController extends OrderController
         $orders = [];
 
         switch ($status) {
-            case ProductOrder::COMBINE_STATUS_PENDING :
+            case ProductOrder::COMBINE_STATUS_PENDING:
                 $orders = $this->getRepo('Order\ProductOrder')->getUserPendingOrders(
                     $userId,
                     $limit,
@@ -191,7 +191,7 @@ class ClientOrderController extends OrderController
                 );
 
                 break;
-            case ProductOrder::STATUS_COMPLETED :
+            case ProductOrder::STATUS_COMPLETED:
                 $orders = $this->getRepo('Order\ProductOrder')->getUserCompletedOrders(
                     $userId,
                     $limit,
@@ -199,7 +199,7 @@ class ClientOrderController extends OrderController
                 );
 
                 break;
-            case ProductOrder::COMBINE_STATUS_REFUND :
+            case ProductOrder::COMBINE_STATUS_REFUND:
                 $orders = $this->getRepo('Order\ProductOrder')->getUserRefundOrders(
                     $userId,
                     $limit,
@@ -1448,25 +1448,25 @@ class ClientOrderController extends OrderController
 
                 // removed for preorder
 //                $start = $order->getStartDate();
-//
+
 //                if ($start > $now) {
 //                    $remainingTime = $start->diff($creationTime);
 //                    $days = $remainingTime->d;
-//
+
 //                    if ($days > 0) {
 //                        $endTime = clone $creationTime;
 //                        $endTime->modify($modifyTime);
-//
+
 //                        $remainingTime = $endTime->diff($now);
 //                        $hours = $remainingTime->h;
 //                        $minutes = $remainingTime->i;
 //                        $seconds = $remainingTime->s;
-//
+
 //                        if ($now >= $endTime) {
 //                            $hours = 0;
 //                            $minutes = 0;
 //                            $seconds = 0;
-//
+
 //                            $this->setOrderStatusCancelled($order, $now);
 //                        }
 //                    } else {
@@ -1479,14 +1479,14 @@ class ClientOrderController extends OrderController
 //                    $remainingTime = $now->diff($creationTime);
 //                    $minutes = $remainingTime->i;
 //                    $seconds = $remainingTime->s;
-//
+
 //                    $minutes = 4 - $minutes;
 //                    $seconds = 59 - $seconds;
-//
+
 //                    if ($minutes < 0) {
 //                        $minutes = 0;
 //                        $seconds = 0;
-//
+
 //                        $this->setOrderStatusCancelled($order, $now);
 //                    }
 //                }

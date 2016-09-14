@@ -902,9 +902,6 @@ class SandboxRestController extends FOSRestController
         return $error;
     }
 
-    /**
-     *
-     */
     private function _throwHttpErrorIfNull(
         $item,
         $exception
@@ -926,9 +923,6 @@ class SandboxRestController extends FOSRestController
         );
     }
 
-    /**
-     *
-     */
     protected function throwAccessDeniedIfNull(
         $item
     ) {

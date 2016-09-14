@@ -57,7 +57,7 @@ class ShopCartController extends ShopRestController
 
         // check shop opening hours
         $now = new \DateTime();
-        if ($now < $shop->getStartHour()  || $now >= $shop->getEndHour()) {
+        if ($now < $shop->getStartHour() || $now >= $shop->getEndHour()) {
             return $this->customErrorView(
                 400,
                 Shop::CLOSED_CODE,

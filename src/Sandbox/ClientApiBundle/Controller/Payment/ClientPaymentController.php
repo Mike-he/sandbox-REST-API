@@ -126,7 +126,7 @@ class ClientPaymentController extends PaymentController
 //                    $channel,
 //                    $price
 //                );
-//
+
 //                break;
             case 'T':
                 $this->setTopUpOrder(
@@ -158,9 +158,9 @@ class ClientPaymentController extends PaymentController
 //                    $chargeId,
 //                    true
 //                );
-//
+
 //                $result = $this->foodPaymentCallback($data);
-//
+
 //                $amount = $this->postConsumeBalance(
 //                    $userId,
 //                    $price,
@@ -173,7 +173,7 @@ class ClientPaymentController extends PaymentController
 //                    $channel,
 //                    $price
 //                );
-//
+
 //                break;
             case 'S':
                 $order = $this->setShopOrderStatus(

@@ -523,7 +523,7 @@ class OrderRepository extends EntityRepository
      */
     public function getAdminNotInvoicedOrders(
         $type,
-        $buildingId = null,
+        $buildingId,
         $orderStartDate,
         $orderEndDate,
         $payStartDate,
@@ -1924,7 +1924,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id');
 
         switch ($status) {
-            case ProductOrder::STATUS_PAID :
+            case ProductOrder::STATUS_PAID:
                 $query->where('o.status = :paid')
                     ->andWhere('o.paymentDate >= :start')
                     ->andWhere('o.paymentDate <= :end')
@@ -1932,7 +1932,7 @@ class OrderRepository extends EntityRepository
                     ->setParameter('start', $startDate)
                     ->setParameter('end', $endDate);
                 break;
-            case ProductOrder::STATUS_COMPLETED :
+            case ProductOrder::STATUS_COMPLETED:
                 $query->where('o.status = :completed')
                     ->andWhere('o.startDate >= :start')
                     ->andWhere('o.startDate <= :end')
@@ -1940,7 +1940,7 @@ class OrderRepository extends EntityRepository
                     ->setParameter('start', $startDate)
                     ->setParameter('end', $endDate);
                 break;
-            case ProductOrder::STATUS_CANCELLED :
+            case ProductOrder::STATUS_CANCELLED:
                 $query->where('o.status = :cancelled')
                     ->andWhere('
                         (o.needToRefund = :needToRefund OR
@@ -2003,7 +2003,7 @@ class OrderRepository extends EntityRepository
             ->select('COUNT(o)');
 
         switch ($status) {
-           case ProductOrder::STATUS_PAID :
+           case ProductOrder::STATUS_PAID:
                $query->where('o.status = :paid')
                    ->andWhere('o.paymentDate >= :start')
                    ->andWhere('o.paymentDate <= :end')
@@ -2011,7 +2011,7 @@ class OrderRepository extends EntityRepository
                    ->setParameter('start', $startDate)
                    ->setParameter('end', $endDate);
                break;
-           case ProductOrder::STATUS_COMPLETED :
+           case ProductOrder::STATUS_COMPLETED:
                $query->where('o.status = :completed')
                    ->andWhere('o.startDate >= :start')
                    ->andWhere('o.startDate <= :end')
@@ -2019,7 +2019,7 @@ class OrderRepository extends EntityRepository
                    ->setParameter('start', $startDate)
                    ->setParameter('end', $endDate);
                break;
-           case ProductOrder::STATUS_CANCELLED :
+           case ProductOrder::STATUS_CANCELLED:
                $query->where('o.status = :cancelled')
                    ->andWhere('
                         (o.needToRefund = :needToRefund OR

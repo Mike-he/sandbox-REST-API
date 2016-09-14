@@ -280,7 +280,7 @@ class MenuController extends SandboxRestController
                         }
                     }
                     break;
-                default;
+                default:
             }
         }
         $newMenuArray = array($bannerCarouselMenu, $iconsMenu);
@@ -478,7 +478,7 @@ class MenuController extends SandboxRestController
 //        $component = $paramFetcher->get('component');
 //        $platform = $paramFetcher->get('platform');
 //        $version = $paramFetcher->get('version');
-//
+
 //        $menus = $this->getRepo('Menu\Menu')->findBy(
 //            array(
 //                'component' => $component,
@@ -487,13 +487,13 @@ class MenuController extends SandboxRestController
 //            ),
 //            array('section' => 'ASC')
 //        );
-//
+
 //        $menuResponse = array();
-//
+
 //        if ($component === Menu::COMPONENT_CLIENT) {
 //            $leftMenuArray = array();
 //            $rightMenuArray = array();
-//
+
 //            foreach ($menus as $menu) {
 //                if ($menu->getPosition() === Menu::POSITION_LEFT) {
 //                    array_push($leftMenuArray, $menu);
@@ -501,14 +501,14 @@ class MenuController extends SandboxRestController
 //                    array_push($rightMenuArray, $menu);
 //                }
 //            }
-//
+
 //            $menuResponse['left_menus'] = $this->setClientMenus($leftMenuArray);
 //            $menuResponse['right_menus'] = $this->setClientMenus($rightMenuArray);
 //        }
-//
+
 //        return new View($menuResponse);
 //    }
-//
+
 //    /**
 //     * @param array $menus
 //     *
@@ -518,12 +518,12 @@ class MenuController extends SandboxRestController
 //        $menus
 //    ) {
 //        $menuArray = array();
-//
+
 //        foreach ($menus as $menu) {
 //            $sectionStr = strval($menu->getSection());
 //            $partIdx = $menu->getPart() - 1;
 //            $numberIdx = $menu->getNumber() - 1;
-//
+
 //            $menuArray[$sectionStr][$partIdx][$numberIdx] = array(
 //                'key' => $menu->getKey(),
 //                'type' => $menu->getType(),
@@ -532,7 +532,7 @@ class MenuController extends SandboxRestController
 //                'ready' => $menu->isReady(),
 //            );
 //        }
-//
+
 //        return $menuArray;
 //    }
 }

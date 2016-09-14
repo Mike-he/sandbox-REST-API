@@ -24,7 +24,7 @@ class ChatGroupController extends SandboxRestController
 
     /**
      * @param array $members
-     * 
+     *
      * @return array
      */
     protected function getChatGroupMembersArray(

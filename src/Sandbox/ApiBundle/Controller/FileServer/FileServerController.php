@@ -389,7 +389,7 @@ class FileServerController extends SandboxRestController
             $file = $paramFetcher->get('file');
             if (!preg_match('/(?<=\/)[^\/]+(?=\;)/', $file, $pregR)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            };
+            }
             $content_type = 'image/'.$pregR[0];
             $filename = $fileid.'.'.$pregR[0];
             $newfile = $path.'/'.$filename;

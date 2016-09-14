@@ -80,25 +80,25 @@ class ClientProductRecommendController extends ProductController
             $userId, $city, $limit, $offset, true
         );
 //        $recommendCount = count($products);
-//
+
 //        // get total of recommend products
 //        $recommendTotal = (int) $this->getRepo('Product\Product')->getProductsRecommendCount(
 //            $userId, $city, true
 //        );
-//
+
 //        // add up products that are not recommend
 //        if ($limit > $recommendCount) {
 //            $offset = $offset - $recommendTotal;
 //            if ($offset < 0) {
 //                $offset = 0;
 //            }
-//
+
 //            $limit = $limit - $recommendCount;
-//
+
 //            $notRecommends = $this->getRepo('Product\Product')->getProductsRecommend(
 //                $userId, $city, $limit, $offset, false
 //            );
-//
+
 //            $products = array_merge($products, $notRecommends);
 //        }
 

@@ -335,7 +335,7 @@ class AdminOrderController extends OrderController
         $now = new \DateTime();
 
         switch ($status) {
-            case OrderOfflineTransfer::STATUS_PAID :
+            case OrderOfflineTransfer::STATUS_PAID:
                 if ($oldStatus != OrderOfflineTransfer::STATUS_PENDING) {
                     return $this->customErrorView(
                         400,
@@ -349,7 +349,7 @@ class AdminOrderController extends OrderController
                 $order->setModificationDate($now);
 
                 break;
-            case OrderOfflineTransfer::STATUS_RETURNED :
+            case OrderOfflineTransfer::STATUS_RETURNED:
                 if ($oldStatus != OrderOfflineTransfer::STATUS_PENDING) {
                     return $this->customErrorView(
                         400,
@@ -359,7 +359,7 @@ class AdminOrderController extends OrderController
                 }
 
                 break;
-            case OrderOfflineTransfer::STATUS_REJECT_REFUND :
+            case OrderOfflineTransfer::STATUS_REJECT_REFUND:
                 if ($oldStatus != OrderOfflineTransfer::STATUS_VERIFY) {
                     return $this->customErrorView(
                         400,
@@ -373,7 +373,7 @@ class AdminOrderController extends OrderController
                 $order->setModificationDate(new \DateTime());
 
                 break;
-            case OrderOfflineTransfer::STATUS_ACCEPT_REFUND :
+            case OrderOfflineTransfer::STATUS_ACCEPT_REFUND:
                 if ($oldStatus != OrderOfflineTransfer::STATUS_VERIFY) {
                     return $this->customErrorView(
                         400,
@@ -430,7 +430,7 @@ class AdminOrderController extends OrderController
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $channel = $order->getPayChannel();
-        $refund = (double) $order->getDiscountPrice();
+        $refund = (float) $order->getDiscountPrice();
 
         $multiplier = $this->getRefundFeeMultiplier($channel);
 

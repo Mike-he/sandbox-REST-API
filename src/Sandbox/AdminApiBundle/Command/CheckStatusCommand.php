@@ -76,7 +76,7 @@ class CheckStatusCommand extends ContainerAwareCommand
 //            ->get('doctrine')
 //            ->getRepository('SandboxApiBundle:Order\ProductOrder')
 //            ->getUnpaidPreOrders();
-//
+
 //        foreach ($preorders as $preorder) {
 //            $this->checkPreOrders($preorder, $modifyTime);
 //        }
@@ -161,24 +161,24 @@ class CheckStatusCommand extends ContainerAwareCommand
 //    ) {
 //        $userId = $order->getUserId();
 //        $tradeId = $order->getOrderNumber();
-//
+
 //        $twig = $this->getContainer()->get('twig');
 //        $globals = $twig->getGlobals();
 //        // CRM API URL
 //        $apiUrl = $globals['crm_api_url'].
 //            $globals['crm_api_admin_user_account_upgrade'];
 //        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
-//
+
 //        $content = [
 //            'product_id' => $membershipBindId,
 //            'trade_id' => $tradeId,
 //        ];
 //        $content = json_encode($content);
 //        $key = $globals['sandbox_auth_key'];
-//
+
 //        $contentMd5 = md5($content.$key);
 //        $contentMd5 = strtoupper($contentMd5);
-//
+
 //        // init curl
 //        $ch = curl_init($apiUrl);
 //        $response = $this->callAPI(
@@ -186,7 +186,7 @@ class CheckStatusCommand extends ContainerAwareCommand
 //            'POST',
 //            array('Sandbox-Auth: '.$contentMd5),
 //            $content);
-//
+
 //        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 //        if ($httpCode != self::HTTP_STATUS_OK) {
 //            return;

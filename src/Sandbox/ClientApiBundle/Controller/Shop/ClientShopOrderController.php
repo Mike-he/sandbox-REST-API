@@ -139,7 +139,7 @@ class ClientShopOrderController extends ShopRestController
         $orders = [];
 
         switch ($status) {
-            case ProductOrder::COMBINE_STATUS_PENDING :
+            case ProductOrder::COMBINE_STATUS_PENDING:
                 $orders = $this->getRepo('Shop\ShopOrder')->getUserPendingOrders(
                     $userId,
                     $limit,
@@ -147,7 +147,7 @@ class ClientShopOrderController extends ShopRestController
                 );
 
                 break;
-            case ProductOrder::STATUS_COMPLETED :
+            case ProductOrder::STATUS_COMPLETED:
                 $orders = $this->getRepo('Shop\ShopOrder')->getUserCompletedOrders(
                     $userId,
                     $limit,
@@ -155,7 +155,7 @@ class ClientShopOrderController extends ShopRestController
                 );
 
                 break;
-            case ProductOrder::COMBINE_STATUS_REFUND :
+            case ProductOrder::COMBINE_STATUS_REFUND:
                 $orders = $this->getRepo('Shop\ShopOrder')->getUserRefundOrders(
                     $userId,
                     $limit,
@@ -238,7 +238,7 @@ class ClientShopOrderController extends ShopRestController
 
         // check shop opening hours
         $now = new \DateTime();
-        if ($now < $shop->getStartHour()  || $now >= $shop->getEndHour()) {
+        if ($now < $shop->getStartHour() || $now >= $shop->getEndHour()) {
             return $this->customErrorView(
                 400,
                 Shop::CLOSED_CODE,

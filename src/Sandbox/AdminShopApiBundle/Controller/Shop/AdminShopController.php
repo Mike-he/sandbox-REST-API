@@ -475,23 +475,23 @@ class AdminShopController extends ShopController
 //                'name' => ShopSpecItem::AUTO_SPEC_ITEM_NAME,
 //            ],
 //        ];
-//
+
 //        $spec = new ShopSpec();
-//
+
 //        $form = $this->createForm(new ShopSpecPostType(), $spec);
 //        $form->submit($content, true);
-//
+
 //        if (!$form->isValid()) {
 //            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
 //        }
-//
+
 //        $this->createAutoSpecItem($spec, $em);
 //        $spec->setShop($shop);
 //        $spec->setAuto(true);
-//
+
 //        $em->persist($spec);
 //    }
-//
+
 //    /**
 //     * @param $spec
 //     * @param $em
@@ -501,16 +501,16 @@ class AdminShopController extends ShopController
 //        $em
 //    ) {
 //        $specItem = new ShopSpecItem();
-//
+
 //        $form = $this->createForm(new ShopSpecItemPostType(), $specItem);
 //        $form->submit($spec->getItems(), true);
-//
+
 //        if (!$form->isValid()) {
 //            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
 //        }
-//
+
 //        $specItem->setSpec($spec);
-//
+
 //        $em->persist($specItem);
 //    }
 

@@ -433,8 +433,8 @@ class ProductRepository extends EntityRepository
         $sortBy,
         $direction,
         $search,
-        $recommend = false,
-        $companyId = null,
+        $recommend,
+        $companyId,
         $floor,
         $minSeat,
         $maxSeat,
@@ -656,9 +656,6 @@ class ProductRepository extends EntityRepository
         return $query->getSingleScalarResult();
     }
 
-    /**
-     *
-     */
     public function setVisibleFalse()
     {
         $now = new \DateTime();

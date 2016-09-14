@@ -443,7 +443,7 @@ class ClientCompanyController extends CompanyController
 //        $userId = $this->getUserId();
 //        $creatorId = $company->getCreatorId();
 //        $creatorVip = $this->getVipStatusByUserId($creatorId);
-//
+
 //        // check user is VIP
 //        if (is_null($creatorVip)) {
 //            // check user is company member
