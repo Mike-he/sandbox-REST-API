@@ -30,16 +30,14 @@
         "hautelook/templated-uri-bundle": "~2.0",
         "willdurand/rest-extra-bundle": "~1.0",
         "php-jsonpatch/php-jsonpatch": "dev-master",
+        "php-jsonpointer/php-jsonpointer": "^3.0",
         "pingplusplus/pingpp-php": "dev-master",
         "knplabs/knp-paginator-bundle": "^2.4",
         "friendsofsymfony/elastica-bundle": "^3.1",
         "liuggio/excelbundle": "^2.0"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "@stable",
-        "fabpot/php-cs-fixer": "@stable",
-        "php-jsonpointer/php-jsonpointer": "1.1.*@dev",
-        "php-jsonpatch/php-jsonpatch": "@dev"
+        "squizlabs/php_codesniffer": "@stable"
     },
     "conflict": {
         "symfony/routing": "2.4.1"
