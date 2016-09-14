@@ -17,13 +17,17 @@ class ProductRepository extends EntityRepository
      * @param $lat
      * @param $lng
      * @param $productIds
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
     public function productSortByNearestBuilding(
         $lat,
         $lng,
-        $productIds
+        $productIds,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -47,6 +51,8 @@ class ProductRepository extends EntityRepository
             ->setParameter('longitude', $lng)
             ->orderBy('distance', 'ASC')
             ->addOrderBy('p.creationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
         ;
 
         return $query->getQuery()->getResult();
@@ -61,8 +67,6 @@ class ProductRepository extends EntityRepository
      * @param $endTime
      * @param $startHour
      * @param $endHour
-     * @param $limit
-     * @param $offset
      * @param $type
      * @param $includeIds
      * @param $excludeIds
@@ -78,8 +82,6 @@ class ProductRepository extends EntityRepository
         $endTime,
         $startHour,
         $endHour,
-        $limit,
-        $offset,
         $type,
         $includeIds,
         $excludeIds
@@ -194,12 +196,7 @@ class ProductRepository extends EntityRepository
                 ->setParameter('endHour', $endHour);
         }
 
-        $query = $query->orderBy('p.creationDate', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
-
-        return $query->getResult();
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -209,8 +206,6 @@ class ProductRepository extends EntityRepository
      * @param $allowedPeople
      * @param $startDate
      * @param $endDate
-     * @param $limit
-     * @param $offset
      * @param $includeIds
      * @param $excludeIds
      *
@@ -223,8 +218,6 @@ class ProductRepository extends EntityRepository
         $allowedPeople,
         $startDate,
         $endDate,
-        $limit,
-        $offset,
         $includeIds,
         $excludeIds
     ) {
@@ -295,12 +288,7 @@ class ProductRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $query = $query->orderBy('p.creationDate', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
-
-        return $query->getResult();
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -310,8 +298,6 @@ class ProductRepository extends EntityRepository
      * @param $allowedPeople
      * @param $startDate
      * @param $endDate
-     * @param $limit
-     * @param $offset
      * @param $type
      * @param $includeIds
      * @param $excludeIds
@@ -325,8 +311,6 @@ class ProductRepository extends EntityRepository
         $allowedPeople,
         $startDate,
         $endDate,
-        $limit,
-        $offset,
         $type,
         $includeIds,
         $excludeIds
@@ -415,12 +399,7 @@ class ProductRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $query = $query->orderBy('p.creationDate', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
-
-        return $query->getResult();
+        return $query->getQuery()->getResult();
     }
 
     /**
