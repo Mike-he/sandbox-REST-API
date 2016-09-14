@@ -46,7 +46,7 @@ class ProductRepository extends EntityRepository
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
             ->orderBy('distance', 'ASC')
-            ->orderBy('p.creationDate', 'DESC')
+            ->addOrderBy('p.creationDate', 'DESC')
         ;
 
         return $query->getQuery()->getResult();
