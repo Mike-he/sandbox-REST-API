@@ -1,21 +1,21 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\SalesAdmin;
+namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * SalesAdminExcludePermission.
+ * AdminExcludePermission.
  *
  * @ORM\Table(
- *     name="sales_admin_exclude_permission",
+ *     name="admin_exclude_permission",
  *     uniqueConstraints={
  *          @ORM\UniqueConstraint(name="permissionId_companyId_UNIQUE", columns={"permissionId", "salesCompanyId"})
  *      }
  * )
  * @ORM\Entity
  */
-class SalesAdminExcludePermission
+class AdminExcludePermission
 {
     /**
      * @var int
@@ -34,7 +34,7 @@ class SalesAdminExcludePermission
     private $salesCompanyId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="SalesCompany")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
      * @ORM\JoinColumn(name="salesCompanyId", referencedColumnName="id", onDelete="CASCADE")
      */
     private $salesCompany;
@@ -47,10 +47,17 @@ class SalesAdminExcludePermission
     private $permissionId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="SalesAdminPermission")
+     * @ORM\ManyToOne(targetEntity="AdminPermission")
      * @ORM\JoinColumn(name="permissionId", referencedColumnName="id", onDelete="CASCADE")
      */
     private $permission;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     */
+    private $creationDate;
 
     /**
      * Get id.
@@ -67,7 +74,7 @@ class SalesAdminExcludePermission
      *
      * @param int $salesCompanyId
      *
-     * @return SalesAdminExcludePermission
+     * @return AdminExcludePermission
      */
     public function setSalesCompanyId($salesCompanyId)
     {
@@ -91,7 +98,7 @@ class SalesAdminExcludePermission
      *
      * @param int $permissionId
      *
-     * @return SalesAdminExcludePermission
+     * @return AdminExcludePermission
      */
     public function setPermissionId($permissionId)
     {
@@ -140,5 +147,29 @@ class SalesAdminExcludePermission
     public function setPermission($permission)
     {
         $this->permission = $permission;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * @param \DateTime $creationDate
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+    }
+
+    /**
+     * AdminExcludePermission constructor.
+     */
+    public function __construct()
+    {
+        $this->creationDate = new \DateTime('now');
     }
 }

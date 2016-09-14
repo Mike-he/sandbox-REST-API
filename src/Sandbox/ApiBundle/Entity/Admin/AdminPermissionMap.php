@@ -11,11 +11,12 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(
  *      name="admin_permission_map",
  *      uniqueConstraints={
- *          @ORM\UniqueConstraint(name="adminId_permissionId_UNIQUE", columns={"adminId", "permissionId"})
+ *          @ORM\UniqueConstraint(name="adminId_permissionId_UNIQUE", columns={"userId", "permissionId", "buildingId"})
  *      },
  *      indexes={
- *          @ORM\Index(name="fk_AdminPermissionMap_adminId_idx", columns={"adminId"}),
- *          @ORM\Index(name="fk_AdminPermissionMap_permissionId_idx", columns={"permissionId"})
+ *          @ORM\Index(name="fk_AdminPermissionMap_userId_idx", columns={"userId"}),
+ *          @ORM\Index(name="fk_AdminPermissionMap_permissionId_idx", columns={"permissionId"}),
+ *          @ORM\Index(name="fk_AdminPermissionMap_buildingId_idx", columns={"buildingId"})
  *      }
  * )
  * @ORM\Entity
@@ -38,9 +39,15 @@ class AdminPermissionMap
     /**
      * @var int
      *
-     * @ORM\Column(name="adminId", type="integer", nullable=false)
+     * @ORM\Column(name="userId", type="integer", nullable=false)
      */
-    private $adminId;
+    private $userId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     **/
+    private $user;
 
     /**
      * @var int
@@ -48,13 +55,6 @@ class AdminPermissionMap
      * @ORM\Column(name="permissionId", type="integer", nullable=false)
      */
     private $permissionId;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
-     */
-    private $creationDate;
 
     /**
      * @ORM\ManyToOne(targetEntity="AdminPermission")
@@ -72,10 +72,19 @@ class AdminPermissionMap
     private $opLevel;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Admin")
-     * @ORM\JoinColumn(name="adminId", referencedColumnName="id", onDelete="CASCADE")
-     **/
-    private $admin;
+     * @var int
+     *
+     * @ORM\Column(name="buildingId", type="integer", nullable=true)
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
+     */
+    private $buildingId;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     */
+    private $creationDate;
 
     /**
      * Get id.
@@ -88,27 +97,35 @@ class AdminPermissionMap
     }
 
     /**
-     * Set $adminId.
-     *
-     * @param int $adminId
-     *
-     * @return AdminPermissionMap
+     * @return int
      */
-    public function setAdminId($adminId)
+    public function getUserId()
     {
-        $this->adminId = $adminId;
-
-        return $this;
+        return $this->userId;
     }
 
     /**
-     * Get adminId.
-     *
-     * @return int
+     * @param int $userId
      */
-    public function getAdminId()
+    public function setUserId($userId)
     {
-        return $this->adminId;
+        $this->userId = $userId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     /**
@@ -208,26 +225,26 @@ class AdminPermissionMap
     }
 
     /**
-     * Set $admin.
-     *
-     * @param Admin $admin
-     *
-     * @return AdminPermissionMap
+     * @return int
      */
-    public function setAdmin($admin)
+    public function getBuildingId()
     {
-        $this->admin = $admin;
-
-        return $this;
+        return $this->buildingId;
     }
 
     /**
-     * Get admin.
-     *
-     * @return Admin
+     * @param int $buildingId
      */
-    public function getAdmin()
+    public function setBuildingId($buildingId)
     {
-        return $this->admin;
+        $this->buildingId = $buildingId;
+    }
+
+    /**
+     * AdminPermissionMap constructor.
+     */
+    public function __construct()
+    {
+        $this->creationDate = new \DateTime('now');
     }
 }

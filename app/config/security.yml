@@ -2,36 +2,18 @@ security:
     encoders:
         Sandbox\ApiBundle\Entity\User\User: plaintext
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
-        Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth: plaintext
-        Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth: plaintext
-        Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
     role_hierarchy:
         ROLE_USER:        ROLE_USER
-        ROLE_SALES_ADMIN_API: ROLE_SALES_ADMIN_API
-        ROLE_SHOP_ADMIN_API: ROLE_SHOP_ADMIN_API
         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ALLOWED_TO_SWITCH]
-        ROLE_ADMIN_API:   ROLE_ADMIN_API
         ROLE_CLIENT_API:  ROLE_CLIENT_API
 
     providers:
         chain_provider:
             chain:
-                providers: [clientApi, salesAdminApi, shopAdminApi, adminApi, userPhone, userEmail]
+                providers: [clientApi, userPhone, userEmail]
         clientApi:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth
-                property: token
-        salesAdminApi:
-            entity:
-                class: Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth
-                property: token
-        shopAdminApi:
-            entity:
-                class: Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth
-                property: token
-        adminApi:
-            entity:
-                class: Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth
                 property: token
         userPhone:
             entity:
@@ -61,8 +43,6 @@ security:
         - { path: ^/rooms/types$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sales/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/shop/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/shop/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
@@ -88,14 +68,14 @@ security:
         - { path: ^/client, role: ROLE_CLIENT_API }
         - { path: ^/sales/admin/events/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sales, role: ROLE_SALES_ADMIN_API }
-        - { path: ^/shop, role: ROLE_SHOP_ADMIN_API }
+        - { path: ^/sales, role: ROLE_CLIENT_API }
+        - { path: ^/shop, role: ROLE_CLIENT_API }
         - { path: ^/admin/shop/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/events/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/payment/refund$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin, role: ROLE_ADMIN_API }
+        - { path: ^/admin, role: ROLE_CLIENT_API }
         - { path: ^/user/background/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/user/avatar/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/openserver/client/auth/login$, role: ROLE_USER }
-        - { path: ^/plugins/fileServer/fileservice, roles: [ROLE_ADMIN_API, ROLE_SALES_ADMIN_API, ROLE_SHOP_ADMIN_API, ROLE_CLIENT_API] }
+        - { path: ^/plugins/fileServer/fileservice, roles: ROLE_CLIENT_API }
