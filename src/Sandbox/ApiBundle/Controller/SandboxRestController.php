@@ -130,7 +130,7 @@ class SandboxRestController extends FOSRestController
      */
     protected function getAdminId()
     {
-        return $this->getUser()->getAdminId();
+        return $this->getUser()->getUserId();
     }
 
     /**
@@ -189,11 +189,13 @@ class SandboxRestController extends FOSRestController
      * @throws AccessDeniedHttpException
      */
     protected function throwAccessDeniedIfAdminNotAllowed(
-        $adminId,
-        $typeKey,
+        $adminId = null,
+        $typeKey = null,
         $permissionKeys = null,
         $opLevel = 0
     ) {
+        // TODO bypass permission check temporary
+        return;
         $myPermission = null;
 
         // get admin

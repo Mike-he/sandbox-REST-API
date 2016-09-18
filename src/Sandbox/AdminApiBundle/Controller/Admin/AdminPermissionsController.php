@@ -5,7 +5,6 @@ namespace Sandbox\AdminApiBundle\Controller\Admin;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -40,13 +39,21 @@ class AdminPermissionsController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="type_id",
+     *    name="salesCompanyId",
      *    array=false,
-     *    default= null,
+     *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
      *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     default=null,
+     *     strict=true,
+     *     description="platform key"
      * )
      *
      * @Method({"GET"})
@@ -60,25 +67,24 @@ class AdminPermissionsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $typeId = $paramFetcher->get('type_id');
+        $salesCompanyId = $paramFetcher->get('salesCompanyId');
+        $platform = $paramFetcher->get('platform');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ADMIN,
-            AdminPermissionMap::OP_LEVEL_VIEW
-        );
+//        $this->throwAccessDeniedIfAdminNotAllowed(
+//            $this->getAdminId(),
+//            null,
+//            AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN,
+//            AdminPermissionMap::OP_LEVEL_VIEW
+//        );
 
-        if ($typeId == null) {
-            // get all admin permissions
-            $query = $this->getRepo('Admin\AdminPermission')->findAll();
-        } else {
-            // get admin permissions by typeId
-            $query = $this->getRepo('Admin\AdminPermission')->findBy(array(
-                'typeId' => $typeId,
-            ));
-        }
+        // get all admin permissions
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->getAdminPermissions(
+                $salesCompanyId,
+                $platform
+            );
 
         $view = new View($query);
         $view->setSerializationContext(SerializationContext::create()

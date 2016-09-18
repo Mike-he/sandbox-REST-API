@@ -182,7 +182,7 @@ class AdminUsersController extends DoorController
      * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
-     *    default="20",
+     *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
@@ -192,7 +192,7 @@ class AdminUsersController extends DoorController
      * @Annotations\QueryParam(
      *    name="pageIndex",
      *    array=false,
-     *    default="1",
+     *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
@@ -255,18 +255,6 @@ class AdminUsersController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_USER,
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
-        );
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -332,12 +320,18 @@ class AdminUsersController extends DoorController
             }
         }
 
-        return new View(array(
-            'current_page_number' => $pageIndex,
-            'num_items_per_page' => $pageLimit,
-            'items' => $results,
-            'total_count' => $usersCount,
-        ));
+        if (!is_null($pageIndex) && !is_null($pageLimit)) {
+            $return = array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => $pageLimit,
+                'items' => $results,
+                'total_count' => $usersCount,
+            );
+
+            return new View($return);
+        }
+
+        return new View($results);
     }
 
     /**

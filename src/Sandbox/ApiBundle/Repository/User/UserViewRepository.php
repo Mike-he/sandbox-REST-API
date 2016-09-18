@@ -98,9 +98,12 @@ class UserViewRepository extends EntityRepository
             ->orWhere('u.phone LIKE :query')
             ->orWhere('u.cardNo LIKE :query')
             ->orWhere('u.credentialNo LIKE :query')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
             ->setParameter('query', $query.'%');
+
+        if (!is_null($offset) && !is_null($limit)) {
+            $queryResults->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
 
         if (!is_null($banned)) {
             $queryResults->andWhere('u.banned = :banned')

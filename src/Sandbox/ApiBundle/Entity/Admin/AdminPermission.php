@@ -12,10 +12,17 @@ use JMS\Serializer\Annotation as Serializer;
  *      name="admin_permission",
  *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})}
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Admin\AdminPermissionRepository")
  */
 class AdminPermission
 {
+    const PERMISSION_LEVEL_GLOBAL = 'global';
+    const PERMISSION_LEVEL_SPECIFY = 'specify';
+
+    const PERMISSION_PLATFORM_OFFICIAL = 'official';
+    const PERMISSION_PLATFORM_SALES = 'sales';
+    const PERMISSION_PLATFORM_SHOP = 'shop';
+
     const KEY_OFFICIAL_PLATFORM_ORDER = 'platform.order';
     const KEY_OFFICIAL_PLATFORM_USER = 'platform.user';
     const KEY_OFFICIAL_PLATFORM_ROOM = 'platform.room';
@@ -63,9 +70,6 @@ class AdminPermission
     const KEY_SHOP_SHOP_ORDER = 'shop.shop.order';
     const KEY_SHOP_SHOP_PRODUCT = 'shop.shop.product';
     const KEY_SHOP_SHOP_KITCHEN = 'shop.shop.kitchen';
-
-    const PERMISSION_LEVEL_GLOBAL = 'global';
-    const PERMISSION_LEVEL_SPECIFY = 'specify';
 
     /**
      * @var int
