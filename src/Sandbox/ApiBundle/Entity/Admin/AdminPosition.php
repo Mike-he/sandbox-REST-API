@@ -31,7 +31,7 @@ class AdminPosition
     /**
      * @var int
      *
-     * @ORM\Column(name="parentPositionId", type="integer")
+     * @ORM\Column(name="parentPositionId", type="integer", nullable=true)
      */
     private $parentPositionId;
 
@@ -45,7 +45,7 @@ class AdminPosition
     /**
      * @var int
      *
-     * @ORM\Column(name="salesCompanyId", type="integer")
+     * @ORM\Column(name="salesCompanyId", type="integer", nullable=true)
      */
     private $salesCompanyId;
 

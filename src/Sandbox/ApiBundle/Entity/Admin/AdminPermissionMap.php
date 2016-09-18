@@ -66,6 +66,20 @@ class AdminPermissionMap
     /**
      * @var int
      *
+     * @ORM\Column(name="positionId", type="integer", nullable=false)
+     */
+    private $positionId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AdminPosition")
+     * @ORM\JoinColumn(name="positionId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
+     */
+    private $position;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="opLevel", type="integer", nullable=false)
      * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
@@ -198,6 +212,38 @@ class AdminPermissionMap
     public function getPermission()
     {
         return $this->permission;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPositionId()
+    {
+        return $this->positionId;
+    }
+
+    /**
+     * @param int $positionId
+     */
+    public function setPositionId($positionId)
+    {
+        $this->positionId = $positionId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * @param mixed $position
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
     }
 
     /**
