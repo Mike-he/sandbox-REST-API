@@ -22,12 +22,6 @@ sandbox_shop_admin_api_admin_type:
     type:     annotation
     prefix:   /admin
 
-# Admin Permission /shop/admin/permissions
-sandbox_shop_admin_api_admin_permission:
-    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminPermissionsController.php"
-    type:     annotation
-    prefix:   /admin
-
 # Admin Admins /shop/admin/admins
 sandbox_shop_admin_api_admin_admins:
     resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminAdminsController.php"

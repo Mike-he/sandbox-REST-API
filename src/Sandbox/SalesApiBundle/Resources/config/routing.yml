@@ -40,12 +40,6 @@ sandbox_sales_admin_room:
     type:     annotation
     prefix:   /admin
 
-# Admin Permission /sales/admin/permission
-sandbox_sales_admin_permissions:
-    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminPermissionsController.php"
-    type:     annotation
-    prefix:   /admin
-
 # Admin Type /sales/admin/types
 sandbox_sales_admin_types:
     resource: "@SandboxSalesApiBundle/Controller/Admin/AdminTypesController.php"
