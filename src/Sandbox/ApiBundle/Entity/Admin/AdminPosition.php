@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
 /**
  * AdminPosition.
@@ -12,6 +13,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AdminPosition
 {
+    const PLATFORM_OFFICIAL = 'official';
+    const PLATFORM_SALES = 'sales';
+    const PLATFORM_SHOP = 'shop';
+
     /**
      * @var int
      *
@@ -50,25 +55,24 @@ class AdminPosition
     private $salesCompanyId;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="isHidden", type="boolean")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
+     * @ORM\JoinColumn(name="salesCompanyId", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $isHidden;
+    private $salesCompany;
 
     /**
      * @var bool
      *
-     * @ORM\Column(name="isDeleted", type="boolean")
+     * @ORM\Column(name="isHidden", type="boolean")
      */
-    private $isDeleted;
+    private $isHidden = false;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="isSuperAdmin", type="boolean")
      */
-    private $isSuperAdmin;
+    private $isSuperAdmin = false;
 
     /**
      * @var int
@@ -76,6 +80,12 @@ class AdminPosition
      * @ORM\Column(name="iconId", type="integer")
      */
     private $iconId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Admin\AdminPositionIcons")
+     * @ORM\JoinColumn(name="iconId", referencedColumnName="id")
+     */
+    private $icon;
 
     /**
      * @var \DateTime
@@ -90,6 +100,11 @@ class AdminPosition
      * @ORM\Column(name="modificationDate", type="datetime")
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     */
+    private $permissions;
 
     /**
      * Get id.
@@ -123,6 +138,28 @@ class AdminPosition
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * set permissions.
+     *
+     * @return AdminPosition
+     */
+    public function setPermissions($permissions)
+    {
+        $this->permissions = $permissions;
+
+        return $this;
+    }
+
+    /**
+     * get permissions.
+     *
+     * @return array
+     */
+    public function getPermissions()
+    {
+        return $this->permissions;
     }
 
     /**
@@ -198,6 +235,30 @@ class AdminPosition
     }
 
     /**
+     * Set salesCompany.
+     *
+     * @param SalesCompany $salesCompany
+     *
+     * @return AdminPosition
+     */
+    public function setSalesCompany($salesCompany)
+    {
+        $this->salesCompany = $salesCompany;
+
+        return $this;
+    }
+
+    /**
+     * Get salesCompany.
+     *
+     * @return SalesCompany
+     */
+    public function getSalesCompany()
+    {
+        return $this->salesCompany;
+    }
+
+    /**
      * Set isHidden.
      *
      * @param bool $isHidden
@@ -219,30 +280,6 @@ class AdminPosition
     public function getIsHidden()
     {
         return $this->isHidden;
-    }
-
-    /**
-     * Set isDeleted.
-     *
-     * @param bool $isDeleted
-     *
-     * @return AdminPosition
-     */
-    public function setIsDeleted($isDeleted)
-    {
-        $this->isDeleted = $isDeleted;
-
-        return $this;
-    }
-
-    /**
-     * Get isDeleted.
-     *
-     * @return bool
-     */
-    public function getIsDeleted()
-    {
-        return $this->isDeleted;
     }
 
     /**
@@ -294,6 +331,30 @@ class AdminPosition
     }
 
     /**
+     * Set icon.
+     *
+     * @param AdminPositionIcons $icon
+     *
+     * @return AdminPosition
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
+
+        return $this;
+    }
+
+    /**
+     * Get icon.
+     *
+     * @return AdminPositionIcons
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
      * Set creationDate.
      *
      * @param \DateTime $creationDate
@@ -339,5 +400,12 @@ class AdminPosition
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+        $this->setModificationDate($now);
     }
 }
