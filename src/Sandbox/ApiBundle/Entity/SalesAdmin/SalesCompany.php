@@ -79,6 +79,43 @@ class SalesCompany
     private $description;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="banned", type="boolean", nullable=false)
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $banned = false;
+
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $admin;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $coffeeAdmin;
+
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $buildingCounts;
+
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $shopCounts;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -289,4 +326,86 @@ class SalesCompany
     {
         return $this->modificationDate;
     }
+
+    /**
+     * @return string
+     */
+    public function getAdmin()
+    {
+        return $this->admin;
+    }
+
+    /**
+     * @param string $admin
+     */
+    public function setAdmin($admin)
+    {
+        $this->admin = $admin;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCoffeeAdmin()
+    {
+        return $this->coffeeAdmin;
+    }
+
+    /**
+     * @param string $coffeeAdmin
+     */
+    public function setCoffeeAdmin($coffeeAdmin)
+    {
+        $this->coffeeAdmin = $coffeeAdmin;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBuildingCounts()
+    {
+        return $this->buildingCounts;
+    }
+
+    /**
+     * @param int $buildingCounts
+     */
+    public function setBuildingCounts($buildingCounts)
+    {
+        $this->buildingCounts = $buildingCounts;
+    }
+
+    /**
+     * @return int
+     */
+    public function getShopCounts()
+    {
+        return $this->shopCounts;
+    }
+
+    /**
+     * @param int $shopCounts
+     */
+    public function setShopCounts($shopCounts)
+    {
+        $this->shopCounts = $shopCounts;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isBanned()
+    {
+        return $this->banned;
+    }
+
+    /**
+     * @param boolean $banned
+     */
+    public function setBanned($banned)
+    {
+        $this->banned = $banned;
+    }
+
+
 }

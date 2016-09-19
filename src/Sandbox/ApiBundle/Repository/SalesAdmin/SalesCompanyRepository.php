@@ -16,4 +16,23 @@ class SalesCompanyRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function getCompanyList(
+        $search
+    ) {
+        $query = $this->createQueryBuilder('sc');
+
+        if (!is_null($search)) {
+            $query->andWhere('
+                    (sc.name LIKE :search OR
+                    sc.phone LIKE :search OR
+                    sc.email LIKE :search)
+                ')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $query->orderBy('sc.id', 'ASC');
+
+        return $query->getQuery()->getResult();
+    }
 }
