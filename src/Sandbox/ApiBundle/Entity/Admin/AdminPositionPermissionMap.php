@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AdminPositionPermissionMap.
@@ -18,6 +19,7 @@ class AdminPositionPermissionMap
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "admin"})
      */
     private $id;
 
@@ -44,6 +46,7 @@ class AdminPositionPermissionMap
     /**
      * @ORM\ManyToOne(targetEntity="AdminPermission")
      * @ORM\JoinColumn(name="permissionId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main", "admin"})
      */
     private $permission;
 
@@ -51,6 +54,7 @@ class AdminPositionPermissionMap
      * @var int
      *
      * @ORM\Column(name="opLevel", type="integer")
+     * @Serializer\Groups({"main", "admin"})
      */
     private $opLevel;
 

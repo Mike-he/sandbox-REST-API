@@ -2,7 +2,10 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Admin;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use JMS\Serializer\SerializationContext;
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap;
@@ -15,6 +18,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Admin Position Controller.
@@ -166,6 +170,148 @@ class AdminPositionController extends PaymentController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * delete admin position.
+     *
+     * @param Request $request the request object
+     * @param $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Method({"DELETE"})
+     * @Route("/positions/{id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function deleteAdminPositionAction(
+        Request $request,
+        $id
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $position = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->find($id);
+        $this->throwNotFoundIfNull($position, self::NOT_FOUND_MESSAGE);
+
+        $platform = $position->getPlatform();
+        $this->checkPermissionForPlatform($platform);
+
+        $em->remove($position);
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * get admin positions.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="platform",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="platform"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="level"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/positions")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminPositionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $platform = $paramFetcher->get('platform');
+        $type = $paramFetcher->get('type');
+        $companyId = $paramFetcher->get('company');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $positions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getAdminPositions(
+                $platform,
+                $type,
+                $companyId
+            );
+
+        $positions = $this->get('serializer')->serialize(
+            $positions,
+            'json',
+            SerializationContext::create()->setGroups(['admin'])
+        );
+        $positions = json_decode($positions, true);
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $positions,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 
     /**
