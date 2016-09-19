@@ -198,4 +198,10 @@ class AdminPositionPermissionMap
     {
         return $this->creationDate;
     }
+
+    public function __construct()
+    {
+        $now = new \DateTime('now');
+        $this->setCreationDate($now);
+    }
 }

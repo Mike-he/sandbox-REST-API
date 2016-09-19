@@ -255,3 +255,9 @@ sandbox_admin_api_dashboard:
     resource: "@SandboxAdminApiBundle/Controller/DashBoard/AdminDashBoardController.php"
     type:     annotation
     prefix:   /
+
+# Position /admin/position
+sandbox_admin_api_position:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPositionController.php"
+    type:     annotation
+    prefix:   /
