@@ -44,6 +44,7 @@ security:
         - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/shop/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/auth/check_code$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
