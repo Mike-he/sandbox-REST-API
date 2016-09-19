@@ -77,6 +77,14 @@ class AppInfo
     private $copyrightYear;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="app", type="string", length=16, nullable=false)
+     * @Serializer\Groups({"main"})
+     */
+    private $app;
+
+    /**
      * Get id.
      *
      * @return int
@@ -226,5 +234,21 @@ class AppInfo
     public function setCopyrightYear($copyrightYear)
     {
         $this->copyrightYear = $copyrightYear;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApp()
+    {
+        return $this->app;
+    }
+
+    /**
+     * @param string $app
+     */
+    public function setApp($app)
+    {
+        $this->app = $app;
     }
 }
