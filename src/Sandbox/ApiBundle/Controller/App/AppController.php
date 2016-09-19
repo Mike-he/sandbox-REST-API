@@ -43,6 +43,13 @@ class AppController extends SandboxRestController
      *    description="app version"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="app",
+     *    default="sandbox",
+     *    nullable=true,
+     *    description="app key"
+     * )
+     *
      * @Method({"GET"})
      * @Route("/apps")
      *
@@ -55,12 +62,21 @@ class AppController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $version = $paramFetcher->get('version');
+        $app = $paramFetcher->get('app');
+
         if (!is_null($version) && !empty($version)) {
-            $apps = $this->getRepo('App\AppInfo')->findBy(
-                ['version' => $version]
-            );
+            $apps = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:App\AppInfo')
+                ->findBy(array(
+                    'version' => $version,
+                    'app' => $app,
+                ));
         } else {
-            $apps = $this->getRepo('App\AppInfo')->findAll();
+            $apps = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:App\AppInfo')
+                ->findBy(array(
+                    'app' => $app,
+                ));
         }
 
         return new View($apps);
