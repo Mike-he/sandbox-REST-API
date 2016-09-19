@@ -57,6 +57,13 @@ class AdminPositionUserBinding
     private $position;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="buildingId", type="integer", nullable=true)
+     */
+    private $buildingId;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -151,6 +158,22 @@ class AdminPositionUserBinding
     public function getPositionId()
     {
         return $this->positionId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param int $buildingId
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
     }
 
     /**

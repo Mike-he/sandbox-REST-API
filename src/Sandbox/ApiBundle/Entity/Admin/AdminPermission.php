@@ -23,6 +23,10 @@ class AdminPermission
     const PERMISSION_PLATFORM_SALES = 'sales';
     const PERMISSION_PLATFORM_SHOP = 'shop';
 
+    const OP_LEVEL_VIEW = 1;
+    const OP_LEVEL_EDIT = 2;
+    const OP_LEVEL_USER_BANNED = 3;
+
     const KEY_OFFICIAL_PLATFORM_ORDER = 'platform.order';
     const KEY_OFFICIAL_PLATFORM_USER = 'platform.user';
     const KEY_OFFICIAL_PLATFORM_ROOM = 'platform.room';
