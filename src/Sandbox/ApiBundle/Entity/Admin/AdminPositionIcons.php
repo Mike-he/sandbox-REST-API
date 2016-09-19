@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AdminPositionIcons.
@@ -18,6 +19,7 @@ class AdminPositionIcons
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "admin"})
      */
     private $id;
 
@@ -25,6 +27,7 @@ class AdminPositionIcons
      * @var string
      *
      * @ORM\Column(name="icon", type="string", length=1024)
+     * @Serializer\Groups({"main", "admin"})
      */
     private $icon;
 

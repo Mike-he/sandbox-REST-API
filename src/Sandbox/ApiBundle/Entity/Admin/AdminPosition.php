@@ -4,12 +4,13 @@ namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AdminPosition.
  *
  * @ORM\Table(name="admin_position")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Admin\AdminPositionRepository")
  */
 class AdminPosition
 {
@@ -23,6 +24,7 @@ class AdminPosition
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "admin"})
      */
     private $id;
 
@@ -30,6 +32,7 @@ class AdminPosition
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
+     * @Serializer\Groups({"main", "admin"})
      */
     private $name;
 
@@ -37,6 +40,7 @@ class AdminPosition
      * @var int
      *
      * @ORM\Column(name="parentPositionId", type="integer", nullable=true)
+     * @Serializer\Groups({"main", "admin"})
      */
     private $parentPositionId;
 
@@ -44,6 +48,7 @@ class AdminPosition
      * @var string
      *
      * @ORM\Column(name="platform", type="string", length=64)
+     * @Serializer\Groups({"main", "admin"})
      */
     private $platform;
 
@@ -51,6 +56,7 @@ class AdminPosition
      * @var int
      *
      * @ORM\Column(name="salesCompanyId", type="integer", nullable=true)
+     * @Serializer\Groups({"main", "admin"})
      */
     private $salesCompanyId;
 
@@ -71,6 +77,7 @@ class AdminPosition
      * @var bool
      *
      * @ORM\Column(name="isSuperAdmin", type="boolean")
+     * @Serializer\Groups({"main", "admin"})
      */
     private $isSuperAdmin = false;
 
@@ -84,6 +91,7 @@ class AdminPosition
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Admin\AdminPositionIcons")
      * @ORM\JoinColumn(name="iconId", referencedColumnName="id")
+     * @Serializer\Groups({"main", "admin"})
      */
     private $icon;
 
@@ -102,9 +110,41 @@ class AdminPosition
     private $modificationDate;
 
     /**
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap",
+     *      mappedBy="position"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="positionId")
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $permissionMappings;
+
+    /**
      * @var array
      */
     private $permissions;
+
+    /**
+     * set permissionMappings.
+     *
+     * @return AdminPosition
+     */
+    public function setPermissionMappings($permissionMappings)
+    {
+        $this->permissionMappings = $permissionMappings;
+
+        return $this;
+    }
+
+    /**
+     * get permissionMappings.
+     *
+     * @return array
+     */
+    public function getPermissionMappings()
+    {
+        return $this->permissionMappings;
+    }
 
     /**
      * Get id.
