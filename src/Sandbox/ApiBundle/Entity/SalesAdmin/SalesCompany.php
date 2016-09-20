@@ -86,7 +86,6 @@ class SalesCompany
      */
     private $banned = false;
 
-
     /**
      * @var string
      *
@@ -392,7 +391,7 @@ class SalesCompany
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isBanned()
     {
@@ -400,12 +399,10 @@ class SalesCompany
     }
 
     /**
-     * @param boolean $banned
+     * @param bool $banned
      */
     public function setBanned($banned)
     {
         $this->banned = $banned;
     }
-
-
 }

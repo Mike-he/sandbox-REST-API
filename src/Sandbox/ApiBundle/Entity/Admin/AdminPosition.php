@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -59,12 +58,6 @@ class AdminPosition
      * @Serializer\Groups({"main", "admin"})
      */
     private $salesCompanyId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
-     * @ORM\JoinColumn(name="salesCompanyId", referencedColumnName="id", onDelete="CASCADE")
-     */
-    private $salesCompany;
 
     /**
      * @var bool
@@ -125,6 +118,11 @@ class AdminPosition
     private $permissions;
 
     /**
+     * @var string
+     */
+    private $currentPlatform;
+
+    /**
      * set permissionMappings.
      *
      * @return AdminPosition
@@ -144,6 +142,28 @@ class AdminPosition
     public function getPermissionMappings()
     {
         return $this->permissionMappings;
+    }
+
+    /**
+     * set currentPlatform.
+     *
+     * @return AdminPosition
+     */
+    public function setCurrentPlatform($currentPlatform)
+    {
+        $this->currentPlatform = $currentPlatform;
+
+        return $this;
+    }
+
+    /**
+     * get currentPlatform.
+     *
+     * @return string
+     */
+    public function getCurrentPlatform()
+    {
+        return $this->currentPlatform;
     }
 
     /**
@@ -272,30 +292,6 @@ class AdminPosition
     public function getSalesCompanyId()
     {
         return $this->salesCompanyId;
-    }
-
-    /**
-     * Set salesCompany.
-     *
-     * @param SalesCompany $salesCompany
-     *
-     * @return AdminPosition
-     */
-    public function setSalesCompany($salesCompany)
-    {
-        $this->salesCompany = $salesCompany;
-
-        return $this;
-    }
-
-    /**
-     * Get salesCompany.
-     *
-     * @return SalesCompany
-     */
-    public function getSalesCompany()
-    {
-        return $this->salesCompany;
     }
 
     /**

@@ -68,15 +68,25 @@ class AdminPositionController extends PaymentController
             );
         }
 
-        // check platform permissions
+        $currentPlatform = $position->getCurrentPlatform();
+        $this->throwNotFoundIfNull($currentPlatform, self::NOT_FOUND_MESSAGE);
+
         $platform = $position->getPlatform();
-        $this->checkPermissionForPlatform($platform);
+        $this->throwNotFoundIfNull($platform, self::NOT_FOUND_MESSAGE);
+
+        // check platform permissions
+        $this->checkPermissionForPlatform(
+            $platform,
+            $position,
+            $currentPlatform,
+            'POST'
+        );
 
         // set parent position
         $this->setParentPosition($position);
 
         // set company for sales and shop
-        $this->setSalesCompanyForPosition($platform, $position);
+        $this->setSalesCompanyForPosition($position);
 
         // set icon
         $this->setIconForPosition($position);
@@ -87,7 +97,10 @@ class AdminPositionController extends PaymentController
         }
 
         // check for duplicate name
-        $this->checkDuplicatePositionName($name, $position);
+        $this->checkDuplicatePositionName(
+            $name,
+            $position
+        );
 
         $em->persist($position);
 
@@ -149,9 +162,13 @@ class AdminPositionController extends PaymentController
             );
         }
 
-        // check platform permissions
         $platform = $position->getPlatform();
-        $this->checkPermissionForPlatform($platform);
+
+        // check platform permissions
+        $this->checkPermissionForPlatform(
+            $platform,
+            $position
+        );
 
         // set parent position
         $this->setParentPosition($position);
@@ -204,7 +221,12 @@ class AdminPositionController extends PaymentController
         $this->throwNotFoundIfNull($position, self::NOT_FOUND_MESSAGE);
 
         $platform = $position->getPlatform();
-        $this->checkPermissionForPlatform($platform);
+
+        // check platform permissions
+        $this->checkPermissionForPlatform(
+            $platform,
+            $position
+        );
 
         $em->remove($position);
         $em->flush();
@@ -289,6 +311,11 @@ class AdminPositionController extends PaymentController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
+        $this->checkPermissionForPlatform(
+            $platform,
+            null
+        );
+
         $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->getAdminPositions(
@@ -345,19 +372,40 @@ class AdminPositionController extends PaymentController
 
     /**
      * @param $platform
+     * @param $position
+     * @param null $currentPlatform
+     * @param null $method
      */
     private function checkPermissionForPlatform(
-        $platform
+        $platform,
+        $position,
+        $currentPlatform = null,
+        $method = null
     ) {
         switch ($platform) {
             case AdminPosition::PLATFORM_OFFICIAL:
                 //TODO: check official permissions
+
                 break;
             case AdminPosition::PLATFORM_SALES:
                 //TODO: check sales permissions
+
+                if ($method == 'POST' && $currentPlatform == AdminPosition::PLATFORM_OFFICIAL) {
+                    //TODO: check official permissions
+
+                    $position->setIsSuperAdmin(true);
+                }
+
                 break;
             case AdminPosition::PLATFORM_SHOP:
                 //TODO: check shop permissions
+
+                if ($method == 'POST' && $currentPlatform == AdminPosition::PLATFORM_OFFICIAL) {
+                    //TODO: check official permissions
+
+                    $position->setIsSuperAdmin(true);
+                }
+
                 break;
             default:
                 throw new AccessDeniedHttpException();
@@ -410,11 +458,14 @@ class AdminPositionController extends PaymentController
     private function setParentPosition(
         $position
     ) {
-        $parent = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->find($position->getParentPositionId());
-        if (is_null($parent)) {
-            $position->setParentPositionId(null);
+        $parentId = $position->getParentPositionId();
+
+        if (!is_null($parentId) && !empty($parentId)) {
+            $parent = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->find($parentId);
+
+            $this->throwNotFoundIfNull($parent, self::NOT_FOUND_MESSAGE);
         }
     }
 
@@ -432,6 +483,7 @@ class AdminPositionController extends PaymentController
                 'name' => $name,
                 'salesCompanyId' => $position->getSalesCompanyId(),
             ));
+
         if (!is_null($existPosition)) {
             throw new ConflictHttpException();
         }
@@ -448,32 +500,38 @@ class AdminPositionController extends PaymentController
         $icon = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')
             ->find($iconId);
+
         $this->throwNotFoundIfNull($icon, self::NOT_FOUND_MESSAGE);
 
         $position->setIcon($icon);
     }
 
     /**
-     * @param $platform
      * @param $position
      */
     private function setSalesCompanyForPosition(
-        $platform,
         $position
     ) {
         $companyId = $position->getSalesCompanyId();
-        if ($platform == AdminPosition::PLATFORM_SALES || $platform == AdminPosition::PLATFORM_SHOP) {
+        $platform = $position->getPlatform();
+
+        if ($platform == AdminPosition::PLATFORM_OFFICIAL && is_null($companyId)) {
+            return;
+        } else {
             $company = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-                ->find($companyId);
-            $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+                ->findOneBy(array(
+                    'id' => $companyId,
+                    'banned' => false,
+                ));
 
-            $position->setSalesCompany($company);
+            $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
         }
     }
 
     /**
      * @param $em
+     * @param $position
      * @param $permissions
      */
     private function addPermissions(

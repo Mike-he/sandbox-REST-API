@@ -21,6 +21,7 @@ class AdminPositionPostType extends AbstractType
             ->add('platform')
             ->add('salesCompanyId')
             ->add('permissions')
+            ->add('currentPlatform')
             ;
     }
 

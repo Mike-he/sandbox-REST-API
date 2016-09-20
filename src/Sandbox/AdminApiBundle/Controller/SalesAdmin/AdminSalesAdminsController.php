@@ -330,7 +330,6 @@ class AdminSalesAdminsController extends SandboxRestController
 
         $bannedOld = $salesCompany->isBanned();
 
-
         // bind data
         $companyJson = $this->container->get('serializer')->serialize($salesCompany, 'json');
         $patch = new Patch($companyJson, $request->getContent());
@@ -361,7 +360,6 @@ class AdminSalesAdminsController extends SandboxRestController
         }
 
         // check user permission
-
 
         try {
             if ($banned) {
