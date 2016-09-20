@@ -107,6 +107,7 @@ class AdminSalesAdminsController extends SandboxRestController
 
         $salesCompanies = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
             ->getCompanyList(
+                $banned,
                 $search
             );
 

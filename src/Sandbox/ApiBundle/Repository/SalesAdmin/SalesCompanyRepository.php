@@ -18,9 +18,15 @@ class SalesCompanyRepository extends EntityRepository
     }
 
     public function getCompanyList(
+        $banned,
         $search
     ) {
         $query = $this->createQueryBuilder('sc');
+
+        if(!is_null($banned)) {
+            $query->andWhere('sc.banned = :banned')
+                ->setParameter('banned', $banned);
+        }
 
         if (!is_null($search)) {
             $query->andWhere('
