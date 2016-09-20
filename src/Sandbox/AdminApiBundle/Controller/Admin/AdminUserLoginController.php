@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Admin;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -15,8 +16,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Acl\Exception\Exception;
-use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 
 /**
@@ -34,7 +35,7 @@ class AdminUserLoginController extends AdminRestController
     use YunPianSms;
 
     const VERIFICATION_CODE_LENGTH = 6;
-    const ZH_SMS_BEFORE = '【展想创合】您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：';
+    const ZH_SMS_BEFORE = '【展想创合】您正在登陆管理员账号，如确认是本人行为，请提交以下验证码完成操作：';
     const ZH_SMS_AFTER = '。验证码在10分钟内有效。';
 
     const EN_SMS_BEFORE = '【Sandbox3】Your verification code is ';
@@ -77,7 +78,21 @@ class AdminUserLoginController extends AdminRestController
             );
         }
 
-        return $this->handleAdminUserLogin($request, $admin);
+        $em = $this->getDoctrine()->getManager();
+
+        // save or update user check code
+        $userCheckCode = $this->saveUserCheckCode($admin, $em);
+        if (is_null($userCheckCode->getId())) {
+            $em->persist($userCheckCode);
+            $em->flush();
+        }
+
+        // send verification code by sms
+        $this->sendSMSNotification(
+            $userCheckCode
+        );
+
+        return new View();
     }
 
     /**
@@ -102,8 +117,21 @@ class AdminUserLoginController extends AdminRestController
     public function postAdminUserLoginAction(
         Request $request
     ) {
+        $payload = json_decode($request->getContent(), true);
+
+        if (!isset($payload['check_code'])) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
         // check security & get admin
         $admin = $this->checkAdminLoginSecurity();
+
+        // remove check code if the given code is exited or return error
+        $error = $this->removeUserCheckCodeIfExited($payload['check_code'], $admin->getPhone());
+
+        if (!is_null($error)) {
+            return $error;
+        }
 
         return $this->handleAdminUserLogin($request, $admin);
     }
@@ -123,13 +151,6 @@ class AdminUserLoginController extends AdminRestController
         try {
             $em = $this->getDoctrine()->getManager();
 
-            // save or update user check code
-            $userCheckCode = $this->saveUserCheckCode($admin, $em);
-            if (is_null($userCheckCode->getId())) {
-                $em->persist($userCheckCode);
-                $em->flush();
-            }
-
             // save or update admin client
             $adminClient = $this->saveAdminClient($request);
             if (is_null($adminClient->getId())) {
@@ -144,6 +165,11 @@ class AdminUserLoginController extends AdminRestController
             }
             $em->flush();
 
+            // get admin positions
+            $positions = $this->getRepo('Admin\AdminPositionUserBinding')
+                ->findPositionByAdmin($admin);
+            $platform = $this->handlePositionData($positions);
+
             // response
             $view = new View();
             $view->setSerializationContext(
@@ -153,14 +179,14 @@ class AdminUserLoginController extends AdminRestController
             // set admin cookie
             setrawcookie(self::ADMIN_COOKIE_NAME, $adminToken->getToken(), null, '/', $request->getHost());
 
-            // send verification code by sms
-            $this->sendSMSNotification(
-                $userCheckCode
+            return $view->setData(
+                array(
+                    'admin' => $admin,
+                    'token' => $adminToken,
+                    'client' => $adminClient,
+                    'platform' => $platform,
+                )
             );
-
-            return $view->setData(array(
-                'client' => $adminClient,
-            ));
         } catch (Exception $e) {
             throw new \Exception('Something went wrong!');
         }
@@ -304,7 +330,7 @@ class AdminUserLoginController extends AdminRestController
             }
         }
 
-        $userCheckCode = new UserCheckCode();
+        $userCheckCode = new UserCheckCode($admin->getId());
         $userCheckCode->setPhone($admin->getPhone());
         $userCheckCode->setPhoneCode($admin->getPhoneCode());
         $userCheckCode->setEmail($admin->getEmail());
@@ -333,5 +359,48 @@ class AdminUserLoginController extends AdminRestController
             $phoneCode.$userCheckCode->getPhone(),
             $smsText
         );
+    }
+
+    private function handlePositionData($positions)
+    {
+        $platform = array();
+        foreach ($positions as $position) {
+            switch ($position['platform']) {
+                case 'shop':
+                    $platform['shop'][] = $position;
+                    break;
+                case 'sales':
+                    $platform['sales'][] = $position;
+                    break;
+                default:
+                    $platform['official'][] = $position;
+            }
+        }
+
+        return $platform;
+    }
+
+    private function removeUserCheckCodeIfExited($checkCode, $phone)
+    {
+        $userCheckCode = $this->getRepo('User\UserCheckCode')->findOneBy(
+            array(
+                'code' => $checkCode,
+                'phone' => $phone,
+            )
+        );
+
+        if (is_null($userCheckCode)) {
+            return $this->customErrorView(
+                401,
+                self::ERROR_WRONG_CHECK_CODE_CODE,
+                self::ERROR_WRONG_CHECK_CODE_MESSAGE
+            );
+        }
+
+        // remove User check code
+        $this->getDoctrine()->getManager()->remove($userCheckCode);
+        $this->getDoctrine()->getManager()->flush();
+
+        return;
     }
 }
