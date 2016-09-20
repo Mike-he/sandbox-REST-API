@@ -27,9 +27,8 @@ class AdminPositionRepository extends EntityRepository
             }
 
             if ($platform == AdminPosition::PLATFORM_SALES) {
-                $query->andWhere('p.platform = :sales OR p.platform = :shop')
-                    ->setParameter('sales', AdminPosition::PLATFORM_SALES)
-                    ->setParameter('shop', AdminPosition::PLATFORM_SHOP);
+                $query->andWhere('p.platform = :sales')
+                    ->setParameter('sales', AdminPosition::PLATFORM_SALES);
             } elseif ($platform == AdminPosition::PLATFORM_SHOP) {
                 $query->andWhere('p.platform = :platform')
                     ->setParameter('platform', $platform);

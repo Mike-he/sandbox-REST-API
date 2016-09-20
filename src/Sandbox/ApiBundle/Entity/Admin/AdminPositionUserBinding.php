@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * AdminPositionUserBinding.
@@ -10,15 +11,16 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *     name="admin_position_user_binding",
  *     uniqueConstraints={
- *          @ORM\UniqueConstraint(name="userId_positionId_buildingId_UNIQUE", columns={"userId", "positionId", "buildingId"})
+ *          @ORM\UniqueConstraint(name="userId_positionId_buildingId_shopId_UNIQUE", columns={"userId", "positionId", "buildingId", "shopId"})
  *      },
  *      indexes={
  *          @ORM\Index(name="fk_AdminPositionUserBinding_userId_idx", columns={"userId"}),
  *          @ORM\Index(name="fk_AdminPositionUserBinding_positionId_idx", columns={"positionId"}),
- *          @ORM\Index(name="fk_AdminPositionUserBinding_building_idx", columns={"buildingId"})
+ *          @ORM\Index(name="fk_AdminPositionUserBinding_buildingId_idx", columns={"buildingId"}),
+ *          @ORM\Index(name="fk_AdminPositionUserBinding_ShopId_idx", columns={"shopId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Admin\AdminPositionUserBindingRepository")
  */
 class AdminPositionUserBinding
 {
@@ -35,6 +37,8 @@ class AdminPositionUserBinding
      * @var int
      *
      * @ORM\Column(name="userId", type="integer")
+     *
+     * @Assert\NotBlank()
      */
     private $userId;
 
@@ -48,6 +52,8 @@ class AdminPositionUserBinding
      * @var int
      *
      * @ORM\Column(name="positionId", type="integer")
+     *
+     * @Assert\NotBlank()
      */
     private $positionId;
 
