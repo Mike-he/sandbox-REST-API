@@ -10,11 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *     name="admin_position_user_binding",
  *     uniqueConstraints={
- *          @ORM\UniqueConstraint(name="userId_positionId_UNIQUE", columns={"userId", "positionId"})
+ *          @ORM\UniqueConstraint(name="userId_positionId_buildingId_UNIQUE", columns={"userId", "positionId", "buildingId"})
  *      },
  *      indexes={
  *          @ORM\Index(name="fk_AdminPositionUserBinding_userId_idx", columns={"userId"}),
- *          @ORM\Index(name="fk_AdminPositionUserBinding_positionId_idx", columns={"positionId"})
+ *          @ORM\Index(name="fk_AdminPositionUserBinding_positionId_idx", columns={"positionId"}),
+ *          @ORM\Index(name="fk_AdminPositionUserBinding_building_idx", columns={"buildingId"})
  *      }
  * )
  * @ORM\Entity
@@ -62,6 +63,13 @@ class AdminPositionUserBinding
      * @ORM\Column(name="buildingId", type="integer", nullable=true)
      */
     private $buildingId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="shopId", type="integer", nullable=true)
+     */
+    private $shopId;
 
     /**
      * @var \DateTime
@@ -174,6 +182,22 @@ class AdminPositionUserBinding
     public function setBuildingId($buildingId)
     {
         $this->buildingId = $buildingId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getShopId()
+    {
+        return $this->shopId;
+    }
+
+    /**
+     * @param int $shopId
+     */
+    public function setShopId($shopId)
+    {
+        $this->shopId = $shopId;
     }
 
     /**
