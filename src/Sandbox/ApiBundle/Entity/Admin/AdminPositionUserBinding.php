@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="fk_AdminPositionUserBinding_building_idx", columns={"buildingId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Admin\AdminPositionUserBindingRepository")
  */
 class AdminPositionUserBinding
 {

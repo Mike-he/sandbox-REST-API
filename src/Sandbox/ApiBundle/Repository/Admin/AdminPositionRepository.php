@@ -48,4 +48,37 @@ class AdminPositionRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+
+
+    public function getPositions(
+        $platform,
+        $companyId,
+        $isSuperAdmin
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->where('p.isHidden = FALSE');
+
+        if (!is_null($isSuperAdmin)) {
+            $query->andWhere('p.isSuperAdmin = :isSuperAdmin')
+                ->setParameter('isSuperAdmin', $isSuperAdmin);
+        }
+
+        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
+            $query->andWhere('p.platform = :platform')
+                ->setParameter('platform', $platform);
+        } else {
+            if (is_null($companyId) || empty($companyId)) {
+                return array();
+            }
+
+            $query->andWhere('p.platform = :platform')
+                ->setParameter('platform', $platform);
+
+            $query->andWhere('p.salesCompanyId = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }
