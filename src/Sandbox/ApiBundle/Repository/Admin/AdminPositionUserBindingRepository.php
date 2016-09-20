@@ -24,4 +24,20 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function findPositionByAdmin($admin)
+    {
+        $qb = $this->getEntityManager()
+            ->createQuery('
+                SELECT p.salesCompanyId, p.id, p.platform, p.name
+                FROM SandboxApiBundle:Admin\AdminPositionUserBinding b
+                JOIN b.position p
+                WHERE
+                    b.userId = :admin
+                ORDER BY p.platform ASC
+            ')
+            ->setParameter('admin', $admin);
+
+        return $qb->getResult();
+    }
 }

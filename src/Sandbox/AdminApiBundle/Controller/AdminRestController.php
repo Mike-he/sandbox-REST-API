@@ -16,6 +16,9 @@ class AdminRestController extends SandboxRestController
     const ERROR_ACCOUNT_WRONG_PASSWORD_CODE = 401003;
     const ERROR_ACCOUNT_WRONG_PASSWORD_MESSAGE = 'client.login.wrong_password';
 
+    const ERROR_WRONG_CHECK_CODE_CODE = 401004;
+    const ERROR_WRONG_CHECK_CODE_MESSAGE = 'client.login.wrong_check_code';
+
     /**
      * @return User $admin
      *
@@ -24,9 +27,10 @@ class AdminRestController extends SandboxRestController
     protected function checkAdminLoginSecurity()
     {
         $auth = $this->getSandboxAuthorization(self::SANDBOX_ADMIN_LOGIN_HEADER);
+        $usernameArray = explode('-', $auth->getUsername());
 
         $admin = $this->getRepo('User\User')->findOneBy(array(
-            'username' => $auth->getUsername(),
+            'phone' => $usernameArray[1],
             'password' => $auth->getPassword(),
         ));
 
@@ -88,7 +92,7 @@ class AdminRestController extends SandboxRestController
         ));
 
         if (is_null($adminPositionUser)) {
-            throw new AccessDeniedHttpException(null, self::NOT_ALLOWED_MESSAGE);
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         return $admin;

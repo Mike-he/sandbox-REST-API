@@ -185,6 +185,7 @@ client:
     account_banned: Your account is banned, please contact customer service:
     account_non_existent: Account does not exist
     wrong_password: Wrong password
+    wrong_check_code: Wrong validation code
   menu:
     order: Reservation
     coffee: Coffee

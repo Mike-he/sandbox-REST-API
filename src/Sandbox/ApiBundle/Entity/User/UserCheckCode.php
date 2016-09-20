@@ -28,6 +28,13 @@ class UserCheckCode
     private $id;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="adminId", type="integer", nullable=false)
+     */
+    private $adminId;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="phoneCode", type="string", length=64, nullable=true)
@@ -72,6 +79,12 @@ class UserCheckCode
      */
     private $creationDate;
 
+    public function __construct($adminId)
+    {
+        $this->adminId = $adminId;
+        $this->creationDate = new \DateTime('now');
+    }
+
     /**
      * Get id.
      *
@@ -80,6 +93,26 @@ class UserCheckCode
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAdminId()
+    {
+        return $this->adminId;
+    }
+
+    /**
+     * @param int $adminId
+     *
+     * @return UserCheckCode
+     */
+    public function setAdminId($adminId)
+    {
+        $this->adminId = $adminId;
+
+        return $this;
     }
 
     /**
@@ -92,10 +125,14 @@ class UserCheckCode
 
     /**
      * @param string $phoneCode
+     *
+     * @return UserCheckCode
      */
     public function setPhoneCode($phoneCode)
     {
         $this->phoneCode = $phoneCode;
+
+        return $this;
     }
 
     /**
@@ -103,7 +140,7 @@ class UserCheckCode
      *
      * @param string $phone
      *
-     * @return UserRegistration
+     * @return UserCheckCode
      */
     public function setPhone($phone)
     {
@@ -127,7 +164,7 @@ class UserCheckCode
      *
      * @param string $email
      *
-     * @return UserRegistration
+     * @return UserCheckCode
      */
     public function setEmail($email)
     {
@@ -160,10 +197,14 @@ class UserCheckCode
      * Set code.
      *
      * @param int $type
+     *
+     * @return UserCheckCode
      */
     public function setType($type)
     {
         $this->type = $type;
+
+        return $this;
     }
 
     /**
@@ -171,7 +212,7 @@ class UserCheckCode
      *
      * @param string $code
      *
-     * @return UserRegistration
+     * @return UserCheckCode
      */
     public function setCode($code)
     {
@@ -205,17 +246,12 @@ class UserCheckCode
      *
      * @param \DateTime $creationDate
      *
-     * @return User
+     * @return UserCheckCode
      */
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
-    }
 
-    public function __construct()
-    {
-        $this->creationDate = new \DateTime(
-            'now'
-        );
+        return $this;
     }
 }
