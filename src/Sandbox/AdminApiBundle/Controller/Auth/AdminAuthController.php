@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Auth;
 
+use Sandbox\AdminApiBundle\Controller\Traits\HandleAdminLoginDataTrait;
 use Sandbox\ApiBundle\Controller\Auth\AuthController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -15,13 +16,15 @@ use JMS\Serializer\SerializationContext;
  *
  * @category Sandbox
  *
- * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
+ * @author   Albert Feng <albert.f@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
  * @link     http://www.Sandbox.cn/
  */
 class AdminAuthController extends AuthController
 {
+    use HandleAdminLoginDataTrait;
+
     /**
      * Token auth.
      *
@@ -52,5 +55,29 @@ class AdminAuthController extends AuthController
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('auth')));
 
         return $view;
+    }
+
+    /**
+     * GET positions of platform when admin refresh login page.
+     *
+     * @Route("/platform")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAdminAuthPlatformAction()
+    {
+        $myAdminId = $this->getAdminId();
+
+        $positions = $this->getRepo('Admin\AdminPositionUserBinding')
+            ->findPositionByAdmin($myAdminId);
+
+        // response
+        $view = new View();
+        return $view->setData(
+            array(
+                'platform' => $this->handlePositionData($positions),
+            )
+        );
     }
 }

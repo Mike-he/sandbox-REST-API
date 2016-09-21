@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Admin;
 
 use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
+use Sandbox\AdminApiBundle\Controller\Traits\HandleAdminLoginDataTrait;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
@@ -33,6 +34,7 @@ use Sandbox\ApiBundle\Traits\YunPianSms;
 class AdminUserLoginController extends AdminRestController
 {
     use YunPianSms;
+    use HandleAdminLoginDataTrait;
 
     const VERIFICATION_CODE_LENGTH = 6;
     const ZH_SMS_BEFORE = '【展想创合】您正在登陆管理员账号，如确认是本人行为，请提交以下验证码完成操作：';
@@ -359,25 +361,6 @@ class AdminUserLoginController extends AdminRestController
             $phoneCode.$userCheckCode->getPhone(),
             $smsText
         );
-    }
-
-    private function handlePositionData($positions)
-    {
-        $platform = array();
-        foreach ($positions as $position) {
-            switch ($position['platform']) {
-                case 'shop':
-                    $platform['shop'][] = $position;
-                    break;
-                case 'sales':
-                    $platform['sales'][] = $position;
-                    break;
-                default:
-                    $platform['official'][] = $position;
-            }
-        }
-
-        return $platform;
     }
 
     private function removeUserCheckCodeIfExited($checkCode, $phone)
