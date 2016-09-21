@@ -233,9 +233,8 @@ class AdminPositionBindingController extends AdminRestController
             $building = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
                 ->find($buildingId);
-            $buildingId = !is_null($building) ? $building->getId() : null;
 
-            if (is_null($buildingId)) {
+            if (is_null($building)) {
                 return $this->customErrorView(
                     400,
                     self::ERROR_INVALID_BUILDING_CODE,
@@ -243,7 +242,7 @@ class AdminPositionBindingController extends AdminRestController
                 );
             }
 
-            $positionUserBinding->setBuildingId($buildingId);
+            $positionUserBinding->setBuilding($building);
         }
 
         // check shop validation
@@ -252,17 +251,16 @@ class AdminPositionBindingController extends AdminRestController
             $shop = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Shop\Shop')
                 ->find($shopId);
-            $shopId = !is_null($shop) ? $shop->getId() : null;
 
-            if (is_null($shopId)) {
+            if (is_null($shop)) {
                 return $this->customErrorView(
                     400,
                     self::ERROR_INVALID_SHOP_CODE,
                     self::ERROR_INVALID_SHOP_MESSAGE
                 );
             }
-        }
 
-        $positionUserBinding->setShopId($shopId);
+            $positionUserBinding->setShop($shop);
+        }
     }
 }
