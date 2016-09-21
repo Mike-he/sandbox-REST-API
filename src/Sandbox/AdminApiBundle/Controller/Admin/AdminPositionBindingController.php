@@ -28,7 +28,7 @@ class AdminPositionBindingController extends AdminRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/position/binding")
+     * @Route("/position/bindings")
      * @Method({"POST"})
      *
      * @return View
