@@ -306,7 +306,7 @@ class MenuController extends SandboxRestController
                     $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
                     $bannerItem = array();
                     foreach ($data as $d) {
-                        if ($d->getSource() == 'url') {
+                        if ($d->getSource() == 'url' || $d->getSource() == 'blank_block') {
                             $url = $d->getContent();
                         } else {
                             $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
@@ -393,7 +393,7 @@ class MenuController extends SandboxRestController
             case 'banner':
                 $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
                 foreach ($data as $d) {
-                    if ($d->getSource() == 'url') {
+                    if ($d->getSource() == 'url' || $d->getSource() == 'blank_block') {
                         $url = $d->getContent();
                     } else {
                         $url = $this->container->getParameter('mobile_url').'/'.$d->getSource().'?ptype=detail&id='.$d->getSourceId();
