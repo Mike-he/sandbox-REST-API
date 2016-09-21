@@ -71,11 +71,23 @@ class AdminPositionUserBinding
     private $buildingId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $building;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="shopId", type="integer", nullable=true)
      */
     private $shopId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Shop\Shop")
+     * @ORM\JoinColumn(name="shopId", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $shop;
 
     /**
      * @var \DateTime
@@ -191,6 +203,22 @@ class AdminPositionUserBinding
     }
 
     /**
+     * @return mixed
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param mixed $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+    }
+
+    /**
      * @return int
      */
     public function getShopId()
@@ -204,6 +232,22 @@ class AdminPositionUserBinding
     public function setShopId($shopId)
     {
         $this->shopId = $shopId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getShop()
+    {
+        return $this->shop;
+    }
+
+    /**
+     * @param mixed $shop
+     */
+    public function setShop($shop)
+    {
+        $this->shop = $shop;
     }
 
     /**

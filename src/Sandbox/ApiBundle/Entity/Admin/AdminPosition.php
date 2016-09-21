@@ -60,6 +60,13 @@ class AdminPosition
     private $salesCompanyId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
+     * @ORM\JoinColumn(name="salesCompanyId", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $salesCompany;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="isHidden", type="boolean")
@@ -292,6 +299,22 @@ class AdminPosition
     public function getSalesCompanyId()
     {
         return $this->salesCompanyId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSalesCompany()
+    {
+        return $this->salesCompany;
+    }
+
+    /**
+     * @param mixed $salesCompany
+     */
+    public function setSalesCompany($salesCompany)
+    {
+        $this->salesCompany = $salesCompany;
     }
 
     /**
