@@ -60,6 +60,62 @@ class AdminAdminsController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="search",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="name or username"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="platform",
+     *    array=false,
+     *    nullable=false,
+     *    strict=true,
+     *    description="platform"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="isSuperAdmin",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="isSuperAdmin"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="sales admin company"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="shop"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="position",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="position"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -90,23 +146,51 @@ class AdminAdminsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+
+        $platform = $paramFetcher->get('platform');
+        $isSuperAdmin = $paramFetcher->get('isSuperAdmin');
+        $companyId = $paramFetcher->get('company');
+        $buildingId = $paramFetcher->get('building');
+        $shopId = $paramFetcher->get('shop');
+        $position = $paramFetcher->get('position');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $search = $paramFetcher->get('search');
 
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ADMIN,
-            AdminPermissionMap::OP_LEVEL_VIEW
-        );
+        if (is_null($position) || empty($position)) {
+            $positions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->getPositions(
+                    $platform,
+                    $companyId,
+                    $isSuperAdmin
+                );
+        } else {
+            $positions = explode(',', $position);
+        }
 
-        // get all admins id and username
-        $query = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\Admin')->getAllAdmins();
+        $userIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser(
+                $positions,
+                $buildingId,
+                $shopId,
+                $search
+            );
+
+        $result = array();
+        foreach ($userIds as $userId) {
+            $list = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getAdminList($userId->getUser(), $positions);
+
+            $result[] = $list;
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $result,
             $pageIndex,
             $pageLimit
         );

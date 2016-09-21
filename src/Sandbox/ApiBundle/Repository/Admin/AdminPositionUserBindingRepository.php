@@ -40,4 +40,59 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
         return $qb->getResult();
     }
+
+    /**
+     * @param $positions
+     * @param null $building
+     * @param null $shop
+     * @param $search
+     *
+     * @return array
+     */
+    public function getBindUser(
+        $positions,
+        $building,
+        $shop,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->where('p.position in (:positions)')
+            ->setParameter('positions', $positions);
+
+        if (!is_null($building) && !empty($building)) {
+            $query->andWhere('p.building = :building')
+                ->setParameter('building', $building);
+        }
+
+        if (!is_null($shop) && !empty($shop)) {
+            $query->andWhere('p.shop = :shop')
+                ->setParameter('shop', $shop);
+        }
+
+        if (!is_null($search)) {
+        }
+
+        $query->groupBy('p.userId');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $user
+     * @param $positions
+     *
+     * @return array
+     */
+    public function getAdminList(
+        $user,
+        $positions
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->where('p.user = :user')
+            ->andWhere('p.positionId in (:positions)')
+            ->setParameter('user', $user)
+            ->setParameter('positions', $positions);
+
+        return $query->getQuery()->getResult();
+    }
 }

@@ -164,7 +164,7 @@ class AdminShopAdminsController extends SandboxRestController
         $adminPosition = $em->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
                 array(
-                    'salesCompanyId' => $company->getId(),
+                    'salesCompany' => $company,
                     'name' => self::POSITION_COFFEE_ADMIN,
                     'platform' => AdminPermission::PERMISSION_PLATFORM_SHOP,
                     'isSuperAdmin' => true,
@@ -203,7 +203,7 @@ class AdminShopAdminsController extends SandboxRestController
         $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SHOP);
         $position->setIsSuperAdmin(true);
         $position->setIcon($icon);
-        $position->setSalesCompanyId($company->getId());
+        $position->setSalesCompany($company);
         $position->setCreationDate($now);
         $position->setModificationDate($now);
         $em->persist($position);
