@@ -526,6 +526,8 @@ class AdminPositionController extends PaymentController
                 ));
 
             $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+            $position->setSalesCompany($company);
         }
     }
 

@@ -74,6 +74,7 @@ class AdminAuthController extends AuthController
 
         // response
         $view = new View();
+
         return $view->setData(
             array(
                 'platform' => $this->handlePositionData($positions),

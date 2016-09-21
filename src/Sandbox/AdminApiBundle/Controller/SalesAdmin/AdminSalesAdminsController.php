@@ -461,7 +461,6 @@ class AdminSalesAdminsController extends SandboxRestController
         $salesCompany->setModificationDate($now);
         $em->persist($salesCompany);
 
-
         $position = $this->createPosition(
             $user,
             $salesCompany,
