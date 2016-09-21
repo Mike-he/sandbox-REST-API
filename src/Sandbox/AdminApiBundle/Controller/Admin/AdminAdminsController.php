@@ -199,6 +199,46 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
+     * Get Bilding Position by Company.
+     *
+     * @param Request $request    the request object
+     * @param int     $company_id
+     *
+     *
+     * @Method({"GET"})
+     * @Route("/admins/company/{company_id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminBuilding(
+        Request $request,
+        $company_id
+    ) {
+        $myBuildings = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->getCompanyBuildings($company_id);
+
+        $result = array();
+        foreach ($myBuildings as $myBuilding) {
+            $positions = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBuildingPosition($myBuilding);
+
+            $positionArr = array();
+            foreach ($positions as $position) {
+                $positionArr[] = $position->getPosition();
+            }
+
+            $result[] = array(
+                'building' => $myBuilding,
+                'position' => $positionArr,
+            );
+        }
+
+        return new View($result);
+    }
+
+    /**
      * List definite id of admin.
      *
      * @param Request $request  the request object

@@ -95,4 +95,20 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $building
+     *
+     * @return array
+     */
+    public function getBuildingPosition(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->where('p.building = :building')
+            ->setParameter('building', $building)
+            ->groupBy('p.position');
+
+        return $query->getQuery()->getResult();
+    }
 }

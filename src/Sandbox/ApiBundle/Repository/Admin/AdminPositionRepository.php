@@ -58,7 +58,7 @@ class AdminPositionRepository extends EntityRepository
     public function getPositions(
         $platform,
         $companyId,
-        $isSuperAdmin
+        $isSuperAdmin = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->where('p.isHidden = FALSE');
