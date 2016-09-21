@@ -35,8 +35,8 @@ use Rs\Json\Patch;
  */
 class AdminSalesAdminsController extends SandboxRestController
 {
-    const POSITION_ADMIN = 'admin';
-    const POSITION_COFFEE_ADMIN = 'coffee_admin';
+    const POSITION_ADMIN = 'Sales_Super_Administrator';
+    const POSITION_COFFEE_ADMIN = 'Shop_Super_Administrator';
 
     /**
      * List all admins.
@@ -460,7 +460,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $salesCompany->setCreationDate($now);
         $salesCompany->setModificationDate($now);
         $em->persist($salesCompany);
-        $em->flush();
+
 
         $position = $this->createPosition(
             $user,
