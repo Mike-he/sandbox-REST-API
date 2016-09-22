@@ -14,6 +14,8 @@ namespace Sandbox\AdminApiBundle\Controller\Traits;
  */
 trait HandleAdminLoginDataTrait
 {
+    use HandleArrayTrait;
+
     private function handlePositionData($positions)
     {
         $platform = array();
@@ -31,5 +33,26 @@ trait HandleAdminLoginDataTrait
         }
 
         return $platform;
+    }
+
+    private function handlePermissionData($permissions)
+    {
+        $data = array();
+        foreach ($permissions as $permission) {
+            $data[$permission['id']][] = $permission;
+        }
+
+        $newPermissions = array();
+        foreach ($data as $item) {
+            if (count($item) > 1) {
+                $item = $this->array_sort($item, 'op_level', 'desc');
+
+                $newPermissions[] = $item[0];
+            } else {
+                $newPermissions[] = $item[0];
+            }
+        }
+
+        return $newPermissions;
     }
 }

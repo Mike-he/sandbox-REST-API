@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\Auth;
 
 use Sandbox\AdminApiBundle\Controller\Traits\HandleAdminLoginDataTrait;
+use Sandbox\AdminApiBundle\Controller\Traits\HandleArrayTrait;
 use Sandbox\ApiBundle\Controller\Auth\AuthController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -10,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin Auth controller.
@@ -38,7 +40,7 @@ class AdminAuthController extends AuthController
      * )
      *
      * @Route("/me")
-     * @Method({"GET"})
+     * @Method({"POST"})
      *
      * @return View
      *
@@ -47,14 +49,28 @@ class AdminAuthController extends AuthController
     public function getAdminAuthMeAction(
         Request $request
     ) {
-        $myAdminId = $this->getAdminId();
-        $myAdmin = $this->getRepo('Admin\Admin')->find($myAdminId);
+        $payload = json_decode($request->getContent(), true);
+
+        if (!isset($payload['platform'])) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $salesCompanyId = null;
+        if (isset($payload['sales_company_id'])) {
+            $salesCompanyId = $payload['sales_company_id'];
+        }
+
+        $permissions = $this->getRepo('Admin\AdminPermission')
+            ->findAdminPermissionsByAdminAndPositions(
+                $this->getAdminId(),
+                $payload['platform'],
+                $salesCompanyId
+            );
 
         // response
-        $view = new View($myAdmin);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('auth')));
-
-        return $view;
+        return new View(
+            $this->handlePermissionData($permissions)
+        );
     }
 
     /**
