@@ -158,23 +158,16 @@ class AdminAdminsController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $search = $paramFetcher->get('search');
 
-        if (is_null($position) || empty($position)) {
-            $positions = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                ->getPositions(
-                    $platform,
-                    $companyId,
-                    $isSuperAdmin
-                );
-        } else {
-            $positionIds = explode(',', $position);
-            $positions = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                ->filterPosition(
-                    $platform,
-                    $positionIds
-                );
-        }
+        $positionIds = is_null($position) ? null : explode(',', $position);
+
+        $positions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getPositions(
+                $platform,
+                $companyId,
+                $isSuperAdmin,
+                $positionIds
+            );
 
         $userIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
