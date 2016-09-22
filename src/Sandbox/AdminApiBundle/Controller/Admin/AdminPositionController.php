@@ -453,7 +453,7 @@ class AdminPositionController extends PaymentController
     }
 
     /**
-     * @param $position
+     * @param AdminPosition $position
      */
     private function setParentPosition(
         $position
@@ -466,6 +466,8 @@ class AdminPositionController extends PaymentController
                 ->find($parentId);
 
             $this->throwNotFoundIfNull($parent, self::NOT_FOUND_MESSAGE);
+
+            $position->setParentPosition($parent);
         }
     }
 
