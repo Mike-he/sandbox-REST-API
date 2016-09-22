@@ -44,6 +44,13 @@ class AdminPosition
     private $parentPositionId;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Admin\AdminPosition")
+     * @ORM\JoinColumn(name="parentPositionId", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $parentPosition;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="platform", type="string", length=64)
@@ -251,6 +258,22 @@ class AdminPosition
     public function getParentPositionId()
     {
         return $this->parentPositionId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParentPosition()
+    {
+        return $this->parentPosition;
+    }
+
+    /**
+     * @param mixed $parentPosition
+     */
+    public function setParentPosition($parentPosition)
+    {
+        $this->parentPosition = $parentPosition;
     }
 
     /**
