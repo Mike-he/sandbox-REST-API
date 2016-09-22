@@ -184,7 +184,7 @@ class AdminAdminsController extends SandboxRestController
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                 ->getAdminList($userId['userId'], $positions);
 
-            $result[] = $list;
+            $result = $list;
         }
 
         $paginator = new Paginator();
