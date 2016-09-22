@@ -118,6 +118,22 @@ class AdminPermission
     private $level;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="maxOpLevel", type="integer", nullable=false)
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
+     */
+    private $maxOpLevel;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="opLevelSelect", type="string", length=16, nullable=false)
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
+     */
+    private $opLevelSelect;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -221,6 +237,38 @@ class AdminPermission
     public function setLevel($level)
     {
         $this->level = $level;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxOpLevel()
+    {
+        return $this->maxOpLevel;
+    }
+
+    /**
+     * @param int $maxOpLevel
+     */
+    public function setMaxOpLevel($maxOpLevel)
+    {
+        $this->maxOpLevel = $maxOpLevel;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOpLevelSelect()
+    {
+        return $this->opLevelSelect;
+    }
+
+    /**
+     * @param string $opLevelSelect
+     */
+    public function setOpLevelSelect($opLevelSelect)
+    {
+        $this->opLevelSelect = $opLevelSelect;
     }
 
     /**

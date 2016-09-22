@@ -16,8 +16,9 @@ class Version20160920100919 extends AbstractMigration
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql("INSERT INTO admin_position(`name`,`parentPositionId`,`platform`,`salesCompanyId`,`isHidden`,`isSuperAdmin`,`iconId`,`creationDate`,`modificationDate`)
-                        VALUES('Official_Super_Administrator',null,'official',null,false,true,1,'2016-9-20','2016-9-20');");
+        // TODO need add position icon first
+//        $this->addSql("INSERT INTO admin_position(`name`,`parentPositionId`,`platform`,`salesCompanyId`,`isHidden`,`isSuperAdmin`,`iconId`,`creationDate`,`modificationDate`)
+//                        VALUES('SuperAdministrator',null,'official',null,false,true,1,'2016-9-20','2016-9-20');");
     }
 
     /**

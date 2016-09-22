@@ -3,14 +3,12 @@
 namespace Sandbox\AdminApiBundle\Controller\Auth;
 
 use Sandbox\AdminApiBundle\Controller\Traits\HandleAdminLoginDataTrait;
-use Sandbox\AdminApiBundle\Controller\Traits\HandleArrayTrait;
 use Sandbox\ApiBundle\Controller\Auth\AuthController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
