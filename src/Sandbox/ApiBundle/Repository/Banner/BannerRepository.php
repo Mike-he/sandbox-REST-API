@@ -50,6 +50,7 @@ class BannerRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('b')
             ->where('b.source != :blank_block')
+            ->setMaxResults(5)
             ->orderBy('b.sortTime', 'DESC')
             ->setParameter('blank_block', Banner::SOURCE_BLANK_BLOCK);
 
