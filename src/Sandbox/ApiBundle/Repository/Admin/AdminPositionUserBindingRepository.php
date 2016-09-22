@@ -111,4 +111,27 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $building
+     * @param null $position
+     * 
+     * @return mixed
+     */
+    public function countBuildingUser(
+        $building,
+        $position = null
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('count(p.id)')
+            ->where('p.building = :building')
+            ->setParameter('building', $building);
+
+        if (!is_null($position)) {
+            $query->andWhere('p.position = :position')
+                ->setParameter('position', $position);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

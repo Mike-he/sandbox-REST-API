@@ -221,15 +221,25 @@ class AdminAdminsController extends SandboxRestController
 
         $result = array();
         foreach ($myBuildings as $myBuilding) {
+            $userCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->countBuildingUser($myBuilding);
+
             $positions = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                 ->getBuildingPosition($myBuilding);
 
             $positionArr = array();
             foreach ($positions as $position) {
-                $positionArr[] = $position->getPosition();
+                $userCount = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->countBuildingUser($myBuilding, $position->getPosition());
+                $positionArr[] = array(
+                    'position' => $position->getPosition(),
+                    'count' => $userCount,
+
+                );
             }
 
             $result[] = array(
+                'count' => $userCounts,
                 'building' => $myBuilding,
                 'position' => $positionArr,
             );

@@ -382,7 +382,7 @@ class FileServerController extends SandboxRestController
         $preview_height = $paramFetcher->get('preview_height');
         $preview_width = $paramFetcher->get('preview_width');
 
-        if(is_null($target)) {
+        if (is_null($target)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 

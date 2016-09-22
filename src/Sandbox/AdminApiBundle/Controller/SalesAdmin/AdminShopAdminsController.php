@@ -199,7 +199,6 @@ class AdminShopAdminsController extends SandboxRestController
 
         $position = new AdminPosition();
         $position->setName($name);
-        $position->setParentPositionId(0);
         $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SHOP);
         $position->setIsSuperAdmin(true);
         $position->setIcon($icon);

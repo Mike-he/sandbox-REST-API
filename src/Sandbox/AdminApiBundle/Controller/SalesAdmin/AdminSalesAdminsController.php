@@ -498,7 +498,6 @@ class AdminSalesAdminsController extends SandboxRestController
 
         $position = new AdminPosition();
         $position->setName($name);
-        $position->setParentPositionId(0);
         $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
         $position->setIsSuperAdmin(true);
         $position->setIcon($icon);
