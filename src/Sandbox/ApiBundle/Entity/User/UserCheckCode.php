@@ -28,13 +28,6 @@ class UserCheckCode
     private $id;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="adminId", type="integer", nullable=false)
-     */
-    private $adminId;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="phoneCode", type="string", length=64, nullable=true)
@@ -81,7 +74,6 @@ class UserCheckCode
 
     public function __construct($adminId)
     {
-        $this->adminId = $adminId;
         $this->creationDate = new \DateTime('now');
     }
 
@@ -93,26 +85,6 @@ class UserCheckCode
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getAdminId()
-    {
-        return $this->adminId;
-    }
-
-    /**
-     * @param int $adminId
-     *
-     * @return UserCheckCode
-     */
-    public function setAdminId($adminId)
-    {
-        $this->adminId = $adminId;
-
-        return $this;
     }
 
     /**

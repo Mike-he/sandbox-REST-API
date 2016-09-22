@@ -21,20 +21,24 @@ class AdminPermissionRepository extends EntityRepository
             ->orderBy('p.id', 'ASC');
 
         // filter by exclude permission ids
-        if (!is_null($salesCompanyId)) {
-            $excludePermissionIds = $this->getEntityManager()->createQueryBuilder()
-                ->select('ep.permissionId')
-                ->from('SandboxApiBundle:Admin\AdminExcludePermission', 'ep')
-                ->where('ep.salesCompanyId = :salesCompanyId')
-                ->setParameter('salesCompanyId', $salesCompanyId)
-                ->getQuery()
-                ->getResult();
-            $excludePermissionIds = array_map('current', $excludePermissionIds);
+        $excludePermissionIdsQuery = $this->getEntityManager()->createQueryBuilder()
+            ->select('ep.permissionId')
+            ->from('SandboxApiBundle:Admin\AdminExcludePermission', 'ep')
+            ->where('ep.platform = :platform')
+            ->setParameter('platform', $platform);
 
-            if (!empty($excludePermissionIds)) {
-                $query->andWhere('p.id NOT IN (:ids)')
-                    ->setParameter('ids', $excludePermissionIds);
-            }
+        if (!is_null($salesCompanyId)) {
+            $excludePermissionIdsQuery
+                ->where('ep.salesCompanyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        $excludePermissionIds = $excludePermissionIdsQuery->getQuery()->getResult();
+        $excludePermissionIds = array_map('current', $excludePermissionIds);
+
+        if (!empty($excludePermissionIds)) {
+            $query->andWhere('p.id NOT IN (:ids)')
+                ->setParameter('ids', $excludePermissionIds);
         }
 
         // filter by type id

@@ -267,3 +267,8 @@ sandbox_admin_api_position_binding:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPositionBindingController.php"
     type:     annotation
     prefix:   /
+
+sandbox_admin_api_platform_set:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPlatformController.php"
+    type:     annotation
+    prefix:   /

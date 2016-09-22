@@ -19,11 +19,6 @@ class Version20160922081040 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('CREATE UNIQUE INDEX key_UNIQUE ON parameter (`key`)');
-        $this->addSql('ALTER TABLE user_check_codes ADD adminId INT NOT NULL');
-
-        $this->addSql("
-              INSERT INTO `parameter` (`key`, `value`) VALUES ('banner_top', '5');
-        ");
     }
 
     /**
@@ -35,6 +30,5 @@ class Version20160922081040 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('DROP INDEX key_UNIQUE ON parameter');
-        $this->addSql('ALTER TABLE user_check_codes DROP adminId');
     }
 }

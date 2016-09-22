@@ -116,7 +116,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
     /**
      * @param $building
      * @param null $position
-     * 
+     *
      * @return mixed
      */
     public function countBuildingUser(
