@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Form\Admin\AdminPostType;
 use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Form\Admin\AdminPutType;
@@ -180,11 +181,45 @@ class AdminAdminsController extends SandboxRestController
 
         $result = array();
         foreach ($userIds as $userId) {
-            $list = $this->getDoctrine()
+            $positionBinds = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->getAdminList($userId['userId'], $positions);
+                ->getBindUserInfo(
+                    $userId['userId'],
+                    $platform,
+                    $companyId
+                );
 
-            $result = $list;
+            $positionArr = array();
+            foreach ($positionBinds as $positionBind) {
+                $positionArr[] = $positionBind->getPosition();
+            }
+
+            $buildingArr = array();
+            if ($platform == AdminPosition::PLATFORM_SALES || $platform == AdminPosition::PLATFORM_SHOP) {
+                $buildingBinds = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindBuilding(
+                        $userId['userId'],
+                        $platform,
+                        $companyId
+                    );
+
+                foreach ($buildingBinds as $buildingBind) {
+                    $buildingInfo = $this->getDoctrine()->getRepository("SandboxApiBundle:Room\RoomBuilding")
+                        ->find($buildingBind['buildingId']);
+                    $buildingArr[] = $buildingInfo;
+                }
+            }
+
+            $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(array('userId' => $userId['userId']));
+
+            $result[] = array(
+                'user_id' => $userId['userId'],
+                'user' => $user,
+                'position' => $positionArr,
+                'building' => $buildingArr,
+            );
         }
 
         $paginator = new Paginator();

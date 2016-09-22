@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Admin;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 
 class AdminPositionUserBindingRepository extends EntityRepository
 {
@@ -57,6 +58,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('p.userId')
+            ->leftJoin('p.user', 'u')
             ->where('p.position in (:positions)')
             ->setParameter('positions', $positions);
 
@@ -134,5 +136,78 @@ class AdminPositionUserBindingRepository extends EntityRepository
         }
 
         return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $user
+     * @param $platform
+     * @param $companyId
+     *
+     * @return array
+     */
+    public function getBindUserInfo(
+        $user,
+        $platform,
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->leftJoin('pb.position', 'p')
+            ->where('pb.userId = :user')
+            ->setParameter('user', $user);
+
+        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
+            $query->andWhere('p.platform = :platform')
+                ->setParameter('platform', $platform);
+        } else {
+            if (is_null($companyId) || empty($companyId)) {
+                return array();
+            }
+
+            $query->andWhere('p.platform = :platform')
+                ->setParameter('platform', $platform);
+
+            $query->andWhere('p.salesCompanyId = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $user
+     * @param $platform
+     * @param $companyId
+     *
+     * @return array
+     */
+    public function getBindBuilding(
+        $user,
+        $platform,
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->select('pb.buildingId')
+            ->leftJoin('pb.position', 'p')
+            ->where('pb.buildingId is not null')
+            ->andWhere('pb.userId = :user')
+            ->setParameter('user', $user);
+
+        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
+            return array();
+        } else {
+            if (is_null($companyId) || empty($companyId)) {
+                return array();
+            }
+
+            $query->andWhere('p.platform = :platform')
+                ->setParameter('platform', $platform);
+
+            $query->andWhere('p.salesCompanyId = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        $query->groupBy('pb.buildingId');
+
+        return $query->getQuery()->getResult();
     }
 }
