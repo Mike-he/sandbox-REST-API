@@ -51,14 +51,16 @@ class AdminPositionRepository extends EntityRepository
     /**
      * @param $platform
      * @param $companyId
-     * @param $isSuperAdmin
-     *
+     * @param null $isSuperAdmin
+     * @param null $positionIds
+     * 
      * @return array
      */
     public function getPositions(
         $platform,
         $companyId,
-        $isSuperAdmin = null
+        $isSuperAdmin = null,
+        $positionIds = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->where('p.isHidden = FALSE');
@@ -83,25 +85,10 @@ class AdminPositionRepository extends EntityRepository
                 ->setParameter('companyId', $companyId);
         }
 
-        return $query->getQuery()->getResult();
-    }
-
-    /**
-     * @param $platform
-     * @param $ids
-     *
-     * @return array
-     */
-    public function filterPosition(
-        $platform,
-        $ids
-    ) {
-        $query = $this->createQueryBuilder('p')
-            ->select('p.id')
-            ->where('p.platform = :platform')
-            ->andWhere('p.id in (:ids)')
-            ->setParameter('platform', $platform)
-            ->setParameter('ids', $ids);
+        if (!is_null($positionIds)) {
+            $query->andWhere('p.id in (:ids)')
+                ->setParameter('ids', $positionIds);
+        }
 
         return $query->getQuery()->getResult();
     }
