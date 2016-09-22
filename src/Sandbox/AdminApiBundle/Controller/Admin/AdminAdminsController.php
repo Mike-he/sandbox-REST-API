@@ -167,7 +167,13 @@ class AdminAdminsController extends SandboxRestController
                     $isSuperAdmin
                 );
         } else {
-            $positions = explode(',', $position);
+            $positionIds = explode(',', $position);
+            $positions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->filterPosition(
+                    $platform,
+                    $positionIds
+                );
         }
 
         $userIds = $this->getDoctrine()

@@ -85,4 +85,24 @@ class AdminPositionRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $platform
+     * @param $ids
+     *
+     * @return array
+     */
+    public function filterPosition(
+        $platform,
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('p.id')
+            ->where('p.platform = :platform')
+            ->andWhere('p.id in (:ids)')
+            ->setParameter('platform', $platform)
+            ->setParameter('ids', $ids);
+
+        return $query->getQuery()->getResult();
+    }
 }
