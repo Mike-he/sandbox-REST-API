@@ -7,7 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Parameter.
  *
- * @ORM\Table(name="parameter")
+ * @ORM\Table(
+ *      name="parameter",
+ *      uniqueConstraints={@ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})}
+ * )
  * @ORM\Entity
  */
 class Parameter
