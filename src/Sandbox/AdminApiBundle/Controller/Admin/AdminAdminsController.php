@@ -183,7 +183,7 @@ class AdminAdminsController extends SandboxRestController
         foreach ($userIds as $userId) {
             $list = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->getAdminList($userId->getUser(), $positions);
+                ->getAdminList($userId['userId'], $positions);
 
             $result[] = $list;
         }

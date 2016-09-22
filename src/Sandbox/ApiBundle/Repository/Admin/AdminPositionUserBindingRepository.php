@@ -56,6 +56,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('p')
+            ->select('p.userId')
             ->where('p.position in (:positions)')
             ->setParameter('positions', $positions);
 
@@ -88,7 +89,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
         $positions
     ) {
         $query = $this->createQueryBuilder('p')
-            ->where('p.user = :user')
+            ->where('p.userId = :user')
             ->andWhere('p.positionId in (:positions)')
             ->setParameter('user', $user)
             ->setParameter('positions', $positions);
