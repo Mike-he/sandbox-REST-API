@@ -25,8 +25,8 @@ use JMS\Serializer\SerializationContext;
  */
 class AdminShopAdminsController extends SandboxRestController
 {
-    const POSITION_ADMIN = 'admin';
-    const POSITION_COFFEE_ADMIN = 'coffee_admin';
+    const POSITION_ADMIN = 'SuperAdministrator';
+    const POSITION_COFFEE_ADMIN = 'SuperAdministrator';
 
     /**
      * List definite id of admin.

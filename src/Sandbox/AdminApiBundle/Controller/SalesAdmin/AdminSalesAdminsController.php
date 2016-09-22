@@ -35,8 +35,8 @@ use Rs\Json\Patch;
  */
 class AdminSalesAdminsController extends SandboxRestController
 {
-    const POSITION_ADMIN = 'Sales_Super_Administrator';
-    const POSITION_COFFEE_ADMIN = 'Shop_Super_Administrator';
+    const POSITION_ADMIN = 'SuperAdministrator';
+    const POSITION_COFFEE_ADMIN = 'SuperAdministrator';
 
     /**
      * List all admins.
