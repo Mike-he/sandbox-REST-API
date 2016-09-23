@@ -56,14 +56,18 @@ class AdminPositionUserBindingRepository extends EntityRepository
      */
     public function getBindUser(
         $positions,
-        $building,
-        $shop,
-        $search
+        $building = null,
+        $shop = null,
+        $search = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('p.userId')
-            ->where('p.position in (:positions)')
-            ->setParameter('positions', $positions);
+            ->where('1=1');
+
+        if (!is_null($positions)) {
+            $query->andWhere('p.position in (:positions)')
+                ->setParameter('positions', $positions);
+        }
 
         if (!is_null($building) && !empty($building)) {
             $query->andWhere('p.building = :building')
@@ -117,29 +121,6 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->groupBy('p.position');
 
         return $query->getQuery()->getResult();
-    }
-
-    /**
-     * @param $building
-     * @param null $position
-     *
-     * @return mixed
-     */
-    public function countBuildingUser(
-        $building,
-        $position = null
-    ) {
-        $query = $this->createQueryBuilder('p')
-            ->select('count(p.id)')
-            ->where('p.building = :building')
-            ->setParameter('building', $building);
-
-        if (!is_null($position)) {
-            $query->andWhere('p.position = :position')
-                ->setParameter('position', $position);
-        }
-
-        return $query->getQuery()->getSingleScalarResult();
     }
 
     /**

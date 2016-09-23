@@ -232,28 +232,97 @@ class AdminAdminsController extends SandboxRestController
 
         $result = array();
         foreach ($myBuildings as $myBuilding) {
-            $userCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->countBuildingUser($myBuilding);
-
-            $positions = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->getBuildingPosition($myBuilding);
-
-            $positionArr = array();
-            foreach ($positions as $position) {
-                $userCount = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->countBuildingUser($myBuilding, $position->getPosition());
-                $positionArr[] = array(
-                    'position' => $position->getPosition(),
-                    'count' => $userCount,
-                );
-            }
+            $userIds = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindUser(null, $myBuilding);
 
             $result[] = array(
-                'count' => $userCounts,
+                'key' => 'building',
+                'count' => count($userIds),
                 'building' => $myBuilding,
-                'position' => $positionArr,
             );
         }
+
+        return new View($result);
+    }
+
+    /**
+     * get admins menu.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="platform",
+     *    array=false,
+     *    nullable=false,
+     *    strict=true,
+     *    description="platform"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="sales admin company"
+     * )
+     *
+     *
+     *
+     * @Method({"GET"})
+     * @Route("/admins/menu")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminsMenu(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $platform = $paramFetcher->get('platform');
+        $companyId = $paramFetcher->get('company');
+
+        $positions = $this->getDoctrine()
+           ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+           ->getAdminPositions(
+               $platform,
+               null,
+               $companyId
+           );
+
+        $allUser = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')->getBindUser($positions);
+
+        $allAdmin = array(
+            'key' => 'all',
+           'name' => '所有管理员',
+           'count' => count($allUser),
+       );
+
+        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
+            $platformPositions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->getPositions(
+                    $platform,
+                    null,
+                    false
+                );
+            $allPlatformUser = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')->getBindUser($platformPositions);
+        }
+
+        $platformAdmin = array(
+            'key' => 'all_platform',
+           'name' => '平台管理员',
+           'count' => count($allPlatformUser),
+       );
+
+        $result = array($allAdmin, $platformAdmin);
 
         return new View($result);
     }
