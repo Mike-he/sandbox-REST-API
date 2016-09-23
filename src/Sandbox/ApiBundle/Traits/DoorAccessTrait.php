@@ -426,7 +426,7 @@ trait DoorAccessTrait
                 $building = $this->getContainer()
                                  ->get('doctrine')
                                  ->getRepository(BundleConstants::BUNDLE.':'.'Room\RoomBuilding')
-                                 ->find($buildingId);
+                                 ->find($buildingId['buildingId']);
 
                 if (is_null($building)) {
                     continue;
