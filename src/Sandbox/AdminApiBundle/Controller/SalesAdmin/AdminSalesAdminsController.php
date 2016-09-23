@@ -299,21 +299,20 @@ class AdminSalesAdminsController extends SandboxRestController
     ) {
         // check user permission
 
-        $userIds = explode(',', $request->get('user_ids'));
+        if (is_null($request->get('user_ids')) || empty($request->get('user_ids'))) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
+                self::ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE
+            );
+        }
 
+        $userIds = explode(',', $request->get('user_ids'));
         if (count($userIds) > 2) {
             return $this->customErrorView(
                 400,
                 self::ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_CODE,
                 self::ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE
-            );
-        }
-
-        if (count($userIds) == 0) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
-                self::ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE
             );
         }
 
