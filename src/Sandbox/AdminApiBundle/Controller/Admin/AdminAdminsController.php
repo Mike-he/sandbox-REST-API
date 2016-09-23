@@ -275,7 +275,7 @@ class AdminAdminsController extends SandboxRestController
         $shopAdmin = null;
 
         switch ($platform) {
-            case AdminPosition::PLATFORM_OFFICIAL :
+            case AdminPosition::PLATFORM_OFFICIAL:
                 $platformPositions = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                     ->getPositions(
@@ -287,7 +287,7 @@ class AdminAdminsController extends SandboxRestController
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->getBindUser($platformPositions);
                 break;
-            case AdminPosition::PLATFORM_SALES :
+            case AdminPosition::PLATFORM_SALES:
                 $allPlatformUser = array();
 
                 $myBuildings = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
@@ -306,7 +306,7 @@ class AdminAdminsController extends SandboxRestController
                     );
                 }
                 break;
-            case AdminPosition::PLATFORM_SHOP :
+            case AdminPosition::PLATFORM_SHOP:
                 $allPlatformUser = array();
                 break;
             default:
@@ -385,7 +385,7 @@ class AdminAdminsController extends SandboxRestController
         $shopId = $paramFetcher->get('shop');
 
         switch ($platform) {
-            case AdminPosition::PLATFORM_OFFICIAL :
+            case AdminPosition::PLATFORM_OFFICIAL:
                 $positions = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                     ->getPositions(
@@ -394,10 +394,10 @@ class AdminAdminsController extends SandboxRestController
                         false
                     );
                 break;
-            case AdminPosition::PLATFORM_SALES :
+            case AdminPosition::PLATFORM_SALES:
 
                 break;
-            case AdminPosition::PLATFORM_SHOP :
+            case AdminPosition::PLATFORM_SHOP:
 
                 break;
             default:

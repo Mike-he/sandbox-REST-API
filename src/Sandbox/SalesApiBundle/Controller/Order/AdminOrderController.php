@@ -7,6 +7,7 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -710,17 +711,26 @@ class AdminOrderController extends OrderController
 
         // check user permission
         if (!is_null($userId) || !empty($userId)) {
-            $this->throwAccessDeniedIfSalesAdminNotAllowed(
-                $adminId,
-                SalesAdminType::KEY_PLATFORM,
-                array(
-                    SalesAdminPermission::KEY_BUILDING_ORDER,
-                    SalesAdminPermission::KEY_BUILDING_USER,
-                ),
-                SalesAdminPermissionMap::OP_LEVEL_VIEW
-            );
+            //            $this->throwAccessDeniedIfSalesAdminNotAllowed(
+//                $adminId,
+//                SalesAdminType::KEY_PLATFORM,
+//                array(
+//                    SalesAdminPermission::KEY_BUILDING_ORDER,
+//                    SalesAdminPermission::KEY_BUILDING_USER,
+//                ),
+//                SalesAdminPermissionMap::OP_LEVEL_VIEW
+//            );
         } else {
-            $this->checkAdminOrderPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+            $this->throwAccessDeniedIfAdminNotAllowed(
+                $adminId,
+                array(
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                        'building_id' => 2,
+                    ),
+                ),
+                AdminPermission::OP_LEVEL_VIEW
+            );
         }
 
         //filters
