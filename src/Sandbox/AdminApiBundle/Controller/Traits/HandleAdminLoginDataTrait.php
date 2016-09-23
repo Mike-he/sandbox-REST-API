@@ -46,7 +46,6 @@ trait HandleAdminLoginDataTrait
         foreach ($data as $item) {
             if (count($item) > 1) {
                 $item = $this->array_sort($item, 'op_level', 'desc');
-
                 $newPermissions[] = $item[0];
             } else {
                 $newPermissions[] = $item[0];
