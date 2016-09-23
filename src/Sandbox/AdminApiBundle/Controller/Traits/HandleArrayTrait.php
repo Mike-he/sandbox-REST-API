@@ -19,30 +19,35 @@ trait HandleArrayTrait
         if (!is_array($array) || empty($array) || !in_array(strtolower($type), array('asc', 'desc'))) {
             return '';
         }
-        $keysvalue = array();
+
+        $keysValue = array();
         foreach ($array as $key => $val) {
             $val[$keys] = str_replace('-', '', $val[$keys]);
             $val[$keys] = str_replace(' ', '', $val[$keys]);
             $val[$keys] = str_replace(':', '', $val[$keys]);
-            $keysvalue[] = $val[$keys];
+            $keysValue[] = $val[$keys];
         }
-        asort($keysvalue); //key值排序
-        reset($keysvalue); //指针重新指向数组第一个
-        foreach ($keysvalue as $key => $vals) {
-            $keysort[] = $key;
+
+        asort($keysValue); // sort by key
+        reset($keysValue); // a pointer to the first array again
+
+        $keySort = array();
+        foreach ($keysValue as $key => $val) {
+            $keySort[] = $key;
         }
-        $keysvalue = array();
-        $count = count($keysort);
+        
+        $keysValue = array();
+        $count = count($keySort);
         if (strtolower($type) != 'asc') {
             for ($i = $count - 1; $i >= 0; --$i) {
-                $keysvalue[] = $array[$keysort[$i]];
+                $keysValue[] = $array[$keySort[$i]];
             }
         } else {
             for ($i = 0; $i < $count; ++$i) {
-                $keysvalue[] = $array[$keysort[$i]];
+                $keysValue[] = $array[$keySort[$i]];
             }
         }
 
-        return $keysvalue;
+        return $keysValue;
     }
 }

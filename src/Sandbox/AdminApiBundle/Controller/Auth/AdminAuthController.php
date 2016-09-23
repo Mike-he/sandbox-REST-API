@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -30,15 +29,8 @@ class AdminAuthController extends AuthController
      *
      * @param Request $request the request object
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
      * @Route("/me")
-     * @Method({"POST"})
+     * @Method({"GET"})
      *
      * @return View
      *
@@ -47,21 +39,19 @@ class AdminAuthController extends AuthController
     public function getAdminAuthMeAction(
         Request $request
     ) {
-        $payload = json_decode($request->getContent(), true);
+        $platform = $request->query->get('platform');
+        $salesCompanyId = $request->query->get('sales_company_id');
 
-        if (!isset($payload['platform'])) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $salesCompanyId = null;
-        if (isset($payload['sales_company_id'])) {
-            $salesCompanyId = $payload['sales_company_id'];
+        if ($platform !== 'official') {
+            if (is_null($salesCompanyId)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
         }
 
         $permissions = $this->getRepo('Admin\AdminPermission')
-            ->findAdminPermissionsByAdminAndPositions(
+            ->findAdminPermissionsByAdminAndPlatform(
                 $this->getAdminId(),
-                $payload['platform'],
+                $platform,
                 $salesCompanyId
             );
 

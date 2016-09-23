@@ -53,7 +53,7 @@ class AdminPositionRepository extends EntityRepository
      * @param $companyId
      * @param null $isSuperAdmin
      * @param null $positionIds
-     * 
+     *
      * @return array
      */
     public function getPositions(
