@@ -26,8 +26,14 @@ class AdminPositionUserBindingRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
-    public function findPositionByAdmin($admin)
-    {
+    /**
+     * @param $admin
+     * 
+     * @return array
+     */
+    public function findPositionByAdmin(
+        $admin
+    ) {
         $qb = $this->getEntityManager()
             ->createQuery('
                 SELECT p.salesCompanyId, p.id, p.platform, p.name
@@ -58,7 +64,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('p.userId')
-            ->leftJoin('p.user', 'u')
+//            ->leftJoin('p.user', 'u')
             ->where('p.position in (:positions)')
             ->setParameter('positions', $positions);
 
@@ -73,6 +79,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
         }
 
         if (!is_null($search)) {
+            //todo...
         }
 
         $query->groupBy('p.userId');

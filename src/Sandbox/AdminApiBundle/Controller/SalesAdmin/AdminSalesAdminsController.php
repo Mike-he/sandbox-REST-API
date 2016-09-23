@@ -38,6 +38,11 @@ class AdminSalesAdminsController extends SandboxRestController
     const POSITION_ADMIN = 'SuperAdministrator';
     const POSITION_COFFEE_ADMIN = 'SuperAdministrator';
 
+    const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_CODE = 400005;
+    const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE = 'Over the super administrator limit number';
+    const ERROR_NOT_NULL_SUPER_ADMIN_CODE = 400006;
+    const ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE = 'Must at least one super administrator position binding';
+
     /**
      * List all admins.
      *
@@ -257,6 +262,9 @@ class AdminSalesAdminsController extends SandboxRestController
         }
 
         $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
+        if (is_null($user)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
         $salesCompany = $this->saveAdmin(
             $user,
             $company,
@@ -292,6 +300,23 @@ class AdminSalesAdminsController extends SandboxRestController
         // check user permission
 
         $userIds = explode(',', $request->get('user_ids'));
+
+        if (count($userIds) > 2) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_CODE,
+                self::ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE
+            );
+        }
+
+        if (count($userIds) == 0) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
+                self::ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE
+            );
+        }
+
         $company = $request->get('company');
         $excludePermissions = $request->get('exclude_permissions');
 
