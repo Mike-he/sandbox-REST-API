@@ -390,7 +390,7 @@ class FileServerController extends SandboxRestController
         $fileid = $this->getName();
 
         if ($type == 'base64') {
-            $file = $paramFetcher->get('file');
+            $file = $paramFetcher->get('public_b64');
             if (!preg_match('/(?<=\/)[^\/]+(?=\;)/', $file, $pregR)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
