@@ -73,6 +73,7 @@ class AdminShopAdminsController extends SandboxRestController
      * Create admin.
      *
      * @param Request $request the request object
+     * @param int     $id
      *
      * @ApiDoc(
      *   resource = true,
@@ -103,8 +104,7 @@ class AdminShopAdminsController extends SandboxRestController
 
         $this->createPosition(
             $user,
-            $company,
-            self::POSITION_COFFEE_ADMIN
+            $company
         );
 
         return new View();
@@ -183,22 +183,34 @@ class AdminShopAdminsController extends SandboxRestController
     /**
      * @param $user
      * @param $company
-     * @param $name
      *
      * @return AdminPosition
      */
     private function createPosition(
         $user,
-        $company,
-        $name
+        $company
     ) {
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
 
+        $adminPosition = $em->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->findOneBy(
+                array(
+                    'salesCompany' => $company,
+                    'name' => self::POSITION_COFFEE_ADMIN,
+                    'platform' => AdminPermission::PERMISSION_PLATFORM_SHOP,
+                    'isSuperAdmin' => true,
+                )
+            );
+
+        if ($adminPosition) {
+            return $adminPosition;
+        }
+
         $icon = $em->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
 
         $position = new AdminPosition();
-        $position->setName($name);
+        $position->setName(self::POSITION_COFFEE_ADMIN);
         $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SHOP);
         $position->setIsSuperAdmin(true);
         $position->setIcon($icon);
