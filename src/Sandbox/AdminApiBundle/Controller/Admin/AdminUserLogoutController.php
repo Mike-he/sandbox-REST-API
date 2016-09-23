@@ -47,7 +47,7 @@ class AdminUserLogoutController extends AdminLogoutController
         $clientId = $this->getUser()->getClientId();
 
         //delete Admin token
-        $this->getRepo('Admin\AdminToken')->deleteAdminToken(
+        $this->getRepo('User\UserToken')->deleteUserToken(
             $adminId,
             $clientId
         );
