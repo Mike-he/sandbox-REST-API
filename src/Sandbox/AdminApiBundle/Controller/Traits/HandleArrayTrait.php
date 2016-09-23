@@ -35,7 +35,7 @@ trait HandleArrayTrait
         foreach ($keysValue as $key => $val) {
             $keySort[] = $key;
         }
-        
+
         $keysValue = array();
         $count = count($keySort);
         if (strtolower($type) != 'asc') {

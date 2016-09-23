@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
+use Sandbox\AdminApiBundle\Controller\Admin\AdminPlatformController;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -15,11 +16,9 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\User\User;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -181,84 +180,117 @@ class SandboxRestController extends FOSRestController
     /**
      * Check admin's permission, is allowed to operate.
      *
+     * Sample:
+     * $permissionKeys = array(
+     *   'key' => 'permission',
+     *   'building_id' => 1,
+     *   'shop_id' => 1,
+     * )
+     *
      * @param int          $adminId
-     * @param string       $typeKey
      * @param string|array $permissionKeys
      * @param int          $opLevel
      *
      * @throws AccessDeniedHttpException
      */
     protected function throwAccessDeniedIfAdminNotAllowed(
-        $adminId = null,
-        $typeKey = null,
+        $adminId,
         $permissionKeys = null,
         $opLevel = 0
     ) {
-        // TODO bypass permission check temporary
-        return;
-        $myPermission = null;
+        // get platform cookies
+        $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
+        $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
 
-        // get admin
-        $admin = $this->getRepo('Admin\Admin')->find($adminId);
-        $type = $admin->getType();
-
-        // if user is super admin, no need to check others
-        if (AdminType::KEY_SUPER === $type->getKey()) {
-            return;
-        }
-
-        // if admin type doesn't match, then throw exception
-        if ($typeKey != $type->getKey()) {
+        if (!isset($_COOKIE[$adminPlatformCookieName])) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        if (is_null($permissionKeys) || empty($permissionKeys)) {
+        $platform = $_COOKIE[$adminPlatformCookieName];
+        $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
+
+        // super admin
+        $superAdminPositionBindings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getPositionBindingsByIsSuperAdmin(
+                $adminId,
+                true,
+                $platform,
+                $salesCompanyId
+            );
+        if (count($superAdminPositionBindings) >= 1) {
             return;
         }
 
-        // if permission key is string
-        if (is_string($permissionKeys)) {
-            $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKeys);
+        // common admin
+        $commonAdminPositionBindings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getPositionBindingsByIsSuperAdmin(
+                $adminId,
+                false,
+                $platform,
+                $salesCompanyId
+            );
 
-            // check user's permission
-            $myPermission = $this->getRepo('Admin\AdminPermissionMap')
-                ->findOneBy(array(
-                    'adminId' => $adminId,
-                    'permissionId' => $permission->getId(),
+        // get my permissions list
+        $myPermissions = array();
+        foreach ($commonAdminPositionBindings as $binding) {
+            $position = $binding->getPosition();
+
+            $positionPermissionMaps = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionPermissionMap')
+                ->findBy(array(
+                    'position' => $position,
                 ));
-            if (is_null($myPermission)) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+
+            foreach ($positionPermissionMaps as $map) {
+                $permission = $map->getPermission();
+                $permissionArray = array(
+                    'key' => $permission->getKey(),
+                    'op_level' => $map->getOpLevel(),
+                    'building_id' => $binding->getBuildingId(),
+                    'shop_id' => $binding->getShopId(),
+                );
+
+                array_push($myPermissions, $permissionArray);
             }
         }
 
-        // if permission key is array
-        if (is_array($permissionKeys)) {
-            $permissionFound = false;
+        // check permissions
+        foreach ($permissionKeys as $permissionKey) {
+            $buildingId = isset($permissionKey['building_id']) ? $permissionKey['building_id'] : null;
+            $shopId = isset($permissionKey['shop_id']) ? $permissionKey['shop_id'] : null;
 
-            foreach ($permissionKeys as $permissionKey) {
-                $permission = $this->getRepo('Admin\AdminPermission')->findOneByKey($permissionKey);
+            $pass = false;
+            foreach ($myPermissions as $myPermission) {
+                if ($permissionKey['key'] == $myPermission['key']
+                    && $opLevel <= $myPermission['op_level']) {
+                    $pass = true;
+                }
 
-                // check user's permission
-                $myPermission = $this->getRepo('Admin\AdminPermissionMap')
-                    ->findOneBy(array(
-                        'adminId' => $adminId,
-                        'permissionId' => $permission->getId(),
-                    ));
-                if (!is_null($myPermission)) {
-                    $permissionFound = true;
-                    break;
+                if (!is_null($buildingId)) {
+                    if ($buildingId == $myPermission['building_id']) {
+                        $pass = true;
+                    } else {
+                        $pass = false;
+                    }
+                }
+
+                if (!is_null($shopId)) {
+                    if ($shopId == $myPermission['shop_id']) {
+                        $pass = true;
+                    } else {
+                        $pass = false;
+                    }
+                }
+
+                if ($pass) {
+                    return;
                 }
             }
-
-            if (!$permissionFound) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-            }
         }
 
-        // check user's operation level
-        if (is_null($myPermission) || $myPermission->getOpLevel() < $opLevel) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
     }
 
     /**

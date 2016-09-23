@@ -82,8 +82,8 @@ class AdminPermissionsController extends SandboxRestController
         $query = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->getAdminPermissions(
-                $salesCompanyId,
-                $platform
+                $platform,
+                $salesCompanyId
             );
 
         $view = new View($query);
