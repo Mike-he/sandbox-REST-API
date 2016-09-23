@@ -25,6 +25,8 @@ class AdminPositionBindingController extends AdminRestController
     const ERROR_INVALID_SHOP_MESSAGE = 'Invalid shop id';
     const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_CODE = 400005;
     const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE = 'Over the super administrator limit number';
+    const ERROR_NOT_NULL_SUPER_ADMIN_CODE = 400006;
+    const ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE = 'Must at least one super administrator position binding';
 
     /**
      * @param Request               $request
@@ -119,6 +121,22 @@ class AdminPositionBindingController extends AdminRestController
 
         $em = $this->getDoctrine()->getManager();
         foreach ($positionUserBindings as $binding) {
+            $position = $binding->getPosition();
+            if ($position->getIsSuperAdmin()) {
+                $bindings = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->findBy(array(
+                        'position' => $position,
+                    ));
+                if (count($bindings) <= 1) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
+                        self::ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE
+                    );
+                }
+            }
+
             $em->remove($binding);
         }
         $em->flush();
@@ -170,6 +188,21 @@ class AdminPositionBindingController extends AdminRestController
 
         $positionIds = array();
         foreach ($positions as $position) {
+            if ($position->getIsSuperAdmin()) {
+                $bindings = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->findBy(array(
+                        'position' => $position,
+                    ));
+                if (count($bindings) <= 1) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
+                        self::ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE
+                    );
+                }
+            }
+
             array_push($positionIds, $position->getId());
         }
 
