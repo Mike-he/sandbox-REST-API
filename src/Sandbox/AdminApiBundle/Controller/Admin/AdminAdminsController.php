@@ -26,6 +26,8 @@ use Knp\Component\Pager\Paginator;
  */
 class AdminAdminsController extends SandboxRestController
 {
+    const ADMINS_ALL_ADMIN = '所有管理员';
+    const ADMIN_PLATFORM_ADMIN = '平台管理员';
     /**
      * List all admins.
      *
@@ -267,7 +269,7 @@ class AdminAdminsController extends SandboxRestController
 
         $allAdmin = array(
             'key' => 'all',
-            'name' => '所有管理员',
+            'name' => self::ADMINS_ALL_ADMIN,
             'count' => count($allUser),
        );
         $platformAdmin = null;
@@ -314,8 +316,8 @@ class AdminAdminsController extends SandboxRestController
         }
 
         $platformAdmin = array(
-            'key' => 'all_platform',
-            'name' => '平台管理员',
+            'key' => 'platform',
+            'name' => self::ADMIN_PLATFORM_ADMIN,
             'count' => count($allPlatformUser),
        );
 
