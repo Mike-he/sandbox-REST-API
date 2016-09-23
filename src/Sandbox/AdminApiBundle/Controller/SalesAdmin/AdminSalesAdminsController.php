@@ -711,6 +711,7 @@ class AdminSalesAdminsController extends SandboxRestController
             $excludePermissionEm = new AdminExcludePermission();
             $excludePermissionEm->setSalesCompany($salesCompany);
             $excludePermissionEm->setPermission($permission);
+            $excludePermissionEm->setPlatform(AdminPosition::PLATFORM_SALES);
 
             $em->persist($excludePermissionEm);
         }
