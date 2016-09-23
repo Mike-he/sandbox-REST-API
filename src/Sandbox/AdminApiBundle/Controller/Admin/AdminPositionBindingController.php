@@ -23,6 +23,8 @@ class AdminPositionBindingController extends AdminRestController
     const ERROR_INVALID_BUILDING_MESSAGE = 'Invalid building id';
     const ERROR_INVALID_SHOP_CODE = 400004;
     const ERROR_INVALID_SHOP_MESSAGE = 'Invalid shop id';
+    const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_CODE = 400005;
+    const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE = 'Over the super administrator limit number';
 
     /**
      * @param Request               $request
@@ -224,6 +226,22 @@ class AdminPositionBindingController extends AdminRestController
                 self::ERROR_INVALID_POSITION_CODE,
                 self::ERROR_INVALID_POSITION_MESSAGE
             );
+        }
+
+        // check super admin limit number
+        if ($position->getIsSuperAdmin()) {
+            $bindings = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findBy(array(
+                    'position' => $position,
+                ));
+            if (count($bindings) >= 2) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_CODE,
+                    self::ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE
+                );
+            }
         }
         $positionUserBinding->setPosition($position);
 
