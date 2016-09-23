@@ -13,8 +13,8 @@ class AdminPermissionRepository extends EntityRepository
      * @return array
      */
     public function getAdminPermissions(
-        $salesCompanyId,
-        $platform
+        $platform,
+        $salesCompanyId = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->where('p.id IS NOT NULL')
@@ -29,7 +29,7 @@ class AdminPermissionRepository extends EntityRepository
 
         if (!is_null($salesCompanyId)) {
             $excludePermissionIdsQuery
-                ->where('ep.salesCompanyId = :salesCompanyId')
+                ->andWhere('ep.salesCompanyId = :salesCompanyId')
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
 
