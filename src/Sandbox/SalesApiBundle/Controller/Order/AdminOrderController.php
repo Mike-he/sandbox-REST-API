@@ -11,9 +11,6 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
@@ -711,7 +708,7 @@ class AdminOrderController extends OrderController
 
         // check user permission
         if (!is_null($userId) || !empty($userId)) {
-            $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->throwAccessDeniedIfAdminNotAllowed(
                 $adminId,
                 array(
                     array(

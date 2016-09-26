@@ -16,7 +16,6 @@ use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductType;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdmin;
 use FOS\RestBundle\View\View;
 
 class ShopRestController extends PaymentController
