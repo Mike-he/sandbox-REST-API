@@ -505,6 +505,7 @@ class AdminAdminsController extends SandboxRestController
                     'key' => 'position',
                     'id' => $position->getId(),
                     'name' => $position->getName(),
+                    'icon' => $position->getIcon(),
                     'count' => count($positionUser),
                 );
             }
@@ -526,6 +527,7 @@ class AdminAdminsController extends SandboxRestController
                     'key' => 'position',
                     'id' => $position->getPosition()->getId(),
                     'name' => $position->getPosition()->getName(),
+                    'icon' => $position->getPosition()->getIcon(),
                     'count' => count($positionUser),
                 );
             }
