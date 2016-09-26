@@ -711,22 +711,24 @@ class AdminOrderController extends OrderController
 
         // check user permission
         if (!is_null($userId) || !empty($userId)) {
-            //            $this->throwAccessDeniedIfSalesAdminNotAllowed(
-//                $adminId,
-//                SalesAdminType::KEY_PLATFORM,
-//                array(
-//                    SalesAdminPermission::KEY_BUILDING_ORDER,
-//                    SalesAdminPermission::KEY_BUILDING_USER,
-//                ),
-//                SalesAdminPermissionMap::OP_LEVEL_VIEW
-//            );
+            $this->throwAccessDeniedIfSalesAdminNotAllowed(
+                $adminId,
+                array(
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    ),
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    ),
+                ),
+                AdminPermission::OP_LEVEL_VIEW
+            );
         } else {
             $this->throwAccessDeniedIfAdminNotAllowed(
                 $adminId,
                 array(
                     array(
                         'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
-                        'building_id' => 2,
                     ),
                 ),
                 AdminPermission::OP_LEVEL_VIEW
@@ -751,7 +753,7 @@ class AdminOrderController extends OrderController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_BUILDING_ORDER,
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
             )
         );
 

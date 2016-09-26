@@ -2,7 +2,9 @@
 
 namespace Sandbox\SalesApiBundle\Controller;
 
+use Sandbox\AdminApiBundle\Controller\Admin\AdminPlatformController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -85,55 +87,68 @@ class SalesRestController extends SandboxRestController
 
     /**
      * @param $adminId
-     * @param $permissionKeyArray
+     * @param $permissionKeys
      * @param $opLevel
      *
      * @return array
      */
     protected function getMySalesBuildingIds(
         $adminId,
-        $permissionKeyArray,
-        $opLevel = SalesAdminPermissionMap::OP_LEVEL_VIEW
+        $permissionKeys,
+        $opLevel = AdminPermission::OP_LEVEL_VIEW
     ) {
-        // get admin
-        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($adminId);
-        $type = $admin->getType();
-
         // get permission
-        if (empty($permissionKeyArray)) {
+        if (empty($permissionKeys)) {
             return array();
         }
 
-        $permissions = array();
-        if (is_array($permissionKeyArray)) {
-            foreach ($permissionKeyArray as $key) {
-                $permission = $this->getRepo('SalesAdmin\SalesAdminPermission')->findOneByKey($key);
+        // get platform cookies
+        $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
+        $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
+        $platform = $_COOKIE[$adminPlatformCookieName];
+        $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
 
-                if (!is_null($permission)) {
-                    array_push($permissions, $permission->getId());
-                }
-            }
-        }
+        $isSuperAdmin = $this->hasSuperAdminPosition(
+            $adminId,
+            $platform,
+            $salesCompanyId
+        );
 
-        if (SalesAdminType::KEY_SUPER === $type->getKey()) {
+        if ($isSuperAdmin) {
             // if user is super admin, get all buildings
-            $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($admin->getCompanyId());
-        } else {
-            // platform admin get binding buildings
-            $myBuildings = $this->getRepo('SalesAdmin\SalesAdminPermissionMap')->getMySalesBuildings(
-                $adminId,
-                $permissions,
-                $opLevel
-            );
+            $myBuildings = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->getBuildingsByCompany($salesCompanyId);
+
+            if (empty($myBuildings)) {
+                return $myBuildings;
+            }
+
+            $ids = array();
+            foreach ($myBuildings as $building) {
+                array_push($ids, $building['id']);
+            }
+
+            return $ids;
         }
 
-        if (empty($myBuildings)) {
-            return $myBuildings;
-        }
+        // if common admin, than get my permissions list
+        $myPermissions = $this->getMyAdminPermissions(
+            $adminId,
+            $platform,
+            $salesCompanyId
+        );
 
         $ids = array();
-        foreach ($myBuildings as $building) {
-            array_push($ids, $building['id']);
+        foreach ($permissionKeys as $permissionKey) {
+            foreach ($myPermissions as $myPermission) {
+                if ($permissionKey == $myPermission['key']
+                    && $opLevel <= $myPermission['op_level']
+                    && !is_null($myPermission['building_id'])
+                ) {
+                    array_push($ids, $myPermission['building_id']);
+                }
+            }
         }
 
         return $ids;
