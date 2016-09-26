@@ -9,18 +9,50 @@ class AdminPositionUserBindingRepository extends EntityRepository
 {
     /**
      * @param $userId
+     * @param $isSuperAdmin
+     * @param $platform
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
+    public function getPositionBindingsByIsSuperAdmin(
+        $userId,
+        $isSuperAdmin,
+        $platform,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->leftJoin('SandboxApiBundle:Admin\AdminPosition', 'p', 'WITH', 'p.id = pb.positionId')
+            ->where('pb.userId = :userId')
+            ->andWhere('p.platform = :platform')
+            ->andWhere('p.isHidden = FALSE')
+            ->andWhere('p.isSuperAdmin = :isSuperAdmin')
+            ->setParameter('userId', $userId)
+            ->setParameter('platform', $platform)
+            ->setParameter('isSuperAdmin', $isSuperAdmin);
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('p.salesCompanyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $userId
      * @param $positionIds
      *
      * @return array
      */
     public function getPositionBindings(
         $userId,
-        $positionIds
+        $positionIds = null
     ) {
         $query = $this->createQueryBuilder('pb')
             ->where('pb.userId = :userId')
-            ->andWhere('pb.positionId IN (:positionIds)')
             ->setParameter('userId', $userId)
+            ->andWhere('pb.positionId IN (:positionIds)')
             ->setParameter('positionIds', $positionIds);
 
         return $query->getQuery()->getResult();
@@ -28,7 +60,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
     /**
      * @param $admin
-     * 
+     *
      * @return array
      */
     public function findPositionByAdmin(
