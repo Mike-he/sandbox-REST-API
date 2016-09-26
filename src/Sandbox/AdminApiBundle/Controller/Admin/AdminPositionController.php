@@ -108,10 +108,17 @@ class AdminPositionController extends PaymentController
         $adminPosition,
         $action
     ) {
+        // get platform cookies
+        $cookies = $this->getPlatformCookies();
+        $platform = $cookies['platform'];
+        $salesCompanyId = $cookies['sales_company_id'];
+
         $sortTime = $adminPosition->getSortTime();
         $swapPosition = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findSwapPosition(
+                $platform,
+                $salesCompanyId,
                 $sortTime,
                 $action
             );

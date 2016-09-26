@@ -101,6 +101,8 @@ class AdminPositionRepository extends EntityRepository
     }
 
     public function findSwapPosition(
+        $platform,
+        $salesCompanyId,
         $sortTime,
         $action
     ) {
@@ -114,11 +116,17 @@ class AdminPositionRepository extends EntityRepository
 
         $query = $this->createQueryBuilder('p')
             ->where('p.sortTime '.$operator.' :sortTime')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform)
             ->setParameter('sortTime', $sortTime)
             ->orderBy('p.sortTime', $direction)
-            ->setMaxResults(1)
-            ->getQuery();
+            ->setMaxResults(1);
 
-        return $query->getSingleResult();
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('p.salesCompanyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getSingleResult();
     }
 }

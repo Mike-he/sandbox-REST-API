@@ -269,7 +269,7 @@ class AdminOrderController extends OrderController
                     'building_id' => $buildingId,
                 ),
             ),
-            AdminPermission::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $oldRejected = $order->isRejected();
@@ -534,9 +534,15 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            SalesAdminPermissionMap::OP_LEVEL_VIEW,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // check if order expired
@@ -938,10 +944,14 @@ class AdminOrderController extends OrderController
         $adminId = $admin->getId();
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            SalesAdminPermissionMap::OP_LEVEL_VIEW,
-            null,
-            $adminId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $language = $paramFetcher->get('language');
@@ -961,7 +971,7 @@ class AdminOrderController extends OrderController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $adminId,
             array(
-                SalesAdminPermission::KEY_BUILDING_ORDER,
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
             )
         );
 

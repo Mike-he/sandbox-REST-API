@@ -197,15 +197,14 @@ class SandboxRestController extends FOSRestController
         $opLevel = 0
     ) {
         // get platform cookies
-        $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
-        $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
+        $cookies = $this->getPlatformCookies();
 
-        if (!isset($_COOKIE[$adminPlatformCookieName])) {
+        if (is_null($cookies['platform'])) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        $platform = $_COOKIE[$adminPlatformCookieName];
-        $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
+        $platform = $cookies['platform'];
+        $salesCompanyId = $cookies['sales_company_id'];
 
         // super admin
         $isSuperAdmin = $this->hasSuperAdminPosition(
@@ -260,6 +259,20 @@ class SandboxRestController extends FOSRestController
         }
 
         throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+    }
+
+    protected function getPlatformCookies()
+    {
+        $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
+        $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
+
+        $platform = $_COOKIE[$adminPlatformCookieName];
+        $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
+
+        return array(
+            'platform' => $platform,
+            'sales_company_id' => $salesCompanyId,
+        );
     }
 
     /**
