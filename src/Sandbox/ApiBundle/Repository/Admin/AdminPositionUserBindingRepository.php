@@ -35,7 +35,13 @@ class AdminPositionUserBindingRepository extends EntityRepository
         $admin
     ) {
         return $this->createQueryBuilder('pb')
-            ->select('p.salesCompanyId, p.id, p.platform, p.name')
+            ->select('
+                p.salesCompanyId as sales_company_id, 
+                c.name as sales_company_name, 
+                p.id as position_id, 
+                p.platform, 
+                p.name as position_name
+            ')
             ->leftJoin('pb.position', 'p')
             ->leftJoin('p.salesCompany', 'c')
             ->where('c.banned = 0')
