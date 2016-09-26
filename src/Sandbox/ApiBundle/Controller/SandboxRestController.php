@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Form\Log\LogType;
 use Sandbox\ApiBundle\Traits\CurlUtil;
 use Sandbox\ApiBundle\Traits\LogsTrait;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -268,6 +269,10 @@ class SandboxRestController extends FOSRestController
 
         $platform = $_COOKIE[$adminPlatformCookieName];
         $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
+
+        if (is_null($platform)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
 
         return array(
             'platform' => $platform,
