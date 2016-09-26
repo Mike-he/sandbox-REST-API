@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Admin;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -27,7 +28,12 @@ use Knp\Component\Pager\Paginator;
 class AdminAdminsController extends SandboxRestController
 {
     const ADMINS_ALL_ADMIN = '所有管理员';
-    const ADMIN_PLATFORM_ADMIN = '平台管理员';
+    const ADMINS_PLATFORM_ADMIN = '平台管理员';
+
+    const ADMINS_MENU_KEY_ALL = 'all';
+    const ADMINS_MENU_KEY_PLATFORM = 'platform';
+    const ADMINS_MENU_KEY_BUILDING = 'building';
+    const ADMINS_MENU_KEY_SHOP = 'shop';
     /**
      * List all admins.
      *
@@ -268,7 +274,7 @@ class AdminAdminsController extends SandboxRestController
             ->getBindUser($positions);
 
         $allAdmin = array(
-            'key' => 'all',
+            'key' => self::ADMINS_MENU_KEY_ALL,
             'name' => self::ADMINS_ALL_ADMIN,
             'count' => count($allUser),
        );
@@ -289,35 +295,69 @@ class AdminAdminsController extends SandboxRestController
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->getBindUser($platformPositions);
                 break;
-            case AdminPosition::PLATFORM_SALES:
-                $allPlatformUser = array();
+            case AdminPosition::PLATFORM_SALES :
+                $platformPositions = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                    ->getAdminPositions(
+                        $platform,
+                        AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                        $companyId
+                    );
+
+                $allPlatformUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($platformPositions);
 
                 $myBuildings = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
                     ->getCompanyBuildings($companyId);
 
-                $result = array();
                 foreach ($myBuildings as $myBuilding) {
                     $buildingUsers = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                         ->getBindUser(null, $myBuilding);
 
                     $buildingAdmin[] = array(
-                        'key' => 'building',
+                        'key' => self::ADMINS_MENU_KEY_BUILDING,
                         'id' => $myBuilding->getId(),
                         'name' => $myBuilding->getname(),
                         'count' => count($buildingUsers),
                     );
                 }
                 break;
-            case AdminPosition::PLATFORM_SHOP:
-                $allPlatformUser = array();
+            case AdminPosition::PLATFORM_SHOP :
+                $platformPositions = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                    ->getAdminPositions(
+                        $platform,
+                        AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                        $companyId
+                    );
+
+                $allPlatformUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($platformPositions);
+                
+                $myshops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')
+                    ->getShopsByCompany($companyId);
+
+                foreach ($myshops as $myshop) {
+                    $shopUsers = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                        ->getBindUser(null, null, $myshop);
+
+                    $shopAdmin[] = array(
+                        'key' => self::ADMINS_MENU_KEY_SHOP,
+                        'id' => $myshop->getId(),
+                        'name' => $myshop->getname(),
+                        'count' => count($shopUsers),
+                    );
+                }
                 break;
             default:
                 return new View();
         }
 
         $platformAdmin = array(
-            'key' => 'platform',
-            'name' => self::ADMIN_PLATFORM_ADMIN,
+            'key' => self::ADMINS_MENU_KEY_PLATFORM,
+            'name' => self::ADMINS_PLATFORM_ADMIN,
             'count' => count($allPlatformUser),
        );
 
@@ -344,6 +384,14 @@ class AdminAdminsController extends SandboxRestController
      *    nullable=false,
      *    strict=true,
      *    description="platform"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="key",
+     *    array=false,
+     *    nullable=false,
+     *    strict=true,
+     *    description="key"
      * )
      *
      * @Annotations\QueryParam(
@@ -382,44 +430,107 @@ class AdminAdminsController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $platform = $paramFetcher->get('platform');
+        $key = $paramFetcher->get('key');
         $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
         $shopId = $paramFetcher->get('shop');
 
-        switch ($platform) {
-            case AdminPosition::PLATFORM_OFFICIAL:
-                $positions = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                    ->getPositions(
-                        $platform,
-                        null,
-                        false
-                    );
-                break;
-            case AdminPosition::PLATFORM_SALES:
+        $positions = $this->getPositions(
+            $key,
+            $platform,
+            $companyId,
+            $buildingId,
+            $shopId
+        );
 
-                break;
-            case AdminPosition::PLATFORM_SHOP:
+        return new View($positions);
+    }
 
-                break;
-            default:
-                return new View();
-        }
-
+    /**
+     * @param $key
+     * @param $platform
+     * @param $companyId
+     * @param $buildingId
+     * @param $shopId
+     *
+     * @return array|View
+     */
+    private function getPositions(
+        $key,
+        $platform,
+        $companyId,
+        $buildingId,
+        $shopId
+    ) {
         $positionArr = array();
-        foreach ($positions as $position) {
-            $positionUser = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->getBindUser($position, $buildingId, $shopId);
+        if ($key == self::ADMINS_MENU_KEY_PLATFORM) {
+            switch ($platform) {
+                case AdminPosition::PLATFORM_OFFICIAL :
+                    $positions = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                        ->getPositions(
+                            $platform,
+                            null,
+                            false
+                        );
+                    break;
+                case AdminPosition::PLATFORM_SALES :
+                    $positions = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                        ->getAdminPositions(
+                            $platform,
+                            AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                            $companyId
+                        );
+                    break;
+                case AdminPosition::PLATFORM_SHOP :
+                    $positions = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                        ->getAdminPositions(
+                            $platform,
+                            AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                            $companyId
+                        );
+                    break;
+                default:
+                    return new View();
+            }
 
-            $positionArr[] = array(
-                'key' => 'position',
-                'id' => $position->getId(),
-                'name' => $position->getName(),
-                'count' => count($positionUser),
-            );
+            foreach ($positions as $position) {
+                $positionUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($position, $buildingId, $shopId);
+
+                $positionArr[] = array(
+                    'key' => 'position',
+                    'id' => $position->getId(),
+                    'name' => $position->getName(),
+                    'count' => count($positionUser),
+                );
+            }
+        } else {
+            $positions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBuildingPosition(
+                    $platform,
+                    $buildingId,
+                    $shopId
+                );
+
+            foreach ($positions as $position) {
+                $positionUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($position->getPositionId(), $buildingId, $shopId);
+
+                $positionArr[] = array(
+                    'key' => 'position',
+                    'id' => $position->getPosition()->getId(),
+                    'name' => $position->getPosition()->getName(),
+                    'count' => count($positionUser),
+                );
+            }
         }
 
-        return new View($positionArr);
+        return $positionArr;
     }
 }

@@ -147,16 +147,31 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
     /**
      * @param $building
+     * @param null $shop
      *
      * @return array
      */
     public function getBuildingPosition(
-        $building
+        $platform,
+        $building,
+        $shop = null
     ) {
-        $query = $this->createQueryBuilder('p')
-            ->where('p.building = :building')
-            ->setParameter('building', $building)
-            ->groupBy('p.position');
+        $query = $this->createQueryBuilder('pb')
+            ->leftJoin('pb.position', 'p')
+            ->where('p.platform = :platform')
+            ->setParameter('platform', $platform);
+
+        if (!is_null($building)) {
+            $query->andWhere('pb.building = :building')
+                ->setParameter('building', $building);
+        }
+
+        if (!is_null($shop)) {
+            $query->andWhere('pb.shop = :shop')
+                ->setParameter('shop', $shop);
+        }
+
+        $query->groupBy('pb.positionId');
 
         return $query->getQuery()->getResult();
     }
