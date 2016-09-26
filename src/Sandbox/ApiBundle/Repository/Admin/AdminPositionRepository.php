@@ -127,6 +127,6 @@ class AdminPositionRepository extends EntityRepository
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
 
-        return $query->getQuery()->getSingleResult();
+        return $query->getQuery()->getOneOrNullResult();
     }
 }
