@@ -177,13 +177,14 @@ class AdminOrderController extends OrderController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_PLATFORM_INVOICE,
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get sales company id
@@ -245,7 +246,9 @@ class AdminOrderController extends OrderController
         $id
     ) {
         $em = $this->getDoctrine()->getManager();
-        $order = $this->getRepo('Order\ProductOrder')->getOrderByIdAndStatus($id);
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrderByIdAndStatus($id);
 
         if (is_null($order)) {
             return $this->customErrorView(
@@ -258,9 +261,15 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $oldRejected = $order->isRejected();

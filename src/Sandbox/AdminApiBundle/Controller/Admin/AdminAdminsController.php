@@ -295,7 +295,7 @@ class AdminAdminsController extends SandboxRestController
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->getBindUser($platformPositions);
                 break;
-            case AdminPosition::PLATFORM_SALES :
+            case AdminPosition::PLATFORM_SALES:
                 $platformPositions = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                     ->getAdminPositions(
@@ -323,7 +323,7 @@ class AdminAdminsController extends SandboxRestController
                     );
                 }
                 break;
-            case AdminPosition::PLATFORM_SHOP :
+            case AdminPosition::PLATFORM_SHOP:
                 $platformPositions = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                     ->getAdminPositions(
@@ -335,7 +335,7 @@ class AdminAdminsController extends SandboxRestController
                 $allPlatformUser = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->getBindUser($platformPositions);
-                
+
                 $myshops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')
                     ->getShopsByCompany($companyId);
 
@@ -465,7 +465,7 @@ class AdminAdminsController extends SandboxRestController
         $positionArr = array();
         if ($key == self::ADMINS_MENU_KEY_PLATFORM) {
             switch ($platform) {
-                case AdminPosition::PLATFORM_OFFICIAL :
+                case AdminPosition::PLATFORM_OFFICIAL:
                     $positions = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                         ->getPositions(
@@ -474,7 +474,7 @@ class AdminAdminsController extends SandboxRestController
                             false
                         );
                     break;
-                case AdminPosition::PLATFORM_SALES :
+                case AdminPosition::PLATFORM_SALES:
                     $positions = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                         ->getAdminPositions(
@@ -483,7 +483,7 @@ class AdminAdminsController extends SandboxRestController
                             $companyId
                         );
                     break;
-                case AdminPosition::PLATFORM_SHOP :
+                case AdminPosition::PLATFORM_SHOP:
                     $positions = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                         ->getAdminPositions(

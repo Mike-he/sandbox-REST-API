@@ -103,6 +103,14 @@ class AdminPosition
     private $icon;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="sortTime", type="string", length=15)
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $sortTime;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -437,6 +445,22 @@ class AdminPosition
     }
 
     /**
+     * @return string
+     */
+    public function getSortTime()
+    {
+        return $this->sortTime;
+    }
+
+    /**
+     * @param string $sortTime
+     */
+    public function setSortTime($sortTime)
+    {
+        $this->sortTime = $sortTime;
+    }
+
+    /**
      * Set creationDate.
      *
      * @param \DateTime $creationDate
@@ -489,5 +513,6 @@ class AdminPosition
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+        $this->setSortTime(round(microtime(true) * 1000));
     }
 }

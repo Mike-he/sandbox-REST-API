@@ -5,7 +5,6 @@ namespace Sandbox\SalesApiBundle\Controller;
 use Sandbox\AdminApiBundle\Controller\Admin\AdminPlatformController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class SalesRestController extends SandboxRestController

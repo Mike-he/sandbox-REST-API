@@ -3,11 +3,16 @@
 namespace Sandbox\ApiBundle\Repository\Admin;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\AdminApiBundle\Data\Position\Position;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 
 class AdminPositionRepository extends EntityRepository
 {
     /**
+     * @param $platform
+     * @param $type
+     * @param $companyId
+     *
      * @return mixed
      */
     public function getAdminPositions(
@@ -44,6 +49,8 @@ class AdminPositionRepository extends EntityRepository
                 ->andWhere('ap.level = :type')
                 ->setParameter('type', $type);
         }
+
+        $query->orderBy('p.sortTime', 'DESC');
 
         return $query->getQuery()->getResult();
     }
@@ -91,5 +98,27 @@ class AdminPositionRepository extends EntityRepository
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    public function findSwapPosition(
+        $sortTime,
+        $action
+    ) {
+        // operator and order direction
+        $operator = '>';
+        $direction = 'ASC';
+        if ($action == Position::ACTION_DOWN) {
+            $operator = '<';
+            $direction = 'DESC';
+        }
+
+        $query = $this->createQueryBuilder('p')
+            ->where('p.sortTime '.$operator.' :sortTime')
+            ->setParameter('sortTime', $sortTime)
+            ->orderBy('p.sortTime', $direction)
+            ->setMaxResults(1)
+            ->getQuery();
+
+        return $query->getSingleResult();
     }
 }

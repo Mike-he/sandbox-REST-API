@@ -6,17 +6,20 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\AdminApiBundle\Data\Position\Position;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionPermissionMapType;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionPostType;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionPutType;
+use Sandbox\ApiBundle\Form\Position\PositionType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use FOS\RestBundle\Controller\Annotations;
 
@@ -32,6 +35,95 @@ use FOS\RestBundle\Controller\Annotations;
  */
 class AdminPositionController extends PaymentController
 {
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("positions/{id}/change_position")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function changePositionSortAction(
+        Request $request,
+        $id
+    ) {
+        // get position
+        $adminPosition = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->find($id);
+        $this->throwNotFoundIfNull($adminPosition, self::NOT_FOUND_MESSAGE);
+
+        $sort = new Position();
+        $form = $this->createForm(new PositionType(), $sort);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return $this->updatePositionSort(
+            $adminPosition,
+            $sort
+        );
+    }
+
+    /**
+     * @param AdminPosition $adminPosition
+     * @param Position      $sort
+     *
+     * @return View
+     */
+    private function updatePositionSort(
+        $adminPosition,
+        $sort
+    ) {
+        $action = $sort->getAction();
+
+        // change banner position
+        if ($action == Position::ACTION_TOP) {
+            $adminPosition->setSortTime(round(microtime(true) * 1000));
+        } elseif (
+            $action == Position::ACTION_UP ||
+            $action == Position::ACTION_DOWN
+        ) {
+            $this->swapAdminPositionSort(
+                $adminPosition,
+                $action
+            );
+        }
+
+        // save
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param AdminPosition $adminPosition
+     * @param string        $action
+     */
+    private function swapAdminPositionSort(
+        $adminPosition,
+        $action
+    ) {
+        $sortTime = $adminPosition->getSortTime();
+        $swapPosition = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->findSwapPosition(
+                $sortTime,
+                $action
+            );
+
+        // swap banner sort time
+        if (!is_null($swapPosition)) {
+            $swapSortTime = $swapPosition->getSortTime();
+            $adminPosition->setSortTime($swapSortTime);
+            $swapPosition->setSortTime($sortTime);
+        }
+    }
+
     /**
      * create admin position.
      *
