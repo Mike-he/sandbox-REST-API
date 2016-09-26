@@ -147,6 +147,11 @@ class AdminAdminsController extends SandboxRestController
 
         $positionIds = is_null($position) ? null : explode(',', $position);
 
+        $users = null;
+        if (!is_null($search)) {
+            $users = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->searchUserIds($search);
+        }
+
         $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->getPositions(
@@ -162,7 +167,7 @@ class AdminAdminsController extends SandboxRestController
                 $positions,
                 $buildingId,
                 $shopId,
-                $search
+                $users
             );
 
         $result = array();
@@ -521,13 +526,16 @@ class AdminAdminsController extends SandboxRestController
             foreach ($positions as $position) {
                 $positionUser = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->getBindUser($position->getPositionId(), $buildingId, $shopId);
+                    ->getBindUser($position['positionId'], $buildingId, $shopId);
 
+                $position = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                    ->find($position['positionId']);
                 $positionArr[] = array(
                     'key' => 'position',
-                    'id' => $position->getPosition()->getId(),
-                    'name' => $position->getPosition()->getName(),
-                    'icon' => $position->getPosition()->getIcon(),
+                    'id' => $position->getId(),
+                    'name' => $position->getName(),
+                    'icon' => $position->getIcon(),
                     'count' => count($positionUser),
                 );
             }

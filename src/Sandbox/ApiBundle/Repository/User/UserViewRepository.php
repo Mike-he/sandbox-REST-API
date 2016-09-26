@@ -357,4 +357,21 @@ class UserViewRepository extends EntityRepository
 
         return (int) $queryResults->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $query
+     *
+     * @return array
+     */
+    public function searchUserIds(
+        $query
+    ) {
+        $queryResults = $this->createQueryBuilder('u')
+            ->where('u.name LIKE :query')
+            ->orWhere('u.email LIKE :query')
+            ->orWhere('u.phone LIKE :query')
+            ->setParameter('query', $query.'%');
+
+        return $queryResults->getQuery()->getResult();
+    }
 }

@@ -88,7 +88,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
      * @param $positions
      * @param null $building
      * @param null $shop
-     * @param $search
+     * @param null $users
      *
      * @return array
      */
@@ -96,7 +96,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
         $positions,
         $building = null,
         $shop = null,
-        $search = null
+        $users = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('p.userId')
@@ -117,8 +117,9 @@ class AdminPositionUserBindingRepository extends EntityRepository
                 ->setParameter('shop', $shop);
         }
 
-        if (!is_null($search)) {
-            //todo...
+        if (!is_null($users)) {
+            $query->andWhere('p.userId in (:users)')
+                ->setParameter('users', $users);
         }
 
         $query->groupBy('p.userId');
@@ -146,6 +147,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
     }
 
     /**
+     * @param $platform
      * @param $building
      * @param null $shop
      *
@@ -158,6 +160,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('pb')
             ->leftJoin('pb.position', 'p')
+            ->select('pb.positionId')
             ->where('p.platform = :platform')
             ->setParameter('platform', $platform);
 
