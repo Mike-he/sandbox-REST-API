@@ -597,10 +597,8 @@ class AdminShopSpecController extends SpecController
      */
     private function getCompanyId()
     {
-        $adminId = $this->getAdminId();
-        $admin = $this->getRepo('Shop\ShopAdmin')->find($adminId);
-        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
+        $cookies = $this->getPlatformCookies();
 
-        return $admin->getCompanyId();
+        return $cookies['sales_company_id'];
     }
 }

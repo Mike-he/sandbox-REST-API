@@ -15,7 +15,6 @@ use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecItemType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductSpecType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderProductType;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use FOS\RestBundle\View\View;
 
 class ShopRestController extends PaymentController
@@ -391,27 +390,6 @@ class ShopRestController extends PaymentController
         if (count($itemData) > 1) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
-    }
-
-    /**
-     * @return ShopAdmin
-     *
-     * @throws UnauthorizedHttpException
-     */
-    protected function checkShopAdminLoginSecurity()
-    {
-        $auth = $this->getSandboxAuthorization(self::SANDBOX_ADMIN_LOGIN_HEADER);
-
-        $admin = $this->getRepo('Shop\ShopAdmin')->findOneBy(array(
-            'username' => $auth->getUsername(),
-            'password' => $auth->getPassword(),
-        ));
-
-        if (is_null($admin)) {
-            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
-        }
-
-        return $admin;
     }
 
     //--------------------throw customer http error --------------------//

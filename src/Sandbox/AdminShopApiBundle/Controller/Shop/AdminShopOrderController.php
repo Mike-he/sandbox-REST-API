@@ -3,6 +3,7 @@
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Rs\Json\Patch;
+use Sandbox\AdminApiBundle\Controller\Order\AdminOrderController;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
@@ -802,13 +803,17 @@ class AdminShopOrderController extends ShopController
      */
     private function authenticateAdminCookie()
     {
-        $cookie_name = self::SHOP_COOKIE_NAME;
+        $cookie_name = AdminOrderController::ADMIN_COOKIE_NAME;
         if (!isset($_COOKIE[$cookie_name])) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('Shop\ShopAdminToken')->findOneByToken($token);
+        $adminToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(array(
+                'token' => $token,
+            ));
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
