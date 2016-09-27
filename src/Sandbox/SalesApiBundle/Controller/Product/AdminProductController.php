@@ -422,13 +422,10 @@ class AdminProductController extends ProductController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_PRODUCT,
             'logAction' => Log::ACTION_DELETE,
             'logObjectKey' => Log::OBJECT_PRODUCT,
             'logObjectId' => $product->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
     }
 
@@ -567,13 +564,10 @@ class AdminProductController extends ProductController
         );
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_PRODUCT,
             'logAction' => Log::ACTION_CREATE,
             'logObjectKey' => Log::OBJECT_PRODUCT,
             'logObjectId' => $product->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         $response = array(
@@ -670,24 +664,18 @@ class AdminProductController extends ProductController
             }
 
             $this->generateAdminLogs(array(
-                'platform' => Log::PLATFORM_SALES,
-                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                 'logModule' => Log::MODULE_PRODUCT,
                 'logAction' => $action,
                 'logObjectKey' => Log::OBJECT_PRODUCT,
                 'logObjectId' => $product->getId(),
-                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
             ));
         }
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_PRODUCT,
             'logAction' => Log::ACTION_EDIT,
             'logObjectKey' => Log::OBJECT_PRODUCT,
             'logObjectId' => $product->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         $response = array(
@@ -747,13 +735,10 @@ class AdminProductController extends ProductController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_PRODUCT,
             'logAction' => Log::ACTION_EDIT,
             'logObjectKey' => Log::OBJECT_PRODUCT,
             'logObjectId' => $product->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
     }
 

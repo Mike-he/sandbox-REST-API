@@ -1032,13 +1032,10 @@ class AdminRoomController extends SalesRestController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_ROOM,
             'logAction' => Log::ACTION_DELETE,
             'logObjectKey' => Log::OBJECT_ROOM,
             'logObjectId' => $room->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();
@@ -1125,13 +1122,10 @@ class AdminRoomController extends SalesRestController
         }
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_ROOM,
             'logAction' => Log::ACTION_EDIT,
             'logObjectKey' => Log::OBJECT_ROOM,
             'logObjectId' => $room->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         $response = array(
@@ -1238,13 +1232,10 @@ class AdminRoomController extends SalesRestController
         }
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_ROOM,
             'logAction' => Log::ACTION_CREATE,
             'logObjectKey' => Log::OBJECT_ROOM,
             'logObjectId' => $room->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         $response = array(

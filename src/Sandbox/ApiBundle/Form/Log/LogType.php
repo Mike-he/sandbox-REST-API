@@ -15,9 +15,6 @@ class LogType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('platform')
-            ->add('salesCompanyId')
-            ->add('adminUsername')
             ->add('logModule')
             ->add('logAction')
             ->add('logObjectKey')

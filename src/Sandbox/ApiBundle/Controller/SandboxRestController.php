@@ -1648,13 +1648,10 @@ class SandboxRestController extends FOSRestController
      *
      * Example:
      * $logParams = array(
-     *      'platform' => $platform,
-     *      'adminUsername' => $adminUsername,
      *      'logModule' => $module,
      *      'logAction' => $action,
      *      'logObjectKey' => $objectKey,
      *      'logObjectId' => $objectId,
-     *      'salesCompanyId' => $salesCompanyId,
      * )
      *
      * @return bool
@@ -1663,6 +1660,8 @@ class SandboxRestController extends FOSRestController
         $logParams
     ) {
         try {
+            $cookies = $this->getPlatformCookies();
+
             $em = $this->getDoctrine()->getManager();
 
             // clear doctrine cache, then get object
@@ -1677,6 +1676,10 @@ class SandboxRestController extends FOSRestController
             if (!$form->isValid()) {
                 return false;
             }
+
+            $log->setAdminUsername($this->getUser()->getId());
+            $log->setPlatform($cookies['platform']);
+            $log->setSalesCompanyId($cookies['sales_company_id']);
 
             if ($this->handleLog($log)) {
                 $em->persist($log);

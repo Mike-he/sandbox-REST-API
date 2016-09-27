@@ -201,13 +201,10 @@ class AdminProductRecommendController extends AdminProductController
             }
 
             $this->generateAdminLogs(array(
-                'platform' => Log::PLATFORM_SALES,
-                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                 'logModule' => Log::MODULE_PRODUCT,
                 'logAction' => Log::ACTION_RECOMMEND,
                 'logObjectKey' => Log::OBJECT_PRODUCT,
                 'logObjectId' => $product->getId(),
-                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
             ));
         }
 
@@ -271,13 +268,10 @@ class AdminProductRecommendController extends AdminProductController
             }
 
             $this->generateAdminLogs(array(
-                'platform' => Log::PLATFORM_SALES,
-                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                 'logModule' => Log::MODULE_PRODUCT,
                 'logAction' => Log::ACTION_REMOVE_RECOMMEND,
                 'logObjectKey' => Log::OBJECT_PRODUCT,
                 'logObjectId' => $product->getId(),
-                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
             ));
         }
 

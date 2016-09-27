@@ -337,13 +337,10 @@ class AdminBuildingController extends LocationController
 
         // add log
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_BUILDING,
             'logAction' => Log::ACTION_CREATE,
             'logObjectKey' => Log::OBJECT_BUILDING,
             'logObjectId' => $building->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return $response;
@@ -407,13 +404,10 @@ class AdminBuildingController extends LocationController
 
         // add log
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_BUILDING,
             'logAction' => Log::ACTION_EDIT,
             'logObjectKey' => Log::OBJECT_BUILDING,
             'logObjectId' => $building->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return $response;
@@ -488,13 +482,10 @@ class AdminBuildingController extends LocationController
         }
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_BUILDING,
             'logAction' => $action,
             'logObjectKey' => Log::OBJECT_BUILDING,
             'logObjectId' => $building->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();
@@ -656,13 +647,10 @@ class AdminBuildingController extends LocationController
 
         // add log
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_BUILDING,
             'logAction' => Log::ACTION_DELETE,
             'logObjectKey' => Log::OBJECT_BUILDING,
             'logObjectId' => $building->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();

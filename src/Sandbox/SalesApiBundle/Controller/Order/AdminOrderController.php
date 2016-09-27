@@ -469,13 +469,10 @@ class AdminOrderController extends OrderController
                     $em->flush();
 
                     $this->generateAdminLogs(array(
-                        'platform' => Log::PLATFORM_SALES,
-                        'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                         'logModule' => Log::MODULE_ROOM_ORDER,
                         'logAction' => Log::ACTION_REJECT,
                         'logObjectKey' => Log::OBJECT_ROOM_ORDER,
                         'logObjectId' => $rejectedOrder->getId(),
-                        'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
                     ));
                 }
 
@@ -496,13 +493,10 @@ class AdminOrderController extends OrderController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_ROOM_ORDER,
             'logAction' => $action,
             'logObjectKey' => Log::OBJECT_ROOM_ORDER,
             'logObjectId' => $id,
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();
@@ -1189,13 +1183,10 @@ class AdminOrderController extends OrderController
             $em->flush();
 
             $this->generateAdminLogs(array(
-                'platform' => Log::PLATFORM_SALES,
-                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                 'logModule' => Log::MODULE_ORDER_RESERVE,
                 'logAction' => Log::ACTION_CREATE,
                 'logObjectKey' => Log::OBJECT_ROOM_ORDER,
                 'logObjectId' => $order->getId(),
-                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
             ));
 
             $view = new View();
@@ -1267,13 +1258,10 @@ class AdminOrderController extends OrderController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_ROOM_ORDER,
             'logAction' => Log::ACTION_EDIT,
             'logObjectKey' => Log::OBJECT_ROOM_ORDER,
             'logObjectId' => $id,
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();
@@ -1400,13 +1388,10 @@ class AdminOrderController extends OrderController
         }
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => $module,
             'logAction' => Log::ACTION_CANCEL,
             'logObjectKey' => Log::OBJECT_ROOM_ORDER,
             'logObjectId' => $order->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();
@@ -1584,13 +1569,10 @@ class AdminOrderController extends OrderController
             }
 
             $this->generateAdminLogs(array(
-                'platform' => Log::PLATFORM_SALES,
-                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                 'logModule' => Log::MODULE_ORDER_PREORDER,
                 'logAction' => Log::ACTION_CREATE,
                 'logObjectKey' => Log::OBJECT_ROOM_ORDER,
                 'logObjectId' => $order->getId(),
-                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
             ));
 
             $view = new View();
