@@ -246,6 +246,8 @@ class AdminPositionController extends PaymentController
             ->find($id);
         $this->throwNotFoundIfNull($position, self::NOT_FOUND_MESSAGE);
 
+        $oldName = $position->getName();
+
         $form = $this->createForm(
             new AdminPositionPutType(),
             $position,
@@ -278,7 +280,9 @@ class AdminPositionController extends PaymentController
         $name = $position->getName();
 
         // check for duplicate name
-        $this->checkDuplicatePositionName($name, $position);
+        if ($oldName != $name) {
+            $this->checkDuplicatePositionName($name, $position);
+        }
 
         // set permissions
         $this->handleUpdatePermissions($em, $position);
