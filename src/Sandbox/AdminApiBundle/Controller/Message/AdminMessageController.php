@@ -4,9 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Message;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Message\Message;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Form\Message\MessageType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -78,7 +76,7 @@ class AdminMessageController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminMessagePermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -119,7 +117,7 @@ class AdminMessageController extends SandboxRestController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminMessagePermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $message = new Message();
 
@@ -143,16 +141,17 @@ class AdminMessageController extends SandboxRestController
     /**
      * Check user permission.
      *
-     * @param int $OpLevel
+     * @param int $opLevel
      */
     protected function checkAdminMessagePermission(
-        $OpLevel
+        $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_MESSAGE,
-            $OpLevel
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_MESSAGE],
+            ],
+            $opLevel
         );
     }
 }

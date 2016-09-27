@@ -3,10 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\SalesAdmin;
 
 use JMS\Serializer\SerializationContext;
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,20 +32,6 @@ class AdminSalesCompanyController extends LocationController
     public function getSalesCompaniesAction(
         Request $request
     ) {
-        //        $this->throwAccessDeniedIfAdminNotAllowed(
-//            $this->getAdminId(),
-//            AdminType::KEY_PLATFORM,
-//            array(
-//                AdminPermission::KEY_PLATFORM_PRODUCT,
-//                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-//                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-//                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-//                AdminPermission::KEY_PLATFORM_LOG,
-//                AdminPermission::KEY_PLATFORM_INVOICE,
-//            ),
-//            AdminPermissionMap::OP_LEVEL_VIEW
-//        );
-
         $companies = $this->getRepo('SalesAdmin\SalesCompany')->getSalesCompanies();
 
         $view = new View();

@@ -8,8 +8,6 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\News\News;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\News\NewsAttachment;
 use Sandbox\ApiBundle\Form\News\NewsPostType;
 use Sandbox\ApiBundle\Form\News\NewsPutType;
@@ -56,7 +54,7 @@ class AdminNewsController extends SandboxRestController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminNewsPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $news = new News();
 
@@ -119,13 +117,12 @@ class AdminNewsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_NEWS,
-                AdminPermission::KEY_PLATFORM_BANNER,
-                AdminPermission::KEY_PLATFORM_ADVERTISING,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_NEWS],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BANNER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // filters
@@ -178,12 +175,11 @@ class AdminNewsController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_NEWS,
-                AdminPermission::KEY_PLATFORM_ADVERTISING,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_NEWS],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get an news
@@ -231,7 +227,7 @@ class AdminNewsController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminNewsPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $news = $this->getRepo('News\News')->find($id);
         $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
@@ -279,7 +275,7 @@ class AdminNewsController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminNewsPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminNewsPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $news = $this->getRepo('News\News')->find($id);
         $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
@@ -441,8 +437,9 @@ class AdminNewsController extends SandboxRestController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_NEWS,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_NEWS],
+            ],
             $opLevel
         );
     }

@@ -9,7 +9,7 @@ use Sandbox\AdminApiBundle\Data\Position\Position;
 use Sandbox\ApiBundle\Controller\Bulletin\BulletinController;
 use Sandbox\ApiBundle\Entity\Bulletin\BulletinPost;
 use Sandbox\ApiBundle\Entity\Bulletin\BulletinPostAttachment;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Form\Bulletin\BulletinPostForm;
 use Sandbox\ApiBundle\Form\Bulletin\BulletinPostAttachmentForm;
 use Sandbox\ApiBundle\Form\Position\PositionType;
@@ -56,7 +56,7 @@ class AdminBulletinPostController extends BulletinController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $post = new BulletinPost();
 
@@ -107,7 +107,7 @@ class AdminBulletinPostController extends BulletinController
         $id
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $post = $this->getRepo('Bulletin\BulletinPost')->findOneBy(
             [
@@ -206,7 +206,7 @@ class AdminBulletinPostController extends BulletinController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -261,7 +261,7 @@ class AdminBulletinPostController extends BulletinController
         $id
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $post = $this->getRepo('Bulletin\BulletinPost')->findOneBy(
             [
@@ -304,7 +304,7 @@ class AdminBulletinPostController extends BulletinController
         $id
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $post = $this->getRepo('Bulletin\BulletinPost')->findOneBy(
             [
@@ -339,7 +339,7 @@ class AdminBulletinPostController extends BulletinController
         $id
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $post = $this->getRepo('Bulletin\BulletinPost')->findOneBy(
             [

@@ -8,8 +8,6 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Company\CompanyController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Sandbox\ApiBundle\Entity\Company\CompanyVerifyRecord;
 use Sandbox\ApiBundle\Form\Verify\VerifyCompanyRecordType;
@@ -78,7 +76,7 @@ class AdminVerifyCompanyController extends CompanyController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminVerifyPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -129,7 +127,7 @@ class AdminVerifyCompanyController extends CompanyController
         $id
     ) {
         // check user permission
-        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminVerifyPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get a company
         $company = $this->getRepo('Company\Company')->findOneById($id);
@@ -172,7 +170,7 @@ class AdminVerifyCompanyController extends CompanyController
         $id
     ) {
         // check user permission
-        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminVerifyPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get company
         $company = $this->getRepo('Company\Company')->find($id);
@@ -218,7 +216,7 @@ class AdminVerifyCompanyController extends CompanyController
         $id
     ) {
         // check user permission
-        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminVerifyPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get company
         $company = $this->getRepo('Company\Company')->find($id);
@@ -400,8 +398,9 @@ class AdminVerifyCompanyController extends CompanyController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_VERIFY,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_VERIFY],
+            ],
             $opLevel
         );
     }

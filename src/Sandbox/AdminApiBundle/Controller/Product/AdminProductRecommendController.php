@@ -5,7 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Product;
 use Knp\Component\Pager\Paginator;
 use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 use Sandbox\AdminApiBundle\Form\Product\ProductRecommendPositionType;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
@@ -101,7 +101,7 @@ class AdminProductRecommendController extends AdminProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminProductPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -159,7 +159,7 @@ class AdminProductRecommendController extends AdminProductController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminProductPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get payload
         $productIds = json_decode($request->getContent(), true);
@@ -207,7 +207,7 @@ class AdminProductRecommendController extends AdminProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminProductPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get parameter
         $productIds = $paramFetcher->get('id');
@@ -246,7 +246,7 @@ class AdminProductRecommendController extends AdminProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminProductPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get product
         $product = $this->getRepo('Product\Product')->findOneBy(array(

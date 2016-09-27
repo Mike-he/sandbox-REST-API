@@ -7,9 +7,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Entity\User\User;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -265,7 +263,7 @@ class AdminUsersController extends DoorController
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
 
-        // Another better way to search the users by query, but it needs to find out the bug and fix it yet
+        // TODO Another better way to search the users by query, but it needs to find out the bug and fix it yet
 //        // find all users who have the query in any of their mapped fields
 //        $finder = $this->container->get('fos_elastica.finder.search.user');
 
@@ -420,19 +418,18 @@ class AdminUsersController extends DoorController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_USER,
-                AdminPermission::KEY_PLATFORM_ORDER,
-                AdminPermission::KEY_PLATFORM_INVOICE,
-                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-                AdminPermission::KEY_PLATFORM_LOG,
-                AdminPermission::KEY_PLATFORM_ADVERTISING,
-                AdminPermission::KEY_PLATFORM_DASHBOARD,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LOG],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $banned = $paramFetcher->get('banned');
@@ -486,20 +483,19 @@ class AdminUsersController extends DoorController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_USER,
-                AdminPermission::KEY_PLATFORM_ORDER,
-                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_LOG,
-                AdminPermission::KEY_PLATFORM_INVOICE,
-                AdminPermission::KEY_PLATFORM_ADVERTISING,
-                AdminPermission::KEY_PLATFORM_DASHBOARD,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LOG],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get user
@@ -530,9 +526,10 @@ class AdminUsersController extends DoorController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_USER,
-            AdminPermissionMap::OP_LEVEL_EDIT
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         // get user
@@ -553,9 +550,10 @@ class AdminUsersController extends DoorController
         if ($banned !== $updateBanned) {
             $this->throwAccessDeniedIfAdminNotAllowed(
                 $this->getAdminId(),
-                AdminType::KEY_PLATFORM,
-                AdminPermission::KEY_PLATFORM_USER,
-                AdminPermissionMap::OP_LEVEL_USER_BANNED
+                [
+                    ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ],
+                AdminPermission::OP_LEVEL_USER_BANNED
             );
         }
 
@@ -617,9 +615,10 @@ class AdminUsersController extends DoorController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_USER,
-            AdminPermissionMap::OP_LEVEL_EDIT
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         // get user Entity

@@ -10,8 +10,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 
 /**
@@ -30,7 +28,7 @@ class AdminDashBoardController extends SandboxRestController
     public function getUsersTotalAction()
     {
         // check user permission
-        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDashboardPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $repo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView');
         $count = $repo->countTotalUsers();
@@ -74,7 +72,7 @@ class AdminDashBoardController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDashboardPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
@@ -159,7 +157,7 @@ class AdminDashBoardController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDashboardPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
@@ -350,7 +348,7 @@ class AdminDashBoardController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDashboardPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $type = $paramFetcher->get('type');
         $status = $paramFetcher->get('status');
@@ -502,7 +500,7 @@ class AdminDashBoardController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDashboardPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
@@ -729,7 +727,7 @@ class AdminDashBoardController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         //check user permission
-        $this->checkAdminDashboardPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDashboardPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $type = $paramFetcher->get('type');
         $status = $paramFetcher->get('status');
@@ -808,16 +806,17 @@ class AdminDashBoardController extends SandboxRestController
     /**
      * Check user permission.
      *
-     * @param int $OpLevel
+     * @param int $opLevel
      */
     private function checkAdminDashboardPermission(
-        $OpLevel
+        $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_DASHBOARD,
-            $OpLevel
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+            ],
+            $opLevel
         );
     }
 }

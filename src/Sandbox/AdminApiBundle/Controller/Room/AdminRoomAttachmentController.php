@@ -14,9 +14,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 
 /**
  * Admin Room attachment controller.
@@ -73,7 +71,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminRoomAttachmentPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomAttachmentPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $type = $paramFetcher->get('type');
         $buildingId = $paramFetcher->get('building');
@@ -113,7 +111,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomAttachmentPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomAttachmentPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get attachment
         $attachments = $this->getRepo('Room\RoomAttachment')->find($id);
@@ -144,7 +142,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminRoomAttachmentPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomAttachmentPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $attachment = new RoomAttachment();
 
@@ -193,7 +191,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomAttachmentPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomAttachmentPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get attachment
         $attachment = $this->getRepo('Room\RoomAttachment')->find($id);
@@ -231,16 +229,17 @@ class AdminRoomAttachmentController extends RoomAttachmentController
     /**
      * Check user permission.
      *
-     * @param int $OpLevel
+     * @param int $opLevel
      */
     private function checkAdminRoomAttachmentPermission(
-        $OpLevel
+        $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ROOM,
-            $OpLevel
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+            ],
+            $opLevel
         );
     }
 }

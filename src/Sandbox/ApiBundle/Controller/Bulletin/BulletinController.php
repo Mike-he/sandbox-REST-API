@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Controller\Bulletin;
 
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -157,8 +156,9 @@ class BulletinController extends SalesRestController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_BULLETIN,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BULLETIN],
+            ],
             $opLevel
         );
     }
