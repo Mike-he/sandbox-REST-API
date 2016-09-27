@@ -130,13 +130,13 @@ class AdminSalesBuildingController extends LocationController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="admin",
+     *    name="company",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="sales admin id"
+     *    description="sales company id"
      * )
      *
      * @Route("/buildings")
@@ -154,16 +154,16 @@ class AdminSalesBuildingController extends LocationController
         $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
-        $adminId = $paramFetcher->get('admin');
+        $companyId = $paramFetcher->get('company');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $cityId = $paramFetcher->get('city');
         $query = $paramFetcher->get('query');
 
         $salesBuildingIds = null;
-        if (!is_null($adminId)) {
+        if (!is_null($companyId)) {
             // get sales buildings
-            $salesBuildingIds = $this->getSalesSuperAdminBuildingIds($adminId);
+            $salesBuildingIds = $this->getSalesSuperAdminBuildingIds($companyId);
         }
 
         $buildings = $this->getRepo('Room\RoomBuilding')->getSalesRoomBuildings(
@@ -439,17 +439,14 @@ class AdminSalesBuildingController extends LocationController
     }
 
     /**
-     * @param $adminId
+     * @param $companyId
      *
      * @return array
      */
     private function getSalesSuperAdminBuildingIds(
-        $adminId
+        $companyId
     ) {
-        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->find($adminId);
-        $this->throwNotFoundIfNull($salesAdmin, self::NOT_FOUND_MESSAGE);
-
-        $buildings = $this->getRepo('Room\RoomBuilding')->findByCompanyId($salesAdmin->getCompanyId());
+        $buildings = $this->getRepo('Room\RoomBuilding')->findByCompanyId($companyId);
 
         if (empty($buildings)) {
             return array();
