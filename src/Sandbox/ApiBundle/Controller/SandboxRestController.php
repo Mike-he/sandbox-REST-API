@@ -19,6 +19,8 @@ use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Company\Company;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
+use Symfony\Component\HttpKernel\Exception\PreconditionRequiredHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -42,6 +44,8 @@ class SandboxRestController extends FOSRestController
     const BAD_PARAM_MESSAGE = 'Bad parameters';
 
     const CONFLICT_MESSAGE = 'This resource already exists';
+
+    const PRECONDITION_NOT_SET = 'The precondition cookies not set';
 
     const HTTP_STATUS_OK = 200;
     const HTTP_STATUS_OK_NO_CONTENT = 204;
@@ -271,7 +275,7 @@ class SandboxRestController extends FOSRestController
         $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
 
         if (is_null($platform)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
         }
 
         return array(
