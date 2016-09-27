@@ -3,10 +3,8 @@
 namespace Sandbox\SalesApiBundle\Controller\Room;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,7 +78,7 @@ class AdminRoomAttachmentController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_BUILDING_ROOM,
+                AdminPermission::KEY_SALES_BUILDING_ROOM,
             )
         );
 
@@ -130,7 +128,7 @@ class AdminRoomAttachmentController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_BUILDING_ROOM,
+                AdminPermission::KEY_SALES_BUILDING_ROOM,
             )
         );
 
@@ -177,9 +175,15 @@ class AdminRoomAttachmentController extends SalesRestController
         $this->throwNotFoundIfNull($roomBuilding, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->checkAdminRoomAttachmentPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $roomBuilding
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                    'building_id' => $roomBuilding->getId(),
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $em = $this->getDoctrine()->getManager();
@@ -217,12 +221,20 @@ class AdminRoomAttachmentController extends SalesRestController
         $id
     ) {
         // get attachment
-        $attachment = $this->getRepo('Room\RoomAttachment')->find($id);
+        $attachment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomAttachment')
+            ->find($id);
 
         // check user permission
-        $this->checkAdminRoomAttachmentPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $attachment->getBuildingId()
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                    'building_id' => $attachment->getBuildingId(),
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $em = $this->getDoctrine()->getManager();
@@ -253,26 +265,5 @@ class AdminRoomAttachmentController extends SalesRestController
         }
 
         return $filters;
-    }
-
-    /**
-     * Check user permission.
-     *
-     * @param int $opLevel
-     * @param int $buildingId
-     */
-    private function checkAdminRoomAttachmentPermission(
-        $opLevel,
-        $buildingId = null
-    ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
-            array(
-                SalesAdminPermission::KEY_BUILDING_ROOM,
-            ),
-            $opLevel,
-            $buildingId
-        );
     }
 }

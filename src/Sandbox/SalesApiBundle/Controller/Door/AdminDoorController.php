@@ -7,9 +7,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
@@ -87,7 +85,15 @@ class AdminDoorController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         // get parameters
         $syncModules = $paramFetcher->get('module');
@@ -196,7 +202,15 @@ class AdminDoorController extends DoorController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
 
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
@@ -234,7 +248,15 @@ class AdminDoorController extends DoorController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
 
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
@@ -268,7 +290,15 @@ class AdminDoorController extends DoorController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
 
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
@@ -385,14 +415,17 @@ class AdminDoorController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_ACCESS,
-                SalesAdminPermission::KEY_BUILDING_ROOM,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $globals = $this->getGlobals();
@@ -511,7 +544,15 @@ class AdminDoorController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $globals = $this->getGlobals();
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -628,7 +669,15 @@ class AdminDoorController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $globals = $this->getGlobals();
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -683,23 +732,5 @@ class AdminDoorController extends DoorController
                 $this->logOut($sessionId, $base);
             }
         }
-    }
-
-    /**
-     * Check user permission.
-     *
-     * @param int $opLevel
-     */
-    private function checkAdminDoorPermission(
-        $opLevel
-    ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
-            array(
-                SalesAdminPermission::KEY_BUILDING_ACCESS,
-            ),
-            $opLevel
-        );
     }
 }

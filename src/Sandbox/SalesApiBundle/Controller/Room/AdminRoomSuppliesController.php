@@ -2,9 +2,7 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Room;
 
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -80,7 +78,7 @@ class AdminRoomSuppliesController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomSuppliesPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomSuppliesPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get attachment
         $supplies = $this->getRepo('Room\Supplies')->find($id);
@@ -97,11 +95,12 @@ class AdminRoomSuppliesController extends SalesRestController
     private function checkAdminRoomSuppliesPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_ROOM,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                ),
             ),
             $opLevel
         );

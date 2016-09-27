@@ -6,15 +6,13 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventAttachment;
 use Sandbox\ApiBundle\Entity\Event\EventDate;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventFormOption;
 use Sandbox\ApiBundle\Entity\Event\EventTime;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Event\EventPatchType;
 use Sandbox\ApiBundle\Form\Event\EventPostType;
 use Sandbox\ApiBundle\Form\Event\EventPutType;
@@ -157,14 +155,7 @@ class AdminEventController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
-            array(
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
-            ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
-        );
+        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get sales company id
         $salesCompanyId = $this->getSalesCompanyId();
@@ -235,7 +226,7 @@ class AdminEventController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminEventPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get sales company id
         $salesCompanyId = $this->getSalesCompanyId();
@@ -294,7 +285,7 @@ class AdminEventController extends SalesRestController
         Request $request
     ) {
         // check user permission
-        $this->checkSalesAdminEventPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $event = new Event();
 
@@ -342,7 +333,7 @@ class AdminEventController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminEventPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $event = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\Event')
@@ -416,7 +407,7 @@ class AdminEventController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminEventPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $event = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\Event')
@@ -471,7 +462,7 @@ class AdminEventController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminEventPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $event = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\Event')
@@ -1072,11 +1063,12 @@ class AdminEventController extends SalesRestController
     private function checkSalesAdminEventPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                ),
             ),
             $opLevel
         );

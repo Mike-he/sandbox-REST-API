@@ -267,7 +267,7 @@ class SandboxRestController extends FOSRestController
         $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
         $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
 
-        $platform = $_COOKIE[$adminPlatformCookieName];
+        $platform = isset($_COOKIE[$adminPlatformCookieName]) ? $_COOKIE[$adminPlatformCookieName] : null;
         $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
 
         if (is_null($platform)) {

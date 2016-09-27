@@ -5,14 +5,12 @@ namespace Sandbox\SalesApiBundle\Controller\Product;
 use Knp\Component\Pager\Paginator;
 use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 use Sandbox\AdminApiBundle\Form\Product\ProductRecommendPositionType;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -104,7 +102,7 @@ class AdminProductRecommendController extends AdminProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminProductPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminProductPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -122,28 +120,30 @@ class AdminProductRecommendController extends AdminProductController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
             )
         );
 
-        $query = $this->getRepo('Product\Product')->getSalesAdminProducts(
-            $myBuildingIds,
-            null,
-            $city,
-            $building,
-            null,
-            'sortTime',
-            'DESC',
-            $search,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            true
-        );
+        $query = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->getSalesAdminProducts(
+                $myBuildingIds,
+                null,
+                $city,
+                $building,
+                null,
+                'sortTime',
+                'DESC',
+                $search,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                true
+            );
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -177,6 +177,17 @@ class AdminProductRecommendController extends AdminProductController
     public function addProductRecommendAction(
         Request $request
     ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
+
         // get payload
         $productIds = json_decode($request->getContent(), true);
         if (is_null($productIds) || empty($productIds)) {
@@ -244,6 +255,17 @@ class AdminProductRecommendController extends AdminProductController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
+
         // get parameter
         $productIds = $paramFetcher->get('id');
         if (is_null($productIds) || empty($productIds)) {
@@ -312,9 +334,15 @@ class AdminProductRecommendController extends AdminProductController
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminProductPermission(
-            AdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         // get payload
@@ -346,9 +374,15 @@ class AdminProductRecommendController extends AdminProductController
             $buildingId = $product->getRoom()->getBuildingId();
 
             // check user permission
-            $this->checkAdminProductPermission(
-                SalesAdminPermissionMap::OP_LEVEL_EDIT,
-                $buildingId
+            $this->throwAccessDeniedIfAdminNotAllowed(
+                $this->getAdminId(),
+                array(
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                        'building_id' => $buildingId,
+                    ),
+                ),
+                AdminPermission::OP_LEVEL_EDIT
             );
 
             $product->setRecommend($recommend);

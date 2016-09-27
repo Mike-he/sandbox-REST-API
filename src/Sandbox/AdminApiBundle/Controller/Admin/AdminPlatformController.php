@@ -16,6 +16,9 @@ class AdminPlatformController extends AdminRestController
     const COOKIE_NAME_PLATFORM = 'platform';
     const COOKIE_NAME_SALES_COMPANY = 'sales_company_id';
 
+    const ERROR_INVALID_SALES_COMPANY_ID_CODE = 400001;
+    const ERROR_INVALID_SALES_COMPANY_ID_MESSAGE = 'Invalid Sales Company Id';
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -37,13 +40,20 @@ class AdminPlatformController extends AdminRestController
         }
 
         $platform = $data['platform'];
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_OFFICIAL
-            && !isset($data['sales_company_id'])
-        ) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
 
-        $salesCompanyId = $data['sales_company_id'];
+        if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
+            $salesCompanyId = null;
+        } else {
+            if (!isset($data['sales_company_id'])) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_SALES_COMPANY_ID_CODE,
+                    self::ERROR_INVALID_SALES_COMPANY_ID_MESSAGE
+                );
+            }
+
+            $salesCompanyId = $data['sales_company_id'];
+        }
 
         // set cookies
         setrawcookie(self::COOKIE_NAME_PLATFORM, $platform, null, '/', $request->getHost());

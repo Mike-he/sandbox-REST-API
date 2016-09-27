@@ -2,9 +2,7 @@
 
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -56,11 +54,14 @@ class AdminShopController extends ShopController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminShopPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_PLATFORM_SHOP,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $shop = new Shop();
@@ -93,12 +94,15 @@ class AdminShopController extends ShopController
         $id
     ) {
         // check user permission
-        $this->checkAdminShopPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_SHOP,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                    'shop_id' => $id,
+                ),
             ),
-            $id
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $shop = $this->findShopById($id);
@@ -137,12 +141,15 @@ class AdminShopController extends ShopController
         $id
     ) {
         // check user permission
-        $this->checkAdminShopPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_SHOP,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                    'shop_id' => $id,
+                ),
             ),
-            $id
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $shop = $this->findShopById($id);
@@ -200,13 +207,19 @@ class AdminShopController extends ShopController
         $id
     ) {
         // check user permission
-        $this->checkAdminShopPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_SHOP,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                    'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $id,
+                ),
             ),
-            $id
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $shop = $this->getRepo('Shop\Shop')->getShopById($id);
@@ -250,15 +263,26 @@ class AdminShopController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminShopPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_SHOP,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_PLATFORM_ADMIN,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
@@ -371,11 +395,14 @@ class AdminShopController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminShopPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_SHOP,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $cityId = $paramFetcher->get('city');
@@ -444,15 +471,6 @@ class AdminShopController extends ShopController
 
         $em->persist($shop);
         $em->flush();
-
-        $shopId = $shop->getId();
-
-        // add building permission to sales admin
-        $adminKey = $this->getUser()->getMyAdmin()->getType()->getKey();
-
-        if ($adminKey == ShopAdminType::KEY_PLATFORM) {
-            $this->addSalesAdminPermissionOfShop($shopId, $em);
-        }
 
         $view = new View();
         $view->setData(['id' => $shop->getId()]);
@@ -683,29 +701,6 @@ class AdminShopController extends ShopController
         if (!is_null($sameShop)) {
             throw new ConflictHttpException(Shop::SHOP_CONFLICT_MESSAGE);
         }
-    }
-
-    /**
-     * @param $shopId
-     * @param $em
-     */
-    private function addSalesAdminPermissionOfShop(
-        $shopId,
-        $em
-    ) {
-        $permission = $this->getRepo('Shop\ShopAdminPermission')->findOneByKey(
-            ShopAdminPermission::KEY_SHOP_SHOP
-        );
-
-        // add permissions
-        $permissionMap = new ShopAdminPermissionMap();
-        $permissionMap->setAdmin($this->getUser()->getMyAdmin());
-        $permissionMap->setPermission($permission);
-        $permissionMap->setOpLevel(ShopAdminPermissionMap::OP_LEVEL_EDIT);
-        $permissionMap->setShopId($shopId);
-        $permissionMap->setCreationDate(new \DateTime('now'));
-        $em->persist($permissionMap);
-        $em->flush();
     }
 
     /**
