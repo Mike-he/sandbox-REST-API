@@ -671,7 +671,9 @@ class AdminBuildingController extends LocationController
         $phones = $building->getPhones();
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
-        $salesCompany = $cookies['sales_company_id'];
+        $salesCompany = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($cookies['sales_company_id']);
         $buildingServices = $building->getBuildingServices();
 
         // check city
