@@ -17,9 +17,6 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuildingPhones;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingAttachmentPostType;
@@ -666,13 +663,15 @@ class AdminBuildingController extends LocationController
     private function handleAdminBuildingPost(
         $building
     ) {
+        $cookies = $this->getPlatformCookies();
+
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
         $floors = $building->getFloors();
         $phones = $building->getPhones();
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
-        $salesCompany = $this->getUser()->getMyAdmin()->getSalesCompany();
+        $salesCompany = $cookies['sales_company_id'];
         $buildingServices = $building->getBuildingServices();
 
         // check city
@@ -736,13 +735,6 @@ class AdminBuildingController extends LocationController
         $em->flush();
 
         $buildingId = $building->getId();
-
-        // add building permission to sales admin
-        $adminKey = $this->getUser()->getMyAdmin()->getType()->getKey();
-
-        if ($adminKey == SalesAdminType::KEY_PLATFORM) {
-            $this->addSalesAdminPermissionOfBuilding($buildingId, $em);
-        }
 
         $response = array(
             'id' => $buildingId,
@@ -1208,28 +1200,6 @@ class AdminBuildingController extends LocationController
                 $em->remove($adminPhone);
             }
         }
-    }
-
-    /**
-     * @param $buildingId
-     * @param $em
-     */
-    private function addSalesAdminPermissionOfBuilding(
-        $buildingId,
-        $em
-    ) {
-        $permission = $this->getRepo('SalesAdmin\SalesAdminPermission')->findOneByKey(
-            SalesAdminPermission::KEY_BUILDING_BUILDING
-        );
-        // add permissions
-        $permissionMap = new SalesAdminPermissionMap();
-        $permissionMap->setAdmin($this->getUser()->getMyAdmin());
-        $permissionMap->setPermission($permission);
-        $permissionMap->setOpLevel(SalesAdminPermissionMap::OP_LEVEL_EDIT);
-        $permissionMap->setBuildingId($buildingId);
-        $permissionMap->setCreationDate(new \DateTime('now'));
-        $em->persist($permissionMap);
-        $em->flush();
     }
 
     /**

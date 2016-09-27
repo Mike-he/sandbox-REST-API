@@ -38,7 +38,8 @@ class AdminShopCitiesController extends ShopRestController
         );
 
         // get my company
-        $myCompany = $this->getUser()->getMyAdmin()->getSalesCompany();
+        $cookies = $this->getPlatformCookies();
+        $myCompany = $cookies['sales_company_id'];
 
         // get my buildings
         $buildings = $this->getRepo('Room\RoomBuilding')->findBy(array(

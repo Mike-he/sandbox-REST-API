@@ -31,7 +31,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->setParameter('platform', $platform)
             ->setParameter('isSuperAdmin', $isSuperAdmin);
 
-        if (!is_null($salesCompanyId)) {
+        if (!is_null($salesCompanyId) && $platform != AdminPosition::PLATFORM_OFFICIAL) {
             $query->andWhere('p.salesCompanyId = :salesCompanyId')
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }

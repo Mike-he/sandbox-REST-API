@@ -39,6 +39,11 @@ class AdminPlatformController extends AdminRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        // clear old cookies
+        setrawcookie(self::COOKIE_NAME_PLATFORM, '', 1, '/', $request->getHost());
+        setrawcookie(self::COOKIE_NAME_SALES_COMPANY, '', 1, '/', $request->getHost());
+
+        // set new cookies
         $platform = $data['platform'];
 
         if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
@@ -53,11 +58,11 @@ class AdminPlatformController extends AdminRestController
             }
 
             $salesCompanyId = $data['sales_company_id'];
+            setrawcookie(self::COOKIE_NAME_SALES_COMPANY, $salesCompanyId, null, '/', $request->getHost());
         }
 
         // set cookies
         setrawcookie(self::COOKIE_NAME_PLATFORM, $platform, null, '/', $request->getHost());
-        setrawcookie(self::COOKIE_NAME_SALES_COMPANY, $salesCompanyId, null, '/', $request->getHost());
 
         return new View(array(
             'platform' => $platform,

@@ -209,6 +209,8 @@ class AdminEventOrderController extends SalesRestController
         // check user permission
         $this->checkSalesAdminEventOrderPermission(AdminPermission::OP_LEVEL_VIEW);
 
+        $cookies = $this->getPlatformCookies();
+
         $language = $paramFetcher->get('language');
         $cityId = $paramFetcher->get('city');
         $flag = $paramFetcher->get('flag');
@@ -226,7 +228,7 @@ class AdminEventOrderController extends SalesRestController
                 $startDate,
                 $endDate,
                 $search,
-                $admin->getSalesCompany()->getId()
+                $cookies['sales_company_id']
             );
 
         return $this->getEventOrderExport($orders, $language);
