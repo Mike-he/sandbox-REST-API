@@ -8,8 +8,6 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventAttachment;
 use Sandbox\ApiBundle\Entity\Event\EventDate;
@@ -159,13 +157,12 @@ class AdminEventController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_EVENT,
-                AdminPermission::KEY_PLATFORM_BANNER,
-                AdminPermission::KEY_PLATFORM_ADVERTISING,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BANNER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // filters
@@ -243,12 +240,12 @@ class AdminEventController extends SandboxRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_EVENT,
-                AdminPermission::KEY_PLATFORM_ADVERTISING,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BANNER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get an event
@@ -302,7 +299,7 @@ class AdminEventController extends SandboxRestController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $event = new Event();
 
@@ -350,7 +347,7 @@ class AdminEventController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $event = $this->getRepo('Event\Event')->findOneBy(array(
             'id' => $id,
@@ -421,7 +418,7 @@ class AdminEventController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $event = $this->getRepo('Event\Event')->findOneBy(array(
             'id' => $id,
@@ -473,7 +470,7 @@ class AdminEventController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $event = $this->getRepo('Event\Event')->find($id);
 
@@ -1066,8 +1063,9 @@ class AdminEventController extends SandboxRestController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_EVENT,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+            ],
             $opLevel
         );
     }

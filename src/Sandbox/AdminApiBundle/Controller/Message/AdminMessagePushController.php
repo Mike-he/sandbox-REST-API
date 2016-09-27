@@ -4,7 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Message;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Message\MessagePush;
 use Sandbox\ApiBundle\Form\Message\MessagePushType;
 use Sandbox\ApiBundle\Traits\MessagePushNotification;
@@ -65,7 +65,7 @@ class AdminMessagePushController extends AdminMessageController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminMessagePermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -97,7 +97,7 @@ class AdminMessagePushController extends AdminMessageController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminMessagePermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $messagePush = new MessagePush();
 

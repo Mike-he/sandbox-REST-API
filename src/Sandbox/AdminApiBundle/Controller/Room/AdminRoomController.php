@@ -6,8 +6,6 @@ use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomDoors;
 use Sandbox\ApiBundle\Entity\Room\RoomFixed;
@@ -164,13 +162,12 @@ class AdminRoomController extends RoomController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_ROOM,
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_EVENT,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         //filters
@@ -248,7 +245,7 @@ class AdminRoomController extends RoomController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $roomIds = $paramFetcher->get('room_id');
         $statusArray = [];
@@ -319,9 +316,10 @@ class AdminRoomController extends RoomController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_PRODUCT,
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $type = $paramFetcher->get('type');
@@ -382,9 +380,10 @@ class AdminRoomController extends RoomController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_PRICE,
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRICE],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $cityId = $paramFetcher->get('city');
@@ -430,7 +429,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $usage = $this->getRepo('Room\Room')->getRoomUsersUsage($id);
 
@@ -464,16 +463,15 @@ class AdminRoomController extends RoomController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_ROOM,
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_EVENT,
-                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get room
@@ -513,7 +511,7 @@ class AdminRoomController extends RoomController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $room = new Room();
 
@@ -565,7 +563,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get room
         $room = $this->getRepo('Room\Room')->findOneBy(array(
@@ -621,7 +619,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_EDIT);
 
         //get array with ids
         $attachments_id = json_decode($request->getContent(), true);
@@ -682,7 +680,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $office_supplies = json_decode($request->getContent(), true);
         if (!is_array($office_supplies)) {
@@ -742,7 +740,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get room
         $room = $this->getRepo('Room\Room')->findOneBy(array(
@@ -796,7 +794,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get room
         $room = $this->getRepo('Room\Room')->findOneBy(array(
@@ -841,7 +839,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get room
         $room = $this->getRepo('Room\Room')->find($id);
@@ -1212,16 +1210,17 @@ class AdminRoomController extends RoomController
     /**
      * Check user permission.
      *
-     * @param int $OpLevel
+     * @param int $opLevel
      */
     private function checkAdminRoomPermission(
-        $OpLevel
+        $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ROOM,
-            $OpLevel
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+            ],
+            $opLevel
         );
     }
 
@@ -1298,7 +1297,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
         $yearString = $paramFetcher->get('year');
@@ -1359,7 +1358,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_VIEW);
         $seat = $paramFetcher->get('seat');
         $results = [];
         if (!is_null($seat) && !empty($seat)) {
@@ -1427,7 +1426,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $product = $this->getRepo('Product\Product')->findOneBy(
             ['roomId' => $id]
@@ -1509,7 +1508,7 @@ class AdminRoomController extends RoomController
         $id
     ) {
         // check user permission
-        $this->checkAdminRoomPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
         $dayString = $paramFetcher->get('day');

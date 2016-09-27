@@ -6,8 +6,6 @@ use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Feed\FeedController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -73,7 +71,7 @@ class AdminVerifyFeedController extends FeedController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminVerifyPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -124,7 +122,7 @@ class AdminVerifyFeedController extends FeedController
         $id
     ) {
         // check user permission
-        $this->checkAdminVerifyPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminVerifyPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
@@ -148,8 +146,9 @@ class AdminVerifyFeedController extends FeedController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_VERIFY,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_VERIFY],
+            ],
             $opLevel
         );
     }

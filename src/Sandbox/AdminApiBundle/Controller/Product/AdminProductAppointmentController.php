@@ -7,8 +7,6 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -53,7 +51,7 @@ class AdminProductAppointmentController extends SandboxRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $this->checkAdminProductAppointmentPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminProductAppointmentPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -106,7 +104,7 @@ class AdminProductAppointmentController extends SandboxRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductAppointmentPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminProductAppointmentPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get appointment
         $appointment = $this->getDoctrine()
@@ -136,8 +134,9 @@ class AdminProductAppointmentController extends SandboxRestController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+            ],
             $opLevel
         );
     }

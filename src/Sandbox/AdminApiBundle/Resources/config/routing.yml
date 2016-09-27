@@ -118,12 +118,6 @@ sandbox_admin_api_events:
     type:     annotation
     prefix:  /
 
-# Food /admin/food
-sandbox_admin_api_food:
-    resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodController.php"
-    type:     annotation
-    prefix:   /
-
 # Banner Tags /admin/banner/tags
 sandbox_admin_api_banner_tags:
     resource: "@SandboxAdminApiBundle/Controller/Banner/AdminBannerTagController.php"
@@ -175,12 +169,6 @@ sandbox_admin_api_verify_company:
 # Payment /admin/payment
 sandbox_admin_api_payment:
     resource: "@SandboxAdminApiBundle/Controller/Payment/AdminPaymentController.php"
-    type:     annotation
-    prefix:   /
-
-# Food /food/orders/{orderNo}/notification
-sandbox_admin_api_food_notification:
-    resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodNotificationController.php"
     type:     annotation
     prefix:   /
 

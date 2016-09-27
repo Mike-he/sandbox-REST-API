@@ -11,7 +11,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use JMS\Serializer\SerializationContext;
 
 /**
  * SalesAdmin controller.
@@ -27,47 +26,6 @@ class AdminShopAdminsController extends SandboxRestController
 {
     const POSITION_ADMIN = 'SuperAdministrator';
     const POSITION_COFFEE_ADMIN = 'SuperAdministrator';
-
-    /**
-     * List definite id of admin.
-     *
-     * @param Request $request the request object
-     * @param int     $id
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
-     * @Method({"GET"})
-     * @Route("/admins/{id}")
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function getAdminAction(
-        Request $request,
-        $id
-    ) {
-        // check user permission
-
-//        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->find($id);
-//        $this->throwNotFoundIfNull($salesAdmin, self::NOT_FOUND_MESSAGE);
-
-//        // get admin
-//        $admins = $this->getRepo('Shop\ShopAdmin')->findOneByCompanyId($salesAdmin->getCompanyId());
-
-//        // set view
-//        $view = new View($admins);
-//        $view->setSerializationContext(
-//            SerializationContext::create()->setGroups(array('admin'))
-//        );
-
-//        return $view;
-    }
 
     /**
      * Create admin.
@@ -94,6 +52,7 @@ class AdminShopAdminsController extends SandboxRestController
         $id
     ) {
         // check user permission
+        $this->checkShopAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $userId = $request->get('user_id');
         $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($id);
@@ -135,6 +94,7 @@ class AdminShopAdminsController extends SandboxRestController
         $id
     ) {
         // check user permission
+        $this->checkShopAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($id);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
@@ -228,5 +188,22 @@ class AdminShopAdminsController extends SandboxRestController
         $em->flush();
 
         return $position;
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $opLevel
+     */
+    protected function checkShopAdminPermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+            ],
+            $opLevel
+        );
     }
 }

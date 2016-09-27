@@ -7,8 +7,6 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -235,14 +233,13 @@ class AdminProductController extends ProductController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // filters
@@ -338,14 +335,13 @@ class AdminProductController extends ProductController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $product = $this->getRepo('Product\Product')->find(array(
@@ -386,7 +382,7 @@ class AdminProductController extends ProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminProductPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get product
         $product = $this->getRepo('Product\Product')->find($id);
@@ -435,7 +431,7 @@ class AdminProductController extends ProductController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminProductPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminProductPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $product = new Product();
 
@@ -565,12 +561,11 @@ class AdminProductController extends ProductController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-            ),
-            AdminPermissionMap::OP_LEVEL_EDIT
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $product = $this->getDoctrine()
@@ -634,12 +629,11 @@ class AdminProductController extends ProductController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_PRODUCT,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-            ),
-            AdminPermissionMap::OP_LEVEL_EDIT
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $product = $this->getRepo('Product\Product')->find(array(
@@ -695,16 +689,17 @@ class AdminProductController extends ProductController
     /**
      * Check user permission.
      *
-     * @param int $OpLevel
+     * @param int $opLevel
      */
     protected function checkAdminProductPermission(
-        $OpLevel
+        $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_PRODUCT,
-            $OpLevel
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+            ],
+            $opLevel
         );
     }
 

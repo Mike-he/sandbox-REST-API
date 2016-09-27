@@ -109,6 +109,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $search = $paramFetcher->get('query');
 
         // check user permission
+        $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $salesCompanies = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
             ->getCompanyList(
@@ -189,6 +190,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $id
     ) {
         // check user permission
+        $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($id);
         if (is_null($company)) {
@@ -252,6 +254,7 @@ class AdminSalesAdminsController extends SandboxRestController
         Request $request
     ) {
         // check user permission
+        $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $userId = $request->get('user_id');
         $company = $request->get('company');
@@ -298,6 +301,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $id
     ) {
         // check user permission
+        $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
         if (is_null($request->get('user_ids')) || empty($request->get('user_ids'))) {
             return $this->customErrorView(
@@ -348,6 +352,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $id
     ) {
         // check user permission
+        $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $salesCompany = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($id);
         $this->throwNotFoundIfNull($salesCompany, self::NOT_FOUND_MESSAGE);
@@ -384,6 +389,7 @@ class AdminSalesAdminsController extends SandboxRestController
         }
 
         // check user permission
+        $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
         try {
             if ($banned) {
@@ -715,5 +721,22 @@ class AdminSalesAdminsController extends SandboxRestController
 
             $em->persist($excludePermissionEm);
         }
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $opLevel
+     */
+    protected function checkSalesAdminPermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+            ],
+            $opLevel
+        );
     }
 }

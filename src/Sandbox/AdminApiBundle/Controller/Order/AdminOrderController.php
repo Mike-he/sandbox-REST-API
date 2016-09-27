@@ -10,8 +10,6 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPatch;
@@ -177,9 +175,10 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_INVOICE,
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // filters
@@ -238,7 +237,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -300,7 +299,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -416,7 +415,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -462,7 +461,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -514,7 +513,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -580,7 +579,7 @@ class AdminOrderController extends OrderController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $orders = $this->getRepo('Order\ProductOrder')->findBy(
             [
@@ -661,7 +660,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
         // check if order exists
         $order = $this->getRepo('Order\ProductOrder')->find($id);
@@ -863,15 +862,14 @@ class AdminOrderController extends OrderController
         if (!is_null($userId) || !empty($userId)) {
             $this->throwAccessDeniedIfAdminNotAllowed(
                 $adminId,
-                AdminType::KEY_PLATFORM,
-                array(
-                    AdminPermission::KEY_PLATFORM_ORDER,
-                    AdminPermission::KEY_PLATFORM_USER,
-                ),
-                AdminPermissionMap::OP_LEVEL_VIEW
+                [
+                    ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                    ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ],
+                AdminPermission::OP_LEVEL_VIEW
             );
         } else {
-            $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
+            $this->checkAdminOrderPermission($adminId, AdminPermission::OP_LEVEL_VIEW);
         }
 
         //filters
@@ -1087,7 +1085,7 @@ class AdminOrderController extends OrderController
         $adminId = $admin->getId();
 
         // check user permission
-        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($adminId, AdminPermission::OP_LEVEL_VIEW);
 
         $language = $paramFetcher->get('language');
         $channel = $paramFetcher->get('channel');
@@ -1154,17 +1152,16 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_ORDER,
-                AdminPermission::KEY_PLATFORM_USER,
-                AdminPermission::KEY_PLATFORM_INVOICE,
-                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-                AdminPermission::KEY_PLATFORM_DASHBOARD,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $order = $this->getRepo('Order\ProductOrder')->find($id);
@@ -1199,12 +1196,11 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_ORDER_RESERVE,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-            ),
-            AdminPermissionMap::OP_LEVEL_EDIT
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $now = new \DateTime();
@@ -1341,12 +1337,11 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_ORDER_PREORDER,
-                AdminPermission::KEY_PLATFORM_PRODUCT_APPOINTMENT_VERIFY,
-            ),
-            AdminPermissionMap::OP_LEVEL_EDIT
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $now = new \DateTime();
@@ -1536,23 +1531,20 @@ class AdminOrderController extends OrderController
         $type = $order->getType();
 
         // check user permission
-        $permissions = array(
-            AdminPermission::KEY_PLATFORM_ORDER,
-        );
+        $permissions[]['key'] = AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER;
 
         if (ProductOrder::RESERVE_TYPE == $type) {
-            $permissions[] = AdminPermission::KEY_PLATFORM_ORDER_RESERVE;
+            $permissions[]['key'] = AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE;
         } elseif (ProductOrder::PREORDER_TYPE) {
-            $permissions[] = AdminPermission::KEY_PLATFORM_ORDER_PREORDER;
+            $permissions[]['key'] = AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER;
         } else {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            AdminType::KEY_PLATFORM,
             $permissions,
-            AdminPermissionMap::OP_LEVEL_EDIT
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $now = new \DateTime();
@@ -1652,8 +1644,9 @@ class AdminOrderController extends OrderController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ORDER,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+            ],
             $opLevel
         );
     }

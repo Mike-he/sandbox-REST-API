@@ -3,8 +3,6 @@
 namespace Sandbox\AdminApiBundle\Controller\Banner;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Banner\Banner;
 use Sandbox\ApiBundle\Form\Banner\BannerType;
 use Sandbox\ApiBundle\Form\Banner\BannerPutType;
@@ -85,7 +83,7 @@ class AdminBannerController extends BannerController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -133,7 +131,7 @@ class AdminBannerController extends BannerController
         $id
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get banner
         $banner = $this->getRepo('Banner\Banner')->find($id);
@@ -176,7 +174,7 @@ class AdminBannerController extends BannerController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $banner = new Banner();
 
@@ -213,7 +211,7 @@ class AdminBannerController extends BannerController
         $id
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get banner
         $banner = $this->getRepo('Banner\Banner')->find($id);
@@ -263,7 +261,7 @@ class AdminBannerController extends BannerController
         $id
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get banner
         $banner = $this->getRepo('Banner\Banner')->find($id);
@@ -295,7 +293,7 @@ class AdminBannerController extends BannerController
         $id
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get banner
         $banner = $this->getDoctrine()
@@ -519,16 +517,16 @@ class AdminBannerController extends BannerController
     /**
      * Check user permission.
      *
-     * @param int $OpLevel
+     * @param int $opLevel
      */
-    private function checkAdminBannerPermission(
-        $OpLevel
-    ) {
+    private function checkAdminBannerPermission($opLevel)
+    {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_BANNER,
-            $OpLevel
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BANNER],
+            ],
+            $opLevel
         );
     }
 }

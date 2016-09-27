@@ -7,8 +7,6 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Event\EventCommentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
@@ -63,7 +61,7 @@ class AdminEventCommentController extends EventCommentController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventCommentPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminEventCommentPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -114,7 +112,7 @@ class AdminEventCommentController extends EventCommentController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventCommentPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminEventCommentPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $comment = $this->getRepo('Event\EventComment')->find($id);
         $this->throwNotFoundIfNull($comment, self::NOT_FOUND_MESSAGE);
@@ -134,8 +132,9 @@ class AdminEventCommentController extends EventCommentController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_EVENT,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+            ],
             $opLevel
         );
     }
