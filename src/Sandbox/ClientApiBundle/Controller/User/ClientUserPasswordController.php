@@ -470,9 +470,9 @@ class ClientUserPasswordController extends UserPasswordController
     ) {
         // get auth
         $auth = null;
-        $headers = apache_request_headers();
-        if (array_key_exists('Authorization', $headers)) {
-            $auth = $headers['Authorization'];
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
+        if (array_key_exists('http_authorization', $headers)) {
+            $auth = $headers['http_authorization'];
         }
 
         // get payload fields

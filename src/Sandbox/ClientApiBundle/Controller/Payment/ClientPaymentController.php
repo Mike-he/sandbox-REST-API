@@ -40,9 +40,9 @@ class ClientPaymentController extends PaymentController
         Request $request
     ) {
         // verify webhooks signature
-        $signatureHeaderKey = self::PINGPLUSPLUS_SIGNATURE_HEADER;
+        $signatureHeaderKey = 'http_'.self::PINGPLUSPLUS_SIGNATURE_HEADER;
 
-        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
         if (!array_key_exists($signatureHeaderKey, $headers)) {
             return new Response();
         }

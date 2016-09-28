@@ -53,11 +53,11 @@ class OpenServerUserController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $serviceKey = $paramFetcher->get('service');
-        $headers = apache_request_headers();
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
         $data = json_decode($request->getContent(), true);
 
         // check auth headers
-        if (!array_key_exists(self::REQUEST_AUTH_HEADER, $headers)) {
+        if (!array_key_exists(mb_strtolower('http_'.self::REQUEST_AUTH_HEADER), $headers)) {
             return $this->customErrorView(
                 400,
                 self::ERROR_INVALID_AUTH_HEAR_CODE,
@@ -65,7 +65,7 @@ class OpenServerUserController extends SandboxRestController
             );
         }
 
-        $authKey = $headers[self::REQUEST_AUTH_HEADER];
+        $authKey = $headers[mb_strtolower('http_'.self::REQUEST_AUTH_HEADER)];
 
         // get ip
         $ip = $request->getClientIp();

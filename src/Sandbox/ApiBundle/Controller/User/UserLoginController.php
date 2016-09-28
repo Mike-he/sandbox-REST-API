@@ -247,10 +247,10 @@ class UserLoginController extends SandboxRestController
     protected function getUserIfAuthenticated(
         $error
     ) {
-        $headerKey = self::SANDBOX_CLIENT_LOGIN_HEADER;
+        $headerKey = 'http_'.self::SANDBOX_CLIENT_LOGIN_HEADER;
 
         // get auth
-        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
         if (!array_key_exists($headerKey, $headers)) {
             return $this->getUser();
         }

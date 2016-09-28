@@ -253,7 +253,7 @@ class LocationController extends SalesRestController
             $excludeIds
         );
 
-        $headers = apache_request_headers();
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
 
         if (!is_null($user)) {
             $clientId = $user->getClientId();
@@ -273,8 +273,8 @@ class LocationController extends SalesRestController
                     );
                 }
             }
-        } elseif (array_key_exists('User-Agent', $headers)) {
-            $agent = $headers['User-Agent'];
+        } elseif (array_key_exists('http_user_agent', $headers)) {
+            $agent = $headers['http_user_agent'];
 
             $versionName = explode(' (', $agent);
             $versionNameArray = explode('/', $versionName[0]);

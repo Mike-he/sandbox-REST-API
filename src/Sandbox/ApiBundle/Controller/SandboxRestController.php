@@ -161,8 +161,8 @@ class SandboxRestController extends FOSRestController
      */
     protected function isAuthProvided()
     {
-        $headers = apache_request_headers();
-        $authHeaderKey = 'Authorization';
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
+        $authHeaderKey = 'http_authorization';
 
         if (!array_key_exists($authHeaderKey, $headers)) {
             return false;
@@ -398,8 +398,8 @@ class SandboxRestController extends FOSRestController
     ) {
         if (is_null($auth)) {
             // get auth
-            $headers = apache_request_headers();
-            $auth = $headers['Authorization'];
+            $headers = array_change_key_case($_SERVER, CASE_LOWER);
+            $auth = $headers['http_authorization'];
         }
 
         $twig = $this->container->get('twig');
@@ -686,8 +686,8 @@ class SandboxRestController extends FOSRestController
     ) {
         if (is_null($auth)) {
             // get auth
-            $headers = apache_request_headers();
-            $auth = $headers['Authorization'];
+            $headers = array_change_key_case($_SERVER, CASE_LOWER);
+            $auth = $headers['http_authorization'];
         }
 
         $twig = $this->container->get('twig');
@@ -729,8 +729,8 @@ class SandboxRestController extends FOSRestController
     ) {
         if (is_null($auth)) {
             // get auth
-            $headers = apache_request_headers();
-            $auth = $headers['Authorization'];
+            $headers = array_change_key_case($_SERVER, CASE_LOWER);
+            $auth = $headers['http_authorization'];
         }
 
         $twig = $this->container->get('twig');
@@ -775,8 +775,8 @@ class SandboxRestController extends FOSRestController
     ) {
         if (is_null($auth)) {
             // get auth
-            $headers = apache_request_headers();
-            $auth = $headers['Authorization'];
+            $headers = array_change_key_case($_SERVER, CASE_LOWER);
+            $auth = $headers['http_authorization'];
         }
         $startDate = $startDate->format('Y-m-d H:i:s');
         $endDate = $endDate->format('Y-m-d H:i:s');
@@ -828,8 +828,8 @@ class SandboxRestController extends FOSRestController
     ) {
         if (is_null($auth)) {
             // get auth
-            $headers = apache_request_headers();
-            $auth = $headers['Authorization'];
+            $headers = array_change_key_case($_SERVER, CASE_LOWER);
+            $auth = $headers['http_authorization'];
         }
 
         $twig = $this->container->get('twig');
@@ -1626,11 +1626,11 @@ class SandboxRestController extends FOSRestController
         $headerKey
     ) {
         // get auth
-        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
         if (!array_key_exists($headerKey, $headers)) {
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
-        $authHeader = $headers[$headerKey];
+        $authHeader = $headers['http_'.$headerKey];
         $adminString = base64_decode($authHeader, true);
         $adminArray = explode(':', $adminString);
 
