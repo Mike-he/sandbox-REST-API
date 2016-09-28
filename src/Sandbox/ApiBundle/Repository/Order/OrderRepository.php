@@ -2049,4 +2049,47 @@ class OrderRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $channel
+     * @param $salesId
+     * @param $typeName
+     * @param $startDate
+     * @param $endDate
+     * @param $status
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function sumOrdersByType(
+        $channel,
+        $salesId,
+        $typeName,
+        $startDate,
+        $endDate,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('SUM(o.discountPrice)')
+            ->where('o.status = :status')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.startDate <= :end')
+            ->andWhere('o.payChannel = :payChannel')
+            ->andWhere('b.companyId = :companyId')
+            ->andWhere('r.type = :type')
+            ->setParameter('type', $typeName)
+            ->setParameter('companyId', $salesId)
+            ->setParameter('payChannel', $channel)
+            ->setParameter('status', $status)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+        ;
+
+        return  $query->getQuery()->getSingleScalarResult();
+    }
 }

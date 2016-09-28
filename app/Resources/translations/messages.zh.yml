@@ -46,6 +46,7 @@ product_order:
     account: 余额支付
     cnp_u: 快捷支付(国内)
     cnp_f: 快捷支付(国外)
+    offline: 线下支付
   status:
     unpaid: 未付款
     paid: 已付款
