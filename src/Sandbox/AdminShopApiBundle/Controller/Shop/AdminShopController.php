@@ -285,11 +285,12 @@ class AdminShopController extends ShopController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
+        $cookies = $this->getPlatformCookies();
+        $companyId = $cookies['sales_company_id'];
 
         $permission = $paramFetcher->get('permission');
 
-        if (ShopAdminPermission::KEY_PLATFORM_ADMIN == $permission) {
+        if (AdminPermission::KEY_SHOP_PLATFORM_ADMIN == $permission) {
             $shopIds = $this->getRepo('Shop\Shop')->getShopIdsByCompany($companyId);
         } else {
             $shopIds = $this->getMyShopIds(

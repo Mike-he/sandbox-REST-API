@@ -81,27 +81,6 @@ class SalesRestController extends SandboxRestController
     }
 
     /**
-     * @return SalesAdmin
-     *
-     * @throws UnauthorizedHttpException
-     */
-    protected function checkSalesAdminLoginSecurity()
-    {
-        $auth = $this->getSandboxAuthorization(self::SANDBOX_ADMIN_LOGIN_HEADER);
-
-        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->findOneBy(array(
-            'username' => $auth->getUsername(),
-            'password' => $auth->getPassword(),
-        ));
-
-        if (is_null($admin)) {
-            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
-        }
-
-        return $admin;
-    }
-
-    /**
      * @return mixed
      */
     protected function getSalesCompanyId()

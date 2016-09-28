@@ -570,7 +570,8 @@ class AdminUsersController extends DoorController
         $user->setModificationDate(new \DateTime('now'));
 
         // check sales user record
-        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
+        $cookies = $this->getPlatformCookies();
+        $companyId = $cookies['sales_company_id'];
         $buildingId = $building->getId();
 
         $salesUserId = $user->getId();
@@ -591,7 +592,7 @@ class AdminUsersController extends DoorController
         $salesUser->setModificationDate(new \DateTime('now'));
 
         // set authorized admin
-        $adminUsername = $this->getUser()->getMyAdmin()->getUsername();
+        $adminUsername = $this->getUser()->getUserId();
         $user->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_SALES);
         $user->setAuthorizedAdminUsername($adminUsername);
 

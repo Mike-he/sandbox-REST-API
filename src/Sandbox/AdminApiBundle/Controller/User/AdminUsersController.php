@@ -633,7 +633,7 @@ class AdminUsersController extends DoorController
         $user->setModificationDate(new \DateTime('now'));
 
         // set authorized admin
-        $adminUsername = $this->getUser()->getMyAdmin()->getUsername();
+        $adminUsername = $this->getUser()->getUserId();
         $user->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_OFFICIAL);
         $user->setAuthorizedAdminUsername($adminUsername);
 

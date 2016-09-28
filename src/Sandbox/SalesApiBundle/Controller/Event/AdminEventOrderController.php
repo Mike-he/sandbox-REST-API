@@ -421,7 +421,7 @@ class AdminEventOrderController extends SalesRestController
 
         $token = $_COOKIE[$cookie_name];
         $adminToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminToken')
+            ->getRepository('SandboxApiBundle:User\UserToken')
             ->findOneBy(array(
                 'token' => $token,
             ));
