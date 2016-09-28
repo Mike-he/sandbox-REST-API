@@ -427,6 +427,12 @@ class AdminPositionController extends PaymentController
                 $companyId
             );
 
+        $global_image_url = $this->container->getParameter('image_url');
+        foreach ($positions as $position) {
+            $icon = $position->getIcon();
+            $icon->setIcon($global_image_url.$icon->getIcon());
+        }
+
         $positions = $this->get('serializer')->serialize(
             $positions,
             'json',
