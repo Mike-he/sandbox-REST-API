@@ -304,9 +304,8 @@ class AdminAdminsController extends SandboxRestController
             'count' => count($superUser),
         );
 
-        $platformAdmin = null;
-        $buildingAdmin = null;
-        $shopAdmin = null;
+        $buildingAdmin = array();
+        $shopAdmin = array();
 
         switch ($platform) {
             case AdminPosition::PLATFORM_OFFICIAL:
@@ -387,7 +386,9 @@ class AdminAdminsController extends SandboxRestController
             'count' => count($allPlatformUser),
        );
 
-        $result = array($allAdmin, $superAdmin, $platformAdmin, $buildingAdmin, $shopAdmin);
+        $result = array($allAdmin, $superAdmin, $platformAdmin);
+
+        $result = array_merge($result,$buildingAdmin,$shopAdmin);
 
         return new View($result);
     }
