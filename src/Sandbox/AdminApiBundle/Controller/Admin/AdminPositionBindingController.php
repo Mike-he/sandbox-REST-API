@@ -192,9 +192,10 @@ class AdminPositionBindingController extends AdminRestController
                 $bindings = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->findBy(array(
+                        'userId' => $userId,
                         'position' => $position,
                     ));
-                if (count($bindings) <= 1) {
+                if (count($bindings) == 1) {
                     return $this->customErrorView(
                         400,
                         self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,

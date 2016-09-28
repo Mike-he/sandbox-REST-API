@@ -58,8 +58,8 @@ class AdminSalesCityController extends LocationController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->find($id);
-        $this->throwNotFoundIfNull($salesAdmin, self::NOT_FOUND_MESSAGE);
+        $admin = $this->getRepo('User\User')->find($id);
+        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
 
         // get my building ids
         $myBuildingIds = $this->generateLocationSalesBuildingIds(

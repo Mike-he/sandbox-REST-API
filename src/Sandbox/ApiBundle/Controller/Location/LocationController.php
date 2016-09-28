@@ -289,8 +289,6 @@ class LocationController extends SalesRestController
         if (!is_null($user) && empty($ids)) {
             // sales bundle
             if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
-                $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($this->getUser()->getAdminId());
-
                 // get buildings by admin type
                 if ($isSuperAdmin ||
                     in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray) ||
@@ -299,7 +297,7 @@ class LocationController extends SalesRestController
                     $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
                         $cityId,
                         null,
-                        $admin->getCompanyId()
+                        $salesCompanyId
                     );
                 } else {
                     // get my building ids
@@ -679,7 +677,7 @@ class LocationController extends SalesRestController
         $adminId = null
     ) {
         if (is_null($adminId)) {
-            $adminId = $this->getUser()->getAdminId();
+            $adminId = $this->getUser()->getUserId();
         }
 
         $permissionKeyArray = $paramFetcher->get('permission');
