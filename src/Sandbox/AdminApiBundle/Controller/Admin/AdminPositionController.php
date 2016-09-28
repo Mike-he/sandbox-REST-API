@@ -466,9 +466,15 @@ class AdminPositionController extends PaymentController
     public function getAdminPositionIconsAction(
         Request $request
     ) {
+        $global_image_url = $this->container->getParameter('image_url');
+
         $icons = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')
             ->findAll();
+
+        foreach ($icons as $icon) {
+            $icon->setIcon($global_image_url.$icon->getIcon());
+        }
 
         return new View($icons);
     }

@@ -76,6 +76,30 @@ class Version20160922113634 extends AbstractMigration
         $this->addSql("
               INSERT INTO `parameter` (`key`, `value`) VALUES ('banner_top', '5');
         ");
+
+        $this->addSql("
+            INSERT INTO `admin_position_icons`(`icon`) VALUES
+            ('/icon/admin_position_icon_01.png'),
+            ('/icon/admin_position_icon_02.png'),
+            ('/icon/admin_position_icon_03.png'),
+            ('/icon/admin_position_icon_04.png'),
+            ('/icon/admin_position_icon_05.png'),
+            ('/icon/admin_position_icon_06.png'),
+            ('/icon/admin_position_icon_07.png'),
+            ('/icon/admin_position_icon_08.png'),
+            ('/icon/admin_position_icon_09.png'),
+            ('/icon/admin_position_icon_10.png'),
+            ('/icon/admin_position_icon_11.png'),
+            ('/icon/admin_position_icon_12.png'),
+            ('/icon/admin_position_icon_13.png'),
+            ('/icon/admin_position_icon_14.png'),
+            ('/icon/admin_position_icon_15.png'),
+            ('/icon/admin_position_icon_16.png'),
+            ('/icon/admin_position_icon_17.png'),
+            ('/icon/admin_position_icon_18.png'),
+            ('/icon/admin_position_icon_19.png'),
+            ('/icon/admin_position_icon_20.png');
+        ");
     }
 
     /**
