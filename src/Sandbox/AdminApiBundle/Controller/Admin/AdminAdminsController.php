@@ -28,9 +28,11 @@ use Knp\Component\Pager\Paginator;
 class AdminAdminsController extends SandboxRestController
 {
     const ADMINS_ALL_ADMIN = '所有管理员';
+    const ADMINS_SUPER_ADMIN = '超级管理员';
     const ADMINS_PLATFORM_ADMIN = '平台管理员';
 
     const ADMINS_MENU_KEY_ALL = 'all';
+    const ADMINS_MENU_KEY_SUPER = 'super';
     const ADMINS_MENU_KEY_PLATFORM = 'platform';
     const ADMINS_MENU_KEY_BUILDING = 'building';
     const ADMINS_MENU_KEY_SHOP = 'shop';
@@ -283,6 +285,25 @@ class AdminAdminsController extends SandboxRestController
             'name' => self::ADMINS_ALL_ADMIN,
             'count' => count($allUser),
        );
+
+        $superPositions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getPositions(
+                $platform,
+                $companyId,
+                true
+            );
+
+        $superUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser($superPositions);
+
+        $superAdmin = array(
+            'key' => self::ADMINS_MENU_KEY_SUPER,
+            'name' => self::ADMINS_SUPER_ADMIN,
+            'count' => count($superUser),
+        );
+
         $platformAdmin = null;
         $buildingAdmin = null;
         $shopAdmin = null;
@@ -366,7 +387,7 @@ class AdminAdminsController extends SandboxRestController
             'count' => count($allPlatformUser),
        );
 
-        $result = array($allAdmin, $platformAdmin, $buildingAdmin, $shopAdmin);
+        $result = array($allAdmin, $superAdmin, $platformAdmin, $buildingAdmin, $shopAdmin);
 
         return new View($result);
     }
