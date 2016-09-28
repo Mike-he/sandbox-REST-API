@@ -214,4 +214,68 @@ trait SendNotification
 
         return $apns;
     }
+
+    /**
+     * @param $users
+     * @param $language
+     * @param $message
+     * @param $title
+     * @param $contentArray
+     * @return string
+     */
+    protected function getJpushData(
+        $users,
+        $language,
+        $message,
+        $title,
+        $contentArray
+    ) {
+        $data = [
+            'platform' => 'all',
+            'audience' => [
+                'alias' => $users,
+                'tag' => $language
+            ],
+            'notification' => [
+                'alert' => $message,
+                'android' => [
+                    'alert' => $message,
+                    'title' => $title,
+                    'extras' => $contentArray
+                ],
+                'ios' => [
+                    'alert' => $message,
+                    'sound' => 'default',
+                    'badge' => '+1',
+                    'extras' => $contentArray
+                ]
+            ]
+        ];
+
+        return json_encode($data);
+    }
+
+    /**
+     * @param object $jsonData
+     */
+    protected function sendJpushNotification(
+        $jsonData
+    ) {
+        try {
+            $apiURL = 'https://api.jpush.cn/v3/push';
+
+            // call JPush API
+            $ch = curl_init($apiURL);
+            $headers[] = 'Authorization: Basic MjA4ODI1MmFmYTUzY2MxNjkzMDJmNGQwOjk5ZThkZDNlZDlmZGNiMTZlYjExMWVkOQ==';
+
+            $this->callAPI(
+                $ch,
+                'POST',
+                $headers,
+                $jsonData
+            );
+        } catch (Exception $e) {
+            error_log('Send JPush notification went wrong.');
+        }
+    }
 }
