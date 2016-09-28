@@ -270,7 +270,7 @@ trait ProductOrderNotification
         
         $zhData = $this->getJpushData(
             $receivers,
-            'lang_zh',
+            ['lang_zh'],
             $bodyZh,
             '展想创合',
             $contentArray
@@ -278,7 +278,7 @@ trait ProductOrderNotification
 
         $enData = $this->getJpushData(
             $receivers,
-            'lang_en',
+            ['lang_en'],
             $bodyEn,
             'Sandbox3',
             $contentArray
