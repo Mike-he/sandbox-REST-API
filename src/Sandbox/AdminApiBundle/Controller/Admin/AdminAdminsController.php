@@ -57,14 +57,6 @@ class AdminAdminsController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="platform",
-     *    array=false,
-     *    nullable=false,
-     *    strict=true,
-     *    description="platform"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="isSuperAdmin",
      *    array=false,
      *    default=null,
@@ -72,13 +64,6 @@ class AdminAdminsController extends SandboxRestController
      *    description="isSuperAdmin"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    description="sales admin company"
-     * )
      *
      * @Annotations\QueryParam(
      *    name="building",
@@ -136,10 +121,12 @@ class AdminAdminsController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $platform = $paramFetcher->get('platform');
+        $cookies = $this->getPlatformCookies();
+        $platform = $cookies['platform'];
+        $companyId = $cookies["sales_company_id"];
         $isSuperAdmin = $paramFetcher->get('isSuperAdmin');
-        $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
         $shopId = $paramFetcher->get('shop');
         $position = $paramFetcher->get('position');
@@ -236,24 +223,6 @@ class AdminAdminsController extends SandboxRestController
      *   }
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="platform",
-     *    array=false,
-     *    nullable=false,
-     *    strict=true,
-     *    description="platform"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    description="sales admin company"
-     * )
-     *
-     *
-     *
      * @Method({"GET"})
      * @Route("/admins/menu")
      *
@@ -265,8 +234,12 @@ class AdminAdminsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $platform = $paramFetcher->get('platform');
-        $companyId = $paramFetcher->get('company');
+        // check user permission
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $cookies = $this->getPlatformCookies();
+        $platform = $cookies['platform'];
+        $companyId = $cookies["sales_company_id"];
 
         $positions = $this->getDoctrine()
            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
@@ -406,27 +379,11 @@ class AdminAdminsController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="platform",
-     *    array=false,
-     *    nullable=false,
-     *    strict=true,
-     *    description="platform"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="key",
      *    array=false,
      *    nullable=false,
      *    strict=true,
      *    description="key"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    description="sales admin company"
      * )
      *
      * @Annotations\QueryParam(
@@ -456,9 +413,13 @@ class AdminAdminsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $platform = $paramFetcher->get('platform');
+        // check user permission
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $cookies = $this->getPlatformCookies();
+        $platform = $cookies['platform'];
+        $companyId = $cookies["sales_company_id"];
         $key = $paramFetcher->get('key');
-        $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
         $shopId = $paramFetcher->get('shop');
 
@@ -586,5 +547,24 @@ class AdminAdminsController extends SandboxRestController
         }
 
         return $positionArr;
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $OpLevel
+     */
+    private function checkAdminAdvertisingPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+            ],
+            $OpLevel
+        );
     }
 }
