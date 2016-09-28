@@ -535,6 +535,28 @@ class AdminAdminsController extends SandboxRestController
                     'count' => count($positionUser),
                 );
             }
+        } elseif ($key == self::ADMINS_MENU_KEY_SUPER) {
+            $positions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->getPositions(
+                    $platform,
+                    $companyId,
+                    true
+                );
+
+            foreach ($positions as $position) {
+                $positionUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($position);
+
+                $positionArr[] = array(
+                    'key' => 'position',
+                    'id' => $position->getId(),
+                    'name' => $position->getName(),
+                    'icon' => $position->getIcon(),
+                    'count' => count($positionUser),
+                );
+            }
         } else {
             $positions = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
