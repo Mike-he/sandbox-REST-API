@@ -582,17 +582,21 @@ class AdminPositionController extends PaymentController
 
     /**
      * @param $name
-     * @param $position
+     * @param AdminPosition $position
      */
     private function checkDuplicatePositionName(
         $name,
         $position
     ) {
+        $platform = $position->getPlatform();
+        $salesCompanyId = $position->getSalesCompanyId();
+
         $existPosition = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(array(
                 'name' => $name,
-                'salesCompanyId' => $position->getSalesCompanyId(),
+                'platform' => $platform,
+                'salesCompanyId' => $salesCompanyId,
             ));
 
         if (!is_null($existPosition)) {
