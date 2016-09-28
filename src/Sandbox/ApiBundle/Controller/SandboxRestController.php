@@ -1625,12 +1625,14 @@ class SandboxRestController extends FOSRestController
     protected function getSandboxAuthorization(
         $headerKey
     ) {
+        $headerKey = 'http_'.$headerKey;
+
         // get auth
         $headers = array_change_key_case($_SERVER, CASE_LOWER);
         if (!array_key_exists($headerKey, $headers)) {
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
-        $authHeader = $headers['http_'.$headerKey];
+        $authHeader = $headers[$headerKey];
         $adminString = base64_decode($authHeader, true);
         $adminArray = explode(':', $adminString);
 
