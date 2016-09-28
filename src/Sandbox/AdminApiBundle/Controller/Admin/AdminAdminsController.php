@@ -431,12 +431,6 @@ class AdminAdminsController extends SandboxRestController
             $shopId
         );
 
-        $global_image_url = $this->container->getParameter('image_url');
-        foreach ($positions as $position) {
-            $icon = $position->getIcon();
-            $icon->setIcon($global_image_url.$icon->getIcon());
-        }
-
         return new View($positions);
     }
 
@@ -456,6 +450,8 @@ class AdminAdminsController extends SandboxRestController
         $buildingId,
         $shopId
     ) {
+        $global_image_url = $this->container->getParameter('image_url');
+
         $positionArr = array();
         if ($key == self::ADMINS_MENU_KEY_PLATFORM) {
             switch ($platform) {
@@ -499,7 +495,7 @@ class AdminAdminsController extends SandboxRestController
                     'key' => 'position',
                     'id' => $position->getId(),
                     'name' => $position->getName(),
-                    'icon' => $position->getIcon(),
+                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
                     'count' => count($positionUser),
                 );
             }
@@ -521,7 +517,7 @@ class AdminAdminsController extends SandboxRestController
                     'key' => 'position',
                     'id' => $position->getId(),
                     'name' => $position->getName(),
-                    'icon' => $position->getIcon(),
+                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
                     'count' => count($positionUser),
                 );
             }
@@ -546,7 +542,7 @@ class AdminAdminsController extends SandboxRestController
                     'key' => 'position',
                     'id' => $position->getId(),
                     'name' => $position->getName(),
-                    'icon' => $position->getIcon(),
+                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
                     'count' => count($positionUser),
                 );
             }
