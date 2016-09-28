@@ -47,7 +47,7 @@ class FileServerController extends SandboxRestController
      *    name="target",
      *    array=false,
      *    default=null,
-     *    nullable=true,
+     *    nullable=false,
      *    strict=true,
      *    description="target"
      * )
@@ -95,7 +95,7 @@ class FileServerController extends SandboxRestController
      *    name="target",
      *    array=false,
      *    default=null,
-     *    nullable=true,
+     *    nullable=false,
      *    strict=true,
      *    description="target"
      * )
@@ -167,7 +167,7 @@ class FileServerController extends SandboxRestController
      *    name="target",
      *    array=false,
      *    default=null,
-     *    nullable=true,
+     *    nullable=false,
      *    strict=true,
      *    description="target"
      * )
@@ -239,7 +239,7 @@ class FileServerController extends SandboxRestController
      *    name="target",
      *    array=false,
      *    default=null,
-     *    nullable=true,
+     *    nullable=false,
      *    strict=true,
      *    description="target"
      * )
@@ -311,7 +311,7 @@ class FileServerController extends SandboxRestController
      *    name="target",
      *    array=false,
      *    default=null,
-     *    nullable=true,
+     *    nullable=false,
      *    strict=true,
      *    description="target"
      * )
@@ -386,7 +386,7 @@ class FileServerController extends SandboxRestController
         $fileid = $this->getName();
 
         if ($type == 'base64') {
-            $file = $paramFetcher->get('public_b64');
+            $file = $request->get('public_b64');
             if (!preg_match('/(?<=\/)[^\/]+(?=\;)/', $file, $pregR)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
@@ -430,10 +430,12 @@ class FileServerController extends SandboxRestController
         $img_url = $this->container->getParameter('image_url');
         $id = $id ? '/'.$id : '';
         $download_link = $img_url.'/'.$target.$id.'/'.$filename;
+        $preview_link = $preview_height ? $img_url.'/'.$target.$id.'/preview/'.$filename : $download_link;
 
         $result = array(
             'content_type' => $content_type,
             'download_link' => $download_link,
+            'preview_link' => $preview_link,
             'fileid' => $fileid,
             'filename' => $filename,
             'result' => 0,
