@@ -125,7 +125,7 @@ class AdminAdminsController extends SandboxRestController
 
         $cookies = $this->getPlatformCookies();
         $platform = $cookies['platform'];
-        $companyId = $cookies["sales_company_id"];
+        $companyId = $cookies['sales_company_id'];
         $isSuperAdmin = $paramFetcher->get('isSuperAdmin');
         $buildingId = $paramFetcher->get('building');
         $shopId = $paramFetcher->get('shop');
@@ -239,7 +239,7 @@ class AdminAdminsController extends SandboxRestController
 
         $cookies = $this->getPlatformCookies();
         $platform = $cookies['platform'];
-        $companyId = $cookies["sales_company_id"];
+        $companyId = $cookies['sales_company_id'];
 
         $positions = $this->getDoctrine()
            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
@@ -361,7 +361,7 @@ class AdminAdminsController extends SandboxRestController
 
         $result = array($allAdmin, $superAdmin, $platformAdmin);
 
-        $result = array_merge($result,$buildingAdmin,$shopAdmin);
+        $result = array_merge($result, $buildingAdmin, $shopAdmin);
 
         return new View($result);
     }
@@ -418,7 +418,7 @@ class AdminAdminsController extends SandboxRestController
 
         $cookies = $this->getPlatformCookies();
         $platform = $cookies['platform'];
-        $companyId = $cookies["sales_company_id"];
+        $companyId = $cookies['sales_company_id'];
         $key = $paramFetcher->get('key');
         $buildingId = $paramFetcher->get('building');
         $shopId = $paramFetcher->get('shop');

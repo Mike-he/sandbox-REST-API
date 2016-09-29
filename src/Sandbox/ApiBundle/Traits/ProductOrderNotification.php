@@ -81,17 +81,18 @@ trait ProductOrderNotification
                 $bodyEn = $firstEn.$city.$building.$room.$secondEn;
 
                 // get notification data
-//                $data = $this->getProductOrderNotificationJsonData(
-//                    $order->getId(),
-//                    $order->getOrderNumber(),
-//                    $fromUserId,
-//                    $receivers,
-//                    $action,
-//                    $bodyZh,
-//                    $bodyEn
-//                );
-//
-//                $jsonData = json_encode(array($data));
+                $data = $this->getProductOrderNotificationJsonData(
+                    $order->getId(),
+                    $order->getOrderNumber(),
+                    $fromUserId,
+                    $receivers,
+                    $action,
+                    $bodyZh,
+                    $bodyEn
+                );
+
+                $jsonData = json_encode(array($data));
+
                 $this->setDataAndJPushNotification(
                     $order->getId(),
                     $order->getOrderNumber(),
@@ -102,19 +103,19 @@ trait ProductOrderNotification
                     $bodyEn
                 );
             } else {
-//                $dataArray = [];
+                $dataArray = [];
                 foreach ($orders as $order) {
-//                    $data = $this->getProductOrderNotificationJsonData(
-//                        $order->getId(),
-//                        $order->getOrderNumber(),
-//                        $fromUserId,
-//                        [$order->getUserId()],
-//                        $action,
-//                        $firstZh,
-//                        $firstEn
-//                    );
+                    $data = $this->getProductOrderNotificationJsonData(
+                        $order->getId(),
+                        $order->getOrderNumber(),
+                        $fromUserId,
+                        [$order->getUserId()],
+                        $action,
+                        $firstZh,
+                        $firstEn
+                    );
 
-//                    array_push($dataArray, $data);
+                    array_push($dataArray, $data);
 
                     $this->setDataAndJPushNotification(
                         $order->getId(),
@@ -127,11 +128,11 @@ trait ProductOrderNotification
                     );
                 }
 
-//                $jsonData = json_encode($dataArray);
+                $jsonData = json_encode($dataArray);
             }
 
             // send xmpp notification
-//            $this->sendXmppNotification($jsonData, false);
+            $this->sendXmppNotification($jsonData, false);
         } catch (Exception $e) {
             error_log('Send message notification went wrong!');
         }
@@ -267,7 +268,7 @@ trait ProductOrderNotification
 
         // get order array
         $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
-        
+
         $zhData = $this->getJpushData(
             $receivers,
             ['lang_zh'],
@@ -283,7 +284,7 @@ trait ProductOrderNotification
             'Sandbox3',
             $contentArray
         );
-        
+
         $this->sendJpushNotification($zhData);
         $this->sendJpushNotification($enData);
     }
