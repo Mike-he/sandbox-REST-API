@@ -221,6 +221,7 @@ trait SendNotification
      * @param $message
      * @param $title
      * @param $contentArray
+     *
      * @return string
      */
     protected function getJpushData(
@@ -234,22 +235,22 @@ trait SendNotification
             'platform' => 'all',
             'audience' => [
                 'alias' => $users,
-                'tag' => $language
+                'tag' => $language,
             ],
             'notification' => [
                 'alert' => $message,
                 'android' => [
                     'alert' => $message,
                     'title' => $title,
-                    'extras' => $contentArray
+                    'extras' => $contentArray,
                 ],
                 'ios' => [
                     'alert' => $message,
                     'sound' => 'default',
                     'badge' => '+1',
-                    'extras' => $contentArray
-                ]
-            ]
+                    'extras' => $contentArray,
+                ],
+            ],
         ];
 
         return json_encode($data);
