@@ -174,7 +174,7 @@ class AdminAdminsController extends SandboxRestController
                 $positionArr[] = $positionBind->getPosition();
             }
 
-            $buildingArr = null;
+            $buildingArr = array();
             if ($platform == AdminPosition::PLATFORM_SALES) {
                 $buildingBinds = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
@@ -191,7 +191,7 @@ class AdminAdminsController extends SandboxRestController
                 }
             }
 
-            $shopArr = null;
+            $shopArr = array();
             if ($platform == AdminPosition::PLATFORM_SHOP) {
                 $shopBinds = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
