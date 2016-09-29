@@ -51,9 +51,12 @@ class AdminPositionUserBindingRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('pb')
             ->where('pb.userId = :userId')
-            ->setParameter('userId', $userId)
-            ->andWhere('pb.positionId IN (:positionIds)')
-            ->setParameter('positionIds', $positionIds);
+            ->setParameter('userId', $userId);
+
+        if (!is_null($positionIds)) {
+            $query->andWhere('pb.positionId IN (:positionIds)')
+                ->setParameter('positionIds', $positionIds);
+        }
 
         return $query->getQuery()->getResult();
     }
