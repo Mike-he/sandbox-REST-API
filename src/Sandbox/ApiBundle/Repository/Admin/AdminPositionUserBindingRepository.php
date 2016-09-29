@@ -193,6 +193,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('pb')
             ->leftJoin('pb.position', 'p')
+            ->select('p.id')
             ->where('pb.userId = :user')
             ->setParameter('user', $user);
 
@@ -210,6 +211,8 @@ class AdminPositionUserBindingRepository extends EntityRepository
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
+
+        $query->groupBy('p.id');
 
         return $query->getQuery()->getResult();
     }
