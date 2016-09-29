@@ -214,8 +214,10 @@ class AdminAdminsController extends SandboxRestController
 
             $bind = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->getPositionBindings(
-                    $userId['userId']
+                ->getBindingsByUser(
+                    $userId['userId'],
+                    $platform,
+                    $companyId
                 );
 
             $result[] = array(

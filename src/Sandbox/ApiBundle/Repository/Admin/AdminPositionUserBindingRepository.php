@@ -275,4 +275,31 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $userId
+     * @param $platform
+     * @param null $company
+     *
+     * @return array
+     */
+    public function getBindingsByUser(
+        $userId,
+        $platform,
+        $company = null
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->leftJoin('pb.position', 'p')
+            ->where('pb.userId = :userId')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('userId', $userId)
+            ->setParameter('platform', $platform);
+
+        if (!is_null($company)) {
+            $query->andWhere('p.salesCompanyId = :company')
+                ->setParameter('company', $company);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }
