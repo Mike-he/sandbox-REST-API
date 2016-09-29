@@ -231,23 +231,41 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->leftJoin('pb.position', 'p')
             ->where('pb.buildingId is not null')
             ->andWhere('pb.userId = :user')
+            ->andWhere('p.platform = :platform')
+            ->andWhere('p.salesCompanyId = :companyId')
+            ->setParameter('platform', $platform)
+            ->setParameter('companyId', $companyId)
             ->setParameter('user', $user);
 
-        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
-            return array();
-        } else {
-            if (is_null($companyId) || empty($companyId)) {
-                return array();
-            }
-
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
-
-            $query->andWhere('p.salesCompanyId = :companyId')
-                ->setParameter('companyId', $companyId);
-        }
-
         $query->groupBy('pb.buildingId');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $user
+     * @param $platform
+     * @param $companyId
+     *
+     * @return array
+     */
+    public function getBindShop(
+        $user,
+        $platform,
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->select('pb.shopId')
+            ->leftJoin('pb.position', 'p')
+            ->where('pb.shopId is not null')
+            ->andWhere('pb.userId = :user')
+            ->andWhere('p.platform = :platform')
+            ->andWhere('p.salesCompanyId = :companyId')
+            ->setParameter('platform', $platform)
+            ->setParameter('companyId', $companyId)
+            ->setParameter('user', $user);
+
+        $query->groupBy('pb.shopId');
 
         return $query->getQuery()->getResult();
     }
