@@ -8,6 +8,7 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\AdminApiBundle\Data\Position\Position;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionPermissionMapType;
@@ -335,6 +336,61 @@ class AdminPositionController extends PaymentController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/positions/counts")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function countAdminPositionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $cookies = $this->getPlatformCookies();
+        $platform = $cookies['platform'];
+        $companyId = $cookies['sales_company_id'];
+
+        $allPositions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getAdminPositions(
+                $platform,
+                null,
+                $companyId
+            );
+
+        $globalPositions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getAdminPositions(
+                $platform,
+                AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                $companyId
+            );
+
+        $specifyPositions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getAdminPositions(
+                $platform,
+                AdminPermission::PERMISSION_LEVEL_SPECIFY,
+                $companyId
+            );
+
+        $allPositions = count($allPositions);
+        $globalPositions = count($globalPositions);
+        $specifyPositions = count($specifyPositions);
+
+        $response = array(
+            'all_positions' => $allPositions,
+            'global_positions' => $globalPositions,
+            'specify_positions' => $specifyPositions,
+            'super_administrators' => $allPositions - ($globalPositions + $specifyPositions),
+        );
+
+        return new View($response);
     }
 
     /**

@@ -154,17 +154,6 @@ class AdminPositionBindingController extends AdminRestController
      *     requirements="\d+"
      * )
      *
-     * @Annotations\QueryParam(
-     *     name="platform",
-     *     nullable=false
-     * )
-     *
-     * @Annotations\QueryParam(
-     *     name="sales_company_id",
-     *     nullable=true,
-     *     requirements="\d+"
-     * )
-     *
      * @Route("/position/bindings/from_platform")
      * @Method({"DELETE"})
      *
@@ -175,8 +164,10 @@ class AdminPositionBindingController extends AdminRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $userId = $paramFetcher->get('user_id');
-        $platform = $paramFetcher->get('platform');
-        $salesCompanyId = $paramFetcher->get('sales_company_id');
+
+        $cookies = $this->getPlatformCookies();
+        $platform = $cookies['platform'];
+        $salesCompanyId = $cookies['sales_company_id'];
 
         $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
