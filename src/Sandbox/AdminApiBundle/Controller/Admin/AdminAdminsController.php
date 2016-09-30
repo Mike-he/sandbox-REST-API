@@ -460,7 +460,7 @@ class AdminAdminsController extends SandboxRestController
             $buildingId,
             $shopId
         );
-        
+
         return new View($positions);
     }
 
