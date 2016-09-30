@@ -60,6 +60,7 @@ class AdminPositionRepository extends EntityRepository
      * @param $companyId
      * @param null $isSuperAdmin
      * @param null $positionIds
+     * @param null $type
      *
      * @return array
      */
@@ -67,7 +68,8 @@ class AdminPositionRepository extends EntityRepository
         $platform,
         $companyId,
         $isSuperAdmin = null,
-        $positionIds = null
+        $positionIds = null,
+        $type = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->where('p.isHidden = FALSE');
@@ -95,6 +97,13 @@ class AdminPositionRepository extends EntityRepository
         if (!is_null($positionIds)) {
             $query->andWhere('p.id in (:ids)')
                 ->setParameter('ids', $positionIds);
+        }
+
+        if (!is_null($type) && !empty($type)) {
+            $query->leftJoin('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm', 'WITH', 'p.id = m.positionId')
+                ->leftJoin('SandboxApiBundle:Admin\AdminPermission', 'ap', 'WITH', 'ap.id = m.permissionId')
+                ->andWhere('ap.level = :type')
+                ->setParameter('type', $type);
         }
 
         return $query->getQuery()->getResult();

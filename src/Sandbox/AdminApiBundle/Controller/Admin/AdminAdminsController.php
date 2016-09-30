@@ -57,6 +57,14 @@ class AdminAdminsController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="global|specify"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="isSuperAdmin",
      *    array=false,
      *    default=null,
@@ -133,6 +141,7 @@ class AdminAdminsController extends SandboxRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $search = $paramFetcher->get('search');
+        $type = $paramFetcher->get('type');
 
         $positionIds = is_null($position) ? null : explode(',', $position);
 
@@ -147,7 +156,8 @@ class AdminAdminsController extends SandboxRestController
                 $platform,
                 $companyId,
                 $isSuperAdmin,
-                $positionIds
+                $positionIds,
+                $type
             );
 
         $userIds = $this->getDoctrine()
@@ -460,7 +470,7 @@ class AdminAdminsController extends SandboxRestController
             $buildingId,
             $shopId
         );
-        
+
         return new View($positions);
     }
 
