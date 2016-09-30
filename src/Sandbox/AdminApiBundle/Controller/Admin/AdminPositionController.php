@@ -430,7 +430,7 @@ class AdminPositionController extends PaymentController
         $global_image_url = $this->container->getParameter('image_url');
         foreach ($positions as $position) {
             $icon = $position->getIcon();
-            $icon->setIcon($global_image_url.$icon->getIcon());
+            $icon->setUrl($global_image_url.$icon->getIcon());
         }
 
         $positions = $this->get('serializer')->serialize(
@@ -479,7 +479,7 @@ class AdminPositionController extends PaymentController
             ->findAll();
 
         foreach ($icons as $icon) {
-            $icon->setIcon($global_image_url.$icon->getIcon());
+            $icon->setUrl($global_image_url.$icon->getIcon());
         }
 
         return new View($icons);

@@ -461,6 +461,12 @@ class AdminAdminsController extends SandboxRestController
             $shopId
         );
 
+        $global_image_url = $this->container->getParameter('image_url');
+        foreach ($positions as $position) {
+            $icon = $position->getIcon();
+            $icon->setUrl($global_image_url.$icon->getIcon());
+        }
+
         return new View($positions);
     }
 

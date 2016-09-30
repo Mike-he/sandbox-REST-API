@@ -27,9 +27,14 @@ class AdminPositionIcons
      * @var string
      *
      * @ORM\Column(name="icon", type="string", length=1024)
-     * @Serializer\Groups({"main", "admin"})
      */
     private $icon;
+
+    /**
+     * @var string
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $url;
 
     /**
      * Get id.
@@ -63,5 +68,21 @@ class AdminPositionIcons
     public function getIcon()
     {
         return $this->icon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * @param string $url
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
     }
 }
