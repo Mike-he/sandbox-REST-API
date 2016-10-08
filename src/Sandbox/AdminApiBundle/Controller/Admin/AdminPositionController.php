@@ -407,15 +407,6 @@ class AdminPositionController extends PaymentController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="platform",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description="platform"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="type",
      *    array=false,
      *    default=null,
@@ -424,14 +415,6 @@ class AdminPositionController extends PaymentController
      *    description="level"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="company id"
-     * )
      *
      * @Annotations\QueryParam(
      *    name="pageLimit",
@@ -464,9 +447,10 @@ class AdminPositionController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $platform = $paramFetcher->get('platform');
+        $cookies = $this->getPlatformCookies();
+        $platform = $cookies['platform'];
+        $companyId = $cookies['sales_company_id'];
         $type = $paramFetcher->get('type');
-        $companyId = $paramFetcher->get('company');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
