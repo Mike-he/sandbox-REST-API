@@ -279,3 +279,9 @@ banner:
     news: 新闻
     product: 商品
     advertisement: 广告
+
+admin:
+  admins:
+    all: 所有管理员
+    super: 超级管理员
+    platform: 平台管理员

@@ -280,3 +280,9 @@ banner:
     news: News
     product: Product
     advertisement: Advertisement
+
+admin:
+  admins:
+    all: alladmin
+    super: superadmin
+    platform: platformadmin

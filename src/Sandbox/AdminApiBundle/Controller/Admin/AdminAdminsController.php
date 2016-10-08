@@ -27,9 +27,9 @@ use Knp\Component\Pager\Paginator;
  */
 class AdminAdminsController extends SandboxRestController
 {
-    const ADMINS_ALL_ADMIN = '所有管理员';
-    const ADMINS_SUPER_ADMIN = '超级管理员';
-    const ADMINS_PLATFORM_ADMIN = '平台管理员';
+    const ADMINS_ALL_ADMIN = 'admin.admins.all';
+    const ADMINS_SUPER_ADMIN = 'admin.admins.super';
+    const ADMINS_PLATFORM_ADMIN = 'admin.admins.platform';
 
     const ADMINS_MENU_KEY_ALL = 'all';
     const ADMINS_MENU_KEY_SUPER = 'super';
@@ -295,7 +295,7 @@ class AdminAdminsController extends SandboxRestController
 
         $allAdmin = array(
             'key' => self::ADMINS_MENU_KEY_ALL,
-            'name' => self::ADMINS_ALL_ADMIN,
+            'name' => $this->get('translator')->trans(self::ADMINS_ALL_ADMIN),
             'count' => count($allUser),
        );
 
@@ -313,7 +313,7 @@ class AdminAdminsController extends SandboxRestController
 
         $superAdmin = array(
             'key' => self::ADMINS_MENU_KEY_SUPER,
-            'name' => self::ADMINS_SUPER_ADMIN,
+            'name' => $this->get('translator')->trans(self::ADMINS_SUPER_ADMIN),
             'count' => count($superUser),
         );
 
@@ -395,7 +395,7 @@ class AdminAdminsController extends SandboxRestController
 
         $platformAdmin = array(
             'key' => self::ADMINS_MENU_KEY_PLATFORM,
-            'name' => self::ADMINS_PLATFORM_ADMIN,
+            'name' => $this->get('translator')->trans(self::ADMINS_PLATFORM_ADMIN),
             'count' => count($allPlatformUser),
        );
 
