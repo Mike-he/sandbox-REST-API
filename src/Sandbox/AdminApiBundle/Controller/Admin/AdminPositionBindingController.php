@@ -165,7 +165,7 @@ class AdminPositionBindingController extends AdminRestController
     ) {
         $userId = $paramFetcher->get('user_id');
 
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $salesCompanyId = $cookies['sales_company_id'];
 

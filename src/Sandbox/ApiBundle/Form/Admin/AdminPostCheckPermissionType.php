@@ -17,6 +17,8 @@ class AdminPostCheckPermissionType extends AbstractType
         $builder
             ->add('permissions')
             ->add('op_level')
+            ->add('platform')
+            ->add('sales_company_id')
         ;
     }
 

@@ -69,16 +69,9 @@ class AdminPermissionsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $salesCompanyId = $paramFetcher->get('salesCompanyId');
-        $platform = $paramFetcher->get('platform');
-
-        // check user permission
-//        $this->throwAccessDeniedIfAdminNotAllowed(
-//            $this->getAdminId(),
-//            null,
-//            AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN,
-//            AdminPermissionMap::OP_LEVEL_VIEW
-//        );
+        $sessions = $this->getPlatformSessions();
+        $salesCompanyId = $sessions['sales_company_id'];
+        $platform = $sessions['platform'];
 
         // get all admin permissions
         $query = $this->getDoctrine()
@@ -119,7 +112,9 @@ class AdminPermissionsController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             $adminCheckPermission->getPermissions(),
-            $adminCheckPermission->getOpLevel()
+            $adminCheckPermission->getOpLevel(),
+            $adminCheckPermission->getPlatform(),
+            $adminCheckPermission->getSalesCompanyId()
         );
     }
 }

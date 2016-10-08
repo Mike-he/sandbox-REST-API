@@ -663,7 +663,7 @@ class AdminBuildingController extends LocationController
     private function handleAdminBuildingPost(
         $building
     ) {
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
 
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();

@@ -84,7 +84,7 @@ class SalesRestController extends SandboxRestController
      */
     protected function getSalesCompanyId()
     {
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
 
         return $cookies['sales_company_id'];
     }

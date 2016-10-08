@@ -191,23 +191,24 @@ class SandboxRestController extends FOSRestController
      * @param int          $adminId
      * @param string|array $permissionKeys
      * @param int          $opLevel
+     * @param              $platform
+     * @param              $salesCompanyId
      *
      * @throws AccessDeniedHttpException
      */
     protected function throwAccessDeniedIfAdminNotAllowed(
         $adminId,
         $permissionKeys = null,
-        $opLevel = 0
+        $opLevel = 0,
+        $platform = null,
+        $salesCompanyId = null
     ) {
-        // get platform cookies
-        $cookies = $this->getPlatformCookies();
-
-        if (is_null($cookies['platform'])) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        if (is_null($platform)) {
+            // get platform sessions
+            $sessions = $this->getPlatformSessions();
+            $platform = $sessions['platform'];
+            $salesCompanyId = $sessions['sales_company_id'];
         }
-
-        $platform = $cookies['platform'];
-        $salesCompanyId = $cookies['sales_company_id'];
 
         // super admin
         $isSuperAdmin = $this->hasSuperAdminPosition(
@@ -264,13 +265,18 @@ class SandboxRestController extends FOSRestController
         throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
     }
 
-    protected function getPlatformCookies()
+    protected function getPlatformSessions()
     {
+        if(!isset($_SESSION))
+        {
+            session_start();
+        }
+
         $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
         $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
 
-        $platform = isset($_COOKIE[$adminPlatformCookieName]) ? $_COOKIE[$adminPlatformCookieName] : null;
-        $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
+        $platform = isset($_SESSION[$adminPlatformCookieName]) ? $_SESSION[$adminPlatformCookieName] : null;
+        $salesCompanyId = isset($_SESSION[$salesCompanyCookieName]) ? $_SESSION[$salesCompanyCookieName] : null;
 
         if (is_null($platform)) {
             throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
@@ -1664,7 +1670,7 @@ class SandboxRestController extends FOSRestController
         $logParams
     ) {
         try {
-            $cookies = $this->getPlatformCookies();
+            $cookies = $this->getPlatformSessions();
 
             $em = $this->getDoctrine()->getManager();
 

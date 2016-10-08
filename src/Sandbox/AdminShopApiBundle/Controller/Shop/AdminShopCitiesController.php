@@ -38,7 +38,7 @@ class AdminShopCitiesController extends ShopRestController
         );
 
         // get my company
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $myCompany = $cookies['sales_company_id'];
 
         // get my buildings

@@ -131,7 +131,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $companyId = $cookies['sales_company_id'];
         $isSuperAdmin = $paramFetcher->get('isSuperAdmin');
@@ -277,7 +277,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $companyId = $cookies['sales_company_id'];
 
@@ -456,7 +456,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $companyId = $cookies['sales_company_id'];
         $key = $paramFetcher->get('key');

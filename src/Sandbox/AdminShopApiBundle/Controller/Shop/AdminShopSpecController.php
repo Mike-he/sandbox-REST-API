@@ -597,7 +597,7 @@ class AdminShopSpecController extends SpecController
      */
     private function getCompanyId()
     {
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
 
         return $cookies['sales_company_id'];
     }

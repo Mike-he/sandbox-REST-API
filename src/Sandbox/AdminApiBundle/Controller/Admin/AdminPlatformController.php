@@ -13,8 +13,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AdminPlatformController extends AdminRestController
 {
-    const COOKIE_NAME_PLATFORM = 'platform';
-    const COOKIE_NAME_SALES_COMPANY = 'sales_company_id';
+    const COOKIE_NAME_PLATFORM = 'sandbox_platform';
+    const COOKIE_NAME_SALES_COMPANY = 'sandbox_sales_company_id';
 
     const ERROR_INVALID_SALES_COMPANY_ID_CODE = 400001;
     const ERROR_INVALID_SALES_COMPANY_ID_MESSAGE = 'Invalid Sales Company Id';
@@ -28,10 +28,15 @@ class AdminPlatformController extends AdminRestController
      *
      * @return View
      */
-    public function setAdminPlatformCookieAction(
+    public function setAdminPlatformSessionAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        if(!isset($_SESSION))
+        {
+            session_start();
+        }
+
         $data = json_decode($request->getContent(), true);
 
         // check data validation
@@ -39,11 +44,10 @@ class AdminPlatformController extends AdminRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        // clear old cookies
-        setrawcookie(self::COOKIE_NAME_PLATFORM, '', 1, '/', $request->getHost());
-        setrawcookie(self::COOKIE_NAME_SALES_COMPANY, '', 1, '/', $request->getHost());
+        // clear old sessions
+        session_unset();
 
-        // set new cookies
+        // set new sessions
         $platform = $data['platform'];
 
         if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
@@ -58,11 +62,11 @@ class AdminPlatformController extends AdminRestController
             }
 
             $salesCompanyId = $data['sales_company_id'];
-            setrawcookie(self::COOKIE_NAME_SALES_COMPANY, $salesCompanyId, null, '/', $request->getHost());
+            $_SESSION[self::COOKIE_NAME_SALES_COMPANY] = $salesCompanyId;
         }
 
-        // set cookies
-        setrawcookie(self::COOKIE_NAME_PLATFORM, $platform, null, '/', $request->getHost());
+        // set sessions
+        $_SESSION[self::COOKIE_NAME_PLATFORM] = $platform;
 
         return new View(array(
             'platform' => $platform,

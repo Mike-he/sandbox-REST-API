@@ -570,7 +570,7 @@ class AdminUsersController extends DoorController
         $user->setModificationDate(new \DateTime('now'));
 
         // check sales user record
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $companyId = $cookies['sales_company_id'];
         $buildingId = $building->getId();
 

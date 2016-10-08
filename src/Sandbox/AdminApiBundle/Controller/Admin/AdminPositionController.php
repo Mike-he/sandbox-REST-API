@@ -110,7 +110,7 @@ class AdminPositionController extends PaymentController
         $action
     ) {
         // get platform cookies
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $salesCompanyId = $cookies['sales_company_id'];
 
@@ -351,7 +351,7 @@ class AdminPositionController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $companyId = $cookies['sales_company_id'];
 
@@ -447,7 +447,7 @@ class AdminPositionController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $cookies = $this->getPlatformCookies();
+        $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $companyId = $cookies['sales_company_id'];
         $type = $paramFetcher->get('type');

@@ -18,6 +18,16 @@ class AdminCheckPermission
     private $opLevel;
 
     /**
+     * @var string
+     */
+    private $platform;
+
+    /**
+     * @var string
+     */
+    private $salesCompanyId;
+
+    /**
      * @return string
      */
     public function getPermissions()
@@ -47,5 +57,37 @@ class AdminCheckPermission
     public function setOpLevel($opLevel)
     {
         $this->opLevel = $opLevel;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalesCompanyId()
+    {
+        return $this->salesCompanyId;
+    }
+
+    /**
+     * @param string $salesCompanyId
+     */
+    public function setSalesCompanyId($salesCompanyId)
+    {
+        $this->salesCompanyId = $salesCompanyId;
     }
 }
