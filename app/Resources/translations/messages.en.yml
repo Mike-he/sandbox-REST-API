@@ -283,6 +283,6 @@ banner:
 
 admin:
   admins:
-    all: alladmin
-    super: superadmin
-    platform: platformadmin
+    all: All Admin
+    super: Super Admin
+    platform: Platform Admin
