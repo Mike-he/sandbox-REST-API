@@ -28,6 +28,7 @@ trait HandleAdminLoginDataTrait
                     $platform['sales'][] = $position;
                     break;
                 default:
+                    $position['office_name'] = '官方管理平台';
                     $platform['official'][] = $position;
             }
         }
