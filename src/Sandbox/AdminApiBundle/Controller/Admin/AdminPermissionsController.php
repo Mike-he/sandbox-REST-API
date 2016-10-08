@@ -2,9 +2,11 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Admin;
 
+use Sandbox\AdminApiBundle\Data\Admin\AdminCheckPermission;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Form\Admin\AdminPostCheckPermissionType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -12,7 +14,7 @@ use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin Permissions Controller.
@@ -91,5 +93,33 @@ class AdminPermissionsController extends SandboxRestController
             ->setGroups(array('main')));
 
         return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/check_my_permissions")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function checkMyAdminPermissions(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminCheckPermission = new AdminCheckPermission();
+        $form = $this->createForm(new AdminPostCheckPermissionType(), $adminCheckPermission);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            $adminCheckPermission->getPermissions(),
+            $adminCheckPermission->getOpLevel()
+        );
     }
 }
