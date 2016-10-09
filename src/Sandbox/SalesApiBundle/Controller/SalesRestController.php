@@ -28,10 +28,9 @@ class SalesRestController extends SandboxRestController
         }
 
         // get platform cookies
-        $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
-        $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
-        $platform = $_COOKIE[$adminPlatformCookieName];
-        $salesCompanyId = isset($_COOKIE[$salesCompanyCookieName]) ? $_COOKIE[$salesCompanyCookieName] : null;
+        $sessions = $this->getPlatformSessions();
+        $platform = $sessions['platform'];
+        $salesCompanyId = $sessions['sales_company_id'];
 
         $isSuperAdmin = $this->hasSuperAdminPosition(
             $adminId,

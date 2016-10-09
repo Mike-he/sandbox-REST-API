@@ -13,8 +13,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AdminPlatformController extends AdminRestController
 {
-    const COOKIE_NAME_PLATFORM = 'sandbox_platform';
-    const COOKIE_NAME_SALES_COMPANY = 'sandbox_sales_company_id';
+    const COOKIE_NAME_PLATFORM = 'platform';
+    const COOKIE_NAME_SALES_COMPANY = 'sales_company_id';
 
     const ERROR_INVALID_SALES_COMPANY_ID_CODE = 400001;
     const ERROR_INVALID_SALES_COMPANY_ID_MESSAGE = 'Invalid Sales Company Id';
@@ -32,9 +32,9 @@ class AdminPlatformController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $topLevelDomain = $this->container->getParameter('top_level_domain');
+        ini_set('session.cookie_domain', $topLevelDomain);
         if (!isset($_SESSION)) {
-            $topLevelDomain = $this->container->getParameter('top_level_domain');
-            ini_set('session.cookie_domain', $topLevelDomain);
             session_start();
         }
 
