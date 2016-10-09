@@ -32,10 +32,9 @@ class AdminPlatformController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        if(!isset($_SESSION))
-        {
+        if (!isset($_SESSION)) {
             $topLevelDomain = $this->container->getParameter('top_level_domain');
-            ini_set("session.cookie_domain", $topLevelDomain);
+            ini_set('session.cookie_domain', $topLevelDomain);
             session_start();
         }
 

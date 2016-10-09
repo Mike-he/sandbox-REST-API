@@ -13,7 +13,6 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
