@@ -59,7 +59,7 @@ class AdminPositionRepository extends EntityRepository
      * @param $platform
      * @param $companyId
      * @param null $isSuperAdmin
-     * @param null $positionIds
+     * @param null $position
      * @param null $type
      *
      * @return array
@@ -68,7 +68,7 @@ class AdminPositionRepository extends EntityRepository
         $platform,
         $companyId,
         $isSuperAdmin = null,
-        $positionIds = null,
+        $position = null,
         $type = null
     ) {
         $query = $this->createQueryBuilder('p')
@@ -94,9 +94,9 @@ class AdminPositionRepository extends EntityRepository
                 ->setParameter('companyId', $companyId);
         }
 
-        if (!is_null($positionIds)) {
-            $query->andWhere('p.id in (:ids)')
-                ->setParameter('ids', $positionIds);
+        if (!is_null($position)) {
+            $query->andWhere('p.id = :id')
+                ->setParameter('id', $position);
         }
 
         if (!is_null($type) && !empty($type)) {

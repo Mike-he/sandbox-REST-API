@@ -143,8 +143,6 @@ class AdminAdminsController extends SandboxRestController
         $search = $paramFetcher->get('search');
         $type = $paramFetcher->get('type');
 
-        $positionIds = is_null($position) ? null : explode(',', $position);
-
         $users = null;
         if (!is_null($search)) {
             $users = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->searchUserIds($search);
@@ -156,7 +154,7 @@ class AdminAdminsController extends SandboxRestController
                 $platform,
                 $companyId,
                 $isSuperAdmin,
-                $positionIds,
+                $position,
                 $type
             );
 
