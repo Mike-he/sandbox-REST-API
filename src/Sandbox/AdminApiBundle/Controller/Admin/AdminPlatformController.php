@@ -34,7 +34,7 @@ class AdminPlatformController extends AdminRestController
     ) {
         if(!isset($_SESSION))
         {
-            ini_set("session.cookie_domain",'sandbox3.cn');
+//            ini_set("session.cookie_domain",'sandbox3.cn');
             session_start();
         }
 
