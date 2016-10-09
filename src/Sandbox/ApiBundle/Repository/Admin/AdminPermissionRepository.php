@@ -119,8 +119,8 @@ class AdminPermissionRepository extends EntityRepository
             ->select('
                 m.opLevel as op_level, 
                 p.id, 
-                max(p.name), 
-                max(p.key), 
+                max(p.name) as name, 
+                max(p.key) as key, 
                 max(m.positionId) as position_id'
             )
             ->from('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm')
