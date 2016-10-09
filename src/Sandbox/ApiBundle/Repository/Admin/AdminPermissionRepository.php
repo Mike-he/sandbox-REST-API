@@ -116,7 +116,13 @@ class AdminPermissionRepository extends EntityRepository
         // get all permissions of the given positions
         $permissions = $this->getEntityManager()
             ->createQueryBuilder()
-            ->select('m.opLevel as op_level, p.id, p.name, p.key, m.positionId as position_id')
+            ->select('
+                m.opLevel as op_level, 
+                p.id, 
+                max(p.name) as name, 
+                max(p.key) as key, 
+                max(m.positionId) as position_id'
+            )
             ->from('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm')
             ->join('m.permission', 'p')
             ->where('m.positionId IN (:positionIds)')
