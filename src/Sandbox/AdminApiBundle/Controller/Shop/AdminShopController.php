@@ -68,12 +68,12 @@ class AdminShopController extends ShopController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *     name="admin",
+     *     name="company",
      *     array=false,
      *     default=null,
      *     nullable=false,
      *     strict=true,
-     *     description="admin id"
+     *     description="company id"
      * )
      *
      * @Annotations\QueryParam(
@@ -119,13 +119,8 @@ class AdminShopController extends ShopController
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $adminId = $paramFetcher->get('admin');
+        $companyId = $paramFetcher->get('company');
         $close = $paramFetcher->get('close');
-
-        $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($adminId);
-        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
-
-        $companyId = $admin->getCompanyId();
 
         $shops = $this->getRepo('Shop\Shop')->getShopsByCompany(
             $companyId,
