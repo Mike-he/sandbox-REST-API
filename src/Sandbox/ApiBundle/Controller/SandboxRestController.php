@@ -1671,7 +1671,7 @@ class SandboxRestController extends FOSRestController
         $logParams
     ) {
         try {
-            $cookies = $this->getPlatformSessions();
+            $sessions = $this->getPlatformSessions();
 
             $em = $this->getDoctrine()->getManager();
 
@@ -1688,9 +1688,9 @@ class SandboxRestController extends FOSRestController
                 return false;
             }
 
-            $log->setAdminUsername($this->getUser()->getId());
-            $log->setPlatform($cookies['platform']);
-            $log->setSalesCompanyId($cookies['sales_company_id']);
+            $log->setAdminUsername($this->getAdminId());
+            $log->setPlatform($sessions['platform']);
+            $log->setSalesCompanyId($sessions['sales_company_id']);
 
             if ($this->handleLog($log)) {
                 $em->persist($log);
