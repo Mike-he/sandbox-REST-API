@@ -78,8 +78,8 @@ class ProductController extends SalesRestController
         $type
     ) {
         // get auth
-        $headers = apache_request_headers();
-        $auth = $headers['Authorization'];
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
+        $auth = $headers['http_authorization'];
 
         $globals = $this->container->get('twig')->getGlobals();
 
@@ -132,8 +132,8 @@ class ProductController extends SalesRestController
         $type
     ) {
         // get auth
-        $headers = apache_request_headers();
-        $auth = $headers['Authorization'];
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
+        $auth = $headers['http_authorization'];
 
         $globals = $this->container->get('twig')->getGlobals();
 

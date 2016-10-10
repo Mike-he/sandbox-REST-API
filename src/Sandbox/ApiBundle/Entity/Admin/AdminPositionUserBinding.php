@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * AdminPositionUserBinding.
@@ -10,14 +11,16 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *     name="admin_position_user_binding",
  *     uniqueConstraints={
- *          @ORM\UniqueConstraint(name="userId_positionId_UNIQUE", columns={"userId", "positionId"})
+ *          @ORM\UniqueConstraint(name="userId_positionId_buildingId_shopId_UNIQUE", columns={"userId", "positionId", "buildingId", "shopId"})
  *      },
  *      indexes={
  *          @ORM\Index(name="fk_AdminPositionUserBinding_userId_idx", columns={"userId"}),
- *          @ORM\Index(name="fk_AdminPositionUserBinding_positionId_idx", columns={"positionId"})
+ *          @ORM\Index(name="fk_AdminPositionUserBinding_positionId_idx", columns={"positionId"}),
+ *          @ORM\Index(name="fk_AdminPositionUserBinding_buildingId_idx", columns={"buildingId"}),
+ *          @ORM\Index(name="fk_AdminPositionUserBinding_ShopId_idx", columns={"shopId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Admin\AdminPositionUserBindingRepository")
  */
 class AdminPositionUserBinding
 {
@@ -34,6 +37,8 @@ class AdminPositionUserBinding
      * @var int
      *
      * @ORM\Column(name="userId", type="integer")
+     *
+     * @Assert\NotBlank()
      */
     private $userId;
 
@@ -47,6 +52,8 @@ class AdminPositionUserBinding
      * @var int
      *
      * @ORM\Column(name="positionId", type="integer")
+     *
+     * @Assert\NotBlank()
      */
     private $positionId;
 
@@ -55,6 +62,32 @@ class AdminPositionUserBinding
      * @ORM\JoinColumn(name="positionId", referencedColumnName="id", onDelete="CASCADE")
      */
     private $position;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="buildingId", type="integer", nullable=true)
+     */
+    private $buildingId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $building;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="shopId", type="integer", nullable=true)
+     */
+    private $shopId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Shop\Shop")
+     * @ORM\JoinColumn(name="shopId", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $shop;
 
     /**
      * @var \DateTime
@@ -151,6 +184,70 @@ class AdminPositionUserBinding
     public function getPositionId()
     {
         return $this->positionId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param int $buildingId
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param mixed $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+    }
+
+    /**
+     * @return int
+     */
+    public function getShopId()
+    {
+        return $this->shopId;
+    }
+
+    /**
+     * @param int $shopId
+     */
+    public function setShopId($shopId)
+    {
+        $this->shopId = $shopId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getShop()
+    {
+        return $this->shop;
+    }
+
+    /**
+     * @param mixed $shop
+     */
+    public function setShop($shop)
+    {
+        $this->shop = $shop;
     }
 
     /**

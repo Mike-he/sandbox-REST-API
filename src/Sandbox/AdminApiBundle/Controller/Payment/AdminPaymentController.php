@@ -31,8 +31,8 @@ class AdminPaymentController extends PaymentController
         Request $request
     ) {
         // get auth
-        $headers = apache_request_headers();
-        $auth = $headers['Sandbox-Auth'];
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
+        $auth = $headers['http_sandbox-auth'];
 
         // compare auth
         $this->encodedKeysComparison($auth);

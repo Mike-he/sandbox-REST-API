@@ -2,16 +2,11 @@
 
 namespace Sandbox\ApiBundle\Controller\Location;
 
-use Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
-use Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -83,6 +78,9 @@ class LocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $cookies = $this->getPlatformSessions();
+        $platform = $cookies['platform'];
+
         $user = $this->getUser();
 
         $all = $paramFetcher->get('all');
@@ -94,20 +92,25 @@ class LocationController extends SalesRestController
         if (!is_null($salesCompanyId)) {
             $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($salesCompanyId);
         } else {
+            $salesCompanyId = $cookies['sales_company_id'];
             // get all cities
             $cities = $this->getRepo('Room\RoomCity')->findAll();
         }
 
+        $isSuperAdmin = $this->hasSuperAdminPosition(
+            $this->getAdminId(),
+            $platform,
+            $salesCompanyId
+        );
+
         if (!is_null($user) && is_null($all)) {
             // sales bundle
-            if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
-                $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($this->getUser()->getAdminId());
-
+            if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
                 // get cities by admin type
-                if ($admin->getType()->getKey() == SalesAdminType::KEY_SUPER ||
-                    in_array(SalesAdminPermission::KEY_PLATFORM_ADMIN, $permissionArray)
+                if ($isSuperAdmin ||
+                    in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray)
                 ) {
-                    $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($admin->getCompanyId());
+                    $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($salesCompanyId);
                 } else {
                     // get my building ids
                     $myBuildingIds = $this->generateLocationSalesBuildingIds(
@@ -119,15 +122,13 @@ class LocationController extends SalesRestController
             }
 
             // shop bundle
-            if ($user->getRoles() == array(ShopAdminApiAuth::ROLE_SHOP_ADMIN_API)) {
-                $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
-
+            if ($platform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
                 // get cities by admin type
-                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER ||
-                    in_array(ShopAdminPermission::KEY_PLATFORM_SHOP, $permissionArray) ||
-                    in_array(ShopAdminPermission::KEY_PLATFORM_ADMIN, $permissionArray)
+                if ($isSuperAdmin ||
+                    in_array(AdminPermission::KEY_SHOP_PLATFORM_SHOP, $permissionArray) ||
+                    in_array(AdminPermission::KEY_SHOP_PLATFORM_ADMIN, $permissionArray)
                 ) {
-                    $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($admin->getCompanyId());
+                    $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($salesCompanyId);
                     $myBuildingIds = array_map('current', $myBuildings);
 
                     $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByBuilding($myBuildingIds);
@@ -214,13 +215,16 @@ class LocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $cookies = $this->getPlatformSessions();
+        $platform = $cookies['platform'];
+
         $user = $this->getUser();
 
         $ids = $paramFetcher->get('id');
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
         $platform = $paramFetcher->get('platform');
-        $salesCompanyId = $paramFetcher->get('sales_company');
+        $salesCompanyId = !is_null($paramFetcher->get('sales_company')) ? $paramFetcher->get('sales_company') : $cookies['sales_company_id'];
         $excludeIds = [9];
 
         if (RoomBuilding::PLATFORM_BACKEND_USER_BUILDING == $platform) {
@@ -233,6 +237,12 @@ class LocationController extends SalesRestController
             $excludeIds = null;
         }
 
+        $isSuperAdmin = $this->hasSuperAdminPosition(
+            $this->getAdminId(),
+            $platform,
+            $salesCompanyId
+        );
+
         // get all buildings
         $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
             $cityId,
@@ -243,7 +253,7 @@ class LocationController extends SalesRestController
             $excludeIds
         );
 
-        $headers = apache_request_headers();
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
 
         if (!is_null($user)) {
             $clientId = $user->getClientId();
@@ -263,8 +273,8 @@ class LocationController extends SalesRestController
                     );
                 }
             }
-        } elseif (array_key_exists('User-Agent', $headers)) {
-            $agent = $headers['User-Agent'];
+        } elseif (array_key_exists('http_user_agent', $headers)) {
+            $agent = $headers['http_user_agent'];
 
             $versionName = explode(' (', $agent);
             $versionNameArray = explode('/', $versionName[0]);
@@ -278,18 +288,16 @@ class LocationController extends SalesRestController
 
         if (!is_null($user) && empty($ids)) {
             // sales bundle
-            if ($user->getRoles() == array(SalesAdminApiAuth::ROLE_SALES_ADMIN_API)) {
-                $admin = $this->getRepo('SalesAdmin\SalesAdmin')->find($this->getUser()->getAdminId());
-
+            if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
                 // get buildings by admin type
-                if ($admin->getType()->getKey() == SalesAdminType::KEY_SUPER ||
-                    in_array(SalesAdminPermission::KEY_PLATFORM_ADMIN, $permissionArray) ||
-                    in_array(SalesAdminPermission::KEY_BUILDING_USER, $permissionArray)
+                if ($isSuperAdmin ||
+                    in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray) ||
+                    in_array(AdminPermission::KEY_SALES_BUILDING_USER, $permissionArray)
                 ) {
                     $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
                         $cityId,
                         null,
-                        $admin->getCompanyId()
+                        $salesCompanyId
                     );
                 } else {
                     // get my building ids
@@ -305,13 +313,13 @@ class LocationController extends SalesRestController
             }
 
             // shop bundle
-            if ($user->getRoles() == array(ShopAdminApiAuth::ROLE_SHOP_ADMIN_API)) {
+            if ($platform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
                 $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
 
                 // get buildings by admin type
-                if ($admin->getType()->getKey() == ShopAdminType::KEY_SUPER ||
-                    in_array(ShopAdminPermission::KEY_PLATFORM_SHOP, $permissionArray) ||
-                    in_array(ShopAdminPermission::KEY_PLATFORM_ADMIN, $permissionArray)
+                if ($isSuperAdmin ||
+                    in_array(AdminPermission::KEY_SHOP_PLATFORM_SHOP, $permissionArray) ||
+                    in_array(AdminPermission::KEY_SHOP_PLATFORM_ADMIN, $permissionArray)
                 ) {
                     $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
                         $cityId,
@@ -669,7 +677,7 @@ class LocationController extends SalesRestController
         $adminId = null
     ) {
         if (is_null($adminId)) {
-            $adminId = $this->getUser()->getAdminId();
+            $adminId = $this->getUser()->getUserId();
         }
 
         $permissionKeyArray = $paramFetcher->get('permission');

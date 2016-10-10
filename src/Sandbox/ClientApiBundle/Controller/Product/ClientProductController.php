@@ -188,8 +188,6 @@ class ClientProductController extends ProductController
                     $endTime,
                     $startHour,
                     $endHour,
-                    $limit,
-                    $offset,
                     $type,
                     $includeIds,
                     $excludeIds
@@ -211,8 +209,6 @@ class ClientProductController extends ProductController
                     $allowedPeople,
                     $startTime,
                     $endTime,
-                    $limit,
-                    $offset,
                     $type,
                     $includeIds,
                     $excludeIds
@@ -234,8 +230,6 @@ class ClientProductController extends ProductController
                     $allowedPeople,
                     $startTime,
                     $endTime,
-                    $limit,
-                    $offset,
                     $includeIds,
                     $excludeIds
             );
@@ -250,7 +244,9 @@ class ClientProductController extends ProductController
             $products = $this->getRepo('Product\Product')->productSortByNearestBuilding(
                 $lat,
                 $lng,
-                $productIds
+                $productIds,
+                $limit,
+                $offset
             );
         } else {
             foreach ($productIds as $productId) {

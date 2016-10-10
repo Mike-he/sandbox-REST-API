@@ -3,12 +3,8 @@
 namespace Sandbox\SalesApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\Door\DoorController;
-use Sandbox\ApiBundle\Entity\Admin\Admin;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\User\User;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -134,16 +130,23 @@ class AdminUsersController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_USER,
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
-                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
-                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -158,15 +161,15 @@ class AdminUsersController extends DoorController
         // Another better way to search the users by query, but it needs to find out the bug and fix it yet
 //        // find all users who have the query in any of their mapped fields
 //        $finder = $this->container->get('fos_elastica.finder.search.user');
-//
+
 //        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-//
+
 //        $multiMatchQuery->setQuery($query);
 //        $multiMatchQuery->setType('phrase_prefix');
 //        $multiMatchQuery->setFields(array('email', 'phone'));
-//
+
 //        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-//
+
 //        $paginator = $this->get('knp_paginator');
 
         // get sales users
@@ -287,17 +290,26 @@ class AdminUsersController extends DoorController
         $ids = $paramFetcher->get('id');
 
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_USER,
-                SalesAdminPermission::KEY_BUILDING_ORDER,
-                SalesAdminPermission::KEY_PLATFORM_INVOICE,
-                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
-                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $banned = $paramFetcher->get('banned');
@@ -388,17 +400,26 @@ class AdminUsersController extends DoorController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_USER,
-                SalesAdminPermission::KEY_BUILDING_ORDER,
-                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
-                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get user
@@ -426,16 +447,6 @@ class AdminUsersController extends DoorController
         Request $request,
         $id
     ) {
-        // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
-            array(
-                SalesAdminPermission::KEY_BUILDING_USER,
-            ),
-            SalesAdminPermissionMap::OP_LEVEL_EDIT
-        );
-
         // get user
         $user = $this->getRepo('User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
@@ -459,13 +470,14 @@ class AdminUsersController extends DoorController
 
         // check if user banned status changed
         if ($banned !== $updateBanned) {
-            $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->throwAccessDeniedIfAdminNotAllowed(
                 $this->getAdminId(),
-                SalesAdminType::KEY_PLATFORM,
                 array(
-                    SalesAdminPermission::KEY_BUILDING_USER,
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    ),
                 ),
-                SalesAdminPermissionMap::OP_LEVEL_EDIT
+                AdminPermission::OP_LEVEL_EDIT
             );
         }
 
@@ -525,11 +537,14 @@ class AdminUsersController extends DoorController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
-            array(SalesAdminPermission::KEY_BUILDING_USER),
-            SalesAdminPermissionMap::OP_LEVEL_EDIT
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $data = json_decode($request->getContent(), true);
@@ -555,7 +570,8 @@ class AdminUsersController extends DoorController
         $user->setModificationDate(new \DateTime('now'));
 
         // check sales user record
-        $companyId = $this->getUser()->getMyAdmin()->getCompanyId();
+        $cookies = $this->getPlatformSessions();
+        $companyId = $cookies['sales_company_id'];
         $buildingId = $building->getId();
 
         $salesUserId = $user->getId();
@@ -576,7 +592,7 @@ class AdminUsersController extends DoorController
         $salesUser->setModificationDate(new \DateTime('now'));
 
         // set authorized admin
-        $adminUsername = $this->getUser()->getMyAdmin()->getUsername();
+        $adminUsername = $this->getUser()->getUserId();
         $user->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_SALES);
         $user->setAuthorizedAdminUsername($adminUsername);
 
@@ -737,9 +753,9 @@ class AdminUsersController extends DoorController
         $buildingIds = $this->getMySalesBuildingIds(
             $adminId,
             array(
-                SalesAdminPermission::KEY_BUILDING_USER,
+                AdminPermission::KEY_SALES_BUILDING_USER,
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $userIds = $this->getRepo('SalesAdmin\SalesUser')->getSalesUsers($buildingIds);

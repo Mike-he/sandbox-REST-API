@@ -7,12 +7,10 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
@@ -179,13 +177,14 @@ class AdminOrderController extends OrderController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_PLATFORM_INVOICE,
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get sales company id
@@ -247,7 +246,9 @@ class AdminOrderController extends OrderController
         $id
     ) {
         $em = $this->getDoctrine()->getManager();
-        $order = $this->getRepo('Order\ProductOrder')->getOrderByIdAndStatus($id);
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrderByIdAndStatus($id);
 
         if (is_null($order)) {
             return $this->customErrorView(
@@ -260,9 +261,15 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $oldRejected = $order->isRejected();
@@ -462,13 +469,10 @@ class AdminOrderController extends OrderController
                     $em->flush();
 
                     $this->generateAdminLogs(array(
-                        'platform' => Log::PLATFORM_SALES,
-                        'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                         'logModule' => Log::MODULE_ROOM_ORDER,
                         'logAction' => Log::ACTION_REJECT,
                         'logObjectKey' => Log::OBJECT_ROOM_ORDER,
                         'logObjectId' => $rejectedOrder->getId(),
-                        'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
                     ));
                 }
 
@@ -489,13 +493,10 @@ class AdminOrderController extends OrderController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_ROOM_ORDER,
             'logAction' => $action,
             'logObjectKey' => Log::OBJECT_ROOM_ORDER,
             'logObjectId' => $id,
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();
@@ -527,9 +528,15 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            SalesAdminPermissionMap::OP_LEVEL_VIEW,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // check if order expired
@@ -710,17 +717,28 @@ class AdminOrderController extends OrderController
 
         // check user permission
         if (!is_null($userId) || !empty($userId)) {
-            $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->throwAccessDeniedIfAdminNotAllowed(
                 $adminId,
-                SalesAdminType::KEY_PLATFORM,
                 array(
-                    SalesAdminPermission::KEY_BUILDING_ORDER,
-                    SalesAdminPermission::KEY_BUILDING_USER,
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    ),
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    ),
                 ),
-                SalesAdminPermissionMap::OP_LEVEL_VIEW
+                AdminPermission::OP_LEVEL_VIEW
             );
         } else {
-            $this->checkAdminOrderPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+            $this->throwAccessDeniedIfAdminNotAllowed(
+                $adminId,
+                array(
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    ),
+                ),
+                AdminPermission::OP_LEVEL_VIEW
+            );
         }
 
         //filters
@@ -741,7 +759,7 @@ class AdminOrderController extends OrderController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_BUILDING_ORDER,
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
             )
         );
 
@@ -920,10 +938,14 @@ class AdminOrderController extends OrderController
         $adminId = $admin->getId();
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            SalesAdminPermissionMap::OP_LEVEL_VIEW,
-            null,
-            $adminId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $language = $paramFetcher->get('language');
@@ -943,7 +965,7 @@ class AdminOrderController extends OrderController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $adminId,
             array(
-                SalesAdminPermission::KEY_BUILDING_ORDER,
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
             )
         );
 
@@ -999,26 +1021,36 @@ class AdminOrderController extends OrderController
         Request $request,
         $id
     ) {
-        $adminId = $this->getAdminId();
-
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $adminId,
-            SalesAdminType::KEY_PLATFORM,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                SalesAdminPermission::KEY_BUILDING_ORDER,
-                SalesAdminPermission::KEY_BUILDING_USER,
-                SalesAdminPermission::KEY_PLATFORM_INVOICE,
-                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
-                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                    'building_id' => $buildingId,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW,
-            $buildingId
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $view = new View();
@@ -1071,14 +1103,15 @@ class AdminOrderController extends OrderController
             $buildingId = $product->getRoom()->getBuildingId();
 
             // check user permission
-            $this->throwAccessDeniedIfSalesAdminNotAllowed(
-                $adminId,
-                SalesAdminType::KEY_PLATFORM,
+            $this->throwAccessDeniedIfAdminNotAllowed(
+                $this->getAdminId(),
                 array(
-                    SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                        'building_id' => $buildingId,
+                    ),
                 ),
-                SalesAdminPermissionMap::OP_LEVEL_EDIT,
-                $buildingId
+                AdminPermission::OP_LEVEL_EDIT
             );
 
             $startDate = new \DateTime($order->getStartDate());
@@ -1150,13 +1183,10 @@ class AdminOrderController extends OrderController
             $em->flush();
 
             $this->generateAdminLogs(array(
-                'platform' => Log::PLATFORM_SALES,
-                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                 'logModule' => Log::MODULE_ORDER_RESERVE,
                 'logAction' => Log::ACTION_CREATE,
                 'logObjectKey' => Log::OBJECT_ROOM_ORDER,
                 'logObjectId' => $order->getId(),
-                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
             ));
 
             $view = new View();
@@ -1181,6 +1211,8 @@ class AdminOrderController extends OrderController
      *
      * @param Request $request
      * @param $id
+     *
+     * @return View
      */
     public function patchTransferNoAction(
         Request $request,
@@ -1198,9 +1230,15 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $existTransfer = $this->getDoctrine()
@@ -1220,13 +1258,10 @@ class AdminOrderController extends OrderController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_ROOM_ORDER,
             'logAction' => Log::ACTION_EDIT,
             'logObjectKey' => Log::OBJECT_ROOM_ORDER,
             'logObjectId' => $id,
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();
@@ -1238,6 +1273,8 @@ class AdminOrderController extends OrderController
      *
      * @param Request $request
      * @param $id
+     *
+     * @return View
      */
     public function cancelAdminOrderAction(
         Request $request,
@@ -1259,26 +1296,31 @@ class AdminOrderController extends OrderController
         $module = Log::MODULE_ORDER_PREORDER;
 
         // check user permission
-        $permissions = array(
-            SalesAdminPermission::KEY_BUILDING_ORDER,
-        );
+        $permissions = array(array(
+            'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+            'building_id' => $buildingId,
+        ));
 
         if (ProductOrder::RESERVE_TYPE == $type) {
             $module = Log::MODULE_ORDER_RESERVE;
-            $permissions[] = SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE;
+            array_push($permissions, array(
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                'building_id' => $buildingId,
+            ));
         } elseif (ProductOrder::PREORDER_TYPE == $type) {
-            $permissions[] = SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER;
+            array_push($permissions, array(
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                'building_id' => $buildingId,
+            ));
         } else {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            SalesAdminType::KEY_PLATFORM,
             $permissions,
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $now = new \DateTime();
@@ -1346,13 +1388,10 @@ class AdminOrderController extends OrderController
         }
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => $module,
             'logAction' => Log::ACTION_CANCEL,
             'logObjectKey' => Log::OBJECT_ROOM_ORDER,
             'logObjectId' => $order->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         return new View();
@@ -1399,14 +1438,15 @@ class AdminOrderController extends OrderController
             $buildingId = $product->getRoom()->getBuildingId();
 
             // check user permission
-            $this->throwAccessDeniedIfSalesAdminNotAllowed(
+            $this->throwAccessDeniedIfAdminNotAllowed(
                 $adminId,
-                SalesAdminType::KEY_PLATFORM,
                 array(
-                    SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                        'building_id' => $buildingId,
+                    ),
                 ),
-                SalesAdminPermissionMap::OP_LEVEL_EDIT,
-                $buildingId
+                AdminPermission::OP_LEVEL_EDIT
             );
 
             $startDate = new \DateTime($order->getStartDate());
@@ -1529,13 +1569,10 @@ class AdminOrderController extends OrderController
             }
 
             $this->generateAdminLogs(array(
-                'platform' => Log::PLATFORM_SALES,
-                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                 'logModule' => Log::MODULE_ORDER_PREORDER,
                 'logAction' => Log::ACTION_CREATE,
                 'logObjectKey' => Log::OBJECT_ROOM_ORDER,
                 'logObjectId' => $order->getId(),
-                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
             ));
 
             $view = new View();
@@ -1559,44 +1596,21 @@ class AdminOrderController extends OrderController
      */
     private function authenticateAdminCookie()
     {
-        $cookie_name = self::SALES_COOKIE_NAME;
+        $cookie_name = self::ADMIN_COOKIE_NAME;
         if (!isset($_COOKIE[$cookie_name])) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('SalesAdmin\SalesAdminToken')->findOneByToken($token);
+        $adminToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(array(
+                'token' => $token,
+            ));
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        return $adminToken->getAdmin();
-    }
-
-    /**
-     * Check user permission.
-     *
-     * @param int $opLevel
-     * @param int $buildingId
-     * @param int $adminId
-     */
-    private function checkAdminOrderPermission(
-        $opLevel,
-        $buildingId = null,
-        $adminId = null
-    ) {
-        if (is_null($adminId)) {
-            $adminId = $this->getAdminId();
-        }
-
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $adminId,
-            SalesAdminType::KEY_PLATFORM,
-            array(
-                SalesAdminPermission::KEY_BUILDING_ORDER,
-            ),
-            $opLevel,
-            $buildingId
-        );
+        return $adminToken->getUser();
     }
 }

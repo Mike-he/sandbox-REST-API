@@ -5,9 +5,7 @@ namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 use Rs\Json\Patch;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuPosition;
 use Sandbox\ApiBundle\Controller\Shop\ShopProductController;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopProduct;
 use Sandbox\ApiBundle\Entity\Shop\ShopProductAttachment;
 use Sandbox\ApiBundle\Entity\Shop\ShopProductSpec;
@@ -139,13 +137,19 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
+                    'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $id,
+                ),
             ),
-            $id
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $this->findEntityById($id, 'Shop\Shop');
@@ -209,12 +213,15 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
             ),
-            $shopId
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $this->findEntityById($shopId, 'Shop\Shop');
@@ -251,13 +258,19 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $id,
+                ),
             ),
-            $shopId
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $shop = $this->findEntityById($shopId, 'Shop\Shop');
@@ -295,13 +308,19 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $id,
+                ),
             ),
-            $shopId
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $this->findEntityById($shopId, 'Shop\Shop');
@@ -333,12 +352,15 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
             ),
-            $id
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $this->findEntityById($id, 'Shop\Shop');
@@ -375,12 +397,15 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
             ),
-            $shopId
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $this->findEntityById($shopId, 'Shop\Shop');
@@ -428,13 +453,19 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $id,
+                ),
             ),
-            $shopId
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $this->findEntityById($shopId, 'Shop\Shop');
@@ -480,12 +511,15 @@ class AdminShopProductController extends ShopProductController
         $id
     ) {
         // check user permission
-        $this->checkAdminProductPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
             ),
-            $shopId
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $this->findEntityById($shopId, 'Shop\Shop');
@@ -840,24 +874,5 @@ class AdminShopProductController extends ShopProductController
         if (!is_null($sameProduct)) {
             throw new ConflictHttpException(ShopProduct::SHOP_PRODUCT_CONFLICT_MESSAGE);
         }
-    }
-
-    /**
-     * @param $opLevel
-     * @param $permissions
-     * @param $shopId
-     */
-    private function checkAdminProductPermission(
-        $opLevel,
-        $permissions,
-        $shopId = null
-    ) {
-        $this->throwAccessDeniedIfShopAdminNotAllowed(
-            $this->getAdminId(),
-            ShopAdminType::KEY_PLATFORM,
-            $permissions,
-            $opLevel,
-            $shopId
-        );
     }
 }

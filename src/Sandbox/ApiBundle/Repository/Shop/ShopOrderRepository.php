@@ -173,8 +173,8 @@ class ShopOrderRepository extends EntityRepository
         $sort,
         $search,
         $user,
-        $cityId = null,
-        $buildingId = null,
+        $cityId,
+        $buildingId,
         $refundStatus,
         $limit = null,
         $offset = null
@@ -277,8 +277,8 @@ class ShopOrderRepository extends EntityRepository
         $end,
         $search,
         $user,
-        $cityId = null,
-        $buildingId = null,
+        $cityId,
+        $buildingId,
         $refundStatus
     ) {
         $query = $this->createQueryBuilder('o')
@@ -845,6 +845,72 @@ class ShopOrderRepository extends EntityRepository
             $query->andWhere('b.company = :companyId')
                 ->setParameter('companyId', $companyId);
         }
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $shop
+     * @param $channel
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return mixed
+     */
+    public function getOrderPaidSums(
+        $shop,
+        $channel,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('SUM(o.price)')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.payChannel = :channel')
+            ->andWhere('o.status = :completed')
+            ->andWhere('o.shop = :shop')
+            ->andWhere('o.paymentDate >= :start')
+            ->andWhere('o.paymentDate <= :end')
+            ->setParameter('unoriginal', false)
+            ->setParameter('shop', $shop)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('channel', $channel)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $shop
+     * @param $channel
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return mixed
+     */
+    public function getOrderRefundSums(
+        $shop,
+        $channel,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('SUM(o.refundAmount)')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.payChannel = :channel')
+            ->andWhere('o.status = :status')
+            ->andWhere('o.refunded = :refunded')
+            ->andWhere('o.shop = :shop')
+            ->andWhere('o.paymentDate >= :start')
+            ->andWhere('o.paymentDate <= :end')
+            ->setParameter('unoriginal', false)
+            ->setParameter('shop', $shop)
+            ->setParameter('status', ShopOrder::STATUS_REFUNDED)
+            ->setParameter('refunded', true)
+            ->setParameter('channel', $channel)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
 
         return $query->getQuery()->getSingleScalarResult();
     }

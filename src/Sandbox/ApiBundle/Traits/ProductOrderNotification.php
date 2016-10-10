@@ -92,6 +92,16 @@ trait ProductOrderNotification
                 );
 
                 $jsonData = json_encode(array($data));
+
+                $this->setDataAndJPushNotification(
+                    $order->getId(),
+                    $order->getOrderNumber(),
+                    $fromUserId,
+                    $receivers,
+                    $action,
+                    $bodyZh,
+                    $bodyEn
+                );
             } else {
                 $dataArray = [];
                 foreach ($orders as $order) {
@@ -106,6 +116,16 @@ trait ProductOrderNotification
                     );
 
                     array_push($dataArray, $data);
+
+                    $this->setDataAndJPushNotification(
+                        $order->getId(),
+                        $order->getOrderNumber(),
+                        $fromUserId,
+                        [$order->getUserId()],
+                        $action,
+                        $firstZh,
+                        $firstEn
+                    );
                 }
 
                 $jsonData = json_encode($dataArray);
@@ -206,5 +226,66 @@ trait ProductOrderNotification
             'id' => $orderId,
             'order_number' => $orderNumber,
         ];
+    }
+
+    /**
+     * @param int    $orderId
+     * @param string $orderNumber
+     * @param int    $fromUserId
+     * @param array  $receivers
+     * @param string $action
+     * @param string $bodyZh
+     * @param string $bodyEn
+     *
+     * @return mixed
+     */
+    private function setDataAndJPushNotification(
+        $orderId,
+        $orderNumber,
+        $fromUserId,
+        $receivers,
+        $action,
+        $bodyZh,
+        $bodyEn
+    ) {
+        $fromUser = null;
+        if (!is_null($fromUserId)) {
+            $fromUser = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
+                ->find($fromUserId);
+        }
+
+        $apns = $this->setApnsJsonDataArray($bodyZh, $bodyEn);
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            ProductOrder::ACTION_TYPE,
+            $action,
+            $fromUser,
+            $apns
+        );
+
+        // get order array
+        $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
+
+        $zhData = $this->getJpushData(
+            $receivers,
+            ['lang_zh'],
+            $bodyZh,
+            '展想创合',
+            $contentArray
+        );
+
+        $enData = $this->getJpushData(
+            $receivers,
+            ['lang_en'],
+            $bodyEn,
+            'Sandbox3',
+            $contentArray
+        );
+
+        $this->sendJpushNotification($zhData);
+        $this->sendJpushNotification($enData);
     }
 }

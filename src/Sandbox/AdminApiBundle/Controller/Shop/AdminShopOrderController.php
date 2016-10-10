@@ -2,10 +2,8 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Shop;
 
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderRefundPatch;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,7 +46,7 @@ class AdminShopOrderController extends ShopController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
             [
@@ -111,7 +109,7 @@ class AdminShopOrderController extends ShopController
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $order = $this->getRepo('Shop\ShopOrder')->findOneBy(
             [
@@ -169,7 +167,7 @@ class AdminShopOrderController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $orders = $this->getRepo('Shop\ShopOrder')->findBy(
             [
@@ -334,7 +332,7 @@ class AdminShopOrderController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
         $shopId = $paramFetcher->get('shop');
         $status = $paramFetcher->get('status');
@@ -480,7 +478,7 @@ class AdminShopOrderController extends ShopController
         $adminId = $admin->getId();
 
         // check user permission
-        $this->checkAdminOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission($adminId, AdminPermission::OP_LEVEL_VIEW);
 
         $shopId = $paramFetcher->get('shop');
         $status = $paramFetcher->get('status');
@@ -530,12 +528,11 @@ class AdminShopOrderController extends ShopController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_ORDER,
-                AdminPermission::KEY_PLATFORM_DASHBOARD,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $order = $this->getRepo('Shop\ShopOrder')->find($id);
@@ -559,8 +556,9 @@ class AdminShopOrderController extends ShopController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ORDER,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+            ],
             $opLevel
         );
     }

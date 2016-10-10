@@ -5,23 +5,15 @@ namespace Sandbox\AdminApiBundle\Controller\Admin;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Form\Admin\AdminPostType;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
-use Sandbox\ApiBundle\Form\Admin\AdminPutType;
-use Sandbox\ApiBundle\Form\Admin\MyAdminPutType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
-use Rs\Json\Patch;
 
 /**
  * Admin controller.
@@ -35,17 +27,15 @@ use Rs\Json\Patch;
  */
 class AdminAdminsController extends SandboxRestController
 {
-    const ERROR_USERNAME_INVALID_CODE = 400001;
-    const ERROR_USERNAME_INVALID_MESSAGE = 'Invalid username - 无效的用户名';
+    const ADMINS_ALL_ADMIN = 'admin.admins.all';
+    const ADMINS_SUPER_ADMIN = 'admin.admins.super';
+    const ADMINS_PLATFORM_ADMIN = 'admin.admins.platform';
 
-    const ERROR_USERNAME_EXIST_CODE = 400002;
-    const ERROR_USERNAME_EXIST_MESSAGE = 'Username already exist - 用户名已被占用';
-
-    const ERROR_PASSWORD_INVALID_CODE = 400003;
-    const ERROR_PASSWORD_INVALID_MESSAGE = 'Invalid password - 无效的密码';
-
-    const ERROR_ADMIN_TYPE_CODE = 400004;
-    const ERROR_ADMIN_TYPE_MESSAGE = 'Invalid admin type - 无效的管理员类型';
+    const ADMINS_MENU_KEY_ALL = 'all';
+    const ADMINS_MENU_KEY_SUPER = 'super';
+    const ADMINS_MENU_KEY_PLATFORM = 'platform';
+    const ADMINS_MENU_KEY_BUILDING = 'building';
+    const ADMINS_MENU_KEY_SHOP = 'shop';
 
     /**
      * List all admins.
@@ -57,6 +47,55 @@ class AdminAdminsController extends SandboxRestController
      *   statusCodes = {
      *     200 = "Returned when successful"
      *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="name or username"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="global|specify"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="isSuperAdmin",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="isSuperAdmin"
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="shop"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="position",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="position"
      * )
      *
      * @Annotations\QueryParam(
@@ -90,23 +129,120 @@ class AdminAdminsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $cookies = $this->getPlatformSessions();
+        $platform = $cookies['platform'];
+        $companyId = $cookies['sales_company_id'];
+        $isSuperAdmin = $paramFetcher->get('isSuperAdmin');
+        $buildingId = $paramFetcher->get('building');
+        $shopId = $paramFetcher->get('shop');
+        $position = $paramFetcher->get('position');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $search = $paramFetcher->get('search');
+        $type = $paramFetcher->get('type');
 
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ADMIN,
-            AdminPermissionMap::OP_LEVEL_VIEW
-        );
+        $users = null;
+        if (!is_null($search)) {
+            $users = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->searchUserIds($search);
+        }
 
-        // get all admins id and username
-        $query = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\Admin')->getAllAdmins();
+        $positions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getPositions(
+                $platform,
+                $companyId,
+                $isSuperAdmin,
+                $position,
+                $type
+            );
+
+        $userIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser(
+                $positions,
+                $buildingId,
+                $shopId,
+                $users
+            );
+
+        $result = array();
+        foreach ($userIds as $userId) {
+            $positionBinds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindUserInfo(
+                    $userId['userId'],
+                    $platform,
+                    $companyId
+                );
+            $positionArr = array();
+            foreach ($positionBinds as $positionBind) {
+                $position = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                    ->find($positionBind['id']);
+                $positionArr[] = $position;
+            }
+
+            $buildingArr = array();
+            if ($platform == AdminPosition::PLATFORM_SALES) {
+                $buildingBinds = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindBuilding(
+                        $userId['userId'],
+                        $platform,
+                        $companyId
+                    );
+
+                foreach ($buildingBinds as $buildingBind) {
+                    $buildingInfo = $this->getDoctrine()->getRepository("SandboxApiBundle:Room\RoomBuilding")
+                        ->find($buildingBind['buildingId']);
+                    $buildingArr[] = $buildingInfo;
+                }
+            }
+
+            $shopArr = array();
+            if ($platform == AdminPosition::PLATFORM_SHOP) {
+                $shopBinds = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindShop(
+                        $userId['userId'],
+                        $platform,
+                        $companyId
+                    );
+
+                foreach ($shopBinds as $shopBind) {
+                    $shopInfo = $this->getDoctrine()->getRepository("SandboxApiBundle:Shop\Shop")
+                        ->find($shopBind['shopId']);
+                    $shopArr[] = $shopInfo;
+                }
+            }
+
+            $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($userId['userId']);
+
+            $bind = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindingsByUser(
+                    $userId['userId'],
+                    $platform,
+                    $companyId
+                );
+
+            $result[] = array(
+                'user_id' => $userId['userId'],
+                'user' => $user,
+                'position' => $positionArr,
+                'position_count' => count($positionArr),
+                'building' => $buildingArr,
+                'shop' => $shopArr,
+                'bind' => $bind,
+            );
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $query,
+            $result,
             $pageIndex,
             $pageLimit
         );
@@ -115,10 +251,95 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
-     * List definite id of admin.
+     * Get Extra Admins.
      *
-     * @param Request $request  the request object
-     * @param int     $admin_id
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="name or username"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="position",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="position"
+     * )
+     *
+     *
+     * @Method({"GET"})
+     * @Route("/extra/admins")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getExtraAdminsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $cookies = $this->getPlatformSessions();
+        $platform = $cookies['platform'];
+        $companyId = $cookies['sales_company_id'];
+        $position = $paramFetcher->get('position');
+        $search = $paramFetcher->get('search');
+
+        $positions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getPositions(
+                $platform,
+                $companyId
+            );
+
+        $userIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser(
+                $positions
+            );
+        $allUser = array();
+        foreach ($userIds as $userId) {
+            $allUser[] = $userId['userId'];
+        }
+
+        $bindUser = array();
+        if (!is_null($position)) {
+            $PositionBindUsers = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindUser(
+                    $position
+                );
+
+            foreach ($PositionBindUsers as $PositionBindUser) {
+                $bindUser[] = $PositionBindUser['userId'];
+            }
+        }
+
+        $diff = array_diff($allUser, $bindUser);
+
+        $result = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->searchUserInfo($diff, $search);
+
+        return new View($result);
+    }
+
+    /**
+     * get admins menu.
+     *
+     * @param Request $request the request object
      *
      * @ApiDoc(
      *   resource = true,
@@ -128,38 +349,150 @@ class AdminAdminsController extends SandboxRestController
      * )
      *
      * @Method({"GET"})
-     * @Route("/admins/{admin_id}")
+     * @Route("/admins/menu")
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function getAdminAction(
+    public function getAdminsMenu(
         Request $request,
-        $admin_id
+        ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ADMIN,
-            AdminPermissionMap::OP_LEVEL_VIEW
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $cookies = $this->getPlatformSessions();
+        $platform = $cookies['platform'];
+        $companyId = $cookies['sales_company_id'];
+
+        $positions = $this->getDoctrine()
+           ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+           ->getAdminPositions(
+               $platform,
+               null,
+               $companyId
+           );
+
+        $allUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser($positions);
+
+        $allAdmin = array(
+            'key' => self::ADMINS_MENU_KEY_ALL,
+            'name' => $this->get('translator')->trans(self::ADMINS_ALL_ADMIN),
+            'count' => count($allUser),
+       );
+
+        $superPositions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getPositions(
+                $platform,
+                $companyId,
+                true
+            );
+
+        $superUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser($superPositions);
+
+        $superAdmin = array(
+            'key' => self::ADMINS_MENU_KEY_SUPER,
+            'name' => $this->get('translator')->trans(self::ADMINS_SUPER_ADMIN),
+            'count' => count($superUser),
         );
 
-        // get all admins
-        $admins = $this->getRepo('Admin\Admin')->findOneBy(array('id' => $admin_id));
+        $buildingAdmin = array();
+        $shopAdmin = array();
 
-        // set view
-        $view = new View($admins);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('admin'))
-        );
+        switch ($platform) {
+            case AdminPosition::PLATFORM_OFFICIAL:
+                $platformPositions = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                    ->getPositions(
+                        $platform,
+                        null,
+                        false
+                    );
+                $allPlatformUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($platformPositions);
+                break;
+            case AdminPosition::PLATFORM_SALES:
+                $platformPositions = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                    ->getAdminPositions(
+                        $platform,
+                        AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                        $companyId
+                    );
 
-        return $view;
+                $allPlatformUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($platformPositions);
+
+                $myBuildings = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->getCompanyBuildings($companyId);
+
+                foreach ($myBuildings as $myBuilding) {
+                    $buildingUsers = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                        ->getBindUser(null, $myBuilding);
+
+                    $buildingAdmin[] = array(
+                        'key' => self::ADMINS_MENU_KEY_BUILDING,
+                        'id' => $myBuilding->getId(),
+                        'name' => $myBuilding->getname(),
+                        'count' => count($buildingUsers),
+                    );
+                }
+                break;
+            case AdminPosition::PLATFORM_SHOP:
+                $platformPositions = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                    ->getAdminPositions(
+                        $platform,
+                        AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                        $companyId
+                    );
+
+                $allPlatformUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($platformPositions);
+
+                $myshops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')
+                    ->getShopsByCompany($companyId);
+
+                foreach ($myshops as $myshop) {
+                    $shopUsers = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                        ->getBindUser(null, null, $myshop);
+
+                    $shopAdmin[] = array(
+                        'key' => self::ADMINS_MENU_KEY_SHOP,
+                        'id' => $myshop->getId(),
+                        'name' => $myshop->getname(),
+                        'count' => count($shopUsers),
+                    );
+                }
+                break;
+            default:
+                return new View();
+        }
+
+        $platformAdmin = array(
+            'key' => self::ADMINS_MENU_KEY_PLATFORM,
+            'name' => $this->get('translator')->trans(self::ADMINS_PLATFORM_ADMIN),
+            'count' => count($allPlatformUser),
+       );
+
+        $result = array($allAdmin, $superAdmin, $platformAdmin);
+
+        $result = array_merge($result, $buildingAdmin, $shopAdmin);
+
+        return new View($result);
     }
 
     /**
-     * Create admin.
+     * get admins Position Menu.
      *
      * @param Request $request the request object
      *
@@ -167,428 +500,198 @@ class AdminAdminsController extends SandboxRestController
      *   resource = true,
      *   statusCodes = {
      *     200 = "Returned when successful"
-     *  }
+     *   }
      * )
      *
-     * @Method({"POST"})
-     * @Route("/admins")
+     * @Annotations\QueryParam(
+     *    name="key",
+     *    array=false,
+     *    nullable=false,
+     *    strict=true,
+     *    description="key"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="shop"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/admins/position/menu")
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function postAdminsAction(
-        Request $request
-    ) {
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ADMIN,
-            AdminPermissionMap::OP_LEVEL_EDIT
-        );
-
-        // bind admin data
-        $admin = new Admin();
-        $form = $this->createForm(new AdminPostType(), $admin);
-        $form->handleRequest($request);
-
-        $type_key = $form['type_key']->getData();
-        $permission = $form['permission']->getData();
-
-        if ($form->isValid()) {
-            return $this->handleAdminCreate(
-                $admin,
-                $type_key,
-                $permission
-            );
-        }
-
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-    }
-
-    /**
-     * Update Admin.
-     *
-     * @param Request $request the request object
-     * @param int     $id      the admin ID
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     201 = "Returned when successful created"
-     *  }
-     * )
-     *
-     *
-     * @Route("/admins/{id}")
-     * @Method({"PATCH"})
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function patchAdminAction(
+    public function getAdminsPositionMenu(
         Request $request,
-        $id
+        ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ADMIN,
-            AdminPermissionMap::OP_LEVEL_EDIT
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $cookies = $this->getPlatformSessions();
+        $platform = $cookies['platform'];
+        $companyId = $cookies['sales_company_id'];
+        $key = $paramFetcher->get('key');
+        $buildingId = $paramFetcher->get('building');
+        $shopId = $paramFetcher->get('shop');
+
+        $positions = $this->getPositions(
+            $key,
+            $platform,
+            $companyId,
+            $buildingId,
+            $shopId
         );
 
-        $admin = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\Admin')->find($id);
-        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
-
-        $passwordOrigin = $admin->getPassword();
-        $usernameOrigin = $admin->getUsername();
-
-        // bind data
-        $adminJson = $this->container->get('serializer')->serialize($admin, 'json');
-        $patch = new Patch($adminJson, $request->getContent());
-        $adminJson = $patch->apply();
-
-        $form = $this->createForm(new AdminPutType(), $admin);
-        $form->submit(json_decode($adminJson, true));
-
-        $type_key = $form['type_key']->getData();
-        $permission = $form['permission']->getData();
-
-        return $this->handleAdminPatch(
-            $id,
-            $admin,
-            $type_key,
-            $permission,
-            $passwordOrigin,
-            $usernameOrigin
-        );
+        return new View($positions);
     }
 
     /**
-     * @param Request $request
-     * @param int     $id
+     * @param $key
+     * @param $platform
+     * @param $companyId
+     * @param $buildingId
+     * @param $shopId
      *
-     * @Route("/admins/{id}")
-     * @Method({"DELETE"})
-     *
-     * @return View
+     * @return array|View
      */
-    public function deleteAdminAction(
-        Request $request,
-        $id
+    private function getPositions(
+        $key,
+        $platform,
+        $companyId,
+        $buildingId,
+        $shopId
     ) {
-        $myAdminId = $this->getAdminId();
+        $global_image_url = $this->container->getParameter('image_url');
 
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ADMIN,
-            AdminPermissionMap::OP_LEVEL_EDIT
-        );
-
-        // get admin
-        $admin = $this->getRepo('Admin\Admin')->find($id);
-
-        if (!is_null($admin)) {
-            // check admin is myself
-            if ($myAdminId == $admin->getId()) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        $positionArr = array();
+        if ($key == self::ADMINS_MENU_KEY_PLATFORM) {
+            switch ($platform) {
+                case AdminPosition::PLATFORM_OFFICIAL:
+                    $positions = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                        ->getPositions(
+                            $platform,
+                            null,
+                            false
+                        );
+                    break;
+                case AdminPosition::PLATFORM_SALES:
+                    $positions = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                        ->getAdminPositions(
+                            $platform,
+                            AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                            $companyId
+                        );
+                    break;
+                case AdminPosition::PLATFORM_SHOP:
+                    $positions = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                        ->getAdminPositions(
+                            $platform,
+                            AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                            $companyId
+                        );
+                    break;
+                default:
+                    return new View();
             }
 
-            // remove from db
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($admin);
-            $em->flush();
-        }
+            foreach ($positions as $position) {
+                $positionUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($position, $buildingId, $shopId);
 
-        return new View();
-    }
-
-    /**
-     * Update my admin.
-     *
-     * @param Request $request
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     201 = "Returned when successful created"
-     *  }
-     * )
-     *
-     * @Route("/admins/password")
-     * @Method({"POST"})
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function patchMyAdminAction(
-        Request $request
-    ) {
-        $admin = $this->getUser()->getMyAdmin();
-
-        $passwordOld = $admin->getPassword();
-
-        // bind data
-        $adminData = json_decode($request->getContent(), true);
-
-        $form = $this->createForm(new MyAdminPutType(), $admin);
-        $form->submit($adminData);
-
-        $passwordNew = $admin->getPassword();
-
-        $passwordOldPut = $form['old_password']->getData();
-        if ($passwordOldPut != $passwordOld || $passwordNew == $passwordOld || is_null($passwordNew)) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_PASSWORD_INVALID_CODE,
-                self::ERROR_PASSWORD_INVALID_MESSAGE
-            );
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        return new View();
-    }
-
-    /**
-     * @param Admin              $admin
-     * @param Admin              $id
-     * @param AdminType          $typeKey
-     * @param AdminPermissionMap $permissionInComing
-     * @param string             $passwordOrigin
-     * @param string             $usernameOrigin
-     *
-     * @return View
-     */
-    private function handleAdminPatch(
-        $id,
-        $admin,
-        $typeKey,
-        $permissionInComing,
-        $passwordOrigin,
-        $usernameOrigin
-    ) {
-        $em = $this->getDoctrine()->getManager();
-        $now = new \DateTime('now');
-
-        if (!is_null($typeKey)) {
-            $type = $this->getRepo('Admin\AdminType')->findOneByKey($typeKey);
-            $admin->setTypeId($type->getId());
-        }
-        $em->persist($admin);
-
-        if (is_null($permissionInComing) || empty($permissionInComing)) {
-            // save data
-            $em->flush();
-
-            return new View();
-        }
-
-        $permissionInComingIds = array();
-
-        // check incoming permissions in db
-        foreach ($permissionInComing as $item) {
-            // get permission
-            $permission = $this->getRepo('Admin\AdminPermission')->find($item['id']);
-            if (is_null($permission)) {
-                continue;
+                $positionArr[] = array(
+                    'key' => 'position',
+                    'id' => $position->getId(),
+                    'name' => $position->getName(),
+                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
+                    'count' => count($positionUser),
+                );
             }
+        } elseif ($key == self::ADMINS_MENU_KEY_SUPER) {
+            $positions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->getPositions(
+                    $platform,
+                    $companyId,
+                    true
+                );
 
-            $permissionId = $permission->getId();
+            foreach ($positions as $position) {
+                $positionUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($position);
 
-            // generate incoming permission id array
-            array_push($permissionInComingIds, $permissionId);
-
-            // get from db
-            $permissionDb = $this->getRepo('Admin\AdminPermissionMap')->findOneBy(array(
-                'adminId' => $id,
-                'permissionId' => $permissionId,
-            ));
-
-            // not in db
-            if (is_null($permissionDb)) {
-                // save permission map
-                $permissionMap = new AdminPermissionMap();
-                $permissionMap->setCreationDate($now);
-                $permissionMap->setAdmin($admin);
-                $permissionMap->setPermission($permission);
-                $permissionMap->setOpLevel($item['op_level']);
-
-                $em->persist($permissionMap);
-
-                continue;
+                $positionArr[] = array(
+                    'key' => 'position',
+                    'id' => $position->getId(),
+                    'name' => $position->getName(),
+                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
+                    'count' => count($positionUser),
+                );
             }
-
-            // opLevel change
-            if ($item['op_level'] != $permissionDb->getOpLevel()) {
-                $permissionDb->setOpLevel($item['op_level']);
-            }
-        }
-
-        // remove permissions from db
-        $permissionDbAll = $this->getRepo('Admin\AdminPermissionMap')->findByAdminId($id);
-        foreach ($permissionDbAll as $item) {
-            if (!in_array($item->getPermissionId(), $permissionInComingIds)) {
-                $em->remove($item);
-            }
-        }
-
-        // save data
-        $em->flush();
-
-        if ($usernameOrigin != $admin->getUsername()
-            || $passwordOrigin != $admin->getPassword()
-        ) {
-            // logout this admin
-            $this->getRepo('Admin\AdminToken')->deleteAdminToken(
-                $admin->getId()
-            );
-        }
-
-        return new View();
-    }
-
-    /**
-     * @param Admin              $admin
-     * @param AdminType          $type_key
-     * @param AdminPermissionMap $permission
-     *
-     * @return View
-     */
-    private function handleAdminCreate(
-        $admin,
-        $type_key,
-        $permission
-    ) {
-        $type = $this->getRepo('Admin\AdminType')->findOneByKey($type_key);
-        $admin->setType($type);
-        $admin->setTypeId($type->getId());
-
-        $checkAdminValid = $this->checkAdminValid($admin);
-        if (!is_null($checkAdminValid)) {
-            return $checkAdminValid;
-        }
-
-        // save admin to db
-        $admin = $this->saveAdmin($admin, $permission);
-
-        // set view
-        $view = new View();
-        $view->setData(array(
-            'id' => $admin->getId(),
-        ));
-
-        return $view;
-    }
-
-    /**
-     * @param Admin              $admin
-     * @param AdminPermissionMap $permission
-     *
-     * @return Admin
-     */
-    private function saveAdmin(
-        $admin,
-        $permission
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        $now = new \DateTime('now');
-
-        // set dates
-        $admin->setCreationDate($now);
-        $admin->setModificationDate($now);
-
-        // save admin
-        $em->persist($admin);
-
-        if (is_null($permission) || empty($permission)) {
-            $em->flush();
-
-            return $admin;
-        }
-
-        // set permissions
-        foreach ($permission as $permissionId) {
-            // get permission
-            $myPermission = $this->getRepo('Admin\AdminPermission')
-                            ->find($permissionId['id']);
-            if (is_null($myPermission)
-                || $myPermission->getTypeId() != $admin->getType()->getId()
-            ) {
-                // if permission's type is different
-                // don't add the permission
-                continue;
-            }
-
-            // save permission map
-            $permissionMap = new AdminPermissionMap();
-            $permissionMap->setAdmin($admin);
-            $permissionMap->setPermission($myPermission);
-            $permissionMap->setCreationDate($now);
-            $permissionMap->setOpLevel($permissionId['op_level']);
-            $em->persist($permissionMap);
-        }
-
-        $em->flush();
-
-        return $admin;
-    }
-
-    /**
-     * @param $admin
-     *
-     * @return View
-     */
-    private function checkAdminValid(
-        $admin
-    ) {
-        // check username
-        if (is_null($admin->getUsername())) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_USERNAME_INVALID_CODE,
-                self::ERROR_PASSWORD_INVALID_MESSAGE);
-        }
-
-        // check username exist
-        $adminExist = $this->getRepo('Admin\Admin')->findOneByUsername($admin->getUsername());
-        if (!is_null($adminExist)) {
-            return $this->customErrorView(
-                    400,
-                    self::ERROR_USERNAME_EXIST_CODE,
-                    self::ERROR_USERNAME_EXIST_MESSAGE);
-        }
-
-        // check password
-        if (is_null($admin->getPassword())) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_PASSWORD_INVALID_CODE,
-                self::ERROR_PASSWORD_INVALID_MESSAGE);
-        }
-
-        // check admin type
-        if (is_null($admin->getTypeId())) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_ADMIN_TYPE_CODE,
-                self::ERROR_ADMIN_TYPE_MESSAGE);
         } else {
-            $type = $this->getRepo('Admin\AdminType')->find($admin->getTypeId());
-            if (is_null($type)) {
-                return $this->customErrorView(
-                    400,
-                    self::ERROR_ADMIN_TYPE_CODE,
-                    self::ERROR_ADMIN_TYPE_MESSAGE);
+            $positions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBuildingPosition(
+                    $platform,
+                    $buildingId,
+                    $shopId
+                );
+
+            foreach ($positions as $position) {
+                $positionUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($position['positionId'], $buildingId, $shopId);
+
+                $position = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                    ->find($position['positionId']);
+                $positionArr[] = array(
+                    'key' => 'position',
+                    'id' => $position->getId(),
+                    'name' => $position->getName(),
+                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
+                    'count' => count($positionUser),
+                );
             }
         }
+
+        return $positionArr;
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $OpLevel
+     */
+    private function checkAdminAdvertisingPermission(
+        $OpLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+            ],
+            $OpLevel
+        );
     }
 }

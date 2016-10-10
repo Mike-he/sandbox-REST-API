@@ -98,9 +98,12 @@ class UserViewRepository extends EntityRepository
             ->orWhere('u.phone LIKE :query')
             ->orWhere('u.cardNo LIKE :query')
             ->orWhere('u.credentialNo LIKE :query')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
             ->setParameter('query', $query.'%');
+
+        if (!is_null($offset) && !is_null($limit)) {
+            $queryResults->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
 
         if (!is_null($banned)) {
             $queryResults->andWhere('u.banned = :banned')
@@ -353,5 +356,45 @@ class UserViewRepository extends EntityRepository
             ->setParameter('end', $endDate);
 
         return (int) $queryResults->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $query
+     *
+     * @return array
+     */
+    public function searchUserIds(
+        $query
+    ) {
+        $queryResults = $this->createQueryBuilder('u')
+            ->where('u.name LIKE :query')
+            ->orWhere('u.email LIKE :query')
+            ->orWhere('u.phone LIKE :query')
+            ->setParameter('query', $query.'%');
+
+        return $queryResults->getQuery()->getResult();
+    }
+
+    /**
+     * @param $ids
+     * @param $search
+     *
+     * @return array
+     */
+    public function searchUserInfo(
+        $ids,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->where('u.id in (:ids)')
+            ->setParameter('ids', $ids);
+
+        if (!is_null($search)) {
+            $query->andWhere('u.name LIKE :search OR u.email LIKE :search OR u.phone LIKE :search')
+                ->setParameter('search', $search.'%');
+        }
+        $query = $query->getQuery();
+
+        return $query->getResult();
     }
 }

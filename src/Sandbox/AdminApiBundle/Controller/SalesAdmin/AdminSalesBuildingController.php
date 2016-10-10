@@ -8,8 +8,6 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTagBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTypeBinding;
@@ -51,7 +49,7 @@ class AdminSalesBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
         if (is_null($building)) {
@@ -132,13 +130,13 @@ class AdminSalesBuildingController extends LocationController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="admin",
+     *    name="company",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="sales admin id"
+     *    description="sales company id"
      * )
      *
      * @Route("/buildings")
@@ -153,19 +151,19 @@ class AdminSalesBuildingController extends LocationController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
-        $adminId = $paramFetcher->get('admin');
+        $companyId = $paramFetcher->get('company');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $cityId = $paramFetcher->get('city');
         $query = $paramFetcher->get('query');
 
         $salesBuildingIds = null;
-        if (!is_null($adminId)) {
+        if (!is_null($companyId)) {
             // get sales buildings
-            $salesBuildingIds = $this->getSalesSuperAdminBuildingIds($adminId);
+            $salesBuildingIds = $this->getSalesSuperAdminBuildingIds($companyId);
         }
 
         $buildings = $this->getRepo('Room\RoomBuilding')->getSalesRoomBuildings(
@@ -213,7 +211,7 @@ class AdminSalesBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get a building
         $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
@@ -259,7 +257,7 @@ class AdminSalesBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
             'id' => $id,
@@ -441,17 +439,14 @@ class AdminSalesBuildingController extends LocationController
     }
 
     /**
-     * @param $adminId
+     * @param $companyId
      *
      * @return array
      */
     private function getSalesSuperAdminBuildingIds(
-        $adminId
+        $companyId
     ) {
-        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->find($adminId);
-        $this->throwNotFoundIfNull($salesAdmin, self::NOT_FOUND_MESSAGE);
-
-        $buildings = $this->getRepo('Room\RoomBuilding')->findByCompanyId($salesAdmin->getCompanyId());
+        $buildings = $this->getRepo('Room\RoomBuilding')->findByCompanyId($companyId);
 
         if (empty($buildings)) {
             return array();
@@ -475,8 +470,9 @@ class AdminSalesBuildingController extends LocationController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_SALES,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+            ],
             $opLevel
         );
     }
@@ -488,7 +484,7 @@ class AdminSalesBuildingController extends LocationController
         $building
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_USER_BANNED);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_USER_BANNED);
 
         $building->setVisible(false);
 

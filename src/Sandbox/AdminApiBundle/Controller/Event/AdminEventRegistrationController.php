@@ -7,8 +7,6 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPatchType;
@@ -72,7 +70,7 @@ class AdminEventRegistrationController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminEventRegistrationPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminEventRegistrationPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $ids = $paramFetcher->get('id');
         foreach ($ids as $id) {
@@ -179,7 +177,7 @@ class AdminEventRegistrationController extends SandboxRestController
         $event_id
     ) {
         // check user permission
-        $this->checkAdminEventRegistrationPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminEventRegistrationPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -245,7 +243,7 @@ class AdminEventRegistrationController extends SandboxRestController
         $registration_id
     ) {
         // check user permission
-        $this->checkAdminEventRegistrationPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminEventRegistrationPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get query result
         $eventRegistrationArray = $this->getRepo('Event\EventRegistration')->getEventRegistration(
@@ -362,8 +360,9 @@ class AdminEventRegistrationController extends SandboxRestController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_EVENT,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+            ],
             $opLevel
         );
     }

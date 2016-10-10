@@ -3,10 +3,7 @@
 namespace Sandbox\AdminShopApiBundle\Controller\User;
 
 use Sandbox\AdminShopApiBundle\Controller\ShopRestController;
-use Sandbox\ApiBundle\Entity\Admin\Admin;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -70,14 +67,17 @@ class AdminUsersController extends ShopRestController
         $ids = $paramFetcher->get('id');
 
         // check user permission
-        $this->throwAccessDeniedIfShopAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            ShopAdminType::KEY_PLATFORM,
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                ),
             ),
-            ShopAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // return result according to ids
@@ -88,10 +88,10 @@ class AdminUsersController extends ShopRestController
         $shopIds = $this->getMyShopIds(
             $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                AdminPermission::KEY_SHOP_SHOP_ORDER,
+                AdminPermission::KEY_SHOP_SHOP_KITCHEN,
             ),
-            ShopAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $userIds = [];

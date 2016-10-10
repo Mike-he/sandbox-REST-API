@@ -27,15 +27,22 @@ class AdminExcludePermission
     private $id;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string", length=16, nullable=false)
+     */
+    private $platform;
+
+    /**
      * @var int
      *
-     * @ORM\Column(name="salesCompanyId", type="integer", nullable=false)
+     * @ORM\Column(name="salesCompanyId", type="integer", nullable=true)
      */
     private $salesCompanyId;
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
-     * @ORM\JoinColumn(name="salesCompanyId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="salesCompanyId", referencedColumnName="id", onDelete="SET NULL")
      */
     private $salesCompany;
 
@@ -67,6 +74,22 @@ class AdminExcludePermission
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 
     /**

@@ -1,12 +1,12 @@
 <?php
 
-namespace Sandbox\ApiBundle\Form\SalesAdmin;
+namespace Sandbox\ApiBundle\Form\Admin;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class SalesAdminClientType extends AbstractType
+class AdminPositionPutType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,11 +15,11 @@ class SalesAdminClientType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id')
             ->add('name')
-            ->add('os')
-            ->add('version')
-        ;
+            ->add('parentPositionId')
+            ->add('iconId')
+            ->add('permissions')
+            ;
     }
 
     /**
@@ -28,7 +28,7 @@ class SalesAdminClientType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminClient',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Admin\AdminPosition',
         ));
     }
 

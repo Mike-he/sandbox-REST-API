@@ -6,9 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Event\EventCommentController;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
@@ -63,7 +61,7 @@ class AdminEventCommentController extends EventCommentController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminEventCommentPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventCommentPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -119,7 +117,7 @@ class AdminEventCommentController extends EventCommentController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminEventCommentPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkSalesAdminEventCommentPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $comment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventComment')
@@ -139,11 +137,12 @@ class AdminEventCommentController extends EventCommentController
     private function checkSalesAdminEventCommentPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
+                array(
+                    AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                ),
             ),
             $opLevel
         );

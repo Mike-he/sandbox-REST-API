@@ -452,65 +452,65 @@ class ClientMemberController extends MemberController
 //        ParamFetcherInterface $paramFetcher
 //    ) {
 //        $userId = $this->getUserId();
-//
+
 //        // if user is not authorized, respond empty list
 //        if (!$this->checkUserAuthorized($userId)) {
 //            return new View(array());
 //        }
-//
+
 //        $query = $paramFetcher->get('query');
 //        $limit = $paramFetcher->get('limit');
 //        $offset = $paramFetcher->get('offset');
-//
+
 //        // get max limit
 //        $limit = $this->getLoadMoreLimit($limit);
-//
+
 //        // find all members who have the query in any of their mapped fields
 //        $finder = $this->container->get('fos_elastica.finder.search.member');
-//
+
 //        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-//
+
 //        $multiMatchQuery->setQuery($query);
 //        $multiMatchQuery->setType('phrase_prefix');
 //        $multiMatchQuery->setFields(array('name'));
-//
+
 //        $results = $finder->find($multiMatchQuery);
 //        if (is_null($results) || empty($results)) {
 //            return new View(array());
 //        }
-//
+
 //        // members for response
 //        $members = array();
-//
+
 //        for ($i = $offset; $i < count($results); ++$i) {
 //            if (count($members) >= $limit) {
 //                break;
 //            }
-//
+
 //            $profile = $results[$i];
 //            $userId = $profile->getUserId();
-//
+
 //            $user = $this->getRepo('User\User')->find($userId);
 //            if (is_null($user)
 //                || $user->isBanned()
 //                || !$user->isAuthorized()) {
 //                continue;
 //            }
-//
+
 //            $member = array(
 //                'id' => $userId,
 //                'profile' => $profile,
 //            );
-//
+
 //            array_push($members, $member);
 //        }
-//
+
 //        // set view
 //        $view = new View($members);
 //        $view->setSerializationContext(
 //            SerializationContext::create()->setGroups(array('member'))
 //        );
-//
+
 //        return $view;
 //    }
 }

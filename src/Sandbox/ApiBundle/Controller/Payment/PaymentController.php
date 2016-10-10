@@ -368,7 +368,7 @@ class PaymentController extends DoorController
 //        $global = $this->get('twig')->getGlobals();
 //        $key = $global['pingpp_key'];
 //        $appId = $global['pingpp_app_id'];
-//
+
 //        $data = array(
 //            'app' => $appId,
 //            'source' => $token,
@@ -377,16 +377,16 @@ class PaymentController extends DoorController
 //                'id' => $smsId
 //            ]
 //        );
-//
+
 //        $ch = curl_init(BundleConstants::PING_CREATE_CUSTOMER);
-//
+
 //        $response = $this->callAPI(
 //            $ch,
 //            'POST',
 //            array('Authorization: Bearer '.$key),
 //            json_encode($data)
 //        );
-//
+
 //        return $response;
 //    }
 
@@ -518,7 +518,7 @@ class PaymentController extends DoorController
      * @param object $order
      * @param float  $amount
      * @param string $type
-     * 
+     *
      * @return Charge
      */
     public function refundToPayChannel(

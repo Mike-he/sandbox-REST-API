@@ -28,7 +28,7 @@ class Feed
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
-     *     
+     *
      * @Assert\NotBlank()
      */
     private $content;

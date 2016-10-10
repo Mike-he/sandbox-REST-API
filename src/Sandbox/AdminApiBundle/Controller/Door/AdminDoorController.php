@@ -10,9 +10,7 @@ use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -86,7 +84,7 @@ class AdminDoorController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDoorPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get parameters
         $syncModules = $paramFetcher->get('module');
@@ -195,7 +193,7 @@ class AdminDoorController extends DoorController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminDoorPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
@@ -233,7 +231,7 @@ class AdminDoorController extends DoorController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminDoorPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
@@ -267,7 +265,7 @@ class AdminDoorController extends DoorController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminDoorPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $requestContent = json_decode($request->getContent(), true);
         $userId = $requestContent['user_id'];
@@ -386,12 +384,11 @@ class AdminDoorController extends DoorController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            array(
-                AdminPermission::KEY_PLATFORM_ACCESS,
-                AdminPermission::KEY_PLATFORM_ROOM,
-            ),
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ACCESS],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $globals = $this->getGlobals();
@@ -510,7 +507,7 @@ class AdminDoorController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDoorPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $globals = $this->getGlobals();
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -627,7 +624,7 @@ class AdminDoorController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDoorPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminDoorPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $globals = $this->getGlobals();
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -687,16 +684,17 @@ class AdminDoorController extends DoorController
     /**
      * Check user permission.
      *
-     * @param int $OpLevel
+     * @param int $opLevel
      */
     private function checkAdminDoorPermission(
-        $OpLevel
+        $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ACCESS,
-            $OpLevel
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ACCESS],
+            ],
+            $opLevel
         );
     }
 }
