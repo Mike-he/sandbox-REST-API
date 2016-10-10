@@ -268,7 +268,7 @@ class SandboxRestController extends FOSRestController
     protected function getPlatformSessions()
     {
         $topLevelDomain = $this->container->getParameter('top_level_domain');
-        ini_set('session.cookie_domain', $topLevelDomain);
+//        ini_set('session.cookie_domain', $topLevelDomain);
         if (!isset($_SESSION)) {
             session_start();
         }
