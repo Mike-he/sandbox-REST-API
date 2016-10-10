@@ -42,13 +42,14 @@ class AdminAuthController extends AuthController
         $platform = $request->query->get('platform');
         $salesCompanyId = $request->query->get('sales_company_id');
 
-        if ($platform !== 'official') {
+        if (!is_null($platform) && $platform !== 'official') {
             if (is_null($salesCompanyId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
         }
 
-        $permissions = $this->getRepo('Admin\AdminPermission')
+        $permissions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findAdminPermissionsByAdminAndPlatform(
                 $this->getAdminId(),
                 $platform,
@@ -73,7 +74,8 @@ class AdminAuthController extends AuthController
     {
         $myAdminId = $this->getAdminId();
 
-        $positions = $this->getRepo('Admin\AdminPositionUserBinding')
+        $positions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->findPositionByAdmin($myAdminId);
 
         // response

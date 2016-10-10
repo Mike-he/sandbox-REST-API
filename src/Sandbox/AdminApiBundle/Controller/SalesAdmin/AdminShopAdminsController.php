@@ -24,8 +24,8 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
  */
 class AdminShopAdminsController extends SandboxRestController
 {
-    const POSITION_ADMIN = 'SuperAdministrator';
-    const POSITION_COFFEE_ADMIN = 'SuperAdministrator';
+    const POSITION_ADMIN = '超级管理员';
+    const POSITION_COFFEE_ADMIN = '超级管理员';
 
     /**
      * Create admin.
