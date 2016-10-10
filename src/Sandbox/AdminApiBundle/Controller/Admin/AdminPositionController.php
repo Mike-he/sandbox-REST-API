@@ -491,6 +491,39 @@ class AdminPositionController extends PaymentController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="adminId",
+     *     nullable=false
+     * )
+     *
+     * @Route("/positions/specify_admin")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSpecifyAdminPositionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminId = $paramFetcher->get('adminId');
+
+        $sessions = $this->getPlatformSessions();
+
+        $positions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsBySpecifyAdminId(
+                $adminId,
+                $sessions['platform'],
+                $sessions['sales_company_id']
+            );
+
+        return new View($positions);
+    }
+
+    /**
      * List all admin position icons.
      *
      * @param Request $request the request object
