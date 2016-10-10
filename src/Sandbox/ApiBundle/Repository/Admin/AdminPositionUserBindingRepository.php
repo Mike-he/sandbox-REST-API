@@ -9,6 +9,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
 {
     /**
      * @param $userId
+     * @param $type
      * @param $platform
      * @param null $company
      *
@@ -16,6 +17,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
      */
     public function getBindingsBySpecifyAdminId(
         $userId,
+        $type,
         $platform,
         $company = null
     ) {
@@ -26,7 +28,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
                 p.platform, 
                 p.name as position_name
             ')
-            ->leftJoin('pb.position', 'p')
+            ->leftJoin('pb.position', 'p', 'WITH', 'p.id = pb.positionId')
             ->where('pb.userId = :userId')
             ->andWhere('p.platform = :platform')
             ->setParameter('userId', $userId)
@@ -36,6 +38,15 @@ class AdminPositionUserBindingRepository extends EntityRepository
             $query->andWhere('p.salesCompanyId = :company')
                 ->setParameter('company', $company);
         }
+
+        if (!is_null($type) && !empty($type)) {
+            $query->leftJoin('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm', 'WITH', 'p.id = m.positionId')
+                ->leftJoin('SandboxApiBundle:Admin\AdminPermission', 'ap', 'WITH', 'ap.id = m.permissionId')
+                ->andWhere('ap.level = :type')
+                ->setParameter('type', $type);
+        }
+
+        $query->groupBy('p.id');
 
         return $query->getQuery()->getResult();
     }

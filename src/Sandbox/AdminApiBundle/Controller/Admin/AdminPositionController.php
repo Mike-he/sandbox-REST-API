@@ -415,7 +415,6 @@ class AdminPositionController extends PaymentController
      *    description="level"
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
@@ -495,6 +494,15 @@ class AdminPositionController extends PaymentController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="level"
+     * )
+     *
+     * @Annotations\QueryParam(
      *     name="adminId",
      *     nullable=false
      * )
@@ -508,6 +516,7 @@ class AdminPositionController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $type = $paramFetcher->get('type');
         $adminId = $paramFetcher->get('adminId');
 
         $sessions = $this->getPlatformSessions();
@@ -516,6 +525,7 @@ class AdminPositionController extends PaymentController
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->getBindingsBySpecifyAdminId(
                 $adminId,
+                $type,
                 $sessions['platform'],
                 $sessions['sales_company_id']
             );
