@@ -94,6 +94,16 @@ class AdminUserLoginController extends AdminRestController
             $userCheckCode
         );
 
+        // here is a back door for testing
+        $isTest = $request->query->get('test');
+        if ($isTest) {
+            return new View(
+                array(
+                    'code' => $userCheckCode->getCode()
+                )
+            );
+        }
+
         return new View();
     }
 
