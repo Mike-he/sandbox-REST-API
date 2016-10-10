@@ -35,8 +35,8 @@ use Rs\Json\Patch;
  */
 class AdminSalesAdminsController extends SandboxRestController
 {
-    const POSITION_ADMIN = 'SuperAdministrator';
-    const POSITION_COFFEE_ADMIN = 'SuperAdministrator';
+    const POSITION_ADMIN = '超级管理员';
+    const POSITION_COFFEE_ADMIN = '超级管理员';
 
     const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_CODE = 400005;
     const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE = 'Over the super administrator limit number';

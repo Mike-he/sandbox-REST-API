@@ -99,7 +99,7 @@ class AdminUserLoginController extends AdminRestController
         if ($isTest) {
             return new View(
                 array(
-                    'code' => $userCheckCode->getCode()
+                    'code' => $userCheckCode->getCode(),
                 )
             );
         }
