@@ -251,7 +251,7 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
-     * List all admins.
+     * Get Extra Admins.
      *
      * @param Request $request the request object
      *
@@ -316,14 +316,17 @@ class AdminAdminsController extends SandboxRestController
             $allUser[] = $userId['userId'];
         }
 
-        $PositionBindUsers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->getBindUser(
-                $position
-            );
         $bindUser = array();
-        foreach ($PositionBindUsers as $PositionBindUser) {
-            $bindUser[] = $PositionBindUser['userId'];
+        if (!is_null($position)) {
+            $PositionBindUsers = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindUser(
+                    $position
+                );
+
+            foreach ($PositionBindUsers as $PositionBindUser) {
+                $bindUser[] = $PositionBindUser['userId'];
+            }
         }
 
         $diff = array_diff($allUser, $bindUser);

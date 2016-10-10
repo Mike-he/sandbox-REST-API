@@ -2,7 +2,6 @@
 
 namespace Sandbox\SalesApiBundle\Controller;
 
-use Sandbox\AdminApiBundle\Controller\Admin\AdminPlatformController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 

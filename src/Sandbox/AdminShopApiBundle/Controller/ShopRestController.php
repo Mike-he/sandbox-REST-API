@@ -2,7 +2,6 @@
 
 namespace Sandbox\AdminShopApiBundle\Controller;
 
-use Sandbox\AdminApiBundle\Controller\Admin\AdminPlatformController;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
