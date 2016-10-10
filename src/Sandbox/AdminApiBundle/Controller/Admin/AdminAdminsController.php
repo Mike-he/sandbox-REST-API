@@ -579,6 +579,28 @@ class AdminAdminsController extends SandboxRestController
 
         $positionArr = array();
         if ($key == self::ADMINS_MENU_KEY_PLATFORM) {
+            $positions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->getPositions(
+                    $platform,
+                    $companyId,
+                    true
+                );
+
+            foreach ($positions as $position) {
+                $positionUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->getBindUser($position);
+
+                $positionArr[] = array(
+                    'key' => 'position',
+                    'id' => $position->getId(),
+                    'name' => $position->getName(),
+                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
+                    'count' => count($positionUser),
+                );
+            }
+
             switch ($platform) {
                 case AdminPosition::PLATFORM_OFFICIAL:
                     $positions = $this->getDoctrine()
