@@ -384,6 +384,18 @@ class AdminAdminsController extends SandboxRestController
             'count' => count($allUser),
        );
 
+        $superPositions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getPositions(
+                $platform,
+                $companyId,
+                true
+            );
+
+        foreach ($superPositions as $superPosition) {
+            $superPositionId[] = $superPosition->getId();
+        }
+
         $buildingAdmin = array();
         $shopAdmin = array();
 
@@ -407,10 +419,16 @@ class AdminAdminsController extends SandboxRestController
                         AdminPermission::PERMISSION_LEVEL_GLOBAL,
                         $companyId
                     );
+                $platformPositionId = array();
+                foreach ($platformPositions as $platformPosition) {
+                    $platformPositionId[] = $platformPosition->getId();
+                }
+
+                $positionIds = array_merge($platformPositionId, $superPositionId);
 
                 $allPlatformUser = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->getBindUser($platformPositions);
+                    ->getBindUser($positionIds);
 
                 $myBuildings = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
                     ->getCompanyBuildings($companyId);
@@ -436,9 +454,16 @@ class AdminAdminsController extends SandboxRestController
                         $companyId
                     );
 
+                $platformPositionId = array();
+                foreach ($platformPositions as $platformPosition) {
+                    $platformPositionId[] = $platformPosition->getId();
+                }
+
+                $positionIds = array_merge($platformPositionId, $superPositionId);
+
                 $allPlatformUser = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->getBindUser($platformPositions);
+                    ->getBindUser($positionIds);
 
                 $myshops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')
                     ->getShopsByCompany($companyId);
