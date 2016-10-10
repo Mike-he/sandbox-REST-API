@@ -36,6 +36,7 @@ class AdminAdminsController extends SandboxRestController
     const ADMINS_MENU_KEY_PLATFORM = 'platform';
     const ADMINS_MENU_KEY_BUILDING = 'building';
     const ADMINS_MENU_KEY_SHOP = 'shop';
+
     /**
      * List all admins.
      *
@@ -247,6 +248,89 @@ class AdminAdminsController extends SandboxRestController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * List all admins.
+     *
+     * @param Request $request the request object
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="name or username"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="position",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="position"
+     * )
+     *
+     *
+     * @Method({"GET"})
+     * @Route("/extra/admins")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getExtraAdminsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $cookies = $this->getPlatformSessions();
+        $platform = $cookies['platform'];
+        $companyId = $cookies['sales_company_id'];
+        $position = $paramFetcher->get('position');
+        $search = $paramFetcher->get('search');
+
+        $positions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getPositions(
+                $platform,
+                $companyId
+            );
+
+        $userIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser(
+                $positions
+            );
+        $allUser = array();
+        foreach ($userIds as $userId) {
+            $allUser[] = $userId['userId'];
+        }
+
+        $PositionBindUsers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser(
+                $position
+            );
+        $bindUser = array();
+        foreach ($PositionBindUsers as $PositionBindUser) {
+            $bindUser[] = $PositionBindUser['userId'];
+        }
+
+        $diff = array_diff($allUser, $bindUser);
+
+        $result = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->searchUserInfo($diff, $search);
+
+        return new View($result);
     }
 
     /**

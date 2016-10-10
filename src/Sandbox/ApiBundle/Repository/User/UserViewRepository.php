@@ -374,4 +374,27 @@ class UserViewRepository extends EntityRepository
 
         return $queryResults->getQuery()->getResult();
     }
+
+    /**
+     * @param $ids
+     * @param $search
+     *
+     * @return array
+     */
+    public function searchUserInfo(
+        $ids,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->where('u.id in (:ids)')
+            ->setParameter('ids', $ids);
+
+        if (!is_null($search)) {
+            $query->andWhere('u.name LIKE :search OR u.email LIKE :search OR u.phone LIKE :search')
+                ->setParameter('search', $search.'%');
+        }
+        $query = $query->getQuery();
+
+        return $query->getResult();
+    }
 }
