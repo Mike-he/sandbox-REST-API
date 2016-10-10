@@ -393,8 +393,7 @@ class AdminAdminsController extends SandboxRestController
                     ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                     ->getPositions(
                         $platform,
-                        null,
-                        false
+                        null
                     );
                 $allPlatformUser = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')

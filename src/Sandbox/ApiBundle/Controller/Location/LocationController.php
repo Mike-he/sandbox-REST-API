@@ -215,16 +215,13 @@ class LocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-
         $user = $this->getUser();
 
         $ids = $paramFetcher->get('id');
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
         $platform = $paramFetcher->get('platform');
-        $salesCompanyId = !is_null($paramFetcher->get('sales_company')) ? $paramFetcher->get('sales_company') : $cookies['sales_company_id'];
+        $salesCompanyId = $paramFetcher->get('sales_company');
         $excludeIds = [9];
 
         if (RoomBuilding::PLATFORM_BACKEND_USER_BUILDING == $platform) {
@@ -236,12 +233,6 @@ class LocationController extends SalesRestController
             $visible = null;
             $excludeIds = null;
         }
-
-        $isSuperAdmin = $this->hasSuperAdminPosition(
-            $this->getAdminId(),
-            $platform,
-            $salesCompanyId
-        );
 
         // get all buildings
         $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
@@ -287,8 +278,18 @@ class LocationController extends SalesRestController
         }
 
         if (!is_null($user) && empty($ids)) {
+            $sessions = $this->getPlatformSessions();
+            $myPlatform = $sessions['platform'];
+            $salesCompanyId = $sessions['sales_company_id'];
+
+            $isSuperAdmin = $this->hasSuperAdminPosition(
+                $this->getAdminId(),
+                $myPlatform,
+                $salesCompanyId
+            );
+
             // sales bundle
-            if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
+            if ($myPlatform == AdminPermission::PERMISSION_PLATFORM_SALES) {
                 // get buildings by admin type
                 if ($isSuperAdmin ||
                     in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray) ||
@@ -313,7 +314,7 @@ class LocationController extends SalesRestController
             }
 
             // shop bundle
-            if ($platform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
+            if ($myPlatform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
                 $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
 
                 // get buildings by admin type
