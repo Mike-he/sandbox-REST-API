@@ -103,7 +103,7 @@ class Version20160922113634 extends AbstractMigration
 
 
         $this->addSql("INSERT INTO admin_position(`name`,`parentPositionId`,`platform`,`salesCompanyId`,`isHidden`,`isSuperAdmin`,`iconId`,`creationDate`,`modificationDate`)
-                        VALUES('SuperAdministrator',null,'official',null,false,true,1,'2016-9-20','2016-9-20');");
+                        VALUES('超级管理员',null,'official',null,false,true,1,'2016-9-20','2016-9-20');");
     }
 
     /**

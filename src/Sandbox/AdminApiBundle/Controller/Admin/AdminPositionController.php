@@ -415,7 +415,6 @@ class AdminPositionController extends PaymentController
      *    description="level"
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
@@ -488,6 +487,50 @@ class AdminPositionController extends PaymentController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="level"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="adminId",
+     *     nullable=false
+     * )
+     *
+     * @Route("/positions/specify_admin")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSpecifyAdminPositionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $type = $paramFetcher->get('type');
+        $adminId = $paramFetcher->get('adminId');
+
+        $sessions = $this->getPlatformSessions();
+
+        $positions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsBySpecifyAdminId(
+                $adminId,
+                $type,
+                $sessions['platform'],
+                $sessions['sales_company_id']
+            );
+
+        return new View($positions);
     }
 
     /**

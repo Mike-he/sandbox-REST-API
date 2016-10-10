@@ -42,7 +42,15 @@ class AdminAuthController extends AuthController
         $platform = $request->query->get('platform');
         $salesCompanyId = $request->query->get('sales_company_id');
 
-        if (!is_null($platform) && $platform !== 'official') {
+        // response for openfire
+        if (is_null($platform)) {
+            return new View(array(
+                'id' => $this->getUser()->getUserId(),
+            ));
+        }
+
+        // response my permissions
+        if ($platform !== 'official') {
             if (is_null($salesCompanyId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }

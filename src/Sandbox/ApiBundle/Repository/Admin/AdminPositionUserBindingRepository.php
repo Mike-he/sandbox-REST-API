@@ -9,6 +9,50 @@ class AdminPositionUserBindingRepository extends EntityRepository
 {
     /**
      * @param $userId
+     * @param $type
+     * @param $platform
+     * @param null $company
+     *
+     * @return array
+     */
+    public function getBindingsBySpecifyAdminId(
+        $userId,
+        $type,
+        $platform,
+        $company = null
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->select('
+                p.salesCompanyId as sales_company_id, 
+                p.id as position_id, 
+                p.platform, 
+                p.name as position_name
+            ')
+            ->leftJoin('pb.position', 'p', 'WITH', 'p.id = pb.positionId')
+            ->where('pb.userId = :userId')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('userId', $userId)
+            ->setParameter('platform', $platform);
+
+        if (!is_null($company)) {
+            $query->andWhere('p.salesCompanyId = :company')
+                ->setParameter('company', $company);
+        }
+
+        if (!is_null($type) && !empty($type)) {
+            $query->leftJoin('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm', 'WITH', 'p.id = m.positionId')
+                ->leftJoin('SandboxApiBundle:Admin\AdminPermission', 'ap', 'WITH', 'ap.id = m.permissionId')
+                ->andWhere('ap.level = :type')
+                ->setParameter('type', $type);
+        }
+
+        $query->groupBy('p.id');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $userId
      * @param $isSuperAdmin
      * @param $platform
      * @param $salesCompanyId
