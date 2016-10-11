@@ -55,8 +55,13 @@ class AdminPositionController extends PaymentController
         // get position
         $adminPosition = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->find($id);
-        $this->throwNotFoundIfNull($adminPosition, self::NOT_FOUND_MESSAGE);
+            ->findOneBy(array(
+                'id' => $id,
+                'isSuperAdmin' => false,
+            ));
+        if (is_null($adminPosition)) {
+            return new View();
+        }
 
         $sort = new Position();
         $form = $this->createForm(new PositionType(), $sort);
