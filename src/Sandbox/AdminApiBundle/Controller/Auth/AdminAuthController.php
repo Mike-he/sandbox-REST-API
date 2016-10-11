@@ -64,9 +64,20 @@ class AdminAuthController extends AuthController
                 $salesCompanyId
             );
 
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->find($this->getUser()->getUserId());
+
         // response
         return new View(
-            $this->handlePermissionData($permissions)
+            array(
+                'permissions' => $this->handlePermissionData($permissions),
+                'admin' => [
+                    'id' => $admin->getId(),
+                    'name' => $admin->getName(),
+                    'phone' => $admin->getPhone(),
+                ]
+            )
         );
     }
 
