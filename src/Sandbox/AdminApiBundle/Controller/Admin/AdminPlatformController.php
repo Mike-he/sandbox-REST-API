@@ -32,6 +32,7 @@ class AdminPlatformController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        ini_set("session.cookie_domain",'sandbox3.com');
         if (!isset($_SESSION)) {
             session_start();
         }
