@@ -60,9 +60,9 @@ class SandboxRestController extends FOSRestController
 
     const ENCODE_METHOD_SHA1 = 'sha1';
 
-    const SANDBOX_ADMIN_LOGIN_HEADER = 'sandboxadminauthorization';
+    const SANDBOX_ADMIN_LOGIN_HEADER = 'http_sandboxadminauthorization';
 
-    const SANDBOX_CLIENT_LOGIN_HEADER = 'sandboxclientauthorization';
+    const SANDBOX_CLIENT_LOGIN_HEADER = 'http_sandboxclientauthorization';
 
     const ADMIN_COOKIE_NAME = 'sandbox_admin_token';
 
@@ -1630,8 +1630,6 @@ class SandboxRestController extends FOSRestController
     protected function getSandboxAuthorization(
         $headerKey
     ) {
-        $headerKey = 'http_'.$headerKey;
-
         // get auth
         $headers = array_change_key_case($_SERVER, CASE_LOWER);
         if (!array_key_exists($headerKey, $headers)) {

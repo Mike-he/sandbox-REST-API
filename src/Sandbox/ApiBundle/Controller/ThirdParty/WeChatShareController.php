@@ -124,7 +124,7 @@ class WeChatShareController extends SandboxRestController
 
         $authKey = $globals['sandbox_auth_key'];
 
-        $headerKey = 'http_'.self::SANDBOX_CLIENT_LOGIN_HEADER;
+        $headerKey = self::SANDBOX_CLIENT_LOGIN_HEADER;
 
         $headers = array_change_key_case($_SERVER, CASE_LOWER);
 
