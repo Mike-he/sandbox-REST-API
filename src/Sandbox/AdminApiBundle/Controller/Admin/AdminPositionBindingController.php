@@ -169,24 +169,27 @@ class AdminPositionBindingController extends AdminRestController
         $platform = $cookies['platform'];
         $salesCompanyId = $cookies['sales_company_id'];
 
-        $positions = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->getAdminPositions(
+        $em = $this->getDoctrine()->getManager();
+
+        $bindings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsByUser(
+                $userId,
                 $platform,
-                null,
                 $salesCompanyId
             );
 
-        $positionIds = array();
-        foreach ($positions as $position) {
+        foreach ($bindings as $binding) {
+            $position = $binding->getPosition();
+
             if ($position->getIsSuperAdmin()) {
-                $bindings = $this->getDoctrine()
+                $superAdminBindings = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->findBy(array(
-                        'userId' => $userId,
                         'position' => $position,
                     ));
-                if (count($bindings) == 1) {
+
+                if (count($superAdminBindings) == 1) {
                     return $this->customErrorView(
                         400,
                         self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
@@ -195,22 +198,6 @@ class AdminPositionBindingController extends AdminRestController
                 }
             }
 
-            array_push($positionIds, $position->getId());
-        }
-
-        if (empty($positionIds)) {
-            return new View();
-        }
-
-        $positionBindings = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->getPositionBindings(
-                $userId,
-                $positionIds
-            );
-
-        $em = $this->getDoctrine()->getManager();
-        foreach ($positionBindings as $binding) {
             $em->remove($binding);
         }
         $em->flush();

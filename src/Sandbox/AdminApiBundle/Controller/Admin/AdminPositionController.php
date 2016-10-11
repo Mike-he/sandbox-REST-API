@@ -490,7 +490,7 @@ class AdminPositionController extends PaymentController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
