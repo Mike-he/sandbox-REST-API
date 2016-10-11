@@ -69,7 +69,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Admin\AdminPosition', 'p', 'WITH', 'p.id = pb.positionId')
             ->where('pb.userId = :userId')
             ->andWhere('p.platform = :platform')
-            ->andWhere('p.isHidden = FALSE')
+//            ->andWhere('p.isHidden = FALSE')
             ->andWhere('p.isSuperAdmin = :isSuperAdmin')
             ->setParameter('userId', $userId)
             ->setParameter('platform', $platform)
