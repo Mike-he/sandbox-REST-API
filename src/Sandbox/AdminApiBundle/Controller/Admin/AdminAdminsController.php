@@ -604,6 +604,7 @@ class AdminAdminsController extends SandboxRestController
                     'name' => $position->getName(),
                     'icon' => $global_image_url.$position->getIcon()->getIcon(),
                     'count' => count($positionUser),
+                    'position' => $position,
                 );
             }
 
@@ -650,6 +651,7 @@ class AdminAdminsController extends SandboxRestController
                     'name' => $position->getName(),
                     'icon' => $global_image_url.$position->getIcon()->getIcon(),
                     'count' => count($positionUser),
+                    'position' => $position,
                 );
             }
         } else {
@@ -675,6 +677,7 @@ class AdminAdminsController extends SandboxRestController
                     'name' => $position->getName(),
                     'icon' => $global_image_url.$position->getIcon()->getIcon(),
                     'count' => count($positionUser),
+                    'position' => $position,
                 );
             }
         }
