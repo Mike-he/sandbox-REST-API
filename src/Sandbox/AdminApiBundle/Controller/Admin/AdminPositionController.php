@@ -487,6 +487,20 @@ class AdminPositionController extends PaymentController
                 $companyId
             );
 
+        // set super admin in global type
+        if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL) {
+            $superAdminPosition = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->findOneBy(array(
+                    'isSuperAdmin' => true,
+                    'platform' => $platform,
+                    'salesCompanyId' => $companyId,
+                ));
+
+            array_unshift($positions, $superAdminPosition);
+        }
+
+        // transfer image url
         $global_image_url = $this->container->getParameter('image_url');
         foreach ($positions as $position) {
             $icon = $position->getIcon();
