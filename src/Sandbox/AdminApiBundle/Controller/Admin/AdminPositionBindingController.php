@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Admin;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionUserBindingPostType;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +42,9 @@ class AdminPositionBindingController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminPositionBindingPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $payloads = json_decode($request->getContent(), true);
 
         $response = array();
@@ -110,6 +114,9 @@ class AdminPositionBindingController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminPositionBindingPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $positionUserBindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->findBy(array(
@@ -163,6 +170,9 @@ class AdminPositionBindingController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminPositionBindingPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $userId = $paramFetcher->get('user_id');
 
         $cookies = $this->getPlatformSessions();
@@ -292,5 +302,24 @@ class AdminPositionBindingController extends AdminRestController
 
             $positionUserBinding->setShop($shop);
         }
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $opLevel
+     */
+    private function checkAdminPositionBindingPermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+            ],
+            $opLevel
+        );
     }
 }

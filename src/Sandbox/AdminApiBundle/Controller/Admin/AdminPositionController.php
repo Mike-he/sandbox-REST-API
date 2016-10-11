@@ -49,6 +49,9 @@ class AdminPositionController extends PaymentController
         Request $request,
         $id
     ) {
+        // check user permissions
+        $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_EDIT);
+
         // get position
         $adminPosition = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
@@ -79,6 +82,9 @@ class AdminPositionController extends PaymentController
         $adminPosition,
         $sort
     ) {
+        // check user permissions
+        $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $action = $sort->getAction();
 
         // change banner position
@@ -154,6 +160,9 @@ class AdminPositionController extends PaymentController
     public function createAdminPositionAction(
         Request $request
     ) {
+        // check user permissions
+        $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $em = $this->getDoctrine()->getManager();
 
         $position = new AdminPosition();
@@ -240,6 +249,9 @@ class AdminPositionController extends PaymentController
         Request $request,
         $id
     ) {
+        // check user permissions
+        $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $em = $this->getDoctrine()->getManager();
 
         $position = $this->getDoctrine()
@@ -317,6 +329,9 @@ class AdminPositionController extends PaymentController
         Request $request,
         $id
     ) {
+        // check user permissions
+        $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $em = $this->getDoctrine()->getManager();
 
         $position = $this->getDoctrine()
@@ -351,6 +366,9 @@ class AdminPositionController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permissions
+        $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $companyId = $cookies['sales_company_id'];
@@ -446,6 +464,9 @@ class AdminPositionController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permissions
+        $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $cookies = $this->getPlatformSessions();
         $platform = $cookies['platform'];
         $companyId = $cookies['sales_company_id'];
@@ -555,6 +576,9 @@ class AdminPositionController extends PaymentController
     public function getAdminPositionIconsAction(
         Request $request
     ) {
+        // check user permissions
+        $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $global_image_url = $this->container->getParameter('image_url');
 
         $icons = $this->getDoctrine()
@@ -849,5 +873,24 @@ class AdminPositionController extends PaymentController
 
             $em->remove($existPermission);
         }
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $opLevel
+     */
+    private function checkAdminPositionPermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+            ],
+            $opLevel
+        );
     }
 }
