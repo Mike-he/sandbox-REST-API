@@ -56,13 +56,11 @@ class AdminAuthController extends AuthController
             }
         }
 
-        $permissions = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findAdminPermissionsByAdminAndPlatform(
-                $this->getAdminId(),
-                $platform,
-                $salesCompanyId
-            );
+        $permissions = $this->getMyAdminPermissions(
+            $this->getAdminId(),
+            $platform,
+            $salesCompanyId
+        );
 
         $admin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')

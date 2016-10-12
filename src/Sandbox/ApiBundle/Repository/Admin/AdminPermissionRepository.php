@@ -114,7 +114,7 @@ class AdminPermissionRepository extends EntityRepository
         $positionIds = array_map('current', $positionIds);
 
         // get all permissions of the given positions
-        $permissions = $this->getEntityManager()
+        return $this->getEntityManager()
             ->createQueryBuilder()
             ->select('
                 m.opLevel as op_level, 
@@ -126,14 +126,7 @@ class AdminPermissionRepository extends EntityRepository
             ->from('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm')
             ->join('m.permission', 'p')
             ->where('m.positionId IN (:positionIds)')
-            ->setParameter('positionIds', $positionIds);
-
-        if (!empty($excludePermissionIds)) {
-            $permissions->andWhere('p.id NOT IN (:excludePermissionIds)')
-                ->setParameter('excludePermissionIds', $excludePermissionIds);
-        }
-
-        return $permissions
+            ->setParameter('positionIds', $positionIds)
             ->distinct()
             ->groupBy('p.id', 'm.opLevel')
             ->getQuery()
