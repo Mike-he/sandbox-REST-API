@@ -21,12 +21,11 @@ class AdminPositionRepository extends EntityRepository
         $companyId
     ) {
         $query = $this->createQueryBuilder('p')
-            ->where('p.isHidden = FALSE');
+            ->where('p.isHidden = FALSE')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform);
 
-        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
-        } else {
+        if ($platform != AdminPosition::PLATFORM_OFFICIAL) {
             if (is_null($companyId) || empty($companyId)) {
                 return array();
             }

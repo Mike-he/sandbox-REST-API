@@ -76,7 +76,7 @@ class AdminAuthController extends AuthController
                     'id' => $admin->getId(),
                     'name' => $admin->getName(),
                     'phone' => $admin->getPhone(),
-                ]
+                ],
             )
         );
     }
