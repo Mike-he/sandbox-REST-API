@@ -315,8 +315,6 @@ class LocationController extends SalesRestController
 
             // shop bundle
             if ($myPlatform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
-                $admin = $this->getRepo('Shop\ShopAdmin')->find($this->getUser()->getAdminId());
-
                 // get buildings by admin type
                 if ($isSuperAdmin ||
                     in_array(AdminPermission::KEY_SHOP_PLATFORM_SHOP, $permissionArray) ||
@@ -325,7 +323,7 @@ class LocationController extends SalesRestController
                     $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
                         $cityId,
                         null,
-                        $admin->getCompanyId()
+                        $salesCompanyId
                     );
                 } else {
                     // get my shops ids
