@@ -77,6 +77,10 @@ class ProductController extends SalesRestController
         $ids,
         $type
     ) {
+        if (empty($ids)) {
+            return;
+        }
+
         // get auth
         $headers = array_change_key_case($_SERVER, CASE_LOWER);
         $auth = $headers['http_authorization'];
@@ -131,6 +135,10 @@ class ProductController extends SalesRestController
         $ids,
         $type
     ) {
+        if (empty($ids)) {
+            return;
+        }
+
         // get auth
         $headers = array_change_key_case($_SERVER, CASE_LOWER);
         $auth = $headers['http_authorization'];
