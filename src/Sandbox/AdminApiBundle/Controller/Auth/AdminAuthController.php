@@ -90,6 +90,7 @@ class AdminAuthController extends AuthController
                     'id' => $admin->getId(),
                     'name' => $admin->getName(),
                     'phone' => $admin->getPhone(),
+                    'is_super_admin' => $condition,
                 ],
             )
         );
