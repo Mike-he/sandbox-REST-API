@@ -126,27 +126,7 @@ class AdminPositionBindingController extends AdminRestController
                 'shopId' => $paramFetcher->get('shop_id'),
             ));
 
-        $em = $this->getDoctrine()->getManager();
-        foreach ($positionUserBindings as $binding) {
-            $position = $binding->getPosition();
-            if ($position->getIsSuperAdmin()) {
-                $bindings = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->findBy(array(
-                        'position' => $position,
-                    ));
-                if (count($bindings) <= 1) {
-                    return $this->customErrorView(
-                        400,
-                        self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
-                        self::ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE
-                    );
-                }
-            }
-
-            $em->remove($binding);
-        }
-        $em->flush();
+        $this->checkSuperAdminPositionValidToDelete($positionUserBindings);
 
         return new View();
     }
@@ -179,8 +159,6 @@ class AdminPositionBindingController extends AdminRestController
         $platform = $cookies['platform'];
         $salesCompanyId = $cookies['sales_company_id'];
 
-        $em = $this->getDoctrine()->getManager();
-
         $bindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->getBindingsByUser(
@@ -189,6 +167,96 @@ class AdminPositionBindingController extends AdminRestController
                 $salesCompanyId
             );
 
+        $this->checkSuperAdminPositionValidToDelete($bindings);
+
+        return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="user_id",
+     *     nullable=false,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     nullable=false,
+     *     requirements="(sales|shop)",
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="sales_company_id",
+     *     nullable=false,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="building_id",
+     *     nullable=true,
+     *     requirements="\d+"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="shop_id",
+     *     nullable=true,
+     *     requirements="\d+"
+     * )
+     *
+     * @Route("/position/binding/from_community")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deletePositionUserBindingFromCommunityAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminPositionBindingPermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $userId = $paramFetcher->get('user_id');
+        $platform = $paramFetcher->get('platform');
+        $salesCompanyId = $paramFetcher->get('sales_company_id');
+        $buildingId = $paramFetcher->get('building_id');
+        $shopId = $paramFetcher->get('shop_id');
+
+        if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
+            $this->throwNotFoundIfNull($buildingId, self::BAD_PARAM_MESSAGE);
+        } elseif ($platform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
+            $this->throwNotFoundIfNull($shopId, self::BAD_PARAM_MESSAGE);
+        }
+
+        $bindings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsByCommunity(
+                $userId,
+                $platform,
+                $salesCompanyId,
+                $buildingId,
+                $shopId
+            );
+
+        $this->checkSuperAdminPositionValidToDelete($bindings);
+
+        return new View();
+    }
+
+    /**
+     * @param $bindings
+     *
+     * @return View
+     */
+    private function checkSuperAdminPositionValidToDelete(
+        $bindings
+    ) {
+        $em = $this->getDoctrine()->getManager();
         foreach ($bindings as $binding) {
             $position = $binding->getPosition();
 
@@ -211,8 +279,6 @@ class AdminPositionBindingController extends AdminRestController
             $em->remove($binding);
         }
         $em->flush();
-
-        return new View();
     }
 
     /**

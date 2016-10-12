@@ -9,6 +9,47 @@ class AdminPositionUserBindingRepository extends EntityRepository
 {
     /**
      * @param $userId
+     * @param $platform
+     * @param $salesCompanyId
+     * @param $buildingId
+     * @param $shopId
+     *
+     * @return array
+     */
+    public function getBindingsByCommunity(
+        $userId,
+        $platform,
+        $salesCompanyId,
+        $buildingId,
+        $shopId
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->leftJoin('pb.position', 'p', 'WITH', 'p.id = pb.positionId')
+            ->where('pb.userId = :userId')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('userId', $userId)
+            ->setParameter('platform', $platform);
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('p.salesCompanyId = :company')
+                ->setParameter('company', $salesCompanyId);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('pb.buildingId = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($shopId)) {
+            $query->andWhere('pb.shopId = :shopId')
+                ->setParameter('shopId', $shopId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $userId
      * @param $type
      * @param $platform
      * @param null $company
