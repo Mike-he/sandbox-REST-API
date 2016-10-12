@@ -159,10 +159,31 @@ class AdminAdminsController extends SandboxRestController
                 $type
             );
 
+        $positionIds = array();
+        foreach ($positions as $position) {
+            $positionIds[] = $position->getId();
+        }
+
+        if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL) {
+            $superPositions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->getPositions(
+                    $platform,
+                    $companyId,
+                    true
+                );
+
+            foreach ($superPositions as $superPosition) {
+                $superPositionId[] = $superPosition->getId();
+            }
+
+            $positionIds = array_merge($positionIds, $superPositionId);
+        }
+
         $userIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->getBindUser(
-                $positions,
+                $positionIds,
                 $buildingId,
                 $shopId,
                 $users
