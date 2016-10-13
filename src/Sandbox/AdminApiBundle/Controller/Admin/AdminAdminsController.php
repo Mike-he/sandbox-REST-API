@@ -324,7 +324,8 @@ class AdminAdminsController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->getPositions(
                 $platform,
-                $companyId
+                $companyId,
+                false
             );
 
         $userIds = $this->getDoctrine()
