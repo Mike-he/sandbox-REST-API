@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Location;
 
+use Sandbox\AdminApiBundle\Controller\Admin\AdminPlatformController;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
@@ -277,10 +278,22 @@ class LocationController extends SalesRestController
             }
         }
 
+        $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
+        $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
+
+        // response for client
+        if (!isset($_SESSION[$adminPlatformCookieName])) {
+            $view = new View();
+            $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+            $view->setData($buildings);
+
+            return $view;
+        }
+
+        // response for backend
         if (!is_null($user) && empty($ids)) {
-            $sessions = $this->getPlatformSessions();
-            $myPlatform = $sessions['platform'];
-            $salesCompanyId = $sessions['sales_company_id'];
+            $myPlatform = $_SESSION[$adminPlatformCookieName];
+            $salesCompanyId = $_SESSION[$salesCompanyCookieName];
 
             $isSuperAdmin = $this->hasSuperAdminPosition(
                 $this->getAdminId(),
