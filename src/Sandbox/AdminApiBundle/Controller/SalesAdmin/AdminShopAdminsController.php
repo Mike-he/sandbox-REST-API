@@ -153,37 +153,49 @@ class AdminShopAdminsController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
 
-        $adminPosition = $em->getRepository('SandboxApiBundle:Admin\AdminPosition')
+        $position = $em->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
                 array(
                     'salesCompany' => $company,
                     'name' => self::POSITION_COFFEE_ADMIN,
                     'platform' => AdminPermission::PERMISSION_PLATFORM_SHOP,
                     'isSuperAdmin' => true,
+                    'isHidden' => false,
                 )
             );
 
-        if ($adminPosition) {
-            return $adminPosition;
+        if ($position) {
+            $adminPositionUser = $em->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findOneBy(array('position' => $position));
+
+            if ($adminPositionUser) {
+                $adminPositionUser->setUser($user);
+            } else {
+                $adminPositionUser = new AdminPositionUserBinding();
+                $adminPositionUser->setUser($user);
+                $adminPositionUser->setPosition($position);
+                $adminPositionUser->setCreationDate($now);
+                $em->persist($adminPositionUser);
+            }
+        } else {
+            $icon = $em->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
+
+            $position = new AdminPosition();
+            $position->setName(self::POSITION_COFFEE_ADMIN);
+            $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SHOP);
+            $position->setIsSuperAdmin(true);
+            $position->setIcon($icon);
+            $position->setSalesCompany($company);
+            $position->setCreationDate($now);
+            $position->setModificationDate($now);
+            $em->persist($position);
+
+            $adminPositionUser = new AdminPositionUserBinding();
+            $adminPositionUser->setUser($user);
+            $adminPositionUser->setPosition($position);
+            $adminPositionUser->setCreationDate($now);
+            $em->persist($adminPositionUser);
         }
-
-        $icon = $em->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
-
-        $position = new AdminPosition();
-        $position->setName(self::POSITION_COFFEE_ADMIN);
-        $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SHOP);
-        $position->setIsSuperAdmin(true);
-        $position->setIcon($icon);
-        $position->setSalesCompany($company);
-        $position->setCreationDate($now);
-        $position->setModificationDate($now);
-        $em->persist($position);
-
-        $adminPositionUser = new AdminPositionUserBinding();
-        $adminPositionUser->setUser($user);
-        $adminPositionUser->setPosition($position);
-        $adminPositionUser->setCreationDate($now);
-        $em->persist($adminPositionUser);
 
         $em->flush();
 
