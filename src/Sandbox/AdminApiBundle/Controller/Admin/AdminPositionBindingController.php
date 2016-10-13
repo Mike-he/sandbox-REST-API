@@ -184,20 +184,6 @@ class AdminPositionBindingController extends AdminRestController
      * )
      *
      * @Annotations\QueryParam(
-     *     name="platform",
-     *     nullable=false,
-     *     requirements="(sales|shop)",
-     *     strict=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *     name="sales_company_id",
-     *     nullable=false,
-     *     requirements="\d+",
-     *     strict=true
-     * )
-     *
-     * @Annotations\QueryParam(
      *     name="building_id",
      *     nullable=true,
      *     requirements="\d+"
@@ -209,7 +195,7 @@ class AdminPositionBindingController extends AdminRestController
      *     requirements="\d+"
      * )
      *
-     * @Route("/position/binding/from_community")
+     * @Route("/position/bindings/from_community")
      * @Method({"DELETE"})
      *
      * @return View
@@ -222,15 +208,19 @@ class AdminPositionBindingController extends AdminRestController
         $this->checkAdminPositionBindingPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $userId = $paramFetcher->get('user_id');
-        $platform = $paramFetcher->get('platform');
-        $salesCompanyId = $paramFetcher->get('sales_company_id');
         $buildingId = $paramFetcher->get('building_id');
         $shopId = $paramFetcher->get('shop_id');
+
+        $sessions = $this->getPlatformSessions();
+        $platform = $sessions['platform'];
+        $salesCompanyId = $sessions['sales_company_id'];
 
         if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
             $this->throwNotFoundIfNull($buildingId, self::BAD_PARAM_MESSAGE);
         } elseif ($platform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
             $this->throwNotFoundIfNull($shopId, self::BAD_PARAM_MESSAGE);
+        } else {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $bindings = $this->getDoctrine()
@@ -241,6 +231,46 @@ class AdminPositionBindingController extends AdminRestController
                 $salesCompanyId,
                 $buildingId,
                 $shopId
+            );
+
+        $this->checkSuperAdminPositionValidToDelete($bindings);
+
+        return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="user_id",
+     *     nullable=false,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
+     * @Route("/position/bindings/from_global")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deletePositionUserBindingFromGlobalPositionAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $paramFetcher->get('user_id');
+
+        $sessions = $this->getPlatformSessions();
+        $platform = $sessions['platform'];
+        $salesCompanyId = $sessions['sales_company_id'];
+
+        $bindings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsByPermissionType(
+                $userId,
+                AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                $platform,
+                $salesCompanyId
             );
 
         $this->checkSuperAdminPositionValidToDelete($bindings);

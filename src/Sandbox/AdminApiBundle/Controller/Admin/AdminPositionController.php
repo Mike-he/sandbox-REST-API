@@ -543,8 +543,21 @@ class AdminPositionController extends PaymentController
      * )
      *
      * @Annotations\QueryParam(
-     *     name="adminId",
-     *     nullable=false
+     *     name="admin_id",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="building_id",
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="shop_id",
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Route("/positions/specify_admin")
@@ -558,6 +571,8 @@ class AdminPositionController extends PaymentController
     ) {
         $type = $paramFetcher->get('type');
         $adminId = $paramFetcher->get('adminId');
+        $buildingId = $paramFetcher->get('building_id');
+        $shopId = $paramFetcher->get('shop_id');
 
         $sessions = $this->getPlatformSessions();
 
@@ -567,7 +582,9 @@ class AdminPositionController extends PaymentController
                 $adminId,
                 $type,
                 $sessions['platform'],
-                $sessions['sales_company_id']
+                $sessions['sales_company_id'],
+                $buildingId,
+                $shopId
             );
 
         return new View($positions);
