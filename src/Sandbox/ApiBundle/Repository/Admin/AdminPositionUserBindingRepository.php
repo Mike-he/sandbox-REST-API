@@ -48,36 +48,6 @@ class AdminPositionUserBindingRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
-    public function getBindingsByPermissionType(
-        $userId,
-        $type,
-        $platform,
-        $company = null
-    ) {
-        $query = $this->createQueryBuilder('pb')
-            ->leftJoin('pb.position', 'p', 'WITH', 'p.id = pb.positionId')
-            ->where('pb.userId = :userId')
-            ->andWhere('p.platform = :platform')
-            ->setParameter('userId', $userId)
-            ->setParameter('platform', $platform);
-
-        if (!is_null($company)) {
-            $query->andWhere('p.salesCompanyId = :company')
-                ->setParameter('company', $company);
-        }
-
-        if (!is_null($type) && !empty($type)) {
-            $query->leftJoin('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm', 'WITH', 'p.id = m.positionId')
-                ->leftJoin('SandboxApiBundle:Admin\AdminPermission', 'ap', 'WITH', 'ap.id = m.permissionId')
-                ->andWhere('ap.level = :type')
-                ->setParameter('type', $type);
-        }
-
-        $query->groupBy('p.id');
-
-        return $query->getQuery()->getResult();
-    }
-
     /**
      * @param $userId
      * @param $type
@@ -98,6 +68,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('pb')
             ->select('
+                pb.id as id,
                 p.salesCompanyId as sales_company_id, 
                 p.id as position_id, 
                 p.platform, 
@@ -131,7 +102,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
                 ->setParameter('shopId', $shopId);
         }
 
-        $query->groupBy('p.id');
+        $query->groupBy('pb.id');
 
         return $query->getQuery()->getResult();
     }

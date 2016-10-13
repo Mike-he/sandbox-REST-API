@@ -266,14 +266,27 @@ class AdminPositionBindingController extends AdminRestController
 
         $bindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->getBindingsByPermissionType(
+            ->getBindingsBySpecifyAdminId(
                 $userId,
                 AdminPermission::PERMISSION_LEVEL_GLOBAL,
                 $platform,
                 $salesCompanyId
             );
 
-        $this->checkSuperAdminPositionValidToDelete($bindings);
+        $bindingsArray = array();
+        foreach ($bindings as $binding) {
+            if (!isset($binding['id'])) {
+                continue;
+            }
+
+            $positionBinding = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->find($binding['id']);
+
+            array_push($bindingsArray, $positionBinding);
+        }
+
+        $this->checkSuperAdminPositionValidToDelete($bindingsArray);
 
         return new View();
     }
