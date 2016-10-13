@@ -570,7 +570,7 @@ class AdminPositionController extends PaymentController
         ParamFetcherInterface $paramFetcher
     ) {
         $type = $paramFetcher->get('type');
-        $adminId = $paramFetcher->get('adminId');
+        $adminId = $paramFetcher->get('admin_id');
         $buildingId = $paramFetcher->get('building_id');
         $shopId = $paramFetcher->get('shop_id');
 
