@@ -563,15 +563,33 @@ class AdminSalesAdminsController extends SandboxRestController
                     'name' => self::POSITION_ADMIN,
                     'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
                     'isSuperAdmin' => true,
+                    'isHidden' => false,
                 )
             );
 
-        $adminPositionUsers = $em->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->findBy(array('position' => $adminPosition));
+        if ($adminPosition) {
+            $adminPositionUsers = $em->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findBy(array('position' => $adminPosition));
 
-        foreach ($adminPositionUsers as $adminPositionUser) {
-            $em->remove($adminPositionUser);
-            $em->flush();
+            foreach ($adminPositionUsers as $adminPositionUser) {
+                $em->remove($adminPositionUser);
+                $em->flush();
+            }
+        } else {
+            $em = $this->getDoctrine()->getManager();
+            $now = new \DateTime('now');
+
+            $icon = $em->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
+
+            $position = new AdminPosition();
+            $position->setName(self::POSITION_ADMIN);
+            $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
+            $position->setIsSuperAdmin(true);
+            $position->setIcon($icon);
+            $position->setSalesCompany($company);
+            $position->setCreationDate($now);
+            $position->setModificationDate($now);
+            $em->persist($position);
         }
 
         foreach ($userIds as $userId) {

@@ -353,6 +353,9 @@ class SandboxRestController extends FOSRestController
                     'op_level' => $map->getOpLevel(),
                     'building_id' => $binding->getBuildingId(),
                     'shop_id' => $binding->getShopId(),
+                    'name' => $permission->getName(),
+                    'id' => $permission->getId(),
+                    'position_id' => $position->getId(),
                 );
 
                 array_push($myPermissions, $permissionArray);

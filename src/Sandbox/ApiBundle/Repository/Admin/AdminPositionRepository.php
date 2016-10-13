@@ -21,22 +21,13 @@ class AdminPositionRepository extends EntityRepository
         $companyId
     ) {
         $query = $this->createQueryBuilder('p')
-            ->where('p.isHidden = FALSE');
+            ->where('p.isHidden = FALSE')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform);
 
-        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
-        } else {
+        if ($platform != AdminPosition::PLATFORM_OFFICIAL) {
             if (is_null($companyId) || empty($companyId)) {
                 return array();
-            }
-
-            if ($platform == AdminPosition::PLATFORM_SALES) {
-                $query->andWhere('p.platform = :sales')
-                    ->setParameter('sales', AdminPosition::PLATFORM_SALES);
-            } elseif ($platform == AdminPosition::PLATFORM_SHOP) {
-                $query->andWhere('p.platform = :platform')
-                    ->setParameter('platform', $platform);
             }
 
             $query->andWhere('p.salesCompanyId = :companyId')
@@ -72,23 +63,19 @@ class AdminPositionRepository extends EntityRepository
         $type = null
     ) {
         $query = $this->createQueryBuilder('p')
-            ->where('p.isHidden = FALSE');
+            ->where('p.isHidden = FALSE')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform);
 
         if (!is_null($isSuperAdmin)) {
             $query->andWhere('p.isSuperAdmin = :isSuperAdmin')
                 ->setParameter('isSuperAdmin', $isSuperAdmin);
         }
 
-        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
-        } else {
+        if ($platform != AdminPosition::PLATFORM_OFFICIAL) {
             if (is_null($companyId) || empty($companyId)) {
                 return array();
             }
-
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
 
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);

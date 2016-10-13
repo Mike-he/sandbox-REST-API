@@ -39,6 +39,7 @@ class AdminAuthController extends AuthController
     public function getAdminAuthMeAction(
         Request $request
     ) {
+        $adminId = $this->getAdminId();
         $platform = $request->query->get('platform');
         $salesCompanyId = $request->query->get('sales_company_id');
 
@@ -56,17 +57,42 @@ class AdminAuthController extends AuthController
             }
         }
 
-        $permissions = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findAdminPermissionsByAdminAndPlatform(
-                $this->getAdminId(),
+        $condition = $this->hasSuperAdminPosition(
+            $adminId,
+            $platform,
+            $salesCompanyId
+        );
+
+        if ($condition) {
+            $permissions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+                ->findSuperAdminPermissionsByPlatform(
+                    $platform,
+                    $salesCompanyId
+                );
+        } else {
+            $permissions = $this->getMyAdminPermissions(
+                $adminId,
                 $platform,
                 $salesCompanyId
             );
+        }
+
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->find($adminId);
 
         // response
         return new View(
-            $this->handlePermissionData($permissions)
+            array(
+                'permissions' => $this->handlePermissionData($permissions),
+                'admin' => [
+                    'id' => $admin->getId(),
+                    'name' => $admin->getName(),
+                    'phone' => $admin->getPhone(),
+                    'is_super_admin' => $condition,
+                ],
+            )
         );
     }
 

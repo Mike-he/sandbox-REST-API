@@ -55,8 +55,13 @@ class AdminPositionController extends PaymentController
         // get position
         $adminPosition = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->find($id);
-        $this->throwNotFoundIfNull($adminPosition, self::NOT_FOUND_MESSAGE);
+            ->findOneBy(array(
+                'id' => $id,
+                'isSuperAdmin' => false,
+            ));
+        if (is_null($adminPosition)) {
+            return new View();
+        }
 
         $sort = new Position();
         $form = $this->createForm(new PositionType(), $sort);
@@ -487,6 +492,20 @@ class AdminPositionController extends PaymentController
                 $companyId
             );
 
+        // set super admin in global type
+        if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL) {
+            $superAdminPosition = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->findOneBy(array(
+                    'isSuperAdmin' => true,
+                    'platform' => $platform,
+                    'salesCompanyId' => $companyId,
+                ));
+
+            array_unshift($positions, $superAdminPosition);
+        }
+
+        // transfer image url
         $global_image_url = $this->container->getParameter('image_url');
         foreach ($positions as $position) {
             $icon = $position->getIcon();
@@ -524,8 +543,21 @@ class AdminPositionController extends PaymentController
      * )
      *
      * @Annotations\QueryParam(
-     *     name="adminId",
-     *     nullable=false
+     *     name="admin_id",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="building_id",
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="shop_id",
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Route("/positions/specify_admin")
@@ -538,7 +570,9 @@ class AdminPositionController extends PaymentController
         ParamFetcherInterface $paramFetcher
     ) {
         $type = $paramFetcher->get('type');
-        $adminId = $paramFetcher->get('adminId');
+        $adminId = $paramFetcher->get('admin_id');
+        $buildingId = $paramFetcher->get('building_id');
+        $shopId = $paramFetcher->get('shop_id');
 
         $sessions = $this->getPlatformSessions();
 
@@ -548,7 +582,9 @@ class AdminPositionController extends PaymentController
                 $adminId,
                 $type,
                 $sessions['platform'],
-                $sessions['sales_company_id']
+                $sessions['sales_company_id'],
+                $buildingId,
+                $shopId
             );
 
         return new View($positions);

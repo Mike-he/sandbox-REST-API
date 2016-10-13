@@ -29,9 +29,70 @@ security:
             pattern:  ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        phone_code:
+            pattern: ^/phonecode
+            security: false
+            methods: [GET]
+
+        admin_dashboard_orders_export:
+            pattern: ^/admin/dashboard/orders/export
+            security: false
+            methods: [GET]
+
+        rooms_types:
+            pattern: ^/rooms/types
+            security: false
+            methods: [GET]
+
         client_refresh_token_login:
             pattern: ^/client/auth/refresh
             security: false
+            methods: [POST]
+
+        shop_admin_orders_export:
+            pattern: ^/shop/admin/orders/export
+            security: false
+            methods: [GET]
+
+        admin_auth_login:
+            pattern: ^/admin/auth/login
+            security: false
+            methods: [POST]
+
+        client_user_register_submit:
+            pattern: ^/client/user/register/submit
+            security: false
+            methods: [POST]
+
+        client_user_register_verify:
+            pattern: ^/client/user/register/verify
+            security: false
+            methods: [POST]
+
+        client_user_password_forget_submit:
+            pattern: ^/client/user/password/forget/submit
+            security: false
+            methods: [POST]
+
+        client_user_password_forget_verify:
+            pattern: ^/client/user/password/forget/verify
+            security: false
+            methods: [POST]
+
+        client_user_password_forget_reset:
+            pattern: ^/client/user/password/forget/reset
+            security: false
+            methods: [POST]
+
+        client_payment_webhooks:
+            pattern: ^/client/payment/webhooks
+            security: false
+            methods: [POST]
+
+        client_shops:
+            pattern: ^/client/shops
+            security: false
+            methods: [GET]
 
         main:
             pattern: ^/
@@ -40,19 +101,20 @@ security:
             stateless:  true
 
     access_control:
-        - { path: ^/admin/dashboard/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/phonecode, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/admin/dashboard/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/rooms/types$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-        - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/shop/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/auth/check_code$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/password/forget/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/payment/webhooks$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/shop/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/admin/auth/check_code$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/password/forget/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/payment/webhooks$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/client/shops, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/shops/orders, role: ROLE_CLIENT_API}
         - { path: ^/client/banners, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
