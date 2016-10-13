@@ -556,7 +556,7 @@ class AdminSalesAdminsController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime('now');
 
-        $adminPosition = $em->getRepository('SandboxApiBundle:Admin\AdminPosition')
+        $position = $em->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
                 array(
                     'salesCompany' => $company,
@@ -567,9 +567,9 @@ class AdminSalesAdminsController extends SandboxRestController
                 )
             );
 
-        if ($adminPosition) {
+        if ($position) {
             $adminPositionUsers = $em->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->findBy(array('position' => $adminPosition));
+                ->findBy(array('position' => $position));
 
             foreach ($adminPositionUsers as $adminPositionUser) {
                 $em->remove($adminPositionUser);
@@ -597,7 +597,7 @@ class AdminSalesAdminsController extends SandboxRestController
             if (!is_null($user)) {
                 $adminPositionUser = new AdminPositionUserBinding();
                 $adminPositionUser->setUser($user);
-                $adminPositionUser->setPosition($adminPosition);
+                $adminPositionUser->setPosition($position);
                 $adminPositionUser->setCreationDate($now);
                 $em->persist($adminPositionUser);
             }
