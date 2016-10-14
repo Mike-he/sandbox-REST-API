@@ -231,6 +231,12 @@ trait SendNotification
         $title,
         $contentArray
     ) {
+        // get globals
+        $globals = $this->getContainer()
+            ->get('twig')
+            ->getGlobals();
+        $option = $globals['jpush_apns_option'];
+
         $data = [
             'platform' => 'all',
             'audience' => [
@@ -251,6 +257,9 @@ trait SendNotification
                     'extras' => $contentArray,
                 ],
             ],
+            'options' => [
+                'apns_production' => (boolean) $option
+            ]
         ];
 
         return json_encode($data);
