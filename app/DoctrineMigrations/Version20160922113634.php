@@ -46,7 +46,7 @@ class Version20160922113634 extends AbstractMigration
             INSERT INTO admin_permission(`key`,`name`,`platform`,`level`,`creationDate`,`modificationDate`, `opLevelSelect`, `maxOpLevel`) VALUES
                 ('sales.platform.dashboard','控制台管理','sales','global','2016-03-01 00:00:00','2016-03-01 00:00:00','1', 1),
                 ('sales.platform.admin','管理员管理','sales','global','2016-03-01 00:00:00','2016-03-01 00:00:00', '1,2', 2),
-                ('sales.platform.building','项目新增','sales','global','2016-03-01 00:00:00','2016-03-01 00:00:00', '2', 2),
+                ('sales.platform.building','项目管理','sales','global','2016-03-01 00:00:00','2016-03-01 00:00:00', '2', 2),
                 ('sales.platform.invoice','发票管理','sales','global','2016-03-01 00:00:00','2016-03-01 00:00:00', '1,2', 2),
                 ('sales.platform.event','活动管理','sales','global','2016-03-01 00:00:00','2016-03-01 00:00:00', '1,2', 2),
                 ('sales.building.price','价格模板管理','sales','specify','2016-03-01 00:00:00','2016-03-01 00:00:00', '1,2', 2),
