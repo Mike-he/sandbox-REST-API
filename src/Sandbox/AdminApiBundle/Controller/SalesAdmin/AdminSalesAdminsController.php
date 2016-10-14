@@ -225,6 +225,14 @@ class AdminSalesAdminsController extends SandboxRestController
             ->findOneBy(array('position' => $coffeeAdminPosition));
         $company->setCoffeeAdmin($coffeeAdmin);
 
+        $permissions = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->getAdminPermissions(
+                AdminPermission::PERMISSION_PLATFORM_SALES,
+                $id
+            );
+
+        $company->setPermissions($permissions);
+
         // set view
         $view = new View($company);
 

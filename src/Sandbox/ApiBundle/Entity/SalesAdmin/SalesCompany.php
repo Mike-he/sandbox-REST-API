@@ -115,6 +115,13 @@ class SalesCompany
     private $shopCounts;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $permissions;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -405,4 +412,22 @@ class SalesCompany
     {
         $this->banned = $banned;
     }
+
+    /**
+     * @return string
+     */
+    public function getPermissions()
+    {
+        return $this->permissions;
+    }
+
+    /**
+     * @param string $permissions
+     */
+    public function setPermissions($permissions)
+    {
+        $this->permissions = $permissions;
+    }
+
+
 }
