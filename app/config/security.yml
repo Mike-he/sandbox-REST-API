@@ -109,36 +109,6 @@ security:
             security: false
             methods: [GET]
 
-        client_companies:
-            pattern: ^/client/companies
-            security: false
-            methods: [GET]
-
-        client_members:
-            pattern: ^/client/members
-            security: false
-            methods: [GET]
-
-        client_user_profile:
-            pattern: ^/client/user/profile
-            security: false
-            methods: [GET]
-
-        client_products:
-            pattern: ^/client/products
-            security: false
-            methods: [GET]
-
-        client_feeds:
-            pattern: ^/client/feeds
-            security: false
-            methods: [GET]
-
-        client_events:
-            pattern: ^/client/events
-            security: false
-            methods: [GET]
-
         client_auth_token:
             pattern: ^/client/auth/token$
             security: false
