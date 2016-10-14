@@ -428,6 +428,4 @@ class SalesCompany
     {
         $this->permissions = $permissions;
     }
-
-
 }

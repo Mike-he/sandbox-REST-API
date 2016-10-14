@@ -63,6 +63,7 @@ trait ShopNotification
         );
 
         $jid = User::XMPP_SERVICE.'@'.$domainURL;
+        $userId = $recvUser->getId();
 
         $key = null;
         if ($action == ShopOrder::STATUS_READY) {
@@ -121,6 +122,25 @@ trait ShopNotification
             $messageArray,
             $apns
         );
+
+        $zhData = $this->getJpushData(
+            [$userId],
+            ['lang_zh'],
+            $zhBody,
+            '展想创合',
+            $contentArray
+        );
+
+        $enData = $this->getJpushData(
+            [$userId],
+            ['lang_en'],
+            $enBody,
+            'Sandbox3',
+            $contentArray
+        );
+
+        $this->sendJpushNotification($zhData);
+        $this->sendJpushNotification($enData);
 
         return json_encode(array($data));
     }
