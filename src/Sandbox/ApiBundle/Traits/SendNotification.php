@@ -258,8 +258,8 @@ trait SendNotification
                 ],
             ],
             'options' => [
-                'apns_production' => filter_var($option, FILTER_VALIDATE_BOOLEAN)
-            ]
+                'apns_production' => filter_var($option, FILTER_VALIDATE_BOOLEAN),
+            ],
         ];
 
         return json_encode($data);
