@@ -34,6 +34,7 @@ class AdminPlatformController extends AdminRestController
     ) {
         $topLevelDomain = $this->container->getParameter('top_level_domain');
         ini_set('session.cookie_domain', $topLevelDomain);
+        
         if (!isset($_SESSION)) {
             session_start();
         }
