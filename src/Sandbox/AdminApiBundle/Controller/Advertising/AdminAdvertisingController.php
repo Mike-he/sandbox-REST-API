@@ -67,7 +67,7 @@ class AdminAdvertisingController extends AdvertisingController
      * )
      *
      *
-     * @Route("/advertising")
+     * @Route("/commercial")
      * @Method({"GET"})
      *
      * @return View
@@ -109,7 +109,7 @@ class AdminAdvertisingController extends AdvertisingController
      *  }
      * )
      *
-     * @Route("/advertising")
+     * @Route("/commercial")
      * @Method({"POST"})
      *
      * @return View
@@ -149,7 +149,7 @@ class AdminAdvertisingController extends AdvertisingController
      *   }
      * )
      *
-     * @Route("/advertising/{id}")
+     * @Route("/commercial/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -184,7 +184,7 @@ class AdminAdvertisingController extends AdvertisingController
      * @param Request $request
      * @param int     $id
      *
-     * @Route("/advertising/{id}")
+     * @Route("/commercial/{id}")
      * @Method({"PUT"})
      *
      * @return View
@@ -231,7 +231,7 @@ class AdminAdvertisingController extends AdvertisingController
      *  }
      * )
      *
-     * @Route("/advertising/{id}")
+     * @Route("/commercial/{id}")
      * @Method({"PATCH"})
      *
      * @return View
@@ -277,7 +277,7 @@ class AdminAdvertisingController extends AdvertisingController
      * @param Request $request the request object
      * @param int     $id
      *
-     * @Route("/advertising/{id}")
+     * @Route("/commercial/{id}")
      * @Method({"DELETE"})
      *
      * @return View
