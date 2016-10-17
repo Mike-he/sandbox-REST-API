@@ -46,7 +46,7 @@ class AdminRoomSuppliesController extends SalesRestController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminRoomSuppliesPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminRoomSuppliesPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get supplies
         $supplies = $this->getRepo('Room\Supplies')->findAll();
