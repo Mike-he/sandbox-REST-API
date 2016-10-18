@@ -1085,7 +1085,11 @@ class AdminOrderController extends OrderController
         $adminId = $admin->getId();
 
         // check user permission
-        $this->checkAdminOrderPermission($adminId, AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission(
+            $adminId,
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
 
         $language = $paramFetcher->get('language');
         $channel = $paramFetcher->get('channel');
@@ -1644,14 +1648,16 @@ class AdminOrderController extends OrderController
      */
     private function checkAdminOrderPermission(
         $adminId,
-        $opLevel
+        $opLevel,
+        $platform = null
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
             ],
-            $opLevel
+            $opLevel,
+            $platform
         );
     }
 }
