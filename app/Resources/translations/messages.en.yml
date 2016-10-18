@@ -187,6 +187,7 @@ client:
     account_non_existent: Account does not exist
     wrong_password: Wrong password
     wrong_check_code: Wrong validation code
+    current_user_is_not_an_admin: Current user is not an admin
   menu:
     order: Reservation
     coffee: Coffee
