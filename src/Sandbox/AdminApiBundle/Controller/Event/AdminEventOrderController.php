@@ -204,7 +204,11 @@ class AdminEventOrderController extends AdminOrderController
         $adminId = $admin->getId();
 
         // check user permission
-        $this->checkAdminEventOrderPermission($adminId, AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminEventOrderPermission(
+            $adminId,
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
 
         $language = $paramFetcher->get('language');
         $cityId = $paramFetcher->get('city');
@@ -388,14 +392,16 @@ class AdminEventOrderController extends AdminOrderController
      */
     private function checkAdminEventOrderPermission(
         $adminId,
-        $opLevel
+        $opLevel,
+        $platform = null
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
             ],
-            $opLevel
+            $opLevel,
+            $platform
         );
     }
 }

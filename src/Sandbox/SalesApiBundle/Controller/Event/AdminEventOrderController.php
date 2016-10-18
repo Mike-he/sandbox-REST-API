@@ -97,7 +97,10 @@ class AdminEventOrderController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkSalesAdminEventOrderPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventOrderPermission(
+            $this->getAdminId(),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $cityId = $paramFetcher->get('city');
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -194,6 +197,15 @@ class AdminEventOrderController extends SalesRestController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sales_company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
      * @Route("/events/orders/export")
      * @Method({"GET"})
      *
@@ -205,9 +217,15 @@ class AdminEventOrderController extends SalesRestController
     ) {
         //authenticate with web browser cookie
         $admin = $this->authenticateAdminCookie();
+        $companyId = $paramFetcher->get('sales_company');
 
         // check user permission
-        $this->checkSalesAdminEventOrderPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventOrderPermission(
+            $admin->getId(),
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
+        );
 
         $adminPlatform = $this->getAdminPlatform();
 
@@ -371,7 +389,10 @@ class AdminEventOrderController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminEventOrderPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventOrderPermission(
+            $this->getAdminId(),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $order = $this->getRepo('Event\EventOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -394,16 +415,21 @@ class AdminEventOrderController extends SalesRestController
      * @param int $opLevel
      */
     private function checkSalesAdminEventOrderPermission(
-        $opLevel
+        $adminId,
+        $opLevel,
+        $platform = null,
+        $salesCompanyId = null
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
+            $adminId,
             array(
                 array(
                     'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
                 ),
             ),
-            $opLevel
+            $opLevel,
+            $platform,
+            $salesCompanyId
         );
     }
 
