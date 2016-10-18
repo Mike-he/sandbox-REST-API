@@ -132,7 +132,7 @@ class UserViewRepository extends EntityRepository
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->where('u.phone LIKE :query')
-            ->setParameter('query', $query.'%');
+            ->setParameter('query', $query);
 
         return $queryResults->getQuery()->getResult();
     }
