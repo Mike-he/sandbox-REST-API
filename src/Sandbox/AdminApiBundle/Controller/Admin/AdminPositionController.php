@@ -504,25 +504,40 @@ class AdminPositionController extends PaymentController
             null
         );
 
-        $positions = $this->getDoctrine()
+        $globalPositions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->getAdminPositions(
                 $platform,
-                $type,
+                AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                $companyId
+            );
+
+        $superAdminPosition = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->findOneBy(array(
+                'isSuperAdmin' => true,
+                'isHidden' => false,
+                'platform' => $platform,
+                'salesCompanyId' => $companyId,
+            ));
+
+        array_unshift($globalPositions, $superAdminPosition);
+
+        $specifyPositions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getAdminPositions(
+                $platform,
+                AdminPermission::PERMISSION_LEVEL_SPECIFY,
                 $companyId
             );
 
         // set super admin in global type
         if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL) {
-            $superAdminPosition = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                ->findOneBy(array(
-                    'isSuperAdmin' => true,
-                    'platform' => $platform,
-                    'salesCompanyId' => $companyId,
-                ));
-
-            array_unshift($positions, $superAdminPosition);
+            $positions = $globalPositions;
+        } elseif ($type == AdminPermission::PERMISSION_LEVEL_SPECIFY) {
+            $positions = $specifyPositions;
+        } else {
+            $positions = array_merge($globalPositions, $specifyPositions);
         }
 
         // transfer image url
