@@ -21,6 +21,24 @@ class AdminPlatformController extends AdminRestController
     const ERROR_INVALID_SALES_COMPANY_ID_MESSAGE = 'Invalid Sales Company Id';
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/platform")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAdminPlatformAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminPlatform = $this->getAdminPlatform();
+
+        return new View($adminPlatform);
+    }
+
+    /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -62,7 +80,9 @@ class AdminPlatformController extends AdminRestController
         $adminPlatform->setPlatform($platform);
         $adminPlatform->setCreationDate(new \DateTime('now'));
 
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
+        if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
+            $salesCompany = null;
+        } else {
             if (!isset($data['sales_company_id'])) {
                 return $this->customErrorView(
                     400,
@@ -76,9 +96,9 @@ class AdminPlatformController extends AdminRestController
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
                 ->find($salesCompanyId);
             $this->throwNotFoundIfNull($salesCompany, self::NOT_FOUND_MESSAGE);
-
-            $adminPlatform->setSalesCompany($salesCompany);
         }
+
+        $adminPlatform->setSalesCompany($salesCompany);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($adminPlatform);
