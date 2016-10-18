@@ -4,7 +4,6 @@ namespace Sandbox\AdminApiBundle\Controller;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\User\User;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -18,6 +17,9 @@ class AdminRestController extends SandboxRestController
 
     const ERROR_WRONG_CHECK_CODE_CODE = 401004;
     const ERROR_WRONG_CHECK_CODE_MESSAGE = 'client.login.wrong_check_code';
+
+    const ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_CODE = 401005;
+    const ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_MESSAGE = 'client.login.current_user_is_not_an_admin';
 
     /**
      * @return User $admin
@@ -67,6 +69,7 @@ class AdminRestController extends SandboxRestController
         $phoneCode = $usernameArray[0];
         $phone = $usernameArray[1];
 
+        // check current user is existed
         $admin = $this->getRepo('User\User')->findOneBy(array(
             'phoneCode' => $phoneCode,
             'phone' => $phone,
@@ -79,6 +82,7 @@ class AdminRestController extends SandboxRestController
             return;
         }
 
+        // check the password of current user is correct
         if ($auth->getPassword() != $admin->getPassword()) {
             $error->setCode(self::ERROR_ACCOUNT_WRONG_PASSWORD_CODE);
             $error->setMessage(self::ERROR_ACCOUNT_WRONG_PASSWORD_MESSAGE);
@@ -92,7 +96,10 @@ class AdminRestController extends SandboxRestController
         ));
 
         if (is_null($adminPositionUser)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            $error->setCode(self::ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_CODE);
+            $error->setMessage(self::ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_MESSAGE);
+
+            return;
         }
 
         return $admin;

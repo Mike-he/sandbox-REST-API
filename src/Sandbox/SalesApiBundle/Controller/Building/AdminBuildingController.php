@@ -663,7 +663,7 @@ class AdminBuildingController extends LocationController
     private function handleAdminBuildingPost(
         $building
     ) {
-        $cookies = $this->getPlatformSessions();
+        $adminPlatform = $this->getAdminPlatform();
 
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
@@ -673,7 +673,7 @@ class AdminBuildingController extends LocationController
         $buildingCompany = $building->getBuildingCompany();
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($cookies['sales_company_id']);
+            ->find($adminPlatform['sales_company_id']);
         $buildingServices = $building->getBuildingServices();
 
         // check city

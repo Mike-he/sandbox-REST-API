@@ -121,9 +121,9 @@ class AdminPositionController extends PaymentController
         $action
     ) {
         // get platform cookies
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-        $salesCompanyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $sortTime = $adminPosition->getSortTime();
         $swapPosition = $this->getDoctrine()
@@ -374,9 +374,9 @@ class AdminPositionController extends PaymentController
         // check user permissions
         $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-        $companyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
 
         $allPositions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
@@ -472,9 +472,9 @@ class AdminPositionController extends PaymentController
         // check user permissions
         $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-        $companyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
         $type = $paramFetcher->get('type');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -574,15 +574,15 @@ class AdminPositionController extends PaymentController
         $buildingId = $paramFetcher->get('building_id');
         $shopId = $paramFetcher->get('shop_id');
 
-        $sessions = $this->getPlatformSessions();
+        $adminPlatform = $this->getAdminPlatform();
 
         $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->getBindingsBySpecifyAdminId(
                 $adminId,
                 $type,
-                $sessions['platform'],
-                $sessions['sales_company_id'],
+                $adminPlatform['platform'],
+                $adminPlatform['sales_company_id'],
                 $buildingId,
                 $shopId
             );

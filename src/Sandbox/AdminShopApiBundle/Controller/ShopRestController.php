@@ -31,9 +31,9 @@ class ShopRestController extends PaymentController
         }
 
         // get platform cookies
-        $sessions = $this->getPlatformSessions();
-        $platform = $sessions['platform'];
-        $salesCompanyId = $sessions['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $isSuperAdmin = $this->hasSuperAdminPosition(
             $adminId,

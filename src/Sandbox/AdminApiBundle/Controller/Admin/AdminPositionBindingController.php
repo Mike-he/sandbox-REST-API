@@ -155,9 +155,9 @@ class AdminPositionBindingController extends AdminRestController
 
         $userId = $paramFetcher->get('user_id');
 
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-        $salesCompanyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $bindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
@@ -211,9 +211,9 @@ class AdminPositionBindingController extends AdminRestController
         $buildingId = $paramFetcher->get('building_id');
         $shopId = $paramFetcher->get('shop_id');
 
-        $sessions = $this->getPlatformSessions();
-        $platform = $sessions['platform'];
-        $salesCompanyId = $sessions['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
             $this->throwNotFoundIfNull($buildingId, self::BAD_PARAM_MESSAGE);
@@ -260,9 +260,9 @@ class AdminPositionBindingController extends AdminRestController
     ) {
         $userId = $paramFetcher->get('user_id');
 
-        $sessions = $this->getPlatformSessions();
-        $platform = $sessions['platform'];
-        $salesCompanyId = $sessions['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $bindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')

@@ -48,6 +48,7 @@ class AdminAuthController extends AuthController
         // response
         $view = new View(array(
             'id' => $myAdminId,
+            'client_id' => $this->getUser()->getClientId(),
         ));
 
         return $view;
