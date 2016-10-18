@@ -299,6 +299,22 @@ class AdminAdminsController extends SandboxRestController
      *    description="position"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="Building Id"
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="Shop Id"
+     * )
      *
      * @Method({"GET"})
      * @Route("/extra/admins")
@@ -318,6 +334,8 @@ class AdminAdminsController extends SandboxRestController
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
         $position = $paramFetcher->get('position');
+        $building = $paramFetcher->get('building');
+        $shop = $paramFetcher->get('shop');
         $search = $paramFetcher->get('search');
 
         $positions = $this->getDoctrine()
@@ -342,7 +360,9 @@ class AdminAdminsController extends SandboxRestController
             $PositionBindUsers = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                 ->getBindUser(
-                    $position
+                    $position,
+                    $building,
+                    $shop
                 );
 
             foreach ($PositionBindUsers as $PositionBindUser) {
