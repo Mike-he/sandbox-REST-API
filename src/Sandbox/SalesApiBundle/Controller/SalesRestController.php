@@ -37,7 +37,9 @@ class SalesRestController extends SandboxRestController
             $salesCompanyId
         );
 
-        if ($isSuperAdmin) {
+        if ($isSuperAdmin
+            || in_array(AdminPermission::KEY_SALES_PLATFORM_BUILDING, $permissionKeys)
+        ) {
             // if user is super admin, get all buildings
             $myBuildings = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
