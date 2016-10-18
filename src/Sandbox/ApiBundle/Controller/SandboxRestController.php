@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
-use Sandbox\AdminApiBundle\Controller\Admin\AdminPlatformController;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -43,7 +42,7 @@ class SandboxRestController extends FOSRestController
 
     const CONFLICT_MESSAGE = 'This resource already exists';
 
-    const PRECONDITION_NOT_SET = 'The precondition cookies not set';
+    const PRECONDITION_NOT_SET = 'The precondition not set';
 
     const HTTP_STATUS_OK = 200;
     const HTTP_STATUS_OK_NO_CONTENT = 204;
@@ -205,9 +204,9 @@ class SandboxRestController extends FOSRestController
     ) {
         if (is_null($platform)) {
             // get platform sessions
-            $sessions = $this->getPlatformSessions();
-            $platform = $sessions['platform'];
-            $salesCompanyId = $sessions['sales_company_id'];
+            $adminPlatform = $this->getAdminPlatform();
+            $platform = $adminPlatform['platform'];
+            $salesCompanyId = $adminPlatform['sales_company_id'];
         }
 
         // super admin
@@ -265,28 +264,28 @@ class SandboxRestController extends FOSRestController
         throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
     }
 
-    protected function getPlatformSessions()
+    /**
+     * @return array
+     */
+    protected function getAdminPlatform()
     {
-        $topLevelDomain = $this->container->getParameter('top_level_domain');
-        ini_set('session.cookie_domain', $topLevelDomain);
+        $userId = $this->getUser()->getUserId();
+        $clientId = $this->getUser()->getClientId();
 
-        if (!isset($_SESSION)) {
-            session_start();
-        }
+        $adminPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
+            ->findOneBy(array(
+                'userId' => $userId,
+                'clientId' => $clientId,
+            ));
 
-        $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
-        $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
-
-        $platform = isset($_SESSION[$adminPlatformCookieName]) ? $_SESSION[$adminPlatformCookieName] : null;
-        $salesCompanyId = isset($_SESSION[$salesCompanyCookieName]) ? $_SESSION[$salesCompanyCookieName] : null;
-
-        if (is_null($platform)) {
+        if (is_null($adminPlatform)) {
             throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
         }
 
         return array(
-            'platform' => $platform,
-            'sales_company_id' => $salesCompanyId,
+            'platform' => $adminPlatform->getPlatform(),
+            'sales_company_id' => $adminPlatform->getSalesCompanyId(),
         );
     }
 
@@ -1673,7 +1672,7 @@ class SandboxRestController extends FOSRestController
         $logParams
     ) {
         try {
-            $sessions = $this->getPlatformSessions();
+            $adminPlatform = $this->getAdminPlatform();
 
             $em = $this->getDoctrine()->getManager();
 
@@ -1691,7 +1690,7 @@ class SandboxRestController extends FOSRestController
             }
 
             $log->setAdminUsername($this->getAdminId());
-            $log->setPlatform($sessions['platform']);
+            $log->setPlatform($adminPlatform['platform']);
             $log->setSalesCompanyId($sessions['sales_company_id']);
 
             if ($this->handleLog($log)) {

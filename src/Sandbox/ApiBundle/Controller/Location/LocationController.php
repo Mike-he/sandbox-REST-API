@@ -79,8 +79,8 @@ class LocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
 
         $user = $this->getUser();
 

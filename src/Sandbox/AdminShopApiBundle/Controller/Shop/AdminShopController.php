@@ -291,8 +291,8 @@ class AdminShopController extends ShopController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $cookies = $this->getPlatformSessions();
-        $companyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
 
         $permission = $paramFetcher->get('permission');
 

@@ -132,9 +132,9 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-        $companyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
         $isSuperAdmin = $paramFetcher->get('isSuperAdmin');
         $buildingId = $paramFetcher->get('building');
         $shopId = $paramFetcher->get('shop');
@@ -314,9 +314,9 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-        $companyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
         $position = $paramFetcher->get('position');
         $search = $paramFetcher->get('search');
 
@@ -383,9 +383,9 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-        $companyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
 
         $positions = $this->getDoctrine()
            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
@@ -568,9 +568,9 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $cookies = $this->getPlatformSessions();
-        $platform = $cookies['platform'];
-        $companyId = $cookies['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
         $key = $paramFetcher->get('key');
         $buildingId = $paramFetcher->get('building');
         $shopId = $paramFetcher->get('shop');

@@ -68,9 +68,9 @@ class AdminPermissionsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $sessions = $this->getPlatformSessions();
-        $salesCompanyId = $sessions['sales_company_id'];
-        $platform = $sessions['platform'];
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $platform = $adminPlatform['platform'];
 
         // get all admin permissions
         $query = $this->getDoctrine()

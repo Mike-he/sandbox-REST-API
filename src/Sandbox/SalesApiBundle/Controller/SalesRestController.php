@@ -27,9 +27,9 @@ class SalesRestController extends SandboxRestController
         }
 
         // get platform cookies
-        $sessions = $this->getPlatformSessions();
-        $platform = $sessions['platform'];
-        $salesCompanyId = $sessions['sales_company_id'];
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $isSuperAdmin = $this->hasSuperAdminPosition(
             $adminId,
@@ -82,8 +82,8 @@ class SalesRestController extends SandboxRestController
      */
     protected function getSalesCompanyId()
     {
-        $cookies = $this->getPlatformSessions();
+        $adminPlatform = $this->getAdminPlatform();
 
-        return $cookies['sales_company_id'];
+        return $adminPlatform['sales_company_id'];
     }
 }
