@@ -122,6 +122,20 @@ class SalesCompany
     private $permissions;
 
     /**
+     * @var bool
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $hasPendingBuilding = false;
+
+    /**
+     * @var bool
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $hasPendingShop = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -427,5 +441,37 @@ class SalesCompany
     public function setPermissions($permissions)
     {
         $this->permissions = $permissions;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHasPendingBuilding(): bool
+    {
+        return $this->hasPendingBuilding;
+    }
+
+    /**
+     * @param bool $hasPendingBuilding
+     */
+    public function setHasPendingBuilding(bool $hasPendingBuilding)
+    {
+        $this->hasPendingBuilding = $hasPendingBuilding;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHasPendingShop(): bool
+    {
+        return $this->hasPendingShop;
+    }
+
+    /**
+     * @param bool $hasPendingShop
+     */
+    public function setHasPendingShop(bool $hasPendingShop)
+    {
+        $this->hasPendingShop = $hasPendingShop;
     }
 }

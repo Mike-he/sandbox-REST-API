@@ -152,6 +152,24 @@ class AdminSalesAdminsController extends SandboxRestController
                 $company->setCoffeeAdmin($coffeeAdminPositionUser);
                 $company->setBuildingCounts((int) $buildingCounts);
                 $company->setShopCounts((int) $shopCounts);
+
+                // new pending building
+                $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->findOneBy(array(
+                        'companyId' => $company,
+                        'status' => RoomBuilding::STATUS_PENDING,
+                        'isDeleted' => false,
+                    ));
+                if (!is_null($pendingBuilding)) {
+                    $company->setHasPendingBuilding(true);
+                }
+
+                // new pending shop
+                foreach ($shops as $shop) {
+                    if (!$shop->isActive() && !$shop->isDeleted()) {
+                        $company->setHasPendingShop(true);
+                    }
+                }
             }
         }
 

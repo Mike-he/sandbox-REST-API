@@ -172,6 +172,36 @@ class AdminUsersController extends DoorController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
+     * @Route("/users/by_phone")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getUserByPhoneAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $query = $paramFetcher->get('query');
+
+        $results = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->searchUserByPhone(
+                $query
+            );
+
+        return new View($results);
+    }
+
+    /**
      * Search user.
      *
      * @param Request               $request      the request object

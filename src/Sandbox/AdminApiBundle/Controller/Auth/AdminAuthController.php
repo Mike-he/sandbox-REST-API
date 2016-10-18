@@ -85,7 +85,7 @@ class AdminAuthController extends AuthController
         // response
         return new View(
             array(
-                'permissions' => $this->handlePermissionData($permissions),
+                'permissions' => $this->remove_duplicate($permissions),
                 'admin' => [
                     'id' => $admin->getId(),
                     'name' => $admin->getName(),

@@ -14,7 +14,7 @@ namespace Sandbox\AdminApiBundle\Controller\Traits;
  */
 trait HandleArrayTrait
 {
-    private function array_sort($array, $keys, $type = 'asc')
+    public function array_sort($array, $keys, $type = 'asc')
     {
         if (!is_array($array) || empty($array) || !in_array(strtolower($type), array('asc', 'desc'))) {
             return '';
@@ -49,5 +49,18 @@ trait HandleArrayTrait
         }
 
         return $keysValue;
+    }
+
+    public function remove_duplicate($array)
+    {
+        $result = array();
+        for ($i = 0; $i < count($array); ++$i) {
+            $source = $array[$i];
+            if (array_search($source, $array) == $i && $source != '') {
+                $result[] = $source;
+            }
+        }
+
+        return $result;
     }
 }

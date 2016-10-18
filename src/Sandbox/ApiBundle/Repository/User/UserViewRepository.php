@@ -123,6 +123,21 @@ class UserViewRepository extends EntityRepository
     }
 
     /**
+     * @param $query
+     *
+     * @return array
+     */
+    public function searchUserByPhone(
+        $query
+    ) {
+        $queryResults = $this->createQueryBuilder('u')
+            ->where('u.phone LIKE :query')
+            ->setParameter('query', $query);
+
+        return $queryResults->getQuery()->getResult();
+    }
+
+    /**
      * @param $banned
      * @param $authorized
      * @param $query
