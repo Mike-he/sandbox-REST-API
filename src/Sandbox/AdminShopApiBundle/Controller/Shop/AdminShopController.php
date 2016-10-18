@@ -58,7 +58,7 @@ class AdminShopController extends ShopController
             $this->getAdminId(),
             array(
                 array(
-                    'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SHOP,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -100,6 +100,9 @@ class AdminShopController extends ShopController
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
                     'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SHOP,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -147,6 +150,9 @@ class AdminShopController extends ShopController
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
                     'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SHOP,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -217,6 +223,9 @@ class AdminShopController extends ShopController
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
                     'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SHOP,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -407,6 +416,9 @@ class AdminShopController extends ShopController
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SHOP,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
@@ -708,24 +720,5 @@ class AdminShopController extends ShopController
         if (!is_null($sameShop)) {
             throw new ConflictHttpException(Shop::SHOP_CONFLICT_MESSAGE);
         }
-    }
-
-    /**
-     * @param $opLevel
-     * @param $permissions
-     * @param $shopId
-     */
-    private function checkAdminShopPermission(
-        $opLevel,
-        $permissions,
-        $shopId = null
-    ) {
-        $this->throwAccessDeniedIfShopAdminNotAllowed(
-            $this->getAdminId(),
-            ShopAdminType::KEY_PLATFORM,
-            $permissions,
-            $opLevel,
-            $shopId
-        );
     }
 }
