@@ -738,7 +738,10 @@ class AdminShopOrderController extends ShopController
             $adminId,
             array(
                 AdminPermission::KEY_SHOP_SHOP_ORDER,
-            )
+            ),
+            null,
+            AdminPermission::PERMISSION_PLATFORM_SHOP,
+            $companyId
         );
 
         $language = $paramFetcher->get('language');

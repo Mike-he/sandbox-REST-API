@@ -227,8 +227,6 @@ class AdminEventOrderController extends SalesRestController
             $companyId
         );
 
-        $adminPlatform = $this->getAdminPlatform();
-
         $language = $paramFetcher->get('language');
         $cityId = $paramFetcher->get('city');
         $flag = $paramFetcher->get('flag');
@@ -246,7 +244,7 @@ class AdminEventOrderController extends SalesRestController
                 $startDate,
                 $endDate,
                 $search,
-                $adminPlatform['sales_company_id']
+                $companyId
             );
 
         return $this->getEventOrderExport($orders, $language);

@@ -978,7 +978,10 @@ class AdminOrderController extends OrderController
             $adminId,
             array(
                 AdminPermission::KEY_SALES_BUILDING_ORDER,
-            )
+            ),
+            null,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
         );
 
         if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
