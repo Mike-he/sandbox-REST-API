@@ -521,7 +521,7 @@ class AdminPositionController extends PaymentController
                 'salesCompanyId' => $companyId,
             ));
 
-        $globalPositions = array_unshift($globalPositions, $superAdminPosition);
+        array_unshift($globalPositions, $superAdminPosition);
 
         $specifyPositions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
