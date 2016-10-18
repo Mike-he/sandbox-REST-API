@@ -267,6 +267,12 @@ class AdminShopController extends ShopController
             $this->getAdminId(),
             array(
                 array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SHOP,
+                ),
+                array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
                 ),
                 array(
