@@ -446,7 +446,7 @@ class SalesCompany
     /**
      * @return bool
      */
-    public function isHasPendingBuilding(): bool
+    public function isHasPendingBuilding()
     {
         return $this->hasPendingBuilding;
     }
@@ -454,7 +454,7 @@ class SalesCompany
     /**
      * @param bool $hasPendingBuilding
      */
-    public function setHasPendingBuilding(bool $hasPendingBuilding)
+    public function setHasPendingBuilding($hasPendingBuilding)
     {
         $this->hasPendingBuilding = $hasPendingBuilding;
     }
@@ -462,7 +462,7 @@ class SalesCompany
     /**
      * @return bool
      */
-    public function isHasPendingShop(): bool
+    public function isHasPendingShop()
     {
         return $this->hasPendingShop;
     }
@@ -470,7 +470,7 @@ class SalesCompany
     /**
      * @param bool $hasPendingShop
      */
-    public function setHasPendingShop(bool $hasPendingShop)
+    public function setHasPendingShop($hasPendingShop)
     {
         $this->hasPendingShop = $hasPendingShop;
     }
