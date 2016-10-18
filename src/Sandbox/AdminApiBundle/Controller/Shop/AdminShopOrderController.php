@@ -478,7 +478,11 @@ class AdminShopOrderController extends ShopController
         $adminId = $admin->getId();
 
         // check user permission
-        $this->checkAdminOrderPermission($adminId, AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminOrderPermission(
+            $adminId,
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
 
         $shopId = $paramFetcher->get('shop');
         $status = $paramFetcher->get('status');
@@ -552,14 +556,16 @@ class AdminShopOrderController extends ShopController
      */
     private function checkAdminOrderPermission(
         $adminId,
-        $opLevel
+        $opLevel,
+        $platform = null
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
             ],
-            $opLevel
+            $opLevel,
+            $platform
         );
     }
 

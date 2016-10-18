@@ -631,6 +631,15 @@ class AdminShopOrderController extends ShopController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="sales_company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="status",
      *    array=false,
      *    default=null,
@@ -706,6 +715,7 @@ class AdminShopOrderController extends ShopController
     ) {
         //authenticate with web browser cookie
         $adminId = $this->authenticateAdminCookie();
+        $companyId = $paramFetcher->get('sales_company');
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
@@ -718,7 +728,9 @@ class AdminShopOrderController extends ShopController
                     'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
                 ),
             ),
-            AdminPermission::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SHOP,
+            $companyId
         );
 
         // get my shop ids
