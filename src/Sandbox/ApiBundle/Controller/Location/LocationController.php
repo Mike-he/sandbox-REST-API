@@ -93,7 +93,7 @@ class LocationController extends SalesRestController
         if (!is_null($salesCompanyId)) {
             $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($salesCompanyId);
         } else {
-            $salesCompanyId = $cookies['sales_company_id'];
+            $salesCompanyId = $adminPlatform['sales_company_id'];
             // get all cities
             $cities = $this->getRepo('Room\RoomCity')->findAll();
         }
