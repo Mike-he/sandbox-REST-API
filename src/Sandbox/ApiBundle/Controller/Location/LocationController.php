@@ -247,7 +247,10 @@ class LocationController extends SalesRestController
 
         $headers = array_change_key_case($_SERVER, CASE_LOWER);
 
+        $userId = null;
+        $clientId = null;
         if (!is_null($user)) {
+            $userId = $user->getUserId();
             $clientId = $user->getClientId();
             $client = $this->getRepo('User\UserClient')->find($clientId);
 
@@ -278,11 +281,15 @@ class LocationController extends SalesRestController
             }
         }
 
-        $adminPlatformCookieName = AdminPlatformController::COOKIE_NAME_PLATFORM;
-        $salesCompanyCookieName = AdminPlatformController::COOKIE_NAME_SALES_COMPANY;
+        $adminPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
+            ->findOneBy(array(
+                'userId' => $userId,
+                'clientId' => $clientId,
+            ));
 
         // response for client
-        if (!isset($_SESSION[$adminPlatformCookieName])) {
+        if (is_null($adminPlatform)) {
             $view = new View();
             $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
             $view->setData($buildings);
@@ -292,8 +299,8 @@ class LocationController extends SalesRestController
 
         // response for backend
         if (!is_null($user) && empty($ids)) {
-            $myPlatform = $_SESSION[$adminPlatformCookieName];
-            $salesCompanyId = $_SESSION[$salesCompanyCookieName];
+            $myPlatform = $adminPlatform->getPlatform();
+            $salesCompanyId = $adminPlatform->getSalesCompanyId();
 
             $isSuperAdmin = $this->hasSuperAdminPosition(
                 $this->getAdminId(),
