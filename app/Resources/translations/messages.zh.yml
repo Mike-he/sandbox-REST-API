@@ -186,6 +186,7 @@ client:
     account_non_existent: 账户不存在
     wrong_password: 密码错误
     wrong_check_code: 验证码错误
+    current_user_is_not_an_admin: 当前用户不是管理员
   menu:
     order: 空间预定
     coffee: 创合店铺
