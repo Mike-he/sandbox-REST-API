@@ -1691,7 +1691,7 @@ class SandboxRestController extends FOSRestController
 
             $log->setAdminUsername($this->getAdminId());
             $log->setPlatform($adminPlatform['platform']);
-            $log->setSalesCompanyId($sessions['sales_company_id']);
+            $log->setSalesCompanyId($adminPlatform['sales_company_id']);
 
             if ($this->handleLog($log)) {
                 $em->persist($log);

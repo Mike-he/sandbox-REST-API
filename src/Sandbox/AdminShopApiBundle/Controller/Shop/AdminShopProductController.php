@@ -220,7 +220,7 @@ class AdminShopProductController extends ShopProductController
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -265,11 +265,11 @@ class AdminShopProductController extends ShopProductController
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -315,11 +315,11 @@ class AdminShopProductController extends ShopProductController
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
@@ -404,7 +404,7 @@ class AdminShopProductController extends ShopProductController
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
@@ -460,11 +460,11 @@ class AdminShopProductController extends ShopProductController
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -518,7 +518,7 @@ class AdminShopProductController extends ShopProductController
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
-                    'shop_id' => $id,
+                    'shop_id' => $shopId,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
