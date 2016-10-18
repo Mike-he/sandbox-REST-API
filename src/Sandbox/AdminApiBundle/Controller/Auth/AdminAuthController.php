@@ -47,6 +47,7 @@ class AdminAuthController extends AuthController
         if (is_null($platform)) {
             return new View(array(
                 'id' => $this->getUser()->getUserId(),
+                'client_id' => $this->getUser()->getClientId(),
             ));
         }
 
