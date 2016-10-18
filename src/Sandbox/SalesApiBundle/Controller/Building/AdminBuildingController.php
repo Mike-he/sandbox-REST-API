@@ -175,14 +175,10 @@ class AdminBuildingController extends LocationController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
-                ),
-            ),
+            [
+                ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
+            ],
             AdminPermission::OP_LEVEL_VIEW
         );
 
@@ -211,6 +207,7 @@ class AdminBuildingController extends LocationController
             $this->getAdminId(),
             array(
                 AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
             )
         );
 
@@ -263,12 +260,13 @@ class AdminBuildingController extends LocationController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            array(
-                array(
+            [
+                [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
                     'building_id' => $id,
-                ),
-            ),
+                ],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
+            ],
             AdminPermission::OP_LEVEL_VIEW
         );
 
@@ -371,12 +369,13 @@ class AdminBuildingController extends LocationController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            array(
-                array(
+            [
+                [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
                     'building_id' => $id,
-                ),
-            ),
+                ],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
+            ],
             AdminPermission::OP_LEVEL_EDIT
         );
 
@@ -438,12 +437,13 @@ class AdminBuildingController extends LocationController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            array(
-                array(
+            [
+                [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
                     'building_id' => $id,
-                ),
-            ),
+                ],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
+            ],
             AdminPermission::OP_LEVEL_EDIT
         );
 
@@ -597,12 +597,13 @@ class AdminBuildingController extends LocationController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            array(
-                array(
+            [
+                [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
                     'building_id' => $id,
-                ),
-            ),
+                ],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
+            ],
             AdminPermission::OP_LEVEL_EDIT
         );
 

@@ -619,14 +619,16 @@ class AdminAdminsController extends SandboxRestController
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->getBindUser($position);
 
-                $positionArr[] = array(
-                    'key' => 'position',
-                    'id' => $position->getId(),
-                    'name' => $position->getName(),
-                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
-                    'count' => count($positionUser),
-                    'position' => $position,
-                );
+                if (count($positionUser) > 0) {
+                    $positionArr[] = array(
+                        'key' => 'position',
+                        'id' => $position->getId(),
+                        'name' => $position->getName(),
+                        'icon' => $global_image_url.$position->getIcon()->getIcon(),
+                        'count' => count($positionUser),
+                        'position' => $position,
+                    );
+                }
             }
 
             switch ($platform) {
@@ -666,14 +668,16 @@ class AdminAdminsController extends SandboxRestController
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->getBindUser($position, $buildingId, $shopId);
 
-                $positionArr[] = array(
-                    'key' => 'position',
-                    'id' => $position->getId(),
-                    'name' => $position->getName(),
-                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
-                    'count' => count($positionUser),
-                    'position' => $position,
-                );
+                if (count($positionUser) > 0) {
+                    $positionArr[] = array(
+                        'key' => 'position',
+                        'id' => $position->getId(),
+                        'name' => $position->getName(),
+                        'icon' => $global_image_url.$position->getIcon()->getIcon(),
+                        'count' => count($positionUser),
+                        'position' => $position,
+                    );
+                }
             }
         } else {
             $positions = $this->getDoctrine()
@@ -692,14 +696,17 @@ class AdminAdminsController extends SandboxRestController
                 $position = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                     ->find($position['positionId']);
-                $positionArr[] = array(
-                    'key' => 'position',
-                    'id' => $position->getId(),
-                    'name' => $position->getName(),
-                    'icon' => $global_image_url.$position->getIcon()->getIcon(),
-                    'count' => count($positionUser),
-                    'position' => $position,
-                );
+
+                if (count($positionUser) > 0) {
+                    $positionArr[] = array(
+                        'key' => 'position',
+                        'id' => $position->getId(),
+                        'name' => $position->getName(),
+                        'icon' => $global_image_url.$position->getIcon()->getIcon(),
+                        'count' => count($positionUser),
+                        'position' => $position,
+                    );
+                }
             }
         }
 
