@@ -23,17 +23,21 @@ class ShopRestController extends PaymentController
     protected function getMyShopIds(
         $adminId,
         $permissionKeys,
-        $opLevel = AdminPermission::OP_LEVEL_VIEW
+        $opLevel = AdminPermission::OP_LEVEL_VIEW,
+        $platform = null,
+        $salesCompanyId = null
     ) {
         // get permission
         if (empty($permissionKeys)) {
             return array();
         }
 
-        // get platform cookies
-        $adminPlatform = $this->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-        $salesCompanyId = $adminPlatform['sales_company_id'];
+        if (is_null($platform)) {
+            // get platform cookies
+            $adminPlatform = $this->getAdminPlatform();
+            $platform = $adminPlatform['platform'];
+            $salesCompanyId = $adminPlatform['sales_company_id'];
+        }
 
         $isSuperAdmin = $this->hasSuperAdminPosition(
             $adminId,
