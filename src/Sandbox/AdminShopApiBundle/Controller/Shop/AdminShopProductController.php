@@ -164,14 +164,16 @@ class AdminShopProductController extends ShopProductController
             $online = true;
         }
 
-        $products = $this->getRepo('Shop\ShopProduct')->getShopProductsByShopId(
-            $id,
-            $menuId,
-            $online,
-            $search,
-            $limit,
-            $offset
-         );
+        $products = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopProduct')
+            ->getShopProductsByShopId(
+                $id,
+                $menuId,
+                $online,
+                $search,
+                $limit,
+                $offset
+             );
 
         $products = $this->get('serializer')->serialize(
             $products,

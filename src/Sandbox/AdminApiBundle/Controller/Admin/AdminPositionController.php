@@ -37,8 +37,18 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminPositionController extends PaymentController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      * @param $id
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="level"
+     * )
      *
      * @Route("positions/{id}/change_position")
      * @Method({"POST"})
@@ -47,10 +57,13 @@ class AdminPositionController extends PaymentController
      */
     public function changePositionSortAction(
         Request $request,
+        ParamFetcherInterface $paramFetcher,
         $id
     ) {
         // check user permissions
         $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $type = $paramFetcher->get('type');
 
         // get position
         $adminPosition = $this->getDoctrine()
@@ -73,19 +86,22 @@ class AdminPositionController extends PaymentController
 
         return $this->updatePositionSort(
             $adminPosition,
-            $sort
+            $sort,
+            $type
         );
     }
 
     /**
      * @param AdminPosition $adminPosition
      * @param Position      $sort
+     * @param               $type
      *
      * @return View
      */
     private function updatePositionSort(
         $adminPosition,
-        $sort
+        $sort,
+        $type
     ) {
         // check user permissions
         $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_EDIT);
@@ -101,7 +117,8 @@ class AdminPositionController extends PaymentController
         ) {
             $this->swapAdminPositionSort(
                 $adminPosition,
-                $action
+                $action,
+                $type
             );
         }
 
@@ -115,10 +132,12 @@ class AdminPositionController extends PaymentController
     /**
      * @param AdminPosition $adminPosition
      * @param string        $action
+     * @param               $type
      */
     private function swapAdminPositionSort(
         $adminPosition,
-        $action
+        $action,
+        $type
     ) {
         // get platform cookies
         $adminPlatform = $this->getAdminPlatform();
@@ -132,7 +151,8 @@ class AdminPositionController extends PaymentController
                 $platform,
                 $salesCompanyId,
                 $sortTime,
-                $action
+                $action,
+                $type
             );
 
         // swap banner sort time

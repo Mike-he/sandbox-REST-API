@@ -100,7 +100,8 @@ class AdminPositionRepository extends EntityRepository
         $platform,
         $salesCompanyId,
         $sortTime,
-        $action
+        $action,
+        $type
     ) {
         // operator and order direction
         $operator = '>';
@@ -113,6 +114,7 @@ class AdminPositionRepository extends EntityRepository
         $query = $this->createQueryBuilder('p')
             ->where('p.sortTime '.$operator.' :sortTime')
             ->andWhere('p.platform = :platform')
+            ->andWhere('p.isHidden = FALSE')
             ->setParameter('platform', $platform)
             ->setParameter('sortTime', $sortTime)
             ->orderBy('p.sortTime', $direction)
@@ -121,6 +123,13 @@ class AdminPositionRepository extends EntityRepository
         if (!is_null($salesCompanyId)) {
             $query->andWhere('p.salesCompanyId = :salesCompanyId')
                 ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        if (!is_null($type) && !empty($type)) {
+            $query->leftJoin('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm', 'WITH', 'p.id = m.positionId')
+                ->leftJoin('SandboxApiBundle:Admin\AdminPermission', 'ap', 'WITH', 'ap.id = m.permissionId')
+                ->andWhere('ap.level = :type')
+                ->setParameter('type', $type);
         }
 
         return $query->getQuery()->getOneOrNullResult();
