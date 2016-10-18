@@ -709,7 +709,7 @@ class AdminShopOrderController extends ShopController
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
+            $adminId,
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
@@ -818,7 +818,7 @@ class AdminShopOrderController extends ShopController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        return $adminToken->getAdminId();
+        return $adminToken->getUserId();
     }
 
     /**

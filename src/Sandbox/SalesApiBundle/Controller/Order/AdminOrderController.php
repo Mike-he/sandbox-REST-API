@@ -939,7 +939,7 @@ class AdminOrderController extends OrderController
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
+            $adminId,
             array(
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,

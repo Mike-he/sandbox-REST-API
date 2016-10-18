@@ -574,11 +574,11 @@ class AdminShopOrderController extends ShopController
         }
 
         $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('Admin\AdminToken')->findOneByToken($token);
+        $adminToken = $this->getRepo('User\UserToken')->findOneByToken($token);
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        return $adminToken->getAdmin();
+        return $adminToken->getUser();
     }
 }

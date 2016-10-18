@@ -429,6 +429,6 @@ class AdminEventOrderController extends SalesRestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        return $adminToken->getAdmin();
+        return $adminToken->getUser();
     }
 }
