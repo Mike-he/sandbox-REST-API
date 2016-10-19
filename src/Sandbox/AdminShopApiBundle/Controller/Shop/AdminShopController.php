@@ -271,9 +271,11 @@ class AdminShopController extends ShopController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $adminId = $this->getAdminId();
+
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
+            $adminId,
             array(
                 array(
                     'key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN,
@@ -301,22 +303,22 @@ class AdminShopController extends ShopController
         );
 
         $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
         $permission = $paramFetcher->get('permission');
 
-        if (AdminPermission::KEY_SHOP_PLATFORM_ADMIN == $permission
-            || AdminPermission::KEY_SHOP_PLATFORM_SHOP == $permission
-        ) {
-            $shopIds = $this->getRepo('Shop\Shop')->getShopIdsByCompany($companyId);
-        } else {
-            $shopIds = $this->getMyShopIds(
-                $this->getAdminId(),
-                array(
-                    $permission,
-                )
-            );
-        }
+        $myPermissions = $this->getMyAdminPermissions(
+            $adminId,
+            $platform,
+            $companyId
+        );
+
+        $shopIds = $this->myShopIds(
+            $permission,
+            $companyId,
+            $myPermissions
+        );
 
         $buildingId = $paramFetcher->get('building');
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding(
@@ -368,6 +370,48 @@ class AdminShopController extends ShopController
         $view->setData($shops);
 
         return $view;
+    }
+
+    /**
+     * @param $permission
+     * @param $companyId
+     * @param $myPermissions
+     *
+     * @return array
+     */
+    private function myShopIds(
+        $permission,
+        $companyId,
+        $myPermissions
+    ) {
+        $shopIds = array();
+
+        if (AdminPermission::KEY_SHOP_PLATFORM_ADMIN == $permission) {
+            $shopIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\Shop')
+                ->getShopIdsByCompany($companyId);
+        } elseif (AdminPermission::KEY_SHOP_SHOP_SHOP == $permission) {
+            foreach ($myPermissions as $permission) {
+                if (!in_array(AdminPermission::KEY_SHOP_PLATFORM_SHOP, $permission)
+                    && !in_array(AdminPermission::KEY_SHOP_SHOP_SHOP, $permission)
+                ) {
+                    continue;
+                }
+
+                $shopIds = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Shop\Shop')
+                    ->getShopIdsByCompany($companyId);
+            }
+        } else {
+            $shopIds = $this->getMyShopIds(
+                $this->getAdminId(),
+                array(
+                    $permission,
+                )
+            );
+        }
+
+        return $shopIds;
     }
 
     /**
