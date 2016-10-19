@@ -41,9 +41,7 @@ class SalesRestController extends SandboxRestController
             $salesCompanyId
         );
 
-        if ($isSuperAdmin
-            || in_array(AdminPermission::KEY_SALES_PLATFORM_BUILDING, $permissionKeys)
-        ) {
+        if ($isSuperAdmin) {
             // if user is super admin, get all buildings
             $myBuildings = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
@@ -67,6 +65,25 @@ class SalesRestController extends SandboxRestController
             $platform,
             $salesCompanyId
         );
+
+        foreach ($myPermissions  as $myPermission) {
+            if (AdminPermission::KEY_SALES_PLATFORM_BUILDING == $myPermission['key']) {
+                $myBuildings = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->getBuildingsByCompany($salesCompanyId);
+
+                if (empty($myBuildings)) {
+                    return $myBuildings;
+                }
+
+                $ids = array();
+                foreach ($myBuildings as $building) {
+                    array_push($ids, $building['id']);
+                }
+
+                return $ids;
+            }
+        }
 
         $ids = array();
         foreach ($permissionKeys as $permissionKey) {
