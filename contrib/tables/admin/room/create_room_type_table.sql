@@ -1,6 +1,7 @@
 CREATE TABLE `RoomTypes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(16) NOT NULL,
+  `icon` longtext NOT NULL
   PRIMARY KEY (`id`)
 );
 

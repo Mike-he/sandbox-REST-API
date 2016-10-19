@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Feed.
  *
- * @ORM\Table(name="Feed")
+ * @ORM\Table(name="feed")
  * @ORM\Entity
  */
 class Feed
@@ -28,7 +28,7 @@ class Feed
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
-     *     
+     *
      * @Assert\NotBlank()
      */
     private $content;

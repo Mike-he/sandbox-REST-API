@@ -3,9 +3,7 @@
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopMenuPosition;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopMenu;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -51,13 +49,19 @@ class AdminShopMenuController extends ShopMenuController
         $id
     ) {
         // check user permission
-        $this->checkAdminShopMenuPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $id,
+                ),
             ),
-            $id
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $this->findEntityById($id, 'Shop\Shop');
@@ -97,12 +101,15 @@ class AdminShopMenuController extends ShopMenuController
         $id
     ) {
         // check user permission
-        $this->checkAdminShopMenuPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $id,
+                ),
             ),
-            $id
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $shop = $this->findShopById($id);
@@ -174,12 +181,15 @@ class AdminShopMenuController extends ShopMenuController
         $this->throwNotFoundIfNull($menu, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->checkAdminShopMenuPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                    'shop_id' => $menu->getShopId(),
+                ),
             ),
-            $menu->getShopId()
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $position = new ShopMenuPosition();
@@ -389,24 +399,5 @@ class AdminShopMenuController extends ShopMenuController
         if (!is_null($sameMenu)) {
             throw new ConflictHttpException(ShopMenu::SHOP_MENU_CONFLICT_MESSAGE);
         }
-    }
-
-    /**
-     * @param $opLevel
-     * @param $permissions
-     * @param $shopId
-     */
-    private function checkAdminShopMenuPermission(
-        $opLevel,
-        $permissions,
-        $shopId = null
-    ) {
-        $this->throwAccessDeniedIfShopAdminNotAllowed(
-            $this->getAdminId(),
-            ShopAdminType::KEY_PLATFORM,
-            $permissions,
-            $opLevel,
-            $shopId
-        );
     }
 }

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * EventRegistrationForm.
  *
- * @ORM\Table(name = "EventRegistrationForm")
+ * @ORM\Table(name="event_registration_form")
  * @ORM\Entity
  */
 class EventRegistrationForm

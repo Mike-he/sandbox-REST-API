@@ -10,7 +10,7 @@ use Sandbox\ApiBundle\Entity\User\UserProfile;
 /**
  * Feed view.
  *
- * @ORM\Table(name="FeedView")
+ * @ORM\Table(name="feed_view")
  * @ORM\Entity(
  *     repositoryClass="Sandbox\ApiBundle\Repository\Feed\FeedRepository"
  * )

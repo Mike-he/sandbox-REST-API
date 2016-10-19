@@ -4,8 +4,6 @@ namespace Sandbox\AdminApiBundle\Controller\Log;
 
 use Sandbox\ApiBundle\Controller\Log\LogController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -201,9 +199,10 @@ class AdminLogController extends LogController
     {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_LOG,
-            AdminPermissionMap::OP_LEVEL_VIEW
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LOG],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
         );
     }
 }

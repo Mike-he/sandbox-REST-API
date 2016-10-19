@@ -1,18 +1,6 @@
-# Admin User Login /sales/admin/auth/login
-sandbox_sales_admin_api_auth_login:
-    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminUserLoginController.php"
-    type:     annotation
-    prefix:   /admin/auth
-
 # Admin User Me /sales/admin/auth/me
 sandbox_sales_admin_api_auth_me:
     resource: "@SandboxSalesApiBundle/Controller/Auth/AdminAuthController.php"
-    type:     annotation
-    prefix:   /admin/auth
-
-# Admin User Logout /sales/admin/auth/logout
-sandbox_sales_admin_api_auth_logout:
-    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminUserLogoutController.php"
     type:     annotation
     prefix:   /admin/auth
 
@@ -37,24 +25,6 @@ sandbox_sales_admin_room_attachment:
 # Admin Rooms /sales/admin/rooms
 sandbox_sales_admin_room:
     resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomController.php"
-    type:     annotation
-    prefix:   /admin
-
-# Admin Permission /sales/admin/permission
-sandbox_sales_admin_permissions:
-    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminPermissionsController.php"
-    type:     annotation
-    prefix:   /admin
-
-# Admin Type /sales/admin/types
-sandbox_sales_admin_types:
-    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminTypesController.php"
-    type:     annotation
-    prefix:   /admin
-
-# Admin Admins /sales/admin/admins
-sandbox_sales_admin_admins:
-    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminAdminsController.php"
     type:     annotation
     prefix:   /admin
 

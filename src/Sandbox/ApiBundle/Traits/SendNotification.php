@@ -97,6 +97,9 @@ trait SendNotification
     ) {
         $jsonDataArray = array('receivers' => $receivers);
 
+        // removed chat message to send push notification only
+        $messageArray = null;
+
         return $this->setJsonDataArrayBody(
             $jsonDataArray,
             $contentArray,
@@ -210,5 +213,147 @@ trait SendNotification
         );
 
         return $apns;
+    }
+
+    /**
+     * @param $users
+     * @param $language
+     * @param $message
+     * @param $title
+     * @param $contentArray
+     *
+     * @return string
+     */
+    protected function getJpushData(
+        $users,
+        $language,
+        $message,
+        $title,
+        $contentArray
+    ) {
+        // get globals
+        $globals = $this->getContainer()
+            ->get('twig')
+            ->getGlobals();
+        $option = $globals['jpush_apns_option'];
+
+        $data = [
+            'platform' => 'all',
+            'audience' => [
+                'alias' => $users,
+                'tag' => $language,
+            ],
+            'notification' => [
+                'alert' => $message,
+                'android' => [
+                    'alert' => $message,
+                    'title' => $title,
+                    'extras' => $contentArray,
+                ],
+                'ios' => [
+                    'alert' => $message,
+                    'sound' => 'default',
+                    'badge' => '+1',
+                    'extras' => $contentArray,
+                ],
+            ],
+            'options' => [
+                'apns_production' => filter_var($option, FILTER_VALIDATE_BOOLEAN),
+            ],
+        ];
+
+        return json_encode($data);
+    }
+
+    /**
+     * @param object $jsonData
+     */
+    protected function sendJpushNotification(
+        $jsonData
+    ) {
+        try {
+            $apiURL = 'https://api.jpush.cn/v3/push';
+
+            // call JPush API
+            $ch = curl_init($apiURL);
+            $headers[] = 'Authorization: Basic MjA4ODI1MmFmYTUzY2MxNjkzMDJmNGQwOjk5ZThkZDNlZDlmZGNiMTZlYjExMWVkOQ==';
+
+            $this->callAPI(
+                $ch,
+                'POST',
+                $headers,
+                $jsonData
+            );
+        } catch (Exception $e) {
+            error_log('Send JPush notification went wrong.');
+        }
+    }
+
+    /**
+     * @param $receivers
+     *
+     * @return array
+     */
+    protected function compareVersionForJpush(
+       $receivers
+    ) {
+        $jpushReceivers = [];
+        foreach ($receivers as $receiver) {
+            $tokens = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserToken')
+                ->findBy(
+                    ['userId' => $receiver],
+                    ['clientId' => 'DESC']
+                );
+
+            foreach ($tokens as $token) {
+                if (!empty($jpushReceivers)) {
+                    continue;
+                }
+
+                $client = $this->getContainer()
+                    ->get('doctrine')
+                    ->getRepository('SandboxApiBundle:User\UserClient')
+                    ->find($token->getClientId());
+
+                if (is_null($client)) {
+                    continue;
+                }
+
+                $name = $client->getName();
+                if (is_null($name) || $name == 'SandBox Admin') {
+                    continue;
+                }
+
+                $version = $client->getVersion();
+                if (!is_null($version) && !empty($version)) {
+                    $versionArray = explode('.', $version);
+
+                    if ((int) $versionArray[0] < 2) {
+                        continue;
+                    } elseif ((int) $versionArray[0] == 2) {
+                        if ((int) $versionArray[1] < 2) {
+                            continue;
+                        } elseif ((int) $versionArray[1] == 2) {
+                            $versionNumber = preg_replace('/[^0-9]/', '', $versionArray[2]);
+
+                            if ((int) $versionNumber < 9) {
+                                continue;
+                            }
+
+                            array_push($jpushReceivers, $receiver);
+                        }
+                    }
+                }
+            }
+        }
+
+        $receivers = array_diff($receivers, $jpushReceivers);
+
+        return array(
+            'users' => $receivers,
+            'jpush_users' => $jpushReceivers,
+        );
     }
 }

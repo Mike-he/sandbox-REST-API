@@ -11,7 +11,7 @@ use Sandbox\ApiBundle\Entity\Company\Company;
  * User Profile.
  *
  * @ORM\Table(
- *      name="UserProfile",
+ *      name="user_profiles",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="userId_UNIQUE", columns={"userId"})
  *      }

@@ -188,7 +188,8 @@ class ClientUserLoginController extends UserLoginController
         $headerKey
     ) {
         // get auth
-        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
+        $headerKey = 'http_'.$headerKey;
         if (!array_key_exists($headerKey, $headers)) {
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
         }

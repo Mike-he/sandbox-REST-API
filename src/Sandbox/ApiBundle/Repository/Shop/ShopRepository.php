@@ -224,7 +224,7 @@ class ShopRepository extends EntityRepository
 
     /**
      * @param $companyId
-     * 
+     *
      * @return array
      */
     public function getShopIdsByCompany(

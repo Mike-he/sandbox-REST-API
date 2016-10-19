@@ -46,6 +46,7 @@ product_order:
     account: Balance
     cnp_u: Domestic Quick Pay
     cnp_f: International Quick Pay
+    offline: Offline
   status:
     unpaid: Unpaid
     paid: Paid
@@ -185,6 +186,8 @@ client:
     account_banned: Your account is banned, please contact customer service:
     account_non_existent: Account does not exist
     wrong_password: Wrong password
+    wrong_check_code: Wrong validation code
+    current_user_is_not_an_admin: Current user is not an admin
   menu:
     order: Reservation
     coffee: Coffee
@@ -278,3 +281,9 @@ banner:
     news: News
     product: Product
     advertisement: Advertisement
+
+admin:
+  admins:
+    all: All Admin
+    super: Super Admin
+    platform: Platform Admin

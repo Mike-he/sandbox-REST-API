@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * RoomMeeting.
  *
  * @ORM\Table(
- *      name="RoomMeeting",
+ *      name="room_meeting",
  *      indexes={
  *          @ORM\Index(name="fk_RoomMeeting_roomId_idx", columns={"roomId"})
  *      }

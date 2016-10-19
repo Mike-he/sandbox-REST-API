@@ -10,7 +10,7 @@ use JsonSerializable;
  * RoomCity.
  *
  * @ORM\Table(
- *      name="RoomCity",
+ *      name="room_city",
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})
  *      }

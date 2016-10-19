@@ -119,6 +119,24 @@ class RoomBuildingRepository extends EntityRepository
         return $query->getQuery()->getArrayResult();
     }
 
+    /**
+     * @param $companyId
+     *
+     * @return array
+     */
+    public function getCompanyBuildings(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->where('b.isDeleted = FALSE')
+            ->andWhere('b.status = :status')
+            ->andWhere('b.companyId = :companyId')
+            ->setParameter('status', 'accept')
+            ->setParameter('companyId', $companyId);
+
+        return $query->getQuery()->getResult();
+    }
+
     //-------------------- sales room repository --------------------//
 
     /**

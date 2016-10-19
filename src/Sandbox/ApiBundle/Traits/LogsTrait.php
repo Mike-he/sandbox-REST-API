@@ -194,7 +194,7 @@ trait LogsTrait
 
     /**
      * @param $objectId
-     * 
+     *
      * @return mixed|null
      */
     private function getSalesAdminJson(

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * FoodOrder.
  *
- * @ORM\Table(name="FoodOrder")
+ * @ORM\Table(name="food_order")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Food\FoodOrderRepository")
  */
 class FoodOrder

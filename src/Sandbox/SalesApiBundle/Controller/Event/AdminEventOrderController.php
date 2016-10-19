@@ -6,10 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -100,7 +97,10 @@ class AdminEventOrderController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkSalesAdminEventOrderPermission($this->getAdminId(), SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventOrderPermission(
+            $this->getAdminId(),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $cityId = $paramFetcher->get('city');
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -197,6 +197,15 @@ class AdminEventOrderController extends SalesRestController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sales_company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
      * @Route("/events/orders/export")
      * @Method({"GET"})
      *
@@ -208,10 +217,15 @@ class AdminEventOrderController extends SalesRestController
     ) {
         //authenticate with web browser cookie
         $admin = $this->authenticateAdminCookie();
-        $adminId = $admin->getId();
+        $companyId = $paramFetcher->get('sales_company');
 
         // check user permission
-        $this->checkSalesAdminEventOrderPermission($adminId, SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventOrderPermission(
+            $admin->getId(),
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
+        );
 
         $language = $paramFetcher->get('language');
         $cityId = $paramFetcher->get('city');
@@ -230,7 +244,7 @@ class AdminEventOrderController extends SalesRestController
                 $startDate,
                 $endDate,
                 $search,
-                $admin->getSalesCompany()->getId()
+                $companyId
             );
 
         return $this->getEventOrderExport($orders, $language);
@@ -373,7 +387,10 @@ class AdminEventOrderController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminEventOrderPermission($this->getAdminId(), SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventOrderPermission(
+            $this->getAdminId(),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $order = $this->getRepo('Event\EventOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -394,26 +411,30 @@ class AdminEventOrderController extends SalesRestController
      * Check user permission.
      *
      * @param int $opLevel
-     * @param int $adminId
      */
     private function checkSalesAdminEventOrderPermission(
         $adminId,
-        $opLevel
+        $opLevel,
+        $platform = null,
+        $salesCompanyId = null
     ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                ),
             ),
-            $opLevel
+            $opLevel,
+            $platform,
+            $salesCompanyId
         );
     }
 
     /**
      * authenticate with web browser cookie.
      *
-     * @return SalesAdmin
+     * @return mixed
      */
     protected function authenticateAdminCookie()
     {
@@ -424,7 +445,7 @@ class AdminEventOrderController extends SalesRestController
 
         $token = $_COOKIE[$cookie_name];
         $adminToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminToken')
+            ->getRepository('SandboxApiBundle:User\UserToken')
             ->findOneBy(array(
                 'token' => $token,
             ));
@@ -432,6 +453,6 @@ class AdminEventOrderController extends SalesRestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        return $adminToken->getAdmin();
+        return $adminToken->getUser();
     }
 }

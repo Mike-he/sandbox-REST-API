@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * CompanyPortfolio.
  *
- * @ORM\Table(name="CompanyPortfolio", indexes={@ORM\Index(name="fk_CompanyPortfolio_companyId_idx", columns={"companyId"})})
+ * @ORM\Table(name="company_portfolio", indexes={@ORM\Index(name="fk_CompanyPortfolio_companyId_idx", columns={"companyId"})})
  * @ORM\Entity(
  *      repositoryClass="Sandbox\ApiBundle\Repository\Company\CompanyPortfolioRepository"
  * )

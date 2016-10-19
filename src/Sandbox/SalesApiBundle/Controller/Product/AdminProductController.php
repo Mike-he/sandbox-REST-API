@@ -6,13 +6,11 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Product\ProductPatchVisibleType;
 use Sandbox\ApiBundle\Form\Product\ProductType;
 use Symfony\Component\HttpFoundation\Request;
@@ -227,15 +225,20 @@ class AdminProductController extends ProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
-                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
-                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // filters
@@ -258,7 +261,7 @@ class AdminProductController extends ProductController
         // set default permission
         if (is_null($permissions) || empty($permissions)) {
             $permissions = array(
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                AdminPermission::KEY_SALES_BUILDING_PRODUCT,
             );
         }
 
@@ -345,17 +348,20 @@ class AdminProductController extends ProductController
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
-                SalesAdminPermission::KEY_BUILDING_ORDER_PREORDER,
-                SalesAdminPermission::KEY_BUILDING_ORDER_RESERVE,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW,
-            $buildingId
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $view = new View();
@@ -396,9 +402,15 @@ class AdminProductController extends ProductController
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminProductPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $roomId = $product->getRoomId();
@@ -422,13 +434,10 @@ class AdminProductController extends ProductController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_PRODUCT,
             'logAction' => Log::ACTION_DELETE,
             'logObjectKey' => Log::OBJECT_PRODUCT,
             'logObjectId' => $product->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
     }
 
@@ -473,9 +482,15 @@ class AdminProductController extends ProductController
         $buildingId = $room->getBuildingId();
 
         // check user permission
-        $this->checkAdminProductPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
@@ -567,13 +582,10 @@ class AdminProductController extends ProductController
         );
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_PRODUCT,
             'logAction' => Log::ACTION_CREATE,
             'logObjectKey' => Log::OBJECT_PRODUCT,
             'logObjectId' => $product->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         $response = array(
@@ -634,9 +646,15 @@ class AdminProductController extends ProductController
         $buildingId = $room->getBuildingId();
 
         // check user permission
-        $this->checkAdminProductPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $startDate = $form['start_date']->getData();
@@ -670,24 +688,18 @@ class AdminProductController extends ProductController
             }
 
             $this->generateAdminLogs(array(
-                'platform' => Log::PLATFORM_SALES,
-                'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
                 'logModule' => Log::MODULE_PRODUCT,
                 'logAction' => $action,
                 'logObjectKey' => Log::OBJECT_PRODUCT,
                 'logObjectId' => $product->getId(),
-                'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
             ));
         }
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_PRODUCT,
             'logAction' => Log::ACTION_EDIT,
             'logObjectKey' => Log::OBJECT_PRODUCT,
             'logObjectId' => $product->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
 
         $response = array(
@@ -728,9 +740,15 @@ class AdminProductController extends ProductController
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-        $this->checkAdminProductPermission(
-            SalesAdminPermissionMap::OP_LEVEL_EDIT,
-            $buildingId
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         // bind data
@@ -747,13 +765,10 @@ class AdminProductController extends ProductController
         $em->flush();
 
         $this->generateAdminLogs(array(
-            'platform' => Log::PLATFORM_SALES,
-            'adminUsername' => $this->getUser()->getMyAdmin()->getUsername(),
             'logModule' => Log::MODULE_PRODUCT,
             'logAction' => Log::ACTION_EDIT,
             'logObjectKey' => Log::OBJECT_PRODUCT,
             'logObjectId' => $product->getId(),
-            'salesCompanyId' => $this->getUser()->getMyAdmin()->getCompanyId(),
         ));
     }
 
@@ -761,20 +776,18 @@ class AdminProductController extends ProductController
      * Check user permission.
      *
      * @param int $opLevel
-     * @param int $buildingId
      */
     protected function checkAdminProductPermission(
-        $opLevel,
-        $buildingId = null
+        $opLevel
     ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_PRODUCT,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
             ),
-            $opLevel,
-            $buildingId
+            $opLevel
         );
     }
 

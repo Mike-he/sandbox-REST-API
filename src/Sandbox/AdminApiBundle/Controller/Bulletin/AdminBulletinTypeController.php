@@ -9,7 +9,7 @@ use Sandbox\AdminApiBundle\Data\Position\Position;
 use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Controller\Bulletin\BulletinController;
 use Sandbox\ApiBundle\Entity\Bulletin\BulletinType;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Form\Bulletin\BulletinTypePost;
 use Sandbox\ApiBundle\Form\Position\PositionType;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,7 +54,7 @@ class AdminBulletinTypeController extends BulletinController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $type = new BulletinType();
 
@@ -110,7 +110,7 @@ class AdminBulletinTypeController extends BulletinController
         $id
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $type = $this->getRepo('Bulletin\BulletinType')->findOneBy(
             [
@@ -205,7 +205,7 @@ class AdminBulletinTypeController extends BulletinController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $types = $this->getRepo('Bulletin\BulletinType')->findBy(
             ['deleted' => false],
@@ -257,7 +257,7 @@ class AdminBulletinTypeController extends BulletinController
         $id
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $type = $this->getRepo('Bulletin\BulletinType')->findOneBy(
             [
@@ -300,7 +300,7 @@ class AdminBulletinTypeController extends BulletinController
         $id
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $type = $this->getRepo('Bulletin\BulletinType')->findOneBy(
             [
@@ -346,7 +346,7 @@ class AdminBulletinTypeController extends BulletinController
         $id
     ) {
         // check user permission
-        $this->checkAdminBulletinPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBulletinPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $type = $this->getRepo('Bulletin\BulletinType')->findOneBy(
             [

@@ -72,6 +72,8 @@ trait ProductOrderNotification
         }
 
         try {
+            $jsonData = null;
+
             if (empty($orders) && !is_null($order)) {
                 $city = $order->getProduct()->getRoom()->getCity()->getName();
                 $building = $order->getProduct()->getRoom()->getBuilding()->getName();
@@ -80,39 +82,74 @@ trait ProductOrderNotification
                 $bodyZh = $firstZh.$city.$building.$room.$secondZh;
                 $bodyEn = $firstEn.$city.$building.$room.$secondEn;
 
-                // get notification data
-                $data = $this->getProductOrderNotificationJsonData(
-                    $order->getId(),
-                    $order->getOrderNumber(),
-                    $fromUserId,
-                    $receivers,
-                    $action,
-                    $bodyZh,
-                    $bodyEn
-                );
+                $result = $this->compareVersionForJpush($receivers);
+                $receivers = $result['users'];
+                $jpushReceivers = $result['jpush_users'];
 
-                $jsonData = json_encode(array($data));
-            } else {
-                $dataArray = [];
-                foreach ($orders as $order) {
+                if (!empty($receivers)) {
+                    // get notification data
                     $data = $this->getProductOrderNotificationJsonData(
                         $order->getId(),
                         $order->getOrderNumber(),
                         $fromUserId,
-                        [$order->getUserId()],
+                        $receivers,
                         $action,
-                        $firstZh,
-                        $firstEn
+                        $bodyZh,
+                        $bodyEn
                     );
 
-                    array_push($dataArray, $data);
+                    $jsonData = json_encode(array($data));
                 }
 
-                $jsonData = json_encode($dataArray);
+                if (!empty($jpushReceivers)) {
+                    $this->setDataAndJPushNotification(
+                        $order->getId(),
+                        $order->getOrderNumber(),
+                        $fromUserId,
+                        $receivers,
+                        $action,
+                        $bodyZh,
+                        $bodyEn
+                    );
+                }
+            } else {
+                $dataArray = [];
+                foreach ($orders as $order) {
+                    $userArray = [$order->getUserId()];
+                    $result = $this->compareVersionForJpush($userArray);
+                    $jpushReceivers = $result['jpush_users'];
+
+                    if (!empty($jpushReceivers)) {
+                        $this->setDataAndJPushNotification(
+                            $order->getId(),
+                            $order->getOrderNumber(),
+                            $fromUserId,
+                            $jpushReceivers,
+                            $action,
+                            $firstZh,
+                            $firstEn
+                        );
+                    } else {
+                        $data = $this->getProductOrderNotificationJsonData(
+                            $order->getId(),
+                            $order->getOrderNumber(),
+                            $fromUserId,
+                            $userArray,
+                            $action,
+                            $firstZh,
+                            $firstEn
+                        );
+
+                        array_push($dataArray, $data);
+                        $jsonData = json_encode($dataArray);
+                    }
+                }
             }
 
             // send xmpp notification
-            $this->sendXmppNotification($jsonData, false);
+            if (!is_null($jsonData)) {
+                $this->sendXmppNotification($jsonData, false);
+            }
         } catch (Exception $e) {
             error_log('Send message notification went wrong!');
         }
@@ -187,7 +224,8 @@ trait ProductOrderNotification
         return $this->getNotificationJsonData(
             $receiversArray,
             $contentArray,
-            $messageArray
+            $messageArray,
+            $apns
         );
     }
 
@@ -205,5 +243,66 @@ trait ProductOrderNotification
             'id' => $orderId,
             'order_number' => $orderNumber,
         ];
+    }
+
+    /**
+     * @param int    $orderId
+     * @param string $orderNumber
+     * @param int    $fromUserId
+     * @param array  $receivers
+     * @param string $action
+     * @param string $bodyZh
+     * @param string $bodyEn
+     *
+     * @return mixed
+     */
+    private function setDataAndJPushNotification(
+        $orderId,
+        $orderNumber,
+        $fromUserId,
+        $receivers,
+        $action,
+        $bodyZh,
+        $bodyEn
+    ) {
+        $fromUser = null;
+        if (!is_null($fromUserId)) {
+            $fromUser = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
+                ->find($fromUserId);
+        }
+
+        $apns = $this->setApnsJsonDataArray($bodyZh, $bodyEn);
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            ProductOrder::ACTION_TYPE,
+            $action,
+            $fromUser,
+            $apns
+        );
+
+        // get order array
+        $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
+
+        $zhData = $this->getJpushData(
+            $receivers,
+            ['lang_zh'],
+            $bodyZh,
+            '展想创合',
+            $contentArray
+        );
+
+        $enData = $this->getJpushData(
+            $receivers,
+            ['lang_en'],
+            $bodyEn,
+            'Sandbox3',
+            $contentArray
+        );
+
+        $this->sendJpushNotification($zhData);
+        $this->sendJpushNotification($enData);
     }
 }

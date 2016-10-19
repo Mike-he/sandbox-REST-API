@@ -5,11 +5,9 @@ namespace Sandbox\SalesApiBundle\Controller\Event;
 use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPatchType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,7 +70,7 @@ class AdminEventRegistrationController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkSalesAdminEventRegistrationPermission(SalesAdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkSalesAdminEventRegistrationPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $ids = $paramFetcher->get('id');
         foreach ($ids as $id) {
@@ -179,7 +177,7 @@ class AdminEventRegistrationController extends SalesRestController
         $event_id
     ) {
         // check user permission
-        $this->checkSalesAdminEventRegistrationPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventRegistrationPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -249,7 +247,7 @@ class AdminEventRegistrationController extends SalesRestController
         $registration_id
     ) {
         // check user permission
-        $this->checkSalesAdminEventRegistrationPermission(SalesAdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkSalesAdminEventRegistrationPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get query result
         $eventRegistrationArray = $this->getDoctrine()
@@ -366,11 +364,12 @@ class AdminEventRegistrationController extends SalesRestController
     private function checkSalesAdminEventRegistrationPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_PLATFORM_EVENT,
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                ),
             ),
             $opLevel
         );

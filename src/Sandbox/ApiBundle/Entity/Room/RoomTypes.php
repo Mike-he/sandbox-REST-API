@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * RoomTypes.
  *
- * @ORM\Table(name="RoomTypes")
+ * @ORM\Table(name="room_types")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomTypesRepository")
  */
 class RoomTypes

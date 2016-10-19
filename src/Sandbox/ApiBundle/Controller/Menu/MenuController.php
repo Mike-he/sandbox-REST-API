@@ -241,6 +241,9 @@ class MenuController extends SandboxRestController
     private function generateHomeJson(
         $menuJson
     ) {
+        $bannerTop = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => 'banner_top'));
         $menuArray = json_decode($menuJson, true);
         $bannerCarouselMenu = array();
         $iconsMenu = array();
@@ -250,7 +253,7 @@ class MenuController extends SandboxRestController
                 case 'bannerCarousel':
                     $items = $menu['items'];
                     if (!empty($menu['hidden_asserts'])) {
-                        $items = $this->handleBannerCarousel($items, $menu['hidden_asserts']);
+                        $items = $this->handleBannerCarousel($items, $menu['hidden_asserts'], $bannerTop);
                     }
                     $bannerCarouselMenu = array(
                         'type' => 'bannerCarousel',
@@ -272,12 +275,12 @@ class MenuController extends SandboxRestController
                         foreach ($menu['hidden_asserts'] as $assert) {
                             $item_key = $assert['item_key'];
                             $limit = $assert['limit'];
-                            $offset = (($assert['offset'] - 1) * $limit) + 5;
+                            $offset = (($assert['offset'] - 1) * $limit) + $bannerTop->getValue();
                             $bannerMenu = $this->handleBanner($item_key, $limit, $offset);
                         }
                     }
                     break;
-                default;
+                default:
             }
         }
         $newMenuArray = array($bannerCarouselMenu, $iconsMenu);
@@ -290,17 +293,19 @@ class MenuController extends SandboxRestController
     /**
      * @param $items
      * @param $asserts
+     * @param $bannerTop
      *
      * @return array
      */
     private function handleBannerCarousel(
         $items,
-        $asserts
+        $asserts,
+        $bannerTop
     ) {
         foreach ($asserts as $assert) {
             $item_key = $assert['item_key'];
-            $limit = $assert['limit'];
-            $offset = ($assert['offset'] - 1) * $limit;
+            $limit = $bannerTop->getValue();
+            $offset = 0;
             switch ($item_key) {
                 case 'banner':
                     $data = $this->getDoctrine()->getRepository("SandboxApiBundle:Banner\Banner")->getLimitList($limit, $offset);
@@ -473,7 +478,7 @@ class MenuController extends SandboxRestController
 //        $component = $paramFetcher->get('component');
 //        $platform = $paramFetcher->get('platform');
 //        $version = $paramFetcher->get('version');
-//
+
 //        $menus = $this->getRepo('Menu\Menu')->findBy(
 //            array(
 //                'component' => $component,
@@ -482,13 +487,13 @@ class MenuController extends SandboxRestController
 //            ),
 //            array('section' => 'ASC')
 //        );
-//
+
 //        $menuResponse = array();
-//
+
 //        if ($component === Menu::COMPONENT_CLIENT) {
 //            $leftMenuArray = array();
 //            $rightMenuArray = array();
-//
+
 //            foreach ($menus as $menu) {
 //                if ($menu->getPosition() === Menu::POSITION_LEFT) {
 //                    array_push($leftMenuArray, $menu);
@@ -496,14 +501,14 @@ class MenuController extends SandboxRestController
 //                    array_push($rightMenuArray, $menu);
 //                }
 //            }
-//
+
 //            $menuResponse['left_menus'] = $this->setClientMenus($leftMenuArray);
 //            $menuResponse['right_menus'] = $this->setClientMenus($rightMenuArray);
 //        }
-//
+
 //        return new View($menuResponse);
 //    }
-//
+
 //    /**
 //     * @param array $menus
 //     *
@@ -513,12 +518,12 @@ class MenuController extends SandboxRestController
 //        $menus
 //    ) {
 //        $menuArray = array();
-//
+
 //        foreach ($menus as $menu) {
 //            $sectionStr = strval($menu->getSection());
 //            $partIdx = $menu->getPart() - 1;
 //            $numberIdx = $menu->getNumber() - 1;
-//
+
 //            $menuArray[$sectionStr][$partIdx][$numberIdx] = array(
 //                'key' => $menu->getKey(),
 //                'type' => $menu->getType(),
@@ -527,7 +532,7 @@ class MenuController extends SandboxRestController
 //                'ready' => $menu->isReady(),
 //            );
 //        }
-//
+
 //        return $menuArray;
 //    }
 }

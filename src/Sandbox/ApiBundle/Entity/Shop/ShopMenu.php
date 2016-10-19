@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * ShopMenu.
  *
- * @ORM\Table(name="ShopMenu")
+ * @ORM\Table(name="shop_menu")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Shop\ShopMenuRepository")
  */
 class ShopMenu implements JsonSerializable

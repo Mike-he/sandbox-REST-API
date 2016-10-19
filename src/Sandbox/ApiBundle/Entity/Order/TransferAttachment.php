@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * TransferAttachment.
  *
- * @ORM\Table(name = "TransferAttachment")
+ * @ORM\Table(name = "transfer_attachment")
  * @ORM\Entity
  */
 class TransferAttachment

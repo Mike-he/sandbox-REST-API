@@ -14,6 +14,51 @@ use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 class ProductRepository extends EntityRepository
 {
     /**
+     * @param $lat
+     * @param $lng
+     * @param $productIds
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function productSortByNearestBuilding(
+        $lat,
+        $lng,
+        $productIds,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('
+                p,
+                (
+                    6371
+                    * acos(cos(radians(:latitude)) * cos(radians(b.lat))
+                    * cos(radians(b.lng) - radians(:longitude))
+                    + sin(radians(:latitude)) * sin(radians(b.lat)))
+                ) as HIDDEN distance
+            ')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+            ->where('p.id IN (:productIds)')
+            ->andWhere('b.status = :accept')
+            ->andWhere('b.visible = TRUE')
+            ->andWhere('b.isDeleted = FALSE')
+            ->setParameter('productIds', $productIds)
+            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT)
+            ->setParameter('latitude', $lat)
+            ->setParameter('longitude', $lng)
+            ->orderBy('distance', 'ASC')
+            ->addOrderBy('p.creationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+        ;
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param $userId
      * @param $cityId
      * @param $buildingId
@@ -22,8 +67,6 @@ class ProductRepository extends EntityRepository
      * @param $endTime
      * @param $startHour
      * @param $endHour
-     * @param $limit
-     * @param $offset
      * @param $type
      * @param $includeIds
      * @param $excludeIds
@@ -39,8 +82,6 @@ class ProductRepository extends EntityRepository
         $endTime,
         $startHour,
         $endHour,
-        $limit,
-        $offset,
         $type,
         $includeIds,
         $excludeIds
@@ -155,12 +196,7 @@ class ProductRepository extends EntityRepository
                 ->setParameter('endHour', $endHour);
         }
 
-        $query = $query->orderBy('p.creationDate', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
-
-        return $query->getResult();
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -170,8 +206,6 @@ class ProductRepository extends EntityRepository
      * @param $allowedPeople
      * @param $startDate
      * @param $endDate
-     * @param $limit
-     * @param $offset
      * @param $includeIds
      * @param $excludeIds
      *
@@ -184,8 +218,6 @@ class ProductRepository extends EntityRepository
         $allowedPeople,
         $startDate,
         $endDate,
-        $limit,
-        $offset,
         $includeIds,
         $excludeIds
     ) {
@@ -256,12 +288,7 @@ class ProductRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $query = $query->orderBy('p.creationDate', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
-
-        return $query->getResult();
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -271,8 +298,6 @@ class ProductRepository extends EntityRepository
      * @param $allowedPeople
      * @param $startDate
      * @param $endDate
-     * @param $limit
-     * @param $offset
      * @param $type
      * @param $includeIds
      * @param $excludeIds
@@ -286,8 +311,6 @@ class ProductRepository extends EntityRepository
         $allowedPeople,
         $startDate,
         $endDate,
-        $limit,
-        $offset,
         $type,
         $includeIds,
         $excludeIds
@@ -376,12 +399,7 @@ class ProductRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $query = $query->orderBy('p.creationDate', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
-
-        return $query->getResult();
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -415,8 +433,8 @@ class ProductRepository extends EntityRepository
         $sortBy,
         $direction,
         $search,
-        $recommend = false,
-        $companyId = null,
+        $recommend,
+        $companyId,
         $floor,
         $minSeat,
         $maxSeat,
@@ -638,9 +656,6 @@ class ProductRepository extends EntityRepository
         return $query->getSingleScalarResult();
     }
 
-    /**
-     *
-     */
     public function setVisibleFalse()
     {
         $now = new \DateTime();

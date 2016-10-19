@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Feature.
  *
- * @ORM\Table(name="Feature")
+ * @ORM\Table(name="features")
  * @ORM\Entity
  */
 class Feature

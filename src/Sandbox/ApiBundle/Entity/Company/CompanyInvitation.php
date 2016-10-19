@@ -10,7 +10,7 @@ use Sandbox\ApiBundle\Entity\User\User;
  * CompanyInvitation.
  *
  * @ORM\Table(
- *      name="CompanyInvitation",
+ *      name="company_invitation",
  *      indexes={
  *          @ORM\Index(name="fk_CompanyInvitation_companyId_idx", columns={"companyId"}),
  *          @ORM\Index(name="fk_CompanyInvitation_askUserId_idx", columns={"askUserId"}),

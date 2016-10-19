@@ -8,7 +8,7 @@ use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 /**
  * DoorAccess.
  *
- * @ORM\Table(name="DoorAccess")
+ * @ORM\Table(name="door_access")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Door\DoorAccessRepository")
  */
 class DoorAccess

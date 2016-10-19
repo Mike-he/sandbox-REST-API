@@ -58,16 +58,10 @@ class AdminSalesCityController extends LocationController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $salesAdmin = $this->getRepo('SalesAdmin\SalesAdmin')->find($id);
-        $this->throwNotFoundIfNull($salesAdmin, self::NOT_FOUND_MESSAGE);
+        $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($id);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
-        // get my building ids
-        $myBuildingIds = $this->generateLocationSalesBuildingIds(
-            $paramFetcher,
-            $id
-        );
-
-        $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByBuilding($myBuildingIds);
+        $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($company);
 
         // generate cities array
         $citiesArray = $this->generateCitiesArray(

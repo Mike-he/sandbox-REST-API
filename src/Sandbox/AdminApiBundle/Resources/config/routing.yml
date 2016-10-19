@@ -76,12 +76,6 @@ sandbox_admin_api_users:
     type:     annotation
     prefix:   /
 
-# User /admin/users
-sandbox_admin_api_types:
-    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminTypesController.php"
-    type:     annotation
-    prefix:   /
-
 # User /admin/permissions
 sandbox_admin_api_permissions:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPermissionsController.php"
@@ -117,12 +111,6 @@ sandbox_admin_api_events:
     resource: "@SandboxAdminApiBundle/Controller/Event/AdminEventController.php"
     type:     annotation
     prefix:  /
-
-# Food /admin/food
-sandbox_admin_api_food:
-    resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodController.php"
-    type:     annotation
-    prefix:   /
 
 # Banner Tags /admin/banner/tags
 sandbox_admin_api_banner_tags:
@@ -175,12 +163,6 @@ sandbox_admin_api_verify_company:
 # Payment /admin/payment
 sandbox_admin_api_payment:
     resource: "@SandboxAdminApiBundle/Controller/Payment/AdminPaymentController.php"
-    type:     annotation
-    prefix:   /
-
-# Food /food/orders/{orderNo}/notification
-sandbox_admin_api_food_notification:
-    resource: "@SandboxAdminApiBundle/Controller/Food/AdminFoodNotificationController.php"
     type:     annotation
     prefix:   /
 
@@ -253,5 +235,22 @@ sandbox_admin_api_advertising:
 # Dashboard /admin/dashboard
 sandbox_admin_api_dashboard:
     resource: "@SandboxAdminApiBundle/Controller/DashBoard/AdminDashBoardController.php"
+    type:     annotation
+    prefix:   /
+
+# Position /admin/position
+sandbox_admin_api_position:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPositionController.php"
+    type:     annotation
+    prefix:   /
+
+# Position Binding /admin/position/binding
+sandbox_admin_api_position_binding:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPositionBindingController.php"
+    type:     annotation
+    prefix:   /
+
+sandbox_admin_api_platform_set:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPlatformController.php"
     type:     annotation
     prefix:   /

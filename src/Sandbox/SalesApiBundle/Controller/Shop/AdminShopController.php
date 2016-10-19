@@ -2,9 +2,7 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Shop;
 
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -52,14 +50,14 @@ class AdminShopController extends ShopController
         $buildingId = (int) $paramFetcher->get('building');
 
         // check user permission
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
+        $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
             array(
-                SalesAdminPermission::KEY_BUILDING_BUILDING,
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                ),
             ),
-            SalesAdminPermissionMap::OP_LEVEL_VIEW,
-            $buildingId
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $shops = $this->getRepo('Shop\Shop')->getShopByBuilding($buildingId);

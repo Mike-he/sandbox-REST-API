@@ -7,8 +7,6 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
@@ -69,7 +67,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
         if (is_null($building)) {
@@ -161,7 +159,7 @@ class AdminBuildingController extends LocationController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -213,7 +211,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get a building
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
@@ -252,7 +250,7 @@ class AdminBuildingController extends LocationController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $building = new RoomBuilding();
 
@@ -291,7 +289,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->checkAdminBuildingPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminBuildingPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $building = $this->getRepo('Room\RoomBuilding')->find($id);
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
@@ -808,8 +806,9 @@ class AdminBuildingController extends LocationController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_BUILDING,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BUILDING],
+            ],
             $opLevel
         );
     }

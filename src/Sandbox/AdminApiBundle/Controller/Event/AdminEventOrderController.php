@@ -8,8 +8,6 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\AdminApiBundle\Controller\Order\AdminOrderController;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
@@ -98,7 +96,7 @@ class AdminEventOrderController extends AdminOrderController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminEventOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminEventOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
         $cityId = $paramFetcher->get('city');
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -206,7 +204,11 @@ class AdminEventOrderController extends AdminOrderController
         $adminId = $admin->getId();
 
         // check user permission
-        $this->checkAdminEventOrderPermission($adminId, AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminEventOrderPermission(
+            $adminId,
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
 
         $language = $paramFetcher->get('language');
         $cityId = $paramFetcher->get('city');
@@ -365,7 +367,7 @@ class AdminEventOrderController extends AdminOrderController
         $id
     ) {
         // check user permission
-        $this->checkAdminEventOrderPermission($this->getAdminId(), AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminEventOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
         $order = $this->getRepo('Event\EventOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -390,13 +392,16 @@ class AdminEventOrderController extends AdminOrderController
      */
     private function checkAdminEventOrderPermission(
         $adminId,
-        $opLevel
+        $opLevel,
+        $platform = null
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ORDER,
-            $opLevel
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+            ],
+            $opLevel,
+            $platform
         );
     }
 }

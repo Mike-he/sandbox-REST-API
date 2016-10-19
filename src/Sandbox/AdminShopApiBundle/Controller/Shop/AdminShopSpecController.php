@@ -2,10 +2,8 @@
 
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\Shop;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Sandbox\ApiBundle\Entity\Shop\ShopSpec;
 use Sandbox\ApiBundle\Entity\Shop\ShopSpecItem;
 use Sandbox\ApiBundle\Form\Shop\ShopSpecPostType;
@@ -54,13 +52,20 @@ class AdminShopSpecController extends SpecController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminSpecPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_PLATFORM_SPEC,
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SPEC,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $specs = $this->getRepo('Shop\ShopSpec')->findBy(
@@ -123,13 +128,20 @@ class AdminShopSpecController extends SpecController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminSpecPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_PLATFORM_SPEC,
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SPEC,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $search = $paramFetcher->get('search');
@@ -175,13 +187,20 @@ class AdminShopSpecController extends SpecController
         $id
     ) {
         // check user permission
-        $this->checkAdminSpecPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_PLATFORM_SPEC,
-                ShopAdminPermission::KEY_SHOP_PRODUCT,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SPEC,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $spec = $this->getRepo('Shop\ShopSpec')->findOneBy(
@@ -216,11 +235,14 @@ class AdminShopSpecController extends SpecController
         $id
     ) {
         // check user permission
-        $this->checkAdminSpecPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_PLATFORM_SPEC,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SPEC,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $spec = $this->getRepo('Shop\ShopSpec')->findOneBy(
@@ -255,11 +277,14 @@ class AdminShopSpecController extends SpecController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminSpecPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_PLATFORM_SPEC,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SPEC,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $spec = new ShopSpec();
@@ -292,11 +317,14 @@ class AdminShopSpecController extends SpecController
         $id
     ) {
         // check user permission
-        $this->checkAdminSpecPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_PLATFORM_SPEC,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_PLATFORM_SPEC,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $companyId = $this->getCompanyId();
@@ -565,33 +593,12 @@ class AdminShopSpecController extends SpecController
     }
 
     /**
-     * @param $opLevel
-     * @param $permissions
-     * @param $shopId
-     */
-    private function checkAdminSpecPermission(
-        $opLevel,
-        $permissions,
-        $shopId = null
-    ) {
-        $this->throwAccessDeniedIfShopAdminNotAllowed(
-            $this->getAdminId(),
-            ShopAdminType::KEY_PLATFORM,
-            $permissions,
-            $opLevel,
-            $shopId
-        );
-    }
-
-    /**
      * @return int
      */
     private function getCompanyId()
     {
-        $adminId = $this->getAdminId();
-        $admin = $this->getRepo('Shop\ShopAdmin')->find($adminId);
-        $this->throwNotFoundIfNull($admin, self::NOT_FOUND_MESSAGE);
+        $adminPlatform = $this->getAdminPlatform();
 
-        return $admin->getCompanyId();
+        return $adminPlatform['sales_company_id'];
     }
 }

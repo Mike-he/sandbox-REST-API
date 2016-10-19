@@ -3,10 +3,9 @@
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Rs\Json\Patch;
+use Sandbox\AdminApiBundle\Controller\Order\AdminOrderController;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderPatchType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
@@ -206,20 +205,25 @@ class AdminShopOrderController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminOrderPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get my shop ids
         $myShopIds = $this->getMyShopIds(
             $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                AdminPermission::KEY_SHOP_SHOP_ORDER,
+                AdminPermission::KEY_SHOP_SHOP_KITCHEN,
             )
         );
 
@@ -305,13 +309,19 @@ class AdminShopOrderController extends ShopController
         $order = $this->findEntityById($id, 'Shop\ShopOrder');
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
+                    'shop_id' => $order->getShopId(),
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $order->getShopId(),
+                ),
             ),
-            $order->getShopId()
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $oldStatus = $order->getStatus();
@@ -445,15 +455,6 @@ class AdminShopOrderController extends ShopController
 
                 break;
             case ShopOrder::STATUS_REFUNDED:
-                // check user permission
-                $this->checkAdminOrderPermission(
-                    ShopAdminPermissionMap::OP_LEVEL_EDIT,
-                    array(
-                        ShopAdminPermission::KEY_SHOP_ORDER,
-                    ),
-                    $order->getShopId()
-                );
-
                 if ($oldStatus != ShopOrder::STATUS_TO_BE_REFUNDED || $order->IsUnoriginal()) {
                     return $this->customErrorView(
                         400,
@@ -527,13 +528,19 @@ class AdminShopOrderController extends ShopController
         $this->throwNotFoundIfNull($oldOrder, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
+                    'shop_id' => $oldOrder->getShopId(),
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $oldOrder->getShopId(),
+                ),
             ),
-            $oldOrder->getShopId()
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $shop = $oldOrder->getShop();
@@ -624,6 +631,15 @@ class AdminShopOrderController extends ShopController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="sales_company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="status",
      *    array=false,
      *    default=null,
@@ -699,24 +715,33 @@ class AdminShopOrderController extends ShopController
     ) {
         //authenticate with web browser cookie
         $adminId = $this->authenticateAdminCookie();
+        $companyId = $paramFetcher->get('sales_company');
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                ),
             ),
-            null,
-            $adminId
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SHOP,
+            $companyId
         );
 
         // get my shop ids
         $myShopIds = $this->getMyShopIds(
             $adminId,
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-            )
+                AdminPermission::KEY_SHOP_SHOP_ORDER,
+            ),
+            null,
+            AdminPermission::PERMISSION_PLATFORM_SHOP,
+            $companyId
         );
 
         $language = $paramFetcher->get('language');
@@ -766,13 +791,19 @@ class AdminShopOrderController extends ShopController
         $order = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderById($id);
 
         // check user permission
-        $this->checkAdminOrderPermission(
-            ShopAdminPermissionMap::OP_LEVEL_VIEW,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_SHOP_ORDER,
-                ShopAdminPermission::KEY_SHOP_KITCHEN,
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
+                    'shop_id' => $order->getShopId(),
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
+                    'shop_id' => $order->getShopId(),
+                ),
             ),
-            $order->getShopId()
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $view = new View();
@@ -787,18 +818,22 @@ class AdminShopOrderController extends ShopController
      */
     private function authenticateAdminCookie()
     {
-        $cookie_name = self::SHOP_COOKIE_NAME;
+        $cookie_name = AdminOrderController::ADMIN_COOKIE_NAME;
         if (!isset($_COOKIE[$cookie_name])) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
         $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('Shop\ShopAdminToken')->findOneByToken($token);
+        $adminToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(array(
+                'token' => $token,
+            ));
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        return $adminToken->getAdminId();
+        return $adminToken->getUserId();
     }
 
     /**
@@ -829,30 +864,5 @@ class AdminShopOrderController extends ShopController
                 $oldOrder->setNeedToRefund(false);
             }
         }
-    }
-
-    /**
-     * @param $adminId
-     * @param $opLevel
-     * @param $permissions
-     * @param $shopId
-     */
-    private function checkAdminOrderPermission(
-        $opLevel,
-        $permissions,
-        $shopId = null,
-        $adminId = null
-    ) {
-        if (is_null($adminId)) {
-            $adminId = $this->getAdminId();
-        }
-
-        $this->throwAccessDeniedIfShopAdminNotAllowed(
-            $adminId,
-            ShopAdminType::KEY_PLATFORM,
-            $permissions,
-            $opLevel,
-            $shopId
-        );
     }
 }

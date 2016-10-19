@@ -4,10 +4,8 @@ namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\AdminShopApiBundle\Controller\ShopRestController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermission;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Shop\ShopAdminType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -29,15 +27,19 @@ class AdminShopCitiesController extends ShopRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminCitiesPermission(
-            ShopAdminPermissionMap::OP_LEVEL_EDIT,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
             array(
-                ShopAdminPermission::KEY_PLATFORM_SHOP,
-            )
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_SHOP,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         // get my company
-        $myCompany = $this->getUser()->getMyAdmin()->getSalesCompany();
+        $adminPlatform = $this->getAdminPlatform();
+        $myCompany = $adminPlatform['sales_company_id'];
 
         // get my buildings
         $buildings = $this->getRepo('Room\RoomBuilding')->findBy(array(
@@ -51,24 +53,5 @@ class AdminShopCitiesController extends ShopRestController
         $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByBuilding($buildings);
 
         return new View($cities);
-    }
-
-    /**
-     * @param $opLevel
-     * @param $permissions
-     * @param $shopId
-     */
-    private function checkAdminCitiesPermission(
-        $opLevel,
-        $permissions,
-        $shopId = null
-    ) {
-        $this->throwAccessDeniedIfShopAdminNotAllowed(
-            $this->getAdminId(),
-            ShopAdminType::KEY_PLATFORM,
-            $permissions,
-            $opLevel,
-            $shopId
-        );
     }
 }

@@ -8,7 +8,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use JMS\Serializer\SerializationContext;
 
 /**
  * Admin Auth controller.
@@ -45,11 +44,12 @@ class AdminAuthController extends AuthController
         Request $request
     ) {
         $myAdminId = $this->getAdminId();
-        $myAdmin = $this->getRepo('Shop\ShopAdmin')->find($myAdminId);
 
         // response
-        $view = new View($myAdmin);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(array('auth')));
+        $view = new View(array(
+            'id' => $myAdminId,
+            'client_id' => $this->getUser()->getClientId(),
+        ));
 
         return $view;
     }

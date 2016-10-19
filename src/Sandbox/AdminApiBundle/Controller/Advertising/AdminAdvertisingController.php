@@ -5,8 +5,6 @@ namespace Sandbox\AdminApiBundle\Controller\Advertising;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminType;
 use Sandbox\ApiBundle\Entity\Advertising\Advertising;
 use Sandbox\ApiBundle\Entity\Advertising\AdvertisingAttachment;
 use Sandbox\ApiBundle\Form\Advertising\AdvertisingPostType;
@@ -69,7 +67,7 @@ class AdminAdvertisingController extends AdvertisingController
      * )
      *
      *
-     * @Route("/advertising")
+     * @Route("/commercial")
      * @Method({"GET"})
      *
      * @return View
@@ -81,7 +79,7 @@ class AdminAdvertisingController extends AdvertisingController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -111,7 +109,7 @@ class AdminAdvertisingController extends AdvertisingController
      *  }
      * )
      *
-     * @Route("/advertising")
+     * @Route("/commercial")
      * @Method({"POST"})
      *
      * @return View
@@ -122,7 +120,7 @@ class AdminAdvertisingController extends AdvertisingController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $advertising = new Advertising();
 
@@ -151,7 +149,7 @@ class AdminAdvertisingController extends AdvertisingController
      *   }
      * )
      *
-     * @Route("/advertising/{id}")
+     * @Route("/commercial/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -163,7 +161,7 @@ class AdminAdvertisingController extends AdvertisingController
         $id
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermissionMap::OP_LEVEL_VIEW);
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $advertising = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\Advertising')->find($id);
         $this->throwNotFoundIfNull($advertising, self::NOT_FOUND_MESSAGE);
@@ -186,7 +184,7 @@ class AdminAdvertisingController extends AdvertisingController
      * @param Request $request
      * @param int     $id
      *
-     * @Route("/advertising/{id}")
+     * @Route("/commercial/{id}")
      * @Method({"PUT"})
      *
      * @return View
@@ -198,7 +196,7 @@ class AdminAdvertisingController extends AdvertisingController
         $id
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get banner
         $advertising = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\Advertising')->find($id);
@@ -233,7 +231,7 @@ class AdminAdvertisingController extends AdvertisingController
      *  }
      * )
      *
-     * @Route("/advertising/{id}")
+     * @Route("/commercial/{id}")
      * @Method({"PATCH"})
      *
      * @return View
@@ -245,7 +243,7 @@ class AdminAdvertisingController extends AdvertisingController
         $id
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $advertising = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\Advertising')->find($id);
         $this->throwNotFoundIfNull($advertising, self::NOT_FOUND_MESSAGE);
@@ -279,7 +277,7 @@ class AdminAdvertisingController extends AdvertisingController
      * @param Request $request the request object
      * @param int     $id
      *
-     * @Route("/advertising/{id}")
+     * @Route("/commercial/{id}")
      * @Method({"DELETE"})
      *
      * @return View
@@ -291,7 +289,7 @@ class AdminAdvertisingController extends AdvertisingController
         $id
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermissionMap::OP_LEVEL_EDIT);
+        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_EDIT);
         $em = $this->getDoctrine()->getManager();
 
         $advertising = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\Advertising')->find($id);
@@ -473,8 +471,9 @@ class AdminAdvertisingController extends AdvertisingController
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            AdminType::KEY_PLATFORM,
-            AdminPermission::KEY_PLATFORM_ADVERTISING,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+            ],
             $OpLevel
         );
     }

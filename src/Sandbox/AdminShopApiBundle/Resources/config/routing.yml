@@ -1,38 +1,8 @@
-# Login /shop/admin/auth/login
-sandbox_shop_admin_api_auth_login:
-    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminUserLoginController.php"
-    type:     annotation
-    prefix:   /admin/auth
-
-# Logout /shop/admin/auth/logout
-sandbox_shop_admin_api_auth_logout:
-    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminUserLogoutController.php"
-    type:     annotation
-    prefix:   /admin/auth
-
 # Auth Me /shop/admin/auth/me
 sandbox_shop_admin_api_auth_me:
     resource: "@SandboxAdminShopApiBundle/Controller/Auth/AdminAuthController.php"
     type:     annotation
     prefix:   /admin/auth
-
-# Admin Type /shop/admin/types
-sandbox_shop_admin_api_admin_type:
-    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminTypesController.php"
-    type:     annotation
-    prefix:   /admin
-
-# Admin Permission /shop/admin/permissions
-sandbox_shop_admin_api_admin_permission:
-    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminPermissionsController.php"
-    type:     annotation
-    prefix:   /admin
-
-# Admin Admins /shop/admin/admins
-sandbox_shop_admin_api_admin_admins:
-    resource: "@SandboxAdminShopApiBundle/Controller/Admin/AdminAdminsController.php"
-    type:     annotation
-    prefix:   /admin
 
 # Shop /shop/admin/shops
 sandbox_admin_shop_api_shops:

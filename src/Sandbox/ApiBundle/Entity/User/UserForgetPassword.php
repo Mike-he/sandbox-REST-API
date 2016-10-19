@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Forget password.
  *
- * @ORM\Table(name="ForgetPassword")
+ * @ORM\Table(name="user_forget_password")
  * @ORM\Entity
  */
 class UserForgetPassword

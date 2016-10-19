@@ -2,36 +2,18 @@ security:
     encoders:
         Sandbox\ApiBundle\Entity\User\User: plaintext
         Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth: plaintext
-        Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth: plaintext
-        Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth: plaintext
-        Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth: plaintext
     role_hierarchy:
         ROLE_USER:        ROLE_USER
-        ROLE_SALES_ADMIN_API: ROLE_SALES_ADMIN_API
-        ROLE_SHOP_ADMIN_API: ROLE_SHOP_ADMIN_API
         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ALLOWED_TO_SWITCH]
-        ROLE_ADMIN_API:   ROLE_ADMIN_API
         ROLE_CLIENT_API:  ROLE_CLIENT_API
 
     providers:
         chain_provider:
             chain:
-                providers: [clientApi, salesAdminApi, shopAdminApi, adminApi, userPhone, userEmail]
+                providers: [clientApi, userPhone, userEmail]
         clientApi:
             entity:
                 class: Sandbox\ClientApiBundle\Entity\Auth\ClientApiAuth
-                property: token
-        salesAdminApi:
-            entity:
-                class: Sandbox\SalesApiBundle\Entity\Auth\SalesAdminApiAuth
-                property: token
-        shopAdminApi:
-            entity:
-                class: Sandbox\AdminShopApiBundle\Entity\Auth\ShopAdminApiAuth
-                property: token
-        adminApi:
-            entity:
-                class: Sandbox\AdminApiBundle\Entity\Auth\AdminApiAuth
                 property: token
         userPhone:
             entity:
@@ -47,8 +29,124 @@ security:
             pattern:  ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        phone_code:
+            pattern: ^/phonecode
+            security: false
+            methods: [GET]
+
+        admin_dashboard_orders_export:
+            pattern: ^/admin/dashboard/orders/export
+            security: false
+            methods: [GET]
+
+        rooms_types:
+            pattern: ^/rooms/types
+            security: false
+            methods: [GET]
+
         client_refresh_token_login:
             pattern: ^/client/auth/refresh
+            security: false
+            methods: [POST]
+
+        shop_admin_orders_export:
+            pattern: ^/shop/admin/orders/export
+            security: false
+            methods: [GET]
+
+        admin_auth_login:
+            pattern: ^/admin/auth/login
+            security: false
+            methods: [POST]
+
+        client_user_register_submit:
+            pattern: ^/client/user/register/submit
+            security: false
+            methods: [POST]
+
+        client_user_register_verify:
+            pattern: ^/client/user/register/verify
+            security: false
+            methods: [POST]
+
+        client_user_password_forget_submit:
+            pattern: ^/client/user/password/forget/submit
+            security: false
+            methods: [POST]
+
+        client_user_password_forget_verify:
+            pattern: ^/client/user/password/forget/verify
+            security: false
+            methods: [POST]
+
+        client_user_password_forget_reset:
+            pattern: ^/client/user/password/forget/reset
+            security: false
+            methods: [POST]
+
+        client_payment_webhooks:
+            pattern: ^/client/payment/webhooks
+            security: false
+            methods: [POST]
+
+        client_shops:
+            pattern: ^/client/shops$
+            security: false
+            methods: [GET]
+
+        client_banners:
+            pattern: ^/client/banners
+            security: false
+            methods: [GET]
+
+        client_advertising:
+            pattern: ^/client/advertising
+            security: false
+            methods: [GET]
+
+        client_news:
+            pattern: ^/client/news
+            security: false
+            methods: [GET]
+
+        client_auth_token:
+            pattern: ^/client/auth/token$
+            security: false
+
+        client_thirdparty_oauth_login:
+            pattern: ^/client/thirdparty/oauth/login$
+            security: false
+
+        sales_admin_events_orders_export:
+            pattern: ^/sales/admin/events/orders/export$
+            security: false
+
+        sales_admin_orders_export:
+            pattern: ^/sales/admin/orders/export$
+            security: false
+
+        admin_shop_orders_export:
+            pattern: ^/admin/shop/orders/export$
+            security: false
+
+        admin_orders_export:
+            pattern: ^/admin/orders/export$
+            security: false
+
+        admin_events_orders_export:
+            pattern: ^/admin/events/orders/export$
+            security: false
+
+        admin_payment_refund:
+            pattern: ^/admin/payment/refund$
+            security: false
+
+        user_background_attachments:
+            pattern: ^/user/background/attachments$
+            security: false
+
+        user_avatar_attachments:
+            pattern: ^/user/avatar/attachments$
             security: false
 
         main:
@@ -58,20 +156,21 @@ security:
             stateless:  true
 
     access_control:
-        - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sales/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/shop/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/shop/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/password/forget/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/user/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/payment/webhooks$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/shops, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-        - { path: ^/client/shops/orders, role: ROLE_CLIENT_API}
+        - { path: ^/phonecode, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/admin/dashboard/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/rooms/types$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/shop/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/admin/auth/check_code$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/register/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/register/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/password/forget/submit$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/password/forget/verify$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/password/forget/reset$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/payment/webhooks$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/shops$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/banners, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/advertising, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/news, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
@@ -87,14 +186,14 @@ security:
         - { path: ^/client, role: ROLE_CLIENT_API }
         - { path: ^/sales/admin/events/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sales, role: ROLE_SALES_ADMIN_API }
-        - { path: ^/shop, role: ROLE_SHOP_ADMIN_API }
+        - { path: ^/sales, role: ROLE_CLIENT_API }
+        - { path: ^/shop, role: ROLE_CLIENT_API }
         - { path: ^/admin/shop/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/events/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/payment/refund$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin, role: ROLE_ADMIN_API }
+        - { path: ^/admin, role: ROLE_CLIENT_API }
         - { path: ^/user/background/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/user/avatar/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/openserver/client/auth/login$, role: ROLE_USER }
-        - { path: ^/plugins/fileServer/fileservice, roles: [ROLE_ADMIN_API, ROLE_SALES_ADMIN_API, ROLE_SHOP_ADMIN_API, ROLE_CLIENT_API] }
+        - { path: ^/plugins/fileServer/fileservice, roles: ROLE_CLIENT_API }

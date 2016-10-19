@@ -94,6 +94,8 @@ class FeatureController extends SandboxRestController
             $standardClientVersion = $globals['client_version_ios'];
         } elseif (UserClient::CLIENT_ANDROID == $clientOSName) {
             $standardClientVersion = $globals['client_version_android'];
+        } else {
+            $standardClientVersion = 0;
         }
 
         // generate coffee url

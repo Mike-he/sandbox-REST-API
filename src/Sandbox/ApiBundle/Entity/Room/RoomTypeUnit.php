@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * RoomTypeUnit.
  *
- * @ORM\Table(name="RoomTypeUnit")
+ * @ORM\Table(name="room_type_unit")
  * @ORM\Entity
  */
 class RoomTypeUnit
@@ -19,7 +19,7 @@ class RoomTypeUnit
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * 
+     *
      * @Serializer\Groups({"main"})
      */
     private $id;
@@ -28,14 +28,14 @@ class RoomTypeUnit
      * @var string
      *
      * @ORM\Column(name="unit", type="string", length=16)
-     * 
+     *
      * @Serializer\Groups({"main", "drop_down"})
      */
     private $unit;
 
     /**
      * @var int
-     * 
+     *
      * @ORM\Column(name="typeId", type="integer")
      */
     private $typeId;
@@ -52,7 +52,7 @@ class RoomTypeUnit
 
     /**
      * @var string
-     * 
+     *
      * @Serializer\Groups({"main", "drop_down"})
      */
     private $description;

@@ -171,7 +171,7 @@ class EventOrderRepository extends EntityRepository
         $flag,
         $startDate,
         $endDate,
-        $search = null,
+        $search,
         $salesCompanyId
     ) {
         $query = $this->createQueryBuilder('eo')

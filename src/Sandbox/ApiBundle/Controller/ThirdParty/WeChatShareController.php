@@ -126,7 +126,7 @@ class WeChatShareController extends SandboxRestController
 
         $headerKey = self::SANDBOX_CLIENT_LOGIN_HEADER;
 
-        $headers = apache_request_headers();
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
 
         if (!array_key_exists($headerKey, $headers)) {
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
