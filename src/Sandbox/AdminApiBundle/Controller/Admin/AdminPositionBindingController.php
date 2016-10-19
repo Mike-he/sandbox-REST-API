@@ -64,6 +64,20 @@ class AdminPositionBindingController extends AdminRestController
                 return $error;
             }
 
+            // have exist position binding
+            $binding = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findOneBy(array(
+                    'userId' => $positionUserBinding->getUserId(),
+                    'positionId' => $positionUserBinding->getPositionId(),
+                    'buildingId' => $positionUserBinding->getBuildingId(),
+                    'shopId' => $positionUserBinding->getShopId(),
+                ));
+
+            if (!is_null($binding)) {
+                continue;
+            }
+
             $em = $this->getDoctrine()->getManager();
 
             $em->persist($positionUserBinding);
