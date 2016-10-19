@@ -299,7 +299,8 @@ trait SendNotification
     ) {
         $jpushReceivers = [];
         foreach ($receivers as $receiver) {
-            $tokens = $this->getDoctrine()
+            $tokens = $this->getContainer()
+                ->get('doctrine')
                 ->getRepository('SandboxApiBundle:User\UserToken')
                 ->findBy(
                     ['userId' => $receiver],
@@ -311,7 +312,8 @@ trait SendNotification
                     continue;
                 }
 
-                $client = $this->getDoctrine()
+                $client = $this->getContainer()
+                    ->get('doctrine')
                     ->getRepository('SandboxApiBundle:User\UserClient')
                     ->find($token->getClientId());
 
