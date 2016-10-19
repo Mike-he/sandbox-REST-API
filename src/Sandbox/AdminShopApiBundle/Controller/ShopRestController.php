@@ -45,13 +45,14 @@ class ShopRestController extends PaymentController
             $salesCompanyId
         );
 
+        $ids = array();
         if ($isSuperAdmin) {
             // if user is super admin, get all buildings
-            $myShopIds = $this->getDoctrine()
+            $ids = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Shop\Shop')
                 ->getShopIdsByCompany($salesCompanyId);
 
-            return $myShopIds;
+            return $ids;
         }
 
         // if common admin, than get my permissions list
@@ -61,6 +62,52 @@ class ShopRestController extends PaymentController
             $salesCompanyId
         );
 
+        // return all shop in admin module
+        if (in_array(AdminPermission::KEY_SHOP_PLATFORM_ADMIN, $permissionKeys)) {
+            $ids = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\Shop')
+                ->getShopIdsByCompany($salesCompanyId);
+
+            return $ids;
+        }
+
+        // find by specify permissions
+        if (in_array(AdminPermission::KEY_SHOP_PLATFORM_SHOP, $permissionKeys)) {
+            foreach ($myPermissions as $myPermission) {
+                if (AdminPermission::KEY_SHOP_PLATFORM_SHOP == $myPermission['key']
+                ) {
+                    $ids = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Shop\Shop')
+                        ->getShopIdsByCompany($salesCompanyId);
+
+                    return $ids;
+                }
+            }
+        }
+
+        // find by my permissions
+        $ids = $this->getShopIdsByMyPermissions(
+            $myPermissions,
+            $permissionKeys,
+            $opLevel
+        );
+
+
+        return $ids;
+    }
+
+    /**
+     * @param $myPermissions
+     * @param $permissionKeys
+     * @param $opLevel
+     *
+     * @return array
+     */
+    private function getShopIdsByMyPermissions(
+        $myPermissions,
+        $permissionKeys,
+        $opLevel
+    ) {
         $ids = array();
         foreach ($permissionKeys as $permissionKey) {
             foreach ($myPermissions as $myPermission) {

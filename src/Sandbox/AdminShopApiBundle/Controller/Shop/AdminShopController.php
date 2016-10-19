@@ -305,22 +305,15 @@ class AdminShopController extends ShopController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $adminPlatform = $this->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-        $companyId = $adminPlatform['sales_company_id'];
-
         $permission = $paramFetcher->get('permission');
 
-        $myPermissions = $this->getMyAdminPermissions(
+        $shopIds = $this->getMyShopIds(
             $adminId,
-            $platform,
-            $companyId
-        );
-
-        $shopIds = $this->myShopIds(
-            $permission,
-            $companyId,
-            $myPermissions
+            array(
+                $permission,
+                AdminPermission::KEY_SHOP_PLATFORM_SHOP
+            ),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $buildingId = $paramFetcher->get('building');
@@ -373,48 +366,6 @@ class AdminShopController extends ShopController
         $view->setData($shops);
 
         return $view;
-    }
-
-    /**
-     * @param $permission
-     * @param $companyId
-     * @param $myPermissions
-     *
-     * @return array
-     */
-    private function myShopIds(
-        $permission,
-        $companyId,
-        $myPermissions
-    ) {
-        $shopIds = array();
-
-        if (AdminPermission::KEY_SHOP_PLATFORM_ADMIN == $permission) {
-            $shopIds = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Shop\Shop')
-                ->getShopIdsByCompany($companyId);
-        } elseif (AdminPermission::KEY_SHOP_SHOP_SHOP == $permission) {
-            foreach ($myPermissions as $myPermission) {
-                if (AdminPermission::KEY_SHOP_PLATFORM_SHOP == $myPermission['key']
-                    && AdminPermission::KEY_SHOP_SHOP_SHOP == $myPermission['key']
-                ) {
-                    continue;
-                }
-
-                $shopIds = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Shop\Shop')
-                    ->getShopIdsByCompany($companyId);
-            }
-        } else {
-            $shopIds = $this->getMyShopIds(
-                $this->getAdminId(),
-                array(
-                    $permission,
-                )
-            );
-        }
-
-        return $shopIds;
     }
 
     /**
