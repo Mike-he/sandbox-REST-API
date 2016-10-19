@@ -278,7 +278,10 @@ class FeedRepository extends EntityRepository
     ) {
         $queryBuilder = $this->createQueryBuilder('f')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'f.ownerId = up.userId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
             ->where('up.name LIKE :query')
+            ->orWhere('u.phone LIKE :query')
+            ->orWhere('u.email LIKE :query')
             ->andWhere('f.isDeleted = FALSE')
             ->setParameter('query', $query.'%')
             ->orderBy('f.creationDate', 'DESC');

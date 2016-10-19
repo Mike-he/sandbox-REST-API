@@ -83,7 +83,9 @@ class AdminVerifyFeedController extends FeedController
             return new View(array());
         }
 
-        $feeds = $this->getRepo('Feed\FeedView')->getVerifyFeeds($query);
+        $feeds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Feed\FeedView')
+            ->getVerifyFeeds($query);
 
         $feedsArray = $this->handleGetVerifyFeeds($feeds, null);
 
