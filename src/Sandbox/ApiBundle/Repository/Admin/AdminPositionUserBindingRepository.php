@@ -72,7 +72,9 @@ class AdminPositionUserBindingRepository extends EntityRepository
                 p.salesCompanyId as sales_company_id, 
                 p.id as position_id, 
                 p.platform, 
-                p.name as position_name
+                p.name as position_name,
+                pb.buildingId as building_id,
+                pb.shopId as shop_id
             ')
             ->leftJoin('pb.position', 'p', 'WITH', 'p.id = pb.positionId')
             ->where('pb.userId = :userId')
