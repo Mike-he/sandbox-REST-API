@@ -288,4 +288,70 @@ trait SendNotification
             error_log('Send JPush notification went wrong.');
         }
     }
+
+    /**
+     * @param $receivers
+     *
+     * @return array
+     */
+    protected function compareVersionForJpush(
+       $receivers
+    ) {
+        $jpushReceivers = [];
+        foreach ($receivers as $receiver) {
+            $tokens = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserToken')
+                ->findBy(
+                    ['userId' => $receiver],
+                    ['clientId' => 'DESC']
+                );
+
+            foreach ($tokens as $token) {
+                if (!empty($jpushReceivers)) {
+                    continue;
+                }
+
+                $client = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserClient')
+                    ->find($token->getClientId());
+
+                if (is_null($client)) {
+                    continue;
+                }
+
+                $name = $client->getName();
+                if (is_null($name) || $name == 'SandBox Admin') {
+                    continue;
+                }
+
+                $version = $client->getVersion();
+                if (!is_null($version) && !empty($version)) {
+                    $versionArray = explode('.', $version);
+
+                    if ((int) $versionArray[0] < 2) {
+                        continue;
+                    } elseif ((int) $versionArray[0] == 2) {
+                        if ((int) $versionArray[1] < 2) {
+                            continue;
+                        } elseif ((int) $versionArray[1] == 2) {
+                            $versionNumber = preg_replace('/[^0-9]/', '', $versionArray[2]);
+
+                            if ((int) $versionNumber < 8) {
+                                continue;
+                            }
+
+                            array_push($jpushReceivers, $receiver);
+                        }
+                    }
+                }
+            }
+        }
+
+        $receivers = array_diff($receivers, $jpushReceivers);
+
+        return array(
+            'users' => $receivers,
+            'jpush_users' => $jpushReceivers,
+        );
+    }
 }
