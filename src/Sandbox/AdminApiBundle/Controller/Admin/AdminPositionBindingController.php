@@ -170,7 +170,7 @@ class AdminPositionBindingController extends AdminRestController
                 $salesCompanyId
             );
 
-        $error = $this->checkSuperAdminPositionValidToDelete($positionUserBindings);
+        $error = $this->checkSuperAdminPositionValidToDelete($bindings);
         if (!is_null($error)) {
             return $error;
         }
@@ -239,7 +239,7 @@ class AdminPositionBindingController extends AdminRestController
                 $shopId
             );
 
-        $error = $this->checkSuperAdminPositionValidToDelete($positionUserBindings);
+        $error = $this->checkSuperAdminPositionValidToDelete($bindings);
         if (!is_null($error)) {
             return $error;
         }
@@ -295,7 +295,7 @@ class AdminPositionBindingController extends AdminRestController
             array_push($bindingsArray, $positionBinding);
         }
 
-        $error = $this->checkSuperAdminPositionValidToDelete($positionUserBindings);
+        $error = $this->checkSuperAdminPositionValidToDelete($bindingsArray);
         if (!is_null($error)) {
             return $error;
         }
