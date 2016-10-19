@@ -290,6 +290,9 @@ class AdminShopController extends ShopController
                     'key' => AdminPermission::KEY_SHOP_SHOP_KITCHEN,
                 ),
                 array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_PRODUCT,
+                ),
+                array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
                 ),
                 array(
