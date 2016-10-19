@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller\Location;
 
-use Sandbox\AdminApiBundle\Controller\Admin\AdminPlatformController;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;

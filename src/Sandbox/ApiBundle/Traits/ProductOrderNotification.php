@@ -72,6 +72,8 @@ trait ProductOrderNotification
         }
 
         try {
+            $jsonData = null;
+
             if (empty($orders) && !is_null($order)) {
                 $city = $order->getProduct()->getRoom()->getCity()->getName();
                 $building = $order->getProduct()->getRoom()->getBuilding()->getName();
@@ -80,59 +82,74 @@ trait ProductOrderNotification
                 $bodyZh = $firstZh.$city.$building.$room.$secondZh;
                 $bodyEn = $firstEn.$city.$building.$room.$secondEn;
 
-                // get notification data
-                $data = $this->getProductOrderNotificationJsonData(
-                    $order->getId(),
-                    $order->getOrderNumber(),
-                    $fromUserId,
-                    $receivers,
-                    $action,
-                    $bodyZh,
-                    $bodyEn
-                );
+                $result = $this->compareVersionForJpush($receivers);
+                $receivers = $result['users'];
+                $jpushReceivers = $result['jpush_users'];
 
-                $jsonData = json_encode(array($data));
-
-                $this->setDataAndJPushNotification(
-                    $order->getId(),
-                    $order->getOrderNumber(),
-                    $fromUserId,
-                    $receivers,
-                    $action,
-                    $bodyZh,
-                    $bodyEn
-                );
-            } else {
-                $dataArray = [];
-                foreach ($orders as $order) {
+                if (!empty($receivers)) {
+                    // get notification data
                     $data = $this->getProductOrderNotificationJsonData(
                         $order->getId(),
                         $order->getOrderNumber(),
                         $fromUserId,
-                        [$order->getUserId()],
+                        $receivers,
                         $action,
-                        $firstZh,
-                        $firstEn
+                        $bodyZh,
+                        $bodyEn
                     );
 
-                    array_push($dataArray, $data);
+                    $jsonData = json_encode(array($data));
+                }
 
+                if (!empty($jpushReceivers)) {
                     $this->setDataAndJPushNotification(
                         $order->getId(),
                         $order->getOrderNumber(),
                         $fromUserId,
-                        [$order->getUserId()],
+                        $receivers,
                         $action,
-                        $firstZh,
-                        $firstEn
+                        $bodyZh,
+                        $bodyEn
                     );
                 }
+            } else {
+                $dataArray = [];
+                foreach ($orders as $order) {
+                    $userArray = [$order->getUserId()];
+                    $result = $this->compareVersionForJpush($userArray);
+                    $jpushReceivers = $result['jpush_users'];
 
-                $jsonData = json_encode($dataArray);
+                    if (!empty($jpushReceivers)) {
+                        $this->setDataAndJPushNotification(
+                            $order->getId(),
+                            $order->getOrderNumber(),
+                            $fromUserId,
+                            $jpushReceivers,
+                            $action,
+                            $firstZh,
+                            $firstEn
+                        );
+                    } else {
+                        $data = $this->getProductOrderNotificationJsonData(
+                            $order->getId(),
+                            $order->getOrderNumber(),
+                            $fromUserId,
+                            $userArray,
+                            $action,
+                            $firstZh,
+                            $firstEn
+                        );
+
+                        array_push($dataArray, $data);
+                        $jsonData = json_encode($dataArray);
+                    }
+                }
             }
 
             // send xmpp notification
-            $this->sendXmppNotification($jsonData, false);
+            if (!is_null($jsonData)) {
+                $this->sendXmppNotification($jsonData, false);
+            }
         } catch (Exception $e) {
             error_log('Send message notification went wrong!');
         }

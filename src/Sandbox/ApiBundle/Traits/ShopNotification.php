@@ -31,8 +31,10 @@ trait ShopNotification
                 $orderId
             );
 
-            // send xmpp notification
-            $this->sendXmppNotification($jsonData, false);
+            if (!is_null($jsonData)) {
+                // send xmpp notification
+                $this->sendXmppNotification($jsonData, false);
+            }
         } catch (Exception $e) {
             error_log('Send food order notification went wrong!');
         }
@@ -123,24 +125,31 @@ trait ShopNotification
             $apns
         );
 
-        $zhData = $this->getJpushData(
-            [$userId],
-            ['lang_zh'],
-            $zhBody,
-            '展想创合',
-            $contentArray
-        );
+        $result = $this->compareVersionForJpush([$userId]);
+        $jpushReceivers = $result['jpush_users'];
 
-        $enData = $this->getJpushData(
-            [$userId],
-            ['lang_en'],
-            $enBody,
-            'Sandbox3',
-            $contentArray
-        );
+        if (!empty($jpushReceivers)) {
+            $zhData = $this->getJpushData(
+                [$userId],
+                ['lang_zh'],
+                $zhBody,
+                '展想创合',
+                $contentArray
+            );
 
-        $this->sendJpushNotification($zhData);
-        $this->sendJpushNotification($enData);
+            $enData = $this->getJpushData(
+                [$userId],
+                ['lang_en'],
+                $enBody,
+                'Sandbox3',
+                $contentArray
+            );
+
+            $this->sendJpushNotification($zhData);
+            $this->sendJpushNotification($enData);
+
+            return null;
+        }
 
         return json_encode(array($data));
     }
