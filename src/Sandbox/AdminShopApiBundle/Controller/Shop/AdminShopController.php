@@ -255,7 +255,7 @@ class AdminShopController extends ShopController
      *
      *  @Annotations\QueryParam(
      *    name="permission",
-     *    array=false,
+     *    array=true,
      *    default="shop.shop.shop",
      *    nullable=true,
      *    strict=true,
@@ -305,14 +305,11 @@ class AdminShopController extends ShopController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $permission = $paramFetcher->get('permission');
+        $permissions = $paramFetcher->get('permission');
 
         $shopIds = $this->getMyShopIds(
             $adminId,
-            array(
-                $permission,
-                AdminPermission::KEY_SHOP_PLATFORM_SHOP
-            ),
+            $permissions,
             AdminPermission::OP_LEVEL_VIEW
         );
 
