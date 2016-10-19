@@ -207,7 +207,6 @@ class AdminBuildingController extends LocationController
             $this->getAdminId(),
             array(
                 AdminPermission::KEY_SALES_BUILDING_BUILDING,
-                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
             )
         );
 
