@@ -336,7 +336,7 @@ trait SendNotification
                         } elseif ((int) $versionArray[1] == 2) {
                             $versionNumber = preg_replace('/[^0-9]/', '', $versionArray[2]);
 
-                            if ((int) $versionNumber < 8) {
+                            if ((int) $versionNumber < 9) {
                                 continue;
                             }
 
