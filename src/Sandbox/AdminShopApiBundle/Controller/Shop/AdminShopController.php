@@ -391,9 +391,9 @@ class AdminShopController extends ShopController
                 ->getRepository('SandboxApiBundle:Shop\Shop')
                 ->getShopIdsByCompany($companyId);
         } elseif (AdminPermission::KEY_SHOP_SHOP_SHOP == $permission) {
-            foreach ($myPermissions as $permission) {
-                if (!in_array(AdminPermission::KEY_SHOP_PLATFORM_SHOP, $permission)
-                    && !in_array(AdminPermission::KEY_SHOP_SHOP_SHOP, $permission)
+            foreach ($myPermissions as $myPermission) {
+                if (AdminPermission::KEY_SHOP_PLATFORM_SHOP == $myPermission['key']
+                    && AdminPermission::KEY_SHOP_SHOP_SHOP == $myPermission['key']
                 ) {
                     continue;
                 }
