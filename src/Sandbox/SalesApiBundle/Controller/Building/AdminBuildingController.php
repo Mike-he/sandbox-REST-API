@@ -206,6 +206,7 @@ class AdminBuildingController extends LocationController
         $buildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
+                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
                 AdminPermission::KEY_SALES_BUILDING_BUILDING,
             )
         );

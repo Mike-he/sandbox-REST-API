@@ -66,22 +66,24 @@ class SalesRestController extends SandboxRestController
             $salesCompanyId
         );
 
-        foreach ($myPermissions  as $myPermission) {
-            if (AdminPermission::KEY_SALES_PLATFORM_BUILDING == $myPermission['key']) {
-                $myBuildings = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->getBuildingsByCompany($salesCompanyId);
+        if (in_array(AdminPermission::KEY_SALES_PLATFORM_BUILDING, $permissionKeys)) {
+            foreach ($myPermissions  as $myPermission) {
+                if (AdminPermission::KEY_SALES_PLATFORM_BUILDING == $myPermission['key']) {
+                    $myBuildings = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                        ->getBuildingsByCompany($salesCompanyId);
 
-                if (empty($myBuildings)) {
-                    return $myBuildings;
+                    if (empty($myBuildings)) {
+                        return $myBuildings;
+                    }
+
+                    $ids = array();
+                    foreach ($myBuildings as $building) {
+                        array_push($ids, $building['id']);
+                    }
+
+                    return $ids;
                 }
-
-                $ids = array();
-                foreach ($myBuildings as $building) {
-                    array_push($ids, $building['id']);
-                }
-
-                return $ids;
             }
         }
 
