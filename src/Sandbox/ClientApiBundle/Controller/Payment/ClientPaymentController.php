@@ -26,7 +26,7 @@ use FOS\RestBundle\View\View;
  */
 class ClientPaymentController extends PaymentController
 {
-    const PINGPLUSPLUS_SIGNATURE_HEADER = 'x-pingplusplus-signature';
+    const PINGPLUSPLUS_SIGNATURE_HEADER = 'x_pingplusplus_signature';
     const PINGPLUSPLUS_RSA_PATH = '/rsa_public_key.pem';
 
     /**
