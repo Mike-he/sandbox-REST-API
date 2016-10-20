@@ -92,7 +92,6 @@ class ShopRestController extends PaymentController
             $opLevel
         );
 
-
         return $ids;
     }
 
