@@ -78,9 +78,6 @@ class LocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-
         $user = $this->getUser();
 
         $all = $paramFetcher->get('all');
@@ -92,18 +89,40 @@ class LocationController extends SalesRestController
         if (!is_null($salesCompanyId)) {
             $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($salesCompanyId);
         } else {
-            $salesCompanyId = $adminPlatform['sales_company_id'];
             // get all cities
             $cities = $this->getRepo('Room\RoomCity')->findAll();
         }
 
-        $isSuperAdmin = $this->hasSuperAdminPosition(
-            $this->getAdminId(),
-            $platform,
-            $salesCompanyId
-        );
-
         if (!is_null($user) && is_null($all)) {
+            $userId = $user->getUserId();
+            $clientId = $user->getClientId();
+
+            $adminPlatform = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
+                ->findOneBy(array(
+                    'userId' => $userId,
+                    'clientId' => $clientId,
+                ));
+
+            // response for client
+            if (is_null($adminPlatform)) {
+                $cities = $this->getRepo('Room\RoomCity')->findAll();
+                $citiesArray = $this->generateCitiesArray(
+                    $cities
+                );
+
+                return new View($citiesArray);
+            }
+
+            // response for backend
+            $platform = $adminPlatform['platform'];
+            $salesCompanyId = $adminPlatform['sales_company_id'];
+
+            $isSuperAdmin = $this->hasSuperAdminPosition(
+                $this->getAdminId(),
+                $platform,
+                $salesCompanyId
+            );
             // sales bundle
             if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
                 // get cities by admin type
