@@ -533,17 +533,25 @@ class OrderController extends PaymentController
         $startDate
     ) {
         $datePeriod = $period;
+        $endDate = clone $startDate;
+        $firstDay = '01-30';
+        $secondDay = '01-31';
+
+        $day = $startDate->format('m-d');
+        $year = $startDate->format('Y');
 
         if ($timeUnit === Product::UNIT_HOUR) {
             $datePeriod = $period * 60;
             $timeUnit = Product::UNIT_MIN;
-        } elseif ($timeUnit === Product::UNIT_MONTH) {
-            $datePeriod = $period * 30;
-            $timeUnit = Product::UNIT_DAYS;
         }
 
-        $endDate = clone $startDate;
-        $endDate->modify('+'.$datePeriod.$timeUnit);
+        $endDate->modify('+'.$datePeriod.' '.$timeUnit);
+
+        if ($timeUnit === Product::UNIT_MONTH &&
+            ($day == $firstDay || $day == $secondDay)
+        ) {
+            $endDate->setDate($year, 3, 1);
+        }
 
         return $endDate;
     }
