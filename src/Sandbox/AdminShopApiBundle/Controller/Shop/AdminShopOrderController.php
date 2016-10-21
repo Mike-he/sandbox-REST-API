@@ -258,18 +258,20 @@ class AdminShopOrderController extends ShopController
             );
         }
 
-        $orders = $this->getRepo('Shop\ShopOrder')->getAdminShopOrders(
-            $shopId,
-            $status,
-            $start,
-            $end,
-            $sort,
-            $search,
-            $platform,
-            $myShopIds,
-            $limit,
-            $offset
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->getAdminShopOrders(
+                $shopId,
+                $status,
+                $start,
+                $end,
+                $sort,
+                $search,
+                $platform,
+                $myShopIds,
+                $limit,
+                $offset
+            );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_shop']));
