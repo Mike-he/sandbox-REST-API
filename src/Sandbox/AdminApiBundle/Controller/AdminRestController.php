@@ -21,6 +21,9 @@ class AdminRestController extends SandboxRestController
     const ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_CODE = 401005;
     const ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_MESSAGE = 'client.login.current_user_is_not_an_admin';
 
+    const ERROR_EXPIRED_VERIFICATION_CODE = 400006;
+    const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'client.account.expired_verification';
+
     /**
      * @return User $admin
      *
