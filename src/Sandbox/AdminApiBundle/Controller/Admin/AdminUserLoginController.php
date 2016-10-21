@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Admin;
 
+use Doctrine\ORM\EntityManager;
 use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\AdminApiBundle\Controller\Traits\HandleAdminLoginDataTrait;
@@ -84,10 +85,6 @@ class AdminUserLoginController extends AdminRestController
 
         // save or update user check code
         $userCheckCode = $this->saveUserCheckCode($admin, $em);
-        if (is_null($userCheckCode->getId())) {
-            $em->persist($userCheckCode);
-            $em->flush();
-        }
 
         // send verification code by sms
         $this->sendSMSNotification(
@@ -306,6 +303,12 @@ class AdminUserLoginController extends AdminRestController
         return $adminToken;
     }
 
+    /**
+     * @param User          $admin
+     * @param EntityManager $em
+     *
+     * @return object|UserCheckCode
+     */
     private function saveUserCheckCode(
         $admin,
         $em
@@ -321,32 +324,19 @@ class AdminUserLoginController extends AdminRestController
             );
 
         //if user check code is existed, check expire date time
-        if (!is_null($userCheckCode)) {
-            $globals = $this->container->get('twig')->getGlobals();
-
-            if (
-                new \DateTime('now') < $userCheckCode
-                    ->getCreationDate()
-                    ->modify($globals['expired_verification_time'])
-            ) {
-                return $userCheckCode;
-            } else {
-                // if the date time is expired, update code and creation date
-                $userCheckCode->setCode($checkCode);
-                $userCheckCode->setCreationDate(new \DateTime('now'));
-
-                $em->persist($userCheckCode);
-                $em->flush();
-
-                return $userCheckCode;
-            }
+        if (is_null($userCheckCode)) {
+            $userCheckCode = new UserCheckCode();
+            $userCheckCode->setPhone($admin->getPhone());
+            $userCheckCode->setPhoneCode($admin->getPhoneCode());
+            $userCheckCode->setEmail($admin->getEmail());
         }
 
-        $userCheckCode = new UserCheckCode($admin->getId());
-        $userCheckCode->setPhone($admin->getPhone());
-        $userCheckCode->setPhoneCode($admin->getPhoneCode());
-        $userCheckCode->setEmail($admin->getEmail());
+        // if the date time is expired, update code and creation date
         $userCheckCode->setCode($checkCode);
+        $userCheckCode->setCreationDate(new \DateTime('now'));
+
+        $em->persist($userCheckCode);
+        $em->flush();
 
         return $userCheckCode;
     }
@@ -373,8 +363,16 @@ class AdminUserLoginController extends AdminRestController
         );
     }
 
-    private function removeUserCheckCodeIfExited($checkCode, $phone)
-    {
+    /**
+     * @param $checkCode
+     * @param $phone
+     *
+     * @return View|void
+     */
+    private function removeUserCheckCodeIfExited(
+        $checkCode,
+        $phone
+    ) {
         $userCheckCode = $this->getRepo('User\UserCheckCode')->findOneBy(
             array(
                 'code' => $checkCode,
@@ -390,9 +388,25 @@ class AdminUserLoginController extends AdminRestController
             );
         }
 
+        // check expire in time
+        $globals = $this->container->get('twig')->getGlobals();
+
+        $expiredTime = $userCheckCode
+            ->getCreationDate()
+            ->modify($globals['expired_verification_time']);
+
+        if (new \DateTime('now') > $expiredTime) {
+            return $this->customErrorView(
+                401,
+                self::ERROR_EXPIRED_VERIFICATION_CODE,
+                self::ERROR_EXPIRED_VERIFICATION_MESSAGE
+            );
+        }
+
         // remove User check code
-        $this->getDoctrine()->getManager()->remove($userCheckCode);
-        $this->getDoctrine()->getManager()->flush();
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($userCheckCode);
+        $em->flush();
 
         return;
     }
