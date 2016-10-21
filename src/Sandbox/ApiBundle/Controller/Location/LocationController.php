@@ -115,8 +115,8 @@ class LocationController extends SalesRestController
             }
 
             // response for backend
-            $platform = $adminPlatform['platform'];
-            $salesCompanyId = $adminPlatform['sales_company_id'];
+            $platform = $adminPlatform->getPlatform();
+            $salesCompanyId = $adminPlatform->getSalesCompanyId();
 
             $isSuperAdmin = $this->hasSuperAdminPosition(
                 $this->getAdminId(),
