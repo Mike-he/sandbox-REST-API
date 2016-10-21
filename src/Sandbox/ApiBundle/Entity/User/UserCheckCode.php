@@ -72,7 +72,7 @@ class UserCheckCode
      */
     private $creationDate;
 
-    public function __construct($adminId)
+    public function __construct()
     {
         $this->creationDate = new \DateTime('now');
     }
