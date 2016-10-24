@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Evaluation;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Evaluation\EvaluationPostType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -25,10 +26,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientEvaluationController extends EvaluationController
 {
     const ERROR_ORDER_HAS_COMMENTS_CODE = 400001;
-    const ERROR_ORDER_HAS_COMMENTS_MESSAGE = 'The order has comments';
+    const ERROR_ORDER_HAS_COMMENTS_MESSAGE = 'This order has been comments';
 
     const ERROR_EVALUATION_REPEAT_COMMENT_CODE = 400002;
     const ERROR_EVALUATION_REPEAT_COMMENT_MESSAGE = "A month can't repeat comment";
+
+    const ERROR_ORDER_NOT_COMPLETED_CODE = 400003;
+    const ERROR_ORDER_NOT_COMPLETED_MESSAGE = 'The order has not been completed';
 
     /**
      * @param Request $request
@@ -105,6 +109,16 @@ class ClientEvaluationController extends EvaluationController
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
 
+                $productOrder = $em->getRepository('SandboxApiBundle:Order\ProductOrder')->find($productOrderId);
+                $this->throwNotFoundIfNull($productOrder, self::NOT_FOUND_MESSAGE);
+                if ($productOrder->getStatus() != ProductOrder::STATUS_COMPLETED) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_ORDER_NOT_COMPLETED_CODE,
+                        self::ERROR_ORDER_NOT_COMPLETED_MESSAGE
+                    );
+                }
+
                 $checkEvaluation = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                     ->checkEvaluation(
                         $this->getUserId(),
@@ -113,15 +127,14 @@ class ClientEvaluationController extends EvaluationController
                         $productOrderId
                     );
 
-                if (!is_null($checkEvaluation)) {
+                if (!empty($checkEvaluation)) {
                     return $this->customErrorView(
                         400,
                         self::ERROR_ORDER_HAS_COMMENTS_CODE,
                         self::ERROR_ORDER_HAS_COMMENTS_MESSAGE
                     );
                 }
-                $productOrder = $em->getRepository('SandboxApiBundle:Order\ProductOrder')->find($productOrderId);
-                $this->throwNotFoundIfNull($productOrder, self::NOT_FOUND_MESSAGE);
+
                 $evaluation->setProductOrder($productOrder);
                 break;
             default:
