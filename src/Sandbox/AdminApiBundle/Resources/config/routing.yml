@@ -254,3 +254,9 @@ sandbox_admin_api_platform_set:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPlatformController.php"
     type:     annotation
     prefix:   /
+
+# TopUpOrder /admin/topup/orders
+sandbox_admin_api_topup_orders:
+    resource: "@SandboxAdminApiBundle/Controller/Order/AdminTopUpOrderController.php"
+    type:     annotation
+    prefix:   /
