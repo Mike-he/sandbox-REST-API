@@ -535,6 +535,7 @@ class AdminShopOrderController extends ShopController
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -563,6 +564,7 @@ class AdminShopOrderController extends ShopController
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
             ],
             $opLevel,
             $platform

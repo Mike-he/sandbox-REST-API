@@ -865,6 +865,7 @@ class AdminOrderController extends OrderController
                 [
                     ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
                     ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                    ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
                 ],
                 AdminPermission::OP_LEVEL_VIEW
             );
@@ -1164,6 +1165,7 @@ class AdminOrderController extends OrderController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -1655,6 +1657,7 @@ class AdminOrderController extends OrderController
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
             ],
             $opLevel,
             $platform
