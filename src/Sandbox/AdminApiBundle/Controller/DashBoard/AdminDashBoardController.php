@@ -841,7 +841,11 @@ class AdminDashBoardController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         //authenticate with web browser cookie
-        //$admin = $this->authenticateAdminCookie();
+        $adminId = $this->authenticateAdminCookie();
+        $this->checkAdminDashboardPermission(
+            AdminPermission::OP_LEVEL_VIEW,
+            $adminId
+        );
 
         $channels = array(
             'wx',
@@ -1656,12 +1660,15 @@ class AdminDashBoardController extends SandboxRestController
         }
 
         $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('User\UserToken')->findOneByToken($token);
+        $adminToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(['token' => $token]);
+
         if (is_null($adminToken)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        return $adminToken->getUser();
+        return $adminToken->getUserId();
     }
 
     /**
@@ -1670,10 +1677,15 @@ class AdminDashBoardController extends SandboxRestController
      * @param int $opLevel
      */
     private function checkAdminDashboardPermission(
-        $opLevel
+        $opLevel,
+        $adminId = null
     ) {
+        if (is_null($adminId)) {
+            $adminId = $this->getAdminId();
+        }
+
         $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
+            $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
             ],
