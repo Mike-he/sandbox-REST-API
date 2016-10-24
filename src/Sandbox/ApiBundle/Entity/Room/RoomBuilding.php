@@ -433,6 +433,22 @@ class RoomBuilding implements JsonSerializable
     private $buildingStar;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="orderEvaluationNumber", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $orderEvaluationNumber;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="buildingEvaluationNumber", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $buildingEvaluationNumber;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1174,5 +1190,37 @@ class RoomBuilding implements JsonSerializable
     public function setBuildingStar($buildingStar)
     {
         $this->buildingStar = $buildingStar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getOrderEvaluationNumber()
+    {
+        return $this->orderEvaluationNumber;
+    }
+
+    /**
+     * @param float $orderEvaluationNumber
+     */
+    public function setOrderEvaluationNumber($orderEvaluationNumber)
+    {
+        $this->orderEvaluationNumber = $orderEvaluationNumber;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBuildingEvaluationNumber()
+    {
+        return $this->buildingEvaluationNumber;
+    }
+
+    /**
+     * @param float $buildingEvaluationNumber
+     */
+    public function setBuildingEvaluationNumber($buildingEvaluationNumber)
+    {
+        $this->buildingEvaluationNumber = $buildingEvaluationNumber;
     }
 }
