@@ -323,3 +323,9 @@ sandbox_client_api_advertising:
     resource: "@SandboxClientApiBundle/Controller/Advertising/ClientAdvertisingController.php"
     type:     annotation
     prefix:   /
+
+# Evaluation /evaluation
+sandbox_client_api_evaluation:
+    resource: "@SandboxClientApiBundle/Controller/Evaluation/ClientEvaluationController.php"
+    type:     annotation
+    prefix:   /

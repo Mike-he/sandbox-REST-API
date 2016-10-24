@@ -100,6 +100,11 @@ class Evaluation
     private $productOrder;
 
     /**
+     * @var array
+     */
+    private $attachments;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -402,5 +407,21 @@ class Evaluation
     public function getProductOrder()
     {
         return $this->productOrder;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAttachments()
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * @param array $attachments
+     */
+    public function setAttachments($attachments)
+    {
+        $this->attachments = $attachments;
     }
 }
