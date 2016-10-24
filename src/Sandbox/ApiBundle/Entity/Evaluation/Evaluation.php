@@ -112,6 +112,14 @@ class Evaluation
     private $creationDate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="visible", type="boolean", nullable=false)
+     *
+     */
+    private $visible = true;
+
+    /**
      * Get id.
      *
      * @return int
@@ -423,5 +431,21 @@ class Evaluation
     public function setAttachments($attachments)
     {
         $this->attachments = $attachments;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
+     * @param boolean $visible
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
     }
 }
