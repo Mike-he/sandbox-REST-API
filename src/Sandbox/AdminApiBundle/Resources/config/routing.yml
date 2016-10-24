@@ -254,3 +254,9 @@ sandbox_admin_api_platform_set:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminPlatformController.php"
     type:     annotation
     prefix:   /
+
+# Evaluation /admin/evaluation
+sandbox_admin_api_evaluation:
+    resource: "@SandboxAdminApiBundle/Controller/Evaluation/AdminEvaluationController.php"
+    type:     annotation
+    prefix:   /
