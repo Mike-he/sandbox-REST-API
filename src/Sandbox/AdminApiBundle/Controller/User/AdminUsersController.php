@@ -458,6 +458,7 @@ class AdminUsersController extends DoorController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LOG],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -524,6 +525,7 @@ class AdminUsersController extends DoorController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LOG],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
