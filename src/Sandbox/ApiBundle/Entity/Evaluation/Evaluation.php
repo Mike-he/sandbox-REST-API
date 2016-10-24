@@ -105,6 +105,15 @@ class Evaluation
     private $attachments;
 
     /**
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment",
+     *      mappedBy="evaluation"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="evaluationId")
+     */
+    private $evaluationAttachments;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
@@ -446,5 +455,21 @@ class Evaluation
     public function setVisible($visible)
     {
         $this->visible = $visible;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEvaluationAttachments()
+    {
+        return $this->evaluationAttachments;
+    }
+
+    /**
+     * @param mixed $evaluationAttachments
+     */
+    public function setEvaluationAttachments($evaluationAttachments)
+    {
+        $this->evaluationAttachments = $evaluationAttachments;
     }
 }

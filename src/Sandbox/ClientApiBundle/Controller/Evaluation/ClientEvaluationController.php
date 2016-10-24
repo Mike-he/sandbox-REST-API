@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Evaluation;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
@@ -12,6 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  *  Client Evaluation Controller.
@@ -35,9 +37,153 @@ class ClientEvaluationController extends EvaluationController
     const ERROR_ORDER_NOT_COMPLETED_MESSAGE = 'The order has not been completed';
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_star",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="min star"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_star",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="max star"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="with_pic",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="with picture"
+     * )
+     *
+     * @Route("/evaluations")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getEvaluationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $minStar = $paramFetcher->get('min_star');
+        $maxStar = $paramFetcher->get('max_star');
+        $buildingId = $paramFetcher->get('building');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $isWithPic = $paramFetcher->get('with_pic');
+
+        $evaluations = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->getClientEvaluations(
+                $limit,
+                $offset,
+                $buildingId,
+                null,
+                $minStar,
+                $maxStar,
+                $isWithPic
+            );
+
+        return new View($evaluations);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Route("/evaluations/my")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyEvaluationsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $evaluations = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->getClientEvaluations(
+                $limit,
+                $offset,
+                null,
+                $userId
+            );
+
+        return new View($evaluations);
+    }
+
+    /**
      * @param Request $request
      *
-     * @Route("evaluation")
+     * @Route("/evaluation")
      * @Method({"POST"})
      *
      * @throws \Exception
@@ -81,7 +227,7 @@ class ClientEvaluationController extends EvaluationController
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         switch ($type) {
-            case Evaluation::TYPE_BUILDING :
+            case Evaluation::TYPE_BUILDING:
                 $lastEvaluation = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                     ->findOneBy(
                         array(
@@ -104,7 +250,7 @@ class ClientEvaluationController extends EvaluationController
                 }
 
                 break;
-            case Evaluation::TYPE_ORDER :
+            case Evaluation::TYPE_ORDER:
                 if (is_null($productOrderId)) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
