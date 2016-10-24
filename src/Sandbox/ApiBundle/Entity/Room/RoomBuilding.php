@@ -411,10 +411,10 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var float
      *
-     * @ORM\Column(name="evalutionStar", type="float", nullable=true)
+     * @ORM\Column(name="evaluationStar", type="float", nullable=true)
      * @Serializer\Groups({"main", "client"})
      */
-    private $evalutionStar;
+    private $evaluationStar;
 
     /**
      * Get id.
@@ -1113,18 +1113,18 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
-     * @return string
+     * @return float
      */
-    public function getEvalutionStar()
+    public function getEvaluationStar()
     {
-        return $this->evalutionStar;
+        return $this->evaluationStar;
     }
 
     /**
-     * @param string $evalutionStar
+     * @param float $evaluationStar
      */
-    public function setEvalutionStar($evalutionStar)
+    public function setEvaluationStar($evaluationStar)
     {
-        $this->evalutionStar = $evalutionStar;
+        $this->evaluationStar = $evaluationStar;
     }
 }
