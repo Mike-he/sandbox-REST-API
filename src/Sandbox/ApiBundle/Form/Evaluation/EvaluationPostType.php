@@ -20,11 +20,7 @@ class EvaluationPostType extends AbstractType
             ->add('service_star')
             ->add('environment_star')
             ->add('comment')
-            ->add(
-                'building_id',
-                'integer',
-                array('required' => true)
-            )
+            ->add('building_id')
             ->add(
                 'product_order_id',
                 'integer',

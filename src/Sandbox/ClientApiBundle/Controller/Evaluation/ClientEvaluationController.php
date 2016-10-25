@@ -223,11 +223,10 @@ class ClientEvaluationController extends EvaluationController
         $buildingId = $evaluation->getBuildingId();
         $productOrderId = $evaluation->getProductOrderId();
 
-        $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
-        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
-
         switch ($type) {
             case Evaluation::TYPE_BUILDING:
+                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+                $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
                 $lastEvaluation = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                     ->findOneBy(
                         array(
@@ -257,6 +256,8 @@ class ClientEvaluationController extends EvaluationController
 
                 $productOrder = $em->getRepository('SandboxApiBundle:Order\ProductOrder')->find($productOrderId);
                 $this->throwNotFoundIfNull($productOrder, self::NOT_FOUND_MESSAGE);
+                $building = $productOrder->getProduct()->getRoom()->getBuilding();
+
                 if ($productOrder->getStatus() != ProductOrder::STATUS_COMPLETED) {
                     return $this->customErrorView(
                         400,
@@ -269,7 +270,7 @@ class ClientEvaluationController extends EvaluationController
                     ->checkEvaluation(
                         $this->getUserId(),
                         Evaluation::TYPE_ORDER,
-                        $buildingId,
+                        $building,
                         $productOrderId
                     );
 
