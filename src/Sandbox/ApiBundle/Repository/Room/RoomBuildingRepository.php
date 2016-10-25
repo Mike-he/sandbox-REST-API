@@ -312,10 +312,10 @@ class RoomBuildingRepository extends EntityRepository
     public function searchBuildings(
         $cityId,
         $queryText,
-        $spaceTypes,
+        $roomTypes,
         $sortBy,
-        $communityTags,
-        $communityServices,
+        $buildingTags,
+        $buildingServices,
         $lng,
         $lat,
         $excludeIds = null
@@ -337,8 +337,8 @@ class RoomBuildingRepository extends EntityRepository
         // filter by building visible
         $buildingsQuery->andWhere('rb.visible = TRUE');
 
-        // filter by space types
-        if (!is_null($spaceTypes) && !empty($spaceTypes)) {
+        // filter by room types
+        if (!is_null($roomTypes) && !empty($roomTypes)) {
             $buildingsQuery
                 ->leftJoin(
                     'SandboxApiBundle:Room\RoomBuildingTypeBinding',
@@ -347,11 +347,11 @@ class RoomBuildingRepository extends EntityRepository
                     'rb.id = rbb.building'
                 )
                 ->andWhere('rbb.id IN (:spaceTypes)')
-                ->setParameter('spaceTypes', $spaceTypes);
+                ->setParameter('spaceTypes', $roomTypes);
         }
 
-        // filter by community tags
-        if (!is_null($communityTags) && !empty($communityTags)) {
+        // filter by building tags
+        if (!is_null($buildingTags) && !empty($buildingTags)) {
             $buildingsQuery
                 ->leftJoin(
                     'SandboxApiBundle:Room\RoomBuildingTagBinding',
@@ -359,12 +359,12 @@ class RoomBuildingRepository extends EntityRepository
                     'WITH',
                     'rb.id = rbt.building'
                 )
-                ->andWhere('rbt.id IN (:communityTags)')
-                ->setParameter('communityTags', $communityTags);
+                ->andWhere('rbt.id IN (:buildingTags)')
+                ->setParameter('buildingTags', $buildingTags);
         }
 
-        // filter by community services
-        if (!is_null($communityServices) && !empty($communityServices)) {
+        // filter by building services
+        if (!is_null($buildingServices) && !empty($buildingServices)) {
             $buildingsQuery
                 ->leftJoin(
                     'SandboxApiBundle:Room\RoomBuildingServiceBinding',
@@ -372,8 +372,8 @@ class RoomBuildingRepository extends EntityRepository
                     'WITH',
                     'rb.id = rbs.building'
                 )
-                ->andWhere('rbs.id IN (:communityServices)')
-                ->setParameter('communityServices', $communityServices);
+                ->andWhere('rbs.id IN (:buildingServices)')
+                ->setParameter('buildingServices', $buildingServices);
         }
 
         // filter by building name or room name
@@ -400,7 +400,8 @@ class RoomBuildingRepository extends EntityRepository
             rb.evaluationStar as evaluation,
             rb.avatar,
             rb.lat,
-            rb.lng
+            rb.lng,
+            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
         ')
         ->setParameter('latitude', $lat)
         ->setParameter('longitude', $lng);
