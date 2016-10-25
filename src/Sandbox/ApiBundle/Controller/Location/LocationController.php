@@ -796,8 +796,13 @@ class LocationController extends SalesRestController
         $buildings
     ) {
         foreach ($buildings as $building) {
-            $lat = $building->getLat();
-            $lng = $building->getLng();
+            if (is_array($building)) {
+                $lat = $building['lat'];
+                $lng = $building['lng'];
+            } else {
+                $lat = $building->getLat();
+                $lng = $building->getLng();
+            }
 
             $locationArray = $this->gaodeToBaidu($lat, $lng);
 
@@ -887,6 +892,213 @@ class LocationController extends SalesRestController
 
         if ($transform) {
             $this->transformLocation($buildings);
+        }
+    }
+
+    /**
+     * @Get("/search")
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=19,
+     *    nullable=true,
+     *    description="id of city"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="query text"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room_types",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="types of room"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort_by",
+     *    default="distance",
+     *    nullable=true,
+     *    description="smart sort"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building_tags",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="tags of building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building_services",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="services of building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lat",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="latitude"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lng",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="longitude"
+     * )
+     *
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function searchBuildingsAction(
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $user = $this->getUser();
+
+        $cityId = $paramFetcher->get('city');
+        $queryText = $paramFetcher->get('query');
+        $sortBy = $paramFetcher->get('sort_by');
+        $roomTypes = $paramFetcher->get('room_types');
+        $buildingTags = $paramFetcher->get('building_tags');
+        $buildingServices = $paramFetcher->get('building_services');
+        $lng = $paramFetcher->get('lng');
+        $lat = $paramFetcher->get('lat');
+
+        // get all buildings
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->searchBuildings(
+                $cityId,
+                $queryText,
+                $roomTypes,
+                $sortBy,
+                $buildingTags,
+                $buildingServices,
+                $lng,
+                $lat,
+                $excludeIds = [9] // 9 is the company id of xiehe
+            );
+
+        $buildings = $this->handleSearchBuildingsData($buildings);
+
+        $this->transformAppVersionForAmap($user, $buildings);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData($buildings);
+
+        return $view;
+    }
+
+    private function handleSearchBuildingsData(
+        $buildings
+    ) {
+        foreach ($buildings as &$building) {
+            $attachments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
+                ->findRoomBuildingAttachmentByBuildingId($building['id']);
+
+            if (!empty($attachments)) {
+                $building['cover'] = $attachments[0];
+            }
+
+            $tags = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingTagBinding')
+                ->findRoomBuildingTagsByBuildingId($building['id']);
+
+            if (!empty($tags)) {
+                $building['tags'] = $tags;
+            }
+
+            $district = $this->syncBuildingAddress($building['lat'], $building['lng']);
+            if (!empty($district)) {
+                $building['district'] = $district;
+            }
+        }
+
+        return $buildings;
+    }
+
+    private function syncBuildingAddress(
+        $lat,
+        $lng
+    ) {
+        $apiURL = 'http://restapi.amap.com/v3/geocode/regeo?key=aa4a48297242d22d2b3fd6eddfe62217&s=rsv3&location='.$lng.','.$lat;
+        $ch = curl_init($apiURL);
+
+        $result = $this->callAPI(
+            $ch,
+            'GET'
+        );
+
+        if (is_null($result)) {
+            return;
+        }
+
+        $resultArray = json_decode($result, true);
+
+        if (!isset($resultArray['regeocode']['addressComponent']['district'])) {
+            return;
+        }
+
+        return $resultArray['regeocode']['addressComponent']['district'];
+    }
+
+    private function transformAppVersionForAmap(
+        $user,
+        $buildings
+    ) {
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
+
+        // transform version for the old app to make sure it can use the Amap
+        $userId = null;
+        $clientId = null;
+        if (!is_null($user)) {
+            $clientId = $user->getClientId();
+            $client = $this->getRepo('User\UserClient')->find($clientId);
+
+            if (!is_null($client)) {
+                $version = $client->getVersion();
+                $name = strtoupper($client->getName());
+
+                if (!is_null($version) && !empty($version)) {
+                    $versionArray = explode('.', $version);
+
+                    $this->checkForTransformWithToken(
+                        $name,
+                        $versionArray,
+                        $buildings
+                    );
+                }
+            }
+        } elseif (array_key_exists('http_user_agent', $headers)) {
+            $agent = $headers['http_user_agent'];
+
+            $versionName = explode(' (', $agent);
+            $versionNameArray = explode('/', $versionName[0]);
+
+            if ($versionNameArray[0] == 'SandBox') {
+                $versionArray = explode('.', $versionNameArray[1]);
+
+                $this->checkForTransformWithoutToken($versionArray, $buildings);
+            }
         }
     }
 }
