@@ -248,6 +248,7 @@ class ClientEvaluationController extends EvaluationController
                     }
                 }
 
+                $building->setBuildingEvaluationNumber($building->getBuildingEvaluationNumber() + 1);
                 break;
             case Evaluation::TYPE_ORDER:
                 if (is_null($productOrderId)) {
@@ -283,6 +284,7 @@ class ClientEvaluationController extends EvaluationController
                 }
 
                 $evaluation->setProductOrder($productOrder);
+                $building->setOrderEvaluationNumber($building->getOrderEvaluationNumber() + 1);
                 break;
             default:
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);

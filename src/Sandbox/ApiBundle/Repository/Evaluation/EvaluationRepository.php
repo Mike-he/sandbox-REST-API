@@ -185,4 +185,44 @@ class EvaluationRepository extends EntityRepository
 
         return $query->getQuery();
     }
+
+    /**
+     * @param $building
+     * @param $type
+     *
+     * @return mixed
+     */
+    public function countEvaluation(
+        $building,
+        $type
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->select('count(e)')
+            ->where('e.type = :type')
+            ->andWhere('e.building = :building')
+            ->setParameter('type', $type)
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $building
+     * @param $type
+     *
+     * @return array
+     */
+    public function sumEvaluation(
+        $building,
+        $type
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->select('sum(e.totalStar) as star')
+            ->where('e.type = :type')
+            ->andWhere('e.building = :building')
+            ->setParameter('type', $type)
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
