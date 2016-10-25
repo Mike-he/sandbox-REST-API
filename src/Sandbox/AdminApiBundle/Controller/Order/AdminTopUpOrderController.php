@@ -5,15 +5,11 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
-use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Post;
 
 /**
  * Rest controller for Admin TopUpOrders.
@@ -94,7 +90,7 @@ class AdminTopUpOrderController extends PaymentController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER]
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -157,7 +153,7 @@ class AdminTopUpOrderController extends PaymentController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER]
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -166,7 +162,7 @@ class AdminTopUpOrderController extends PaymentController
             ->getRepository('SandboxApiBundle:Order\TopUpOrder')
             ->findOneBy(
                 [
-                    'orderNumber' => $orderNumber
+                    'orderNumber' => $orderNumber,
                 ]
             );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -194,7 +190,7 @@ class AdminTopUpOrderController extends PaymentController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER]
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );

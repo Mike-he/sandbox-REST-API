@@ -154,7 +154,7 @@ class ClientTopUpOrderController extends PaymentController
             ->findOneBy(
                 [
                     'orderNumber' => $orderNumber,
-                    'userId' => $userId
+                    'userId' => $userId,
                 ]
             );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -183,7 +183,7 @@ class ClientTopUpOrderController extends PaymentController
             ->findOneBy(
                 [
                     'id' => $id,
-                    'userId' => $userId
+                    'userId' => $userId,
                 ]
             );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);

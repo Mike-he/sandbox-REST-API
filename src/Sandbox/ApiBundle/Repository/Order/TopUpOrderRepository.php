@@ -3,11 +3,6 @@
 namespace Sandbox\ApiBundle\Repository\Order;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\Room\Room;
-use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\Room\RoomCity;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class TopUpOrderRepository extends EntityRepository
 {
@@ -17,6 +12,7 @@ class TopUpOrderRepository extends EntityRepository
      * @param $payEnd
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function getTopUpOrdersForAdmin(
@@ -62,6 +58,7 @@ class TopUpOrderRepository extends EntityRepository
      * @param $channel
      * @param $payStart
      * @param $payEnd
+     *
      * @return mixed
      */
     public function countTopUpOrdersForAdmin(

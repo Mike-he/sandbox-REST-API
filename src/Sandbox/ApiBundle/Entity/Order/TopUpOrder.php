@@ -4,13 +4,12 @@ namespace Sandbox\ApiBundle\Entity\Order;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * TopUpOrder.
  *
  * @ORM\Table(name="top_up_order")
- * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\TopUPOrderRepository")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\TopUpOrderRepository")
  */
 class TopUpOrder
 {

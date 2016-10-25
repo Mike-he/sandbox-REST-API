@@ -1598,6 +1598,7 @@ class AdminOrderController extends OrderController
 
                     $order->setRefundProcessed(true);
                     $order->setRefundProcessedDate($now);
+                    $order->setActualRefundAmount($price);
 
                     if (!is_null($balance)) {
                         $order->setRefunded(true);
