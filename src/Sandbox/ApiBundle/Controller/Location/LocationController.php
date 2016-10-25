@@ -1016,7 +1016,7 @@ class LocationController extends SalesRestController
                 ->findRoomBuildingAttachmentByBuildingId($building['id']);
 
             if (!empty($attachments)) {
-                $building['cover'] = $attachments[0];
+                $building['cover'] = $attachments[0]['content'];
             }
 
             $tags = $this->getDoctrine()
@@ -1024,12 +1024,12 @@ class LocationController extends SalesRestController
                 ->findRoomBuildingTagsByBuildingId($building['id']);
 
             if (!empty($tags)) {
-                $building['tags'] = $tags;
+                $building['building_tags'] = $tags;
             }
 
             $district = $this->syncBuildingAddress($building['lat'], $building['lng']);
             if (!empty($district)) {
-                $building['district'] = $district;
+                $building['location'] = $district;
             }
         }
 
