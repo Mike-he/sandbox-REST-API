@@ -434,6 +434,13 @@ class ProductOrder
     private $transfer;
 
     /**
+     * @var bool
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $hasEvaluated = false;
+
+    /**
      * Set transfer.
      *
      * @param OrderOfflineTransfer $transfer
@@ -1447,6 +1454,22 @@ class ProductOrder
     public function isCancelByUser()
     {
         return $this->cancelByUser;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasEvaluated()
+    {
+        return $this->hasEvaluated;
+    }
+
+    /**
+     * @param boolean $hasEvaluated
+     */
+    public function setHasEvaluated($hasEvaluated)
+    {
+        $this->hasEvaluated = $hasEvaluated;
     }
 
     public function __construct()

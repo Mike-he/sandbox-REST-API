@@ -1429,11 +1429,37 @@ class ClientOrderController extends OrderController
             $viewArray = array_merge($viewArray, $alertArray);
         }
 
+        // add evaluation tag
+        $this->setOrderEvaluationTag(
+            $order,
+            $currentUserId
+        );
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($viewArray);
 
         return $view;
+    }
+
+    /**
+     * @param ProductOrder $order
+     * @param $currentUserId
+     */
+    private function setOrderEvaluationTag(
+        $order,
+        $currentUserId
+    ) {
+        $evaluation = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->findOneBy(array(
+                'productOrderId' => $order->getId(),
+                'userId' => $currentUserId,
+            ));
+
+        if (!is_null($evaluation)) {
+            $order->setHasEvaluated(true);
+        }
     }
 
     /**
