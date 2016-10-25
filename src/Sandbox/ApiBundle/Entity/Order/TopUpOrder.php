@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Entity\Order;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * TopUpOrder.

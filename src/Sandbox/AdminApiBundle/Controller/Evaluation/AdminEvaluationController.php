@@ -2,6 +2,9 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Evaluation;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use Knp\Component\Pager\Paginator;
+use FOS\RestBundle\Controller\Annotations;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
@@ -32,6 +35,181 @@ class AdminEvaluationController extends EvaluationController
 
     const ERROR_BUILDING_NOT_MATCH_CODE = 400002;
     const ERROR_BUILDING_NOT_MATCH__MESSAGE = 'This building is not match';
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_star",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="min star"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_star",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="max star"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="with_pic",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="with picture"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="with_comment",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="with comment"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="evaluation type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="visible",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="evaluation visible"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user_profile_name",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="user profile name"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="username",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="username"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort_by",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="username"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort_direction",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="username"
+     * )
+     *
+     * @Route("/evaluations")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getEvaluationsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userProfileName = $paramFetcher->get('user_profile_name');
+        $username = $paramFetcher->get('username');
+        $minStar = $paramFetcher->get('min_star');
+        $maxStar = $paramFetcher->get('max_star');
+        $buildingId = $paramFetcher->get('building');
+        $isWithPic = $paramFetcher->get('with_pic');
+        $isWithComment = $paramFetcher->get('with_comment');
+        $type = $paramFetcher->get('type');
+        $visible = $paramFetcher->get('visible');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $sortBy = $paramFetcher->get('sort_by');
+        $sortDirection = $paramFetcher->get('sort_direction');
+
+        $evaluationsQuery = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->getAdminEvaluations(
+                $userProfileName,
+                $username,
+                $buildingId,
+                $minStar,
+                $maxStar,
+                $isWithPic,
+                $isWithComment,
+                $type,
+                $visible,
+                $sortBy,
+                $sortDirection
+            );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $evaluationsQuery,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
 
     /**
      * Create A Evaluation.
