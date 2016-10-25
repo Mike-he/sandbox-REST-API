@@ -194,7 +194,8 @@ class EvaluationRepository extends EntityRepository
      */
     public function countEvaluation(
         $building,
-        $type
+        $type,
+        $visible
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('count(e)')
@@ -202,6 +203,11 @@ class EvaluationRepository extends EntityRepository
             ->andWhere('e.building = :building')
             ->setParameter('type', $type)
             ->setParameter('building', $building);
+
+        if (!is_null($visible)) {
+            $query->andWhere('e.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
 
         return $query->getQuery()->getSingleScalarResult();
     }
@@ -214,7 +220,8 @@ class EvaluationRepository extends EntityRepository
      */
     public function sumEvaluation(
         $building,
-        $type
+        $type,
+        $visible
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('sum(e.totalStar) as star')
@@ -222,6 +229,11 @@ class EvaluationRepository extends EntityRepository
             ->andWhere('e.building = :building')
             ->setParameter('type', $type)
             ->setParameter('building', $building);
+
+        if (!is_null($visible)) {
+            $query->andWhere('e.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
 
         return $query->getQuery()->getSingleScalarResult();
     }

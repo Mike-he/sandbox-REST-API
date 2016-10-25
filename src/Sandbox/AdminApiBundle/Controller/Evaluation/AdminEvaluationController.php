@@ -37,7 +37,7 @@ class AdminEvaluationController extends EvaluationController
     const ERROR_BUILDING_NOT_MATCH__MESSAGE = 'This building is not match';
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -271,6 +271,51 @@ class AdminEvaluationController extends EvaluationController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * Create A Official Evaluation.
+     *
+     * @param Request $request
+     *
+     * @Route("evaluation/official")
+     * @Method({"POST"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function postOfficialEvaliation(
+        Request $request
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $data = json_decode($request->getContent(), true);
+
+        $evaluation = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->findOneBy(
+                array(
+                    'type' => Evaluation::TYPE_OFFICIAL,
+                    'buildingId' => $data['building_id'],
+                )
+            );
+        if (!$evaluation) {
+            $now = $now = new \DateTime('now');
+            $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($data['building_id']);
+            $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+            $user = $em->getRepository('SandboxApiBundle:User\User')->find($this->getUserId());
+
+            $evaluation = new Evaluation();
+            $evaluation->setUser($user);
+            $evaluation->setType(Evaluation::TYPE_OFFICIAL);
+            $evaluation->setBuilding($building);
+            $evaluation->setEnvironmentStar(0);
+            $evaluation->setServiceStar(0);
+            $evaluation->setCreationDate($now);
+        }
+        $evaluation->setTotalStar($data['official_evaluation_star']);
+        $em->persist($evaluation);
+
+        $em->flush();
     }
 
     /**

@@ -1457,7 +1457,7 @@ class ProductOrder
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasEvaluated()
     {
@@ -1465,7 +1465,7 @@ class ProductOrder
     }
 
     /**
-     * @param boolean $hasEvaluated
+     * @param bool $hasEvaluated
      */
     public function setHasEvaluated($hasEvaluated)
     {

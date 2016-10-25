@@ -26,7 +26,7 @@ class CalculateStarCommand extends ContainerAwareCommand
                 ->findOneBy(
                     array(
                         'buildingId' => $building,
-                        'type' => Evaluation::TYPE_OFFICIAL
+                        'type' => Evaluation::TYPE_OFFICIAL,
                     )
                 );
 
@@ -37,13 +37,15 @@ class CalculateStarCommand extends ContainerAwareCommand
             $buildingStarCount = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                 ->countEvaluation(
                     $building,
-                    Evaluation::TYPE_BUILDING
+                    Evaluation::TYPE_BUILDING,
+                    true
                 );
 
             $orderStarCount = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                 ->countEvaluation(
                     $building,
-                    Evaluation::TYPE_ORDER
+                    Evaluation::TYPE_ORDER,
+                    true
                 );
 
             if (($buildingStarCount + $orderStarCount) < 10) {
@@ -53,13 +55,15 @@ class CalculateStarCommand extends ContainerAwareCommand
             $buildingStarSum = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                 ->sumEvaluation(
                     $building,
-                    Evaluation::TYPE_BUILDING
+                    Evaluation::TYPE_BUILDING,
+                    true
                 );
 
             $orderStarSum = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                 ->sumEvaluation(
                     $building,
-                    Evaluation::TYPE_ORDER
+                    Evaluation::TYPE_ORDER,
+                    true
                 );
 
             $buildingStar = 0;
