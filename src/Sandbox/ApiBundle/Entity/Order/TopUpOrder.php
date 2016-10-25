@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * TopUpOrder.
  *
  * @ORM\Table(name="top_up_order")
- * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\TopUPOrderRepository")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\TopUpOrderRepository")
  */
 class TopUpOrder
 {
