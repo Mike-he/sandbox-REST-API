@@ -115,7 +115,6 @@ class Evaluation
      * @var bool
      *
      * @ORM\Column(name="visible", type="boolean", nullable=false)
-     *
      */
     private $visible = true;
 
@@ -434,7 +433,7 @@ class Evaluation
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isVisible()
     {
@@ -442,7 +441,7 @@ class Evaluation
     }
 
     /**
-     * @param boolean $visible
+     * @param bool $visible
      */
     public function setVisible($visible)
     {
