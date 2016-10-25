@@ -37,6 +37,68 @@ class AdminEvaluationController extends EvaluationController
     const ERROR_BUILDING_NOT_MATCH__MESSAGE = 'This building is not match';
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Building id"
+     * )
+     *
+     * @Route("/evaluation/scores")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAdminEvaluationScoresAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $buildingId = $paramFetcher->get('building');
+
+        // get official star
+        $evaluation = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->findOneBy(array(
+                'type' => Evaluation::TYPE_OFFICIAL,
+                'buildingId' => $buildingId,
+            ));
+
+        // get total evaluation star
+        $building = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->find($buildingId);
+
+        if (is_null($building)) {
+            throw new BadRequestHttpException(self::NOT_FOUND_MESSAGE);
+        }
+
+        if (is_null($evaluation)) {
+            $officialStar = null;
+        } else {
+            $officialStar = $evaluation->getTotalStar();
+        }
+
+        $orderEvaluationCount = $building->getOrderEvaluationNumber();
+        $buildingEvaluationCount = $building->getBuildingEvaluationNumber();
+
+        return new View(array(
+            'total_evaluation_count' => $orderEvaluationCount + $buildingEvaluationCount + 1,
+            'total_evaluation_star' => $building->getEvaluationStar(),
+            'official_evaluation_star' => $officialStar,
+            'order_evaluation_count' => $orderEvaluationCount,
+            'order_evaluation_star' => $building->getOrderStar(),
+            'building_evaluation_count' => $buildingEvaluationCount,
+            'building_evaluation_star' => $building->getBuildingStar(),
+        ));
+    }
+
+    /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
