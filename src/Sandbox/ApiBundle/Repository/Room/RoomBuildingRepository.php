@@ -308,4 +308,120 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function searchBuildings(
+        $cityId,
+        $queryText,
+        $spaceTypes,
+        $sortBy,
+        $communityTags,
+        $communityServices,
+        $lng,
+        $lat,
+        $excludeIds = null
+    ) {
+        $buildingsQuery = $this->createQueryBuilder('rb');
+
+        // query by city id
+        if (!is_null($cityId)) {
+            $buildingsQuery->where('rb.cityId = :cityId');
+            $buildingsQuery->setParameter('cityId', $cityId);
+        }
+
+        // filter by building delete
+        $buildingsQuery->andWhere('rb.isDeleted = FALSE');
+
+        // filter by building status
+        $buildingsQuery->andWhere('rb.status = TRUE');
+
+        // filter by building visible
+        $buildingsQuery->andWhere('rb.visible = TRUE');
+
+        // filter by space types
+        if (!is_null($spaceTypes) && !empty($spaceTypes)) {
+            $buildingsQuery
+                ->leftJoin(
+                    'SandboxApiBundle:Room\RoomBuildingTypeBinding',
+                    'rbb',
+                    'WITH',
+                    'rb.id = rbb.building'
+                )
+                ->andWhere('rbb.id IN (:spaceTypes)')
+                ->setParameter('spaceTypes', $spaceTypes);
+        }
+
+        // filter by community tags
+        if (!is_null($communityTags) && !empty($communityTags)) {
+            $buildingsQuery
+                ->leftJoin(
+                    'SandboxApiBundle:Room\RoomBuildingTagBinding',
+                    'rbt',
+                    'WITH',
+                    'rb.id = rbt.building'
+                )
+                ->andWhere('rbt.id IN (:communityTags)')
+                ->setParameter('communityTags', $communityTags);
+        }
+
+        // filter by community services
+        if (!is_null($communityServices) && !empty($communityServices)) {
+            $buildingsQuery
+                ->leftJoin(
+                    'SandboxApiBundle:Room\RoomBuildingServiceBinding',
+                    'rbs',
+                    'WITH',
+                    'rb.id = rbs.building'
+                )
+                ->andWhere('rbs.id IN (:communityServices)')
+                ->setParameter('communityServices', $communityServices);
+        }
+
+        // filter by building name or room name
+        if (!is_null($queryText) && !empty($queryText)) {
+            $buildingsQuery
+                ->leftJoin(
+                    'SandboxApiBundle:Room\Room',
+                    'r',
+                    'WITH',
+                    'rb.id = r.building'
+                )
+                ->andWhere('rb.name LIKE :query OR r.name LIKE :query')
+                ->setParameter('query', '%'.$queryText.'%');
+        }
+
+        $buildingsQuery->select('
+            rb.id,
+            rb.name,
+            (6371
+                * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
+                * cos(radians(rb.lng) - radians(:longitude))
+                + sin(radians(:latitude)) * sin(radians(rb.lat)))
+            ) as distance,
+            rb.evaluationStar as evaluation,
+            rb.avatar,
+            rb.lat,
+            rb.lng
+        ')
+        ->setParameter('latitude', $lat)
+        ->setParameter('longitude', $lng);
+
+        // sort by distance and evaluation
+        switch ($sortBy) {
+            case 'smart':
+                break;
+            case 'evaluation':
+                $buildingsQuery->orderBy('rb.evaluationStar', 'DESC');
+                break;
+            default :
+                $buildingsQuery->orderBy('distance', 'ASC');
+        }
+
+        // filter the companies we don't want to show
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $buildingsQuery->andWhere('rb.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
+
+        return $buildingsQuery->getQuery()->getResult();
+    }
 }
