@@ -332,7 +332,8 @@ class RoomBuildingRepository extends EntityRepository
         $buildingsQuery->andWhere('rb.isDeleted = FALSE');
 
         // filter by building status
-        $buildingsQuery->andWhere('rb.status = TRUE');
+        $buildingsQuery->andWhere('rb.status = :status')
+            ->setParameter('status', 'accept');
 
         // filter by building visible
         $buildingsQuery->andWhere('rb.visible = TRUE');
