@@ -413,7 +413,7 @@ class RoomBuildingRepository extends EntityRepository
             case 'evaluation':
                 $buildingsQuery->orderBy('rb.evaluationStar', 'DESC');
                 break;
-            default :
+            default:
                 $buildingsQuery->orderBy('distance', 'ASC');
         }
 

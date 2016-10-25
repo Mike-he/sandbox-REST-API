@@ -41,6 +41,59 @@ class ClientEvaluationController extends EvaluationController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Building id"
+     * )
+     *
+     * @Route("/evaluations/check_my")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function checkMyBuildingEvaluationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $buildingId = $paramFetcher->get('building');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+        $lastEvaluation = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->findOneBy(
+                array(
+                    'userId' => $this->getUserId(),
+                    'buildingId' => $buildingId,
+                    'type' => Evaluation::TYPE_BUILDING,
+                ),
+                array('creationDate' => 'DESC')
+            );
+
+        $ableToCreateBuildingEvaluation = true;
+
+        if ($lastEvaluation) {
+            $diff = date_diff(new \DateTime('now'), $lastEvaluation->getCreationDate());
+            if ($diff->format('%m') < 1) {
+                $ableToCreateBuildingEvaluation = false;
+            }
+        }
+
+        return new View(array(
+            'able_to_create_building_evaluation' => $ableToCreateBuildingEvaluation,
+        ));
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
