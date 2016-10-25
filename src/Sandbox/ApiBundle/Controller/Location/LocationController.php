@@ -896,7 +896,7 @@ class LocationController extends SalesRestController
     }
 
     /**
-     * @Get("/search")
+     * @Get("/communities/search")
      *
      * @Annotations\QueryParam(
      *    name="city",
