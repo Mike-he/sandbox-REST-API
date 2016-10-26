@@ -1691,8 +1691,21 @@ class SandboxRestController extends FOSRestController
 
             $log->setAdminUsername($this->getAdminId());
             $log->setPlatform($adminPlatform['platform']);
-            $log->setSalesCompanyId($adminPlatform['sales_company_id']);
 
+            // set sales company
+            $salesCompanyId = isset($adminPlatform['sales_company_id']) ? $adminPlatform['sales_company_id'] : null;
+
+            if (!is_null($salesCompanyId)) {
+                $salesCompany = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                    ->find($salesCompanyId);
+
+                if (!is_null($salesCompany)) {
+                    $log->setSalesCompany($salesCompany);
+                }
+            }
+
+            // save log
             if ($this->handleLog($log)) {
                 $em->persist($log);
                 $em->flush();

@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\Log;
 
 use Rs\Json\Patch;
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Log\LogController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Form\Log\LogPatchType;
@@ -144,66 +145,86 @@ class AdminLogController extends LogController
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
 
-        $offset = ($pageIndex - 1) * $pageLimit;
-        $limit = $pageLimit;
-
-        $count = $this->getDoctrine()
+        $logsQuery = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Log\Log')
-            ->getLogCount(
+            ->getAdminLogs(
+                null,
+                $startDate,
+                $endDate,
                 $companyId,
                 $module,
                 $search,
                 $key,
                 $objectId,
-                $mark,
+                $mark
+            );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $logsQuery,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="admin_id",
+     *     array=false,
+     *     default=null,
+     *     nullable=false,
+     *     strict=true,
+     *     description="admin id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="startDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="endDate"
+     * )
+     *
+     * @Route("/logs/specify_admin")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getLogsBySpecifyAdminAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminLogPermission();
+
+        $adminId = $paramFetcher->get('admin_id');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+
+        $logsQuery = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Log\Log')
+            ->getAdminLogs(
+                $adminId,
                 $startDate,
                 $endDate
             );
 
-        $logs = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Log\Log')
-            ->getLogList(
-                $companyId,
-                $module,
-                $search,
-                $key,
-                $objectId,
-                $mark,
-                $startDate,
-                $endDate,
-                $limit,
-                $offset
-            );
-
-        foreach ($logs as $log) {
-            $salesCompanyId = $log->getSalesCompanyId();
-
-            if (is_null($salesCompanyId)) {
-                continue;
-            }
-
-            $company = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-                ->find($salesCompanyId);
-
-            if (is_null($company)) {
-                continue;
-            }
-
-            $log->setSalesCompanyName($company->getName());
-        }
-
-        $view = new View();
-        $view->setData(
-            [
-                'current_page_number' => $pageIndex,
-                'num_items_per_page' => (int) $pageLimit,
-                'items' => $logs,
-                'total_count' => (int) $count,
-            ]
-        );
-
-        return $view;
+        return new View($logsQuery->getResult());
     }
 
     /**

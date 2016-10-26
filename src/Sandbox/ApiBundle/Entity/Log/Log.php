@@ -84,9 +84,10 @@ class Log
     private $salesCompanyId;
 
     /**
-     * @var string
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
+     * @ORM\JoinColumn(name="salesCompanyId", referencedColumnName="id", onDelete="SET NULL")
      */
-    private $salesCompanyName;
+    private $salesCompany;
 
     /**
      * @var string
@@ -147,7 +148,7 @@ class Log
     /**
      * @var string
      *
-     * @ORM\Column(name="remarks", type="string", length=255)
+     * @ORM\Column(name="remarks", type="string", length=255, nullable=true)
      */
     private $remarks;
 
@@ -402,21 +403,19 @@ class Log
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getSalesCompanyName()
+    public function getSalesCompany()
     {
-        return $this->salesCompanyName;
+        return $this->salesCompany;
     }
 
     /**
-     * @param string $name
-     *
-     * @return Log
+     * @param mixed $salesCompany
      */
-    public function setSalesCompanyName($name)
+    public function setSalesCompany($salesCompany)
     {
-        $this->salesCompanyName = $name;
+        $this->salesCompany = $salesCompany;
     }
 
     /**

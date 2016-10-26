@@ -13,31 +13,37 @@ use Doctrine\ORM\EntityRepository;
 class LogRepository extends EntityRepository
 {
     /**
+     * @param $adminId
      * @param $companyId
      * @param $module
      * @param $search
      * @param $key
      * @param $objectId
-     * @param $limit
-     * @param $offset
+     * @param $mark
+     * @param $startDate
+     * @param $endDate
      *
      * @return array
      */
-    public function getLogList(
-        $companyId,
-        $module,
-        $search,
-        $key,
-        $objectId,
-        $mark,
+    public function getAdminLogs(
+        $adminId,
         $startDate,
         $endDate,
-        $limit,
-        $offset
+        $companyId = null,
+        $module = null,
+        $search = null,
+        $key = null,
+        $objectId = null,
+        $mark = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->where('1=1')
             ->orderBy('l.creationDate', 'DESC');
+
+        if (!is_null($adminId)) {
+            $query->andWhere('l.adminUsername = :adminId')
+                ->setParameter('adminId', $adminId);
+        }
 
         if (!is_null($companyId) && !empty($companyId)) {
             $query->andWhere('l.salesCompanyId = :companyId')
@@ -79,9 +85,7 @@ class LogRepository extends EntityRepository
                 ->setParameter('end', $endDate);
         }
 
-        $query->setMaxResults($limit)->setFirstResult($offset);
-
-        return $query->getQuery()->getResult();
+        return $query->getQuery();
     }
 
     /**
