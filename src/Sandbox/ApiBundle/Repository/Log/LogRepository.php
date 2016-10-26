@@ -78,97 +78,16 @@ class LogRepository extends EntityRepository
                 ->setParameter('mark', $mark);
         }
 
-        if (!is_null($startDate) && !is_null($endDate)) {
+        if (!is_null($startDate)) {
             $query->andWhere('l.creationDate >= :start')
-                ->andWhere('l.creationDate <= :end')
-                ->setParameter('start', $startDate)
+                ->setParameter('start', $startDate);
+        }
+
+        if (!is_null($endDate)) {
+            $query->andWhere('l.creationDate <= :end')
                 ->setParameter('end', $endDate);
         }
 
         return $query->getQuery();
-    }
-
-    /**
-     * @param $companyId
-     * @param $module
-     * @param $search
-     * @param $key
-     * @param $objectId
-     *
-     * @return mixed
-     */
-    public function getLogCount(
-        $companyId,
-        $module,
-        $search,
-        $key,
-        $objectId,
-        $mark,
-        $startDate,
-        $endDate
-    ) {
-        $query = $this->createQueryBuilder('l')
-            ->select('COUNT(l)')
-            ->where('1=1')
-            ->orderBy('l.creationDate', 'DESC');
-
-        if (!is_null($companyId) && !empty($companyId)) {
-            $query->andWhere('l.salesCompanyId = :companyId')
-                ->setParameter('companyId', $companyId);
-        }
-
-        if (!is_null($module) && !empty($module)) {
-            $query->andWhere('l.logModule = :logModule')
-                ->setParameter('logModule', $module);
-        }
-
-        if (!is_null($key) && !empty($key) && !is_null($objectId) && !empty($objectId)) {
-            $query->andWhere('l.logObjectKey = :key')
-                ->andWhere('l.logObjectId = :objectId')
-                ->setParameter('key', $key)
-                ->setParameter('objectId', $objectId);
-        }
-
-        if (!is_null($search) && !empty($search)) {
-            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany', 'c', 'WITH', 'c.id = l.salesCompanyId')
-                ->andWhere('
-                    (l.logModule LIKE :logModule OR 
-                    l.adminUsername LIKE :search OR 
-                    c.name LIKE :search OR 
-                    l.logAction LIKE :search)
-                ')
-            ->setParameter('search', '%'.$search.'%');
-        }
-
-        if (!is_null($mark)) {
-            $query->andWhere('l.mark = :mark')
-                ->setParameter('mark', $mark);
-        }
-
-        if (!is_null($startDate) && !is_null($endDate)) {
-            $query->andWhere('l.creationDate >= :start')
-                ->andWhere('l.creationDate <= :end')
-                ->setParameter('start', $startDate)
-                ->setParameter('end', $endDate);
-        }
-
-        return $query->getQuery()->getSingleScalarResult();
-    }
-
-    /**
-     * @param QueryBuilder $query
-     * @param bool         $notFirst
-     * @param string       $where
-     */
-    private function addWhereQuery(
-        $query,
-        $notFirst,
-        $where
-    ) {
-        if ($notFirst) {
-            $query->andWhere($where);
-        } else {
-            $query->where($where);
-        }
     }
 }

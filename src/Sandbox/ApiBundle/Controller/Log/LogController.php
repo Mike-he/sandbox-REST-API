@@ -51,7 +51,6 @@ class LogController extends SandboxRestController
             ->find($adminPlatform['sales_company_id']);
         $log->setSalesCompany($salesCompany);
 
-
         $em = $this->getDoctrine()->getManager();
         $em->persist($log);
         $em->flush();
