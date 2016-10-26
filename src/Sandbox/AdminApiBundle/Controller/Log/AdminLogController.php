@@ -231,13 +231,14 @@ class AdminLogController extends LogController
     /**
      * @param Request $request
      *
-     * @Route("/logs/mark")
+     * @Route("/logs/{id}/mark")
      * @Method({"POST"})
      *
      * @return View
      */
     public function postLogMarkAction(
-        Request $request
+        Request $request,
+        $id
     ) {
         // check user permission
         $this->checkAdminLogPermission();
@@ -245,14 +246,11 @@ class AdminLogController extends LogController
         $em = $this->getDoctrine()->getManager();
         $data = json_decode($request->getContent(), true);
 
-        $id = $data['id'];
-        $mark = $data['mark'];
-
         $log = $em->getRepository('SandboxApiBundle:Log\Log')->find($id);
         $this->throwNotFoundIfNull($log, self::NOT_FOUND_MESSAGE);
 
-        $log->setMark($mark);
-        if ($mark == true) {
+        $log->setMark($data['mark']);
+        if ($data['mark'] == true) {
             $log->setRemarks($data['remarks']);
         } else {
             $log->setRemarks(null);
