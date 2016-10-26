@@ -273,6 +273,16 @@ building:
     food_and_beverage: 餐饮配套
     vip_space: 会员空间
     fast_preorder: 快速预定
+  sort:
+    distance: 距离最近
+    star: 评价最好
+    smart: 智能排序
+  filter:
+    sort_by: 智能排序
+    space_type: 空间类型
+    filter: 条件筛选
+    tag: 社区标签
+    configure: 社区配置
 
 banner:
   tag:
