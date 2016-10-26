@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Constants\LocationConstants;
 
 /**
  * Location Controller.
@@ -33,10 +34,6 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
  */
 class LocationController extends SalesRestController
 {
-    const LOCATION_CITY_PREFIX = 'location.city.';
-
-    public static $pi = 3.1415926535897932384626;
-
     /**
      * @Get("/cities")
      *
@@ -772,7 +769,7 @@ class LocationController extends SalesRestController
             $name = $city->getName();
             $key = $city->getKey();
 
-            $translatedKey = self::LOCATION_CITY_PREFIX.$key;
+            $translatedKey = LocationConstants::LOCATION_CITY_PREFIX.$key;
             $translatedName = $this->get('translator')->trans($translatedKey);
             if ($translatedName != $translatedKey) {
                 $name = $translatedName;
@@ -824,8 +821,8 @@ class LocationController extends SalesRestController
         $x = $gg_lon;
         $y = $gg_lat;
 
-        $z = sqrt($x * $x + $y * $y) + 0.00002 * sin($y * self::$pi);
-        $theta = atan2($y, $x) + 0.000003 * cos($x * self::$pi);
+        $z = sqrt($x * $x + $y * $y) + 0.00002 * sin($y * LocationConstants::$pi);
+        $theta = atan2($y, $x) + 0.000003 * cos($x * LocationConstants::$pi);
         $bd_lon = $z * cos($theta) + 0.0065;
         $bd_lat = $z * sin($theta) + 0.006;
 
@@ -1100,5 +1097,138 @@ class LocationController extends SalesRestController
                 $this->checkForTransformWithoutToken($versionArray, $buildings);
             }
         }
+    }
+
+    /**
+     * @Get("/communities/filter")
+     */
+    public function getFilterAction()
+    {
+        $filter = array();
+
+        // room types
+        $types = $this->findAllAndTranslateResources(
+            'Room\RoomTypes',
+            ProductOrderExport::TRANS_ROOM_TYPE
+        );
+
+        $filter[] = $this->buildFilter(
+            LocationConstants::FILTER_SPACE_TYPE,
+            [
+                [
+                    'type' => LocationConstants::TAG,
+                    'name' => LocationConstants::SUB_FILTER_SPACE_TYPE,
+                    'queryParamKey' => LocationConstants::QUERY_ROOM_TYPES,
+                    'items' => $types,
+                ],
+            ]
+        );
+
+        // sort by
+        $sorts = array();
+        foreach (LocationConstants::$plainTextSortKeys as &$sortKey) {
+            $sort['name'] = $this->get('translator')->trans(LocationConstants::TRANS_BUILDING_SORT.$sortKey);
+            $sort['key'] = $sortKey;
+
+            $sorts[] = $sort;
+        }
+
+        $filter[] = $this->buildFilter(
+            LocationConstants::FILTER_SORT_BY,
+            [
+                [
+                    'type' => LocationConstants::RADIO,
+                    'name' => LocationConstants::SUB_FILTER_SORT_BY,
+                    'queryParamKey' => LocationConstants::QUERY_SORT_BY,
+                    'items' => $sorts,
+                ],
+            ]
+        );
+
+        // filter
+        $buildingTagsItems = $this->findAllAndTranslateResources(
+            'Room\RoomBuildingTag',
+            LocationConstants::TRANS_BUILDING_TAG
+        );
+
+        $buildingServicesItems = $this->findAllAndTranslateResources(
+            'Room\RoomBuildingServices',
+            LocationConstants::TRANS_BUILDING_SERVICE
+        );
+
+        $configs[] = [
+            'type' => LocationConstants::TAG,
+            'name' => LocationConstants::SUB_FILTER_TAG,
+            'queryParamKey' => LocationConstants::QUERY_BUILDING_TAGS,
+            'items' => $buildingTagsItems,
+        ];
+
+        $configs[] = [
+            'type' => LocationConstants::TAG,
+            'name' => LocationConstants::SUB_FILTER_CONFIGURE,
+            'queryParamKey' => LocationConstants::QUERY_BUILDING_SERVICES,
+            'items' => $buildingServicesItems,
+        ];
+
+        $filter[] = $this->buildFilter(
+            LocationConstants::FILTER_FILTER,
+            $configs
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['build_filter']));
+        $view->setData($filter);
+
+        return $view;
+    }
+
+    /**
+     * @param $entityName
+     * @param $trans
+     *
+     * @return array
+     */
+    private function findAllAndTranslateResources(
+        $entityName,
+        $trans
+    ) {
+        $resources = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:'.$entityName)
+            ->findAll();
+
+        foreach ($resources as &$resource) {
+            if ($entityName == 'Room\RoomTypes') {
+                $resourceKey = $this->get('translator')->trans($trans.$resource->getName());
+            } else {
+                $resourceKey = $this->get('translator')->trans($trans.$resource->getKey());
+            }
+
+            $resource->setName($resourceKey);
+        }
+
+        return $resources;
+    }
+
+    /**
+     * @param $name
+     * @param $configs
+     *
+     * @return array
+     */
+    private function buildFilter(
+        $name,
+        $configs
+    ) {
+        $buildFilter['name'] = $this->get('translator')
+            ->trans(LocationConstants::TRANS_BUILDING_FILTER.$name);
+
+        foreach ($configs as &$config) {
+            $config['name'] = $this->get('translator')
+                ->trans(LocationConstants::TRANS_BUILDING_FILTER.$config['name']);
+        }
+
+        $buildFilter['filters'][] = $configs;
+
+        return $buildFilter;
     }
 }

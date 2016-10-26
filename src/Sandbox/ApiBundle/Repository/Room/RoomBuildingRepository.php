@@ -411,7 +411,7 @@ class RoomBuildingRepository extends EntityRepository
         switch ($sortBy) {
             case 'smart':
                 break;
-            case 'evaluation':
+            case 'star':
                 $buildingsQuery->orderBy('rb.evaluationStar', 'DESC');
                 break;
             default:

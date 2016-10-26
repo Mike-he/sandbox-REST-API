@@ -20,7 +20,7 @@ class RoomTypes
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_building", "drop_down"})
+     * @Serializer\Groups({"main", "admin_building", "drop_down", "build_filter"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class RoomTypes
      *
      * @ORM\Column(name="name", type="string", length=16)
      *
-     * @Serializer\Groups({"main", "drop_down"})
+     * @Serializer\Groups({"main", "drop_down", "build_filter"})
      */
     private $name;
 

@@ -274,6 +274,16 @@ building:
     food_and_beverage: Catering Services
     vip_space: Member Space
     fast_preorder: Fast Booking
+  sort:
+    distance: Distance
+    star: Stars
+    smart: Smart Sorting
+  filter:
+    sort_by: Sort By
+    space_type: Space Type
+    filter: Filter
+    tag: Tag
+    configure: Configure
 
 banner:
   tag:
