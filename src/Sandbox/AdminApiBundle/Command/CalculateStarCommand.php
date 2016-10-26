@@ -85,11 +85,11 @@ class CalculateStarCommand extends ContainerAwareCommand
                 $evaluationStar = $officialStar->getTotalStar() * 0.5 + $buildingStar * 0.1 + $orderStar * 0.4;
             }
 
-            $building->setBuildingStar($buildingStar);
-            $building->setOrderStar($orderStar);
+            $building->setBuildingStar(round($buildingStar,2));
+            $building->setOrderStar(round($orderStar,2));
             $building->setBuildingEvaluationNumber($buildingStarCount);
             $building->setOrderEvaluationNumber($orderStarCount);
-            $building->setEvaluationStar($evaluationStar);
+            $building->setEvaluationStar(round($evaluationStar,2));
             $em->persist($building);
         }
         $em->flush();
