@@ -138,6 +138,20 @@ class Log
     private $creationDate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="mark", type="boolean", nullable=false)
+     */
+    private $mark = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=255)
+     */
+    private $remarks;
+
+    /**
      * Get id.
      *
      * @return int
@@ -353,6 +367,38 @@ class Log
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMark()
+    {
+        return $this->mark;
+    }
+
+    /**
+     * @param bool $mark
+     */
+    public function setMark($mark)
+    {
+        $this->mark = $mark;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemarks()
+    {
+        return $this->remarks;
+    }
+
+    /**
+     * @param string $remarks
+     */
+    public function setRemarks($remarks)
+    {
+        $this->remarks = $remarks;
     }
 
     /**

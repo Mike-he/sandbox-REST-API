@@ -73,6 +73,33 @@ class AdminLogController extends LogController
      * )
      *
      * @Annotations\QueryParam(
+     *     name="mark",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="mark"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="startDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="endDate"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -102,7 +129,7 @@ class AdminLogController extends LogController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminLogPermission();
+//        $this->checkAdminLogPermission();
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -111,6 +138,9 @@ class AdminLogController extends LogController
         $search = $paramFetcher->get('search');
         $key = $paramFetcher->get('object_key');
         $objectId = $paramFetcher->get('object_id');
+        $mark = $paramFetcher->get('mark');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
 
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
@@ -122,7 +152,10 @@ class AdminLogController extends LogController
                 $module,
                 $search,
                 $key,
-                $objectId
+                $objectId,
+                $mark,
+                $startDate,
+                $endDate
             );
 
         $logs = $this->getDoctrine()
@@ -133,6 +166,9 @@ class AdminLogController extends LogController
                 $search,
                 $key,
                 $objectId,
+                $mark,
+                $startDate,
+                $endDate,
                 $limit,
                 $offset
             );
@@ -190,6 +226,40 @@ class AdminLogController extends LogController
             );
 
         return new View($modules);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/logs/mark")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postLogMarkAction(
+        Request $request
+    ) {
+        // check user permission
+        $this->checkAdminLogPermission();
+
+        $em = $this->getDoctrine()->getManager();
+        $data = json_decode($request->getContent(), true);
+
+        $id = $data['id'];
+        $mark = $data['mark'];
+
+        $log = $em->getRepository('SandboxApiBundle:Log\Log')->find($id);
+        $this->throwNotFoundIfNull($log, self::NOT_FOUND_MESSAGE);
+
+        $log->setMark($mark);
+        if ($mark == true) {
+            $log->setRemarks($data['remarks']);
+        } else {
+            $log->setRemarks(null);
+        }
+
+        $em->persist($log);
+        $em->flush();
     }
 
     /**

@@ -29,51 +29,54 @@ class LogRepository extends EntityRepository
         $search,
         $key,
         $objectId,
+        $mark,
+        $startDate,
+        $endDate,
         $limit,
         $offset
     ) {
-        $notFirst = false;
-
         $query = $this->createQueryBuilder('l')
+            ->where('1=1')
             ->orderBy('l.creationDate', 'DESC');
 
         if (!is_null($companyId) && !empty($companyId)) {
-            $where = 'l.salesCompanyId = :companyId';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('companyId', $companyId);
-
-            $notFirst = true;
+            $query->andWhere('l.salesCompanyId = :companyId')
+                ->setParameter('companyId', $companyId);
         }
 
         if (!is_null($module) && !empty($module)) {
-            $where = 'l.logModule = :logModule';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('logModule', $module);
-
-            $notFirst = true;
+            $query->andWhere('l.logModule = :logModule')
+                ->setParameter('logModule', $module);
         }
 
         if (!is_null($key) && !empty($key) && !is_null($objectId) && !empty($objectId)) {
-            $where = 'l.logObjectKey = :key AND l.logObjectId = :objectId';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('key', $key)
+            $query->andWhere('l.logObjectKey = :key')
+                ->andWhere('l.logObjectId = :objectId')
+                ->setParameter('key', $key)
                 ->setParameter('objectId', $objectId);
-
-            $notFirst = true;
         }
 
         if (!is_null($search) && !empty($search)) {
-            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany', 'c', 'WITH', 'c.id = l.salesCompanyId');
+            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany', 'c', 'WITH', 'c.id = l.salesCompanyId')
+                ->andWhere('
+                    (l.logModule LIKE :logModule OR 
+                    l.adminUsername LIKE :search OR 
+                    c.name LIKE :search OR 
+                    l.logAction LIKE :search)
+                ')
+                ->setParameter('search', '%'.$search.'%');
+        }
 
-            $where = 'l.logModule LIKE :logModule OR 
-                l.adminUsername LIKE :search OR 
-                c.name LIKE :search OR 
-                l.logAction LIKE :search
-            ';
-            $this->addWhereQuery($query, $notFirst, $where);
+        if (!is_null($mark)) {
+            $query->andWhere('l.mark = :mark')
+                ->setParameter('mark', $mark);
+        }
 
-            $query->setParameter('search', '%'.$search.'%');
-            $notFirst = true;
+        if (!is_null($startDate) && !is_null($endDate)) {
+            $query->andWhere('l.creationDate >= :start')
+                ->andWhere('l.creationDate <= :end')
+                ->setParameter('start', $startDate)
+                ->setParameter('end', $endDate);
         }
 
         $query->setMaxResults($limit)->setFirstResult($offset);
@@ -95,51 +98,54 @@ class LogRepository extends EntityRepository
         $module,
         $search,
         $key,
-        $objectId
+        $objectId,
+        $mark,
+        $startDate,
+        $endDate
     ) {
-        $notFirst = false;
-
         $query = $this->createQueryBuilder('l')
             ->select('COUNT(l)')
+            ->where('1=1')
             ->orderBy('l.creationDate', 'DESC');
 
         if (!is_null($companyId) && !empty($companyId)) {
-            $where = 'l.salesCompanyId = :companyId';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('companyId', $companyId);
-
-            $notFirst = true;
+            $query->andWhere('l.salesCompanyId = :companyId')
+                ->setParameter('companyId', $companyId);
         }
 
         if (!is_null($module) && !empty($module)) {
-            $where = 'l.logModule = :logModule';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('logModule', $module);
-
-            $notFirst = true;
+            $query->andWhere('l.logModule = :logModule')
+                ->setParameter('logModule', $module);
         }
 
         if (!is_null($key) && !empty($key) && !is_null($objectId) && !empty($objectId)) {
-            $where = 'l.logObjectKey = :key AND l.logObjectId = :objectId';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('key', $key)
+            $query->andWhere('l.logObjectKey = :key')
+                ->andWhere('l.logObjectId = :objectId')
+                ->setParameter('key', $key)
                 ->setParameter('objectId', $objectId);
-
-            $notFirst = true;
         }
 
         if (!is_null($search) && !empty($search)) {
-            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany', 'c', 'WITH', 'c.id = l.salesCompanyId');
+            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany', 'c', 'WITH', 'c.id = l.salesCompanyId')
+                ->andWhere('
+                    (l.logModule LIKE :logModule OR 
+                    l.adminUsername LIKE :search OR 
+                    c.name LIKE :search OR 
+                    l.logAction LIKE :search)
+                ')
+            ->setParameter('search', '%'.$search.'%');
+        }
 
-            $where = 'l.logModule LIKE :logModule OR 
-                l.adminUsername LIKE :search OR 
-                c.name LIKE :search OR 
-                l.logAction LIKE :search
-            ';
-            $this->addWhereQuery($query, $notFirst, $where);
+        if (!is_null($mark)) {
+            $query->andWhere('l.mark = :mark')
+                ->setParameter('mark', $mark);
+        }
 
-            $query->setParameter('search', '%'.$search.'%');
-            $notFirst = true;
+        if (!is_null($startDate) && !is_null($endDate)) {
+            $query->andWhere('l.creationDate >= :start')
+                ->andWhere('l.creationDate <= :end')
+                ->setParameter('start', $startDate)
+                ->setParameter('end', $endDate);
         }
 
         return $query->getQuery()->getSingleScalarResult();
