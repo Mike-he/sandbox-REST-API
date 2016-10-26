@@ -7,6 +7,7 @@ use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Controller\Annotations;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
 use Sandbox\ApiBundle\Form\Evaluation\EvaluationPatchType;
@@ -59,6 +60,9 @@ class AdminEvaluationController extends EvaluationController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminEvaluationPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $buildingId = $paramFetcher->get('building');
 
         // get official star
@@ -233,6 +237,9 @@ class AdminEvaluationController extends EvaluationController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminEvaluationPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $userProfileName = $paramFetcher->get('user_profile_name');
         $username = $paramFetcher->get('username');
         $minStar = $paramFetcher->get('min_star');
@@ -278,7 +285,7 @@ class AdminEvaluationController extends EvaluationController
      *
      * @param Request $request
      *
-     * @Route("evaluation/official")
+     * @Route("/evaluation/official")
      * @Method({"POST"})
      *
      * @throws \Exception
@@ -288,6 +295,9 @@ class AdminEvaluationController extends EvaluationController
     public function postOfficialEvaliation(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminEvaluationPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $em = $this->getDoctrine()->getManager();
         $data = json_decode($request->getContent(), true);
 
@@ -323,7 +333,7 @@ class AdminEvaluationController extends EvaluationController
      *
      * @param Request $request
      *
-     * @Route("evaluation")
+     * @Route("/evaluation")
      * @Method({"POST"})
      *
      * @throws \Exception
@@ -333,6 +343,9 @@ class AdminEvaluationController extends EvaluationController
     public function postEvaluationAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminEvaluationPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $evaluation = new Evaluation();
 
         $form = $this->createForm(new EvaluationPostType(), $evaluation);
@@ -364,6 +377,9 @@ class AdminEvaluationController extends EvaluationController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminEvaluationPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $evaluation = $this->getDoctrine()->getRepository('SandboxApiBundle:Evaluation\Evaluation')->find($id);
         $this->throwNotFoundIfNull($evaluation, self::NOT_FOUND_MESSAGE);
         $buildingId = $evaluation->getBuildingId();
@@ -409,6 +425,9 @@ class AdminEvaluationController extends EvaluationController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminEvaluationPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $evaluation = $this->getDoctrine()->getRepository('SandboxApiBundle:Evaluation\Evaluation')->find($id);
         $this->throwNotFoundIfNull($evaluation, self::NOT_FOUND_MESSAGE);
 
@@ -551,6 +570,21 @@ class AdminEvaluationController extends EvaluationController
         $this->addEvaluationAttachments(
             $evaluation,
             $attachments
+        );
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminEvaluationPermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+            ],
+            $opLevel
         );
     }
 }
