@@ -44,7 +44,7 @@ class LogController extends SandboxRestController
         $adminPlatform = $this->getAdminPlatform();
 
         $log->setPlatform($adminPlatform['platform']);
-        $log->setAdminUsername();
+        $log->setAdminUsername($adminId);
 
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
