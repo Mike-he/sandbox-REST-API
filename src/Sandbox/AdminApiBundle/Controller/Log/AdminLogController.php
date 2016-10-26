@@ -2,8 +2,10 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Log;
 
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Log\LogController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Form\Log\LogPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -232,11 +234,11 @@ class AdminLogController extends LogController
      * @param Request $request
      *
      * @Route("/logs/{id}/mark")
-     * @Method({"POST"})
+     * @Method({"PATCH"})
      *
      * @return View
      */
-    public function postLogMarkAction(
+    public function patchLogMarkAction(
         Request $request,
         $id
     ) {
@@ -244,15 +246,19 @@ class AdminLogController extends LogController
         $this->checkAdminLogPermission();
 
         $em = $this->getDoctrine()->getManager();
-        $data = json_decode($request->getContent(), true);
 
         $log = $em->getRepository('SandboxApiBundle:Log\Log')->find($id);
         $this->throwNotFoundIfNull($log, self::NOT_FOUND_MESSAGE);
 
-        $log->setMark($data['mark']);
-        if ($data['mark'] == true) {
-            $log->setRemarks($data['remarks']);
-        } else {
+        $logJson = $this->container->get('serializer')->serialize($log, 'json');
+        $patch = new Patch($logJson, $request->getContent());
+        $logJson = $patch->apply();
+
+        $form = $this->createForm(new LogPatchType(), $log);
+        $form->submit(json_decode($logJson, true));
+
+        $mark = $log->isMark();
+        if ($mark == false) {
             $log->setRemarks(null);
         }
 
