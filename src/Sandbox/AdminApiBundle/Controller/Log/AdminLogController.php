@@ -129,7 +129,7 @@ class AdminLogController extends LogController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-//        $this->checkAdminLogPermission();
+        $this->checkAdminLogPermission();
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
