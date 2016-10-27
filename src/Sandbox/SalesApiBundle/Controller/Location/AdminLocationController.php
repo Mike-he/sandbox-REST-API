@@ -46,6 +46,13 @@ class AdminLocationController extends SalesRestController
      *    description="op level"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="all",
+     *    default=null,
+     *    nullable=true,
+     *    description="tag of all"
+     * )
+     *
      * @return View
      */
     public function getCitiesAction(
@@ -54,43 +61,50 @@ class AdminLocationController extends SalesRestController
     ) {
         $user = $this->getUser();
 
+        $all = $paramFetcher->get('all');
         $permissionArray = $paramFetcher->get('permission');
 
-        $adminPlatform = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-            ->findOneBy(array(
-                'userId' => $user->getUserId(),
-                'clientId' => $user->getClientId(),
-            ));
+        if(is_null($all)) {
+            $adminPlatform = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
+                ->findOneBy(array(
+                    'userId' => $user->getUserId(),
+                    'clientId' => $user->getClientId(),
+                ));
 
-        if (!$adminPlatform || $adminPlatform->getPlatform() != AdminPosition::PLATFORM_SALES) {
-            return new View();
-        }
+            if (!$adminPlatform || $adminPlatform->getPlatform() != AdminPosition::PLATFORM_SALES) {
+                return new View();
+            }
 
-        $platform = $adminPlatform->getPlatform();
-        $salesCompanyId = $adminPlatform->getSalesCompanyId();
+            $platform = $adminPlatform->getPlatform();
+            $salesCompanyId = $adminPlatform->getSalesCompanyId();
 
-        $isSuperAdmin = $this->hasSuperAdminPosition(
-            $this->getAdminId(),
-            $platform,
-            $salesCompanyId
-        );
-
-        if ($isSuperAdmin ||
-            in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray)
-        ) {
-            $cities = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->getSalesRoomCityByCompanyId($salesCompanyId);
-        } else {
-            // get my building ids
-            $myBuildingIds = $this->generateLocationSalesBuildingIds(
-                $paramFetcher
+            $isSuperAdmin = $this->hasSuperAdminPosition(
+                $this->getAdminId(),
+                $platform,
+                $salesCompanyId
             );
 
+            if ($isSuperAdmin ||
+                in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray)
+            ) {
+                $cities = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->getSalesRoomCityByCompanyId($salesCompanyId);
+            } else {
+                // get my building ids
+                $myBuildingIds = $this->generateLocationSalesBuildingIds(
+                    $paramFetcher
+                );
+
+                $cities = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->getSalesRoomCityByBuilding($myBuildingIds);
+            }
+        } else {
             $cities = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->getSalesRoomCityByBuilding($myBuildingIds);
+                ->findAll();
         }
 
         // generate cities array
