@@ -126,7 +126,7 @@ class EvaluationRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('e')
             ->where('e.type != :official')
-            ->andWhere('official', Evaluation::TYPE_OFFICIAL);
+            ->setParameter('official', Evaluation::TYPE_OFFICIAL);
 
         if (!is_null($userProfileName)) {
             $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = e.userId')
