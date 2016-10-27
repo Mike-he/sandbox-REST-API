@@ -1227,7 +1227,7 @@ class LocationController extends SalesRestController
                 ->trans(LocationConstants::TRANS_BUILDING_FILTER.$config['name']);
         }
 
-        $buildFilter['filters'][] = $configs;
+        $buildFilter['filters'] = $configs;
 
         return $buildFilter;
     }
