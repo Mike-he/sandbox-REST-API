@@ -2,13 +2,13 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Admin;
 
-use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\AdminApiBundle\Data\Position\PositionUserBindingChange;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionUserBindingChangePostType;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionUserBindingPostType;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,18 +56,14 @@ class AdminPositionBindingController extends AdminRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $em = $this->getDoctrine()->getManager();
-
         $addPositionBindings = $positionBindingChange->getAdd();
         $deletePositionBindings = $positionBindingChange->getDelete();
 
         $this->handleAddPositionUserBindings(
-            $em,
             $addPositionBindings
         );
 
         $this->handleDeletePositionUserBindings(
-            $em,
             $deletePositionBindings
         );
 
@@ -423,15 +419,16 @@ class AdminPositionBindingController extends AdminRestController
     }
 
     /**
-     * @param EntityManager $em
-     * @param array         $addPositionBindings
+     * @param array $addPositionBindings
      *
      * @return array|View
      */
     private function handleAddPositionUserBindings(
-        $em,
         $addPositionBindings
     ) {
+        $em = $this->getDoctrine()->getManager();
+        $userIds = array();
+
         foreach ($addPositionBindings as $data) {
             // bind form
             $positionUserBinding = new AdminPositionUserBinding();
@@ -448,11 +445,13 @@ class AdminPositionBindingController extends AdminRestController
                 continue;
             }
 
+            $userId = $positionUserBinding->getUserId();
+
             // have exist position binding
             $binding = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                 ->findOneBy(array(
-                    'userId' => $positionUserBinding->getUserId(),
+                    'userId' => $userId,
                     'positionId' => $positionUserBinding->getPositionId(),
                     'buildingId' => $positionUserBinding->getBuildingId(),
                     'shopId' => $positionUserBinding->getShopId(),
@@ -462,23 +461,51 @@ class AdminPositionBindingController extends AdminRestController
                 continue;
             }
 
+            array_push($userIds, $userId);
+            $userIds = array_unique($userIds);
+
             $em->persist($positionUserBinding);
             $em->flush();
+        }
+
+        // save log
+        foreach ($userIds as $userId) {
+            $adminPlatform = $this->getAdminPlatform();
+
+            $bindings = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindingsBySpecifyAdminId(
+                    $userId,
+                    null,
+                    $adminPlatform['platform'],
+                    $adminPlatform['sales_company_id']
+                );
+            if (!is_null($bindings)) {
+                $action = Log::ACTION_EDIT;
+            } else {
+                $action = Log::ACTION_CREATE;
+            }
+
+            $this->generateAdminLogs(array(
+                'logModule' => Log::MODULE_ADMIN,
+                'logAction' => $action,
+                'logObjectKey' => Log::OBJECT_ADMIN,
+                'logObjectId' => $userId,
+            ));
         }
 
         return;
     }
 
     /**
-     * @param EntityManager $em
-     * @param array         $deletePositionBindings
+     * @param array $deletePositionBindings
      *
      * @return array
      */
     private function handleDeletePositionUserBindings(
-        $em,
         $deletePositionBindings
     ) {
+        $em = $this->getDoctrine()->getManager();
         $bindingIds = isset($deletePositionBindings['position_binding_ids']) ? $deletePositionBindings['position_binding_ids'] : null;
 
         if (is_null($bindingIds) || empty($bindingIds)) {

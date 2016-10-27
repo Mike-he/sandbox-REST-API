@@ -50,7 +50,7 @@ class Log
     const ACTION_PRIVATE = 'private';
     const ACTION_REMOVE_PRIVATE = 'remove_private';
 
-    const OBJECT_SALES_ADMIN = 'sales_admin';
+    const OBJECT_ADMIN = 'admin';
     const OBJECT_BUILDING = 'building';
     const OBJECT_INVOICE = 'invoice';
     const OBJECT_EVENT = 'event';
