@@ -815,6 +815,8 @@ class LocationController extends SalesRestController
      *
      * @param gg_lat
      * @param gg_lon
+     *
+     * @return array
      */
     private function gaodeToBaidu($gg_lat, $gg_lon)
     {
@@ -830,6 +832,7 @@ class LocationController extends SalesRestController
     }
 
     /**
+     * @param $name
      * @param $versionArray
      * @param $buildings
      */

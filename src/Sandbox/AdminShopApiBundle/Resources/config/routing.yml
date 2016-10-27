@@ -45,3 +45,9 @@ sandbox_shop_admin_api_users:
     resource: "@SandboxAdminShopApiBundle/Controller/User/AdminUsersController.php"
     type:     annotation
     prefix:   /admin
+
+# Location /shop/admin/location
+sandbox_shop_admin_api_users:
+    resource: "@SandboxAdminShopApiBundle/Controller/Location/AdminLocationController.php"
+    type:     annotation
+    prefix:   /admin
