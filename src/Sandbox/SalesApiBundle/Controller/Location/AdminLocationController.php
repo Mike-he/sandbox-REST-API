@@ -64,7 +64,7 @@ class AdminLocationController extends SalesRestController
         $all = $paramFetcher->get('all');
         $permissionArray = $paramFetcher->get('permission');
 
-        if(is_null($all)) {
+        if (is_null($all)) {
             $adminPlatform = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
                 ->findOneBy(array(

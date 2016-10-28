@@ -3,9 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\DashBoard;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -13,8 +11,6 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Class AdminDashBoardController.
