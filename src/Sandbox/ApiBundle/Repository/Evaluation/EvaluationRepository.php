@@ -150,7 +150,7 @@ class EvaluationRepository extends EntityRepository
             $userIds = array_map('current', $users);
         }
 
-        if (empty($userIds)) {
+        if (isset($userIds) && empty($userIds)) {
             return array();
         }
 
