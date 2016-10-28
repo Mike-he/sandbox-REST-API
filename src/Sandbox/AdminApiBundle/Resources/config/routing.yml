@@ -266,3 +266,9 @@ sandbox_admin_api_topup_orders:
     resource: "@SandboxAdminApiBundle/Controller/Order/AdminTopUpOrderController.php"
     type:     annotation
     prefix:   /
+
+# Finance /admin/finance/export
+sandbox_admin_api_finance_export:
+    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceController.php"
+    type:     annotation
+    prefix:   /

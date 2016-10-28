@@ -51,6 +51,7 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_LOG = 'platform.log';
     const KEY_OFFICIAL_PLATFORM_ADVERTISING = 'platform.advertising';
     const KEY_OFFICIAL_PLATFORM_REFUND = 'platform.order.refund';
+    const KEY_OFFICIAL_PLATFORM_FINANCE = 'platform.finance';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';
