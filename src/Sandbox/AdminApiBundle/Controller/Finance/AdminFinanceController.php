@@ -57,7 +57,8 @@ class AdminFinanceController extends SandboxRestController
         $adminId = $this->authenticateAdminCookie();
         $this->checkAdminFinancePermission(
             AdminPermission::OP_LEVEL_VIEW,
-            $adminId
+            $adminId,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
         );
 
         $channels = array(
@@ -891,7 +892,8 @@ class AdminFinanceController extends SandboxRestController
      */
     private function checkAdminFinancePermission(
         $opLevel,
-        $adminId = null
+        $adminId = null,
+        $platform = null
     ) {
         if (is_null($adminId)) {
             $adminId = $this->getAdminId();
@@ -902,7 +904,8 @@ class AdminFinanceController extends SandboxRestController
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_FINANCE],
             ],
-            $opLevel
+            $opLevel,
+            $platform
         );
     }
 }
