@@ -1113,4 +1113,51 @@ class ProductRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $lat
+     * @param $lng
+     * @param $productIds
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function findFavoriteProducts(
+        $lat,
+        $lng,
+        $productIds,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('
+                p as product,
+                (
+                    6371
+                    * acos(cos(radians(:latitude)) * cos(radians(b.lat))
+                    * cos(radians(b.lng) - radians(:longitude))
+                    + sin(radians(:latitude)) * sin(radians(b.lat)))
+                ) as distance
+            ')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+            ->where('p.id IN (:productIds)')
+            ->andWhere('p.isDeleted = FALSE')
+            ->andWhere('p.visible = TRUE')
+            ->andWhere('b.status = :accept')
+            ->andWhere('b.visible = TRUE')
+            ->andWhere('b.isDeleted = FALSE')
+            ->setParameter('productIds', $productIds)
+            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT)
+            ->setParameter('latitude', $lat)
+            ->setParameter('longitude', $lng)
+            ->orderBy('distance', 'ASC')
+            ->addOrderBy('p.creationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+        ;
+
+        return $query->getQuery()->getResult();
+    }
 }
