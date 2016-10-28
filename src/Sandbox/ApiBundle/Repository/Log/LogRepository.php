@@ -63,10 +63,9 @@ class LogRepository extends EntityRepository
         }
 
         if (!is_null($search) && !empty($search)) {
-            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany', 'c', 'WITH', 'c.id = l.salesCompanyId')
+            $query->leftJoin('l.salesCompany', 'c')
                 ->andWhere('
-                    (l.logModule LIKE :logModule OR 
-                    l.adminUsername LIKE :search OR 
+                    (l.adminUsername LIKE :search OR 
                     c.name LIKE :search OR 
                     l.logAction LIKE :search)
                 ')
