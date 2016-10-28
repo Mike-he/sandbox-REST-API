@@ -128,7 +128,6 @@ class ClientEvaluationController extends EvaluationController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
      *    strict=true,
      *    description="min star"
      * )
@@ -138,7 +137,6 @@ class ClientEvaluationController extends EvaluationController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
      *    strict=true,
      *    description="max star"
      * )

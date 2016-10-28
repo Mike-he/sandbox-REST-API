@@ -141,7 +141,6 @@ class AdminEvaluationController extends EvaluationController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
      *    strict=true,
      *    description="min star"
      * )
@@ -151,7 +150,6 @@ class AdminEvaluationController extends EvaluationController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
      *    strict=true,
      *    description="max star"
      * )
