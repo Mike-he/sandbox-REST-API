@@ -398,13 +398,14 @@ class AdminPositionController extends PaymentController
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
-        $allPositions = $this->getDoctrine()
+        $superAdminPositions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->getAdminPositions(
-                $platform,
-                null,
-                $companyId
-            );
+            ->findOneBy(array(
+                'isHidden' => false,
+                'platform' => $platform,
+                'salesCompanyId' => $companyId,
+                'isSuperAdmin' => true,
+            ));
 
         $globalPositions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
@@ -422,15 +423,15 @@ class AdminPositionController extends PaymentController
                 $companyId
             );
 
-        $allPositions = count($allPositions);
+        $superAdminPositions = count($superAdminPositions);
         $globalPositions = count($globalPositions);
         $specifyPositions = count($specifyPositions);
 
         $response = array(
-            'all_positions' => $allPositions,
+            'all_positions' => $superAdminPositions + $globalPositions + $specifyPositions,
             'global_positions' => $globalPositions,
             'specify_positions' => $specifyPositions,
-            'super_administrators' => $allPositions - ($globalPositions + $specifyPositions),
+            'super_administrators' => $superAdminPositions,
         );
 
         return new View($response);
