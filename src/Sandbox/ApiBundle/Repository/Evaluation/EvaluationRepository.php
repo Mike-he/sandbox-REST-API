@@ -124,23 +124,44 @@ class EvaluationRepository extends EntityRepository
         $sortBy,
         $sortDirection
     ) {
-        $query = $this->createQueryBuilder('e')
-            ->where('e.type != :official')
-            ->setParameter('official', Evaluation::TYPE_OFFICIAL);
-
+        // find by user first
         if (!is_null($userProfileName)) {
-            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = e.userId')
-                ->andWhere('up.name LIKE :name')
+            $userQuery = $this->createQueryBuilder('e')
+                ->select('DISTINCT up.userId')
+                ->from('SandboxApiBundle:User\UserProfile', 'up')
+                ->where('up.name LIKE :name')
                 ->setParameter('name', $userProfileName.'%');
+
+            $users = $userQuery->getQuery()->getResult();
+            $userIds = array_map('current', $users);
         }
 
         if (!is_null($username)) {
-            $query->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = e.userId')
-                ->andWhere('
+            $userQuery = $this->createQueryBuilder('e')
+                ->select('DISTINCT u.id')
+                ->from('SandboxApiBundle:User\User', 'u')
+                ->where('
                     u.phone LIKE :username
                     OR u.email LIKE :username
                 ')
                 ->setParameter('username', $username.'%');
+
+            $users = $userQuery->getQuery()->getResult();
+            $userIds = array_map('current', $users);
+        }
+
+        if (empty($userIds)) {
+            return array();
+        }
+
+        // get evaluations
+        $query = $this->createQueryBuilder('e')
+            ->where('e.type != :official')
+            ->setParameter('official', Evaluation::TYPE_OFFICIAL);
+
+        if (!is_null($userProfileName) || !is_null($username)) {
+            $query->andWhere('e.userId IN (:userIds)')
+                ->setParameter('userIds', $userIds);
         }
 
         if (!is_null($buildingId)) {
