@@ -329,3 +329,9 @@ sandbox_client_api_evaluation:
     resource: "@SandboxClientApiBundle/Controller/Evaluation/ClientEvaluationController.php"
     type:     annotation
     prefix:   /
+
+# UserFavorite  /user/favorites
+sandbox_client_api_user_favorite:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserFavoriteController.php"
+    type:     annotation
+    prefix:   /user

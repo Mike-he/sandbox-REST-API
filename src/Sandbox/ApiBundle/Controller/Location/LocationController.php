@@ -807,8 +807,13 @@ class LocationController extends SalesRestController
             $locationArray = $this->gaodeToBaidu($lat, $lng);
 
             if (array_key_exists('lat', $locationArray) && array_key_exists('lon', $locationArray)) {
-                $building->setLat($locationArray['lat']);
-                $building->setLng($locationArray['lon']);
+                if (is_array($building)) {
+                    $building['lat'] = $locationArray['lat'];
+                    $building['lng'] = $locationArray['lon'];
+                } else {
+                    $building->setLat($locationArray['lat']);
+                    $building->setLng($locationArray['lon']);
+                }
             }
         }
     }
@@ -970,8 +975,6 @@ class LocationController extends SalesRestController
     public function searchBuildingsAction(
         ParamFetcherInterface $paramFetcher
     ) {
-        $user = $this->getUser();
-
         $cityId = $paramFetcher->get('city');
         $queryText = $paramFetcher->get('query');
         $sortBy = $paramFetcher->get('sort_by');
@@ -998,7 +1001,7 @@ class LocationController extends SalesRestController
 
         $buildings = $this->handleSearchBuildingsData($buildings);
 
-        $this->transformAppVersionForAmap($user, $buildings);
+        $this->transformAppVersionForAmap($buildings);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
@@ -1007,7 +1010,7 @@ class LocationController extends SalesRestController
         return $view;
     }
 
-    private function handleSearchBuildingsData(
+    protected function handleSearchBuildingsData(
         $buildings
     ) {
         foreach ($buildings as &$building) {
@@ -1061,15 +1064,13 @@ class LocationController extends SalesRestController
         return $resultArray['regeocode']['addressComponent']['district'];
     }
 
-    private function transformAppVersionForAmap(
-        $user,
+    protected function transformAppVersionForAmap(
         $buildings
     ) {
         $headers = array_change_key_case($_SERVER, CASE_LOWER);
 
         // transform version for the old app to make sure it can use the Amap
-        $userId = null;
-        $clientId = null;
+        $user = $this->getUser();
         if (!is_null($user)) {
             $clientId = $user->getClientId();
             $client = $this->getRepo('User\UserClient')->find($clientId);
