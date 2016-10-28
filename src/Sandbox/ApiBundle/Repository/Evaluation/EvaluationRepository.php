@@ -180,7 +180,7 @@ class EvaluationRepository extends EntityRepository
         }
 
         if (!is_null($isWithPic) && $isWithPic) {
-            $query->leftJoin('SandboxApiBundle:Evaluation\EvaluationAttachment', 'et', 'WITH', 'et.evaluationId = e.id')
+            $query->leftJoin('e.evaluationAttachments', 'et')
                 ->andWhere('et.id > 0');
         }
 
