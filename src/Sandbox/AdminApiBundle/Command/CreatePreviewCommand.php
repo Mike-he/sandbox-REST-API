@@ -40,7 +40,7 @@ EOT
         $entityName = 'Room\RoomAttachment';
         $target = 'building';
 
-        if ($input->validate()) {
+        if (isset($input)) {
             $entityName = $input->getOption('entity-name');
         }
 
