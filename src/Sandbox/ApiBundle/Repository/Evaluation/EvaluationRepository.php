@@ -210,6 +210,7 @@ class EvaluationRepository extends EntityRepository
     /**
      * @param $building
      * @param $type
+     * @param $visible
      *
      * @return mixed
      */
@@ -236,6 +237,7 @@ class EvaluationRepository extends EntityRepository
     /**
      * @param $building
      * @param $type
+     * @param $visible
      *
      * @return array
      */
