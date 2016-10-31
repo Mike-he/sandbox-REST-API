@@ -1134,6 +1134,12 @@ class LocationController extends SalesRestController
             $sort['name'] = $this->get('translator')->trans(LocationConstants::TRANS_BUILDING_SORT.$sortKey);
             $sort['key'] = $sortKey;
 
+            // set default option
+            $sort['selected'] = false;
+            if ($sort['key'] == LocationConstants::SORT_BY_DEFAULT_KEY) {
+                $sort['selected'] = true;
+            }
+
             $sorts[] = $sort;
         }
 
