@@ -22,7 +22,9 @@ class CreatePreviewCommand extends ContainerAwareCommand
 
         $roomAttachments = $em->getRepository('SandboxApiBundle:Room\RoomAttachment')->findAll();
 
-        $dir = '/data/openfire/image/building';
+        $target = 'building';
+
+        $dir = '/data/openfire/image/'.$target;
 
         $previewDir = $dir.'/preview';
 
@@ -42,7 +44,7 @@ class CreatePreviewCommand extends ContainerAwareCommand
                     $this->createThumb($srcImg, $previewImg, 100, 100);
                 }
 
-                $previewPath = $imgUrl.'/preview/'.$filename;
+                $previewPath = $imgUrl.$target.'/preview/'.$filename;
 
                 $roomAttachment->setPreview($previewPath);
                 $em->persist($roomAttachment);
