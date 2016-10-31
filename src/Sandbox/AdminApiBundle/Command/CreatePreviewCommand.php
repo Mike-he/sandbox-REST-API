@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CreatePreviewCommand extends ContainerAwareCommand
@@ -11,7 +12,23 @@ class CreatePreviewCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName('sandbox:api-bundle:create:preview')
-            ->setDescription('Create Preview Pictures');
+            ->setDescription('Create Preview Pictures')
+            ->addOption(
+                'entity-name',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'The name of entity',
+                null
+            )
+            ->setHelp(
+                <<<EOT
+                    The <info>%command.name%</info> command generates the icons.
+
+Usage:
+<info>php %command.full_name%</info> --entity-name=Room\\\RoomTypes
+
+EOT
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -20,9 +37,28 @@ class CreatePreviewCommand extends ContainerAwareCommand
 
         $imgUrl = $this->getContainer()->getParameter('image_url');
 
-        $roomAttachments = $em->getRepository('SandboxApiBundle:Room\RoomAttachment')->findAll();
-
+        $entityName = 'Room\RoomAttachment';
         $target = 'building';
+
+        if (isset($input)) {
+            $entityName = $input->getOption('entity-name');
+        }
+
+        $roomAttachments = $em->getRepository(
+                'SandboxApiBundle:'.$entityName
+            )
+            ->findAll();
+
+        switch ($entityName) {
+            case $entityName == 'Room\RoomAttachment':
+                $target = 'building';
+                break;
+            case $entityName == 'Event\EventAttachment':
+                $target = 'event';
+                break;
+            default:
+                break;
+        }
 
         $dir = '/data/openfire/image/'.$target;
 
