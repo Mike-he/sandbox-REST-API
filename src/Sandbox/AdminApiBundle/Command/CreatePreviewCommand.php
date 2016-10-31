@@ -44,7 +44,7 @@ class CreatePreviewCommand extends ContainerAwareCommand
                     $this->createThumb($srcImg, $previewImg, 100, 100);
                 }
 
-                $previewPath = $imgUrl.$target.'/preview/'.$filename;
+                $previewPath = $imgUrl.'/'.$target.'/preview/'.$filename;
 
                 $roomAttachment->setPreview($previewPath);
                 $em->persist($roomAttachment);
