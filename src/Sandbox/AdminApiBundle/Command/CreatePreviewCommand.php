@@ -35,8 +35,8 @@ class CreatePreviewCommand extends ContainerAwareCommand
         foreach ($roomAttachments as $roomAttachment) {
             $file = $roomAttachment->getContent();
 
-            $filename = preg_replace($imgUrl,'',$file);
-            
+            $filename = str_replace($imgUrl,'',$file);
+
             $srcImg = $dir.'/'.$filename;
 
             $previewImg = $previewDir.'/'.$filename;
