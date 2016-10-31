@@ -41,12 +41,12 @@ class CreatePreviewCommand extends ContainerAwareCommand
                 if (!file_exists($previewImg)) {
                     $this->createThumb($srcImg, $previewImg, 100, 100);
                 }
+
+                $previewPath = $imgUrl.'/preview/'.$filename;
+
+                $roomAttachment->setPreview($previewPath);
+                $em->persist($roomAttachment);
             }
-
-            $previewPath = $imgUrl.'/preview/'.$filename;
-
-            $roomAttachment->setPreview($previewPath);
-            $em->persist($roomAttachment);
         }
         $em->flush();
 
@@ -68,5 +68,35 @@ class CreatePreviewCommand extends ContainerAwareCommand
         imagecopyresized($dst_image, $src_image, 0, 0, 0, 0, $dstW, $dstH, $srcW, $srcH);
 
         return imagejpeg($dst_image, $targetImgPath);
+    }
+
+    private function imgCreate(
+        $srcImgPath
+    ) {
+        $type = $this->getFileExt($srcImgPath);
+        switch ($type) {
+            case '.jpg':
+                $im = imagecreatefromjpeg($srcImgPath);
+                break;
+            case '.jpeg':
+                $im = imagecreatefromjpeg($srcImgPath);
+                break;
+            case '.gif':
+                $im = imagecreatefromgif($srcImgPath);
+                break;
+            case '.png':
+                $im = imagecreatefrompng($srcImgPath);
+                break;
+            default:
+                $im = null;
+        }
+
+        return $im;
+    }
+
+    private function getFileExt(
+        $oriName
+    ) {
+        return strtolower(strrchr($oriName, '.'));
     }
 }
