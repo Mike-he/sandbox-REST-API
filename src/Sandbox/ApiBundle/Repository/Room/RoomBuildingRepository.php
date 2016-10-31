@@ -308,4 +308,188 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function searchBuildings(
+        $cityId,
+        $queryText,
+        $roomTypes,
+        $sortBy,
+        $buildingTags,
+        $buildingServices,
+        $lng,
+        $lat,
+        $excludeIds = null
+    ) {
+        $buildingsQuery = $this->createQueryBuilder('rb');
+
+        // query by city id
+        if (!is_null($cityId)) {
+            $buildingsQuery->where('rb.cityId = :cityId');
+            $buildingsQuery->setParameter('cityId', $cityId);
+        }
+
+        // filter by building delete
+        $buildingsQuery->andWhere('rb.isDeleted = FALSE');
+
+        // filter by building status
+        $buildingsQuery->andWhere('rb.status = :status')
+            ->setParameter('status', 'accept');
+
+        // filter by building visible
+        $buildingsQuery->andWhere('rb.visible = TRUE');
+
+        // filter by room types
+        if (!is_null($roomTypes) && !empty($roomTypes)) {
+            $buildingsQuery
+                ->leftJoin(
+                    'SandboxApiBundle:Room\RoomBuildingTypeBinding',
+                    'rbb',
+                    'WITH',
+                    'rb.id = rbb.building'
+                )
+                ->andWhere('rbb.id IN (:spaceTypes)')
+                ->setParameter('spaceTypes', $roomTypes);
+        }
+
+        // filter by building tags
+        if (!is_null($buildingTags) && !empty($buildingTags)) {
+            $buildingsQuery
+                ->leftJoin(
+                    'SandboxApiBundle:Room\RoomBuildingTagBinding',
+                    'rbt',
+                    'WITH',
+                    'rb.id = rbt.building'
+                )
+                ->andWhere('rbt.id IN (:buildingTags)')
+                ->setParameter('buildingTags', $buildingTags);
+        }
+
+        // filter by building services
+        if (!is_null($buildingServices) && !empty($buildingServices)) {
+            $buildingsQuery
+                ->leftJoin(
+                    'SandboxApiBundle:Room\RoomBuildingServiceBinding',
+                    'rbs',
+                    'WITH',
+                    'rb.id = rbs.building'
+                )
+                ->andWhere('rbs.id IN (:buildingServices)')
+                ->setParameter('buildingServices', $buildingServices);
+        }
+
+        // filter by building name or room name
+        if (!is_null($queryText) && !empty($queryText)) {
+            $buildingsQuery
+                ->leftJoin(
+                    'SandboxApiBundle:Room\Room',
+                    'r',
+                    'WITH',
+                    'rb.id = r.building'
+                )
+                ->andWhere('rb.name LIKE :query OR r.name LIKE :query')
+                ->setParameter('query', '%'.$queryText.'%');
+        }
+
+        $buildingsQuery->select('
+            rb.id,
+            rb.name,
+            (6371
+                * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
+                * cos(radians(rb.lng) - radians(:longitude))
+                + sin(radians(:latitude)) * sin(radians(rb.lat)))
+            ) as distance,
+            rb.evaluationStar as evaluation,
+            rb.avatar,
+            rb.lat,
+            rb.lng,
+            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+        ')
+        ->setParameter('latitude', $lat)
+        ->setParameter('longitude', $lng);
+
+        // sort by distance and evaluation
+        switch ($sortBy) {
+            case 'smart':
+                break;
+            case 'star':
+                $buildingsQuery->orderBy('rb.evaluationStar', 'DESC');
+                break;
+            default:
+                $buildingsQuery->orderBy('distance', 'ASC');
+        }
+
+        // filter the companies we don't want to show
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $buildingsQuery->andWhere('rb.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
+
+        return $buildingsQuery->getQuery()->getResult();
+    }
+
+    /**
+     * @param $buildingIds
+     * @param $lng
+     * @param $lat
+     * @param $limit
+     * @param $offset
+     * @param null $excludeIds
+     *
+     * @return array
+     */
+    public function getFavoriteBuildings(
+        $buildingIds,
+        $lng,
+        $lat,
+        $limit,
+        $offset,
+        $excludeIds = null
+    ) {
+        $buildingsQuery = $this->createQueryBuilder('rb');
+
+        // filter by building delete
+        $buildingsQuery->where('rb.isDeleted = FALSE');
+
+        // filter by building status
+        $buildingsQuery->andWhere('rb.status = :status')
+            ->setParameter('status', 'accept');
+
+        // filter by building visible
+        $buildingsQuery->andWhere('rb.visible = TRUE');
+
+        $buildingsQuery->select('
+            rb.id,
+            rb.name,
+            (6371
+                * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
+                * cos(radians(rb.lng) - radians(:longitude))
+                + sin(radians(:latitude)) * sin(radians(rb.lat)))
+            ) as distance,
+            rb.evaluationStar as evaluation,
+            rb.avatar,
+            rb.lat,
+            rb.lng,
+            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+        ')
+            ->setParameter('latitude', $lat)
+            ->setParameter('longitude', $lng);
+
+        if (!is_null($buildingIds) && !empty($buildingIds)) {
+            $buildingsQuery->andWhere('rb.id IN (:buildingIds)')
+                ->setParameter('buildingIds', $buildingIds);
+        }
+
+        // filter the companies we don't want to show
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $buildingsQuery->andWhere('rb.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
+
+        $buildingsQuery->orderBy('distance', 'ASC')
+            ->addOrderBy('rb.evaluationStar', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $buildingsQuery->getQuery()->getResult();
+    }
 }

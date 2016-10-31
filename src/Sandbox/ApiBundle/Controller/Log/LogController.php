@@ -30,6 +30,8 @@ class LogController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $adminId = $this->getAdminId();
+
         $log = new Log();
 
         $form = $this->createForm(new LogType(), $log);
@@ -38,6 +40,16 @@ class LogController extends SandboxRestController
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $adminPlatform = $this->getAdminPlatform();
+
+        $log->setPlatform($adminPlatform['platform']);
+        $log->setAdminUsername($adminId);
+
+        $salesCompany = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($adminPlatform['sales_company_id']);
+        $log->setSalesCompany($salesCompany);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($log);

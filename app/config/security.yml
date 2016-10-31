@@ -157,7 +157,7 @@ security:
 
     access_control:
         - { path: ^/phonecode, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-        - { path: ^/admin/dashboard/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/admin/finance/export$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/rooms/types$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }

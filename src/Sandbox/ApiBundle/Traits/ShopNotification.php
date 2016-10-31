@@ -148,7 +148,7 @@ trait ShopNotification
             $this->sendJpushNotification($zhData);
             $this->sendJpushNotification($enData);
 
-            return null;
+            return;
         }
 
         return json_encode(array($data));

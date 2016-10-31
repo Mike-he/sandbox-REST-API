@@ -87,3 +87,9 @@ sandbox_sales_admin_api_events:
     resource: "@SandboxSalesApiBundle/Controller/Event/AdminEventController.php"
     type:     annotation
     prefix:   /admin
+
+# Location /sales/admin/location
+sandbox_admin_api_location:
+    resource: "@SandboxSalesApiBundle/Controller/Location/AdminLocationController.php"
+    type:     annotation
+    prefix:   /admin

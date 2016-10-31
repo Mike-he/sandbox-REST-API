@@ -17,6 +17,7 @@ class Version20161021180240 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql("INSERT INTO admin_permission(`key`,`name`,`platform`,`level`,`creationDate`,`modificationDate`, `opLevelSelect`, `maxOpLevel`) VALUES('platform.order.refund','退款','official','global','2016-10-21 00:00:00','2016-10-21 00:00:00','2',2);");
+        $this->addSql("INSERT INTO admin_permission(`key`,`name`,`platform`,`level`,`creationDate`,`modificationDate`, `opLevelSelect`, `maxOpLevel`) VALUES('platform.finance','财务管理','official','global','2016-10-21 00:00:00','2016-10-21 00:00:00','1,2',2);");
     }
 
     /**

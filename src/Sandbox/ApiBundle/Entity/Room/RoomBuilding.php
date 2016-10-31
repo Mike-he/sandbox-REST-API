@@ -409,6 +409,46 @@ class RoomBuilding implements JsonSerializable
     private $buildingRoomTypes;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="evaluationStar", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $evaluationStar;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="orderStar", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $orderStar;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="buildingStar", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $buildingStar;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="orderEvaluationNumber", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $orderEvaluationNumber;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="buildingEvaluationNumber", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $buildingEvaluationNumber;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1102,5 +1142,85 @@ class RoomBuilding implements JsonSerializable
     public function setBuildingRoomTypes($buildingRoomTypes)
     {
         $this->buildingRoomTypes = $buildingRoomTypes;
+    }
+
+    /**
+     * @return float
+     */
+    public function getEvaluationStar()
+    {
+        return $this->evaluationStar;
+    }
+
+    /**
+     * @param float $evaluationStar
+     */
+    public function setEvaluationStar($evaluationStar)
+    {
+        $this->evaluationStar = $evaluationStar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getOrderStar()
+    {
+        return $this->orderStar;
+    }
+
+    /**
+     * @param float $orderStar
+     */
+    public function setOrderStar($orderStar)
+    {
+        $this->orderStar = $orderStar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBuildingStar()
+    {
+        return $this->buildingStar;
+    }
+
+    /**
+     * @param float $buildingStar
+     */
+    public function setBuildingStar($buildingStar)
+    {
+        $this->buildingStar = $buildingStar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getOrderEvaluationNumber()
+    {
+        return $this->orderEvaluationNumber;
+    }
+
+    /**
+     * @param float $orderEvaluationNumber
+     */
+    public function setOrderEvaluationNumber($orderEvaluationNumber)
+    {
+        $this->orderEvaluationNumber = $orderEvaluationNumber;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBuildingEvaluationNumber()
+    {
+        return $this->buildingEvaluationNumber;
+    }
+
+    /**
+     * @param float $buildingEvaluationNumber
+     */
+    public function setBuildingEvaluationNumber($buildingEvaluationNumber)
+    {
+        $this->buildingEvaluationNumber = $buildingEvaluationNumber;
     }
 }

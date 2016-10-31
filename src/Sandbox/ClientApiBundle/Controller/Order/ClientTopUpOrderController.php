@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
@@ -67,12 +68,15 @@ class ClientTopUpOrderController extends PaymentController
 
         $orders = $this->getRepo('Order\TopUpOrder')->findBy(
             ['userId' => $userId],
-            null,
+            ['creationDate' => 'DESC'],
             $limit,
             $offset
         );
 
-        return new View($orders);
+        $view = new View($orders);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+
+        return $view;
     }
 
     /**
@@ -139,21 +143,54 @@ class ClientTopUpOrderController extends PaymentController
      *
      * @return View
      */
-    public function getOneTopUpOrderAction(
+    public function getOneTopUpOrderByOrderNumberAction(
         Request $request,
         $orderNumber
     ) {
-        $order = $order = $this->getRepo('Order\TopUpOrder')->findOneBy(
-            ['orderNumber' => $orderNumber]
-        );
-        if (is_null($order)) {
-            return $this->customErrorView(
-                400,
-                self::ORDER_NOT_FOUND_CODE,
-                self::ORDER_NOT_FOUND_MESSAGE
-            );
-        }
+        $userId = $this->getUserId();
 
-        return new View($order);
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TopUpOrder')
+            ->findOneBy(
+                [
+                    'orderNumber' => $orderNumber,
+                    'userId' => $userId,
+                ]
+            );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $view = new View($order);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+
+        return $view;
+    }
+
+    /**
+     * @Get("/topup/orders/{id}")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getOneTopUpOrderByIdAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TopUpOrder')
+            ->findOneBy(
+                [
+                    'id' => $id,
+                    'userId' => $userId,
+                ]
+            );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $view = new View($order);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+
+        return $view;
     }
 }

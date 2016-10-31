@@ -43,8 +43,8 @@ trait LogsTrait
             case Log::OBJECT_BUILDING:
                 $json = $this->getBuildingJson($objectId);
                 break;
-            case Log::OBJECT_SALES_ADMIN:
-                $json = $this->getSalesAdminJson($objectId);
+            case Log::OBJECT_ADMIN:
+                $json = $this->getAdminJson($objectId);
                 break;
             default:
                 return false;
@@ -197,33 +197,16 @@ trait LogsTrait
      *
      * @return mixed|null
      */
-    private function getSalesAdminJson(
+    private function getAdminJson(
         $objectId
     ) {
         $admin = $this->getContainer()
              ->get('doctrine')
-             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-             ->find($objectId);
+             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+             ->findPositionByAdmin($objectId);
 
         if (is_null($admin)) {
             return;
-        }
-
-        // set building id and city id
-        $permissions = $admin->getPermissions();
-        foreach ($permissions as $permission) {
-            $buildingId = $permission->getBuildingId();
-            if (is_null($buildingId)) {
-                continue;
-            }
-
-            $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
-
-            if (is_null($building)) {
-                continue;
-            }
-
-            $permission->setBuilding($building);
         }
 
         return $this->transferToJsonWithViewGroup($admin, 'admin');

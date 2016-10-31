@@ -3,12 +3,13 @@
 namespace Sandbox\ApiBundle\Entity\Order;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * TopUpOrder.
  *
  * @ORM\Table(name="top_up_order")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Order\TopUpOrderRepository")
  */
 class TopUpOrder
 {
@@ -22,6 +23,7 @@ class TopUpOrder
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
      */
     private $id;
 
@@ -29,6 +31,7 @@ class TopUpOrder
      * @var string
      *
      * @ORM\Column(name="orderNumber", type="string", length=128)
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
      */
     private $orderNumber;
 
@@ -36,6 +39,7 @@ class TopUpOrder
      * @var string
      *
      * @ORM\Column(name="payChannel", type="string", length=16, nullable=true)
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
      */
     private $payChannel;
 
@@ -43,6 +47,7 @@ class TopUpOrder
      * @var int
      *
      * @ORM\Column(name="userId", type="integer")
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
      */
     private $userId;
 
@@ -50,6 +55,7 @@ class TopUpOrder
      * @var float
      *
      * @ORM\Column(name="price", type="float")
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
      */
     private $price;
 
@@ -57,6 +63,7 @@ class TopUpOrder
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
      */
     private $creationDate;
 
@@ -64,8 +71,18 @@ class TopUpOrder
      * @var \DateTime
      *
      * @ORM\Column(name="modificationDate", type="datetime")
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
      */
     private $modificationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="paymentDate", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
+     */
+    private $paymentDate;
 
     /**
      * Get id.
@@ -221,10 +238,35 @@ class TopUpOrder
         return $this->payChannel;
     }
 
+    /**
+     * Set paymentDate.
+     *
+     * @param \DateTime $paymentDate
+     *
+     * @return TopUpOrder
+     */
+    public function setPaymentDate($paymentDate)
+    {
+        $this->paymentDate = $paymentDate;
+
+        return $this;
+    }
+
+    /**
+     * Get paymentDate.
+     *
+     * @return \DateTime
+     */
+    public function getPaymentDate()
+    {
+        return $this->paymentDate;
+    }
+
     public function __construct()
     {
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+        $this->setPaymentDate($now);
     }
 }

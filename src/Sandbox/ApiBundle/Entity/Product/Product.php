@@ -245,6 +245,13 @@ class Product
     private $totalAppointmentCounts;
 
     /**
+     * @var float
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $distance;
+
+    /**
      * Get id.
      *
      * @return int
@@ -252,6 +259,30 @@ class Product
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set distance.
+     *
+     * @param float $distance
+     *
+     * @return Product
+     */
+    public function setDistance($distance)
+    {
+        $this->distance = $distance;
+
+        return $this;
+    }
+
+    /**
+     * Get distance.
+     *
+     * @return float
+     */
+    public function getDistance()
+    {
+        return $this->distance;
     }
 
     /**

@@ -50,7 +50,7 @@ class Log
     const ACTION_PRIVATE = 'private';
     const ACTION_REMOVE_PRIVATE = 'remove_private';
 
-    const OBJECT_SALES_ADMIN = 'sales_admin';
+    const OBJECT_ADMIN = 'admin';
     const OBJECT_BUILDING = 'building';
     const OBJECT_INVOICE = 'invoice';
     const OBJECT_EVENT = 'event';
@@ -84,9 +84,10 @@ class Log
     private $salesCompanyId;
 
     /**
-     * @var string
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
+     * @ORM\JoinColumn(name="salesCompanyId", referencedColumnName="id", onDelete="SET NULL")
      */
-    private $salesCompanyName;
+    private $salesCompany;
 
     /**
      * @var string
@@ -136,6 +137,20 @@ class Log
      * @ORM\Column(name="creationDate", type="datetime")
      */
     private $creationDate;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="mark", type="boolean", nullable=false)
+     */
+    private $mark = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=255, nullable=true)
+     */
+    private $remarks;
 
     /**
      * Get id.
@@ -356,21 +371,51 @@ class Log
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function getSalesCompanyName()
+    public function isMark()
     {
-        return $this->salesCompanyName;
+        return $this->mark;
     }
 
     /**
-     * @param string $name
-     *
-     * @return Log
+     * @param bool $mark
      */
-    public function setSalesCompanyName($name)
+    public function setMark($mark)
     {
-        $this->salesCompanyName = $name;
+        $this->mark = $mark;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemarks()
+    {
+        return $this->remarks;
+    }
+
+    /**
+     * @param string $remarks
+     */
+    public function setRemarks($remarks)
+    {
+        $this->remarks = $remarks;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSalesCompany()
+    {
+        return $this->salesCompany;
+    }
+
+    /**
+     * @param mixed $salesCompany
+     */
+    public function setSalesCompany($salesCompany)
+    {
+        $this->salesCompany = $salesCompany;
     }
 
     /**
