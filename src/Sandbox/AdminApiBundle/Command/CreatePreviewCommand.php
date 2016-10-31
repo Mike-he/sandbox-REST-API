@@ -24,9 +24,9 @@ class CreatePreviewCommand extends ContainerAwareCommand
 
         $target = 'building';
 
-        $dir = '/data/openfire/image';
+        $dir = '/data/openfire/image/'.$target;
 
-        $previewDir = $dir.'/'.$target.'/preview';
+        $previewDir = $dir.'/preview';
 
         if (!file_exists($previewDir)) {
             mkdir($previewDir, 0777, true);
@@ -35,7 +35,7 @@ class CreatePreviewCommand extends ContainerAwareCommand
         foreach ($roomAttachments as $roomAttachment) {
             $file = $roomAttachment->getContent();
 
-            $filename = str_replace($imgUrl,'',$file);
+            $filename = str_replace($imgUrl.'/'.$target,'',$file);
 
             $srcImg = $dir.'/'.$filename;
 
