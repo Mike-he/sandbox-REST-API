@@ -37,7 +37,8 @@
         "liuggio/excelbundle": "^2.0"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "@stable"
+        "squizlabs/php_codesniffer": "@stable",
+        "laravel/homestead": "^3.0"
     },
     "conflict": {
         "symfony/routing": "2.4.1"

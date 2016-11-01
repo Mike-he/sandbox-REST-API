@@ -335,3 +335,9 @@ sandbox_client_api_user_favorite:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserFavoriteController.php"
     type:     annotation
     prefix:   /user
+
+# UserShare  /user/share
+sandbox_client_api_user_share:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserShareController.php"
+    type:     annotation
+    prefix:   /user
