@@ -161,6 +161,7 @@ security:
         - { path: ^/rooms/types$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/auth/refresh, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/client/user/share$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/shop/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/admin/auth/check_code$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/admin/auth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
