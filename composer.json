@@ -34,12 +34,15 @@
         "pingplusplus/pingpp-php": "dev-master",
         "knplabs/knp-paginator-bundle": "^2.4",
         "friendsofsymfony/elastica-bundle": "^3.1",
-        "liuggio/excelbundle": "^2.0"
+        "liuggio/excelbundle": "^2.0",
+        "doctrine/doctrine-fixtures-bundle": "^2.3"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "@stable",
         "laravel/homestead": "^3.0",
-        "phpunit/phpunit": "4.8.*"
+        "phpunit/phpunit": "4.8.*",
+        "liip/functional-test-bundle": "~1.0",
+        "allan-simon/functionnal-test-helpers": "^0.0.8"
     },
     "conflict": {
         "symfony/routing": "2.4.1"

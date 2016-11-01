@@ -69,6 +69,7 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'L' => 
         array (
             'Liuggio\\ExcelBundle\\' => 20,
+            'Liip\\FunctionalTestBundle\\' => 26,
             'Laravel\\Homestead\\' => 18,
         ),
         'K' => 
@@ -97,6 +98,7 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             'Doctrine\\Common\\Cache\\' => 22,
             'Doctrine\\Common\\Annotations\\' => 28,
             'Doctrine\\Common\\' => 16,
+            'Doctrine\\Bundle\\FixturesBundle\\' => 31,
             'DoctrineExtensions\\' => 19,
         ),
         'B' => 
@@ -208,6 +210,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         array (
             0 => __DIR__ . '/..' . '/liuggio/ExcelBundle',
         ),
+        'Liip\\FunctionalTestBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/liip/functional-test-bundle',
+        ),
         'Laravel\\Homestead\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/homestead/src',
@@ -259,6 +265,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'Doctrine\\Common\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/common/lib/Doctrine/Common',
+        ),
+        'Doctrine\\Bundle\\FixturesBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/doctrine-fixtures-bundle',
         ),
         'DoctrineExtensions\\' => 
         array (
@@ -431,6 +441,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             array (
                 0 => __DIR__ . '/..' . '/doctrine/inflector/lib',
             ),
+            'Doctrine\\Common\\DataFixtures' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/data-fixtures/lib',
+            ),
             'Doctrine\\Common\\Collections\\' => 
             array (
                 0 => __DIR__ . '/..' . '/doctrine/collections/lib',
@@ -456,6 +470,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             'Assetic' => 
             array (
                 0 => __DIR__ . '/..' . '/kriswallsmith/assetic/src',
+            ),
+            'AllanSimon\\TestHelpers' => 
+            array (
+                0 => __DIR__ . '/..' . '/allan-simon/functionnal-test-helpers',
             ),
         ),
     );

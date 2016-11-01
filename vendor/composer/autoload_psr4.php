@@ -31,6 +31,7 @@ return array(
     'Negotiation\\' => array($vendorDir . '/willdurand/negotiation/src/Negotiation'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'Liuggio\\ExcelBundle\\' => array($vendorDir . '/liuggio/ExcelBundle'),
+    'Liip\\FunctionalTestBundle\\' => array($vendorDir . '/liip/functional-test-bundle'),
     'Laravel\\Homestead\\' => array($vendorDir . '/laravel/homestead/src'),
     'Knp\\Bundle\\PaginatorBundle\\' => array($vendorDir . '/knplabs/knp-paginator-bundle'),
     'Hautelook\\TemplatedUriRouter\\' => array($vendorDir . '/hautelook/templated-uri-router'),
@@ -44,6 +45,7 @@ return array(
     'Doctrine\\Common\\Cache\\' => array($vendorDir . '/doctrine/cache/lib/Doctrine/Common/Cache'),
     'Doctrine\\Common\\Annotations\\' => array($vendorDir . '/doctrine/annotations/lib/Doctrine/Common/Annotations'),
     'Doctrine\\Common\\' => array($vendorDir . '/doctrine/common/lib/Doctrine/Common'),
+    'Doctrine\\Bundle\\FixturesBundle\\' => array($vendorDir . '/doctrine/doctrine-fixtures-bundle'),
     'DoctrineExtensions\\' => array($vendorDir . '/beberlei/DoctrineExtensions/src'),
     'Bazinga\\Bundle\\RestExtraBundle\\' => array($vendorDir . '/willdurand/rest-extra-bundle'),
 );

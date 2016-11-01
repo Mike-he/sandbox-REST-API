@@ -37,10 +37,12 @@ return array(
     'Doctrine\\DBAL\\' => array($vendorDir . '/doctrine/dbal/lib'),
     'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib'),
     'Doctrine\\Common\\Inflector\\' => array($vendorDir . '/doctrine/inflector/lib'),
+    'Doctrine\\Common\\DataFixtures' => array($vendorDir . '/doctrine/data-fixtures/lib'),
     'Doctrine\\Common\\Collections\\' => array($vendorDir . '/doctrine/collections/lib'),
     'Doctrine\\Bundle\\MigrationsBundle' => array($vendorDir . '/doctrine/doctrine-migrations-bundle'),
     'Doctrine\\Bundle\\DoctrineBundle' => array($vendorDir . '/doctrine/doctrine-bundle'),
     'Bazinga\\Bundle\\HateoasBundle' => array($vendorDir . '/willdurand/hateoas-bundle'),
     'Assetic' => array($vendorDir . '/kriswallsmith/assetic/src'),
+    'AllanSimon\\TestHelpers' => array($vendorDir . '/allan-simon/functionnal-test-helpers'),
     '' => array($baseDir . '/src'),
 );
