@@ -850,7 +850,7 @@ class Definition
     /**
      * Sets autowired.
      *
-     * @param bool $autowired
+     * @param $autowired
      *
      * @return Definition The current instance
      */

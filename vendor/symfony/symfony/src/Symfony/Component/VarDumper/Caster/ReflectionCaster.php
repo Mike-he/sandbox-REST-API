@@ -84,7 +84,7 @@ class ReflectionCaster
         $prefix = Caster::PREFIX_VIRTUAL;
 
         $a += array(
-            $prefix.'name' => $c instanceof \ReflectionNamedType ? $c->getName() : $c->__toString(),
+            $prefix.'name' => method_exists('ReflectionType', 'getName') ? $c->getName() : $c->__toString(),
             $prefix.'allowsNull' => $c->allowsNull(),
             $prefix.'isBuiltin' => $c->isBuiltin(),
         );
@@ -168,9 +168,7 @@ class ReflectionCaster
         ));
 
         if (isset($a[$prefix.'returnType'])) {
-            $v = $a[$prefix.'returnType'];
-            $v = $v instanceof \ReflectionNamedType ? $v->getName() : $v->__toString();
-            $a[$prefix.'returnType'] = $a[$prefix.'returnType']->allowsNull() ? '?'.$v : $v;
+            $a[$prefix.'returnType'] = method_exists('ReflectionType', 'getName') ? $a[$prefix.'returnType']->getName() : $a[$prefix.'returnType']->__toString();
         }
         if (isset($a[$prefix.'this'])) {
             $a[$prefix.'this'] = new CutStub($a[$prefix.'this']);
@@ -229,12 +227,21 @@ class ReflectionCaster
             'allowsNull' => 'allowsNull',
         ));
 
-        if (method_exists($c, 'getType')) {
-            if ($v = $c->getType()) {
-                $a[$prefix.'typeHint'] = $v instanceof \ReflectionNamedType ? $v->getName() : $v->__toString();
+        try {
+            if (method_exists($c, 'hasType')) {
+                if ($c->hasType()) {
+                    $a[$prefix.'typeHint'] = method_exists('ReflectionType', 'getName') ? $c->getType()->getName() : $c->getType()->__toString();
+                }
+            } else {
+                $v = explode(' ', $c->__toString(), 6);
+                if (isset($v[5]) && 0 === strspn($v[4], '.&$')) {
+                    $a[$prefix.'typeHint'] = $v[4];
+                }
             }
-        } elseif (preg_match('/^(?:[^ ]++ ){4}([a-zA-Z_\x7F-\xFF][^ ]++)/', $c, $v)) {
-            $a[$prefix.'typeHint'] = $v[1];
+        } catch (\ReflectionException $e) {
+            if (preg_match('/^Class ([^ ]++) does not exist$/', $e->getMessage(), $m)) {
+                $a[$prefix.'typeHint'] = $m[1];
+            }
         }
         if (!isset($a[$prefix.'typeHint'])) {
             unset($a[$prefix.'allowsNull']);
@@ -249,7 +256,7 @@ class ReflectionCaster
                 unset($a[$prefix.'allowsNull']);
             }
         } catch (\ReflectionException $e) {
-            if (isset($a[$prefix.'typeHint']) && $c->allowsNull() && !class_exists('ReflectionNamedType', false)) {
+            if (isset($a[$prefix.'typeHint']) && $c->allowsNull() && !method_exists('ReflectionType', 'getName')) {
                 $a[$prefix.'default'] = null;
                 unset($a[$prefix.'allowsNull']);
             }

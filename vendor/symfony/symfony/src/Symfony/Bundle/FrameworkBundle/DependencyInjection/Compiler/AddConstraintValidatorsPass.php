@@ -13,7 +13,6 @@ namespace Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
-use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 
 class AddConstraintValidatorsPass implements CompilerPassInterface
 {

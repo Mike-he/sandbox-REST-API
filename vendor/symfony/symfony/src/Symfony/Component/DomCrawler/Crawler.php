@@ -990,47 +990,22 @@ class Crawler extends \SplObjectStorage
     {
         $expressions = array();
 
+        $unionPattern = '/\|(?![^\[]*\])/';
         // An expression which will never match to replace expressions which cannot match in the crawler
         // We cannot simply drop
         $nonMatchingExpression = 'a[name() = "b"]';
 
-        $xpathLen = strlen($xpath);
-        $openedBrackets = 0;
-        $startPosition = strspn($xpath, " \t\n\r\0\x0B");
+        // Split any unions into individual expressions.
+        foreach (preg_split($unionPattern, $xpath) as $expression) {
+            $expression = trim($expression);
+            $parenthesis = '';
 
-        for ($i = $startPosition; $i <= $xpathLen; ++$i) {
-            $i += strcspn($xpath, '"\'[]|', $i);
-
-            if ($i < $xpathLen) {
-                switch ($xpath[$i]) {
-                    case '"':
-                    case "'":
-                        if (false === $i = strpos($xpath, $xpath[$i], $i + 1)) {
-                            return $xpath; // The XPath expression is invalid
-                        }
-                        continue 2;
-                    case '[':
-                        ++$openedBrackets;
-                        continue 2;
-                    case ']':
-                        --$openedBrackets;
-                        continue 2;
-                }
+            // If the union is inside some braces, we need to preserve the opening braces and apply
+            // the change only inside it.
+            if (preg_match('/^[\(\s*]+/', $expression, $matches)) {
+                $parenthesis = $matches[0];
+                $expression = substr($expression, strlen($parenthesis));
             }
-            if ($openedBrackets) {
-                continue;
-            }
-
-            if ($startPosition < $xpathLen && '(' === $xpath[$startPosition]) {
-                // If the union is inside some braces, we need to preserve the opening braces and apply
-                // the change only inside it.
-                $j = 1 + strspn($xpath, "( \t\n\r\0\x0B", $startPosition + 1);
-                $parenthesis = substr($xpath, $startPosition, $j);
-                $startPosition += $j;
-            } else {
-                $parenthesis = '';
-            }
-            $expression = rtrim(substr($xpath, $startPosition, $i - $startPosition));
 
             // BC for Symfony 2.4 and lower were elements were adding in a fake _root parent
             if (0 === strpos($expression, '/_root/')) {
@@ -1042,7 +1017,7 @@ class Crawler extends \SplObjectStorage
             }
 
             // add prefix before absolute element selector
-            if ('' === $expression) {
+            if (empty($expression)) {
                 $expression = $nonMatchingExpression;
             } elseif (0 === strpos($expression, '//')) {
                 $expression = 'descendant-or-self::'.substr($expression, 2);
@@ -1060,7 +1035,7 @@ class Crawler extends \SplObjectStorage
                 // '.' is the fake root element in Symfony 2.4 and lower, which is excluded from results
                 $expression = $nonMatchingExpression;
             } elseif (0 === strpos($expression, 'descendant::')) {
-                $expression = 'descendant-or-self::'.substr($expression, 12);
+                $expression = 'descendant-or-self::'.substr($expression, strlen('descendant::'));
             } elseif (preg_match('/^(ancestor|ancestor-or-self|attribute|following|following-sibling|namespace|parent|preceding|preceding-sibling)::/', $expression)) {
                 // the fake root has no parent, preceding or following nodes and also no attributes (even no namespace attributes)
                 $expression = $nonMatchingExpression;
@@ -1068,16 +1043,9 @@ class Crawler extends \SplObjectStorage
                 $expression = 'self::'.$expression;
             }
             $expressions[] = $parenthesis.$expression;
-
-            if ($i === $xpathLen) {
-                return implode(' | ', $expressions);
-            }
-
-            $i += strspn($xpath, " \t\n\r\0\x0B", $i + 1);
-            $startPosition = $i + 1;
         }
 
-        return $xpath; // The XPath expression is invalid
+        return implode(' | ', $expressions);
     }
 
     /**

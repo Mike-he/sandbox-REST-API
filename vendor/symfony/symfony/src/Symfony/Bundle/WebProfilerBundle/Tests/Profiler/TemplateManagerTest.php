@@ -32,6 +32,11 @@ class TemplateManagerTest extends TestCase
     protected $profiler;
 
     /**
+     * @var \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $profile;
+
+    /**
      * @var \Symfony\Bundle\WebProfilerBundle\Profiler\TemplateManager
      */
     protected $templateManager;
@@ -124,7 +129,11 @@ class TemplateManagerTest extends TestCase
 
     protected function mockProfile()
     {
-        return $this->getMockBuilder('Symfony\Component\HttpKernel\Profiler\Profile')->disableOriginalConstructor()->getMock();
+        $this->profile = $this->getMockBuilder('Symfony\Component\HttpKernel\Profiler\Profile')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        return  $this->profile;
     }
 
     protected function mockTwigEnvironment()
@@ -135,12 +144,9 @@ class TemplateManagerTest extends TestCase
             ->method('loadTemplate')
             ->will($this->returnValue('loadedTemplate'));
 
-        if (interface_exists('\Twig_SourceContextLoaderInterface')) {
-            $loader = $this->getMock('\Twig_SourceContextLoaderInterface');
-        } else {
-            $loader = $this->getMock('\Twig_LoaderInterface');
-        }
-        $this->twigEnvironment->expects($this->any())->method('getLoader')->will($this->returnValue($loader));
+        $this->twigEnvironment->expects($this->any())
+            ->method('getLoader')
+            ->will($this->returnValue($this->getMock('\Twig_LoaderInterface')));
 
         return $this->twigEnvironment;
     }

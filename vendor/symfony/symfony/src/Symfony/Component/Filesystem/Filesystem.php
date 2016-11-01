@@ -369,14 +369,10 @@ class Filesystem
         }
 
         // Determine how deep the start path is relative to the common path (ie, "web/bundles" = 2 levels)
-        if (count($startPathArr) === 1 && $startPathArr[0] === '') {
-            $depth = 0;
-        } else {
-            $depth = count($startPathArr) - $index;
-        }
+        $depth = count($startPathArr) - $index;
 
         // When we need to traverse from the start, and we are starting from a root path, don't add '../'
-        if ('/' === $startPath[0] && 0 === $index && 0 === $depth) {
+        if ('/' === $startPath[0] && 0 === $index && 1 === $depth) {
             $traverser = '';
         } else {
             // Repeated "../" for each level need to reach the common path

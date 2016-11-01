@@ -6,7 +6,6 @@ return Symfony\CS\Config\Config::create()
     ->fixers(array(
         'long_array_syntax',
         'php_unit_construct',
-        'php_unit_dedicate_assert',
     ))
     ->finder(
         Symfony\CS\Finder\DefaultFinder::create()

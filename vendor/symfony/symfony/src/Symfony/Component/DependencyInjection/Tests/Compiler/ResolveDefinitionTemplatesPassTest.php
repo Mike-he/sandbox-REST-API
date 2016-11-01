@@ -360,11 +360,8 @@ class ResolveDefinitionTemplatesPassTest extends \PHPUnit_Framework_TestCase
 
         $this->process($container);
 
-        $childDef = $container->getDefinition('child');
-        $this->assertEquals(array('Foo', 'Bar'), $childDef->getAutowiringTypes());
-
-        $parentDef = $container->getDefinition('parent');
-        $this->assertSame(array('Foo'), $parentDef->getAutowiringTypes());
+        $def = $container->getDefinition('child');
+        $this->assertEquals(array('Foo', 'Bar'), $def->getAutowiringTypes());
     }
 
     protected function process(ContainerBuilder $container)

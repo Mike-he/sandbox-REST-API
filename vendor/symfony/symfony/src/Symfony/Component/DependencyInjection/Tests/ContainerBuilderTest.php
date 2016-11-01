@@ -14,6 +14,7 @@ namespace Symfony\Component\DependencyInjection\Tests;
 require_once __DIR__.'/Fixtures/includes/classes.php';
 require_once __DIR__.'/Fixtures/includes/ProjectExtension.php';
 
+use Symfony\Bridge\PhpUnit\ErrorAssert;
 use Symfony\Component\Config\Resource\ResourceInterface;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -60,16 +61,17 @@ class ContainerBuilderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group legacy
-     * @expectedDeprecation The "deprecated_foo" service is deprecated. You should stop using it, as it will soon be removed.
+     * @requires function Symfony\Bridge\PhpUnit\ErrorAssert::assertDeprecationsAreTriggered
      */
     public function testCreateDeprecatedService()
     {
-        $definition = new Definition('stdClass');
-        $definition->setDeprecated(true);
+        ErrorAssert::assertDeprecationsAreTriggered('The "deprecated_foo" service is deprecated. You should stop using it, as it will soon be removed.', function () {
+            $definition = new Definition('stdClass');
+            $definition->setDeprecated(true);
 
-        $builder = new ContainerBuilder();
-        $builder->createService($definition, 'deprecated_foo');
+            $builder = new ContainerBuilder();
+            $builder->createService($definition, 'deprecated_foo');
+        });
     }
 
     public function testRegister()

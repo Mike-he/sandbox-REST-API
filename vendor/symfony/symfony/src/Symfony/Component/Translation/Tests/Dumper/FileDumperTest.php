@@ -43,7 +43,7 @@ class FileDumperTest extends \PHPUnit_Framework_TestCase
         $dumper = new ConcreteFileDumper();
         $dumper->dump($catalogue, array('path' => $tempDir));
 
-        $this->assertFileExists($backupFile);
+        $this->assertTrue(file_exists($backupFile));
 
         @unlink($file);
         @unlink($backupFile);
@@ -62,7 +62,7 @@ class FileDumperTest extends \PHPUnit_Framework_TestCase
         $dumper->setRelativePathTemplate('test/translations/%domain%.%locale%.%extension%');
         $dumper->dump($catalogue, array('path' => $tempDir));
 
-        $this->assertFileExists($file);
+        $this->assertTrue(file_exists($file));
 
         @unlink($file);
         @rmdir($translationsDir);

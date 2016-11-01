@@ -20,10 +20,6 @@ class Php71Dummy
     {
     }
 
-    public function getBuz(): void
-    {
-    }
-
     public function setBar(?int $bar)
     {
     }
