@@ -38,8 +38,7 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "@stable",
-        "laravel/homestead": "^3.0",
-        "phpunit/phpunit": "4.8.*"
+        "laravel/homestead": "^3.0"
     },
     "conflict": {
         "symfony/routing": "2.4.1"
