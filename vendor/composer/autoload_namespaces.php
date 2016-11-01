@@ -15,6 +15,7 @@ return array(
     'Sensio\\Bundle\\DistributionBundle' => array($vendorDir . '/sensio/distribution-bundle'),
     'Rs\\Json' => array($vendorDir . '/php-jsonpointer/php-jsonpointer/src', $vendorDir . '/php-jsonpatch/php-jsonpatch/src'),
     'ProxyManager\\' => array($vendorDir . '/ocramius/proxy-manager/src'),
+    'Prophecy\\' => array($vendorDir . '/phpspec/prophecy/src'),
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src'),
     'PhpCollection' => array($vendorDir . '/phpcollection/phpcollection/src'),
     'PHPExcel' => array($vendorDir . '/phpoffice/phpexcel/Classes'),
