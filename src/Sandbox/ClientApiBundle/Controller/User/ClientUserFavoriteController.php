@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Rest controller for UserEducation.
+ * Rest controller for user favorite.
  *
  * @category Sandbox
  *
