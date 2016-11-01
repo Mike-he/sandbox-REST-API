@@ -4572,5 +4572,53 @@
             "web service"
         ],
         "abandoned": "guzzlehttp/guzzle"
+    },
+    {
+        "name": "laravel/homestead",
+        "version": "v3.0.2",
+        "version_normalized": "3.0.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/laravel/homestead.git",
+            "reference": "705449c3dbedbded4bd4f3ed725303c69253cad4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://packagist.phpcomposer.com/files/laravel/homestead/705449c3dbedbded4bd4f3ed725303c69253cad4.zip",
+            "reference": "705449c3dbedbded4bd4f3ed725303c69253cad4",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5.9",
+            "symfony/console": "~2.3|~3.0",
+            "symfony/process": "~2.3|~3.0"
+        },
+        "time": "2016-02-16 22:31:00",
+        "bin": [
+            "homestead"
+        ],
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "4.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Laravel\\Homestead\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Taylor Otwell",
+                "email": "taylorotwell@gmail.com"
+            }
+        ],
+        "description": "A virtual machine for web artisans."
     }
 ]

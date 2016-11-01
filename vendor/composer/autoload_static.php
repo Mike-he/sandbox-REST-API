@@ -62,6 +62,7 @@ class ComposerStaticInit4a065a5b96cad496891d8347ad982c6c
         'L' => 
         array (
             'Liuggio\\ExcelBundle\\' => 20,
+            'Laravel\\Homestead\\' => 18,
         ),
         'K' => 
         array (
@@ -193,6 +194,10 @@ class ComposerStaticInit4a065a5b96cad496891d8347ad982c6c
         'Liuggio\\ExcelBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/liuggio/ExcelBundle',
+        ),
+        'Laravel\\Homestead\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laravel/homestead/src',
         ),
         'Knp\\Bundle\\PaginatorBundle\\' => 
         array (

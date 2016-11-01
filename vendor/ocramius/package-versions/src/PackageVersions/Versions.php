@@ -83,8 +83,9 @@ final class Versions
   'willdurand/rest-extra-bundle' => '1.2.0@39c329017b7d09084f1bbe5582d749d0651aac2d',
   'zendframework/zend-code' => '3.1.0@2899c17f83a7207f2d7f53ec2f421204d3beea27',
   'zendframework/zend-eventmanager' => '3.0.1@5c80bdee0e952be112dcec0968bad770082c3a6e',
+  'laravel/homestead' => 'v3.0.2@705449c3dbedbded4bd4f3ed725303c69253cad4',
   'squizlabs/php_codesniffer' => '2.7.0@571e27b6348e5b3a637b2abc82ac0d01e6d7bbed',
-  'sandbox/php-rest-api' => '2.3.9999999.9999999-dev@20395c505d91ac3538d2e673c2f863b8ce302673',
+  'sandbox/php-rest-api' => '2.3.9999999.9999999-dev@231257fda3bc7a9eba34c9879b749f80c99d8ac2',
 );
 
     private function __construct()

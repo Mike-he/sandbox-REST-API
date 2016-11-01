@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "678a0467ab3a4534042c65348887d256",
-    "content-hash": "fe6534e6664ae2945c7c09f5ac775733",
+    "hash": "dc81bf448cb9ed07bafc965ae6dd3403",
+    "content-hash": "08ec9179035765be1d1cc6c6e0d800d9",
     "packages": [
         {
             "name": "beberlei/DoctrineExtensions",
@@ -4359,6 +4359,52 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "laravel/homestead",
+            "version": "v3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/homestead.git",
+                "reference": "705449c3dbedbded4bd4f3ed725303c69253cad4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.phpcomposer.com/files/laravel/homestead/705449c3dbedbded4bd4f3ed725303c69253cad4.zip",
+                "reference": "705449c3dbedbded4bd4f3ed725303c69253cad4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9",
+                "symfony/console": "~2.3|~3.0",
+                "symfony/process": "~2.3|~3.0"
+            },
+            "bin": [
+                "homestead"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Homestead\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylorotwell@gmail.com"
+                }
+            ],
+            "description": "A virtual machine for web artisans.",
+            "time": "2016-02-16 22:31:00"
+        },
         {
             "name": "squizlabs/php_codesniffer",
             "version": "2.7.0",

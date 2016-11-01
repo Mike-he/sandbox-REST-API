@@ -30,6 +30,7 @@ return array(
     'Negotiation\\' => array($vendorDir . '/willdurand/negotiation/src/Negotiation'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'Liuggio\\ExcelBundle\\' => array($vendorDir . '/liuggio/ExcelBundle'),
+    'Laravel\\Homestead\\' => array($vendorDir . '/laravel/homestead/src'),
     'Knp\\Bundle\\PaginatorBundle\\' => array($vendorDir . '/knplabs/knp-paginator-bundle'),
     'Hautelook\\TemplatedUriRouter\\' => array($vendorDir . '/hautelook/templated-uri-router'),
     'FOS\\HttpCache\\Tests\\' => array($vendorDir . '/friendsofsymfony/http-cache/tests'),
