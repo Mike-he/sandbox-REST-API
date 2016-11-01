@@ -89,15 +89,6 @@ security:
             security: false
             methods: [POST]
 
-        client_shops:
-            pattern: ^/client/shops
-            security: false
-            methods: [GET]
-
-        client_shops_orders:
-            pattern: ^/client/shops/orders
-            security: true
-
         client_banners:
             pattern: ^/client/banners
             security: false
