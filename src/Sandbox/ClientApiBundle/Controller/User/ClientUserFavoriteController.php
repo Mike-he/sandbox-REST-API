@@ -4,7 +4,6 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\User\UserEducation;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ApiBundle\Form\User\UserFavoriteType;
 use Symfony\Component\HttpFoundation\Request;

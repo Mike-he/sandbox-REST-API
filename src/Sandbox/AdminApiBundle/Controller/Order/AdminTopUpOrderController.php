@@ -56,6 +56,13 @@ class AdminTopUpOrderController extends PaymentController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="payStart",
      *    array=false,
      *    default=null,
@@ -96,6 +103,7 @@ class AdminTopUpOrderController extends PaymentController
         );
 
         $channel = $paramFetcher->get('channel');
+        $search = $paramFetcher->get('search');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $payStart = $paramFetcher->get('payStart');
@@ -110,6 +118,7 @@ class AdminTopUpOrderController extends PaymentController
                 $channel,
                 $payStart,
                 $payEnd,
+                $search,
                 $limit,
                 $offset
             );
@@ -119,7 +128,8 @@ class AdminTopUpOrderController extends PaymentController
             ->countTopUpOrdersForAdmin(
                 $channel,
                 $payStart,
-                $payEnd
+                $payEnd,
+                $search
             );
 
         $view = new View();

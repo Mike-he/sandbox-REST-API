@@ -4,11 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
-use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\User\UserEducation;
-use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ApiBundle\Entity\User\UserShare;
-use Sandbox\ApiBundle\Form\User\UserFavoriteType;
 use Sandbox\ApiBundle\Form\User\UserShareType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
@@ -18,7 +14,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Rest controller for User Share.
@@ -33,7 +28,25 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class ClientUserShareController extends LocationController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="object",
+     *    array=false,
+     *    default="product_order",
+     *    nullable=true,
+     *    description=""
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="objectId",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    description=""
+     * )
      *
      * @Route("/share")
      * @Method({"GET"})
@@ -41,40 +54,33 @@ class ClientUserShareController extends LocationController
      * @return View
      */
     public function getUserShareAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
-        $content = json_decode($request->getContent(), true);
         $view = new View();
 
-        if (is_null($content) ||
-            empty($content) ||
-            !array_key_exists('object', $content) ||
-            !array_key_exists('objectId', $content)
-        ) {
-            return $view;
-        }
-
-        $object = $content['object'];
-        $objectId = $content['objectId'];
+        $object = $paramFetcher->get('object');
+        $objectId = $paramFetcher->get('objectId');
 
         $share = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserShare')
             ->findOneBy([
                 'object' => $object,
-                'objectId' => $objectId
+                'objectId' => $objectId,
             ]);
         $this->throwNotFoundIfNull($share, self::NOT_FOUND_MESSAGE);
 
         switch ($object) {
-            case UserShare::OBJECT_PRODUCT_ORDER :
+            case UserShare::OBJECT_PRODUCT_ORDER:
                 $view = $this->getProductOrderView(
                     $request,
                     $objectId,
-                    $view
+                    $view,
+                    $share
                 );
 
                 break;
-            default :
+            default:
                 return $view;
         }
 
@@ -130,35 +136,52 @@ class ClientUserShareController extends LocationController
         $object = $share->getObject();
         $objectId = $share->getObjectId();
 
-        switch ($object) {
-            case UserShare::OBJECT_PRODUCT_ORDER :
-                $order = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
-                    ->findOneBy([
-                        'userId' => $userId,
-                        'id' => $objectId
-                    ]);
-                $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+        // remove existing share
+        $existShare = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserShare')
+            ->findOneBy([
+                'object' => $object,
+                'objectId' => $objectId,
+            ]);
 
-                break;
-            default :
-                return;
+        if (!is_null($existShare)) {
+            $existShare->setTitle($share->getTitle());
+            $existShare->setDescription($share->getDescription());
+        } else {
+            switch ($object) {
+                case UserShare::OBJECT_PRODUCT_ORDER:
+                    $order = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                        ->findOneBy([
+                            'userId' => $userId,
+                            'id' => $objectId,
+                        ]);
+                    $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+                    break;
+                default:
+                    return;
+            }
+
+            $em->persist($share);
         }
 
-        $em->persist($share);
         $em->flush();
     }
 
     /**
      * @param $request
      * @param $orderId
-     * @param View $view
+     * @param View      $view
+     * @param UserShare $share
+     *
      * @return mixed
      */
     private function getProductOrderView(
         $request,
         $orderId,
-        $view
+        $view,
+        $share
     ) {
         $order = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -184,6 +207,7 @@ class ClientUserShareController extends LocationController
         $viewArray = [
             'order' => $order,
             'appointedPerson' => $appointedPerson,
+            'share_info' => $share,
         ];
 
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));

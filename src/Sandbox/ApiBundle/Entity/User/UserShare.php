@@ -3,9 +3,10 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
- * UserShare
+ * UserShare.
  *
  * @ORM\Table(name="user_shares")
  * @ORM\Entity
@@ -15,7 +16,7 @@ class UserShare
     const OBJECT_PRODUCT_ORDER = 'product_order';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -31,7 +32,7 @@ class UserShare
     private $object;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="objectId", type="integer")
      */
@@ -41,6 +42,7 @@ class UserShare
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255, nullable=true)
+     * @Serializer\Groups({"main", "client"})
      */
     private $title;
 
@@ -48,6 +50,7 @@ class UserShare
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
+     * @Serializer\Groups({"main", "client"})
      */
     private $description;
 
@@ -55,14 +58,14 @@ class UserShare
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     * @Serializer\Groups({"main", "client"})
      */
     private $creationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -70,9 +73,10 @@ class UserShare
     }
 
     /**
-     * Set object
+     * Set object.
      *
      * @param string $object
+     *
      * @return UserShare
      */
     public function setObject($object)
@@ -83,9 +87,9 @@ class UserShare
     }
 
     /**
-     * Get object
+     * Get object.
      *
-     * @return string 
+     * @return string
      */
     public function getObject()
     {
@@ -93,9 +97,10 @@ class UserShare
     }
 
     /**
-     * Set objectId
+     * Set objectId.
      *
-     * @param integer $objectId
+     * @param int $objectId
+     *
      * @return UserShare
      */
     public function setObjectId($objectId)
@@ -106,9 +111,9 @@ class UserShare
     }
 
     /**
-     * Get objectId
+     * Get objectId.
      *
-     * @return integer 
+     * @return int
      */
     public function getObjectId()
     {
@@ -116,9 +121,10 @@ class UserShare
     }
 
     /**
-     * Set title
+     * Set title.
      *
      * @param string $title
+     *
      * @return UserShare
      */
     public function setTitle($title)
@@ -129,9 +135,9 @@ class UserShare
     }
 
     /**
-     * Get title
+     * Get title.
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -139,9 +145,10 @@ class UserShare
     }
 
     /**
-     * Set description
+     * Set description.
      *
      * @param string $description
+     *
      * @return UserShare
      */
     public function setDescription($description)
@@ -152,9 +159,9 @@ class UserShare
     }
 
     /**
-     * Get description
+     * Get description.
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -162,9 +169,10 @@ class UserShare
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return UserShare
      */
     public function setCreationDate($creationDate)
@@ -175,9 +183,9 @@ class UserShare
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
