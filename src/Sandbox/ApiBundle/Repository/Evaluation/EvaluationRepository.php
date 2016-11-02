@@ -62,7 +62,7 @@ class EvaluationRepository extends EntityRepository
         $query = $this->createQueryBuilder('e')
             ->where('e.visible = TRUE')
             ->andWhere('e.type != :official')
-            ->andWhere('official', Evaluation::TYPE_OFFICIAL);
+            ->setParameter('official', Evaluation::TYPE_OFFICIAL);
 
         if (!is_null($buildingId)) {
             $query->andWhere('e.buildingId = :buildingId')

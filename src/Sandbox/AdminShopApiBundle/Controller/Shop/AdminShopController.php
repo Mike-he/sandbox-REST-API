@@ -301,6 +301,9 @@ class AdminShopController extends ShopController
                 array(
                     'key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SHOP_SHOP_ORDER,
+                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
