@@ -188,8 +188,8 @@ class ClientUserShareController extends LocationController
             ->find($orderId);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $appointed = $order->getAppointed();
-        $appointedPerson = $this->getRepo('User\UserView')->find($appointed);
+//        $appointed = $order->getAppointed();
+//        $appointedPerson = $this->getRepo('User\UserView')->find($appointed);
 
         $room = $order->getProduct()->getRoom();
         $type = $room->getType();
@@ -206,7 +206,7 @@ class ClientUserShareController extends LocationController
 
         $viewArray = [
             'order' => $order,
-            'appointedPerson' => $appointedPerson,
+//            'appointedPerson' => $appointedPerson,
             'share_info' => $share,
         ];
 
