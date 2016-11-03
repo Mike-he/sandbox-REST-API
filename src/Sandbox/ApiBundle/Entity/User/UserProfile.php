@@ -92,7 +92,8 @@ class UserProfile
      *      "chatgroup",
      *      "verify",
      *      "client_event",
-     *      "admin_event"
+     *      "admin_event",
+     *      "client_evaluation"
      *  }
      * )
      */

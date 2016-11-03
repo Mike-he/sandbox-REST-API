@@ -12,10 +12,12 @@ keys:
 folders:
     - map: ~/Code
       to: /home/vagrant/Code
+      type: "nfs"
 
 sites:
     - map: homestead.app
       to: /home/vagrant/Code/Laravel/public
+      type: symfony
 
 databases:
     - homestead

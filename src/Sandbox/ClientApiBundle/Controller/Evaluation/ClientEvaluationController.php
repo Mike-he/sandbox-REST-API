@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Evaluation;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
@@ -178,7 +179,10 @@ class ClientEvaluationController extends EvaluationController
                 $isWithPic
             );
 
-        return new View($evaluations);
+        $view = new View($evaluations);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_evaluation']));
+
+        return $view;
     }
 
     /**
@@ -228,7 +232,10 @@ class ClientEvaluationController extends EvaluationController
                 $userId
             );
 
-        return new View($evaluations);
+        $view = new View($evaluations);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_evaluation']));
+
+        return $view;
     }
 
     /**

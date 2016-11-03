@@ -36,7 +36,7 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "buddy"})
+     * @Serializer\Groups({"main", "login", "buddy", "client_evaluation"})
      */
     private $id;
 
@@ -150,6 +150,18 @@ class User implements UserInterface
      * @Serializer\Groups({"main"})
      */
     private $customerId;
+
+    /**
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\User\UserProfile",
+     *      mappedBy="user"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="userId")
+     *
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
+     */
+    private $userProfile;
 
     /**
      * Get id.
@@ -526,5 +538,21 @@ class User implements UserInterface
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserProfile()
+    {
+        return $this->userProfile;
+    }
+
+    /**
+     * @param mixed $userProfile
+     */
+    public function setUserProfile($userProfile)
+    {
+        $this->userProfile = $userProfile;
     }
 }

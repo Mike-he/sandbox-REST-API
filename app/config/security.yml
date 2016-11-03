@@ -144,6 +144,11 @@ security:
             pattern: ^/user/avatar/attachments$
             security: false
 
+        client_evaluation:
+            pattern: ^/client/evaluations$
+            security: false
+            methods: [GET]
+
         main:
             pattern: ^/
             anonymous: true
@@ -151,6 +156,7 @@ security:
             stateless:  true
 
     access_control:
+        - { path: ^/client/evaluations$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/phonecode, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/admin/finance/export$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/rooms/types$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
