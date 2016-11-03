@@ -97,7 +97,7 @@ class AdminPosition
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Admin\AdminPositionIcons")
-     * @ORM\JoinColumn(name="iconId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="iconId", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Groups({"main", "admin"})
      */
     private $icon;
@@ -129,7 +129,7 @@ class AdminPosition
      *      targetEntity="Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap",
      *      mappedBy="position"
      * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="positionId")
+     * @ORM\JoinColumn(name="id", referencedColumnName="positionId", onDelete="CASCADE")
      * @Serializer\Groups({"main", "admin"})
      */
     private $permissionMappings;

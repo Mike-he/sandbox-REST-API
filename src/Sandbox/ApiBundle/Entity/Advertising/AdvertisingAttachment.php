@@ -37,7 +37,7 @@ class AdvertisingAttachment
      * @var \Sandbox\ApiBundle\Entity\Advertising\Advertising
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Advertising\Advertising")
-     * @ORM\JoinColumn(name="advertisingId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="advertisingId", referencedColumnName="id", onDelete="CASCADE")
      */
     private $advertising;
 
