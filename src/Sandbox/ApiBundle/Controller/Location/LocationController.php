@@ -584,7 +584,9 @@ class LocationController extends SalesRestController
         Request $request,
         $id
     ) {
-        $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        $building = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->find($id);
 
         // set more information
         $this->setRoomBuildingMoreInformation($building);
@@ -599,6 +601,9 @@ class LocationController extends SalesRestController
             $type->setDescription($typeText);
         }
         $building->setBuildingRoomTypes($types);
+
+        $totalEvaluationNumber = $building->getOrderEvaluationNumber() + $building->getBuildingEvaluationNumber();
+        $building->setTotalEvaluationNumber($totalEvaluationNumber);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));

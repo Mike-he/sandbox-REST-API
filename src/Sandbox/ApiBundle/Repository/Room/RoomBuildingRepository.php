@@ -398,11 +398,11 @@ class RoomBuildingRepository extends EntityRepository
                 * cos(radians(rb.lng) - radians(:longitude))
                 + sin(radians(:latitude)) * sin(radians(rb.lat)))
             ) as distance,
-            rb.evaluationStar as evaluation,
+            rb.evaluationStar as evaluation_star,
             rb.avatar,
             rb.lat,
             rb.lng,
-            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_evaluation_number
         ')
         ->setParameter('latitude', $lat)
         ->setParameter('longitude', $lng);

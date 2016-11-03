@@ -449,6 +449,13 @@ class RoomBuilding implements JsonSerializable
     private $buildingEvaluationNumber;
 
     /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $totalEvaluationNumber;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1222,5 +1229,21 @@ class RoomBuilding implements JsonSerializable
     public function setBuildingEvaluationNumber($buildingEvaluationNumber)
     {
         $this->buildingEvaluationNumber = $buildingEvaluationNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalEvaluationNumber()
+    {
+        return $this->totalEvaluationNumber;
+    }
+
+    /**
+     * @param int $totalEvaluationNumber
+     */
+    public function setTotalEvaluationNumber($totalEvaluationNumber)
+    {
+        $this->totalEvaluationNumber = $totalEvaluationNumber;
     }
 }
