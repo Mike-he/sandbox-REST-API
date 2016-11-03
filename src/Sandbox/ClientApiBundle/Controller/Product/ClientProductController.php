@@ -88,7 +88,7 @@ class ClientProductController extends ProductController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    default="meeting",
+     *    default=null,
      *    nullable=true,
      *    description="room type"
      * )
