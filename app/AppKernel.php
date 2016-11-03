@@ -50,4 +50,23 @@ class AppKernel extends Kernel
     {
         $loader->load(__DIR__.'/config/config_'.$this->getEnvironment().'.yml');
     }
+
+    // for speedup Symfony2 on vagrant box
+//    public function getCacheDir()
+//    {
+//        if (in_array($this->environment, array('dev', 'test'))) {
+//            return '/dev/shm/sandbox-rest-api/cache/' .  $this->environment;
+//        }
+//
+//        return parent::getCacheDir();
+//    }
+//
+//    public function getLogDir()
+//    {
+//        if (in_array($this->environment, array('dev', 'test'))) {
+//            return '/dev/shm/sandbox-rest-api/logs';
+//        }
+//
+//        return parent::getLogDir();
+//    }
 }
