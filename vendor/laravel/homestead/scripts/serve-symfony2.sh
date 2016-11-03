@@ -37,8 +37,8 @@ block="server {
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
 
         fastcgi_intercept_errors off;
-        fastcgi_buffer_size 128k;
-        fastcgi_buffers 16 256k;
+        fastcgi_buffer_size 1280k;
+        fastcgi_buffers 256 2560k;
     }
 
     # PROD
@@ -49,8 +49,8 @@ block="server {
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
 
         fastcgi_intercept_errors off;
-        fastcgi_buffer_size 128k;
-        fastcgi_buffers 16 256k;
+        fastcgi_buffer_size 1280k;
+        fastcgi_buffers 256 2560k;
         internal;
     }
 

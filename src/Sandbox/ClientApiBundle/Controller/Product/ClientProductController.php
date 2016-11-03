@@ -233,6 +233,13 @@ class ClientProductController extends ProductController
                     $includeIds,
                     $excludeIds
             );
+        } elseif (!is_null($buildingId) && !empty($buildingId)) {
+            $productIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getAllProductsForOneBuilding(
+                    $buildingId,
+                    $userId
+                );
         }
 
         if (!is_null($lat) &&

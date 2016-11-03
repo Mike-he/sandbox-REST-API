@@ -36,7 +36,7 @@ class RoomBuildingServices
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=64)
+     * @ORM\Column(name="`key`", type="string", length=64)
      *
      * @Serializer\Groups({"main", "list"})
      */

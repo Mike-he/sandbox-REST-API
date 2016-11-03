@@ -1160,4 +1160,34 @@ class ProductRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $buildingId
+     * @param $userId
+     * @return array
+     */
+    public function getAllProductsForOneBuilding(
+        $buildingId,
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('DISTINCT p.id')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('p.visible = TRUE')
+            ->andWhere('p.isDeleted = FALSE')
+            ->andWhere('r.buildingId = :buildingId')
+            ->setParameter('buildingId', $buildingId)
+        ;
+
+        if (!is_null($userId)) {
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('userId', $userId)
+                ->setParameter('private', false);
+        } else {
+            $query->andWhere('p.private = :private')
+                ->setParameter('private', false);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

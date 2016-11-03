@@ -71,7 +71,7 @@ class RoomCity implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=16, nullable=false)
+     * @ORM\Column(name="`key`", type="string", length=16, nullable=false)
      *
      * @Serializer\Groups({
      *      "main",
