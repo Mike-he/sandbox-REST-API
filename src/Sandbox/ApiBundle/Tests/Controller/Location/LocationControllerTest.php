@@ -77,7 +77,7 @@ class LocationControllerTest extends WebTestCase
 
     public function testGetCommunitiesSearchFirstItemShouldReturnCorrectFieldsAmount()
     {
-        $this->given('shanghai');
+        $this->given('beijing');
 
         $this->performGetCommunitiesSearch(
             $this->entity->getId(),
