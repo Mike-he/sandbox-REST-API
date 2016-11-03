@@ -17,8 +17,8 @@ class Version20161103102232 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql("
-            INSERT INTO `features` (`id`,`name`,`type`,`url`,`ready`,`app`)
-            VALUES(1,'evaluate','web','https://mobile.sandbox3.cn/evaluate',1,'sandbox');
+            INSERT INTO `features` (name`,`type`,`url`,`ready`,`app`)
+            VALUES('evaluate','web','https://mobile.sandbox3.cn/evaluate',1,'sandbox');
         ");
     }
 
