@@ -1,0 +1,24 @@
+<phpunit bootstrap="vendor/autoload.php"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="true"
+         syntaxCheck="false">
+<testsuites for="Json Patch">
+  <testsuite name="unit">
+    <directory>tests/unit/</directory>
+  </testsuite>
+  <testsuite name="integration">
+    <directory>tests/integration/</directory>
+  </testsuite>
+</testsuites>
+<filter>
+  <whitelist>
+    <directory suffix=".php">src/</directory>
+  </whitelist>
+</filter>
+</phpunit>

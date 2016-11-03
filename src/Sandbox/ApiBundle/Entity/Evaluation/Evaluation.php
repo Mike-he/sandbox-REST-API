@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Evaluation;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Evaluation.
@@ -22,6 +23,8 @@ class Evaluation
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $id;
 
@@ -29,6 +32,8 @@ class Evaluation
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $type;
 
@@ -36,6 +41,8 @@ class Evaluation
      * @var float
      *
      * @ORM\Column(name="totalStar", type="float")
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $totalStar;
 
@@ -43,6 +50,8 @@ class Evaluation
      * @var float
      *
      * @ORM\Column(name="serviceStar", type="float")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $serviceStar;
 
@@ -50,6 +59,8 @@ class Evaluation
      * @var float
      *
      * @ORM\Column(name="environmentStar", type="float")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $environmentStar;
 
@@ -57,6 +68,8 @@ class Evaluation
      * @var string
      *
      * @ORM\Column(name="comment", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $comment;
 
@@ -70,6 +83,8 @@ class Evaluation
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $user;
 
@@ -96,6 +111,8 @@ class Evaluation
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Order\ProductOrder")
      * @ORM\JoinColumn(name="productOrderId", referencedColumnName="id", onDelete="SET NULL")
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $productOrder;
 
@@ -110,6 +127,8 @@ class Evaluation
      *      mappedBy="evaluation"
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="evaluationId")
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $evaluationAttachments;
 
@@ -117,6 +136,8 @@ class Evaluation
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $creationDate;
 

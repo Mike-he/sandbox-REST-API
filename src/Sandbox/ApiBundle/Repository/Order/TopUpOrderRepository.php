@@ -19,6 +19,7 @@ class TopUpOrderRepository extends EntityRepository
         $channel,
         $payStart,
         $payEnd,
+        $search,
         $limit,
         $offset
     ) {
@@ -47,6 +48,12 @@ class TopUpOrderRepository extends EntityRepository
                 ->setParameter('payEnd', $payEnd);
         }
 
+        if (!is_null($search) && !empty($search)) {
+            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
+                ->andWhere('o.orderNumber LIKE :search OR up.name LIKE :search')
+                ->setParameter('search', "%$search%");
+        }
+
         $query->setMaxResults($limit)
             ->setFirstResult($offset)
             ->orderBy('o.creationDate', 'DESC');
@@ -64,7 +71,8 @@ class TopUpOrderRepository extends EntityRepository
     public function countTopUpOrdersForAdmin(
         $channel,
         $payStart,
-        $payEnd
+        $payEnd,
+        $search
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('COUNT(o)')
@@ -90,6 +98,12 @@ class TopUpOrderRepository extends EntityRepository
             $payEnd->setTime(23, 59, 59);
             $query->andWhere('o.paymentDate <= :payEnd')
                 ->setParameter('payEnd', $payEnd);
+        }
+
+        if (!is_null($search) && !empty($search)) {
+            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
+                ->andWhere('o.orderNumber LIKE :search OR up.name LIKE :search')
+                ->setParameter('search', "%$search%");
         }
 
         return $query->getQuery()->getSingleScalarResult();

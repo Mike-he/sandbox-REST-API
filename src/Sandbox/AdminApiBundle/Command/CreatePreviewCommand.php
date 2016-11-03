@@ -71,7 +71,7 @@ EOT
         foreach ($roomAttachments as $roomAttachment) {
             $file = $roomAttachment->getContent();
 
-            $filename = str_replace($imgUrl.'/'.$target.'/','',$file);
+            $filename = str_replace($imgUrl.'/'.$target.'/', '', $file);
 
             $srcImg = $dir.'/'.$filename;
 

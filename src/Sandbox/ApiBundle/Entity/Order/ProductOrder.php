@@ -287,7 +287,7 @@ class ProductOrder
      *
      * @ORM\Column(name="productInfo", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
      */
     private $productInfo;
 

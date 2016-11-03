@@ -45,6 +45,8 @@ class EvaluationAttachment
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $content;
 
@@ -52,6 +54,8 @@ class EvaluationAttachment
      * @var string
      *
      * @ORM\Column(name="attachmentType", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $attachmentType;
 
@@ -59,6 +63,8 @@ class EvaluationAttachment
      * @var string
      *
      * @ORM\Column(name="filename", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $filename;
 
@@ -66,6 +72,8 @@ class EvaluationAttachment
      * @var string
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $preview;
 
@@ -73,6 +81,8 @@ class EvaluationAttachment
      * @var string
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_evaluation"})
      */
     private $size;
 
