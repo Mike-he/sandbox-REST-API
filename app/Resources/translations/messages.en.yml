@@ -47,6 +47,7 @@ product_order:
     cnp_u: Domestic Quick Pay
     cnp_f: International Quick Pay
     offline: Offline
+    wx_pub: Wechat Public
   status:
     unpaid: Unpaid
     paid: Paid

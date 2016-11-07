@@ -96,16 +96,6 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb1->setCompany($sc1);
         $this->addReference('room-building-for-data-structure', $rb1);
 
-        $rba1 = new RoomBuildingAttachment();
-        $rba1->setBuilding($rb1);
-        $rba1->setContent('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
-        $rba1->setAttachmentType('jpg');
-        $rba1->setFilename('cover');
-        $rba1->setSize(1024);
-        $rba1->setPreview('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
-        $rba1->setCreationDate($date);
-        $this->addReference('first-attachment-for-building-1', $rba1);
-
         $rb2 = new RoomBuilding();
         $rb2->setCity($rc1);
         $rb2->setName('展想广场2');
@@ -163,6 +153,36 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb4->setModificationDate($date);
         $rb4->setCompany($sc1);
 
+        $rba1 = new RoomBuildingAttachment();
+        $rba1->setBuilding($rb1);
+        $rba1->setContent('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
+        $rba1->setAttachmentType('jpg');
+        $rba1->setFilename('cover');
+        $rba1->setSize(1024);
+        $rba1->setPreview('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
+        $rba1->setCreationDate($date);
+        $this->addReference('first-attachment-for-building-1', $rba1);
+
+        $rba2 = new RoomBuildingAttachment();
+        $rba2->setBuilding($rb1);
+        $rba2->setContent('http://devimage.sandbox3.cn/building/a448-83946f2b8cf4.jpg');
+        $rba2->setAttachmentType('jpg');
+        $rba2->setFilename('cover');
+        $rba2->setSize(1020);
+        $rba2->setPreview('http://devimage.sandbox3.cn/building/49-a448-83946f2b8cf4.jpg');
+        $rba2->setCreationDate($date);
+        $this->addReference('second-attachment-for-building-1', $rba2);
+
+        $rba3 = new RoomBuildingAttachment();
+        $rba3->setBuilding($rb4);
+        $rba3->setContent('http://devimage.sandbox3.cn/building/a3946f2b8cf4.jpg');
+        $rba3->setAttachmentType('jpg');
+        $rba3->setFilename('cover');
+        $rba3->setSize(1023);
+        $rba3->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $rba3->setCreationDate($date);
+        $this->addReference('first-attachment-for-building-4', $rba3);
+
         $manager->persist($rt1);
         $manager->persist($rt2);
 
@@ -182,6 +202,8 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $manager->persist($rb4);
 
         $manager->persist($rba1);
+        $manager->persist($rba2);
+        $manager->persist($rba3);
 
         $manager->flush();
     }
