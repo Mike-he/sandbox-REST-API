@@ -47,6 +47,7 @@ class EvaluationRepository extends EntityRepository
      * @param $minStar
      * @param $maxStar
      * @param $isWithPic
+     * @param $orderId
      *
      * @return array
      */
@@ -57,7 +58,8 @@ class EvaluationRepository extends EntityRepository
         $userId = null,
         $minStar = null,
         $maxStar = null,
-        $isWithPic = null
+        $isWithPic = null,
+        $orderId = null
     ) {
         $query = $this->createQueryBuilder('e')
             ->where('e.visible = TRUE')
@@ -87,6 +89,11 @@ class EvaluationRepository extends EntityRepository
         if (!is_null($isWithPic) && $isWithPic) {
             $query->leftJoin('SandboxApiBundle:Evaluation\EvaluationAttachment', 'et', 'WITH', 'et.evaluationId = e.id')
                 ->andWhere('et.id > 0');
+        }
+
+        if (!is_null($orderId)) {
+            $query->andWhere('e.productOrderId = :orderId')
+                ->setParameter('orderId', $orderId);
         }
 
         $query->orderBy('e.creationDate', 'DESC')
