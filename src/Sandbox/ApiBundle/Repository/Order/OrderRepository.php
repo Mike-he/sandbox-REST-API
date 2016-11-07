@@ -2098,4 +2098,31 @@ class OrderRepository extends EntityRepository
 
         return  $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getRoomBuildingWithOrders(
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('DISTINCT b')
+            ->where('(
+                (o.status = :completed AND o.startDate >= :start AND o.startDate <= :end) OR
+                (o.status = :paid AND o.paymentDate >= :start AND o.paymentDate <= :end)
+            )')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('paid', ProductOrder::STATUS_PAID);
+
+        return  $query->getQuery()->getResult();
+    }
 }

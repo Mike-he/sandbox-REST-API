@@ -850,6 +850,29 @@ class ShopOrderRepository extends EntityRepository
     }
 
     /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getShopWithOrders(
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
+            ->select('DISTINCT s')
+            ->where('o.unoriginal = FALSE')
+            ->andWhere('o.paymentDate IS NOT NULL')
+            ->andWhere('o.paymentDate >= :start')
+            ->andWhere('o.paymentDate <= :end')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param $shop
      * @param $channel
      * @param $startDate
