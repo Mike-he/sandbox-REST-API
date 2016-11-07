@@ -126,7 +126,7 @@ class LocationControllerTest extends WebTestCase
             'total_evaluation_number' => (string) (
                 $roomBuilding->getOrderEvaluationNumber() +
                 $roomBuilding->getBuildingEvaluationNumber()
-            )
+            ),
         ];
 
         $this->assertResponseFirstItemContainsCorrectDataFields($data);
@@ -223,9 +223,9 @@ class LocationControllerTest extends WebTestCase
                                 'id' => $secondSpaceType->getId(),
                                 'name' => $this->getContainer()->get('translator')
                                     ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$secondSpaceType->getName()),
-                            ]
-                        ]
-                    ]
+                            ],
+                        ],
+                    ],
                 ],
             ],
             [
@@ -245,9 +245,9 @@ class LocationControllerTest extends WebTestCase
                                 'name' => 'Stars',
                                 'key' => 'star',
                                 'selected' => false,
-                            ]
-                        ]
-                    ]
+                            ],
+                        ],
+                    ],
                 ],
             ],
             [
@@ -261,14 +261,14 @@ class LocationControllerTest extends WebTestCase
                             [
                                 'id' => $firstBuildingTag->getId(),
                                 'name' => $this->getContainer()->get('translator')
-                                    ->trans(LocationConstants::TRANS_BUILDING_TAG.$firstBuildingTag->getKey())
+                                    ->trans(LocationConstants::TRANS_BUILDING_TAG.$firstBuildingTag->getKey()),
                             ],
                             [
                                 'id' => $secondBuildingTag->getId(),
                                 'name' => $this->getContainer()->get('translator')
-                                    ->trans(LocationConstants::TRANS_BUILDING_TAG.$secondBuildingTag->getKey())
-                            ]
-                        ]
+                                    ->trans(LocationConstants::TRANS_BUILDING_TAG.$secondBuildingTag->getKey()),
+                            ],
+                        ],
                     ],
                     [
                         'type' => 'tag',
@@ -278,17 +278,17 @@ class LocationControllerTest extends WebTestCase
                             [
                                 'id' => $firstBuildingService->getId(),
                                 'name' => $this->getContainer()->get('translator')
-                                    ->trans(LocationConstants::TRANS_BUILDING_SERVICE.$firstBuildingService->getKey())
+                                    ->trans(LocationConstants::TRANS_BUILDING_SERVICE.$firstBuildingService->getKey()),
                             ],
                             [
                                 'id' => $secondBuildingService->getId(),
                                 'name' => $this->getContainer()->get('translator')
-                                    ->trans(LocationConstants::TRANS_BUILDING_SERVICE.$secondBuildingService->getKey())
-                            ]
-                        ]
-                    ]
+                                    ->trans(LocationConstants::TRANS_BUILDING_SERVICE.$secondBuildingService->getKey()),
+                            ],
+                        ],
+                    ],
                 ],
-            ]
+            ],
         ];
     }
 

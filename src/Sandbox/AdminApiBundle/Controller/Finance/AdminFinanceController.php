@@ -67,6 +67,7 @@ class AdminFinanceController extends SandboxRestController
             'upacp',
             'account',
             'offline',
+            'wx_pub',
         );
 
         $year = $paramFetcher->get('year');
@@ -84,7 +85,6 @@ class AdminFinanceController extends SandboxRestController
         $startDate = new \DateTime($startString);
         $startDate->setTime(0, 0, 0);
 
-        //$endDate = clone $startDate;
         $endString = $startDate->format('Y-m-t');
         $endDate = new \DateTime($endString);
         $endDate->setTime(23, 59, 59);
@@ -93,19 +93,20 @@ class AdminFinanceController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->findAll();
 
-        $sales = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->findAll();
 
         $data = array();
 
         foreach ($channels as $channel) {
-            $companyArray = array();
+            $buildingArray = array();
             $shopArray = array();
 
-            foreach ($sales as $sale) {
-                $salesName = $sale->getName();
-                $salesId = $sale->getId();
+            foreach ($buildings as $building) {
+                $cityName = $building->getCity()->getName();
+                $buildingName = $cityName.$building->getName();
+                $buildingId = $building->getId();
 
                 $typeArray = array();
 
@@ -116,7 +117,7 @@ class AdminFinanceController extends SandboxRestController
                         ->getRepository('SandboxApiBundle:Order\ProductOrder')
                         ->sumOrdersByType(
                             $channel,
-                            $salesId,
+                            $buildingId,
                             $typeName,
                             $startDate,
                             $endDate,
@@ -131,7 +132,7 @@ class AdminFinanceController extends SandboxRestController
                         ->getRepository('SandboxApiBundle:Order\ProductOrder')
                         ->sumOrdersByType(
                             $channel,
-                            $salesId,
+                            $buildingId,
                             $typeName,
                             $startDate,
                             $endDate,
@@ -151,12 +152,12 @@ class AdminFinanceController extends SandboxRestController
                     array_push($typeArray, $sumArray);
                 }
 
-                $companies = array(
-                    'company_name' => $salesName,
+                $buildingInfo = array(
+                    'building_name' => $buildingName,
                     'room_type' => $typeArray,
                 );
 
-                array_push($companyArray, $companies);
+                array_push($buildingArray, $buildingInfo);
             }
 
             $shops = $this->getDoctrine()
@@ -193,7 +194,7 @@ class AdminFinanceController extends SandboxRestController
 
             $channelArray = array(
                 'channel_name' => $channel,
-                'company' => $companyArray,
+                'building' => $buildingArray,
                 'shop' => $shopArray,
             );
 
@@ -644,7 +645,7 @@ class AdminFinanceController extends SandboxRestController
 
         $y = 0;
 
-        foreach ($data['company'] as $companyItem) {
+        foreach ($data['building'] as $companyItem) {
             $column = 'A';
             $companySum = 0;
             $companySumTaxFree = 0;
@@ -729,7 +730,7 @@ class AdminFinanceController extends SandboxRestController
                 ->getRight()
                 ->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
 
-            $phpExcelObject->getActiveSheet()->setCellValue("A$currentRow", $companyItem['company_name']);
+            $phpExcelObject->getActiveSheet()->setCellValue("A$currentRow", $companyItem['building_name']);
             $phpExcelObject->getActiveSheet()
                 ->getStyle("A$currentRow")
                 ->getAlignment()

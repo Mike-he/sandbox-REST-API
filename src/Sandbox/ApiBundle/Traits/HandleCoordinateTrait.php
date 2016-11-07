@@ -5,12 +5,12 @@ namespace Sandbox\ApiBundle\Traits;
 trait HandleCoordinateTrait
 {
     /**
-     * @param double $firstLatitude
-     * @param double $firstLongitude
-     * @param double $secondLatitude
-     * @param double $secondLongitude
+     * @param float $firstLatitude
+     * @param float $firstLongitude
+     * @param float $secondLatitude
+     * @param float $secondLongitude
      *
-     * @return double distance in kilometers
+     * @return float distance in kilometers
      */
     public function calculateDistanceBetweenCoordinates(
         $firstLatitude,

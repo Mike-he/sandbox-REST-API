@@ -2052,7 +2052,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $channel
-     * @param $salesId
+     * @param $buildingId
      * @param $typeName
      * @param $startDate
      * @param $endDate
@@ -2065,7 +2065,7 @@ class OrderRepository extends EntityRepository
      */
     public function sumOrdersByType(
         $channel,
-        $salesId,
+        $buildingId,
         $typeName,
         $startDate,
         $endDate,
@@ -2077,18 +2077,24 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->select('SUM(o.discountPrice)')
             ->where('o.status = :status')
-            ->andWhere('o.startDate >= :start')
-            ->andWhere('o.startDate <= :end')
             ->andWhere('o.payChannel = :payChannel')
-            ->andWhere('b.companyId = :companyId')
+            ->andWhere('b.id = :buildingId')
             ->andWhere('r.type = :type')
             ->setParameter('type', $typeName)
-            ->setParameter('companyId', $salesId)
+            ->setParameter('buildingId', $buildingId)
             ->setParameter('payChannel', $channel)
-            ->setParameter('status', $status)
-            ->setParameter('start', $startDate)
-            ->setParameter('end', $endDate)
-        ;
+            ->setParameter('status', $status);
+
+        if ($status == ProductOrder::STATUS_COMPLETED) {
+            $query->andWhere('o.startDate >= :start')
+                    ->andWhere('o.startDate <= :end');
+        } else {
+            $query->andWhere('o.paymentDate >= :start')
+                    ->andWhere('o.paymentDate <= :end');
+        }
+
+        $query->setParameter('start', $startDate)
+                ->setParameter('end', $endDate);
 
         return  $query->getQuery()->getSingleScalarResult();
     }

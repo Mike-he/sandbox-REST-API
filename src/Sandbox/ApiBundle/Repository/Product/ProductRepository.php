@@ -1164,6 +1164,7 @@ class ProductRepository extends EntityRepository
     /**
      * @param $buildingId
      * @param $userId
+     *
      * @return array
      */
     public function getAllProductsForOneBuilding(
