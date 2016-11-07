@@ -190,6 +190,13 @@ class ClientEvaluationController extends EvaluationController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *     name="order_id",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
@@ -219,6 +226,7 @@ class ClientEvaluationController extends EvaluationController
         ParamFetcherInterface $paramFetcher
     ) {
         $userId = $this->getUserId();
+        $orderId = $paramFetcher->get('order_id');
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -229,7 +237,11 @@ class ClientEvaluationController extends EvaluationController
                 $limit,
                 $offset,
                 null,
-                $userId
+                $userId,
+                null,
+                null,
+                null,
+                $orderId
             );
 
         $view = new View($evaluations);
