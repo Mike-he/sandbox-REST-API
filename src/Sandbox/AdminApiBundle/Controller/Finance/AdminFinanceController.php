@@ -94,8 +94,18 @@ class AdminFinanceController extends SandboxRestController
             ->findAll();
 
         $buildings = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->findAll();
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRoomBuildingWithOrders(
+                $startDate,
+                $endDate
+            );
+
+        $shops = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->getShopWithOrders(
+                $startDate,
+                $endDate
+            );
 
         $data = array();
 
@@ -159,10 +169,6 @@ class AdminFinanceController extends SandboxRestController
 
                 array_push($buildingArray, $buildingInfo);
             }
-
-            $shops = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Shop\Shop')
-                ->findAll();
 
             foreach ($shops as $shop) {
                 $paid = $this->getDoctrine()

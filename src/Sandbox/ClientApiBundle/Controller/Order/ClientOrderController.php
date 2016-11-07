@@ -1027,6 +1027,14 @@ class ClientOrderController extends OrderController
                             $price,
                             $order->getOrderNumber()
                         );
+
+                        $orderNumber = $this->getOrderNumber(self::TOPUP_ORDER_LETTER_HEAD);
+                        $this->setTopUpOrder(
+                            $userId,
+                            $price,
+                            $orderNumber,
+                            $channel
+                        );
                     }
                 }
             }

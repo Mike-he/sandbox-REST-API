@@ -26,8 +26,6 @@ use FOS\RestBundle\Controller\Annotations\Post;
  */
 class ClientTopUpOrderController extends PaymentController
 {
-    const TOPUP_ORDER_LETTER_HEAD = 'T';
-
     /**
      * Get all orders for current user.
      *
