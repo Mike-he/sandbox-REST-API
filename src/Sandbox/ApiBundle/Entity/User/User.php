@@ -152,18 +152,6 @@ class User implements UserInterface
     private $customerId;
 
     /**
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\User\UserProfile",
-     *      mappedBy="user"
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="userId")
-     *
-     *
-     * @Serializer\Groups({"main", "client_evaluation"})
-     */
-    private $userProfile;
-
-    /**
      * Get id.
      *
      * @return int
@@ -538,21 +526,5 @@ class User implements UserInterface
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUserProfile()
-    {
-        return $this->userProfile;
-    }
-
-    /**
-     * @param mixed $userProfile
-     */
-    public function setUserProfile($userProfile)
-    {
-        $this->userProfile = $userProfile;
     }
 }

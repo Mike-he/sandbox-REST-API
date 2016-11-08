@@ -60,7 +60,7 @@ class UserToken
 
     /**
      * @ORM\ManyToOne(targetEntity="UserClient", inversedBy="tokens")
-     * @ORM\JoinColumn(name="clientId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="clientId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $client;
 
