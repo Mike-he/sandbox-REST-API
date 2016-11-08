@@ -92,6 +92,7 @@ class OrderController extends PaymentController
             $user = $this->getRepo('User\User')->find($userId);
 
             $paymentChannel = $order->getPayChannel();
+            $refundChannel = $order->getRefundTo();
             if (!is_null($paymentChannel) && !empty($paymentChannel)) {
                 $paymentChannel = $this->get('translator')->trans(
                     ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
@@ -99,6 +100,21 @@ class OrderController extends PaymentController
                     null,
                     $language
                 );
+
+                if ($statusKey == ProductOrder::STATUS_CANCELLED) {
+                    if (is_null($refundChannel)) {
+                        $refundChannel = ProductOrder::REFUND_TO_ORIGIN;
+                    } else {
+                        $refundChannel = ProductOrder::REFUND_TO_ACCOUNT;
+                    }
+
+                    $refundChannel = $this->get('translator')->trans(
+                        ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_TO.$refundChannel,
+                        array(),
+                        null,
+                        $language
+                    );
+                }
             }
 
             $orderType = $order->getType();
@@ -127,6 +143,7 @@ class OrderController extends PaymentController
                 ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
                 ProductOrderExport::ORDER_STATUS => $status,
+                ProductOrderExport::REFUND_TO => $refundChannel,
                 ProductOrderExport::USER_PHONE => $user->getPhone(),
                 ProductOrderExport::USER_EMAIL => $user->getEmail(),
                 ProductOrderExport::PAYMENT_CHANNEL => $paymentChannel,
@@ -149,6 +166,7 @@ class OrderController extends PaymentController
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_TO, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_PHONE, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),

@@ -3,7 +3,6 @@
 namespace Sandbox\ClientApiBundle\Controller\Evaluation;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
@@ -414,9 +413,10 @@ class ClientEvaluationController extends EvaluationController
 
     /**
      * @param Evaluation $evaluation
+     *
      * @return array
      */
-    private function buildDataConstruct (
+    private function buildDataConstruct(
         $evaluation
     ) {
         $userProfile = $this->getDoctrine()
