@@ -28,6 +28,7 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_STATUS = 'product_order.status.';
     const TRANS_PRODUCT_ORDER_CHANNEL = 'product_order.channel.';
     const TRANS_PRODUCT_ORDER_TYPE = 'product_order.order_type.';
+    const TRANS_PRODUCT_ORDER_REFUND_TO = 'product_order.refund_to.';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_NO = 'product_order.export_header.order_number';
     const TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME = 'product_order.export_header.product_name';
     const TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE = 'product_order.export_header.type';
