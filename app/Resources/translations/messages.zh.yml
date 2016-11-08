@@ -53,6 +53,9 @@ product_order:
     paid: 已付款
     completed: 已完成
     cancelled: 已取消
+  refund_to:
+    account: 退回余额
+    origin: 原路返回
   order_type:
     user: 用户下单
     preorder: 后台预定
@@ -70,6 +73,7 @@ product_order:
     order_time: 创建时间
     payment_time: 付款时间
     status: 订单状态
+    refund_to: 退款路径
     phone: 租赁人手机
     email: 租赁人邮箱
     channel: 支付渠道
