@@ -1028,6 +1028,8 @@ class ClientOrderController extends OrderController
                             $order->getOrderNumber()
                         );
 
+                        $order->setRefundTo(ProductOrder::REFUND_TO_ACCOUNT);
+
                         $orderNumber = $this->getOrderNumber(self::TOPUP_ORDER_LETTER_HEAD);
                         $this->setTopUpOrder(
                             $userId,

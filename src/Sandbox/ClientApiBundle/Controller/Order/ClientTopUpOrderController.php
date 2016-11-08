@@ -31,7 +31,7 @@ class ClientTopUpOrderController extends PaymentController
      *
      * @Get("/topup/orders/my")
      *
-     *@Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
@@ -80,14 +80,31 @@ class ClientTopUpOrderController extends PaymentController
     /**
      * @Post("/topup/orders")
      *
-     * @param Request $request
+     * @Annotations\QueryParam(
+     *    name="price",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="top up price"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      */
     public function payTopUpAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
         $requestContent = json_decode($request->getContent(), true);
-        $price = $requestContent['price'];
         $channel = $requestContent['channel'];
+
+        if (!array_key_exists('price', $requestContent)) {
+            $price = $paramFetcher->get('price');
+        } else {
+            $price = $requestContent['price'];
+        }
+
         $token = '';
         $smsId = '';
         $smsCode = '';

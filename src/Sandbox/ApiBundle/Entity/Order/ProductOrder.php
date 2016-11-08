@@ -54,6 +54,9 @@ class ProductOrder
     const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';
 
+    const REFUND_TO_ACCOUNT = 'account';
+    const REFUND_TO_ORIGIN = 'origin';
+
     /**
      * @var int
      *
@@ -439,6 +442,39 @@ class ProductOrder
      * @Serializer\Groups({"main", "client"})
      */
     private $hasEvaluated = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="refundTo", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $refundTo;
+
+    /**
+     * Set refundTo.
+     *
+     * @param string $refundTo
+     *
+     * @return ProductOrder
+     */
+    public function setRefundTo($refundTo)
+    {
+        $this->refundTo = $refundTo;
+
+        return $this;
+    }
+
+    /**
+     * Get refundTo.
+     *
+     * @return string
+     */
+    public function getRefundTo()
+    {
+        return $this->refundTo;
+    }
 
     /**
      * Set transfer.
