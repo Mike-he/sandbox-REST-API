@@ -179,10 +179,14 @@ class ClientEvaluationController extends EvaluationController
                 $isWithPic
             );
 
-        $view = new View($evaluations);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_evaluation']));
+        $response = array();
+        foreach ($evaluations as $evaluation) {
+            $data = $this->buildDataConstruct($evaluation);
 
-        return $view;
+            array_push($response, $data);
+        }
+
+        return new View($response);
     }
 
     /**
@@ -244,10 +248,14 @@ class ClientEvaluationController extends EvaluationController
                 $orderId
             );
 
-        $view = new View($evaluations);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_evaluation']));
+        $response = array();
+        foreach ($evaluations as $evaluation) {
+            $data = $this->buildDataConstruct($evaluation);
 
-        return $view;
+            array_push($response, $data);
+        }
+
+        return new View($response);
     }
 
     /**
@@ -402,5 +410,47 @@ class ClientEvaluationController extends EvaluationController
                 $em->persist($evaluationAttachemnt);
             }
         }
+    }
+
+    /**
+     * @param Evaluation $evaluation
+     * @return array
+     */
+    private function buildDataConstruct (
+        $evaluation
+    ) {
+        $userProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findOneBy(array(
+                'user' => $evaluation->getUser(),
+            ));
+        $userName = !is_null($userProfile) ? $userProfile->getName() : null;
+
+        $data = [
+            'id' => $evaluation->getId(),
+            'type' => $evaluation->getType(),
+            'total' => $evaluation->getTotalStar(),
+            'comment' => $evaluation->getComment(),
+            'user' => [
+                'id' => $evaluation->getUser()->getId(),
+                'name' => $userName,
+            ],
+            'creation_date' => $evaluation->getCreationDate()->format('Y-m-d H:i:s'),
+        ];
+
+        $attachments = $evaluation->getEvaluationAttachments();
+        $attachmentsArray = array();
+        foreach ($attachments as $attachment) {
+            array_push($attachmentsArray, array(
+                'content' => $attachment->getContent(),
+                'attachment_type' => $attachment->getAttachmentType(),
+                'filename' => $attachment->getFilename(),
+                'size' => $attachment->getSize(),
+            ));
+        }
+
+        $data = array_merge($data, array('evaluation_attachments' => $attachmentsArray));
+
+        return $data;
     }
 }

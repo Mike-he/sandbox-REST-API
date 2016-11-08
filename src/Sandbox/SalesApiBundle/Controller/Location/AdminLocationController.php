@@ -176,7 +176,7 @@ class AdminLocationController extends SalesRestController
         // get buildings by admin type
         if ($isSuperAdmin ||
             in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray) ||
-            in_array(AdminPermission::KEY_SALES_BUILDING_USER, $permissionArray)
+            in_array(AdminPermission::KEY_SALES_PLATFORM_BUILDING, $permissionArray)
         ) {
             $buildings = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
