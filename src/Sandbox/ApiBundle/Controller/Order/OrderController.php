@@ -109,7 +109,7 @@ class OrderController extends PaymentController
                     }
 
                     $refundChannel = $this->get('translator')->trans(
-                        ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_TO.$refundChannel,
+                        ProductOrderExport::TRANS_PRODUCT_ORDER_REFUND_TO.$refundChannel,
                         array(),
                         null,
                         $language
