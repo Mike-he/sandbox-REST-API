@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
+use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -34,6 +35,8 @@ use Sandbox\ApiBundle\Constants\LocationConstants;
  */
 class LocationController extends SalesRestController
 {
+    use HandleCoordinateTrait;
+
     /**
      * @Get("/cities")
      *
@@ -468,15 +471,40 @@ class LocationController extends SalesRestController
     /**
      * @Get("/buildings/{id}")
      *
-     * @param Request $request
+     * @Annotations\QueryParam(
+     *    name="lat",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="latitude"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lng",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="longitude"
+     * )
+     *
+     * @param ParamFetcherInterface $paramFetcher
+     * @param Request               $request
      * @param $id
      *
      * @return View
      */
     public function getOneBuildingAction(
+        ParamFetcherInterface $paramFetcher,
         Request $request,
         $id
     ) {
+        $lat = $paramFetcher->get('lat');
+        $lng = $paramFetcher->get('lng');
+
         $building = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->find($id);
@@ -497,6 +525,21 @@ class LocationController extends SalesRestController
 
         $totalEvaluationNumber = $building->getOrderEvaluationNumber() + $building->getBuildingEvaluationNumber();
         $building->setTotalEvaluationNumber($totalEvaluationNumber);
+
+        // 0 means user disable location
+        if ($lat != 0 && $lng != 0) {
+            $distance = $this->calculateDistanceBetweenCoordinates(
+                $lat,
+                $lng,
+                $building->getLat(),
+                $building->getLng()
+            );
+            $building->setDistance($distance);
+        }
+
+        $roomWithProductNumber = $this->getRepo('Product\Product')
+            ->countRoomsWithProductByBuilding($building->getId());
+        $building->setRoomWithProductNumber((int) $roomWithProductNumber);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));

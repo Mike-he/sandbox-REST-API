@@ -456,6 +456,22 @@ class RoomBuilding implements JsonSerializable
     private $totalEvaluationNumber;
 
     /**
+     * @var float
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $distance;
+
+    /**
+     * it's a number for client side, total rooms with products.
+     *
+     * @var int
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $roomWithProductNumber;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1245,5 +1261,37 @@ class RoomBuilding implements JsonSerializable
     public function setTotalEvaluationNumber($totalEvaluationNumber)
     {
         $this->totalEvaluationNumber = $totalEvaluationNumber;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDistance()
+    {
+        return $this->distance;
+    }
+
+    /**
+     * @param float $distance
+     */
+    public function setDistance($distance)
+    {
+        $this->distance = $distance;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRoomWithProductNumber()
+    {
+        return $this->roomWithProductNumber;
+    }
+
+    /**
+     * @param int $roomWithProductNumber
+     */
+    public function setRoomWithProductNumber($roomWithProductNumber)
+    {
+        $this->roomWithProductNumber = $roomWithProductNumber;
     }
 }

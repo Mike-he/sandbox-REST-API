@@ -390,32 +390,47 @@ class RoomBuildingRepository extends EntityRepository
                 ->setParameter('query', '%'.$queryText.'%');
         }
 
-        $buildingsQuery->select('
-            rb.id,
-            rb.name,
-            (6371
-                * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
-                * cos(radians(rb.lng) - radians(:longitude))
-                + sin(radians(:latitude)) * sin(radians(rb.lat)))
-            ) as distance,
-            rb.evaluationStar as evaluation_star,
-            rb.avatar,
-            rb.lat,
-            rb.lng,
-            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_evaluation_number
-        ')
-        ->setParameter('latitude', $lat)
-        ->setParameter('longitude', $lng);
+        // 0 means user disable location
+        if ($lat == 0 && $lng == 0) {
+            $buildingsQuery->select('
+                rb.id,
+                rb.name,
+                rb.evaluationStar as evaluation_star,
+                rb.avatar,
+                rb.lat,
+                rb.lng,
+                (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_evaluation_number
+            ');
 
-        // sort by distance and evaluation
-        switch ($sortBy) {
-            case 'smart':
-                break;
-            case 'star':
-                $buildingsQuery->orderBy('rb.evaluationStar', 'DESC');
-                break;
-            default:
-                $buildingsQuery->orderBy('distance', 'ASC');
+            $buildingsQuery->orderBy('rb.evaluationStar', 'DESC');
+        } else {
+            $buildingsQuery->select('
+                rb.id,
+                rb.name,
+                (6371
+                    * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
+                    * cos(radians(rb.lng) - radians(:longitude))
+                    + sin(radians(:latitude)) * sin(radians(rb.lat)))
+                ) as distance,
+                rb.evaluationStar as evaluation_star,
+                rb.avatar,
+                rb.lat,
+                rb.lng,
+                (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_evaluation_number
+            ')
+            ->setParameter('latitude', $lat)
+            ->setParameter('longitude', $lng);
+
+            // sort by distance and evaluation
+            switch ($sortBy) {
+                case 'smart':
+                    break;
+                case 'star':
+                    $buildingsQuery->orderBy('rb.evaluationStar', 'DESC');
+                    break;
+                default:
+                    $buildingsQuery->orderBy('distance', 'ASC');
+            }
         }
 
         // filter the companies we don't want to show
