@@ -1115,6 +1115,24 @@ class ProductRepository extends EntityRepository
     }
 
     /**
+     * @param $building
+     *
+     * @return int
+     */
+    public function countRoomsWithProductByBuilding(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('count(distinct r.id)')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->where('r.building = :building')
+            ->andWhere('p.isDeleted = FALSE')
+            ->setParameter('building', $building);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
      * @param $lat
      * @param $lng
      * @param $productIds
