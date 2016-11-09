@@ -981,6 +981,10 @@ class ClientOrderController extends OrderController
                     $order->setModificationDate(new \DateTime());
                 } else {
                     $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+
+                    if ($refundChannel == ProductOrder::CHANNEL_ACCOUNT) {
+                        $order->setRefundTo(ProductOrder::REFUND_TO_ACCOUNT);
+                    }
                 }
             } else {
                 $order->setStatus(ProductOrder::STATUS_CANCELLED);
