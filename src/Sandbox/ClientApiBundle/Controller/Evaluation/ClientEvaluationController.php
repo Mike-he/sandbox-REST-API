@@ -435,7 +435,7 @@ class ClientEvaluationController extends EvaluationController
                 'id' => $evaluation->getUser()->getId(),
                 'name' => $userName,
             ],
-            'creation_date' => $evaluation->getCreationDate()->format('Y-m-d H:i:s'),
+            'creation_date' => $evaluation->getCreationDate(),
         ];
 
         $attachments = $evaluation->getEvaluationAttachments();
