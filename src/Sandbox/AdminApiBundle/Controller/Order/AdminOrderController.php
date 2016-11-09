@@ -347,6 +347,14 @@ class AdminOrderController extends OrderController
                 $order->setPaymentDate($now);
                 $order->setModificationDate($now);
 
+                $balance = $this->postBalanceChange(
+                    $order->getUserId(),
+                    0,
+                    $order->getOrderNumber(),
+                    $order->getPayChannel(),
+                    $order->getDiscountPrice()
+                );
+
                 break;
             case OrderOfflineTransfer::STATUS_RETURNED:
                 if ($oldStatus != OrderOfflineTransfer::STATUS_PENDING) {
