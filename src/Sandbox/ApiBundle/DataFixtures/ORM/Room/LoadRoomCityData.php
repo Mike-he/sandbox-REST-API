@@ -5,13 +5,7 @@ namespace Sandbox\ApiBundle\DataFixtures\ORM\Room;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
-use Sandbox\ApiBundle\Entity\Room\RoomTypes;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
 class LoadRoomCityData extends AbstractFixture implements OrderedFixtureInterface
 {

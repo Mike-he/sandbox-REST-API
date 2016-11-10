@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
