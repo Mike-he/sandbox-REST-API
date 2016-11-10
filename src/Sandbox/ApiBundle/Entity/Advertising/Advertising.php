@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Advertising;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Advertising.
@@ -92,6 +93,7 @@ class Advertising
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
      *
      * @Serializer\Groups({"main"})
@@ -101,6 +103,7 @@ class Advertising
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modificationDate", type="datetime")
      *
      * @Serializer\Groups({"main"})

@@ -296,7 +296,9 @@ class AdminAdvertisingController extends AdvertisingController
         $this->throwNotFoundIfNull($advertising, self::NOT_FOUND_MESSAGE);
 
         if ($advertising->getIsDefault() == false) {
-            $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\AdvertisingAttachment')->findByAdvertising($advertising);
+            $attachments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Advertising\AdvertisingAttachment')
+                ->findByAdvertising($advertising);
 
             foreach ($attachments as $attachment) {
                 $em->remove($attachment);
@@ -321,8 +323,6 @@ class AdminAdvertisingController extends AdvertisingController
         $attachments = $advertising->getAttachments();
         $visible = $advertising->getVisible();
 
-        $now = new \DateTime('now');
-
         if ($visible == true) {
             $advertising->setVisible(true);
             $advertising->setIsSaved(false);
@@ -333,8 +333,6 @@ class AdminAdvertisingController extends AdvertisingController
             $advertising->setIsSaved(true);
         }
 
-        $advertising->setCreationDate($now);
-        $advertising->setModificationDate($now);
         $em->persist($advertising);
 
         $this->addAdvertisingAttachments(
@@ -363,8 +361,6 @@ class AdminAdvertisingController extends AdvertisingController
         $attachments = $advertising->getAttachments();
         $visible = $advertising->getVisible();
 
-        $now = new \DateTime('now');
-
         if ($visible == true) {
             $advertising->setVisible(true);
             $advertising->setIsSaved(false);
@@ -374,8 +370,6 @@ class AdminAdvertisingController extends AdvertisingController
             $advertising->setVisible(false);
             $advertising->setIsSaved(true);
         }
-
-        $advertising->setModificationDate($now);
 
         $this->modifyAdvertisingAttachments(
             $advertising,
@@ -450,7 +444,9 @@ class AdminAdvertisingController extends AdvertisingController
     ) {
         $em = $this->getDoctrine()->getManager();
 
-        $attach = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\AdvertisingAttachment')->findByAdvertising($advertising);
+        $attach = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Advertising\AdvertisingAttachment')
+            ->findByAdvertising($advertising);
         foreach ($attach as $att) {
             $em->remove($att);
         }
