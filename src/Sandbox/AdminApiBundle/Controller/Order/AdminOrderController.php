@@ -1208,6 +1208,7 @@ class AdminOrderController extends OrderController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
