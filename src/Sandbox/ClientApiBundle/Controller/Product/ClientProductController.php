@@ -262,6 +262,11 @@ class ClientProductController extends ProductController
             }
         }
 
+        foreach ($products as $product) {
+            $unitPrice = $this->get('translator')->trans('room.unit.'.$product->getUnitPrice());
+            $product->setUnitPrice($unitPrice);
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($products);

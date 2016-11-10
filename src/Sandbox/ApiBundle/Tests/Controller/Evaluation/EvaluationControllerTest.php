@@ -4,8 +4,6 @@ namespace Sandbox\ApiBundle\Tests\Controller;
 
 use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Sandbox\ApiBundle\Constants\LocationConstants;
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Tests\Traits\CommonTestsUtilsTrait;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 
@@ -41,7 +39,7 @@ class EvaluationControllerTest extends WebTestCase
     }
 
     /**
-     * Get Client Evaluations Without Authentication Should Work
+     * Get Client Evaluations Without Authentication Should Work.
      */
     public function testGetClientEvaluationsWithoutAuthenticationShouldWork()
     {
@@ -54,7 +52,7 @@ class EvaluationControllerTest extends WebTestCase
     }
 
     /**
-     * Get Client Evaluations Should Return Correct Fields Amount
+     * Get Client Evaluations Should Return Correct Fields Amount.
      */
     public function testGetClientEvaluationsShouldReturnCorrectFieldsAmount()
     {
@@ -95,7 +93,8 @@ class EvaluationControllerTest extends WebTestCase
         $this->performGET('/client/evaluations?building='.$buildingId);
     }
 
-    private function performGetMyEvaluation() {
+    private function performGetMyEvaluation()
+    {
         $this->performGET('/client/evaluations/my');
     }
 

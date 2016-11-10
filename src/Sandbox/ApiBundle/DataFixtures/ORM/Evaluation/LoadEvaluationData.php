@@ -7,13 +7,6 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
-use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
-use Sandbox\ApiBundle\Entity\Room\RoomCity;
-use Sandbox\ApiBundle\Entity\Room\RoomTypes;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
 class LoadEvaluationData extends AbstractFixture implements OrderedFixtureInterface
 {
