@@ -347,7 +347,7 @@ class RoomBuildingRepository extends EntityRepository
                     'WITH',
                     'rb.id = rbb.building'
                 )
-                ->andWhere('rbb.id IN (:spaceTypes)')
+                ->andWhere('rbb.type IN (:spaceTypes)')
                 ->setParameter('spaceTypes', $roomTypes);
         }
 
@@ -360,7 +360,7 @@ class RoomBuildingRepository extends EntityRepository
                     'WITH',
                     'rb.id = rbt.building'
                 )
-                ->andWhere('rbt.id IN (:buildingTags)')
+                ->andWhere('rbt.tag IN (:buildingTags)')
                 ->setParameter('buildingTags', $buildingTags);
         }
 
@@ -373,7 +373,7 @@ class RoomBuildingRepository extends EntityRepository
                     'WITH',
                     'rb.id = rbs.building'
                 )
-                ->andWhere('rbs.id IN (:buildingServices)')
+                ->andWhere('rbs.service IN (:buildingServices)')
                 ->setParameter('buildingServices', $buildingServices);
         }
 
