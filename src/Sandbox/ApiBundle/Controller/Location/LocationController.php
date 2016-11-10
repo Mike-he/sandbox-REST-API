@@ -892,7 +892,7 @@ class LocationController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="lat",
      *    array=false,
-     *    default=null,
+     *    default=0,
      *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -902,7 +902,7 @@ class LocationController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="lng",
      *    array=false,
-     *    default=null,
+     *    default=0,
      *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
