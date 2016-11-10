@@ -29,6 +29,7 @@ class LocationControllerTest extends WebTestCase
         $this->client = static::createClient();
 
         $fixtures = [
+            'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Location\LoadLocationData',
         ];
 
