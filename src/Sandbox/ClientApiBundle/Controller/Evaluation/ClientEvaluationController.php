@@ -426,6 +426,9 @@ class ClientEvaluationController extends EvaluationController
             ));
         $userName = !is_null($userProfile) ? $userProfile->getName() : null;
 
+        $productOrder = $evaluation->getProductOrder();
+        $productOrderRoomName = !is_null($productOrder) ? $productOrder->getProduct()->getRoom()->getName() : null;
+
         $data = [
             'id' => $evaluation->getId(),
             'type' => $evaluation->getType(),
@@ -435,6 +438,7 @@ class ClientEvaluationController extends EvaluationController
                 'id' => $evaluation->getUser()->getId(),
                 'name' => $userName,
             ],
+            'room_name' => $productOrderRoomName,
             'creation_date' => $evaluation->getCreationDate(),
         ];
 
