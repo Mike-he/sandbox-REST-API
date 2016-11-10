@@ -12,7 +12,6 @@ class LoadAdvertisingData extends AbstractFixture implements OrderedFixtureInter
 {
     public function load(ObjectManager $manager)
     {
-
         $ad = new Advertising();
         $ad->setSource('url');
         $ad->setVisible(true);
