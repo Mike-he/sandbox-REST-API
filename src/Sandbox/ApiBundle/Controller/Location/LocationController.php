@@ -570,7 +570,9 @@ class LocationController extends SalesRestController
     ) {
         // set floor numbers
         $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
-        $building->setFloors($floors);
+        if ($floors) {
+            $building->setFloors($floors);
+        }
 
         // set building attachments
         $buildingAttachments = $this->getRepo('Room\RoomBuildingAttachment')->findByBuilding($building);
