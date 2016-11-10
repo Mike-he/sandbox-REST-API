@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Product;
 
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
@@ -263,8 +264,12 @@ class ClientProductController extends ProductController
         }
 
         foreach ($products as $product) {
-            $unitPrice = $this->get('translator')->trans('room.unit.'.$product->getUnitPrice());
+            $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
             $product->setUnitPrice($unitPrice);
+
+            $room = $product->getRoom();
+            $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
+            $room->setType($roomType);
         }
 
         $view = new View();
