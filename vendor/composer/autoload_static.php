@@ -52,6 +52,7 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             'Symfony\\Bridge\\ProxyManager\\' => 28,
             'Symfony\\Bridge\\Monolog\\' => 23,
             'Symfony\\Bridge\\Doctrine\\' => 24,
+            'Stof\\DoctrineExtensionsBundle\\' => 30,
         ),
         'P' => 
         array (
@@ -189,6 +190,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'Symfony\\Bridge\\Doctrine\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/symfony/src/Symfony/Bridge/Doctrine',
+        ),
+        'Stof\\DoctrineExtensionsBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stof/doctrine-extensions-bundle',
         ),
         'Psr\\Log\\' => 
         array (
@@ -415,6 +420,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             array (
                 0 => __DIR__ . '/..' . '/guzzle/guzzle/src',
             ),
+            'Gedmo\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/gedmo/doctrine-extensions/lib',
+            ),
         ),
         'F' => 
         array (
@@ -460,6 +469,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         ),
         'B' => 
         array (
+            'Behat\\Transliterator' => 
+            array (
+                0 => __DIR__ . '/..' . '/behat/transliterator/src',
+            ),
             'Bazinga\\Bundle\\HateoasBundle' => 
             array (
                 0 => __DIR__ . '/..' . '/willdurand/hateoas-bundle',
