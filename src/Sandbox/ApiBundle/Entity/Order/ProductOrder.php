@@ -91,7 +91,7 @@ class ProductOrder
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_detail", "current_order", "client"})
      */
     private $userId;
 
