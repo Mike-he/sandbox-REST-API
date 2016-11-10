@@ -474,7 +474,7 @@ class LocationController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="lat",
      *    array=false,
-     *    default=null,
+     *    default=0,
      *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -484,7 +484,7 @@ class LocationController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="lng",
      *    array=false,
-     *    default=null,
+     *    default=0,
      *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -517,9 +517,19 @@ class LocationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->getPresentRoomTypes($building);
 
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => 'quick_booking'));
+
+        $tmpUrl = $parameter->getValue().'buildingid='.$building->getId().'&btype=';
+        $lang = $this->get('request')->getLocale();
+
         foreach ($types as $type) {
             $typeText = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type->getName());
             $type->setDescription($typeText);
+
+            $url = $tmpUrl.$type->getName().'&lang='.$lang;
+            $type->setQuickBookingUrl($url);
         }
         $building->setBuildingRoomTypes($types);
 
@@ -560,7 +570,9 @@ class LocationController extends SalesRestController
     ) {
         // set floor numbers
         $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
-        $building->setFloors($floors);
+        if ($floors) {
+            $building->setFloors($floors);
+        }
 
         // set building attachments
         $buildingAttachments = $this->getRepo('Room\RoomBuildingAttachment')->findByBuilding($building);
@@ -625,18 +637,6 @@ class LocationController extends SalesRestController
             $tag->getTag()->setName($serviceText);
         }
         $building->setBuildingTags($tags);
-
-        //set building rooms types
-        $roomTypes = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuildingTypeBinding')
-            ->findBy(array(
-                'building' => $building,
-            ));
-        foreach ($roomTypes as $type) {
-            $typeText = $this->container->get('translator')->trans($type->getType()->getName());
-            $type->getType()->setDescription($typeText);
-        }
-        $building->setBuildingRoomTypes($roomTypes);
 
         return $building;
     }
@@ -942,8 +942,6 @@ class LocationController extends SalesRestController
 
         $buildings = $this->handleSearchBuildingsData($buildings);
 
-        $this->transformAppVersionForAmap($buildings);
-
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
         $view->setData($buildings);
@@ -1003,45 +1001,6 @@ class LocationController extends SalesRestController
         }
 
         return $resultArray['regeocode']['addressComponent']['district'];
-    }
-
-    protected function transformAppVersionForAmap(
-        $buildings
-    ) {
-        $headers = array_change_key_case($_SERVER, CASE_LOWER);
-
-        // transform version for the old app to make sure it can use the Amap
-        $user = $this->getUser();
-        if (!is_null($user)) {
-            $clientId = $user->getClientId();
-            $client = $this->getRepo('User\UserClient')->find($clientId);
-
-            if (!is_null($client)) {
-                $version = $client->getVersion();
-                $name = strtoupper($client->getName());
-
-                if (!is_null($version) && !empty($version)) {
-                    $versionArray = explode('.', $version);
-
-                    $this->checkForTransformWithToken(
-                        $name,
-                        $versionArray,
-                        $buildings
-                    );
-                }
-            }
-        } elseif (array_key_exists('http_user_agent', $headers)) {
-            $agent = $headers['http_user_agent'];
-
-            $versionName = explode(' (', $agent);
-            $versionNameArray = explode('/', $versionName[0]);
-
-            if ($versionNameArray[0] == 'SandBox') {
-                $versionArray = explode('.', $versionNameArray[1]);
-
-                $this->checkForTransformWithoutToken($versionArray, $buildings);
-            }
-        }
     }
 
     /**

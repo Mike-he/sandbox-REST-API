@@ -33,6 +33,7 @@ class AppKernel extends Kernel
             new FOS\ElasticaBundle\FOSElasticaBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new Sandbox\SalesApiBundle\SandboxSalesApiBundle(),
+            new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

@@ -64,6 +64,13 @@ class RoomTypes
     private $icon;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $quickBookingUrl;
+
+    /**
      * Get id.
      *
      * @return int
@@ -159,5 +166,21 @@ class RoomTypes
     public function setIcon($icon)
     {
         $this->icon = $icon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQuickBookingUrl()
+    {
+        return $this->quickBookingUrl;
+    }
+
+    /**
+     * @param string $quickBookingUrl
+     */
+    public function setQuickBookingUrl($quickBookingUrl)
+    {
+        $this->quickBookingUrl = $quickBookingUrl;
     }
 }

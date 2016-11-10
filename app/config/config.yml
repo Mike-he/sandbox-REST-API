@@ -344,3 +344,13 @@ fos_elastica:
                         provider: ~
                         listener: ~
                         finder: ~
+
+#stof doctrine-extionsion config
+stof_doctrine_extensions:
+    default_locale: en_CN
+    orm:
+        default:
+            tree: true
+            timestampable: true # not needed: listeners are not enabled by default
+            blameable: true
+            uploadable: true
