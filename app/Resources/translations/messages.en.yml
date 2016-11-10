@@ -47,11 +47,15 @@ product_order:
     cnp_u: Domestic Quick Pay
     cnp_f: International Quick Pay
     offline: Offline
+    wx_pub: Wechat Public
   status:
     unpaid: Unpaid
     paid: Paid
     completed: Completed
     cancelled: Cancelled
+  refund_to:
+    account: Back To Account
+    origin: Back To PayChannel
   order_type:
     user: Client User
     preorder: Pre-Order
@@ -69,6 +73,7 @@ product_order:
     order_time: Order Creation
     payment_time: Payment Date
     status: Status
+    refund_to: Refund Channel
     phone: Renter Mobile
     email: Renter Email
     channel: Payment Channel
@@ -274,6 +279,16 @@ building:
     food_and_beverage: Catering Services
     vip_space: Member Space
     fast_preorder: Fast Booking
+  sort:
+    distance: Distance
+    star: Stars
+    smart: Smart Sorting
+  filter:
+    sort_by: Sort By
+    space_type: Space Type
+    filter: Filter
+    tag: Tag
+    configure: Configure
 
 banner:
   tag:

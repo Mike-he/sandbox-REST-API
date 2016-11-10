@@ -79,7 +79,7 @@ class UserLoginController extends SandboxRestController
         }
 
         if (!is_null($user)) {
-//            // force to set other token offline
+            //            // force to set other token offline
 //            $userTokenAll = $this->getRepo('User\UserToken')->findByUserId($user->getId());
 //            foreach ($userTokenAll as $token) {
 //                $token->setOnline(false);

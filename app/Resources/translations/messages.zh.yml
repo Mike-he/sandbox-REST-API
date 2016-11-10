@@ -47,11 +47,15 @@ product_order:
     cnp_u: 快捷支付(国内)
     cnp_f: 快捷支付(国外)
     offline: 线下支付
+    wx_pub: 微信公众号
   status:
     unpaid: 未付款
     paid: 已付款
     completed: 已完成
     cancelled: 已取消
+  refund_to:
+    account: 退回余额
+    origin: 原路返回
   order_type:
     user: 用户下单
     preorder: 后台预定
@@ -69,6 +73,7 @@ product_order:
     order_time: 创建时间
     payment_time: 付款时间
     status: 订单状态
+    refund_to: 退款路径
     phone: 租赁人手机
     email: 租赁人邮箱
     channel: 支付渠道
@@ -273,6 +278,16 @@ building:
     food_and_beverage: 餐饮配套
     vip_space: 会员空间
     fast_preorder: 快速预定
+  sort:
+    distance: 距离最近
+    star: 评价最好
+    smart: 智能排序
+  filter:
+    sort_by: 智能排序
+    space_type: 空间类型
+    filter: 条件筛选
+    tag: 社区标签
+    configure: 社区配置
 
 banner:
   tag:

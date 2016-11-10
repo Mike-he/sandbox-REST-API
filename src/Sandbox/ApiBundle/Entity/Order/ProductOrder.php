@@ -54,6 +54,9 @@ class ProductOrder
     const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';
 
+    const REFUND_TO_ACCOUNT = 'account';
+    const REFUND_TO_ORIGIN = 'origin';
+
     /**
      * @var int
      *
@@ -88,7 +91,7 @@ class ProductOrder
      *
      * @ORM\Column(name="userId", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_detail", "current_order", "client"})
      */
     private $userId;
 
@@ -287,7 +290,7 @@ class ProductOrder
      *
      * @ORM\Column(name="productInfo", type="text", nullable=false)
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
      */
     private $productInfo;
 
@@ -432,6 +435,46 @@ class ProductOrder
      * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $transfer;
+
+    /**
+     * @var bool
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $hasEvaluated = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="refundTo", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $refundTo;
+
+    /**
+     * Set refundTo.
+     *
+     * @param string $refundTo
+     *
+     * @return ProductOrder
+     */
+    public function setRefundTo($refundTo)
+    {
+        $this->refundTo = $refundTo;
+
+        return $this;
+    }
+
+    /**
+     * Get refundTo.
+     *
+     * @return string
+     */
+    public function getRefundTo()
+    {
+        return $this->refundTo;
+    }
 
     /**
      * Set transfer.
@@ -1447,6 +1490,22 @@ class ProductOrder
     public function isCancelByUser()
     {
         return $this->cancelByUser;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasEvaluated()
+    {
+        return $this->hasEvaluated;
+    }
+
+    /**
+     * @param bool $hasEvaluated
+     */
+    public function setHasEvaluated($hasEvaluated)
+    {
+        $this->hasEvaluated = $hasEvaluated;
     }
 
     public function __construct()

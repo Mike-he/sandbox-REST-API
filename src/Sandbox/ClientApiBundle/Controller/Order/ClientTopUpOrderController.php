@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Order;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
@@ -25,14 +26,12 @@ use FOS\RestBundle\Controller\Annotations\Post;
  */
 class ClientTopUpOrderController extends PaymentController
 {
-    const TOPUP_ORDER_LETTER_HEAD = 'T';
-
     /**
      * Get all orders for current user.
      *
      * @Get("/topup/orders/my")
      *
-     *@Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
@@ -67,25 +66,45 @@ class ClientTopUpOrderController extends PaymentController
 
         $orders = $this->getRepo('Order\TopUpOrder')->findBy(
             ['userId' => $userId],
-            null,
+            ['creationDate' => 'DESC'],
             $limit,
             $offset
         );
 
-        return new View($orders);
+        $view = new View($orders);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+
+        return $view;
     }
 
     /**
      * @Post("/topup/orders")
      *
-     * @param Request $request
+     * @Annotations\QueryParam(
+     *    name="price",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="top up price"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      */
     public function payTopUpAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
         $requestContent = json_decode($request->getContent(), true);
-        $price = $requestContent['price'];
         $channel = $requestContent['channel'];
+
+        if (!array_key_exists('price', $requestContent)) {
+            $price = $paramFetcher->get('price');
+        } else {
+            $price = $requestContent['price'];
+        }
+
         $token = '';
         $smsId = '';
         $smsCode = '';
@@ -139,21 +158,54 @@ class ClientTopUpOrderController extends PaymentController
      *
      * @return View
      */
-    public function getOneTopUpOrderAction(
+    public function getOneTopUpOrderByOrderNumberAction(
         Request $request,
         $orderNumber
     ) {
-        $order = $order = $this->getRepo('Order\TopUpOrder')->findOneBy(
-            ['orderNumber' => $orderNumber]
-        );
-        if (is_null($order)) {
-            return $this->customErrorView(
-                400,
-                self::ORDER_NOT_FOUND_CODE,
-                self::ORDER_NOT_FOUND_MESSAGE
-            );
-        }
+        $userId = $this->getUserId();
 
-        return new View($order);
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TopUpOrder')
+            ->findOneBy(
+                [
+                    'orderNumber' => $orderNumber,
+                    'userId' => $userId,
+                ]
+            );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $view = new View($order);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+
+        return $view;
+    }
+
+    /**
+     * @Get("/topup/orders/{id}")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getOneTopUpOrderByIdAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TopUpOrder')
+            ->findOneBy(
+                [
+                    'id' => $id,
+                    'userId' => $userId,
+                ]
+            );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $view = new View($order);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_order']));
+
+        return $view;
     }
 }

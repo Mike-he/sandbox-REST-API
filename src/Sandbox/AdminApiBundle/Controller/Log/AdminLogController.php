@@ -2,8 +2,11 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Log;
 
+use Rs\Json\Patch;
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Log\LogController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Form\Log\LogPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -73,6 +76,33 @@ class AdminLogController extends LogController
      * )
      *
      * @Annotations\QueryParam(
+     *     name="mark",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true,
+     *     description="mark"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="startDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="endDate"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -111,61 +141,90 @@ class AdminLogController extends LogController
         $search = $paramFetcher->get('search');
         $key = $paramFetcher->get('object_key');
         $objectId = $paramFetcher->get('object_id');
+        $mark = $paramFetcher->get('mark');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
 
-        $offset = ($pageIndex - 1) * $pageLimit;
-        $limit = $pageLimit;
-
-        $count = $this->getDoctrine()
+        $logsQuery = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Log\Log')
-            ->getLogCount(
-                $companyId,
-                $module,
-                $search,
-                $key,
-                $objectId
-            );
-
-        $logs = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Log\Log')
-            ->getLogList(
+            ->getAdminLogs(
+                null,
+                $startDate,
+                $endDate,
                 $companyId,
                 $module,
                 $search,
                 $key,
                 $objectId,
-                $limit,
-                $offset
+                $mark
             );
 
-        foreach ($logs as $log) {
-            $salesCompanyId = $log->getSalesCompanyId();
-
-            if (is_null($salesCompanyId)) {
-                continue;
-            }
-
-            $company = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-                ->find($salesCompanyId);
-
-            if (is_null($company)) {
-                continue;
-            }
-
-            $log->setSalesCompanyName($company->getName());
-        }
-
-        $view = new View();
-        $view->setData(
-            [
-                'current_page_number' => $pageIndex,
-                'num_items_per_page' => (int) $pageLimit,
-                'items' => $logs,
-                'total_count' => (int) $count,
-            ]
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $logsQuery,
+            $pageIndex,
+            $pageLimit
         );
 
-        return $view;
+        return new View($pagination);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="admin_id",
+     *     array=false,
+     *     default=null,
+     *     nullable=false,
+     *     strict=true,
+     *     description="admin id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="startDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="endDate"
+     * )
+     *
+     * @Route("/logs/specify_admin")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getLogsBySpecifyAdminAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminLogPermission();
+
+        $adminId = $paramFetcher->get('admin_id');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+
+        $logsQuery = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Log\Log')
+            ->getAdminLogs(
+                $adminId,
+                $startDate,
+                $endDate
+            );
+
+        return new View($logsQuery->getResult());
     }
 
     /**
@@ -190,6 +249,42 @@ class AdminLogController extends LogController
             );
 
         return new View($modules);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/logs/{id}/mark")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchLogMarkAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminLogPermission();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $log = $em->getRepository('SandboxApiBundle:Log\Log')->find($id);
+        $this->throwNotFoundIfNull($log, self::NOT_FOUND_MESSAGE);
+
+        $logJson = $this->container->get('serializer')->serialize($log, 'json');
+        $patch = new Patch($logJson, $request->getContent());
+        $logJson = $patch->apply();
+
+        $form = $this->createForm(new LogPatchType(), $log);
+        $form->submit(json_decode($logJson, true));
+
+        $mark = $log->isMark();
+        if ($mark == false) {
+            $log->setRemarks(null);
+        }
+
+        $em->persist($log);
+        $em->flush();
     }
 
     /**

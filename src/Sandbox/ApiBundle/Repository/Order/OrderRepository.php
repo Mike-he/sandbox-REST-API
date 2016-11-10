@@ -2052,7 +2052,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $channel
-     * @param $salesId
+     * @param $buildingId
      * @param $typeName
      * @param $startDate
      * @param $endDate
@@ -2065,7 +2065,7 @@ class OrderRepository extends EntityRepository
      */
     public function sumOrdersByType(
         $channel,
-        $salesId,
+        $buildingId,
         $typeName,
         $startDate,
         $endDate,
@@ -2077,19 +2077,52 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->select('SUM(o.discountPrice)')
             ->where('o.status = :status')
-            ->andWhere('o.startDate >= :start')
-            ->andWhere('o.startDate <= :end')
             ->andWhere('o.payChannel = :payChannel')
-            ->andWhere('b.companyId = :companyId')
+            ->andWhere('b.id = :buildingId')
             ->andWhere('r.type = :type')
             ->setParameter('type', $typeName)
-            ->setParameter('companyId', $salesId)
+            ->setParameter('buildingId', $buildingId)
             ->setParameter('payChannel', $channel)
-            ->setParameter('status', $status)
-            ->setParameter('start', $startDate)
-            ->setParameter('end', $endDate)
-        ;
+            ->setParameter('status', $status);
+
+        if ($status == ProductOrder::STATUS_COMPLETED) {
+            $query->andWhere('o.startDate >= :start')
+                    ->andWhere('o.startDate <= :end');
+        } else {
+            $query->andWhere('o.paymentDate >= :start')
+                    ->andWhere('o.paymentDate <= :end');
+        }
+
+        $query->setParameter('start', $startDate)
+                ->setParameter('end', $endDate);
 
         return  $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getRoomBuildingWithOrders(
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('DISTINCT b')
+            ->where('(
+                (o.status = :completed AND o.startDate >= :start AND o.startDate <= :end) OR
+                (o.status = :paid AND o.paymentDate >= :start AND o.paymentDate <= :end)
+            )')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('paid', ProductOrder::STATUS_PAID);
+
+        return  $query->getQuery()->getResult();
     }
 }

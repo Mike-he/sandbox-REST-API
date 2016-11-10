@@ -295,52 +295,62 @@ doctrine_migrations:
     table_name: migration_versions
     name: Application Migrations
 
-fos_elastica:
-    clients:
-        default: { host: localhost, port: 9200 }
-    serializer:
-        callback_class: FOS\ElasticaBundle\Serializer\Callback
-        serializer: serializer
-    indexes:
-        search:
-            index_name: app_%kernel.environment%
-            client: default
-            types:
-                member:
-                    mappings:
-                        name: ~
-                    persistence:
-                        driver: orm
-                        model: Sandbox\ApiBundle\Entity\User\UserProfile
-                        provider: ~
-                        listener: ~
-                        finder: ~
-                company:
-                    mappings:
-                        name: ~
-                    persistence:
-                        driver: orm
-                        model: Sandbox\ApiBundle\Entity\Company\Company
-                        provider: ~
-                        listener: ~
-                        finder: ~
-                room:
-                    mappings:
-                        name: ~
-                        number: ~
-                    persistence:
-                        driver: orm
-                        model: Sandbox\ApiBundle\Entity\Room\Room
-                        provider: ~
-                        listener: ~
-                        finder: ~
-                user:
-                    mappings:
-                        email: ~
-                        phone: ~
-                    persistence:
-                        driver: orm
-                        model: Sandbox\ApiBundle\Entity\User\User
-                        provider: ~
-                        listener: ~
-                        finder: ~
+#fos_elastica:
+#    clients:
+#        default: { host: localhost, port: 9200 }
+#    serializer:
+#        callback_class: FOS\ElasticaBundle\Serializer\Callback
+#        serializer: serializer
+#    indexes:
+#        search:
+#            index_name: app_%kernel.environment%
+#            client: default
+#            types:
+#                member:
+#                    mappings:
+#                        name: ~
+#                    persistence:
+#                        driver: orm
+#                        model: Sandbox\ApiBundle\Entity\User\UserProfile
+#                        provider: ~
+#                        listener: ~
+#                        finder: ~
+#                company:
+#                    mappings:
+#                        name: ~
+#                    persistence:
+#                        driver: orm
+#                        model: Sandbox\ApiBundle\Entity\Company\Company
+#                        provider: ~
+#                        listener: ~
+#                        finder: ~
+#                room:
+#                    mappings:
+#                        name: ~
+#                        number: ~
+#                    persistence:
+#                        driver: orm
+#                        model: Sandbox\ApiBundle\Entity\Room\Room
+#                        provider: ~
+#                        listener: ~
+#                        finder: ~
+#                user:
+#                    mappings:
+#                        email: ~
+#                        phone: ~
+#                    persistence:
+#                        driver: orm
+#                        model: Sandbox\ApiBundle\Entity\User\User
+#                        provider: ~
+#                        listener: ~
+#                        finder: ~
+
+#stof doctrine-extionsion config
+stof_doctrine_extensions:
+    default_locale: en_CN
+    orm:
+        default:
+            tree: true
+            timestampable: true # not needed: listeners are not enabled by default
+            blameable: true
+            uploadable: true

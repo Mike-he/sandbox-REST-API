@@ -61,7 +61,7 @@ class FileServerController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $alltargets = array('banner', 'building', 'bulletin', 'chatgroup', 'company', 'event', 'id_photo', 'menu', 'news', 'person', 'room', 'shop', 'user_card');
+        $alltargets = array('bulletin', 'chatgroup', 'company',  'id_photo', 'menu',  'person',  'user_card');
         $target = $paramFetcher->get('target');
 
         $domain = null;

@@ -48,6 +48,7 @@ class PaymentController extends DoorController
     use ProductOrderNotification;
     use YunPianSms;
 
+    const TOPUP_ORDER_LETTER_HEAD = 'T';
     const STATUS_PAID = 'paid';
     const ORDER_CONFLICT_MESSAGE = 'Order Conflict';
     const INSUFFICIENT_FUNDS_CODE = 400001;

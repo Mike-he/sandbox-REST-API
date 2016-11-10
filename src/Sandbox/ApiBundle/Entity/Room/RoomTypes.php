@@ -20,7 +20,7 @@ class RoomTypes
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_building", "drop_down"})
+     * @Serializer\Groups({"main", "admin_building", "drop_down", "build_filter"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class RoomTypes
      *
      * @ORM\Column(name="name", type="string", length=16)
      *
-     * @Serializer\Groups({"main", "drop_down"})
+     * @Serializer\Groups({"main", "drop_down", "build_filter"})
      */
     private $name;
 
@@ -62,6 +62,13 @@ class RoomTypes
      * @Serializer\Groups({"main", "drop_down"})
      */
     private $icon;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $quickBookingUrl;
 
     /**
      * Get id.
@@ -159,5 +166,21 @@ class RoomTypes
     public function setIcon($icon)
     {
         $this->icon = $icon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQuickBookingUrl()
+    {
+        return $this->quickBookingUrl;
+    }
+
+    /**
+     * @param string $quickBookingUrl
+     */
+    public function setQuickBookingUrl($quickBookingUrl)
+    {
+        $this->quickBookingUrl = $quickBookingUrl;
     }
 }

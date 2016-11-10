@@ -409,6 +409,69 @@ class RoomBuilding implements JsonSerializable
     private $buildingRoomTypes;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="evaluationStar", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $evaluationStar;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="orderStar", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $orderStar;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="buildingStar", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $buildingStar;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="orderEvaluationNumber", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $orderEvaluationNumber;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="buildingEvaluationNumber", type="float", nullable=true)
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $buildingEvaluationNumber;
+
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $totalEvaluationNumber;
+
+    /**
+     * @var float
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $distance;
+
+    /**
+     * it's a number for client side, total rooms with products.
+     *
+     * @var int
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $roomWithProductNumber;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1102,5 +1165,133 @@ class RoomBuilding implements JsonSerializable
     public function setBuildingRoomTypes($buildingRoomTypes)
     {
         $this->buildingRoomTypes = $buildingRoomTypes;
+    }
+
+    /**
+     * @return float
+     */
+    public function getEvaluationStar()
+    {
+        return $this->evaluationStar;
+    }
+
+    /**
+     * @param float $evaluationStar
+     */
+    public function setEvaluationStar($evaluationStar)
+    {
+        $this->evaluationStar = $evaluationStar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getOrderStar()
+    {
+        return $this->orderStar;
+    }
+
+    /**
+     * @param float $orderStar
+     */
+    public function setOrderStar($orderStar)
+    {
+        $this->orderStar = $orderStar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBuildingStar()
+    {
+        return $this->buildingStar;
+    }
+
+    /**
+     * @param float $buildingStar
+     */
+    public function setBuildingStar($buildingStar)
+    {
+        $this->buildingStar = $buildingStar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getOrderEvaluationNumber()
+    {
+        return $this->orderEvaluationNumber;
+    }
+
+    /**
+     * @param float $orderEvaluationNumber
+     */
+    public function setOrderEvaluationNumber($orderEvaluationNumber)
+    {
+        $this->orderEvaluationNumber = $orderEvaluationNumber;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBuildingEvaluationNumber()
+    {
+        return $this->buildingEvaluationNumber;
+    }
+
+    /**
+     * @param float $buildingEvaluationNumber
+     */
+    public function setBuildingEvaluationNumber($buildingEvaluationNumber)
+    {
+        $this->buildingEvaluationNumber = $buildingEvaluationNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalEvaluationNumber()
+    {
+        return $this->totalEvaluationNumber;
+    }
+
+    /**
+     * @param int $totalEvaluationNumber
+     */
+    public function setTotalEvaluationNumber($totalEvaluationNumber)
+    {
+        $this->totalEvaluationNumber = $totalEvaluationNumber;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDistance()
+    {
+        return $this->distance;
+    }
+
+    /**
+     * @param float $distance
+     */
+    public function setDistance($distance)
+    {
+        $this->distance = $distance;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRoomWithProductNumber()
+    {
+        return $this->roomWithProductNumber;
+    }
+
+    /**
+     * @param int $roomWithProductNumber
+     */
+    public function setRoomWithProductNumber($roomWithProductNumber)
+    {
+        $this->roomWithProductNumber = $roomWithProductNumber;
     }
 }

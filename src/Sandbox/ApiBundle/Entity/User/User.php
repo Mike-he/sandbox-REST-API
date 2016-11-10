@@ -36,7 +36,7 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "buddy"})
+     * @Serializer\Groups({"main", "login", "buddy", "client_evaluation"})
      */
     private $id;
 

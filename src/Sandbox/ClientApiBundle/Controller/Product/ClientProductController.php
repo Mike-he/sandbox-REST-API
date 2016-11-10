@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Product;
 
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
@@ -88,7 +89,7 @@ class ClientProductController extends ProductController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    default="meeting",
+     *    default=null,
      *    nullable=true,
      *    description="room type"
      * )
@@ -233,6 +234,13 @@ class ClientProductController extends ProductController
                     $includeIds,
                     $excludeIds
             );
+        } elseif (!is_null($buildingId) && !empty($buildingId)) {
+            $productIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getAllProductsForOneBuilding(
+                    $buildingId,
+                    $userId
+                );
         }
 
         if (!is_null($lat) &&
@@ -253,6 +261,11 @@ class ClientProductController extends ProductController
                 $product = $this->getRepo('Product\Product')->find($productId);
                 array_push($products, $product);
             }
+        }
+
+        foreach ($products as $product) {
+            $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
+            $product->setUnitPrice($unitPrice);
         }
 
         $view = new View();

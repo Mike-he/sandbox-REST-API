@@ -919,19 +919,31 @@ class ClientOrderController extends OrderController
         Request $request,
         $id
     ) {
-        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
-            [
-                'id' => $id,
-                'refunded' => false,
-                'refundProcessed' => false,
-            ]
-        );
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy(
+                [
+                    'id' => $id,
+                    'refunded' => false,
+                    'refundProcessed' => false,
+                ]
+            );
         if (is_null($order)) {
             return $this->customErrorView(
                 400,
                 self::ORDER_NOT_FOUND_CODE,
                 self::ORDER_NOT_FOUND_MESSAGE
             );
+        }
+
+        $refundChannel = null;
+        $content = json_decode($request->getContent(), true);
+        if (!is_null($content) &&
+            !empty($content) &&
+            array_key_exists('refund_channel', $content) &&
+            !empty($content['refund_channel'])
+        ) {
+            $refundChannel = $content['refund_channel'];
         }
 
         $price = $order->getDiscountPrice();
@@ -969,6 +981,10 @@ class ClientOrderController extends OrderController
                     $order->setModificationDate(new \DateTime());
                 } else {
                     $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+
+                    if ($refundChannel == ProductOrder::CHANNEL_ACCOUNT) {
+                        $order->setRefundTo(ProductOrder::REFUND_TO_ACCOUNT);
+                    }
                 }
             } else {
                 $order->setStatus(ProductOrder::STATUS_CANCELLED);
@@ -987,7 +1003,9 @@ class ClientOrderController extends OrderController
         if ($price > 0) {
             $order->setNeedToRefund(true);
 
-            if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+            if (ProductOrder::CHANNEL_ACCOUNT == $channel ||
+                ProductOrder::CHANNEL_ACCOUNT == $refundChannel
+            ) {
                 $balance = $this->postBalanceChange(
                     $userId,
                     $price,
@@ -999,10 +1017,31 @@ class ClientOrderController extends OrderController
 
                 $order->setRefundProcessed(true);
                 $order->setRefundProcessedDate($now);
+                $order->setActualRefundAmount($price);
 
                 if (!is_null($balance)) {
                     $order->setRefunded(true);
                     $order->setNeedToRefund(false);
+
+                    if ($refundChannel == ProductOrder::CHANNEL_ACCOUNT &&
+                        $channel != ProductOrder::CHANNEL_ACCOUNT
+                    ) {
+                        $amount = $this->postConsumeBalance(
+                            $userId,
+                            $price,
+                            $order->getOrderNumber()
+                        );
+
+                        $order->setRefundTo(ProductOrder::REFUND_TO_ACCOUNT);
+
+                        $orderNumber = $this->getOrderNumber(self::TOPUP_ORDER_LETTER_HEAD);
+                        $this->setTopUpOrder(
+                            $userId,
+                            $price,
+                            $orderNumber,
+                            $channel
+                        );
+                    }
                 }
             }
         }
@@ -1404,11 +1443,37 @@ class ClientOrderController extends OrderController
             $viewArray = array_merge($viewArray, $alertArray);
         }
 
+        // add evaluation tag
+        $this->setOrderEvaluationTag(
+            $order,
+            $currentUserId
+        );
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($viewArray);
 
         return $view;
+    }
+
+    /**
+     * @param ProductOrder $order
+     * @param $currentUserId
+     */
+    private function setOrderEvaluationTag(
+        $order,
+        $currentUserId
+    ) {
+        $evaluation = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->findOneBy(array(
+                'productOrderId' => $order->getId(),
+                'userId' => $currentUserId,
+            ));
+
+        if (!is_null($evaluation)) {
+            $order->setHasEvaluated(true);
+        }
     }
 
     /**

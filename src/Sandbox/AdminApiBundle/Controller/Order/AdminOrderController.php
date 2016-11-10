@@ -331,6 +331,10 @@ class AdminOrderController extends OrderController
         $form->submit(json_decode($transferJson, true));
 
         $status = $existTransfer->getTransferStatus();
+        $userId = $order->getUserId();
+        $channel = $order->getPayChannel();
+        $orderNumber = $order->getOrderNumber();
+        $price = $order->getDiscountPrice();
         $now = new \DateTime();
 
         switch ($status) {
@@ -346,6 +350,14 @@ class AdminOrderController extends OrderController
                 $order->setStatus(ProductOrder::STATUS_PAID);
                 $order->setPaymentDate($now);
                 $order->setModificationDate($now);
+
+                $balance = $this->postBalanceChange(
+                    $userId,
+                    0,
+                    $orderNumber,
+                    $channel,
+                    $price
+                );
 
                 break;
             case OrderOfflineTransfer::STATUS_RETURNED:
@@ -368,8 +380,8 @@ class AdminOrderController extends OrderController
                 }
 
                 $order->setStatus(ProductOrder::STATUS_CANCELLED);
-                $order->setCancelledDate(new \DateTime());
-                $order->setModificationDate(new \DateTime());
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
 
                 break;
             case OrderOfflineTransfer::STATUS_ACCEPT_REFUND:
@@ -382,12 +394,42 @@ class AdminOrderController extends OrderController
                 }
 
                 $order->setStatus(ProductOrder::STATUS_CANCELLED);
-                $order->setCancelledDate(new \DateTime());
-                $order->setModificationDate(new \DateTime());
-                $price = $order->getDiscountPrice();
+                $order->setCancelledDate($now);
+                $order->setModificationDate($now);
+                $refundChannel = $order->getRefundTo();
 
                 if ($price > 0) {
                     $order->setNeedToRefund(true);
+
+                    if ($refundChannel == ProductOrder::CHANNEL_ACCOUNT) {
+                        $balance = $this->postBalanceChange(
+                            $userId,
+                            $price,
+                            $orderNumber,
+                            self::PAYMENT_CHANNEL_ACCOUNT,
+                            0,
+                            self::ORDER_REFUND
+                        );
+
+                        if (!is_null($balance)) {
+                            $order->setRefunded(true);
+                            $order->setNeedToRefund(false);
+
+                            $amount = $this->postConsumeBalance(
+                                $userId,
+                                $price,
+                                $orderNumber
+                            );
+
+                            $TopUpOrderNumber = $this->getOrderNumber(self::TOPUP_ORDER_LETTER_HEAD);
+                            $this->setTopUpOrder(
+                                $userId,
+                                $price,
+                                $TopUpOrderNumber,
+                                $channel
+                            );
+                        }
+                    }
                 }
 
                 break;
@@ -1166,6 +1208,7 @@ class AdminOrderController extends OrderController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -1598,6 +1641,7 @@ class AdminOrderController extends OrderController
 
                     $order->setRefundProcessed(true);
                     $order->setRefundProcessedDate($now);
+                    $order->setActualRefundAmount($price);
 
                     if (!is_null($balance)) {
                         $order->setRefunded(true);

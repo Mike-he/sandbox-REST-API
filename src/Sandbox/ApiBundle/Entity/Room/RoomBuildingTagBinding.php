@@ -19,7 +19,9 @@ use JMS\Serializer\Annotation as Serializer;
  *          @ORM\Index(name="fk_Tag_buildingId_idx",columns={"buildingId"})
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomBuildingTagBindingRepository"
+ * )
  */
 class RoomBuildingTagBinding
 {

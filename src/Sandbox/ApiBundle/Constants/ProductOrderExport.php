@@ -16,6 +16,7 @@ class ProductOrderExport
     const ORDER_TIME = 'order_time';
     const PAYMENT_TIME = 'payment_time';
     const ORDER_STATUS = 'status';
+    const REFUND_TO = 'refund_to';
     const USER_PHONE = 'phone';
     const USER_EMAIL = 'email';
     const PAYMENT_CHANNEL = 'channel';
@@ -27,6 +28,7 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_STATUS = 'product_order.status.';
     const TRANS_PRODUCT_ORDER_CHANNEL = 'product_order.channel.';
     const TRANS_PRODUCT_ORDER_TYPE = 'product_order.order_type.';
+    const TRANS_PRODUCT_ORDER_REFUND_TO = 'product_order.refund_to.';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_NO = 'product_order.export_header.order_number';
     const TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME = 'product_order.export_header.product_name';
     const TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE = 'product_order.export_header.type';
@@ -39,6 +41,7 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME = 'product_order.export_header.order_time';
     const TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME = 'product_order.export_header.payment_time';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS = 'product_order.export_header.status';
+    const TRANS_PRODUCT_ORDER_HEADER_REFUND_TO = 'product_order.export_header.refund_to';
     const TRANS_PRODUCT_ORDER_HEADER_USER_PHONE = 'product_order.export_header.phone';
     const TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL = 'product_order.export_header.email';
     const TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL = 'product_order.export_header.channel';

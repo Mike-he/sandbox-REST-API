@@ -3,9 +3,9 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
+use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Constants\LocationConstants;
 
 /**
  * Location Controller.
@@ -33,9 +34,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
  */
 class LocationController extends SalesRestController
 {
-    const LOCATION_CITY_PREFIX = 'location.city.';
-
-    public static $pi = 3.1415926535897932384626;
+    use HandleCoordinateTrait;
 
     /**
      * @Get("/cities")
@@ -112,53 +111,6 @@ class LocationController extends SalesRestController
                 );
 
                 return new View($citiesArray);
-            }
-
-            // response for backend
-            $platform = $adminPlatform->getPlatform();
-            $salesCompanyId = $adminPlatform->getSalesCompanyId();
-
-            $isSuperAdmin = $this->hasSuperAdminPosition(
-                $this->getAdminId(),
-                $platform,
-                $salesCompanyId
-            );
-            // sales bundle
-            if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
-                // get cities by admin type
-                if ($isSuperAdmin ||
-                    in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray)
-                ) {
-                    $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($salesCompanyId);
-                } else {
-                    // get my building ids
-                    $myBuildingIds = $this->generateLocationSalesBuildingIds(
-                        $paramFetcher
-                    );
-
-                    $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByBuilding($myBuildingIds);
-                }
-            }
-
-            // shop bundle
-            if ($platform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
-                // get cities by admin type
-                if ($isSuperAdmin ||
-                    in_array(AdminPermission::KEY_SHOP_PLATFORM_SHOP, $permissionArray) ||
-                    in_array(AdminPermission::KEY_SHOP_PLATFORM_ADMIN, $permissionArray)
-                ) {
-                    $myBuildings = $this->getRepo('Room\RoomBuilding')->getBuildingsByCompany($salesCompanyId);
-                    $myBuildingIds = array_map('current', $myBuildings);
-
-                    $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByBuilding($myBuildingIds);
-                } else {
-                    // get my shops ids
-                    $myShopIds = $this->generateLocationShopIds(
-                        $paramFetcher
-                    );
-
-                    $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByShop($myShopIds);
-                }
             }
         }
 
@@ -254,14 +206,16 @@ class LocationController extends SalesRestController
         }
 
         // get all buildings
-        $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
-            $cityId,
-            $ids,
-            $salesCompanyId,
-            RoomBuilding::STATUS_ACCEPT,
-            $visible,
-            $excludeIds
-        );
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->getLocationRoomBuildings(
+                $cityId,
+                $ids,
+                $salesCompanyId,
+                RoomBuilding::STATUS_ACCEPT,
+                $visible,
+                $excludeIds
+            );
 
         $headers = array_change_key_case($_SERVER, CASE_LOWER);
 
@@ -313,68 +267,6 @@ class LocationController extends SalesRestController
             $view->setData($buildings);
 
             return $view;
-        }
-
-        // response for backend
-        if (!is_null($user) && empty($ids)) {
-            $myPlatform = $adminPlatform->getPlatform();
-            $salesCompanyId = $adminPlatform->getSalesCompanyId();
-
-            $isSuperAdmin = $this->hasSuperAdminPosition(
-                $this->getAdminId(),
-                $myPlatform,
-                $salesCompanyId
-            );
-
-            // sales bundle
-            if ($myPlatform == AdminPermission::PERMISSION_PLATFORM_SALES) {
-                // get buildings by admin type
-                if ($isSuperAdmin ||
-                    in_array(AdminPermission::KEY_SALES_PLATFORM_ADMIN, $permissionArray) ||
-                    in_array(AdminPermission::KEY_SALES_BUILDING_USER, $permissionArray)
-                ) {
-                    $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
-                        $cityId,
-                        null,
-                        $salesCompanyId
-                    );
-                } else {
-                    // get my building ids
-                    $myBuildingIds = $this->generateLocationSalesBuildingIds(
-                        $paramFetcher
-                    );
-
-                    $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
-                        $cityId,
-                        $myBuildingIds
-                    );
-                }
-            }
-
-            // shop bundle
-            if ($myPlatform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
-                // get buildings by admin type
-                if ($isSuperAdmin ||
-                    in_array(AdminPermission::KEY_SHOP_PLATFORM_SHOP, $permissionArray) ||
-                    in_array(AdminPermission::KEY_SHOP_PLATFORM_ADMIN, $permissionArray)
-                ) {
-                    $buildings = $this->getRepo('Room\RoomBuilding')->getLocationRoomBuildings(
-                        $cityId,
-                        null,
-                        $salesCompanyId
-                    );
-                } else {
-                    // get my shops ids
-                    $myShopIds = $this->generateLocationShopIds(
-                        $paramFetcher
-                    );
-
-                    $buildings = $this->getRepo('Room\RoomBuilding')->getLocationBuildingByShop(
-                        $cityId,
-                        $myShopIds
-                    );
-                }
-            }
         }
 
         $view = new View();
@@ -578,16 +470,43 @@ class LocationController extends SalesRestController
     /**
      * @Get("/buildings/{id}")
      *
-     * @param Request $request
+     * @Annotations\QueryParam(
+     *    name="lat",
+     *    array=false,
+     *    default=0,
+     *    nullable=false,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="latitude"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lng",
+     *    array=false,
+     *    default=0,
+     *    nullable=false,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="longitude"
+     * )
+     *
+     * @param ParamFetcherInterface $paramFetcher
+     * @param Request               $request
      * @param $id
      *
      * @return View
      */
     public function getOneBuildingAction(
+        ParamFetcherInterface $paramFetcher,
         Request $request,
         $id
     ) {
-        $building = $this->getRepo('Room\RoomBuilding')->find($id);
+        $lat = $paramFetcher->get('lat');
+        $lng = $paramFetcher->get('lng');
+
+        $building = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->find($id);
 
         // set more information
         $this->setRoomBuildingMoreInformation($building);
@@ -597,11 +516,39 @@ class LocationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->getPresentRoomTypes($building);
 
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => 'quick_booking'));
+
+        $tmpUrl = $parameter->getValue().'buildingid='.$building->getId().'&btype=';
+        $lang = $this->get('request')->getLocale();
+
         foreach ($types as $type) {
             $typeText = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type->getName());
             $type->setDescription($typeText);
+
+            $url = $tmpUrl.$type->getName().'&lang='.$lang;
+            $type->setQuickBookingUrl($url);
         }
         $building->setBuildingRoomTypes($types);
+
+        $totalEvaluationNumber = $building->getOrderEvaluationNumber() + $building->getBuildingEvaluationNumber();
+        $building->setTotalEvaluationNumber($totalEvaluationNumber);
+
+        // 0 means user disable location
+        if ($lat != 0 && $lng != 0) {
+            $distance = $this->calculateDistanceBetweenCoordinates(
+                $lat,
+                $lng,
+                $building->getLat(),
+                $building->getLng()
+            );
+            $building->setDistance($distance);
+        }
+
+        $roomWithProductNumber = $this->getRepo('Product\Product')
+            ->countRoomsWithProductByBuilding($building->getId());
+        $building->setRoomWithProductNumber((int) $roomWithProductNumber);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
@@ -622,7 +569,9 @@ class LocationController extends SalesRestController
     ) {
         // set floor numbers
         $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
-        $building->setFloors($floors);
+        if ($floors) {
+            $building->setFloors($floors);
+        }
 
         // set building attachments
         $buildingAttachments = $this->getRepo('Room\RoomBuildingAttachment')->findByBuilding($building);
@@ -687,18 +636,6 @@ class LocationController extends SalesRestController
             $tag->getTag()->setName($serviceText);
         }
         $building->setBuildingTags($tags);
-
-        //set building rooms types
-        $roomTypes = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuildingTypeBinding')
-            ->findBy(array(
-                'building' => $building,
-            ));
-        foreach ($roomTypes as $type) {
-            $typeText = $this->container->get('translator')->trans($type->getType()->getName());
-            $type->getType()->setDescription($typeText);
-        }
-        $building->setBuildingRoomTypes($roomTypes);
 
         return $building;
     }
@@ -772,7 +709,7 @@ class LocationController extends SalesRestController
             $name = $city->getName();
             $key = $city->getKey();
 
-            $translatedKey = self::LOCATION_CITY_PREFIX.$key;
+            $translatedKey = LocationConstants::LOCATION_CITY_PREFIX.$key;
             $translatedName = $this->get('translator')->trans($translatedKey);
             if ($translatedName != $translatedKey) {
                 $name = $translatedName;
@@ -796,14 +733,24 @@ class LocationController extends SalesRestController
         $buildings
     ) {
         foreach ($buildings as $building) {
-            $lat = $building->getLat();
-            $lng = $building->getLng();
+            if (is_array($building)) {
+                $lat = $building['lat'];
+                $lng = $building['lng'];
+            } else {
+                $lat = $building->getLat();
+                $lng = $building->getLng();
+            }
 
             $locationArray = $this->gaodeToBaidu($lat, $lng);
 
             if (array_key_exists('lat', $locationArray) && array_key_exists('lon', $locationArray)) {
-                $building->setLat($locationArray['lat']);
-                $building->setLng($locationArray['lon']);
+                if (is_array($building)) {
+                    $building['lat'] = $locationArray['lat'];
+                    $building['lng'] = $locationArray['lon'];
+                } else {
+                    $building->setLat($locationArray['lat']);
+                    $building->setLng($locationArray['lon']);
+                }
             }
         }
     }
@@ -813,14 +760,16 @@ class LocationController extends SalesRestController
      *
      * @param gg_lat
      * @param gg_lon
+     *
+     * @return array
      */
     private function gaodeToBaidu($gg_lat, $gg_lon)
     {
         $x = $gg_lon;
         $y = $gg_lat;
 
-        $z = sqrt($x * $x + $y * $y) + 0.00002 * sin($y * self::$pi);
-        $theta = atan2($y, $x) + 0.000003 * cos($x * self::$pi);
+        $z = sqrt($x * $x + $y * $y) + 0.00002 * sin($y * LocationConstants::$pi);
+        $theta = atan2($y, $x) + 0.000003 * cos($x * LocationConstants::$pi);
         $bd_lon = $z * cos($theta) + 0.0065;
         $bd_lat = $z * sin($theta) + 0.006;
 
@@ -828,6 +777,7 @@ class LocationController extends SalesRestController
     }
 
     /**
+     * @param $name
      * @param $versionArray
      * @param $buildings
      */
@@ -888,5 +838,306 @@ class LocationController extends SalesRestController
         if ($transform) {
             $this->transformLocation($buildings);
         }
+    }
+
+    /**
+     * @Get("/communities/search")
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=19,
+     *    nullable=true,
+     *    description="id of city"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="query text"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room_types",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="types of room"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort_by",
+     *    default="distance",
+     *    nullable=true,
+     *    description="smart sort"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building_tags",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="tags of building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building_services",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="services of building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lat",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="latitude"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lng",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="longitude"
+     * )
+     *
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @return View
+     */
+    public function searchBuildingsAction(
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $cityId = $paramFetcher->get('city');
+        $queryText = $paramFetcher->get('query');
+        $sortBy = $paramFetcher->get('sort_by');
+        $roomTypes = $paramFetcher->get('room_types');
+        $buildingTags = $paramFetcher->get('building_tags');
+        $buildingServices = $paramFetcher->get('building_services');
+        $lng = $paramFetcher->get('lng');
+        $lat = $paramFetcher->get('lat');
+
+        // get all buildings
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->searchBuildings(
+                $cityId,
+                $queryText,
+                $roomTypes,
+                $sortBy,
+                $buildingTags,
+                $buildingServices,
+                $lng,
+                $lat,
+                $excludeIds = [9] // 9 is the company id of xiehe
+            );
+
+        $buildings = $this->handleSearchBuildingsData($buildings);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData($buildings);
+
+        return $view;
+    }
+
+    protected function handleSearchBuildingsData(
+        $buildings
+    ) {
+        foreach ($buildings as &$building) {
+            $attachments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
+                ->findRoomBuildingAttachmentByBuildingId($building['id']);
+
+            if (!empty($attachments)) {
+                $building['cover'] = $attachments[0]['content'];
+            }
+
+            $tags = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingTagBinding')
+                ->findRoomBuildingTagsByBuildingId($building['id']);
+
+            if (!empty($tags)) {
+                $building['building_tags'] = $tags;
+            }
+
+            $district = $this->syncBuildingAddress($building['lat'], $building['lng']);
+            if (!empty($district)) {
+                $building['location'] = $district;
+            }
+        }
+
+        return $buildings;
+    }
+
+    private function syncBuildingAddress(
+        $lat,
+        $lng
+    ) {
+        $apiURL = 'http://restapi.amap.com/v3/geocode/regeo?key=aa4a48297242d22d2b3fd6eddfe62217&s=rsv3&location='.$lng.','.$lat;
+        $ch = curl_init($apiURL);
+
+        $result = $this->callAPI(
+            $ch,
+            'GET'
+        );
+
+        if (is_null($result)) {
+            return;
+        }
+
+        $resultArray = json_decode($result, true);
+
+        if (!isset($resultArray['regeocode']['addressComponent']['district'])) {
+            return;
+        }
+
+        return $resultArray['regeocode']['addressComponent']['district'];
+    }
+
+    /**
+     * @Get("/communities/filter")
+     */
+    public function getFilterAction()
+    {
+        $filter = array();
+
+        // room types
+        $types = $this->findAllAndTranslateResources(
+            'Room\RoomTypes',
+            ProductOrderExport::TRANS_ROOM_TYPE
+        );
+
+        $filter[] = $this->buildFilter(
+            LocationConstants::FILTER_SPACE_TYPE,
+            [
+                [
+                    'type' => LocationConstants::TAG,
+                    'name' => LocationConstants::SUB_FILTER_SPACE_TYPE,
+                    'queryParamKey' => LocationConstants::QUERY_ROOM_TYPES,
+                    'items' => $types,
+                ],
+            ]
+        );
+
+        // sort by
+        $sorts = array();
+        foreach (LocationConstants::$plainTextSortKeys as &$sortKey) {
+            $sort['name'] = $this->get('translator')->trans(LocationConstants::TRANS_BUILDING_SORT.$sortKey);
+            $sort['key'] = $sortKey;
+
+            // set default option
+            $sort['selected'] = false;
+            if ($sort['key'] == LocationConstants::SORT_BY_DEFAULT_KEY) {
+                $sort['selected'] = true;
+            }
+
+            $sorts[] = $sort;
+        }
+
+        $filter[] = $this->buildFilter(
+            LocationConstants::FILTER_SORT_BY,
+            [
+                [
+                    'type' => LocationConstants::RADIO,
+                    'name' => LocationConstants::SUB_FILTER_SORT_BY,
+                    'queryParamKey' => LocationConstants::QUERY_SORT_BY,
+                    'items' => $sorts,
+                ],
+            ]
+        );
+
+        // filter
+        $buildingTagsItems = $this->findAllAndTranslateResources(
+            'Room\RoomBuildingTag',
+            LocationConstants::TRANS_BUILDING_TAG
+        );
+
+        $buildingServicesItems = $this->findAllAndTranslateResources(
+            'Room\RoomBuildingServices',
+            LocationConstants::TRANS_BUILDING_SERVICE
+        );
+
+        $configs[] = [
+            'type' => LocationConstants::TAG,
+            'name' => LocationConstants::SUB_FILTER_TAG,
+            'queryParamKey' => LocationConstants::QUERY_BUILDING_TAGS,
+            'items' => $buildingTagsItems,
+        ];
+
+        $configs[] = [
+            'type' => LocationConstants::TAG,
+            'name' => LocationConstants::SUB_FILTER_CONFIGURE,
+            'queryParamKey' => LocationConstants::QUERY_BUILDING_SERVICES,
+            'items' => $buildingServicesItems,
+        ];
+
+        $filter[] = $this->buildFilter(
+            LocationConstants::FILTER_FILTER,
+            $configs
+        );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['build_filter']));
+        $view->setData($filter);
+
+        return $view;
+    }
+
+    /**
+     * @param $entityName
+     * @param $trans
+     *
+     * @return array
+     */
+    private function findAllAndTranslateResources(
+        $entityName,
+        $trans
+    ) {
+        $resources = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:'.$entityName)
+            ->findAll();
+
+        foreach ($resources as &$resource) {
+            if ($entityName == 'Room\RoomTypes') {
+                $resourceKey = $this->get('translator')->trans($trans.$resource->getName());
+            } else {
+                $resourceKey = $this->get('translator')->trans($trans.$resource->getKey());
+            }
+
+            $resource->setName($resourceKey);
+        }
+
+        return $resources;
+    }
+
+    /**
+     * @param $name
+     * @param $configs
+     *
+     * @return array
+     */
+    private function buildFilter(
+        $name,
+        $configs
+    ) {
+        $buildFilter['name'] = $this->get('translator')
+            ->trans(LocationConstants::TRANS_BUILDING_FILTER.$name);
+
+        foreach ($configs as &$config) {
+            $config['name'] = $this->get('translator')
+                ->trans(LocationConstants::TRANS_BUILDING_FILTER.$config['name']);
+        }
+
+        $buildFilter['filters'] = $configs;
+
+        return $buildFilter;
     }
 }

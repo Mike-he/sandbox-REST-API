@@ -13,152 +13,80 @@ use Doctrine\ORM\EntityRepository;
 class LogRepository extends EntityRepository
 {
     /**
+     * @param $adminId
      * @param $companyId
      * @param $module
      * @param $search
      * @param $key
      * @param $objectId
-     * @param $limit
-     * @param $offset
+     * @param $mark
+     * @param $startDate
+     * @param $endDate
      *
      * @return array
      */
-    public function getLogList(
-        $companyId,
-        $module,
-        $search,
-        $key,
-        $objectId,
-        $limit,
-        $offset
+    public function getAdminLogs(
+        $adminId,
+        $startDate,
+        $endDate,
+        $companyId = null,
+        $module = null,
+        $search = null,
+        $key = null,
+        $objectId = null,
+        $mark = null
     ) {
-        $notFirst = false;
-
         $query = $this->createQueryBuilder('l')
+            ->where('1=1')
             ->orderBy('l.creationDate', 'DESC');
 
-        if (!is_null($companyId) && !empty($companyId)) {
-            $where = 'l.salesCompanyId = :companyId';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('companyId', $companyId);
+        if (!is_null($adminId)) {
+            $query->andWhere('l.adminUsername = :adminId')
+                ->setParameter('adminId', $adminId);
+        }
 
-            $notFirst = true;
+        if (!is_null($companyId) && !empty($companyId)) {
+            $query->andWhere('l.salesCompanyId = :companyId')
+                ->setParameter('companyId', $companyId);
         }
 
         if (!is_null($module) && !empty($module)) {
-            $where = 'l.logModule = :logModule';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('logModule', $module);
-
-            $notFirst = true;
+            $query->andWhere('l.logModule = :logModule')
+                ->setParameter('logModule', $module);
         }
 
         if (!is_null($key) && !empty($key) && !is_null($objectId) && !empty($objectId)) {
-            $where = 'l.logObjectKey = :key AND l.logObjectId = :objectId';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('key', $key)
+            $query->andWhere('l.logObjectKey = :key')
+                ->andWhere('l.logObjectId = :objectId')
+                ->setParameter('key', $key)
                 ->setParameter('objectId', $objectId);
-
-            $notFirst = true;
         }
 
         if (!is_null($search) && !empty($search)) {
-            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany', 'c', 'WITH', 'c.id = l.salesCompanyId');
-
-            $where = 'l.logModule LIKE :logModule OR 
-                l.adminUsername LIKE :search OR 
-                c.name LIKE :search OR 
-                l.logAction LIKE :search
-            ';
-            $this->addWhereQuery($query, $notFirst, $where);
-
-            $query->setParameter('search', '%'.$search.'%');
-            $notFirst = true;
+            $query->leftJoin('l.salesCompany', 'c')
+                ->andWhere('
+                    (l.adminUsername LIKE :search OR 
+                    c.name LIKE :search OR 
+                    l.logAction LIKE :search)
+                ')
+                ->setParameter('search', '%'.$search.'%');
         }
 
-        $query->setMaxResults($limit)->setFirstResult($offset);
-
-        return $query->getQuery()->getResult();
-    }
-
-    /**
-     * @param $companyId
-     * @param $module
-     * @param $search
-     * @param $key
-     * @param $objectId
-     *
-     * @return mixed
-     */
-    public function getLogCount(
-        $companyId,
-        $module,
-        $search,
-        $key,
-        $objectId
-    ) {
-        $notFirst = false;
-
-        $query = $this->createQueryBuilder('l')
-            ->select('COUNT(l)')
-            ->orderBy('l.creationDate', 'DESC');
-
-        if (!is_null($companyId) && !empty($companyId)) {
-            $where = 'l.salesCompanyId = :companyId';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('companyId', $companyId);
-
-            $notFirst = true;
+        if (!is_null($mark)) {
+            $query->andWhere('l.mark = :mark')
+                ->setParameter('mark', $mark);
         }
 
-        if (!is_null($module) && !empty($module)) {
-            $where = 'l.logModule = :logModule';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('logModule', $module);
-
-            $notFirst = true;
+        if (!is_null($startDate)) {
+            $query->andWhere('l.creationDate >= :start')
+                ->setParameter('start', $startDate);
         }
 
-        if (!is_null($key) && !empty($key) && !is_null($objectId) && !empty($objectId)) {
-            $where = 'l.logObjectKey = :key AND l.logObjectId = :objectId';
-            $this->addWhereQuery($query, $notFirst, $where);
-            $query->setParameter('key', $key)
-                ->setParameter('objectId', $objectId);
-
-            $notFirst = true;
+        if (!is_null($endDate)) {
+            $query->andWhere('l.creationDate <= :end')
+                ->setParameter('end', $endDate);
         }
 
-        if (!is_null($search) && !empty($search)) {
-            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany', 'c', 'WITH', 'c.id = l.salesCompanyId');
-
-            $where = 'l.logModule LIKE :logModule OR 
-                l.adminUsername LIKE :search OR 
-                c.name LIKE :search OR 
-                l.logAction LIKE :search
-            ';
-            $this->addWhereQuery($query, $notFirst, $where);
-
-            $query->setParameter('search', '%'.$search.'%');
-            $notFirst = true;
-        }
-
-        return $query->getQuery()->getSingleScalarResult();
-    }
-
-    /**
-     * @param QueryBuilder $query
-     * @param bool         $notFirst
-     * @param string       $where
-     */
-    private function addWhereQuery(
-        $query,
-        $notFirst,
-        $where
-    ) {
-        if ($notFirst) {
-            $query->andWhere($where);
-        } else {
-            $query->where($where);
-        }
+        return $query->getQuery();
     }
 }

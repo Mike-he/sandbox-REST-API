@@ -22,21 +22,21 @@ class RoomBuildingTag
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "list", "admin_building"})
+     * @Serializer\Groups({"main", "list", "admin_building", "build_filter"})
      */
     private $id;
 
     /**
      * @var string
      *
-     * @Serializer\Groups({"main", "list"})
+     * @Serializer\Groups({"main", "list", "build_filter"})
      */
     private $name;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=64)
+     * @ORM\Column(name="`key`", type="string", length=64)
      *
      * @Serializer\Groups({"main", "list"})
      */

@@ -5,8 +5,11 @@ namespace Sandbox\AdminApiBundle\Controller\Admin;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
+use Sandbox\AdminApiBundle\Data\Position\PositionUserBindingChange;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
+use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Form\Admin\AdminPositionUserBindingChangePostType;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionUserBindingPostType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -45,50 +48,26 @@ class AdminPositionBindingController extends AdminRestController
         // check user permission
         $this->checkAdminPositionBindingPermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $payloads = json_decode($request->getContent(), true);
+        $positionBindingChange = new PositionUserBindingChange();
+        $form = $this->createForm(new AdminPositionUserBindingChangePostType(), $positionBindingChange);
+        $form->handleRequest($request);
 
-        $response = array();
-        foreach ($payloads as $data) {
-            // bind form
-            $positionUserBinding = new AdminPositionUserBinding();
-            $form = $this->createForm(new AdminPositionUserBindingPostType(), $positionUserBinding);
-            $form->submit($data);
-
-            if (!$form->isValid()) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-
-            // check data valid
-            $error = $this->checkDataValid($positionUserBinding);
-            if (!is_null($error)) {
-                return $error;
-            }
-
-            // have exist position binding
-            $binding = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->findOneBy(array(
-                    'userId' => $positionUserBinding->getUserId(),
-                    'positionId' => $positionUserBinding->getPositionId(),
-                    'buildingId' => $positionUserBinding->getBuildingId(),
-                    'shopId' => $positionUserBinding->getShopId(),
-                ));
-
-            if (!is_null($binding)) {
-                continue;
-            }
-
-            $em = $this->getDoctrine()->getManager();
-
-            $em->persist($positionUserBinding);
-            $em->flush();
-
-            array_push($response, array(
-                'id' => $positionUserBinding->getId(),
-            ));
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        return new View($response);
+        $addPositionBindings = $positionBindingChange->getAdd();
+        $deletePositionBindings = $positionBindingChange->getDelete();
+
+        $this->handleAddPositionUserBindings(
+            $addPositionBindings
+        );
+
+        $this->handleDeletePositionUserBindings(
+            $deletePositionBindings
+        );
+
+        return new View();
     }
 
     /**
@@ -437,6 +416,115 @@ class AdminPositionBindingController extends AdminRestController
 
             $positionUserBinding->setShop($shop);
         }
+    }
+
+    /**
+     * @param array $addPositionBindings
+     *
+     * @return array|View
+     */
+    private function handleAddPositionUserBindings(
+        $addPositionBindings
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $userIds = array();
+
+        foreach ($addPositionBindings as $data) {
+            // bind form
+            $positionUserBinding = new AdminPositionUserBinding();
+            $form = $this->createForm(new AdminPositionUserBindingPostType(), $positionUserBinding);
+            $form->submit($data);
+
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            // check data valid
+            $error = $this->checkDataValid($positionUserBinding);
+            if (!is_null($error)) {
+                continue;
+            }
+
+            $userId = $positionUserBinding->getUserId();
+
+            // have exist position binding
+            $binding = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findOneBy(array(
+                    'userId' => $userId,
+                    'positionId' => $positionUserBinding->getPositionId(),
+                    'buildingId' => $positionUserBinding->getBuildingId(),
+                    'shopId' => $positionUserBinding->getShopId(),
+                ));
+
+            if (!is_null($binding)) {
+                continue;
+            }
+
+            array_push($userIds, $userId);
+            $userIds = array_unique($userIds);
+
+            $em->persist($positionUserBinding);
+            $em->flush();
+        }
+
+        // save log
+        foreach ($userIds as $userId) {
+            $adminPlatform = $this->getAdminPlatform();
+
+            $bindings = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindingsBySpecifyAdminId(
+                    $userId,
+                    null,
+                    $adminPlatform['platform'],
+                    $adminPlatform['sales_company_id']
+                );
+            if (!is_null($bindings)) {
+                $action = Log::ACTION_EDIT;
+            } else {
+                $action = Log::ACTION_CREATE;
+            }
+
+            $this->generateAdminLogs(array(
+                'logModule' => Log::MODULE_ADMIN,
+                'logAction' => $action,
+                'logObjectKey' => Log::OBJECT_ADMIN,
+                'logObjectId' => $userId,
+            ));
+        }
+
+        return;
+    }
+
+    /**
+     * @param array $deletePositionBindings
+     *
+     * @return array
+     */
+    private function handleDeletePositionUserBindings(
+        $deletePositionBindings
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $bindingIds = isset($deletePositionBindings['position_binding_ids']) ? $deletePositionBindings['position_binding_ids'] : null;
+
+        if (is_null($bindingIds) || empty($bindingIds)) {
+            return;
+        }
+
+        foreach ($bindingIds as $bindingId) {
+            $binding = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->find($bindingId);
+
+            if (is_null($binding)) {
+                continue;
+            }
+
+            $em->remove($binding);
+        }
+
+        $em->flush();
     }
 
     /**

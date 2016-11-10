@@ -1,0 +1,13 @@
+composer.lock
+vendor
+
+# Ignore files created during tests
+/Tests/App/cache/
+/Tests/App/logs/
+/Tests/AppConfig/cache/
+/Tests/AppConfig/logs/
+/Tests/AppConfigMysql/cache/
+/Tests/AppConfigMysql/logs/
+/Tests/AppConfigPhpcr/cache/
+/Tests/AppConfigPhpcr/logs/
+/cov/

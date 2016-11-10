@@ -99,10 +99,6 @@ class Version20160922113634 extends AbstractMigration
             ('/icon/admin_position_icon_19.png'),
             ('/icon/admin_position_icon_20.png');
         ");
-
-
-        $this->addSql("INSERT INTO admin_position(`name`,`parentPositionId`,`platform`,`salesCompanyId`,`isHidden`,`isSuperAdmin`,`sortTime`,`iconId`,`creationDate`,`modificationDate`)
-                        VALUES('超级管理员',null,'official',null,false,true,'1476153473566',1,'2016-9-20','2016-9-20');");
     }
 
     /**
