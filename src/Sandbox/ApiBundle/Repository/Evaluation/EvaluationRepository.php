@@ -62,6 +62,7 @@ class EvaluationRepository extends EntityRepository
         $orderId = null
     ) {
         $query = $this->createQueryBuilder('e')
+            ->select('e.id')
             ->where('e.visible = TRUE')
             ->andWhere('e.type != :official')
             ->setParameter('official', Evaluation::TYPE_OFFICIAL);
@@ -96,11 +97,20 @@ class EvaluationRepository extends EntityRepository
                 ->setParameter('orderId', $orderId);
         }
 
-        $query->orderBy('e.creationDate', 'DESC')
+        $query->groupBy('e.id');
+
+        $ids = $query->getQuery()->getResult();
+        $ids = array_map('current', $ids);
+
+        $evaluationQuery = $this->createQueryBuilder('eq')
+            ->where('eq.id IN (:ids)')
+            ->setParameter('ids', $ids);
+
+        $evaluationQuery->orderBy('eq.creationDate', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
-        return $query->getQuery()->getResult();
+        return $evaluationQuery->getQuery()->getResult();
     }
 
     /**
