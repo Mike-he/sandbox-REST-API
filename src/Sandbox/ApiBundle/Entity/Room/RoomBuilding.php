@@ -472,6 +472,13 @@ class RoomBuilding implements JsonSerializable
     private $roomWithProductNumber;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $allSpacesUrl;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1293,5 +1300,21 @@ class RoomBuilding implements JsonSerializable
     public function setRoomWithProductNumber($roomWithProductNumber)
     {
         $this->roomWithProductNumber = $roomWithProductNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAllSpacesUrl()
+    {
+        return $this->allSpacesUrl;
+    }
+
+    /**
+     * @param string $allSpacesUrl
+     */
+    public function setAllSpacesUrl($allSpacesUrl)
+    {
+        $this->allSpacesUrl = $allSpacesUrl;
     }
 }
