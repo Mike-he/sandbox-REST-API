@@ -516,12 +516,22 @@ class LocationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->getPresentRoomTypes($building);
 
-        $parameter = $this->getDoctrine()
+        $lang = $this->get('request')->getLocale();
+
+        // generate a url of web page to get all spaces
+        $allSpaces = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => 'all_spaces'));
+
+        $allSpacesUrl = $allSpaces->getValue().'&building='.$building->getId().'&lang='.$lang;
+        $building->setAllSpacesUrl($allSpacesUrl);
+
+        // generate a url of web page to quick book
+        $quickBooking = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array('key' => 'quick_booking'));
 
-        $tmpUrl = $parameter->getValue().'buildingid='.$building->getId().'&btype=';
-        $lang = $this->get('request')->getLocale();
+        $tmpUrl = $quickBooking->getValue().'buildingid='.$building->getId().'&btype=';
 
         foreach ($types as $type) {
             $typeText = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type->getName());
