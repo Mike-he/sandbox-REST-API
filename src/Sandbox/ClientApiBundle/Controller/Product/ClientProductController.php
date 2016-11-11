@@ -236,20 +236,7 @@ class ClientProductController extends ProductController
             );
         }
 
-        if (!is_null($lat) &&
-            !is_null($lng) &&
-            !empty($lat) &&
-            !empty($lng) &&
-            (is_null($buildingId) || empty($buildingId))
-        ) {
-            $products = $this->getRepo('Product\Product')->productSortByNearestBuilding(
-                $lat,
-                $lng,
-                $productIds,
-                $limit,
-                $offset
-            );
-        }  elseif (!is_null($buildingId) && !empty($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $products = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->getAllProductsForOneBuilding(
@@ -258,6 +245,14 @@ class ClientProductController extends ProductController
                     $limit,
                     $offset
                 );
+        } else {
+            $products = $this->getRepo('Product\Product')->productSortByNearestBuilding(
+                $lat,
+                $lng,
+                $productIds,
+                $limit,
+                $offset
+            );
         }
 
         foreach ($products as $product) {
