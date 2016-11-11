@@ -132,7 +132,7 @@ class AdminLogController extends LogController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminLogPermission();
+        $this->checkAdminLogPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -210,7 +210,7 @@ class AdminLogController extends LogController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminLogPermission();
+        $this->checkAdminLogPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $adminId = $paramFetcher->get('admin_id');
         $startDate = $paramFetcher->get('startDate');
@@ -239,7 +239,7 @@ class AdminLogController extends LogController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminLogPermission();
+        $this->checkAdminLogPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $modules = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Log\LogModules')
@@ -264,7 +264,7 @@ class AdminLogController extends LogController
         $id
     ) {
         // check user permission
-        $this->checkAdminLogPermission();
+        $this->checkAdminLogPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -290,14 +290,15 @@ class AdminLogController extends LogController
     /**
      * Check user permission.
      */
-    private function checkAdminLogPermission()
-    {
+    private function checkAdminLogPermission(
+        $OpLevel
+    ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LOG],
             ],
-            AdminPermission::OP_LEVEL_VIEW
+            $OpLevel
         );
     }
 }
