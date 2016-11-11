@@ -523,7 +523,7 @@ class LocationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array('key' => 'all_spaces'));
 
-        $allSpacesUrl = $allSpaces->getValue().'&building='.$building->getId().'&lang='.$lang;
+        $allSpacesUrl = $allSpaces->getValue().'buildingid='.$building->getId();
         $building->setAllSpacesUrl($allSpacesUrl);
 
         // generate a url of web page to quick book

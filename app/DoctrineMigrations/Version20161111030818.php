@@ -18,7 +18,7 @@ class Version20161111030818 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql("
               INSERT INTO `parameter` (`key`, `value`) VALUES 
-              ('all_spaces', 'http://devmobile.sandbox3.cn/search?filterFlag=true');
+              ('all_spaces', 'http://devmobile.sandbox3.cn/search-xiehe?');
         ");
     }
 
