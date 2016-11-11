@@ -235,7 +235,7 @@ class ClientProductController extends ProductController
             );
         }
 
-        if (!is_null($buildingId) && !empty($buildingId)) {
+        if (!is_null($buildingId) && is_null($type)) {
             $products = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->getAllProductsForOneBuilding(
