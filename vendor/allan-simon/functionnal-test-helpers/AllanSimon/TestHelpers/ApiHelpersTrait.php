@@ -152,16 +152,19 @@ trait ApiHelpersTrait
         }
     }
 
-    protected function givenLoggedInAs($username)
-    {
-        $this->currentUser = $username;
-        $this->client = static::createClient(
-            [],
-            [
-                'HTTP_Authorization' => "Bearer {$username}",
-                'HTTP_ACCEPT' => 'application/json',
-            ]
-        );
+    protected function givenLoggedInAs(
+        $userClientName,
+        $userTokenName
+    ) {
+        $this->given($userClientName);
+        $userClient = $this->entity;
+        $this->given($userTokenName);
+        $userToken = $this->entity;
+
+        $this->client = $this->createClient(array(), array(
+            'PHP_AUTH_USER' => $userToken->getToken(),
+            'PHP_AUTH_PW' => $userClient->getId(),
+        ));
     }
 
     /**
