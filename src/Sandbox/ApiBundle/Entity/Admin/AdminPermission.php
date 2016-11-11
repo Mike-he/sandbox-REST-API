@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * AdminPermission.
@@ -90,7 +91,7 @@ class AdminPermission
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=128, nullable=false)
+     * @ORM\Column(name="`key`", type="string", length=128, nullable=false)
      * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $key;
@@ -138,6 +139,7 @@ class AdminPermission
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      * @Serializer\Groups({"main"})
      */
@@ -146,6 +148,7 @@ class AdminPermission
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      * @Serializer\Groups({"main"})
      */

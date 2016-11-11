@@ -69,6 +69,6 @@ class LoadAdvertisingData extends AbstractFixture implements OrderedFixtureInter
 
     public function getOrder()
     {
-        return 5;
+        return 6;
     }
 }
