@@ -111,7 +111,7 @@ class ClientProductController extends ProductController
      * @Annotations\QueryParam(
      *    name="lat",
      *    array=false,
-     *    default=null,
+     *    default=0,
      *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -121,7 +121,7 @@ class ClientProductController extends ProductController
      * @Annotations\QueryParam(
      *    name="lng",
      *    array=false,
-     *    default=null,
+     *    default=0,
      *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -159,7 +159,6 @@ class ClientProductController extends ProductController
         $startTime = null;
         $endTime = null;
         $productIds = [];
-        $products = [];
 
         if ($type == Room::TYPE_MEETING ||
             $type == Room::TYPE_STUDIO ||
