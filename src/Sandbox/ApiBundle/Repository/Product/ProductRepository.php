@@ -30,15 +30,7 @@ class ProductRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('p')
-            ->select('
-                p,
-                (
-                    6371
-                    * acos(cos(radians(:latitude)) * cos(radians(b.lat))
-                    * cos(radians(b.lng) - radians(:longitude))
-                    + sin(radians(:latitude)) * sin(radians(b.lat)))
-                ) as HIDDEN distance
-            ')
+            ->select('p')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
             ->where('p.id IN (:productIds)')
@@ -49,11 +41,22 @@ class ProductRepository extends EntityRepository
             ->setParameter('accept', RoomBuilding::STATUS_ACCEPT)
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
-            ->orderBy('distance', 'ASC')
-            ->addOrderBy('p.creationDate', 'DESC')
             ->setMaxResults($limit)
-            ->setFirstResult($offset)
-        ;
+            ->setFirstResult($offset);
+
+        if (!is_null($lat) && !is_null($lng)) {
+            $query->addSelect('(
+                    6371
+                    * acos(cos(radians(:latitude)) * cos(radians(b.lat))
+                    * cos(radians(b.lng) - radians(:longitude))
+                    + sin(radians(:latitude)) * sin(radians(b.lat)))
+                ) as HIDDEN distance
+            )')
+                ->orderBy('distance', 'ASC')
+                ->addOrderBy('p.creationDate', 'DESC');
+        } else {
+            $query->orderBy('p.creationDate', 'DESC');
+        }
 
         return $query->getQuery()->getResult();
     }
