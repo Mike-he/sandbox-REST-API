@@ -7,7 +7,6 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 
-
 class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureInterface
 {
     public function load(ObjectManager $manager)
@@ -19,6 +18,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p1->setLevel('global');
         $p1->setMaxOpLevel(2);
         $p1->setOpLevelSelect('1,2');
+        $this->addReference('platform-order', $p1);
 
         $p2 = new AdminPermission();
         $p2->setKey('platform.user');
@@ -27,6 +27,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p2->setLevel('global');
         $p2->setMaxOpLevel(3);
         $p2->setOpLevelSelect('1,2,3');
+        $this->addReference('platform-user', $p2);
 
         $p3 = new AdminPermission();
         $p3->setKey('platform.admin');
@@ -35,6 +36,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p3->setLevel('global');
         $p3->setMaxOpLevel(2);
         $p3->setOpLevelSelect('1,2');
+        $this->addReference('platform-admin', $p3);
 
         $p4 = new AdminPermission();
         $p4->setKey('platform.announcement');
@@ -43,6 +45,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p4->setLevel('global');
         $p4->setMaxOpLevel(2);
         $p4->setOpLevelSelect('1,2');
+        $this->addReference('platform-announcement', $p4);
 
         $p5 = new AdminPermission();
         $p5->setKey('platform.dashboard');
@@ -51,6 +54,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p5->setLevel('global');
         $p5->setMaxOpLevel(1);
         $p5->setOpLevelSelect('1');
+        $this->addReference('platform-dashboard', $p5);
 
         $p6 = new AdminPermission();
         $p6->setKey('platform.event');
@@ -59,6 +63,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p6->setLevel('global');
         $p6->setMaxOpLevel(2);
         $p6->setOpLevelSelect('1,2');
+        $this->addReference('platform-event', $p6);
 
         $p7 = new AdminPermission();
         $p7->setKey('platform.banner');
@@ -67,6 +72,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p7->setLevel('global');
         $p7->setMaxOpLevel(2);
         $p7->setOpLevelSelect('1,2');
+        $this->addReference('platform-banner', $p7);
 
         $p8 = new AdminPermission();
         $p8->setKey('platform.news');
@@ -75,6 +81,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p8->setLevel('global');
         $p8->setMaxOpLevel(2);
         $p8->setOpLevelSelect('1,2');
+        $this->addReference('platform-news', $p8);
 
         $p9 = new AdminPermission();
         $p9->setKey('platform.message');
@@ -83,6 +90,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p9->setLevel('global');
         $p9->setMaxOpLevel(2);
         $p9->setOpLevelSelect('1,2');
+        $this->addReference('platform-message', $p9);
 
         $p10 = new AdminPermission();
         $p10->setKey('platform.verify');
@@ -91,6 +99,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p10->setLevel('global');
         $p10->setMaxOpLevel(2);
         $p10->setOpLevelSelect('1,2');
+        $this->addReference('platform-verify', $p10);
 
         $p11 = new AdminPermission();
         $p11->setKey('platform.sales');
@@ -360,7 +369,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p44->setKey('shop.shop.product');
         $p44->setName('商品管理');
         $p44->setPlatform('shop');
-        $p44->setLevel('global');
+        $p44->setLevel('specify');
         $p44->setMaxOpLevel(2);
         $p44->setOpLevelSelect('1,2');
 
