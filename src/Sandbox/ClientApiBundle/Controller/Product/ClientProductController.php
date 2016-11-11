@@ -234,13 +234,6 @@ class ClientProductController extends ProductController
                     $includeIds,
                     $excludeIds
             );
-        } elseif (!is_null($buildingId) && !empty($buildingId)) {
-            $productIds = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->getAllProductsForOneBuilding(
-                    $buildingId,
-                    $userId
-                );
         }
 
         if (!is_null($lat) &&
@@ -256,11 +249,15 @@ class ClientProductController extends ProductController
                 $limit,
                 $offset
             );
-        } else {
-            foreach ($productIds as $productId) {
-                $product = $this->getRepo('Product\Product')->find($productId);
-                array_push($products, $product);
-            }
+        }  elseif (!is_null($buildingId) && !empty($buildingId)) {
+            $products = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getAllProductsForOneBuilding(
+                    $buildingId,
+                    $userId,
+                    $limit,
+                    $offset
+                );
         }
 
         foreach ($products as $product) {

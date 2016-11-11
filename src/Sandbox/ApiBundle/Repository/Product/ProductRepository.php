@@ -1187,15 +1187,20 @@ class ProductRepository extends EntityRepository
      */
     public function getAllProductsForOneBuilding(
         $buildingId,
-        $userId
+        $userId,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('p')
-            ->select('DISTINCT p.id')
+            ->select('DISTINCT p')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visible = TRUE')
             ->andWhere('p.isDeleted = FALSE')
             ->andWhere('r.buildingId = :buildingId')
             ->setParameter('buildingId', $buildingId)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('p.creationDate', 'DESC')
         ;
 
         if (!is_null($userId)) {
