@@ -17,7 +17,7 @@ class Version20161111105621 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql("
-            UPDATE `admin_permission` SET `platform`='official', `level` = 'global', `opLevelSelect` = '1,2', `maxOpLevel` = '1' WHERE `key` = 'platform.log';
+            UPDATE `admin_permission` SET `platform`='official', `level` = 'global', `opLevelSelect` = '1,2', `maxOpLevel` = '2' WHERE `key` = 'platform.log';
         ");
     }
 
