@@ -214,6 +214,7 @@ class LocationControllerTest extends WebTestCase
                         'type' => 'tag',
                         'name' => 'Space Type',
                         'queryParamKey' => 'room_types[]',
+                        'filterAllTitle' => 'All Space',
                         'items' => [
                             [
                                 'id' => $firstSpaceType->getId(),
@@ -258,6 +259,7 @@ class LocationControllerTest extends WebTestCase
                         'type' => 'tag',
                         'name' => 'Tag',
                         'queryParamKey' => 'building_tags[]',
+                        'filterAllTitle' => 'All Space',
                         'items' => [
                             [
                                 'id' => $firstBuildingTag->getId(),
