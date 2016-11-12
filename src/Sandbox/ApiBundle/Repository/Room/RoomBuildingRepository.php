@@ -387,7 +387,8 @@ class RoomBuildingRepository extends EntityRepository
                     'rb.id = r.building'
                 )
                 ->andWhere('rb.name LIKE :query OR r.name LIKE :query')
-                ->setParameter('query', '%'.$queryText.'%');
+                ->setParameter('query', '%'.$queryText.'%')
+                ->groupBy('rb.id');
         }
 
         // 0 means user disable location
