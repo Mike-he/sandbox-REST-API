@@ -288,6 +288,7 @@ building:
     filter: 条件筛选
     tag: 社区标签
     configure: 社区配置
+    all_title: 全部空间
 
 banner:
   tag:
