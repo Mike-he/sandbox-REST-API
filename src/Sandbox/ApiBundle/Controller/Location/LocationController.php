@@ -855,7 +855,7 @@ class LocationController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="city",
-     *    default=19,
+     *    default=null,
      *    nullable=true,
      *    description="id of city"
      * )
@@ -901,7 +901,7 @@ class LocationController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="lat",
      *    array=false,
-     *    default=0,
+     *    default="121.632",
      *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -911,7 +911,7 @@ class LocationController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="lng",
      *    array=false,
-     *    default=0,
+     *    default="31.216",
      *    nullable=false,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
