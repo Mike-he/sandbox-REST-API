@@ -342,12 +342,18 @@ class RoomBuildingRepository extends EntityRepository
         if (!is_null($roomTypes) && !empty($roomTypes)) {
             $buildingsQuery
                 ->leftJoin(
-                    'SandboxApiBundle:Room\RoomBuildingTypeBinding',
-                    'rbb',
+                    'SandboxApiBundle:Room\Room',
+                    'r',
                     'WITH',
-                    'rb.id = rbb.building'
+                    'rb.id = r.building'
                 )
-                ->andWhere('rbb.type IN (:spaceTypes)')
+                ->leftJoin(
+                    'SandboxApiBundle:Room\RoomTypes',
+                    'rt',
+                    'WITH',
+                    'rt.name = r.type'
+                )
+                ->andWhere('rt.id IN (:spaceTypes)')
                 ->setParameter('spaceTypes', $roomTypes);
         }
 
@@ -387,8 +393,7 @@ class RoomBuildingRepository extends EntityRepository
                     'rb.id = r.building'
                 )
                 ->andWhere('rb.name LIKE :query OR r.name LIKE :query')
-                ->setParameter('query', '%'.$queryText.'%')
-                ->groupBy('rb.id');
+                ->setParameter('query', '%'.$queryText.'%');
         }
 
         // 0 means user disable location
@@ -439,6 +444,8 @@ class RoomBuildingRepository extends EntityRepository
             $buildingsQuery->andWhere('rb.companyId NOT IN (:excludeIds)')
                 ->setParameter('excludeIds', $excludeIds);
         }
+
+        $buildingsQuery->groupBy('rb.id');
 
         return $buildingsQuery->getQuery()->getResult();
     }

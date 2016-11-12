@@ -188,8 +188,11 @@ class ClientUserShareController extends LocationController
             ->find($orderId);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-//        $appointed = $order->getAppointed();
-//        $appointedPerson = $this->getRepo('User\UserView')->find($appointed);
+        $userId = $order->getUserId();
+        $profile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findOneBy(['userId' => $userId]);
+        $username = $profile->getName();
 
         $room = $order->getProduct()->getRoom();
         $type = $room->getType();
@@ -206,7 +209,7 @@ class ClientUserShareController extends LocationController
 
         $viewArray = [
             'order' => $order,
-//            'appointedPerson' => $appointedPerson,
+            'username' => $username,
             'share_info' => $share,
         ];
 

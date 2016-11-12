@@ -10,6 +10,7 @@ class LocationConstants
     const TRANS_BUILDING_TAG = 'building.tag.';
     const TRANS_BUILDING_FILTER = 'building.filter.';
     const TRANS_BUILDING_SUB_FILTER = 'building.subFilter.';
+    const TRANS_BUILDING_FILTER_ALL_TITLE = 'building.filter.all_title';
 
     public static $pi = 3.1415926535897932384626;
 

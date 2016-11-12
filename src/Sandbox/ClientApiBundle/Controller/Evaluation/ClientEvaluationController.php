@@ -432,7 +432,7 @@ class ClientEvaluationController extends EvaluationController
         $data = [
             'id' => $evaluation->getId(),
             'type' => $evaluation->getType(),
-            'total' => $evaluation->getTotalStar(),
+            'total_star' => $evaluation->getTotalStar(),
             'comment' => $evaluation->getComment(),
             'user' => [
                 'id' => $evaluation->getUser()->getId(),
