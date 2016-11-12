@@ -52,6 +52,15 @@ class RoomBuildingTag
     private $icon;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="iconWithBg", type="text")
+     *
+     * @Serializer\Groups({"main", "list"})
+     */
+    private $iconWithBg;
+
+    /**
      * Get id.
      *
      * @return int
@@ -123,5 +132,21 @@ class RoomBuildingTag
     public function getIcon()
     {
         return $this->icon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIconWithBg()
+    {
+        return $this->iconWithBg;
+    }
+
+    /**
+     * @param string $iconWithBg
+     */
+    public function setIconWithBg($iconWithBg)
+    {
+        $this->iconWithBg = $iconWithBg;
     }
 }
