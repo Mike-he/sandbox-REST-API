@@ -73,13 +73,15 @@ class EvaluationControllerTest extends WebTestCase
 
         $this->performGetClientEvaluations($buildingId);
 
-        $data = $this->buildFilterData();
+        $data = $this->buildClientEvaluationData();
 
         $this->assertResponseContainsCorrectDataFields($data);
     }
 
     public function testGetMyClientEvaluationWithAuthenticationShouldWork()
     {
+        $this->givenLoggedInAs('client-mike', 'user-token-mike');
+
         $this->performGetMyEvaluation();
 
         $this->assertOkSuccess();
@@ -98,7 +100,7 @@ class EvaluationControllerTest extends WebTestCase
         $this->performGET('/client/evaluations/my');
     }
 
-    private function buildFilterData()
+    private function buildClientEvaluationData()
     {
         $this->given('evaluation-with_comment-with_pic');
         $firstEvaluation = $this->entity;
@@ -121,7 +123,7 @@ class EvaluationControllerTest extends WebTestCase
             [
                 'id' => $firstEvaluation->getId(),
                 'type' => $firstEvaluation->getType(),
-                'total' => $firstEvaluation->getTotalStar(),
+                'total_star' => $firstEvaluation->getTotalStar(),
                 'comment' => $firstEvaluation->getComment(),
                 'user' => [
                     'id' => $user->getId(),
@@ -140,7 +142,7 @@ class EvaluationControllerTest extends WebTestCase
             [
                 'id' => $secondEvaluation->getId(),
                 'type' => $secondEvaluation->getType(),
-                'total' => $secondEvaluation->getTotalStar(),
+                'total_star' => $secondEvaluation->getTotalStar(),
                 'user' => [
                     'id' => $user->getId(),
                     'name' => $userProfile->getName(),
@@ -158,7 +160,7 @@ class EvaluationControllerTest extends WebTestCase
             [
                 'id' => $thirdEvaluation->getId(),
                 'type' => $thirdEvaluation->getType(),
-                'total' => $thirdEvaluation->getTotalStar(),
+                'total_star' => $thirdEvaluation->getTotalStar(),
                 'comment' => $thirdEvaluation->getComment(),
                 'user' => [
                     'id' => $user->getId(),
