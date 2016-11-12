@@ -1032,6 +1032,7 @@ class LocationController extends SalesRestController
                     'type' => LocationConstants::TAG,
                     'name' => LocationConstants::SUB_FILTER_SPACE_TYPE,
                     'queryParamKey' => LocationConstants::QUERY_ROOM_TYPES,
+                    'filterAllTitle' => $this->get('translator')->trans(LocationConstants::TRANS_BUILDING_FILTER_ALL_TITLE),
                     'items' => $types,
                 ],
             ]
@@ -1079,6 +1080,7 @@ class LocationController extends SalesRestController
             'type' => LocationConstants::TAG,
             'name' => LocationConstants::SUB_FILTER_TAG,
             'queryParamKey' => LocationConstants::QUERY_BUILDING_TAGS,
+            'filterAllTitle' => $this->get('translator')->trans(LocationConstants::TRANS_BUILDING_FILTER_ALL_TITLE),
             'items' => $buildingTagsItems,
         ];
 
@@ -1086,6 +1088,7 @@ class LocationController extends SalesRestController
             'type' => LocationConstants::TAG,
             'name' => LocationConstants::SUB_FILTER_CONFIGURE,
             'queryParamKey' => LocationConstants::QUERY_BUILDING_SERVICES,
+            'filterAllTitle' => null,
             'items' => $buildingServicesItems,
         ];
 
