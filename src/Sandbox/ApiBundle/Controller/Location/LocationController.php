@@ -543,9 +543,10 @@ class LocationController extends SalesRestController
         $building->setBuildingRoomTypes($types);
 
         // generate a url of web page to weChat Share Url
-        $wxShareUrl = $this->container->getParameter('room_mobile_url').'/building?id='.$building->getId();
+        $mobileUrl = $this->container->getParameter('room_mobile_url');
+        $wxShareUrl = $mobileUrl.'/building?id='.$building->getId().'&lang='.$lang;
         $building->setWxShareUrl($wxShareUrl);
-        
+
         $totalEvaluationNumber = $building->getOrderEvaluationNumber() + $building->getBuildingEvaluationNumber();
         $building->setTotalEvaluationNumber($totalEvaluationNumber);
 
