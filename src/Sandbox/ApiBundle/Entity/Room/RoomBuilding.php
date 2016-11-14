@@ -479,6 +479,13 @@ class RoomBuilding implements JsonSerializable
     private $allSpacesUrl;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $wxShareUrl;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1316,5 +1323,21 @@ class RoomBuilding implements JsonSerializable
     public function setAllSpacesUrl($allSpacesUrl)
     {
         $this->allSpacesUrl = $allSpacesUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWxShareUrl()
+    {
+        return $this->wxShareUrl;
+    }
+
+    /**
+     * @param string $wxShareUrl
+     */
+    public function setWxShareUrl($wxShareUrl)
+    {
+        $this->wxShareUrl = $wxShareUrl;
     }
 }
