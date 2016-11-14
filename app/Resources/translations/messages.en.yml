@@ -287,8 +287,8 @@ building:
     sort_by: Sort By
     space_type: Space Type
     filter: Filter
-    tag: Tag(Multiple Choices):
-    configure: Configure(Multiple Choices):
+    tag: Tag（Multiple Choices）：
+    configure: Configure（Multiple Choices）：
     all_title: All Space
 
 banner:
