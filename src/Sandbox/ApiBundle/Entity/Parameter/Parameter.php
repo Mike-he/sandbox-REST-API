@@ -27,7 +27,7 @@ class Parameter
     /**
      * @var string
      *
-     * @ORM\Column(name="key", type="string", length=64)
+     * @ORM\Column(name="`key`", type="string", length=64)
      */
     private $key;
 

@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Room.
@@ -221,6 +222,7 @@ class Room
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room"})
@@ -230,6 +232,7 @@ class Room
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room"})

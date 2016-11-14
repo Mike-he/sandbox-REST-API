@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Product;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Sandbox\ApiBundle\Entity\Room\Room;
 
 /**
@@ -43,6 +44,16 @@ class Product
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $roomId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\Room
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
+     * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room"})
+     */
+    private $room;
 
     /**
      * @var string
@@ -200,6 +211,7 @@ class Product
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
      *
      * @Serializer\Groups({"main", "admin_room"})
@@ -209,21 +221,12 @@ class Product
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modificationDate", type="datetime")
      *
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $modificationDate;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Room
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
-     * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
-     *
-     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room"})
-     */
-    private $room;
 
     /**
      * @var bool
