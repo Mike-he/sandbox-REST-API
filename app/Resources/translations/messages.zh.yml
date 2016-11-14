@@ -286,8 +286,8 @@ building:
     sort_by: 智能排序
     space_type: 空间类型
     filter: 条件筛选
-    tag: 社区标签
-    configure: 社区配置
+    tag: 社区标签（多选）:
+    configure: 社区配置（多选）:
     all_title: 全部空间
 
 banner:
