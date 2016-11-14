@@ -1200,7 +1200,8 @@ class ProductRepository extends EntityRepository
             ->setParameter('buildingId', $buildingId)
             ->setMaxResults($limit)
             ->setFirstResult($offset)
-            ->orderBy('p.creationDate', 'DESC')
+            ->orderBy('p.recommend', 'DESC')
+            ->addOrderBy('p.creationDate', 'DESC')
         ;
 
         if (!is_null($userId)) {

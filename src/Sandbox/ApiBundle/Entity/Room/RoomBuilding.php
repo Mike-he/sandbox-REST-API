@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
 /**
@@ -252,7 +253,8 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="creationDate", type="datetime")
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
@@ -261,7 +263,8 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(name="modificationDate", type="datetime")
      *
      * @Serializer\Groups({"main", "admin_building"})
      */

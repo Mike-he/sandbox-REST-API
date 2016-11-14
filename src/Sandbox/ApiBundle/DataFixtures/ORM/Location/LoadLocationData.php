@@ -36,11 +36,13 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rbt1 = new RoomBuildingTag();
         $rbt1->setKey('sandbox3_manage');
         $rbt1->setIcon('/icon/3.png');
+        $rbt1->setIconWithBg('/icon/bg-3.png');
         $this->addReference('first-building-tag', $rbt1);
 
         $rbt2 = new RoomBuildingTag();
         $rbt2->setKey('round_the_clock_service');
         $rbt2->setIcon('/icon/4.png');
+        $rbt2->setIconWithBg('/icon/bg-4.png');
         $this->addReference('second-building-tag', $rbt2);
 
         $rbs1 = new RoomBuildingServices();
@@ -80,8 +82,6 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb1->setBuildingStar(4.2);
         $rb1->setStatus('accept');
         $rb1->setVisible(true);
-        $rb1->setCreationDate($date);
-        $rb1->setModificationDate($date);
         $rb1->setCompany($sc1);
         $this->addReference('room-building-for-data-structure', $rb1);
 
@@ -100,8 +100,6 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb2->setBuildingStar(4.5);
         $rb2->setStatus('accept');
         $rb2->setVisible(true);
-        $rb2->setCreationDate($date);
-        $rb2->setModificationDate($date);
         $rb2->setCompany($sc1);
 
         $rb3 = new RoomBuilding();
@@ -119,8 +117,6 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb3->setBuildingStar(4.0);
         $rb3->setStatus('accept');
         $rb3->setVisible(true);
-        $rb3->setCreationDate($date);
-        $rb3->setModificationDate($date);
         $rb3->setCompany($sc1);
 
         $rb4 = new RoomBuilding();
@@ -138,9 +134,49 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb4->setBuildingStar(4.0);
         $rb4->setStatus('accept');
         $rb4->setVisible(true);
-        $rb4->setCreationDate($date);
-        $rb4->setModificationDate($date);
         $rb4->setCompany($sc1);
+
+        $rb5 = new RoomBuilding();
+        $rb5->setCity($this->getReference('shanghai'));
+        $rb5->setName('展想广场5');
+        $rb5->setAddress('浦东新区祖冲之路2290, 1#楼');
+        $rb5->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
+        $rb5->setDescription('room-building-for-pengding-1');
+        $rb5->setDetail('上海市浦东张江高科技园区');
+        $rb5->setSubtitle('buzhidao');
+        $rb5->setLat('31.216193');
+        $rb5->setLng('121.632682');
+        $rb5->setCompany($sc1);
+        $this->addReference('room-building-for-pengding-1', $rb5);
+
+        $rb6 = new RoomBuilding();
+        $rb6->setCity($this->getReference('shanghai'));
+        $rb6->setName('展想广场6');
+        $rb6->setAddress('浦东新区祖冲之路2290, 1#楼');
+        $rb6->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
+        $rb6->setDescription('room-building-for-accept-invisible-1');
+        $rb6->setDetail('上海市浦东张江高科技园区');
+        $rb6->setSubtitle('buzhidao');
+        $rb6->setLat('31.216193');
+        $rb6->setLng('121.632682');
+        $rb6->setStatus('accept');
+        $rb6->setCompany($sc1);
+        $this->addReference('room-building-for-accept-invisible-1', $rb6);
+
+        $rb7 = new RoomBuilding();
+        $rb7->setCity($this->getReference('shanghai'));
+        $rb7->setName('展想广场7');
+        $rb7->setAddress('浦东新区祖冲之路2290, 1#楼');
+        $rb7->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
+        $rb7->setDescription('room-building-for-banned-1');
+        $rb7->setDetail('上海市浦东张江高科技园区');
+        $rb7->setSubtitle('buzhidao');
+        $rb7->setLat('31.216193');
+        $rb7->setLng('121.632682');
+        $rb7->setStatus('banned');
+        $rb7->setVisible(true);
+        $rb7->setCompany($sc1);
+        $this->addReference('room-building-for-banned-1', $rb7);
 
         $rba1 = new RoomBuildingAttachment();
         $rba1->setBuilding($rb1);
@@ -186,6 +222,9 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $manager->persist($rb2);
         $manager->persist($rb3);
         $manager->persist($rb4);
+        $manager->persist($rb5);
+        $manager->persist($rb6);
+        $manager->persist($rb7);
 
         $manager->persist($rba1);
         $manager->persist($rba2);
