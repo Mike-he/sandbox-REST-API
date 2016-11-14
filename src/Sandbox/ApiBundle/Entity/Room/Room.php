@@ -59,7 +59,7 @@ class Room
     /**
      * @var int
      *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
+     * @ORM\Column(name="cityId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */
@@ -69,7 +69,7 @@ class Room
      * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
-     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
      */

@@ -94,7 +94,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var int
      *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
+     * @ORM\Column(name="cityId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main", "admin"})
      */
@@ -102,7 +102,7 @@ class RoomBuilding implements JsonSerializable
 
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
-     * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups({
      *     "main",
      *     "building_nearby",
