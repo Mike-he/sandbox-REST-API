@@ -204,6 +204,7 @@ client:
     member: 创合会员
     company: 创合企业
     my_company: 我的企业
+    scan_qr: 扫一扫
     balance: 账户余额
     my_order: 我的订单
     my_room: 我的可用房间
