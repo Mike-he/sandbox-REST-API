@@ -120,108 +120,15 @@ class AdminBuildingController extends LocationController
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
-        if($platform != AdminPermission::PERMISSION_PLATFORM_SALES){
+        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
         $this->throwNotFoundIfNull($companyId, self::NOT_FOUND_MESSAGE);
 
-        $usingBuildings = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->getLocationRoomBuildings(
-                null,
-                null,
-                $companyId,
-                RoomBuilding::STATUS_ACCEPT,
-                true
-            );
-
-        $using = array();
-        foreach ($usingBuildings as $usingBuilding) {
-            $usingNumber = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->countsProductByBuilding($usingBuilding, true);
-
-            $allNumber = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->countsProductByBuilding($usingBuilding);
-
-            $using[] = array(
-                'id' => $usingBuilding->getId(),
-                'name' => $usingBuilding->getName(),
-                'using_number' => $usingNumber,
-                'all_number' => $allNumber,
-            );
-        }
-
-        $invisibleBuildings = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->getLocationRoomBuildings(
-                null,
-                null,
-                $companyId,
-                RoomBuilding::STATUS_ACCEPT,
-                false
-            );
-
-        $invisible = array();
-        foreach ($invisibleBuildings as $invisibleBuilding) {
-            $allNumber = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->countsProductByBuilding($invisibleBuilding->getId());
-
-            $invisible[] = array(
-                'id' => $invisibleBuilding->getId(),
-                'name' => $invisibleBuilding->getName(),
-                'using_number' => 0,
-                'all_number' => $allNumber,
-            );
-        }
-
-        $bannedBuildings = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->getLocationRoomBuildings(
-                null,
-                null,
-                $companyId,
-                RoomBuilding::STATUS_BANNED
-            );
-
-        $banned = array();
-        foreach ($bannedBuildings as $bannedBuilding) {
-            $allNumber = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->countsProductByBuilding($bannedBuilding);
-
-            $banned[] = array(
-                'id' => $bannedBuilding->getId(),
-                'name' => $bannedBuilding->getName(),
-                'using_number' => 0,
-                'all_number' => $allNumber,
-            );
-        }
-
-        $pendingBuildings = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->getLocationRoomBuildings(
-                null,
-                null,
-                $companyId,
-                RoomBuilding::STATUS_PENDING
-            );
-
-        $pending = array();
-        foreach ($pendingBuildings as $pendingBuilding) {
-            $allNumber = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->countsProductByBuilding($pendingBuilding);
-
-            $pending[] = array(
-                'id' => $pendingBuilding->getId(),
-                'name' => $pendingBuilding->getName(),
-                'using_number' => 0,
-                'all_number' => $allNumber,
-            );
-        }
+        $using = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, true);
+        $invisible = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, false);
+        $banned = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_BANNED);
+        $pending = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_PENDING);
 
         $result = array(
             'using' => $using,
@@ -1401,5 +1308,51 @@ class AdminBuildingController extends LocationController
         }
 
         $em->flush();
+    }
+
+    /**
+     * @param $company
+     * @param $status
+     * @param null $visible
+     *
+     * @return array
+     */
+    private function getbuildingInfo(
+        $company,
+        $status,
+        $visible = null
+    ) {
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->getLocationRoomBuildings(
+                null,
+                null,
+                $company,
+                $status,
+                $visible
+            );
+
+        $result = array();
+        foreach ($buildings as $building) {
+            $allNumber = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->countsProductByBuilding($building);
+
+            $usingNumber = 0;
+            if ($visible == true) {
+                $usingNumber = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\Product')
+                    ->countsProductByBuilding($building, $visible);
+            }
+
+            $result[] = array(
+                'id' => $building->getId(),
+                'name' => $building->getName(),
+                'using_number' => $usingNumber,
+                'all_number' => $allNumber,
+            );
+        }
+
+        return $result;
     }
 }
