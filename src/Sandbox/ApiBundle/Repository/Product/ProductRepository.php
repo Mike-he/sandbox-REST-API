@@ -1098,11 +1098,13 @@ class ProductRepository extends EntityRepository
 
     /**
      * @param $building
+     * @param $visible
      *
      * @return mixed
      */
     public function countsProductByBuilding(
-        $building
+        $building,
+        $visible = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
@@ -1110,6 +1112,11 @@ class ProductRepository extends EntityRepository
             ->where('r.building = :building')
             ->andWhere('p.isDeleted = FALSE')
             ->setParameter('building', $building);
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
 
         return $query->getQuery()->getSingleScalarResult();
     }
