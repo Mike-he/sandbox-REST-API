@@ -13,6 +13,11 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class RoomCity
 {
+    const LEVEL_COUNTRY = 1;
+    const LEVEL_PROVINCE = 2;
+    const LEVEL_CITY = 3;
+    const LEVEL_AREA = 4;
+
     /**
      * @var int
      *

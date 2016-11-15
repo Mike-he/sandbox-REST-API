@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller\Location;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -86,10 +87,16 @@ class LocationController extends SalesRestController
         // filter by sales admin
         $cities = null;
         if (!is_null($salesCompanyId)) {
-            $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($salesCompanyId);
+            $cities = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->getSalesRoomCityByCompanyId($salesCompanyId);
         } else {
             // get all cities
-            $cities = $this->getRepo('Room\RoomCity')->findAll();
+            $cities = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->findBy(array(
+                'level' => RoomCity::LEVEL_CITY,
+            ));
         }
 
         if (!is_null($user) && is_null($all)) {
@@ -105,7 +112,11 @@ class LocationController extends SalesRestController
 
             // response for client
             if (is_null($adminPlatform)) {
-                $cities = $this->getRepo('Room\RoomCity')->findAll();
+                $cities = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->findBy(array(
+                        'level' => RoomCity::LEVEL_CITY,
+                    ));
                 $citiesArray = $this->generateCitiesArray(
                     $cities
                 );

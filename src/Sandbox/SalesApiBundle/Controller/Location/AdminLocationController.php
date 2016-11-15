@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Location;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -25,6 +26,44 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminLocationController extends SalesRestController
 {
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Get("/location/administrative_region")
+     *
+     * @Annotations\QueryParam(
+     *    name="parent",
+     *    default=null,
+     *    nullable=false,
+     *    description="parent id"
+     * )
+     *
+     * @return View
+     */
+    public function getAdministrativeRegionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $parentId = $paramFetcher->get('parent');
+
+        $regions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->findBy(array(
+                'parentId' => $parentId,
+            ));
+
+        $response = array();
+        foreach ($regions as $region) {
+            array_push($response, array(
+                'id' => $region->getId(),
+                'name' => $region->getName(),
+            ));
+        }
+
+        return new View($response);
+    }
+
     /**
      * @Get("/location/cities")
      *
@@ -103,7 +142,9 @@ class AdminLocationController extends SalesRestController
         } else {
             $cities = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->findAll();
+                ->findBy(array(
+                    'level' => RoomCity::LEVEL_CITY,
+                ));
         }
 
         // generate cities array
