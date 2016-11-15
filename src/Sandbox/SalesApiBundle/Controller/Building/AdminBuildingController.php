@@ -1261,7 +1261,6 @@ class AdminBuildingController extends LocationController
             return;
         }
 
-        $buildingServices = array_unique($buildingServices);
         foreach ($buildingServices as $service) {
             if (!isset($service['id'])) {
                 continue;
