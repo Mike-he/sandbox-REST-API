@@ -86,6 +86,7 @@ class ClientEvaluationController extends EvaluationController
 
         return new View(array(
             'able_to_create_building_evaluation' => $ableToCreateBuildingEvaluation,
+            'evaluation' => $this->buildDataConstruct($lastEvaluation),
         ));
     }
 
@@ -419,6 +420,10 @@ class ClientEvaluationController extends EvaluationController
     private function buildDataConstruct(
         $evaluation
     ) {
+        if (is_null($evaluation)) {
+            return null;
+        }
+
         $userProfile = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserProfile')
             ->findOneBy(array(
