@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Entity\Room\RoomTypes;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
 class LoadLocationData extends AbstractFixture implements OrderedFixtureInterface
 {
@@ -57,15 +56,7 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
 
         $date = new \DateTime('now');
 
-        $sc1 = new SalesCompany();
-        $sc1->setName('展现创合');
-        $sc1->setEmail('sandbox@sandbox3.cn');
-        $sc1->setPhone('05012312312');
-        $sc1->setAddress('浦东新区祖冲之路2290, 1#楼');
-        $sc1->setDescription('咖啡销售');
-        $sc1->setApplicantName('sandbox');
-        $sc1->setCreationDate($date);
-        $sc1->setModificationDate($date);
+        $sc1 = $this->getReference('sales-company-sandbox');
 
         $rb1 = new RoomBuilding();
         $rb1->setCity($this->getReference('shanghai'));

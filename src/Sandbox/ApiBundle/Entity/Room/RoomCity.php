@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
  * RoomCity.
  *
  * @ORM\Table(name="room_city")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomCityRepository")
  */
 class RoomCity
 {

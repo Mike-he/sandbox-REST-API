@@ -43,7 +43,7 @@ class AdminPlatform
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserClient", inversedBy="tokens")
-     * @ORM\JoinColumn(name="clientId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="clientId", referencedColumnName="id", onDelete="CASCADE")
      **/
     private $client;
 

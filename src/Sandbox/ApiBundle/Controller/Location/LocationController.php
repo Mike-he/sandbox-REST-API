@@ -722,17 +722,9 @@ class LocationController extends SalesRestController
         $citiesArray = array();
         foreach ($cities as $city) {
             $name = $city->getName();
-            $key = $city->getKey();
-
-            $translatedKey = LocationConstants::LOCATION_CITY_PREFIX.$key;
-            $translatedName = $this->get('translator')->trans($translatedKey);
-            if ($translatedName != $translatedKey) {
-                $name = $translatedName;
-            }
 
             $cityArray = array(
                 'id' => $city->getId(),
-                'key' => $key,
                 'name' => $name,
             );
             array_push($citiesArray, $cityArray);

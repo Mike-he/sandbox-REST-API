@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\DataFixtures\ORM\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Sandbox\ApiBundle\Entity\Admin\AdminPlatform;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
@@ -55,16 +56,126 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $token1->setModificationDate($now);
         $this->addReference('user-token-mike', $token1);
 
+        $platform1 = new AdminPlatform();
+        $platform1->setUser($user1);
+        $platform1->setClient($client1);
+        $platform1->setPlatform('official');
+        $platform1->setSalesCompany(null);
+        $platform1->setCreationDate($now);
+
+        $user2 = new User();
+        $user2->setXmppUsername('1000002');
+        $user2->setPassword('202CB962AC59075B964B07152D234B70');
+        $user2->setEmail('user2@sandbox3.cn');
+        $user2->setPhone('18611111111');
+        $user2->setPhoneCode('+86');
+        $user2->setBanned(0);
+        $user2->setCreationDate($now);
+        $user2->setModificationDate($now);
+        $user2->setAuthorized(1);
+        $user2->setCardNo('8888888888');
+        $user2->setCredentialNo('888666198608068865');
+        $user2->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_OFFICIAL);
+        $user2->setAuthorizedAdminUsername(10);
+        $user2->setCustomerId(null);
+        $this->addReference('user-2', $user2);
+
+        $userProfile2 = new UserProfile();
+        $userProfile2->setUser($user2);
+        $userProfile2->setName('User2');
+        $userProfile2->setCreationDate($now);
+        $userProfile2->setModificationDate($now);
+        $this->addReference('user-profile-2', $userProfile2);
+
+        $client2 = new UserClient();
+        $client2->setCreationDate($now);
+        $client2->setModificationDate($now);
+        $this->addReference('client-2', $client2);
+
+        $token2 = new UserToken();
+        $token2->setUser($user2);
+        $token2->setClient($client2);
+        $token2->setToken('33aff75e7823cd31896ecba936b9f0a2');
+        $token2->setRefreshToken('42bfda04ff9178fc0fc4b22579952766');
+        $token2->setOnline(1);
+        $token2->setCreationDate($now);
+        $token2->setModificationDate($now);
+        $this->addReference('user-token-2', $token2);
+
+        $platform2 = new AdminPlatform();
+        $platform2->setUser($user2);
+        $platform2->setClient($client2);
+        $platform2->setPlatform('sales');
+        $platform2->setSalesCompany($this->getReference('sales-company-sandbox'));
+        $platform2->setCreationDate($now);
+
+        $user3 = new User();
+        $user3->setXmppUsername('1000003');
+        $user3->setPassword('202CB962AC59075B964B07152D234B70');
+        $user3->setEmail('user3@sandbox3.cn');
+        $user3->setPhone('18622222222');
+        $user3->setPhoneCode('+86');
+        $user3->setBanned(0);
+        $user3->setCreationDate($now);
+        $user3->setModificationDate($now);
+        $user3->setAuthorized(1);
+        $user3->setCardNo('8888888888');
+        $user3->setCredentialNo('888666198608068865');
+        $user3->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_OFFICIAL);
+        $user3->setAuthorizedAdminUsername(10);
+        $user3->setCustomerId(null);
+        $this->addReference('user-3', $user3);
+
+        $userProfile3 = new UserProfile();
+        $userProfile3->setUser($user3);
+        $userProfile3->setName('User3');
+        $userProfile3->setCreationDate($now);
+        $userProfile3->setModificationDate($now);
+        $this->addReference('user-profile-3', $userProfile3);
+
+        $client3 = new UserClient();
+        $client3->setCreationDate($now);
+        $client3->setModificationDate($now);
+        $this->addReference('client-3', $client3);
+
+        $token3 = new UserToken();
+        $token3->setUser($user3);
+        $token3->setClient($client3);
+        $token3->setToken('4d4c8002863894ebb0f94946639cf4ec');
+        $token3->setRefreshToken('f78fa4984ac501160d0d13494f4c939c');
+        $token3->setOnline(1);
+        $token3->setCreationDate($now);
+        $token3->setModificationDate($now);
+        $this->addReference('user-token-3', $token3);
+
+        $platform3 = new AdminPlatform();
+        $platform3->setUser($user3);
+        $platform3->setClient($client3);
+        $platform3->setPlatform('shop');
+        $platform3->setSalesCompany($this->getReference('sales-company-sandbox'));
+        $platform3->setCreationDate($now);
+
         $manager->persist($user1);
         $manager->persist($userProfile1);
         $manager->persist($client1);
         $manager->persist($token1);
+        $manager->persist($platform1);
+        $manager->persist($user2);
+        $manager->persist($userProfile2);
+        $manager->persist($client2);
+        $manager->persist($token2);
+        $manager->persist($platform2);
+        $manager->persist($user3);
+        $manager->persist($userProfile3);
+        $manager->persist($client3);
+        $manager->persist($token3);
+        $manager->persist($platform3);
 
         $manager->flush();
     }
 
     public function getOrder()
     {
-        return 1;
+        return 2;
     }
 }
