@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -50,6 +51,7 @@ use Doctrine\ORM\EntityManager;
 class AdminBuildingController extends LocationController
 {
     const ROOM_FLOOR_BAK = '.bak';
+    const ROOM_TYPE = 'room.type.';
 
     /**
      * @Route("/buildings/{id}/sync")
@@ -136,6 +138,70 @@ class AdminBuildingController extends LocationController
             'banned' => $banned,
             'pending' => $pending,
         );
+
+        return new View($result);
+    }
+
+    /**
+     * Get Room Buildings.
+     *
+     * @param Request $request
+     *
+     * @Route("/buildings/{id}/roomtypes")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getBuildingRoomTypesAction(
+        Request $request,
+        $id
+    ) {
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
+
+        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        if ($building->getCompanyId() != $companyId) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $roomTypes = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomTypes')->findAll();
+
+        $result = array();
+        foreach ($roomTypes as $roomType) {
+            $using_number = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->countsProductByType(
+                    $id,
+                    $roomType->getName(),
+                    true
+                );
+
+            $all_number = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->countsProductByType(
+                    $id,
+                    $roomType->getName()
+                );
+
+            if ($all_number > 0) {
+                $result[] = array(
+                    'id' => $roomType->getId(),
+                    'name' => $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType->getName()),
+                    'icon' => $roomType->getIcon(),
+                    'using_number' => (int) $using_number,
+                    'all_number' => (int) $all_number,
+                );
+            }
+        }
 
         return new View($result);
     }
@@ -1347,8 +1413,8 @@ class AdminBuildingController extends LocationController
             $result[] = array(
                 'id' => $building->getId(),
                 'name' => $building->getName(),
-                'using_number' => $usingNumber,
-                'all_number' => $allNumber,
+                'using_number' => (int) $usingNumber,
+                'all_number' => (int) $allNumber,
             );
         }
 

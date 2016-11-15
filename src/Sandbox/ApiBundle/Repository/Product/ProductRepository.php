@@ -1222,4 +1222,26 @@ class ProductRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function countsProductByType(
+        $building,
+        $type,
+        $visible = null
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('COUNT(p)')
+            ->leftJoin('p.room', 'r')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('r.building = :building')
+            ->andWhere('r.type = :type')
+            ->setParameter('building', $building)
+            ->setParameter('type', $type);
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
