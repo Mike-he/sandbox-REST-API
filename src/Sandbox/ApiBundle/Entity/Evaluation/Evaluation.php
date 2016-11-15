@@ -371,7 +371,7 @@ class Evaluation
      */
     public function getCreationDate()
     {
-        return $this->creationDate->format("Y-m-d\TH:i:sO");
+        return $this->creationDate;
     }
 
     /**
