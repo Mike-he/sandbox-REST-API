@@ -31,6 +31,7 @@ class LocationControllerTest extends WebTestCase
         $fixtures = [
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Location\LoadLocationData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
         ];
 
         $fixtureExecutor = $this->loadFixtures($fixtures);
@@ -257,7 +258,7 @@ class LocationControllerTest extends WebTestCase
                 'filters' => [
                     [
                         'type' => 'tag',
-                        'name' => 'Tag',
+                        'name' => 'Tag（Multiple Choices）:',
                         'queryParamKey' => 'building_tags[]',
                         'filterAllTitle' => 'All Space',
                         'items' => [
@@ -275,7 +276,7 @@ class LocationControllerTest extends WebTestCase
                     ],
                     [
                         'type' => 'tag',
-                        'name' => 'Configure',
+                        'name' => 'Configure（Multiple Choices）:',
                         'queryParamKey' => 'building_services[]',
                         'items' => [
                             [

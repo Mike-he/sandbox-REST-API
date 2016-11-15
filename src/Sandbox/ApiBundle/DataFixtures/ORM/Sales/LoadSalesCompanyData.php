@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\DataFixtures\ORM\User;
+namespace Sandbox\ApiBundle\DataFixtures\ORM\Sales;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
