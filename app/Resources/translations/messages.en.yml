@@ -205,7 +205,7 @@ client:
     member: Members
     company: Companies
     my_company: My Company
-    scan_qr: Scan
+    scan_qr: Scan QR Code
     balance: Balance
     my_order: My Orders
     my_room: My Rooms
