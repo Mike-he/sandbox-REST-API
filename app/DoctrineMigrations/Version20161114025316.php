@@ -35,7 +35,6 @@ class Version20161114025316 extends AbstractMigration
         $this->addSql('ALTER TABLE room_city ADD parentId INT DEFAULT NULL, ADD level INT NOT NULL, DROP `key`');
         $this->addSql('ALTER TABLE room_city ADD CONSTRAINT FK_4E5FE85010EE4CEE FOREIGN KEY (parentId) REFERENCES room_city (id) ON DELETE SET NULL');
         $this->addSql('CREATE INDEX IDX_4E5FE85010EE4CEE ON room_city (parentId)');
-        $this->addSql('DELETE FROM room_city WHERE id > 0');
     }
 
     /**
