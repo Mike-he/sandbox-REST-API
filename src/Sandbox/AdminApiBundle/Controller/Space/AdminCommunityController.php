@@ -20,6 +20,28 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminCommunityController extends SandboxRestController
 {
     /**
+     * Get Sales Companies.
+     *
+     * @param Request $request the request object
+     *
+     * @Method({"GET"})
+     * @Route("/companies")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getCompaniesAction(
+        Request $request
+    ) {
+        $companies = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->findBy(array('banned'=>false));
+
+        return new View($companies);
+    }
+
+    /**
      * Get Communities.
      *
      * @param Request               $request      the request object
