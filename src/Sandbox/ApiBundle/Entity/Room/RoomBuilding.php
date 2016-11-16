@@ -116,6 +116,63 @@ class RoomBuilding implements JsonSerializable
     private $city;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="countryId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $countryId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="RoomCity")
+     * @ORM\JoinColumn(name="countryId", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\Groups({
+     *     "main",
+     *     "admin_building",
+     * })
+     **/
+    private $country;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="provinceId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $provinceId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="RoomCity")
+     * @ORM\JoinColumn(name="provinceId", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\Groups({
+     *     "main",
+     *     "admin_building",
+     * })
+     **/
+    private $province;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="areaId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $areaId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="RoomCity")
+     * @ORM\JoinColumn(name="areaId", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\Groups({
+     *     "main",
+     *     "admin_building",
+     * })
+     **/
+    private $area;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
@@ -773,6 +830,102 @@ class RoomBuilding implements JsonSerializable
     public function getCity()
     {
         return $this->city;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountryId()
+    {
+        return $this->countryId;
+    }
+
+    /**
+     * @param int $countryId
+     */
+    public function setCountryId($countryId)
+    {
+        $this->countryId = $countryId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param mixed $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
+
+    /**
+     * @return int
+     */
+    public function getProvinceId()
+    {
+        return $this->provinceId;
+    }
+
+    /**
+     * @param int $provinceId
+     */
+    public function setProvinceId($provinceId)
+    {
+        $this->provinceId = $provinceId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProvince()
+    {
+        return $this->province;
+    }
+
+    /**
+     * @param mixed $province
+     */
+    public function setProvince($province)
+    {
+        $this->province = $province;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAreaId()
+    {
+        return $this->areaId;
+    }
+
+    /**
+     * @param int $areaId
+     */
+    public function setAreaId($areaId)
+    {
+        $this->areaId = $areaId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getArea()
+    {
+        return $this->area;
+    }
+
+    /**
+     * @param mixed $area
+     */
+    public function setArea($area)
+    {
+        $this->area = $area;
     }
 
     /**

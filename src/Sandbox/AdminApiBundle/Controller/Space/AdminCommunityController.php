@@ -36,7 +36,7 @@ class AdminCommunityController extends SandboxRestController
     ) {
         $companies = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->findBy(array('banned'=>false));
+            ->findBy(array('banned' => false));
 
         return new View($companies);
     }

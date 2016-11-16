@@ -681,9 +681,17 @@ class AdminBuildingController extends LocationController
         $buildingServices = $building->getBuildingServices();
 
         // check city
-        $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
-        if (is_null($roomCity)) {
-            throw new BadRequestHttpException(self::NOT_FOUND_MESSAGE);
+        $roomCity = !is_null($building->getCityId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCityId()) : null;
+        $country = !is_null($building->getCountryId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCountryId()) : null;
+        $province = !is_null($building->getProvinceId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getProvinceId()) : null;
+        $area = !is_null($building->getAreaId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getAreaId()) : null;
+
+        if (is_null($roomCity) || is_null($country) || is_null($province)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // add room building
@@ -691,7 +699,10 @@ class AdminBuildingController extends LocationController
             $building,
             $roomCity,
             $salesCompany,
-            $em
+            $em,
+            $country,
+            $province,
+            $area
         );
 
         // add room attachments
@@ -768,16 +779,27 @@ class AdminBuildingController extends LocationController
         $buildingServices = $building->getBuildingServices();
 
         // check city
-        $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
-        if (is_null($roomCity)) {
-            throw new BadRequestHttpException(self::NOT_FOUND_MESSAGE);
+        $roomCity = !is_null($building->getCityId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCityId()) : null;
+        $country = !is_null($building->getCountryId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCountryId()) : null;
+        $province = !is_null($building->getProvinceId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getProvinceId()) : null;
+        $area = !is_null($building->getAreaId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getAreaId()) : null;
+
+        if (is_null($roomCity) || is_null($country) || is_null($province)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         // modify room building
         $this->modifyAdminBuilding(
             $building,
             $roomCity,
-            $em
+            $em,
+            $country,
+            $province,
+            $area
         );
 
         // add room attachments
@@ -870,11 +892,17 @@ class AdminBuildingController extends LocationController
      * @param RoomBuilding $building
      * @param RoomCity     $roomCity
      * @param              $em
+     * @param RoomCity     $country
+     * @param RoomCity     $province
+     * @param RoomCity     $area
      */
     private function modifyAdminBuilding(
         $building,
         $roomCity,
-        $em
+        $em,
+        $country,
+        $province,
+        $area
     ) {
         $now = new \DateTime('now');
 
@@ -885,6 +913,9 @@ class AdminBuildingController extends LocationController
         }
 
         $building->setCity($roomCity);
+        $building->setCountry($country);
+        $building->setProvince($province);
+        $building->setArea($area);
         $building->setModificationDate($now);
 
         $em->flush();
@@ -971,17 +1002,26 @@ class AdminBuildingController extends LocationController
      * @param RoomCity      $roomCity
      * @param SalesCompany  $salesCompany
      * @param EntityManager $em
+     * @param RoomCity      $country
+     * @param RoomCity      $province
+     * @param RoomCity      $area
      */
     private function addAdminBuilding(
         $building,
         $roomCity,
         $salesCompany,
-        $em
+        $em,
+        $country,
+        $province,
+        $area
     ) {
         $now = new \DateTime('now');
 
         $building->setCompany($salesCompany);
         $building->setCity($roomCity);
+        $building->setCountry($country);
+        $building->setProvince($province);
+        $building->setArea($area);
         $building->setStatus(RoomBuilding::STATUS_PENDING);
         $building->setCreationDate($now);
         $building->setModificationDate($now);
