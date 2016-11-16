@@ -65,15 +65,6 @@ class Product
     private $description;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="seatNumber", type="string", length=64, nullable=true)
-     *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "current_order"})
-     */
-    private $seatNumber;
-
-    /**
      * @var int
      *
      * @ORM\Column(name="visibleUserId", type="integer", nullable=true)
@@ -85,7 +76,7 @@ class Product
     /**
      * @var string
      *
-     * @ORM\Column(name="basePrice", type="decimal")
+     * @ORM\Column(name="basePrice", type="decimal", nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
@@ -255,6 +246,11 @@ class Product
     private $distance;
 
     /**
+     * @var array
+     */
+    private $seats;
+
+    /**
      * Get id.
      *
      * @return int
@@ -359,27 +355,27 @@ class Product
     }
 
     /**
-     * Set seatNumber.
+     * Set seats.
      *
-     * @param string $seatNumber
+     * @param array $seats
      *
      * @return Product
      */
-    public function setSeatNumber($seatNumber)
+    public function setSeats($seats)
     {
-        $this->seatNumber = $seatNumber;
+        $this->seats = $seats;
 
         return $this;
     }
 
     /**
-     * Get seatNumber.
+     * Get seats.
      *
-     * @return string
+     * @return array
      */
-    public function getSeatNumber()
+    public function getSeats()
     {
-        return $this->seatNumber;
+        return $this->seats;
     }
 
     /**

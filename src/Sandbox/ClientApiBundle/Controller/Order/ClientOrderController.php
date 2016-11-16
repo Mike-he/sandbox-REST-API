@@ -576,7 +576,7 @@ class ClientOrderController extends OrderController
 
             // check if it's same order from the same user
             // return orderId if so
-            if ($type !== Room::TYPE_FLEXIBLE) {
+            if ($type !== Room::TYPE_FLEXIBLE && $type !== Room::TYPE_FIXED) {
                 $sameOrder = $this->getRepo('Order\ProductOrder')->getOrderFromSameUser(
                     $productId,
                     $userId,

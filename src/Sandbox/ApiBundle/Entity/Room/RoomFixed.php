@@ -28,7 +28,7 @@ class RoomFixed
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order", "admin_detail"})
      */
     private $id;
 
@@ -56,18 +56,18 @@ class RoomFixed
      *
      * @ORM\Column(name="seatNumber", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order", "admin_detail"})
      */
     private $seatNumber;
 
     /**
-     * @var bool
+     * @var string
      *
-     * @ORM\Column(name="available", type="boolean", nullable=false)
+     * @ORM\Column(name="basePrice", type="decimal", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "client", "admin_room", "current_order", "admin_detail"})
      */
-    private $available;
+    private $basePrice;
 
     /**
      * Get id.
@@ -77,6 +77,30 @@ class RoomFixed
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set basePrice.
+     *
+     * @param string $basePrice
+     *
+     * @return RoomFixed
+     */
+    public function setBasePrice($basePrice)
+    {
+        $this->basePrice = $basePrice;
+
+        return $this;
+    }
+
+    /**
+     * Get basePrice.
+     *
+     * @return string
+     */
+    public function getBasePrice()
+    {
+        return $this->basePrice;
     }
 
     /**
@@ -149,29 +173,5 @@ class RoomFixed
     public function getSeatNumber()
     {
         return $this->seatNumber;
-    }
-
-    /**
-     * Set available.
-     *
-     * @param bool $available
-     *
-     * @return RoomFixed
-     */
-    public function setAvailable($available)
-    {
-        $this->available = $available;
-
-        return $this;
-    }
-
-    /**
-     * Get available.
-     *
-     * @return bool
-     */
-    public function getAvailable()
-    {
-        return $this->available;
     }
 }
