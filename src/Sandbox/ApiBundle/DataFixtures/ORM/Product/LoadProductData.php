@@ -39,7 +39,7 @@ class LoadProductData extends AbstractFixture implements OrderedFixtureInterface
         $this->addReference('product-3', $pro3);
 
         $pro4 = new Product();
-        $pro4->setRoom($this->getReference('room-office-1'));
+        $pro4->setRoom($this->getReference('room-office-2'));
         $pro4->setDescription('空间4');
         $pro4->setBasePrice(100);
         $pro4->setUnitPrice('day');

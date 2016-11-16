@@ -55,9 +55,35 @@ class LoadRoomData extends AbstractFixture implements OrderedFixtureInterface
         $room3->setAllowedPeople(10);
         $this->addReference('room-office-1', $room3);
 
+        $room4 = new Room();
+        $room4->setName('office-room2');
+        $room4->setDescription('独享办公室2');
+        $room4->setCity($this->getReference('shanghai'));
+        $room4->setBuilding($this->getReference('room-building-for-data-structure'));
+        $room4->setFloor($this->getReference('room-floor-1'));
+        $room4->setNumber(100003);
+        $room4->setArea(10);
+        $room4->setType('office');
+        $room4->setAllowedPeople(10);
+        $this->addReference('room-office-2', $room4);
+
+        $room5 = new Room();
+        $room5->setName('office-room3');
+        $room5->setDescription('独享办公室3');
+        $room5->setCity($this->getReference('shanghai'));
+        $room5->setBuilding($this->getReference('room-building-for-data-structure'));
+        $room5->setFloor($this->getReference('room-floor-1'));
+        $room5->setNumber(100003);
+        $room5->setArea(10);
+        $room5->setType('office');
+        $room5->setAllowedPeople(10);
+        $this->addReference('room-office-3', $room5);
+
         $manager->persist($room1);
         $manager->persist($room2);
         $manager->persist($room3);
+        $manager->persist($room4);
+        $manager->persist($room5);
 
         $manager->flush();
     }

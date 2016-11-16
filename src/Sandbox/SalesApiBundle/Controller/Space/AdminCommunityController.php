@@ -141,8 +141,8 @@ class AdminCommunityController extends SalesRestController
                 );
 
             $all_number = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->countsProductByType(
+                ->getRepository('SandboxApiBundle:Room\Room')
+                ->countsRoomByBuilding(
                     $id,
                     $roomType->getName()
                 );
@@ -188,8 +188,8 @@ class AdminCommunityController extends SalesRestController
         $result = array();
         foreach ($buildings as $building) {
             $allNumber = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->countsProductByBuilding($building);
+                ->getRepository('SandboxApiBundle:Room\Room')
+                ->countsRoomByBuilding($building);
 
             $usingNumber = 0;
             if ($visible == true) {

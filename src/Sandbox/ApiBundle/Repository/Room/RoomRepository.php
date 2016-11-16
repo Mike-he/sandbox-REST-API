@@ -625,17 +625,24 @@ class RoomRepository extends EntityRepository
 
     /**
      * @param $building
+     * @param null $roomtype
      *
      * @return mixed
      */
     public function countsRoomByBuilding(
-        $building
+        $building,
+        $roomtype = null
     ) {
         $query = $this->createQueryBuilder('r')
             ->select('COUNT(r)')
             ->where('r.building = :building')
             ->andWhere('r.isDeleted = FALSE')
             ->setParameter('building', $building);
+
+        if (!is_null($roomtype)) {
+            $query->andWhere('r.type = :type')
+                ->setParameter('type', $roomtype);
+        }
 
         return $query->getQuery()->getSingleScalarResult();
     }
