@@ -98,11 +98,11 @@ class AdminCommunityController extends SalesRestController
     }
 
     /**
-     * Get Room Buildings.
+     * Get Community Roomtypes.
      *
      * @param Request $request
      *
-     * @Route("/communities/{id}/roomtypes")
+     * @Route("/community/{id}/roomtypes")
      * @Method({"GET"})
      *
      * @return View
