@@ -1,12 +1,12 @@
 <?php
 
-namespace Sandbox\SalesApiBundle\Controller\Space;
+namespace Sandbox\AdminApiBundle\Controller\Space;
 
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use FOS\RestBundle\Controller\Annotations;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -17,51 +17,23 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 /**
  * Class AdminCommunityController.
  */
-class AdminCommunityController extends SalesRestController
+class AdminCommunityController extends SandboxRestController
 {
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/administrative_region")
-     * @Method({"GET"})
-     *
-     * @Annotations\QueryParam(
-     *    name="parent",
-     *    default=null,
-     *    nullable=false,
-     *    description="parent id"
-     * )
-     *
-     * @return View
-     */
-    public function getAdministrativeRegionsAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $parentId = $paramFetcher->get('parent');
-
-        $regions = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomCity')
-            ->findBy(array(
-                'parentId' => $parentId,
-            ));
-
-        $response = array();
-        foreach ($regions as $region) {
-            array_push($response, array(
-                'id' => $region->getId(),
-                'name' => $region->getName(),
-            ));
-        }
-
-        return new View($response);
-    }
-
     /**
      * Get Communities.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="company id"
+     * )
      *
      * @Method({"GET"})
      * @Route("/communities")
@@ -71,16 +43,19 @@ class AdminCommunityController extends SalesRestController
      * @throws \Exception
      */
     public function getCommunitiesAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
         $adminPlatform = $this->getAdminPlatform();
         $platform = $adminPlatform['platform'];
-        $companyId = $adminPlatform['sales_company_id'];
 
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
+        if ($platform != AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
-        $this->throwNotFoundIfNull($companyId, self::NOT_FOUND_MESSAGE);
+
+        $companyId = $paramFetcher->get('company');
+        $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
         $using = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, true);
         $invisible = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, false);
@@ -115,18 +90,13 @@ class AdminCommunityController extends SalesRestController
     ) {
         $adminPlatform = $this->getAdminPlatform();
         $platform = $adminPlatform['platform'];
-        $companyId = $adminPlatform['sales_company_id'];
 
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
+        if ($platform != AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
-
-        if ($building->getCompanyId() != $companyId) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
 
         $roomTypes = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomTypes')->findAll();
 

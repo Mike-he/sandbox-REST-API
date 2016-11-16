@@ -6,7 +6,6 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -101,7 +100,6 @@ class AdminBuildingController extends LocationController
 
         return new Response();
     }
-
 
     /**
      * Get Room Buildings.
@@ -1271,5 +1269,4 @@ class AdminBuildingController extends LocationController
 
         $em->flush();
     }
-
 }
