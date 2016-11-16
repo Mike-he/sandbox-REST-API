@@ -150,8 +150,10 @@ class AdminCommunityController extends SalesRestController
             if ($all_number > 0) {
                 $result[] = array(
                     'id' => $roomType->getId(),
+                    'type' => $roomType->getName(),
                     'name' => $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType->getName()),
                     'icon' => $roomType->getIcon(),
+                    'building_id' => $id,
                     'using_number' => (int) $using_number,
                     'all_number' => (int) $all_number,
                 );
