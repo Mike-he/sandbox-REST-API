@@ -21,20 +21,7 @@ class AdminPermissionRepository extends EntityRepository
             ->orderBy('p.id', 'ASC');
 
         // filter by exclude permission ids
-        $excludePermissionIdsQuery = $this->getEntityManager()->createQueryBuilder()
-            ->select('ep.permissionId')
-            ->from('SandboxApiBundle:Admin\AdminExcludePermission', 'ep')
-            ->where('ep.platform = :platform')
-            ->setParameter('platform', $platform);
-
-        if (!is_null($salesCompanyId)) {
-            $excludePermissionIdsQuery
-                ->andWhere('ep.salesCompanyId = :salesCompanyId')
-                ->setParameter('salesCompanyId', $salesCompanyId);
-        }
-
-        $excludePermissionIds = $excludePermissionIdsQuery->getQuery()->getResult();
-        $excludePermissionIds = array_map('current', $excludePermissionIds);
+        $excludePermissionIds = $this->findAdminExcludePermissionIds($platform, $salesCompanyId);
 
         if (!empty($excludePermissionIds)) {
             $query->andWhere('p.id NOT IN (:ids)')
@@ -88,7 +75,7 @@ class AdminPermissionRepository extends EntityRepository
 
         if (!is_null($salesCompanyId)) {
             $excludePermissionIdsQuery
-                ->andWhere('ep.salesCompanyId = :salesCompanyId')
+                ->andWhere('(ep.salesCompanyId = :salesCompanyId OR ep.salesCompanyId IS NULL)')
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
 
