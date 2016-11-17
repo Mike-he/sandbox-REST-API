@@ -336,6 +336,7 @@ class AdminProductController extends ProductController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
