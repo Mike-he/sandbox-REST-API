@@ -151,6 +151,10 @@ class ClientUserFavoriteController extends LocationController
 
                 $objects = [];
                 foreach ($contents as $content) {
+                    if ($lat == 0 || $lng == 0) {
+                        $content['distance'] = 0;
+                    }
+
                     $content['product']->setDistance($content['distance']);
                     array_push($objects, $content['product']);
                 }
