@@ -136,14 +136,16 @@ class ClientUserFavoriteController extends LocationController
                     );
 
                 if ($lat == 0 || $lng == 0) {
+                    $objectArray = [];
                     foreach ($objects as $object) {
                         $object['distance'] = 0;
+                        array_push($objectArray, $object);
                     }
 
-                    $objects = array_values($objects);
+                    $objects = $this->handleSearchBuildingsData($objectArray);
+                } else {
+                    $objects = $this->handleSearchBuildingsData($objects);
                 }
-
-                $objects = $this->handleSearchBuildingsData($objects);
 
                 break;
             case UserFavorite::OBJECT_PRODUCT:
