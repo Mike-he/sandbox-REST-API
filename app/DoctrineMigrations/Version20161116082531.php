@@ -19,7 +19,7 @@ class Version20161116082531 extends AbstractMigration
         $this->addSql("INSERT INTO `admin_permission`(`key`,`name`,`platform`,`level`,`opLevelSelect`,`maxOpLevel`,`creationDate`,`modificationDate`) VALUES ('platform.space','空间管理','official','global','1,2','2','2016-11-16 01:01:01','2016-11-16 01:01:01')");
         $this->addSql("INSERT INTO `admin_permission`(`key`,`name`,`platform`,`level`,`opLevelSelect`,`maxOpLevel`,`creationDate`,`modificationDate`) VALUES ('sales.building.space','空间管理','sales','specify','1,2','2','2016-11-16 01:01:01','2016-11-16 01:01:01')");
         $this->addSql("UPDATE `admin_permission` SET `opLevelSelect`='2' WHERE `key` IN ('platform.order.reserve','platform.order.preorder','sales.building.order.reserve','sales.building.order.preorder')");
-
+        $this->addSql("INSERT INTO `admin_exclude_permission`(`permissionId`,`platform`,`creationDate`) SELECT `p`.`id`,`p`.`platform`,`p`.`creationDate` FROM `admin_permission` AS `p` WHERE `p`.`key`='platform.product'");
     }
 
     /**

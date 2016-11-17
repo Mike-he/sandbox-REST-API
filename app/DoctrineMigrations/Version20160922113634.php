@@ -69,6 +69,8 @@ class Version20160922113634 extends AbstractMigration
         ");
 
         $this->addSql("INSERT INTO `admin_exclude_permission`(`permissionId`,`platform`,`creationDate`) VALUES ('16','official','2016-9-22')");
+        $this->addSql("INSERT INTO `admin_exclude_permission`(`permissionId`,`platform`,`creationDate`) VALUES ('14','official','2016-9-22')");
+        $this->addSql("INSERT INTO `admin_exclude_permission`(`permissionId`,`platform`,`creationDate`) VALUES ('17','official','2016-9-22')");
 
         $this->addSql("
               INSERT INTO `parameter` (`key`, `value`) VALUES ('banner_top', '5');

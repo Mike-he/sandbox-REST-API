@@ -327,6 +327,7 @@ class AdminCommunityController extends SalesRestController
                 ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_ROOM],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT],
             ],
             $opLevel
         );

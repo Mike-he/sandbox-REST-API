@@ -600,12 +600,6 @@ class AdminRoomController extends SalesRestController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
                 ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
-                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );

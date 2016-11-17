@@ -352,13 +352,20 @@ class AdminProductController extends ProductController
             $this->getAdminId(),
             array(
                 array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                    'building_id' => $buildingId,
+                ),
+                array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                    'building_id' => $buildingId,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                    'building_id' => $buildingId,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW

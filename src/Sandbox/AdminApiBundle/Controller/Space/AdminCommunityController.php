@@ -68,6 +68,8 @@ class AdminCommunityController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
+
         $adminPlatform = $this->getAdminPlatform();
         $platform = $adminPlatform['platform'];
 
@@ -79,10 +81,10 @@ class AdminCommunityController extends SandboxRestController
         $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
-        $using = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, true);
-        $invisible = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, false);
-        $banned = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_BANNED);
-        $pending = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_PENDING);
+        $using = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, true);
+        $invisible = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, false);
+        $banned = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_BANNED);
+        $pending = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_PENDING);
 
         $result = array(
             'using' => $using,
@@ -110,6 +112,8 @@ class AdminCommunityController extends SandboxRestController
         Request $request,
         $id
     ) {
+        $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
+
         $adminPlatform = $this->getAdminPlatform();
         $platform = $adminPlatform['platform'];
 
@@ -162,7 +166,7 @@ class AdminCommunityController extends SandboxRestController
      *
      * @return array
      */
-    private function getbuildingInfo(
+    private function getBuildingInfo(
         $company,
         $status,
         $visible = null
@@ -199,5 +203,25 @@ class AdminCommunityController extends SandboxRestController
         }
 
         return $result;
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminCommunityPermissions(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BUILDING],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+            ],
+            $opLevel
+        );
     }
 }
