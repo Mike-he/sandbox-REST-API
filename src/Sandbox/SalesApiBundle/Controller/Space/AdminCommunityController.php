@@ -185,6 +185,7 @@ class AdminCommunityController extends SalesRestController
         $buildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
+                AdminPermission::KEY_SALES_BUILDING_SPACE,
                 AdminPermission::KEY_SALES_PLATFORM_BUILDING,
                 AdminPermission::KEY_SALES_BUILDING_BUILDING,
                 AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
@@ -236,6 +237,7 @@ class AdminCommunityController extends SalesRestController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
+                ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER],
