@@ -649,8 +649,8 @@ class RoomRepository extends EntityRepository
 
     public function findSpacesByBuilding(
         $buildingId,
-        $limit,
-        $lastId = null,
+        $pageLimit,
+        $offset,
         $roomTypes = []
     ) {
         $query = $this->createQueryBuilder('r')
@@ -681,13 +681,10 @@ class RoomRepository extends EntityRepository
                 ->setParameter('types', $roomTypes);
         }
 
-        if (!is_null($lastId)) {
-            $query->andWhere('r.id < :lastId')
-            ->setParameter('lastId', $lastId);
-        }
-
-        $query->setMaxResults($limit);
-
-        return $query->getQuery()->getResult();
+        return $query
+            ->setFirstResult($offset)
+            ->setMaxResults($pageLimit)
+            ->getQuery()
+            ->getResult();
     }
 }

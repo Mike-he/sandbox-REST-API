@@ -171,23 +171,23 @@ class AdminCommunityController extends SalesRestController
 
     /**
      * @Annotations\QueryParam(
-     *    name="limit",
+     *    name="pageLimit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many to return "
+     *    description="How many spaces to return "
      * )
      *
      * @Annotations\QueryParam(
-     *    name="last_id",
+     *    name="pageIndex",
      *    array=false,
-     *    default=null,
+     *    default="1",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="id of last room in page"
+     *    description="page number "
      * )
      *
      * @Annotations\QueryParam(
@@ -210,13 +210,14 @@ class AdminCommunityController extends SalesRestController
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
-        $limit = $paramFetcher->get('limit');
-        $lastId = $paramFetcher->get('last_id');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
         $roomType = $paramFetcher->get('room_types');
 
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
-            ->findSpacesByBuilding($id, $limit, $lastId, $roomType);
+            ->findSpacesByBuilding($id, $pageLimit, $offset, $roomType);
 
         $spaces = $this->handleSpacesData($spaces);
 
