@@ -135,6 +135,12 @@ class ClientUserFavoriteController extends LocationController
                         $excludeIds = [9] // the company id of xiehe
                     );
 
+                if ($lat == 0 || $lng == 0) {
+                    foreach ($objects as $object) {
+                        $object['distance'] = 0;
+                    }
+                }
+
                 $objects = $this->handleSearchBuildingsData($objects);
 
                 break;
