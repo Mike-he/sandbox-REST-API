@@ -1180,8 +1180,7 @@ class ProductRepository extends EntityRepository
             ->orderBy('distance', 'ASC')
             ->addOrderBy('p.creationDate', 'DESC')
             ->setMaxResults($limit)
-            ->setFirstResult($offset)
-        ;
+            ->setFirstResult($offset);
 
         return $query->getQuery()->getResult();
     }

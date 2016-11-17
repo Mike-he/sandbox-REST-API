@@ -135,11 +135,17 @@ class ClientUserFavoriteController extends LocationController
                         $excludeIds = [9] // the company id of xiehe
                     );
 
-                if ($lat = 0 || $lng = 0) {
-                    $objects['distance'] = 0;
-                }
+                if ($lat == 0 || $lng == 0) {
+                    $objectArray = [];
+                    foreach ($objects as $object) {
+                        $object['distance'] = 0;
+                        array_push($objectArray, $object);
+                    }
 
-                $objects = $this->handleSearchBuildingsData($objects);
+                    $objects = $this->handleSearchBuildingsData($objectArray);
+                } else {
+                    $objects = $this->handleSearchBuildingsData($objects);
+                }
 
                 break;
             case UserFavorite::OBJECT_PRODUCT:
@@ -153,12 +159,12 @@ class ClientUserFavoriteController extends LocationController
                         $offset
                     );
 
-                if ($lat = 0 || $lng = 0) {
-                    $contents['distance'] = 0;
-                }
-
                 $objects = [];
                 foreach ($contents as $content) {
+                    if ($lat == 0 || $lng == 0) {
+                        $content['distance'] = 0;
+                    }
+
                     $content['product']->setDistance($content['distance']);
                     array_push($objects, $content['product']);
                 }
