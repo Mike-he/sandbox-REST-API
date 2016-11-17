@@ -139,6 +139,8 @@ class ClientUserFavoriteController extends LocationController
                     foreach ($objects as $object) {
                         $object['distance'] = 0;
                     }
+
+                    $objects = array_values($objects);
                 }
 
                 $objects = $this->handleSearchBuildingsData($objects);
