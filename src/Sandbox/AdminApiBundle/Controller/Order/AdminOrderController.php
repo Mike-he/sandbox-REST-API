@@ -1246,6 +1246,7 @@ class AdminOrderController extends OrderController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
             ],
@@ -1387,6 +1388,7 @@ class AdminOrderController extends OrderController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
             ],
