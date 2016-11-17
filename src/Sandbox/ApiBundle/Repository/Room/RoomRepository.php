@@ -646,4 +646,48 @@ class RoomRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    public function findSpacesByBuilding(
+        $buildingId,
+        $limit,
+        $lastId = null,
+        $roomTypes = []
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->select('
+                distinct
+                    r.id, 
+                    r.name, 
+                    r.type,
+                    rt.type as rent_type,
+                    r.area, 
+                    r.allowedPeople as allowed_people, 
+                    p.basePrice as base_price, 
+                    p.unitPrice as unit_price,
+                    p.id as product_id,
+                    p.startDate as start_date,
+                    p.visible
+            ')
+            ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->where('r.building = :buildingId')
+            ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('p.isDeleted = FALSE')
+            ->setParameter('buildingId', $buildingId)
+            ->orderBy('r.id', 'DESC');
+
+        if (!empty($roomTypes)) {
+            $query->andWhere('r.type IN (:types)')
+                ->setParameter('types', $roomTypes);
+        }
+
+        if (!is_null($lastId)) {
+            $query->andWhere('r.id < :lastId')
+            ->setParameter('lastId', $lastId);
+        }
+
+        $query->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
 }

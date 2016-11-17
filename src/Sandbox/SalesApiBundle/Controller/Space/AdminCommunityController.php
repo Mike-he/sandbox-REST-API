@@ -170,6 +170,90 @@ class AdminCommunityController extends SalesRestController
     }
 
     /**
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="last_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="id of last room in page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room_types",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="types of room"
+     * )
+     *
+     * @Route("/communities/{id}/spaces")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSpacesByCommunityIdAction(
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
+
+        $limit = $paramFetcher->get('limit');
+        $lastId = $paramFetcher->get('last_id');
+        $roomType = $paramFetcher->get('room_types');
+
+        $spaces = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->findSpacesByBuilding($id, $limit, $lastId, $roomType);
+
+        $spaces = $this->handleSpacesData($spaces);
+
+        return new View($spaces);
+    }
+
+    private function handleSpacesData(
+        $spaces
+    ) {
+        $limit = 1;
+        foreach ($spaces as &$space) {
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($space['id'], $limit);
+
+            if (!empty($attachment)) {
+                $space['preview'] = $attachment[0]['preview'];
+            }
+
+            $space['product']['id'] = $space['product_id'];
+            $space['product']['base_price'] = $space['base_price'];
+            $space['product']['unit_price'] = $space['unit_price'];
+            $space['product']['start_date'] = $space['start_date'];
+            $space['product']['visible'] = $space['visible'];
+
+            unset($space['product_id']);
+            unset($space['base_price']);
+            unset($space['unit_price']);
+            unset($space['start_date']);
+            unset($space['visible']);
+        }
+
+        return $spaces;
+    }
+
+    /**
      * @param $company
      * @param $status
      * @param null $visible

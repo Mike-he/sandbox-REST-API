@@ -21,4 +21,23 @@ class RoomAttachmentRepository extends EntityRepository
 
         $query->execute();
     }
+
+    public function findAttachmentsByRoom(
+        $room,
+        $limit = null
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select('ra.content, ra.preview')
+            ->leftJoin('SandboxApiBundle:Room\RoomAttachment', 'ra', 'WITH', 'ra.id = rb.attachmentId')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = rb.room')
+            ->where('r.id = :roomId')
+            ->orderBy('ra.id', 'ASC')
+            ->setParameter('roomId', $room);
+
+        if (!is_null($limit)) {
+            $query->setMaxResults($limit);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }
