@@ -44,8 +44,8 @@ class ClientUserFavoriteController extends LocationController
      * @Annotations\QueryParam(
      *    name="lat",
      *    array=false,
-     *    default=null,
-     *    nullable=false,
+     *    default=0,
+     *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="latitude"
@@ -54,8 +54,8 @@ class ClientUserFavoriteController extends LocationController
      * @Annotations\QueryParam(
      *    name="lng",
      *    array=false,
-     *    default=null,
-     *    nullable=false,
+     *    default=0,
+     *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="longitude"
