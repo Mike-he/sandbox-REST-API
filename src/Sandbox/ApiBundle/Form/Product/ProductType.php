@@ -42,14 +42,7 @@ class ProductType extends AbstractType
                     'mapped' => false,
                 )
             )
-            ->add(
-                'seat_number',
-                'text',
-                array(
-                    'mapped' => false,
-                    'required' => false,
-                )
-            )
+            ->add('seats')
         ;
     }
 

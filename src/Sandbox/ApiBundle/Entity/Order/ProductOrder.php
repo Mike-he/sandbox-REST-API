@@ -453,6 +453,39 @@ class ProductOrder
     private $refundTo;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="seatId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $seatId;
+
+    /**
+     * Set seatId.
+     *
+     * @param int $seatId
+     *
+     * @return ProductOrder
+     */
+    public function setSeatId($seatId)
+    {
+        $this->seatId = $seatId;
+
+        return $this;
+    }
+
+    /**
+     * Get seatId.
+     *
+     * @return int
+     */
+    public function getSeatId()
+    {
+        return $this->seatId;
+    }
+
+    /**
      * Set refundTo.
      *
      * @param string $refundTo

@@ -576,7 +576,7 @@ class ClientOrderController extends OrderController
 
             // check if it's same order from the same user
             // return orderId if so
-            if ($type !== Room::TYPE_FLEXIBLE) {
+            if ($type !== Room::TYPE_FLEXIBLE && $type !== Room::TYPE_FIXED) {
                 $sameOrder = $this->getRepo('Order\ProductOrder')->getOrderFromSameUser(
                     $productId,
                     $userId,
@@ -591,6 +591,20 @@ class ClientOrderController extends OrderController
                 }
             }
 
+            $seatId = $order->getSeatId();
+            $basePrice = $product->getBasePrice();
+            if (!is_null($seatId)) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $seatId,
+                        'roomId' => $product->getRoomId(),
+                    ]);
+                $this->throwNotFoundIfNull($seat, self::NOT_FOUND_MESSAGE);
+
+                $basePrice = $seat->getBasePrice();
+            }
+
             // check if price match
             $error = $this->checkIfPriceMatch(
                 $order,
@@ -598,7 +612,8 @@ class ClientOrderController extends OrderController
                 $product,
                 $period,
                 $startDate,
-                $endDate
+                $endDate,
+                $basePrice
             );
 
             if (!empty($error)) {
