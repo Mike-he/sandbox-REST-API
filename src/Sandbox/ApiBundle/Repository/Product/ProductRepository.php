@@ -366,22 +366,11 @@ class ProductRepository extends EntityRepository
             $query = $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
                 ->andWhere(
-                    '(
-                        p.id NOT IN (
-                            SELECT po1.productId FROM SandboxApiBundle:Order\ProductOrder po1
-                            WHERE po1.status != :status
-                            AND
-                            (
-                                (po1.startDate <= :startDate AND po1.endDate > :startDate) OR
-                                (po1.startDate < :endDate AND po1.endDate >= :endDate) OR
-                                (po1.startDate >= :startDate AND po1.endDate <= :endDate)
-                            )
-                        )
-                        OR
+                    '(                      
                         p.id IN (
                             SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
                             WHERE po2.status != :status
-                            AND r.type = :roomType
+                            AND (r.type = :flex OR r.type = :fixed)
                             AND
                             (
                                 (po2.startDate <= :startDate AND po2.endDate > :startDate) OR
@@ -394,7 +383,8 @@ class ProductRepository extends EntityRepository
                     )'
                 )
                 ->setParameter('status', ProductOrder::STATUS_CANCELLED)
-                ->setParameter('roomType', Room::TYPE_FLEXIBLE)
+                ->setParameter('flex', Room::TYPE_FLEXIBLE)
+                ->setParameter('fixed', Room::TYPE_FIXED)
                 ->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
