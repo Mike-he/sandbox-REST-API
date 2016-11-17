@@ -170,7 +170,6 @@ class AdminCommunityController extends SalesRestController
     }
 
     /**
-     *
      * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,

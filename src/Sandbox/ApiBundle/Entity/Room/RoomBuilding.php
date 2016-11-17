@@ -118,59 +118,35 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var int
      *
-     * @ORM\Column(name="countryId", type="integer", nullable=true)
-     *
      * @Serializer\Groups({"main", "admin"})
      */
     private $countryId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="RoomCity")
-     * @ORM\JoinColumn(name="countryId", referencedColumnName="id", onDelete="SET NULL")
-     * @Serializer\Groups({
-     *     "main",
-     *     "admin_building",
-     * })
-     **/
-    private $country;
-
-    /**
      * @var int
-     *
-     * @ORM\Column(name="provinceId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main", "admin"})
      */
     private $provinceId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="RoomCity")
-     * @ORM\JoinColumn(name="provinceId", referencedColumnName="id", onDelete="SET NULL")
-     * @Serializer\Groups({
-     *     "main",
-     *     "admin_building",
-     * })
-     **/
-    private $province;
-
-    /**
      * @var int
      *
-     * @ORM\Column(name="areaId", type="integer", nullable=true)
+     * @ORM\Column(name="districtId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main", "admin"})
      */
-    private $areaId;
+    private $districtId;
 
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
-     * @ORM\JoinColumn(name="areaId", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="districtId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups({
      *     "main",
      *     "admin_building",
      * })
      **/
-    private $area;
+    private $district;
 
     /**
      * @var string
@@ -849,22 +825,6 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
-     * @return mixed
-     */
-    public function getCountry()
-    {
-        return $this->country;
-    }
-
-    /**
-     * @param mixed $country
-     */
-    public function setCountry($country)
-    {
-        $this->country = $country;
-    }
-
-    /**
      * @return int
      */
     public function getProvinceId()
@@ -881,51 +841,35 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
-     * @return mixed
-     */
-    public function getProvince()
-    {
-        return $this->province;
-    }
-
-    /**
-     * @param mixed $province
-     */
-    public function setProvince($province)
-    {
-        $this->province = $province;
-    }
-
-    /**
      * @return int
      */
-    public function getAreaId()
+    public function getDistrictId()
     {
-        return $this->areaId;
+        return $this->districtId;
     }
 
     /**
-     * @param int $areaId
+     * @param int $districtId
      */
-    public function setAreaId($areaId)
+    public function setDistrictId($districtId)
     {
-        $this->areaId = $areaId;
+        $this->districtId = $districtId;
     }
 
     /**
      * @return mixed
      */
-    public function getArea()
+    public function getDistrict()
     {
-        return $this->area;
+        return $this->district;
     }
 
     /**
-     * @param mixed $area
+     * @param mixed $district
      */
-    public function setArea($area)
+    public function setDistrict($district)
     {
-        $this->area = $area;
+        $this->district = $district;
     }
 
     /**

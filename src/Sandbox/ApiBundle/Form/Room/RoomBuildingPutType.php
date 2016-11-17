@@ -20,9 +20,7 @@ class RoomBuildingPutType extends AbstractType
             ->add('detail')
             ->add('avatar')
             ->add('city_id')
-            ->add('country_id')
-            ->add('province_id')
-            ->add('area_id',
+            ->add('district_id',
                 null,
                 array(
                     'required' => false,

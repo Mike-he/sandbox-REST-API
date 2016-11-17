@@ -263,7 +263,7 @@ class AdminBuildingController extends LocationController
             [
                 [
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
-                    'building_id' => $id
+                    'building_id' => $id,
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
@@ -375,7 +375,7 @@ class AdminBuildingController extends LocationController
             [
                 [
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
-                    'building_id' => $id
+                    'building_id' => $id,
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
@@ -447,7 +447,7 @@ class AdminBuildingController extends LocationController
             [
                 [
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
-                    'building_id' => $id
+                    'building_id' => $id,
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
@@ -694,16 +694,13 @@ class AdminBuildingController extends LocationController
         // check city
         $roomCity = !is_null($building->getCityId()) ?
             $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCityId()) : null;
-        $country = !is_null($building->getCountryId()) ?
-            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCountryId()) : null;
-        $province = !is_null($building->getProvinceId()) ?
-            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getProvinceId()) : null;
-        $area = !is_null($building->getAreaId()) ?
-            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getAreaId()) : null;
 
-        if (is_null($roomCity) || is_null($country) || is_null($province)) {
+        if (is_null($roomCity)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $district = !is_null($building->getAreaId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getDistrictId()) : null;
 
         // add room building
         $this->addAdminBuilding(
@@ -711,9 +708,7 @@ class AdminBuildingController extends LocationController
             $roomCity,
             $salesCompany,
             $em,
-            $country,
-            $province,
-            $area
+            $district
         );
 
         // add room attachments
@@ -792,25 +787,20 @@ class AdminBuildingController extends LocationController
         // check city
         $roomCity = !is_null($building->getCityId()) ?
             $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCityId()) : null;
-        $country = !is_null($building->getCountryId()) ?
-            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCountryId()) : null;
-        $province = !is_null($building->getProvinceId()) ?
-            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getProvinceId()) : null;
-        $area = !is_null($building->getAreaId()) ?
-            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getAreaId()) : null;
 
-        if (is_null($roomCity) || is_null($country) || is_null($province)) {
+        if (is_null($roomCity)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $district = !is_null($building->getDistrictId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getDistrictId()) : null;
 
         // modify room building
         $this->modifyAdminBuilding(
             $building,
             $roomCity,
             $em,
-            $country,
-            $province,
-            $area
+            $district
         );
 
         // add room attachments
@@ -903,17 +893,13 @@ class AdminBuildingController extends LocationController
      * @param RoomBuilding $building
      * @param RoomCity     $roomCity
      * @param              $em
-     * @param RoomCity     $country
-     * @param RoomCity     $province
-     * @param RoomCity     $area
+     * @param RoomCity     $district
      */
     private function modifyAdminBuilding(
         $building,
         $roomCity,
         $em,
-        $country,
-        $province,
-        $area
+        $district
     ) {
         $now = new \DateTime('now');
 
@@ -924,9 +910,7 @@ class AdminBuildingController extends LocationController
         }
 
         $building->setCity($roomCity);
-        $building->setCountry($country);
-        $building->setProvince($province);
-        $building->setArea($area);
+        $building->setDistrict($district);
         $building->setModificationDate($now);
 
         $em->flush();
@@ -1013,8 +997,6 @@ class AdminBuildingController extends LocationController
      * @param RoomCity      $roomCity
      * @param SalesCompany  $salesCompany
      * @param EntityManager $em
-     * @param RoomCity      $country
-     * @param RoomCity      $province
      * @param RoomCity      $area
      */
     private function addAdminBuilding(
@@ -1022,17 +1004,13 @@ class AdminBuildingController extends LocationController
         $roomCity,
         $salesCompany,
         $em,
-        $country,
-        $province,
         $area
     ) {
         $now = new \DateTime('now');
 
         $building->setCompany($salesCompany);
         $building->setCity($roomCity);
-        $building->setCountry($country);
-        $building->setProvince($province);
-        $building->setArea($area);
+        $building->setDistrict($area);
         $building->setStatus(RoomBuilding::STATUS_PENDING);
         $building->setCreationDate($now);
         $building->setModificationDate($now);
