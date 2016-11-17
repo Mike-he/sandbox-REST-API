@@ -59,6 +59,12 @@ class ClientEvaluationController extends EvaluationController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        if (!$this->isAuthProvided()) {
+            return new View(array(
+                'able_to_create_building_evaluation' => false,
+            ));
+        }
+
         $buildingId = $paramFetcher->get('building');
 
         $em = $this->getDoctrine()->getManager();
