@@ -43,6 +43,37 @@ class ProductOrderCheck
     private $endDate;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="seatId", type="integer", nullable=true)
+     */
+    private $seatId;
+
+    /**
+     * Set seatId.
+     *
+     * @param int $seatId
+     *
+     * @return ProductOrderCheck
+     */
+    public function setSeatId($seatId)
+    {
+        $this->seatId = $seatId;
+
+        return $this;
+    }
+
+    /**
+     * Get seatId.
+     *
+     * @return int
+     */
+    public function getSeatId()
+    {
+        return $this->seatId;
+    }
+
+    /**
      * Get id.
      *
      * @return int
