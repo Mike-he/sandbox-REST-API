@@ -73,6 +73,9 @@ class AdminCommunityController extends SalesRestController
     public function getCommunitiesAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
+
         $adminPlatform = $this->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
@@ -82,10 +85,10 @@ class AdminCommunityController extends SalesRestController
         }
         $this->throwNotFoundIfNull($companyId, self::NOT_FOUND_MESSAGE);
 
-        $using = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, true);
-        $invisible = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, false);
-        $banned = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_BANNED);
-        $pending = $this->getbuildingInfo($companyId, RoomBuilding::STATUS_PENDING);
+        $using = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, true);
+        $invisible = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, false);
+        $banned = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_BANNED);
+        $pending = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_PENDING);
 
         $result = array(
             'using' => $using,
@@ -113,6 +116,9 @@ class AdminCommunityController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
+
         $adminPlatform = $this->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
@@ -170,16 +176,28 @@ class AdminCommunityController extends SalesRestController
      *
      * @return array
      */
-    private function getbuildingInfo(
+    private function getBuildingInfo(
         $company,
         $status,
         $visible = null
     ) {
+        // get my buildings list
+        $buildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
+                AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                AdminPermission::KEY_SALES_BUILDING_ROOM,
+            )
+        );
+
         $buildings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->getLocationRoomBuildings(
                 null,
-                null,
+                $buildingIds,
                 $company,
                 $status,
                 $visible
@@ -207,5 +225,24 @@ class AdminCommunityController extends SalesRestController
         }
 
         return $result;
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminCommunityPermissions(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ROOM],
+            ],
+            $opLevel
+        );
     }
 }
