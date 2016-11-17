@@ -699,7 +699,7 @@ class AdminBuildingController extends LocationController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $district = !is_null($building->getAreaId()) ?
+        $district = !is_null($building->getDistrictId()) ?
             $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getDistrictId()) : null;
 
         // add room building
