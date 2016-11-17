@@ -24,12 +24,14 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rt1->setName('office');
         $rt1->setDescription('Private Office');
         $rt1->setIcon('/icon/1.png');
+        $rt1->setType('seconds');
         $this->addReference('first-room-type', $rt1);
 
         $rt2 = new RoomTypes();
         $rt2->setName('meeting');
         $rt2->setDescription('Meeting Room');
         $rt2->setIcon('/icon/2.png');
+        $rt2->setType('seconds');
         $this->addReference('second-room-type', $rt2);
 
         $rbt1 = new RoomBuildingTag();
