@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Space;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -221,7 +222,12 @@ class AdminCommunityController extends SalesRestController
 
         $spaces = $this->handleSpacesData($spaces);
 
-        return new View($spaces);
+        $view = new View($spaces);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(['admin_spaces'])
+        );
+
+        return $view;
     }
 
     private function handleSpacesData(
@@ -237,8 +243,19 @@ class AdminCommunityController extends SalesRestController
                 $space['preview'] = $attachment[0]['preview'];
             }
 
+            if ($space['type'] == 'fixed') {
+                $seats = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findBy(array(
+                        'room' => $space['id'],
+                    ));
+
+                $space['product']['seats'] = $seats;
+            } else {
+                $space['product']['base_price'] = $space['base_price'];
+            }
+
             $space['product']['id'] = $space['product_id'];
-            $space['product']['base_price'] = $space['base_price'];
             $space['product']['unit_price'] = $space['unit_price'];
             $space['product']['start_date'] = $space['start_date'];
             $space['product']['visible'] = $space['visible'];
