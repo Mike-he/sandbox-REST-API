@@ -44,8 +44,8 @@ class ClientUserFavoriteController extends LocationController
      * @Annotations\QueryParam(
      *    name="lat",
      *    array=false,
-     *    default=null,
-     *    nullable=false,
+     *    default=0,
+     *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="latitude"
@@ -54,8 +54,8 @@ class ClientUserFavoriteController extends LocationController
      * @Annotations\QueryParam(
      *    name="lng",
      *    array=false,
-     *    default=null,
-     *    nullable=false,
+     *    default=0,
+     *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="longitude"
@@ -135,7 +135,17 @@ class ClientUserFavoriteController extends LocationController
                         $excludeIds = [9] // the company id of xiehe
                     );
 
-                $objects = $this->handleSearchBuildingsData($objects);
+                if ($lat == 0 || $lng == 0) {
+                    $objectArray = [];
+                    foreach ($objects as $object) {
+                        $object['distance'] = 0;
+                        array_push($objectArray, $object);
+                    }
+
+                    $objects = $this->handleSearchBuildingsData($objectArray);
+                } else {
+                    $objects = $this->handleSearchBuildingsData($objects);
+                }
 
                 break;
             case UserFavorite::OBJECT_PRODUCT:
@@ -151,6 +161,10 @@ class ClientUserFavoriteController extends LocationController
 
                 $objects = [];
                 foreach ($contents as $content) {
+                    if ($lat == 0 || $lng == 0) {
+                        $content['distance'] = 0;
+                    }
+
                     $content['product']->setDistance($content['distance']);
                     array_push($objects, $content['product']);
                 }
