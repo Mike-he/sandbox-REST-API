@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\ApiBundle\Controller\User\UserPhoneCodeController;
 
 class UserFavoriteRepository extends EntityRepository
 {
@@ -11,6 +10,7 @@ class UserFavoriteRepository extends EntityRepository
      * @param $userId
      * @param $object
      * @param $ids
+     *
      * @return array
      */
     public function getUserFavoriteList(
