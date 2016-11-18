@@ -51,7 +51,13 @@ class AdminPermissionRepository extends EntityRepository
 
         $permission = $this->getEntityManager()
             ->createQueryBuilder()
-            ->select('ap.id, ap.name, ap.key, ap.maxOpLevel as op_level')
+            ->select('
+                ap.id,
+                ap.name,
+                ap.key,
+                ap.maxOpLevel as op_level,
+                ap.parentId as permission_parent_id
+            ')
             ->from('SandboxApiBundle:Admin\AdminPermission', 'ap')
             ->where('ap.platform = :platform')
             ->setParameter('platform', $platform);

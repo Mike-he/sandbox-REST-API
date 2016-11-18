@@ -358,6 +358,7 @@ class SandboxRestController extends FOSRestController
                     'name' => $permission->getName(),
                     'id' => $permission->getId(),
                     'position_id' => $position->getId(),
+                    'permission_parent_id' => $permission->getParentId(),
                 );
 
                 array_push($myPermissions, $permissionArray);
