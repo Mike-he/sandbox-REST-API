@@ -28,7 +28,7 @@ class RoomFixed
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "current_order", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order", "admin_detail", "admin_spaces"})
      */
     private $id;
 
@@ -56,7 +56,7 @@ class RoomFixed
      *
      * @ORM\Column(name="seatNumber", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "current_order", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order", "admin_detail", "admin_spaces"})
      */
     private $seatNumber;
 
@@ -65,7 +65,7 @@ class RoomFixed
      *
      * @ORM\Column(name="basePrice", type="decimal", nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "current_order", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_room", "current_order", "admin_detail", "admin_spaces"})
      */
     private $basePrice;
 
