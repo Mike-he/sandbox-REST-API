@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Space;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
@@ -157,6 +158,106 @@ class AdminCommunityController extends SandboxRestController
         }
 
         return new View($result);
+    }
+
+    /**
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many spaces to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room_types",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="types of room"
+     * )
+     *
+     * @Route("/communities/{id}/spaces")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSpacesByCommunityIdAction(
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $roomType = $paramFetcher->get('room_types');
+
+        $spaces = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->findSpacesByBuilding($id, $pageLimit, $offset, $roomType);
+
+        $spaces = $this->handleSpacesData($spaces);
+
+        $view = new View($spaces);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(['admin_spaces'])
+        );
+
+        return $view;
+    }
+
+    private function handleSpacesData(
+        $spaces
+    ) {
+        $limit = 1;
+        foreach ($spaces as &$space) {
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($space['id'], $limit);
+
+            if (!empty($attachment)) {
+                $space['preview'] = $attachment[0]['preview'];
+            }
+
+            if ($space['type'] == 'fixed') {
+                $seats = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findBy(array(
+                        'room' => $space['id'],
+                    ));
+
+                $space['product']['seats'] = $seats;
+            } else {
+                $space['product']['base_price'] = $space['base_price'];
+            }
+
+            $space['product']['id'] = $space['product_id'];
+            $space['product']['unit_price'] = $space['unit_price'];
+            $space['product']['start_date'] = $space['start_date'];
+            $space['product']['visible'] = $space['visible'];
+
+            unset($space['product_id']);
+            unset($space['base_price']);
+            unset($space['unit_price']);
+            unset($space['start_date']);
+            unset($space['visible']);
+        }
+
+        return $spaces;
     }
 
     /**
