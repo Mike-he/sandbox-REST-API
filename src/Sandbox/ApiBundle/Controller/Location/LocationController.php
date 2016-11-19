@@ -986,38 +986,17 @@ class LocationController extends SalesRestController
                 $building['building_tags'] = $tags;
             }
 
-            $district = $this->syncBuildingAddress($building['lat'], $building['lng']);
-            if (!empty($district)) {
-                $building['location'] = $district;
+            if (!is_null($building['district_id'])) {
+                $district = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->find($building['district_id']);
+
+                $building['location'] = $district->getName();
+                unset($building['district_id']);
             }
         }
 
         return $buildings;
-    }
-
-    private function syncBuildingAddress(
-        $lat,
-        $lng
-    ) {
-        $apiURL = 'http://restapi.amap.com/v3/geocode/regeo?key=aa4a48297242d22d2b3fd6eddfe62217&s=rsv3&location='.$lng.','.$lat;
-        $ch = curl_init($apiURL);
-
-        $result = $this->callAPI(
-            $ch,
-            'GET'
-        );
-
-        if (is_null($result)) {
-            return;
-        }
-
-        $resultArray = json_decode($result, true);
-
-        if (!isset($resultArray['regeocode']['addressComponent']['district'])) {
-            return;
-        }
-
-        return $resultArray['regeocode']['addressComponent']['district'];
     }
 
     /**
