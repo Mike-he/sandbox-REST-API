@@ -71,13 +71,6 @@ class AdminCommunityController extends SandboxRestController
     ) {
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $companyId = $paramFetcher->get('company');
         $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
@@ -114,13 +107,6 @@ class AdminCommunityController extends SandboxRestController
         $id
     ) {
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
-
-        $adminPlatform = $this->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
 
         $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);

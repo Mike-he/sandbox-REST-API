@@ -4,6 +4,7 @@ namespace Sandbox\SaleApiBundle\Tests\Controller\Space;
 
 use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Tests\Traits\CommonTestsUtilsTrait;
 
 class AdminCommunityControllerTest extends WebTestCase
@@ -126,11 +127,67 @@ class AdminCommunityControllerTest extends WebTestCase
         $this->assertResponseHasSpecificItemsAmountArray(5);
     }
 
+    public function testGetCommunitiesWithoutAuthenticationShouldNotWork()
+    {
+        $this->performSalesGetCommunities();
+
+        $this->assertPermissionDenied();
+    }
+
+    public function testGetCommunitiesWithoutPermissionShouldNotWork()
+    {
+        $this->givenLoggedInAs('client-sales-user-without-position', 'sales-user-without-position-token');
+
+        $this->performSalesGetCommunities();
+
+        $this->assertPermissionDenied();
+    }
+
+    public function testGetRoomTypesByCommunityWithoutAuthenticationShouldNotWork()
+    {
+        $this->given('room-building-for-data-structure');
+        $this->performSalesGetRoomTypesByCommunity($this->entity->getId());
+
+        $this->assertPermissionDenied();
+    }
+
+    public function testGetRoomTypesByCommunityWithoutPermissionShouldNotWork()
+    {
+        $this->givenLoggedInAs('client-sales-user-without-position', 'sales-user-without-position-token');
+
+        $this->given('room-building-for-data-structure');
+        $this->performSalesGetRoomTypesByCommunity($this->entity->getId());
+
+        $this->assertPermissionDenied();
+    }
+
+    public function testGetRoomTypesByCommunityShouldReturnCorrectDataStructure()
+    {
+        $this->givenLoggedInAs('client-2', 'user-token-2');
+
+        $this->given('room-building-for-data-structure');
+        $this->performSalesGetRoomTypesByCommunity($this->entity->getId());
+
+        $data = $this->buildingRoomTypesData();
+
+        $this->assertResponseContainsCorrectDataFields($data);
+    }
+
     // conveniency methods
 
     private function performSalesGetSpacesByCommunity($id, $limit = 5, $roomType = null)
     {
         $this->performGET('/sales/admin/space/communities/'.$id.'/spaces?&pageIndex=1&pageLimit='.$limit.$roomType);
+    }
+
+    private function performSalesGetCommunities()
+    {
+        $this->performGET('/sales/admin/space/communities');
+    }
+
+    private function performSalesGetRoomTypesByCommunity($id)
+    {
+        $this->performGET('/sales/admin/space/community/'.$id.'/roomtypes');
     }
 
     private function buildingNonFixedSpaceData()
@@ -204,6 +261,56 @@ class AdminCommunityControllerTest extends WebTestCase
                         'base_price' => $secondRoomSeat->getBasePrice(),
                     ],
                 ],
+            ],
+        ];
+
+        return $data;
+    }
+
+    private function buildingRoomTypesData()
+    {
+        $this->given('room-building-for-data-structure');
+        $building = $this->entity;
+
+        $this->given('first-room-type');
+        $roomType1 = $this->entity;
+
+        $this->given('second-room-type');
+        $roomType2 = $this->entity;
+
+        $this->given('third-room-type');
+        $roomType3 = $this->entity;
+
+        $data = [
+            [
+                'id' => $roomType1->getId(),
+                'type' => $roomType1->getName(),
+                'name' => $this->getContainer()->get('translator')
+                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType1->getName()),
+                'icon' => $roomType1->getIcon(),
+                'building_id' => $building->getId(),
+                'using_number' => 1,
+                'all_number' => 3,
+            ],
+            [
+                'id' => $roomType2->getId(),
+                'type' => $roomType2->getName(),
+                'name' => $this->getContainer()->get('translator')
+                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType2->getName()),
+                'icon' => $roomType2->getIcon(),
+                'building_id' => $building->getId(),
+                'using_number' => 2,
+                'all_number' => 2,
+            ],
+            [
+                'id' => $roomType3->getId(),
+                'type' => $roomType3->getName(),
+                'name' => $this->getContainer()->get('translator')
+                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType3->getName()),
+                'icon' => $roomType3->getIcon(),
+                'building_id' => $building->getId(),
+                'using_number' => 0,
+                'all_number' => 1,
             ],
         ];
 

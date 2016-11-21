@@ -78,12 +78,8 @@ class AdminCommunityController extends SalesRestController
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
         $this->throwNotFoundIfNull($companyId, self::NOT_FOUND_MESSAGE);
 
         $using = $this->getBuildingInfo($companyId, RoomBuilding::STATUS_ACCEPT, true);
@@ -120,20 +116,8 @@ class AdminCommunityController extends SalesRestController
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-        $companyId = $adminPlatform['sales_company_id'];
-
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
-
-        if ($building->getCompanyId() != $companyId) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
 
         $roomTypes = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomTypes')->findAll();
 
