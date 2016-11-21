@@ -15,12 +15,12 @@ class LoadProductData extends AbstractFixture implements OrderedFixtureInterface
         $startDate = $now->setTime(00, 00, 00);
 
         $pro1 = new Product();
-        $pro1->setRoom($this->getReference('room-meeting-1'));
+        $pro1->setRoom($this->getReference('room-for-get-spaces-data-structure'));
         $pro1->setDescription('空间1');
         $pro1->setBasePrice(10);
         $pro1->setUnitPrice('hour');
         $pro1->setStartDate($startDate);
-        $this->addReference('product-1', $pro1);
+        $this->addReference('product-for-get-spaces-data-structure', $pro1);
 
         $pro2 = new Product();
         $pro2->setRoom($this->getReference('room-meeting-2'));
@@ -47,10 +47,20 @@ class LoadProductData extends AbstractFixture implements OrderedFixtureInterface
         $pro4->setVisible(false);
         $this->addReference('product-4', $pro4);
 
+        $pro5 = new Product();
+        $pro5->setRoom($this->getReference('fixed-room-for-get-spaces-data-structure'));
+        $pro5->setDescription('空间5');
+        $pro5->setBasePrice(100);
+        $pro5->setUnitPrice('hour');
+        $pro5->setStartDate($startDate);
+        $pro5->setVisible(false);
+        $this->addReference('product-for-fixed-room-get-spaces-data-structure', $pro5);
+
         $manager->persist($pro1);
         $manager->persist($pro2);
         $manager->persist($pro3);
         $manager->persist($pro4);
+        $manager->persist($pro5);
 
         $manager->flush();
     }

@@ -155,6 +155,52 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $platform3->setSalesCompany($this->getReference('sales-company-sandbox'));
         $platform3->setCreationDate($now);
 
+        $user4 = new User();
+        $user4->setXmppUsername('1000004');
+        $user4->setPassword('202CB962AC59075B964B07152D234B70');
+        $user4->setEmail('sales-user-without-position@sandbox3.cn');
+        $user4->setPhone('18644444444');
+        $user4->setPhoneCode('+86');
+        $user4->setBanned(0);
+        $user4->setCreationDate($now);
+        $user4->setModificationDate($now);
+        $user4->setAuthorized(1);
+        $user4->setCardNo('8888888889');
+        $user4->setCredentialNo('444666198608068865');
+        $user4->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_SALES);
+        $user4->setAuthorizedAdminUsername(10);
+        $user4->setCustomerId(null);
+        $this->addReference('sales-user-without-position', $user4);
+
+        $userProfile4 = new UserProfile();
+        $userProfile4->setUser($user4);
+        $userProfile4->setName('sales-user-without-position');
+        $userProfile4->setCreationDate($now);
+        $userProfile4->setModificationDate($now);
+        $this->addReference('sales-user-without-position-profile', $userProfile4);
+
+        $client4 = new UserClient();
+        $client4->setCreationDate($now);
+        $client4->setModificationDate($now);
+        $this->addReference('client-sales-user-without-position', $client4);
+
+        $token4 = new UserToken();
+        $token4->setUser($user4);
+        $token4->setClient($client4);
+        $token4->setToken('894ebb0f94d4c80028634946639cf4ec');
+        $token4->setRefreshToken('4ac501160df78fa4980d13494f4c939c');
+        $token4->setOnline(1);
+        $token4->setCreationDate($now);
+        $token4->setModificationDate($now);
+        $this->addReference('sales-user-without-position-token', $token4);
+
+        $platform4 = new AdminPlatform();
+        $platform4->setUser($user4);
+        $platform4->setClient($client4);
+        $platform4->setPlatform('sales');
+        $platform4->setSalesCompany($this->getReference('sales-company-sandbox'));
+        $platform4->setCreationDate($now);
+
         $manager->persist($user1);
         $manager->persist($userProfile1);
         $manager->persist($client1);
@@ -170,6 +216,11 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $manager->persist($client3);
         $manager->persist($token3);
         $manager->persist($platform3);
+        $manager->persist($user4);
+        $manager->persist($userProfile4);
+        $manager->persist($client4);
+        $manager->persist($token4);
+        $manager->persist($platform4);
 
         $manager->flush();
     }

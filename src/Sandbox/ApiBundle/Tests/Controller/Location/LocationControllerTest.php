@@ -32,6 +32,7 @@ class LocationControllerTest extends WebTestCase
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Location\LoadLocationData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomTypesData',
         ];
 
         $fixtureExecutor = $this->loadFixtures($fixtures);
@@ -196,6 +197,8 @@ class LocationControllerTest extends WebTestCase
         $firstSpaceType = $this->entity;
         $this->given('second-room-type');
         $secondSpaceType = $this->entity;
+        $this->given('third-room-type');
+        $thirdSpaceType = $this->entity;
 
         $this->given('first-building-tag');
         $firstBuildingTag = $this->entity;
@@ -226,6 +229,11 @@ class LocationControllerTest extends WebTestCase
                                 'id' => $secondSpaceType->getId(),
                                 'name' => $this->getContainer()->get('translator')
                                     ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$secondSpaceType->getName()),
+                            ],
+                            [
+                                'id' => $thirdSpaceType->getId(),
+                                'name' => $this->getContainer()->get('translator')
+                                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$thirdSpaceType->getName()),
                             ],
                         ],
                     ],
