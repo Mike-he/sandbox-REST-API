@@ -54,6 +54,12 @@ class LoadRoomCityData extends AbstractFixture implements OrderedFixtureInterfac
         $rc6->setLevel(4);
         $this->addReference('dongchengqu', $rc6);
 
+        $rc7 = new RoomCity();
+        $rc7->setName('浦东新区');
+        $rc7->setParent($rc2);
+        $rc7->setLevel(4);
+        $this->addReference('pudongxinqu', $rc7);
+
         $manager->persist($rc0);
         $manager->persist($rc1);
         $manager->persist($rc2);
@@ -61,6 +67,7 @@ class LoadRoomCityData extends AbstractFixture implements OrderedFixtureInterfac
         $manager->persist($rc4);
         $manager->persist($rc5);
         $manager->persist($rc6);
+        $manager->persist($rc7);
 
         $manager->flush();
     }
