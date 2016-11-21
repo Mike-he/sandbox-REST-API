@@ -2,3 +2,4 @@ web/bundles
 /app/config/parameters.yml
 /app/logs/
 /app/cache/
+/Homestead.yaml
