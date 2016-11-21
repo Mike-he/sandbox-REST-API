@@ -1184,24 +1184,34 @@ class ProductRepository extends EntityRepository
      *
      * @return array
      */
-    public function getAllProductsForOneBuilding(
+    public function getAllProductsForOneBuildingOrCompany(
         $buildingId,
         $userId,
         $limit,
-        $offset
+        $offset,
+        $includeIds
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visible = TRUE')
             ->andWhere('p.isDeleted = FALSE')
-            ->andWhere('r.buildingId = :buildingId')
-            ->setParameter('buildingId', $buildingId)
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->orderBy('p.recommend', 'DESC')
             ->addOrderBy('p.creationDate', 'DESC')
         ;
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.buildingId = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->leftjoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+                ->andWhere('b.companyId IN (:ids)')
+                ->setParameter('ids', $includeIds);
+        }
 
         if (!is_null($userId)) {
             $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
