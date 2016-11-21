@@ -79,6 +79,7 @@ class AdminRoomAttachmentController extends SalesRestController
             $this->getAdminId(),
             array(
                 AdminPermission::KEY_SALES_BUILDING_ROOM,
+                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
             )
         );
 
@@ -129,6 +130,7 @@ class AdminRoomAttachmentController extends SalesRestController
             $this->getAdminId(),
             array(
                 AdminPermission::KEY_SALES_BUILDING_ROOM,
+                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
             )
         );
 
