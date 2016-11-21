@@ -62,4 +62,11 @@ trait CommonTestsUtilsTrait
             'The first item of the requests list does not contains the expected amount of fields.'
         );
     }
+
+    private function getCurrentAmountInDatabase(
+        $repoString
+    ) {
+        $items = $this->em->getRepository('SandboxApiBundle:'.$repoString)->findAll();
+        return count($items);
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Tests\Controller;
+namespace Sandbox\ApiBundle\Tests\Controller\Location;
 
 use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
