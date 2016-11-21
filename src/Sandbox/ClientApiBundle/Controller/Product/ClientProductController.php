@@ -97,6 +97,7 @@ class ClientProductController extends ProductController
      * @Annotations\QueryParam(
      *    name="include_company_id",
      *    array=true,
+     *    default=null,
      *    nullable=true,
      *    description="include_company_id"
      * )
@@ -235,14 +236,15 @@ class ClientProductController extends ProductController
             );
         }
 
-        if (!is_null($buildingId) && is_null($type)) {
+        if (is_null($type)) {
             $products = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
-                ->getAllProductsForOneBuilding(
+                ->getAllProductsForOneBuildingOrCompany(
                     $buildingId,
                     $userId,
                     $limit,
-                    $offset
+                    $offset,
+                    $includeIds
                 );
         } else {
             $products = $this->getRepo('Product\Product')->productSortByNearestBuilding(
