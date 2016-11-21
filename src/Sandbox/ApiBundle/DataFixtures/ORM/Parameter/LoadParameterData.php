@@ -27,6 +27,6 @@ class LoadParameterData extends AbstractFixture implements OrderedFixtureInterfa
 
     public function getOrder()
     {
-        return 9;
+        return 13;
     }
 }

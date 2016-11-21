@@ -450,6 +450,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
 
     public function getOrder()
     {
-        return 5;
+        return 6;
     }
 }

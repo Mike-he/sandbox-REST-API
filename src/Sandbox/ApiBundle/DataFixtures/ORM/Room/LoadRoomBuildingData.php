@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\DataFixtures\ORM\Location;
+namespace Sandbox\ApiBundle\DataFixtures\ORM\Room;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
@@ -10,7 +10,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 
-class LoadLocationData extends AbstractFixture implements OrderedFixtureInterface
+class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInterface
 {
     const SHANGHAI_ZHANXIANG_LAT = 39.87658;
     const SHANGHAI_ZHANXIANG_LNG = 116.365549;
@@ -213,6 +213,6 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
 
     public function getOrder()
     {
-        return 3;
+        return 7;
     }
 }

@@ -64,6 +64,6 @@ class LoadAdminPositionData extends AbstractFixture implements OrderedFixtureInt
 
     public function getOrder()
     {
-        return 10;
+        return 4;
     }
 }

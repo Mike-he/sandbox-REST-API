@@ -30,7 +30,7 @@ class LocationControllerTest extends WebTestCase
 
         $fixtures = [
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
-            'Sandbox\ApiBundle\DataFixtures\ORM\Location\LoadLocationData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomBuildingData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomTypesData',
         ];
