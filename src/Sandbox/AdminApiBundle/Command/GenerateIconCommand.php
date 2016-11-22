@@ -34,7 +34,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $entityManager = $this->getContainer()->get('doctrine')->getEntityManager();
+        $entityManager = $this->getContainer()->get('doctrine')->getManager();
         $imageServer = $this->getContainer()->getParameter('image_url');
 
         $ImagePath = '/data/openfire/image/icon';
