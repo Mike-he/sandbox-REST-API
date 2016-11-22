@@ -13,7 +13,8 @@ class UserRepository extends EntityRepository
     public function getPhoneCodes()
     {
         $query = $this->createQueryBuilder('c')
-            ->select('DISTINCT c.phoneCode as code');
+            ->select('DISTINCT c.phoneCode as code')
+            ->where('c.phoneCode IS NOT NULL');
 
         return $query->getQuery()->getResult();
     }
