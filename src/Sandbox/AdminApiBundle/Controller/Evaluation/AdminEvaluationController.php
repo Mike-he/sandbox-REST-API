@@ -328,6 +328,15 @@ class AdminEvaluationController extends EvaluationController
         $em->persist($evaluation);
 
         $em->flush();
+
+        //execute CalculateStarCommand
+        $command = new CalculateStarCommand();
+        $command->setContainer($this->container);
+
+        $input = new ArrayInput(array());
+        $output = new NullOutput();
+
+        $command->run($input, $output);
     }
 
     /**
@@ -442,14 +451,6 @@ class AdminEvaluationController extends EvaluationController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
-
-        $command = new CalculateStarCommand();
-        $command->setContainer($this->container);
-
-        $input = new ArrayInput();
-        $output = new NullOutput();
-
-        $command->run($input, $output);
 
         return new View();
     }
