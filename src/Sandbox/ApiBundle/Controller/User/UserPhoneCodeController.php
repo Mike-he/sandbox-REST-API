@@ -36,4 +36,24 @@ class UserPhoneCodeController extends SandboxRestController
 
         return new View($lists);
     }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/phonecode/admin_login")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getPhoneCodeAdminLoginAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $codes = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->getPhoneCodes();
+
+        return new View($codes);
+    }
 }

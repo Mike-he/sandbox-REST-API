@@ -129,7 +129,8 @@ class SpaceControllerTest extends WebTestCase
         $this->performPUT('/sales/admin/buildings/'.$id, $data);
     }
 
-    private function constructSalesCommunityData() {
+    private function constructSalesCommunityData()
+    {
         $this->given('shanghai');
         $cityId = $this->entity->getId();
 

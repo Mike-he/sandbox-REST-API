@@ -8,6 +8,17 @@ use Sandbox\ApiBundle\Entity\User\User;
 class UserRepository extends EntityRepository
 {
     /**
+     * @return array
+     */
+    public function getPhoneCodes()
+    {
+        $query = $this->createQueryBuilder('c')
+            ->select('DISTINCT c.phoneCode as code');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param int   $myUserId
      * @param array $recordIds
      * @param int   $limit
