@@ -20,7 +20,7 @@ class RoomAttachmentRepository extends EntityRepository
             ->where('a.buildingId = :buildingId')
             ->setParameter('buildingId', $buildingId);
 
-        if (!is_null($types)) {
+        if (!is_null($types) && !empty($types)) {
             $query->andWhere('a.roomType IN (:types)')
                 ->setParameter('types', $types);
         }
