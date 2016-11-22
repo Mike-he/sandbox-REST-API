@@ -19,7 +19,13 @@ class CalculateStarCommand extends ContainerAwareCommand
     {
         $em = $this->getContainer()->get('doctrine')->getEntityManager();
 
-        $buildings = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->findAll();
+        $buildings = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->findBy(
+                array(
+                    'visible' => true,
+                    'isDeleted' => false,
+                )
+            );
 
         foreach ($buildings as $building) {
             $officialStar = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
