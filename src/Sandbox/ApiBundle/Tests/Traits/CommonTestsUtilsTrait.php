@@ -67,6 +67,7 @@ trait CommonTestsUtilsTrait
         $repoString
     ) {
         $items = $this->em->getRepository('SandboxApiBundle:'.$repoString)->findAll();
+
         return count($items);
     }
 }

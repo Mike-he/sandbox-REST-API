@@ -216,47 +216,68 @@ class SandboxRestController extends FOSRestController
             $salesCompanyId
         );
         if ($isSuperAdmin) {
-            return;
-        }
+            $myPermissions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+                ->findSuperAdminPermissionsByPlatform(
+                    $platform,
+                    $salesCompanyId
+                );
 
-        // if common admin, than get my permissions list
-        $myPermissions = $this->getMyAdminPermissions(
-            $adminId,
-            $platform,
-            $salesCompanyId
-        );
-
-        // check permissions
-        foreach ($permissionKeys as $permissionKey) {
-            $buildingId = isset($permissionKey['building_id']) ? $permissionKey['building_id'] : null;
-            $shopId = isset($permissionKey['shop_id']) ? $permissionKey['shop_id'] : null;
-
-            $pass = false;
-            foreach ($myPermissions as $myPermission) {
-                if ($permissionKey['key'] == $myPermission['key']
-                    && $opLevel <= $myPermission['op_level']
-                ) {
-                    $pass = true;
-                }
-
-                if (!is_null($buildingId)) {
-                    if ($buildingId == $myPermission['building_id']) {
+            // check permissions
+            foreach ($permissionKeys as $permissionKey) {
+                $pass = false;
+                foreach ($myPermissions as $myPermission) {
+                    if ($permissionKey['key'] == $myPermission['key']
+                        && $opLevel <= $myPermission['op_level']
+                    ) {
                         $pass = true;
-                    } else {
-                        $pass = false;
+                    }
+
+                    if ($pass) {
+                        return;
                     }
                 }
+            }
+        } else {
+            // if common admin, than get my permissions list
+            $myPermissions = $this->getMyAdminPermissions(
+                $adminId,
+                $platform,
+                $salesCompanyId
+            );
 
-                if (!is_null($shopId)) {
-                    if ($shopId == $myPermission['shop_id']) {
+            // check permissions
+            foreach ($permissionKeys as $permissionKey) {
+                $buildingId = isset($permissionKey['building_id']) ? $permissionKey['building_id'] : null;
+                $shopId = isset($permissionKey['shop_id']) ? $permissionKey['shop_id'] : null;
+
+                $pass = false;
+                foreach ($myPermissions as $myPermission) {
+                    if ($permissionKey['key'] == $myPermission['key']
+                        && $opLevel <= $myPermission['op_level']
+                    ) {
                         $pass = true;
-                    } else {
-                        $pass = false;
                     }
-                }
 
-                if ($pass) {
-                    return;
+                    if (!is_null($buildingId)) {
+                        if ($buildingId == $myPermission['building_id']) {
+                            $pass = true;
+                        } else {
+                            $pass = false;
+                        }
+                    }
+
+                    if (!is_null($shopId)) {
+                        if ($shopId == $myPermission['shop_id']) {
+                            $pass = true;
+                        } else {
+                            $pass = false;
+                        }
+                    }
+
+                    if ($pass) {
+                        return;
+                    }
                 }
             }
         }

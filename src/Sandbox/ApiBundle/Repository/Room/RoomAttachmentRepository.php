@@ -9,6 +9,7 @@ class RoomAttachmentRepository extends EntityRepository
     /**
      * @param $types
      * @param $buildingId
+     *
      * @return array
      */
     public function getAttachmentsByTypes(
