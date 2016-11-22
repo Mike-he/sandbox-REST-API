@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Controller\Annotations;
 use Rs\Json\Patch;
+use Sandbox\AdminApiBundle\Command\CalculateStarCommand;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
@@ -13,6 +14,8 @@ use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
 use Sandbox\ApiBundle\Form\Evaluation\EvaluationPatchType;
 use Sandbox\ApiBundle\Form\Evaluation\EvaluationPostType;
 use Sandbox\ApiBundle\Form\Evaluation\EvaluationPutType;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -438,6 +441,14 @@ class AdminEvaluationController extends EvaluationController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $command = new CalculateStarCommand();
+        $command->setContainer($this->container);
+
+        $input = new ArrayInput();
+        $output = new NullOutput();
+
+        $command->run($input, $output);
 
         return new View();
     }
