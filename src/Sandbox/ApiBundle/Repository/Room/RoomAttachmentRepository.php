@@ -18,9 +18,12 @@ class RoomAttachmentRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('a')
             ->where('a.buildingId = :buildingId')
-            ->andWhere('a.roomType IN (:types)')
-            ->setParameter('buildingId', $buildingId)
-            ->setParameter('types', $types);
+            ->setParameter('buildingId', $buildingId);
+
+        if (!is_null($types)) {
+            $query->andWhere('a.roomType IN (:types)')
+                ->setParameter('types', $types);
+        }
 
         return $query->getQuery()->getResult();
     }
