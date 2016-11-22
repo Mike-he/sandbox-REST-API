@@ -43,7 +43,7 @@ class AdminRoomAttachmentController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
      *    strict=true,
@@ -71,7 +71,7 @@ class AdminRoomAttachmentController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $type = $paramFetcher->get('type');
+        $types = $paramFetcher->get('type');
         $buildingId = $paramFetcher->get('building');
 
         // get my buildings list
@@ -88,13 +88,13 @@ class AdminRoomAttachmentController extends SalesRestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        $filters = $this->getFilters(
-            $type,
-            $buildingId
-        );
-
         // get attachment
-        $attachments = $this->getRepo('Room\RoomAttachment')->findBy($filters);
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomAttachment')
+            ->getAttachmentsByTypes(
+                $types,
+                $buildingId
+            );
 
         return new View($attachments);
     }
@@ -242,30 +242,5 @@ class AdminRoomAttachmentController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->remove($attachment);
         $em->flush();
-    }
-
-    /**
-     * Get filters.
-     *
-     * @param $type
-     * @param $buildingId
-     *
-     * @return array
-     */
-    private function getFilters(
-        $type,
-        $buildingId
-    ) {
-        $filters = [];
-
-        if (!is_null($type)) {
-            $filters['roomType'] = $type;
-        }
-
-        if (!is_null($buildingId)) {
-            $filters['buildingId'] = $buildingId;
-        }
-
-        return $filters;
     }
 }

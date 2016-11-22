@@ -6,6 +6,24 @@ use Doctrine\ORM\EntityRepository;
 
 class RoomAttachmentRepository extends EntityRepository
 {
+    /**
+     * @param $types
+     * @param $buildingId
+     * @return array
+     */
+    public function getAttachmentsByTypes(
+        $types,
+        $buildingId
+    ) {
+        $query = $this->createQueryBuilder('a')
+            ->where('a.buildingId = :buildingId')
+            ->andWhere('a.roomType IN (:types)')
+            ->setParameter('buildingId', $buildingId)
+            ->setParameter('types', $types);
+
+        return $query->getQuery()->getResult();
+    }
+
     public function deleteRoomAttachmentByIds(
         $room,
         $ids
