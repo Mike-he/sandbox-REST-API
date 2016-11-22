@@ -19,7 +19,13 @@ class CalculateStarCommand extends ContainerAwareCommand
     {
         $em = $this->getContainer()->get('doctrine')->getEntityManager();
 
-        $buildings = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->findAll();
+        $buildings = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->findBy(
+                array(
+                    'visible' => true,
+                    'isDeleted' => false,
+                )
+            );
 
         foreach ($buildings as $building) {
             $officialStar = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
@@ -29,10 +35,6 @@ class CalculateStarCommand extends ContainerAwareCommand
                         'type' => Evaluation::TYPE_OFFICIAL,
                     )
                 );
-
-            if (empty($officialStar)) {
-                continue;
-            }
 
             $buildingStarCount = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                 ->countEvaluation(
@@ -77,19 +79,22 @@ class CalculateStarCommand extends ContainerAwareCommand
                 $orderStar = $orderStarSum / $orderStarCount;
             }
 
-            if ($buildingStarCount == 0) {
-                $evaluationStar = ($officialStar->getTotalStar() + $orderStar) * 0.5;
-            } elseif ($orderStarCount == 0) {
-                $evaluationStar = ($officialStar->getTotalStar() + $buildingStar) * 0.5;
-            } else {
-                $evaluationStar = $officialStar->getTotalStar() * 0.5 + $buildingStar * 0.1 + $orderStar * 0.4;
+            if ($officialStar) {
+                if ($buildingStarCount == 0) {
+                    $evaluationStar = ($officialStar->getTotalStar() + $orderStar) * 0.5;
+                } elseif ($orderStarCount == 0) {
+                    $evaluationStar = ($officialStar->getTotalStar() + $buildingStar) * 0.5;
+                } else {
+                    $evaluationStar = $officialStar->getTotalStar() * 0.5 + $buildingStar * 0.1 + $orderStar * 0.4;
+                }
+                $building->setEvaluationStar(round($evaluationStar, 2));
             }
 
             $building->setBuildingStar(round($buildingStar, 2));
             $building->setOrderStar(round($orderStar, 2));
             $building->setBuildingEvaluationNumber($buildingStarCount);
             $building->setOrderEvaluationNumber($orderStarCount);
-            $building->setEvaluationStar(round($evaluationStar, 2));
+
             $em->persist($building);
         }
         $em->flush();
