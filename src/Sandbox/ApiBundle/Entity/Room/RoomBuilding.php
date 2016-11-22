@@ -116,18 +116,18 @@ class RoomBuilding implements JsonSerializable
     private $city;
 
     /**
-     * @var int
+     * @var array
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin","admin_building"})
      */
-    private $countryId;
+    private $country;
 
     /**
-     * @var int
+     * @var array
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_building"})
      */
-    private $provinceId;
+    private $province;
 
     /**
      * @var int
@@ -809,35 +809,35 @@ class RoomBuilding implements JsonSerializable
     }
 
     /**
-     * @return int
+     * @return array
      */
-    public function getCountryId()
+    public function getCountry()
     {
-        return $this->countryId;
+        return $this->country;
     }
 
     /**
-     * @param int $countryId
+     * @param array $country
      */
-    public function setCountryId($countryId)
+    public function setCountry($country)
     {
-        $this->countryId = $countryId;
+        $this->country = $country;
     }
 
     /**
-     * @return int
+     * @return array
      */
-    public function getProvinceId()
+    public function getProvince()
     {
-        return $this->provinceId;
+        return $this->province;
     }
 
     /**
-     * @param int $provinceId
+     * @param array $province
      */
-    public function setProvinceId($provinceId)
+    public function setProvince($province)
     {
-        $this->provinceId = $provinceId;
+        $this->province = $province;
     }
 
     /**

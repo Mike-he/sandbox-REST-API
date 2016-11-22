@@ -1199,8 +1199,8 @@ class AdminRoomController extends SalesRestController
         $office_supplies,
         $doors_control
     ) {
-        $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
         $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
+        $roomCity = $this->getRepo('Room\RoomCity')->find($roomBuilding->getCityId());
         $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
 
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(

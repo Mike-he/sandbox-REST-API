@@ -663,6 +663,20 @@ class LocationController extends SalesRestController
         }
         $building->setBuildingTags($tags);
 
+        // set country id & province id
+        $city = $building->getCity();
+        $province = $city->getParent();
+        $country = $province->getParent();
+
+        $building->setProvince(array(
+            'id' => $province->getId(),
+            'name' => $province->getName(),
+        ));
+        $building->setCountry(array(
+            'id' => $country->getId(),
+            'name' => $country->getName(),
+        ));
+
         return $building;
     }
 

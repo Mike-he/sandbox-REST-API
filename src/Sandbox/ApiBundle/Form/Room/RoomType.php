@@ -17,7 +17,11 @@ class RoomType extends AbstractType
         $builder
             ->add('name')
             ->add('description')
-            ->add('city_id', 'integer')
+            ->add('city_id',
+                null,
+                array(
+                    'required' => false,
+                ))
             ->add('building_id', 'integer')
             ->add('floor_id', 'integer')
             ->add('number')
