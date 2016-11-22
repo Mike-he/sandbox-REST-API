@@ -93,9 +93,10 @@ class AdminEvaluationController extends EvaluationController
 
         $orderEvaluationCount = $building->getOrderEvaluationNumber();
         $buildingEvaluationCount = $building->getBuildingEvaluationNumber();
+        $officialEvaluationCount = count($evaluation);
 
         return new View(array(
-            'total_evaluation_count' => $orderEvaluationCount + $buildingEvaluationCount + 1,
+            'total_evaluation_count' => $orderEvaluationCount + $buildingEvaluationCount + $officialEvaluationCount,
             'total_evaluation_star' => $building->getEvaluationStar(),
             'official_evaluation_star' => $officialStar,
             'order_evaluation_count' => $orderEvaluationCount,
