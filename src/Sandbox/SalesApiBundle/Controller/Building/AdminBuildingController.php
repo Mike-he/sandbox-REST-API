@@ -1115,10 +1115,6 @@ class AdminBuildingController extends LocationController
             return;
         }
 
-        if (!empty($buildingCompany['phone']) && !is_numeric($buildingCompany['phone'])) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $company = new RoomBuildingCompany();
         $form = $this->createForm(new RoomBuildingCompanyPostType(), $company);
         $form->submit($buildingCompany);
@@ -1146,10 +1142,6 @@ class AdminBuildingController extends LocationController
     ) {
         if (empty($buildingCompany)) {
             return;
-        }
-
-        if (!empty($buildingCompany['phone']) && !is_numeric($buildingCompany['phone'])) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $company = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($building);
