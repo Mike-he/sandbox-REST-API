@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\DataFixtures\ORM\Room;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
@@ -21,24 +22,24 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
     {
         $rbt1 = new RoomBuildingTag();
         $rbt1->setKey('sandbox3_manage');
-        $rbt1->setIcon('/icon/3.png');
+        $rbt1->setIcon('http://image.sandbox3.cn/icon/3.png');
         $rbt1->setIconWithBg('/icon/bg-3.png');
         $this->addReference('first-building-tag', $rbt1);
 
         $rbt2 = new RoomBuildingTag();
         $rbt2->setKey('round_the_clock_service');
-        $rbt2->setIcon('/icon/4.png');
+        $rbt2->setIcon('http://image.sandbox3.cn/icon/4.png');
         $rbt2->setIconWithBg('/icon/bg-4.png');
         $this->addReference('second-building-tag', $rbt2);
 
         $rbs1 = new RoomBuildingServices();
         $rbs1->setKey('free_wifi');
-        $rbs1->setIcon('/icon/5.png');
+        $rbs1->setIcon('http://image.sandbox3.cn/icon/5.png');
         $this->addReference('first-building-service', $rbs1);
 
         $rbs2 = new RoomBuildingServices();
         $rbs2->setKey('printing_devices');
-        $rbs2->setIcon('/icon/6.png');
+        $rbs2->setIcon('http://image.sandbox3.cn/icon/6.png');
         $this->addReference('second-building-service', $rbs2);
 
         $date = new \DateTime('now');
@@ -189,6 +190,36 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rba3->setCreationDate($date);
         $this->addReference('first-attachment-for-building-4', $rba3);
 
+        $ra1 = new RoomAttachment();
+        $ra1->setRoomType('meeting');
+        $ra1->setAttachmentType('office');
+        $ra1->setBuilding($rb1);
+        $ra1->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra1->setFilename('49-a448-6f2b8cf4.jpg');
+        $ra1->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra1->setSize(1);
+        $ra1->setCreationDate(new \DateTime('now'));
+
+        $ra2 = new RoomAttachment();
+        $ra2->setRoomType('fixed');
+        $ra2->setAttachmentType('image/jpeg');
+        $ra2->setBuilding($rb1);
+        $ra2->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra2->setFilename('49-a448-6f2b8cf4.jpg');
+        $ra2->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra2->setSize(1);
+        $ra2->setCreationDate(new \DateTime('now'));
+
+        $ra3 = new RoomAttachment();
+        $ra3->setRoomType('office');
+        $ra3->setAttachmentType('image/jpeg');
+        $ra3->setBuilding($rb1);
+        $ra3->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra3->setFilename('49-a448-6f2b8cf4.jpg');
+        $ra3->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra3->setSize(1);
+        $ra3->setCreationDate(new \DateTime('now'));
+
         $manager->persist($rbt1);
         $manager->persist($rbt2);
         $manager->persist($rbs1);
@@ -207,6 +238,10 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $manager->persist($rba1);
         $manager->persist($rba2);
         $manager->persist($rba3);
+
+        $manager->persist($ra1);
+        $manager->persist($ra2);
+        $manager->persist($ra3);
 
         $manager->flush();
     }
