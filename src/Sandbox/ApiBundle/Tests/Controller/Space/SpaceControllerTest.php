@@ -78,13 +78,65 @@ class SpaceControllerTest extends WebTestCase
 
         $postAmount = $this->getCurrentAmountInDatabase('Room\RoomBuilding');
 
+        $data = $this->constructSalesCommunityData();
+
+        $this->performPostSalesCommunities($data);
+
+        $this->assertOkSuccess();
+
+        $this->assertEquals(
+            $postAmount + 1,
+            $this->getCurrentAmountInDatabase('Room\RoomBuilding'),
+            'The posts amount in database is incorrect.'
+        );
+    }
+
+    /**
+     * Put Sales Communities With Authentication Should Work.
+     */
+    public function testPutSalesCommunitiesWithAuthenticationShouldWork()
+    {
+        $this->givenLoggedInAs('client-2', 'user-token-2');
+
+        $data = $this->constructSalesCommunityData();
+
+        $this->given('room-building-for-data-structure');
+        $buildingId = $this->entity->getId();
+
+        $this->performPutSalesCommunities($buildingId, $data);
+
+        $this->assertNoContentResponse();
+    }
+
+    // conveniency methods
+
+    private function performGetSalesAdministrativeRegion(
+        $parentId = null
+    ) {
+        $this->performGET('/sales/admin/space/administrative_region?parent='.$parentId);
+    }
+
+    private function performPostSalesCommunities(
+        $data
+    ) {
+        $this->performPOST('/sales/admin/buildings', $data);
+    }
+
+    private function performPutSalesCommunities(
+        $id,
+        $data
+    ) {
+        $this->performPUT('/sales/admin/buildings/'.$id, $data);
+    }
+
+    private function constructSalesCommunityData() {
         $this->given('shanghai');
         $cityId = $this->entity->getId();
 
         $this->given('huangpuqu');
         $districtId = $this->entity->getId();
 
-        $data = array(
+        return array(
             'name' => 'test',
             'subtitle' => 'sandbox',
             'detail' => 'sandbox detail',
@@ -113,29 +165,5 @@ class SpaceControllerTest extends WebTestCase
             ),
             'building_services' => array(),
         );
-
-        $this->performPostSalesCommunities($data);
-
-        $this->assertOkSuccess();
-
-        $this->assertEquals(
-            $postAmount + 1,
-            $this->getCurrentAmountInDatabase('Room\RoomBuilding'),
-            'The posts amount in database is incorrect.'
-        );
-    }
-
-    // conveniency methods
-
-    private function performGetSalesAdministrativeRegion(
-        $parentId = null
-    ) {
-        $this->performGET('/sales/admin/space/administrative_region?parent='.$parentId);
-    }
-
-    private function performPostSalesCommunities(
-        $data
-    ) {
-        $this->performPOST('/sales/admin/buildings', $data);
     }
 }
