@@ -649,9 +649,6 @@ class AdminProductController extends ProductController
         $product->setStartDate($startDate);
         $product->setModificationDate(new \DateTime('now'));
 
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
         $roomId = $product->getRoomId();
         $roomEm = $this->getRepo('Room\Room')->findOneById($roomId);
         $seats = $form['seats']->getData();
@@ -676,6 +673,9 @@ class AdminProductController extends ProductController
             $rule_include,
             $rule_exclude
         );
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
 
         $private = $product->getPrivate();
 
