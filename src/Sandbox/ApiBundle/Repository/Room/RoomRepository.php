@@ -651,7 +651,9 @@ class RoomRepository extends EntityRepository
         $buildingId,
         $pageLimit,
         $offset,
-        $roomTypes = []
+        $roomTypes,
+        $hasProduct,
+        $visible = null
     ) {
         $query = $this->createQueryBuilder('r')
             ->select('
@@ -666,19 +668,29 @@ class RoomRepository extends EntityRepository
                     p.unitPrice as unit_price,
                     p.id as product_id,
                     p.startDate as start_date,
-                    p.visible
+                    p.visible,
+                    p.isDeleted as is_deleted,
+                    p.recommend
             ')
             ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
             ->where('r.building = :buildingId')
             ->andWhere('r.isDeleted = FALSE')
-            ->andWhere('p.isDeleted = FALSE')
             ->setParameter('buildingId', $buildingId)
             ->orderBy('r.id', 'DESC');
 
         if (!empty($roomTypes)) {
             $query->andWhere('r.type IN (:types)')
                 ->setParameter('types', $roomTypes);
+        }
+
+        if (!$hasProduct) {
+            $query->andWhere('p.id is null');
+        }
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
         }
 
         return $query
