@@ -653,7 +653,8 @@ class RoomRepository extends EntityRepository
         $offset,
         $roomTypes,
         $hasProduct,
-        $visible = null
+        $visible = null,
+        $search
     ) {
         $query = $this->createQueryBuilder('r')
             ->select('
@@ -691,6 +692,11 @@ class RoomRepository extends EntityRepository
         if (!is_null($visible)) {
             $query->andWhere('p.visible = :visible')
                 ->setParameter('visible', $visible);
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
         }
 
         return $query

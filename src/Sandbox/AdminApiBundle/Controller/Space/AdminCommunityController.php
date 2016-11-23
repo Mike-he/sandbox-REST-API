@@ -190,6 +190,14 @@ class AdminCommunityController extends SandboxRestController
      *    description="show product visible or not"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="search spaces"
+     * )
+     *
      * @Route("/communities/{id}/spaces")
      * @Method({"GET"})
      *
@@ -208,10 +216,18 @@ class AdminCommunityController extends SandboxRestController
         $roomType = $paramFetcher->get('room_types');
         $hasProduct = $paramFetcher->get('has_product');
         $visible = $paramFetcher->get('visible');
+        $query = $paramFetcher->get('query');
 
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
-            ->findSpacesByBuilding($id, $pageLimit, $offset, $roomType, $hasProduct, $visible);
+            ->findSpacesByBuilding($id,
+                $pageLimit,
+                $offset,
+                $roomType,
+                $hasProduct,
+                $visible,
+                $query
+            );
 
         $spaces = $this->handleSpacesData($spaces);
 
