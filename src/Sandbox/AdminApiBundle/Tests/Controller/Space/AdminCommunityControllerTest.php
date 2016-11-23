@@ -7,6 +7,9 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Sandbox\ApiBundle\Tests\Traits\CommonTestsUtilsTrait;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 
+/**
+ * Class AdminCommunityControllerTest.
+ */
 class AdminCommunityControllerTest extends WebTestCase
 {
     use ApiHelpersTrait;

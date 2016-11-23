@@ -6,6 +6,9 @@ use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Sandbox\ApiBundle\Tests\Traits\CommonTestsUtilsTrait;
 
+/**
+ * Class EvaluationControllerTest.
+ */
 class EvaluationControllerTest extends WebTestCase
 {
     use ApiHelpersTrait;
@@ -79,12 +82,65 @@ class EvaluationControllerTest extends WebTestCase
         );
     }
 
+    /**
+     * Patch Evaliation Visible Without Authentication Should Not Work.
+     */
+    public function testPatchEvaluationWithoutAuthenticationShouldNotWork()
+    {
+        $this->given('evaluation-with_comment-with_pic');
+
+        $data = $this->constructPatchEvaluationVisibleData();
+
+        $this->performPatchEvaluation($this->entity->getId(), $data);
+
+        $this->assertPermissionDenied();
+    }
+
+    /**
+     * Patch Evaliation Visible Without Permission Should Not Work.
+     */
+    public function testPatchEvaluationWithoutPermissionShouldNotWork()
+    {
+        $this->givenLoggedInAs('client-2', 'user-token-2');
+
+        $this->given('evaluation-with_comment-with_pic');
+
+        $data = $this->constructPatchEvaluationVisibleData();
+
+        $this->performPatchEvaluation($this->entity->getId(), $data);
+
+        $this->assertPermissionDenied();
+    }
+
+    /**
+     * Patch Evaliation Visible With Permission Should Work.
+     */
+    public function testPatchEvaluationWithPermissionShouldWork()
+    {
+        $this->givenLoggedInAs('client-mike', 'user-token-mike');
+
+        $this->given('evaluation-with_comment-with_pic');
+
+        $data = $this->constructPatchEvaluationVisibleData();
+
+        $this->performPatchEvaluation($this->entity->getId(), $data);
+
+        $this->assertNoContentResponse();
+    }
+
     // conveniency methods
 
     private function performPostOfficialEvaluation(
         $data
     ) {
         $this->performPost('/admin/evaluation/official', $data);
+    }
+
+    private function performPatchEvaluation(
+        $id,
+        $data
+    ) {
+        $this->performPATCH('/admin/evaluation/'.$id, $data);
     }
 
     private function constructOfficialEvaluationData()
@@ -95,6 +151,19 @@ class EvaluationControllerTest extends WebTestCase
         $data = array(
             'official_evaluation_star' => '4',
             'building_id' => $building->getId(),
+        );
+
+        return $data;
+    }
+
+    private function constructPatchEvaluationVisibleData()
+    {
+        $data = array(
+            array(
+                'op' => 'add',
+                'path' => '/visible',
+                'value' => false,
+            ),
         );
 
         return $data;
