@@ -24,8 +24,4 @@ All you should need to do is execute `vagrant up` from your working copy root.
 
 ## Api documentation
 
-check redmine
-
-http://redmine.gobeta.com.cn:8086/projects/s/knowledgebase/articles/829
-
-hello jenkins
+http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs
