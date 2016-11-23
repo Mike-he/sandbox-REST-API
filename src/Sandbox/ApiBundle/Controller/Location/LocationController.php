@@ -666,16 +666,21 @@ class LocationController extends SalesRestController
         // set country id & province id
         $city = $building->getCity();
         $province = $city->getParent();
-        $country = $province->getParent();
 
-        $building->setProvince(array(
-            'id' => $province->getId(),
-            'name' => $province->getName(),
-        ));
-        $building->setCountry(array(
-            'id' => $country->getId(),
-            'name' => $country->getName(),
-        ));
+        if (!is_null($province)) {
+            $building->setProvince(array(
+                'id' => $province->getId(),
+                'name' => $province->getName(),
+            ));
+
+            $country = $province->getParent();
+            if (!is_null($country)) {
+                $building->setCountry(array(
+                    'id' => $country->getId(),
+                    'name' => $country->getName(),
+                ));
+            }
+        }
 
         return $building;
     }
