@@ -16,6 +16,7 @@ class RoomPatchType extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('description')
             ->add('allowed_people', 'integer')
             ->add('area', 'integer')
             ->add('office_supplies',
