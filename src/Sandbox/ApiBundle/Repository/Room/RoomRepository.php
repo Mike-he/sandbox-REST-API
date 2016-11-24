@@ -661,6 +661,7 @@ class RoomRepository extends EntityRepository
                 distinct
                     r.id, 
                     r.name, 
+                    r.buildingId as building_id,
                     r.type,
                     rt.type as rent_type,
                     r.area, 
