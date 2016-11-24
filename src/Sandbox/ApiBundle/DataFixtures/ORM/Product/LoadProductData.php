@@ -20,6 +20,7 @@ class LoadProductData extends AbstractFixture implements OrderedFixtureInterface
         $pro1->setBasePrice(10);
         $pro1->setUnitPrice('hour');
         $pro1->setStartDate($startDate);
+        $pro1->setRecommend(false);
         $this->addReference('product-for-get-spaces-data-structure', $pro1);
 
         $pro2 = new Product();
@@ -54,6 +55,7 @@ class LoadProductData extends AbstractFixture implements OrderedFixtureInterface
         $pro5->setUnitPrice('hour');
         $pro5->setStartDate($startDate);
         $pro5->setVisible(false);
+        $pro5->setRecommend(true);
         $this->addReference('product-for-fixed-room-get-spaces-data-structure', $pro5);
 
         $manager->persist($pro1);
