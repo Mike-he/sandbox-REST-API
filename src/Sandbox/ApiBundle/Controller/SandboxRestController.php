@@ -225,6 +225,12 @@ class SandboxRestController extends FOSRestController
 
             // check permissions
             foreach ($permissionKeys as $permissionKey) {
+                // check specify resource permission
+                $this->checkSpecifyResourcePermissionIfSuperAdmin(
+                    $permissionKey,
+                    $salesCompanyId
+                );
+
                 $pass = false;
                 foreach ($myPermissions as $myPermission) {
                     if ($permissionKey['key'] == $myPermission['key']
@@ -283,6 +289,43 @@ class SandboxRestController extends FOSRestController
         }
 
         throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+    }
+
+    /**
+     * @param $permissionKey
+     * @param $salesCompanyId
+     */
+    private function checkSpecifyResourcePermissionIfSuperAdmin(
+        $permissionKey,
+        $salesCompanyId
+    ) {
+        if (isset($permissionKey['building_id'])) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($permissionKey['building_id']);
+
+            if (is_null($building)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            if ($building->getCompanyId() != $salesCompanyId) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+        }
+
+        if (isset($permissionKey['shop_id'])) {
+            $shop = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\Shop')
+                ->find($permissionKey['shop_id']);
+
+            if (is_null($shop)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            if ($shop->getBuilding()->getCompanyId() != $salesCompanyId) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+        }
     }
 
     /**
