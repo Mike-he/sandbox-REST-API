@@ -653,7 +653,7 @@ class RoomRepository extends EntityRepository
         $offset,
         $roomTypes,
         $hasProduct,
-        $visible = null,
+        $visible,
         $search
     ) {
         $query = $this->createQueryBuilder('r')

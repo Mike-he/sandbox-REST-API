@@ -7,15 +7,12 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Sandbox\ApiBundle\Tests\Traits\CommonTestsUtilsTrait;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 
-/**
- * Class AdminCommunityControllerTest.
- */
 class AdminCommunityControllerTest extends WebTestCase
 {
     use ApiHelpersTrait;
     use CommonTestsUtilsTrait;
 
-    const SPACE_FIELDS_AMOUNT = 7;
+    const SPACE_FIELDS_AMOUNT = 10;
 
     public function setUp()
     {
@@ -33,6 +30,8 @@ class AdminCommunityControllerTest extends WebTestCase
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomFixedData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Product\LoadProductData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomAttachmentData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomAttachmentBindingData',
         ];
 
         $fixtureExecutor = $this->loadFixtures($fixtures);
@@ -207,19 +206,26 @@ class AdminCommunityControllerTest extends WebTestCase
         $this->given('second-room-type');
         $roomType = $this->entity;
 
+        $this->given('room-attachment-1');
+        $roomAttachment = $this->entity;
+
         $data = [
             'id' => $room->getId(),
             'name' => $room->getName(),
+            'building_id' => $room->getBuildingId(),
             'type' => $room->getType(),
             'rent_type' => $roomType->getType(),
             'area' => $room->getArea(),
             'allowed_people' => $room->getAllowedPeople(),
+            'preview' => $roomAttachment->getPreview(),
+            'content' => $roomAttachment->getContent(),
             'product' => [
                 'id' => $product->getId(),
                 'unit_price' => $product->getUnitPrice(),
                 'visible' => $product->getVisible(),
                 'start_date' => $product->getStartDate()->format("Y-m-d\TH:i:sO"),
                 'base_price' => $product->getBasePrice(),
+                'recommend' => $product->isRecommend(),
             ],
         ];
 
@@ -243,13 +249,19 @@ class AdminCommunityControllerTest extends WebTestCase
         $this->given('room-seat-2');
         $secondRoomSeat = $this->entity;
 
+        $this->given('room-attachment-2');
+        $roomAttachment = $this->entity;
+
         $data = [
             'id' => $room->getId(),
             'name' => $room->getName(),
+            'building_id' => $room->getBuildingId(),
             'type' => $room->getType(),
             'rent_type' => $roomType->getType(),
             'area' => $room->getArea(),
             'allowed_people' => $room->getAllowedPeople(),
+            'preview' => $roomAttachment->getPreview(),
+            'content' => $roomAttachment->getContent(),
             'product' => [
                 'id' => $product->getId(),
                 'unit_price' => $product->getUnitPrice(),
@@ -267,6 +279,7 @@ class AdminCommunityControllerTest extends WebTestCase
                         'base_price' => $secondRoomSeat->getBasePrice(),
                     ],
                 ],
+                'recommend' => $product->isRecommend(),
             ],
         ];
 
