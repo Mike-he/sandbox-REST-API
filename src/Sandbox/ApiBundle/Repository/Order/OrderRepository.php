@@ -876,11 +876,13 @@ class OrderRepository extends EntityRepository
      * Get Booked Times for Room.
      *
      * @param $id
+     * @param $seatId
      *
      * @return array
      */
     public function getBookedDates(
-        $id
+        $id,
+        $seatId = null
     ) {
         $now = new \DateTime('now');
         $query = $this->createQueryBuilder('o')
@@ -891,10 +893,14 @@ class OrderRepository extends EntityRepository
             ->orderBy('o.startDate', 'ASC')
             ->setParameter('productId', $id)
             ->setParameter('now', $now)
-            ->setParameter('rejected', false)
-            ->getQuery();
+            ->setParameter('rejected', false);
 
-        return $query->getResult();
+        if (!is_null($seatId)) {
+            $query->andWhere('o.seatId = :seatId')
+                ->setParameter('seatId', $seatId);
+        }
+
+        return $query->getQuery()->getResult();
     }
 
     /**
