@@ -17,7 +17,8 @@ class Version20161118105827 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql("UPDATE `admin_permission` SET `name`='社区新增' WHERE `key`='sales.platform.building'");
-        $this->addSql("UPDATE `admin_permission` SET `name`='空间管理总权限' WHERE `key`='sales.building.space' OR `key`='platform.space'");
+        $this->addSql("UPDATE `admin_permission` SET `name`='空间管理总权限' WHERE `key`='sales.building.space'");
+        $this->addSql("UPDATE `admin_permission` SET `name`='空间管理' WHERE `key`='platform.space'");
         $this->addSql("UPDATE `admin_permission` SET `name`='社区设置' WHERE `key`='sales.building.building'");
         $this->addSql("UPDATE `admin_permission` SET `name`='空间设置' WHERE `key`='sales.building.room'");
         $this->addSql("UPDATE `admin_permission` SET `name`='租赁设置' WHERE `key`='sales.building.product'");
