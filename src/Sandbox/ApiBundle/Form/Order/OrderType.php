@@ -37,7 +37,8 @@ class OrderType extends AbstractType
             ->add('price')
             ->add('rule_id')
             ->add('discount_price')
-            ->add('isRenew');
+            ->add('isRenew')
+            ->add('seat_id');
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller\Location;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -86,10 +87,16 @@ class LocationController extends SalesRestController
         // filter by sales admin
         $cities = null;
         if (!is_null($salesCompanyId)) {
-            $cities = $this->getRepo('Room\RoomCity')->getSalesRoomCityByCompanyId($salesCompanyId);
+            $cities = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->getSalesRoomCityByCompanyId($salesCompanyId);
         } else {
             // get all cities
-            $cities = $this->getRepo('Room\RoomCity')->findAll();
+            $cities = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->findBy(array(
+                'level' => RoomCity::LEVEL_CITY,
+            ));
         }
 
         if (!is_null($user) && is_null($all)) {
@@ -105,7 +112,11 @@ class LocationController extends SalesRestController
 
             // response for client
             if (is_null($adminPlatform)) {
-                $cities = $this->getRepo('Room\RoomCity')->findAll();
+                $cities = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->findBy(array(
+                        'level' => RoomCity::LEVEL_CITY,
+                    ));
                 $citiesArray = $this->generateCitiesArray(
                     $cities
                 );
@@ -652,6 +663,25 @@ class LocationController extends SalesRestController
         }
         $building->setBuildingTags($tags);
 
+        // set country id & province id
+        $city = $building->getCity();
+        $province = $city->getParent();
+
+        if (!is_null($province)) {
+            $building->setProvince(array(
+                'id' => $province->getId(),
+                'name' => $province->getName(),
+            ));
+
+            $country = $province->getParent();
+            if (!is_null($country)) {
+                $building->setCountry(array(
+                    'id' => $country->getId(),
+                    'name' => $country->getName(),
+                ));
+            }
+        }
+
         return $building;
     }
 
@@ -722,17 +752,9 @@ class LocationController extends SalesRestController
         $citiesArray = array();
         foreach ($cities as $city) {
             $name = $city->getName();
-            $key = $city->getKey();
-
-            $translatedKey = LocationConstants::LOCATION_CITY_PREFIX.$key;
-            $translatedName = $this->get('translator')->trans($translatedKey);
-            if ($translatedName != $translatedKey) {
-                $name = $translatedName;
-            }
 
             $cityArray = array(
                 'id' => $city->getId(),
-                'key' => $key,
                 'name' => $name,
             );
             array_push($citiesArray, $cityArray);
@@ -983,38 +1005,17 @@ class LocationController extends SalesRestController
                 $building['building_tags'] = $tags;
             }
 
-            $district = $this->syncBuildingAddress($building['lat'], $building['lng']);
-            if (!empty($district)) {
-                $building['location'] = $district;
+            if (!is_null($building['district_id'])) {
+                $district = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->find($building['district_id']);
+
+                $building['location'] = $district->getName();
+                unset($building['district_id']);
             }
         }
 
         return $buildings;
-    }
-
-    private function syncBuildingAddress(
-        $lat,
-        $lng
-    ) {
-        $apiURL = 'http://restapi.amap.com/v3/geocode/regeo?key=aa4a48297242d22d2b3fd6eddfe62217&s=rsv3&location='.$lng.','.$lat;
-        $ch = curl_init($apiURL);
-
-        $result = $this->callAPI(
-            $ch,
-            'GET'
-        );
-
-        if (is_null($result)) {
-            return;
-        }
-
-        $resultArray = json_decode($result, true);
-
-        if (!isset($resultArray['regeocode']['addressComponent']['district'])) {
-            return;
-        }
-
-        return $resultArray['regeocode']['addressComponent']['district'];
     }
 
     /**

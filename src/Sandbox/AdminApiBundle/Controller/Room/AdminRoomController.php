@@ -1196,7 +1196,11 @@ class AdminRoomController extends RoomController
                     $roomFixed = new RoomFixed();
                     $roomFixed->setRoom($room);
                     $roomFixed->setSeatNumber($fixed['seat_number']);
-                    $roomFixed->setAvailable($fixed['available']);
+
+                    if (array_key_exists('price', $fixed)) {
+                        $roomFixed->setBasePrice($fixed['price']);
+                    }
+
                     $em->persist($roomFixed);
                     $em->flush();
                 }
@@ -1365,7 +1369,6 @@ class AdminRoomController extends RoomController
             $product = $this->getRepo('Product\Product')->findOneBy(
                 [
                     'roomId' => $id,
-                    'seatNumber' => $seat,
                 ]
             );
             $startString = $paramFetcher->get('start');
@@ -1386,7 +1389,8 @@ class AdminRoomController extends RoomController
                 $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                     $productId,
                     $start,
-                    $end
+                    $end,
+                    $seat
                 );
             }
         }

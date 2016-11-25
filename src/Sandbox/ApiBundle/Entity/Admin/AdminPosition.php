@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * AdminPosition.
@@ -113,6 +114,7 @@ class AdminPosition
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
      */
     private $creationDate;
@@ -120,6 +122,7 @@ class AdminPosition
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modificationDate", type="datetime")
      */
     private $modificationDate;
@@ -510,9 +513,6 @@ class AdminPosition
 
     public function __construct()
     {
-        $now = new \DateTime('now');
-        $this->setCreationDate($now);
-        $this->setModificationDate($now);
         $this->setSortTime(round(microtime(true) * 1000));
     }
 }

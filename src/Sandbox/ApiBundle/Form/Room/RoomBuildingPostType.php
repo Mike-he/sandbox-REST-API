@@ -20,6 +20,11 @@ class RoomBuildingPostType extends AbstractType
             ->add('detail')
             ->add('avatar')
             ->add('city_id')
+            ->add('district_id',
+                null,
+                array(
+                    'required' => false,
+                ))
             ->add('address')
             ->add('lat')
             ->add('lng')

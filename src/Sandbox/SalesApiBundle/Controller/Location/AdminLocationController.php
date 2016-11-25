@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Location;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -12,7 +13,6 @@ use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Sandbox\ApiBundle\Constants\LocationConstants;
 
 /**
  * Sales Admin Location Controller.
@@ -104,7 +104,9 @@ class AdminLocationController extends SalesRestController
         } else {
             $cities = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->findAll();
+                ->findBy(array(
+                    'level' => RoomCity::LEVEL_CITY,
+                ));
         }
 
         // generate cities array
@@ -249,17 +251,9 @@ class AdminLocationController extends SalesRestController
         $citiesArray = array();
         foreach ($cities as $city) {
             $name = $city->getName();
-            $key = $city->getKey();
-
-            $translatedKey = LocationConstants::LOCATION_CITY_PREFIX.$key;
-            $translatedName = $this->get('translator')->trans($translatedKey);
-            if ($translatedName != $translatedKey) {
-                $name = $translatedName;
-            }
 
             $cityArray = array(
                 'id' => $city->getId(),
-                'key' => $key,
                 'name' => $name,
             );
             array_push($citiesArray, $cityArray);

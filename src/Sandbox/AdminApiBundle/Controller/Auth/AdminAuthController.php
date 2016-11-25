@@ -79,6 +79,9 @@ class AdminAuthController extends AuthController
             );
         }
 
+        // add permission group
+        $permissions = $this->generatePermissionsGroup($permissions);
+
         $admin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
             ->find($adminId);
@@ -95,6 +98,47 @@ class AdminAuthController extends AuthController
                 ],
             )
         );
+    }
+
+    /**
+     * @param array $permissions
+     *
+     * @return mixed
+     */
+    private function generatePermissionsGroup(
+        $permissions
+    ) {
+        $responsePermissions = array();
+
+        foreach ($permissions as $permission) {
+            if (isset($permission['permission_parent_id']) && !is_null($permission['permission_parent_id'])) {
+                $parentPermission = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+                    ->find($permission['permission_parent_id']);
+
+                $permission['group'] = $this->transferGroupKey($parentPermission->getKey());
+            } else {
+                $permission['group'] = $this->transferGroupKey($permission['key']);
+            }
+
+            array_push($responsePermissions, $permission);
+        }
+
+        return $responsePermissions;
+    }
+
+    /**
+     * @param $permissionKey
+     *
+     * @return mixed
+     */
+    private function transferGroupKey(
+        $permissionKey
+    ) {
+        $permissionKeyArray = explode('.', $permissionKey);
+        $group = array_slice($permissionKeyArray, -1, 1);
+
+        return $group[0];
     }
 
     /**

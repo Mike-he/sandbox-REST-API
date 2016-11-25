@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * AdminPositionUserBinding.
@@ -92,6 +93,7 @@ class AdminPositionUserBinding
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
      */
     private $creationDate;

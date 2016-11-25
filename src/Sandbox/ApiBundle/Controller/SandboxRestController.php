@@ -216,52 +216,116 @@ class SandboxRestController extends FOSRestController
             $salesCompanyId
         );
         if ($isSuperAdmin) {
-            return;
-        }
+            $myPermissions = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+                ->findSuperAdminPermissionsByPlatform(
+                    $platform,
+                    $salesCompanyId
+                );
 
-        // if common admin, than get my permissions list
-        $myPermissions = $this->getMyAdminPermissions(
-            $adminId,
-            $platform,
-            $salesCompanyId
-        );
+            // check permissions
+            foreach ($permissionKeys as $permissionKey) {
+                // check specify resource permission
+                $this->checkSpecifyResourcePermissionIfSuperAdmin(
+                    $permissionKey,
+                    $salesCompanyId
+                );
 
-        // check permissions
-        foreach ($permissionKeys as $permissionKey) {
-            $buildingId = isset($permissionKey['building_id']) ? $permissionKey['building_id'] : null;
-            $shopId = isset($permissionKey['shop_id']) ? $permissionKey['shop_id'] : null;
-
-            $pass = false;
-            foreach ($myPermissions as $myPermission) {
-                if ($permissionKey['key'] == $myPermission['key']
-                    && $opLevel <= $myPermission['op_level']
-                ) {
-                    $pass = true;
-                }
-
-                if (!is_null($buildingId)) {
-                    if ($buildingId == $myPermission['building_id']) {
+                $pass = false;
+                foreach ($myPermissions as $myPermission) {
+                    if ($permissionKey['key'] == $myPermission['key']
+                        && $opLevel <= $myPermission['op_level']
+                    ) {
                         $pass = true;
-                    } else {
-                        $pass = false;
+                    }
+
+                    if ($pass) {
+                        return;
                     }
                 }
+            }
+        } else {
+            // if common admin, than get my permissions list
+            $myPermissions = $this->getMyAdminPermissions(
+                $adminId,
+                $platform,
+                $salesCompanyId
+            );
 
-                if (!is_null($shopId)) {
-                    if ($shopId == $myPermission['shop_id']) {
+            // check permissions
+            foreach ($permissionKeys as $permissionKey) {
+                $buildingId = isset($permissionKey['building_id']) ? $permissionKey['building_id'] : null;
+                $shopId = isset($permissionKey['shop_id']) ? $permissionKey['shop_id'] : null;
+
+                $pass = false;
+                foreach ($myPermissions as $myPermission) {
+                    if ($permissionKey['key'] == $myPermission['key']
+                        && $opLevel <= $myPermission['op_level']
+                    ) {
                         $pass = true;
-                    } else {
-                        $pass = false;
                     }
-                }
 
-                if ($pass) {
-                    return;
+                    if (!is_null($buildingId)) {
+                        if ($buildingId == $myPermission['building_id']) {
+                            $pass = true;
+                        } else {
+                            $pass = false;
+                        }
+                    }
+
+                    if (!is_null($shopId)) {
+                        if ($shopId == $myPermission['shop_id']) {
+                            $pass = true;
+                        } else {
+                            $pass = false;
+                        }
+                    }
+
+                    if ($pass) {
+                        return;
+                    }
                 }
             }
         }
 
         throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+    }
+
+    /**
+     * @param $permissionKey
+     * @param $salesCompanyId
+     */
+    private function checkSpecifyResourcePermissionIfSuperAdmin(
+        $permissionKey,
+        $salesCompanyId
+    ) {
+        if (isset($permissionKey['building_id'])) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($permissionKey['building_id']);
+
+            if (is_null($building)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            if ($building->getCompanyId() != $salesCompanyId) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+        }
+
+        if (isset($permissionKey['shop_id'])) {
+            $shop = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\Shop')
+                ->find($permissionKey['shop_id']);
+
+            if (is_null($shop)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            if ($shop->getBuilding()->getCompanyId() != $salesCompanyId) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+        }
     }
 
     /**
@@ -358,6 +422,7 @@ class SandboxRestController extends FOSRestController
                     'name' => $permission->getName(),
                     'id' => $permission->getId(),
                     'position_id' => $position->getId(),
+                    'permission_parent_id' => $permission->getParentId(),
                 );
 
                 array_push($myPermissions, $permissionArray);

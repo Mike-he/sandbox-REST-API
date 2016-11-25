@@ -164,6 +164,7 @@ trait ApiHelpersTrait
         $this->client = $this->createClient(array(), array(
             'PHP_AUTH_USER' => $userToken->getToken(),
             'PHP_AUTH_PW' => $userClient->getId(),
+            'HTTP_ACCEPT' => 'application/json',
         ));
     }
 

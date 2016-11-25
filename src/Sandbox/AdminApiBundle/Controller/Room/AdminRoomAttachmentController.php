@@ -42,7 +42,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
      *    strict=true,
@@ -73,16 +73,16 @@ class AdminRoomAttachmentController extends RoomAttachmentController
         // check user permission
         $this->checkAdminRoomAttachmentPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $type = $paramFetcher->get('type');
+        $types = $paramFetcher->get('type');
         $buildingId = $paramFetcher->get('building');
 
-        $filters = $this->getFilters(
-            $type,
-            $buildingId
-        );
-
         // get attachment
-        $attachments = $this->getRepo('Room\RoomAttachment')->findBy($filters);
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomAttachment')
+            ->getAttachmentsByTypes(
+                $types,
+                $buildingId
+            );
 
         return new View($attachments);
     }
@@ -202,31 +202,6 @@ class AdminRoomAttachmentController extends RoomAttachmentController
     }
 
     /**
-     * Get filters.
-     *
-     * @param $type
-     * @param $buildingId
-     *
-     * @return array
-     */
-    private function getFilters(
-        $type,
-        $buildingId
-    ) {
-        $filters = [];
-
-        if (!is_null($type)) {
-            $filters['roomType'] = $type;
-        }
-
-        if (!is_null($buildingId)) {
-            $filters['buildingId'] = $buildingId;
-        }
-
-        return $filters;
-    }
-
-    /**
      * Check user permission.
      *
      * @param int $opLevel
@@ -238,6 +213,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
             ],
             $opLevel
         );

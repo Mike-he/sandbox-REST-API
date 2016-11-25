@@ -49,7 +49,7 @@ class Food implements JsonSerializable
     /**
      * @var int
      *
-     * @ORM\Column(name="cityId", type="integer")
+     * @ORM\Column(name="cityId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */
@@ -60,7 +60,7 @@ class Food implements JsonSerializable
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
+     *   @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="SET NULL")
      * })
      *
      * @Serializer\Groups({"main", "admin_detail", "client_detail"})

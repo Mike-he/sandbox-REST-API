@@ -18,7 +18,8 @@ class OrderCheckRepository extends EntityRepository
     public function checkProductForClient(
         $productId,
         $startDate,
-        $endDate
+        $endDate,
+        $seatId = null
     ) {
         $query = $this->createQueryBuilder('oc')
             ->select('COUNT(oc.id)')
@@ -32,10 +33,14 @@ class OrderCheckRepository extends EntityRepository
             )
             ->setParameter('productId', $productId)
             ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
-            ->getQuery();
+            ->setParameter('endDate', $endDate);
 
-        return $query->getSingleScalarResult();
+        if (!is_null($seatId)) {
+            $query->andWhere('oc.seatId = :seatId')
+                ->setParameter('seatId', $seatId);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 
     /**

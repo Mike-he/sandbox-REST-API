@@ -17,7 +17,7 @@ class CalculateStarCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $em = $this->getContainer()->get('doctrine')->getEntityManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $buildings = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->findBy(

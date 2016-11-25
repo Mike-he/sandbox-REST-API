@@ -277,7 +277,8 @@ class OrderController extends PaymentController
         $productId,
         $startDate,
         $endDate,
-        $userId
+        $userId,
+        $seatId
     ) {
         $orderCheck = null;
         try {
@@ -319,7 +320,8 @@ class OrderController extends PaymentController
                 $checkOrder = $this->getRepo('Order\ProductOrder')->checkProductForClient(
                     $productId,
                     $startDate,
-                    $endDate
+                    $endDate,
+                    $seatId
                 );
 
                 if (!empty($checkOrder) && !is_null($checkOrder)) {
@@ -338,7 +340,8 @@ class OrderController extends PaymentController
                 $orderCheckCount = $this->getRepo('Order\ProductOrderCheck')->checkProductForClient(
                     $productId,
                     $startDate,
-                    $endDate
+                    $endDate,
+                    $seatId
                 );
 
                 if ($orderCheckCount > 1) {
@@ -386,7 +389,8 @@ class OrderController extends PaymentController
      * @return string
      */
     protected function storeRoomInfo(
-        $product
+        $product,
+        $seatId = null
     ) {
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $city = $this->getRepo('Room\RoomCity')->find($room->getCityId());
@@ -394,6 +398,24 @@ class OrderController extends PaymentController
         $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
         $supplies = $this->getRepo('Room\RoomSupplies')->findBy(['room' => $room->getId()]);
         $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $room->getId()]);
+
+        $seatArray = [];
+        if (!is_null($seatId)) {
+            $fixedSeat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                ->findOneBy([
+                    'roomId' => $room->getId(),
+                    'id' => $seatId,
+            ]);
+
+            if (!is_null($fixedSeat)) {
+                $seatArray = [
+                    'id' => $fixedSeat->getId(),
+                    'seat_number' => $fixedSeat->getSeatNumber(),
+                    'base_price' => $fixedSeat->getBasePrice(),
+                ];
+            }
+        }
 
         $bindings = $this->getRepo('Room\RoomAttachmentBinding')->findBy(
             ['room' => $room->getId()],
@@ -477,8 +499,8 @@ class OrderController extends PaymentController
                 'office_supplies' => $supplyArray,
                 'meeting' => $meetingArray,
                 'attachment' => $attachmentArray,
+                'seat' => $seatArray,
             ],
-            'seat_number' => $product->getSeatNumber(),
         ];
 
         return json_encode($productInfo);
@@ -527,7 +549,10 @@ class OrderController extends PaymentController
             $orderCheck
         );
 
-        $productInfo = $this->storeRoomInfo($product);
+        $productInfo = $this->storeRoomInfo(
+            $product,
+            $order->getSeatId()
+        );
 
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
@@ -698,10 +723,10 @@ class OrderController extends PaymentController
         $product,
         $period,
         $startDate,
-        $endDate
+        $endDate,
+        $basePrice
     ) {
         $error = [];
-        $basePrice = $product->getBasePrice();
         $calculatedPrice = $basePrice * $period;
 
         if ($order->getPrice() != $calculatedPrice) {
@@ -878,7 +903,8 @@ class OrderController extends PaymentController
             $productId,
             $startDate,
             $endDate,
-            $user->getId()
+            $user->getId(),
+            $order->getSeatId()
         );
 
         // set product order

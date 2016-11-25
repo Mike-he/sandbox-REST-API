@@ -93,3 +93,9 @@ sandbox_admin_api_location:
     resource: "@SandboxSalesApiBundle/Controller/Location/AdminLocationController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Space /sales/admin/space
+sandbox_admin_api_space:
+    resource: "@SandboxSalesApiBundle/Controller/Space/AdminCommunityController.php"
+    type:     annotation
+    prefix:   /admin/space

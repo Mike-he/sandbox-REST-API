@@ -1126,6 +1126,10 @@ class AdminOrderController extends OrderController
                         'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
                         'building_id' => $buildingId,
                     ),
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                        'building_id' => $buildingId,
+                    ),
                 ),
                 AdminPermission::OP_LEVEL_EDIT
             );
@@ -1462,6 +1466,10 @@ class AdminOrderController extends OrderController
                         'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
                         'building_id' => $buildingId,
                     ),
+                    array(
+                        'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                        'building_id' => $buildingId,
+                    ),
                 ),
                 AdminPermission::OP_LEVEL_EDIT
             );
@@ -1494,7 +1502,21 @@ class AdminOrderController extends OrderController
             );
 
             // check if price match
+            $seatId = $order->getSeatId();
             $basePrice = $product->getBasePrice();
+
+            if (!is_null($seatId)) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $seatId,
+                        'roomId' => $product->getRoomId(),
+                    ]);
+                $this->throwNotFoundIfNull($seat, self::NOT_FOUND_MESSAGE);
+
+                $basePrice = $seat->getBasePrice();
+            }
+
             $calculatedPrice = $basePrice * $period;
 
             if ($order->getPrice() != $calculatedPrice) {

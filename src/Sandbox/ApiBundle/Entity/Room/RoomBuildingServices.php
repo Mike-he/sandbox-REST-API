@@ -29,7 +29,7 @@ class RoomBuildingServices
     /**
      * @var string
      *
-     * @Serializer\Groups({"main", "list", "build_filter"})
+     * @Serializer\Groups({"main", "list", "build_filter", "admin_building"})
      */
     private $name;
 
@@ -47,7 +47,7 @@ class RoomBuildingServices
      *
      * @ORM\Column(name="icon", type="text")
      *
-     * @Serializer\Groups({"main", "list"})
+     * @Serializer\Groups({"main", "list", "admin_building"})
      */
     private $icon;
 

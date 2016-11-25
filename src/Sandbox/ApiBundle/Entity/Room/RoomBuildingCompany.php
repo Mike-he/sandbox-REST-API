@@ -46,7 +46,7 @@ class RoomBuildingCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255, nullable=false)
+     * @ORM\Column(name="name", type="string", length=255, nullable=true)
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $name;

@@ -24,7 +24,8 @@ class RoomUsageViewRepository extends EntityRepository
     public function getRoomUsersUsage(
         $productId,
         $start,
-        $end
+        $end,
+        $seat = null
     ) {
         $query = $this->createQueryBuilder('r')
             ->where('r.productId = :productId')
@@ -37,6 +38,13 @@ class RoomUsageViewRepository extends EntityRepository
             ->setParameter('productId', $productId)
             ->setParameter('start', $start)
             ->setParameter('end', $end);
+
+        if (!is_null($seat)) {
+            $query->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+                ->leftJoin('SandboxApiBundle:Room\RoomFixed', 'f', 'WITH', 'r.id = f.roomId')
+                ->where('f.seatNumber = :seat')
+                ->setParameter('seat', $seat);
+        }
 
         return $query->getQuery()->getResult();
     }
@@ -55,7 +63,8 @@ class RoomUsageViewRepository extends EntityRepository
     public function getSalesRoomUsersUsage(
         $productId,
         $start,
-        $end
+        $end,
+        $seat = null
     ) {
         $query = $this->createQueryBuilder('r')
             ->where('r.productId = :productId')
@@ -68,6 +77,13 @@ class RoomUsageViewRepository extends EntityRepository
             ->setParameter('productId', $productId)
             ->setParameter('start', $start)
             ->setParameter('end', $end);
+
+        if (!is_null($seat)) {
+            $query->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+                ->leftJoin('SandboxApiBundle:Room\RoomFixed', 'f', 'WITH', 'r.id = f.roomId')
+                ->where('f.seatNumber = :seat')
+                ->setParameter('seat', $seat);
+        }
 
         return $query->getQuery()->getResult();
     }

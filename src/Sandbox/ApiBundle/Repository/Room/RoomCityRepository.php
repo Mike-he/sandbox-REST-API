@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Room;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 
 class RoomCityRepository extends EntityRepository
 {
@@ -36,6 +37,8 @@ class RoomCityRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Shop\Shop', 's', 'WITH', 'b.id = s.buildingId')
             ->where('s.id IN (:shopIds)')
             ->andWhere('b.isDeleted = FALSE')
+            ->andWhere('c.level = :level')
+            ->setParameter('level', RoomCity::LEVEL_CITY)
             ->setParameter('shopIds', $myShopIds);
 
         return $query->getQuery()->getResult();
@@ -53,6 +56,8 @@ class RoomCityRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'c.id = b.cityId')
             ->where('b.companyId = :companyId')
             ->andWhere('b.isDeleted = FALSE')
+            ->andWhere('c.level = :level')
+            ->setParameter('level', RoomCity::LEVEL_CITY)
             ->setParameter('companyId', $companyId);
 
         return $query->getQuery()->getResult();
