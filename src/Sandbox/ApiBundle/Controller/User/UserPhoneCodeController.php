@@ -32,7 +32,9 @@ class UserPhoneCodeController extends SandboxRestController
             self::LANGUAGE_EN,
         ));
 
-        $lists = $this->getRepo('User\UserPhoneCode')->getPhoneCodeByLanguage($language);
+        $lists = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserPhoneCode')
+            ->getPhoneCodeByLanguage($language);
 
         return new View($lists);
     }
