@@ -679,6 +679,15 @@ class ClientProductController extends ProductController
      *    "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="seat_id",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        seat id
+     *    "
+     * )
+     *
      * @param Request $request
      * @param $id
      * @param ParamFetcherInterface $paramFetcher
@@ -727,6 +736,11 @@ class ClientProductController extends ProductController
             }
 
             return new View($response);
+        } elseif ($type == Room::TYPE_FIXED) {
+            $seatId = $paramFetcher->get('seat_id');
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getBookedDates($id, $seatId);
         } else {
             $orders = $this->getRepo('Order\ProductOrder')->getBookedDates($id);
         }
