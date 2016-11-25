@@ -222,7 +222,7 @@ class RoomBuildingRepository extends EntityRepository
         }
 
         // filter by building id
-        if (!empty($myBuildingIds)) {
+        if (!is_null($myBuildingIds)) {
             $buildingsQuery->andWhere('rb.id IN (:ids)')
                 ->setParameter('ids', $myBuildingIds);
         }
