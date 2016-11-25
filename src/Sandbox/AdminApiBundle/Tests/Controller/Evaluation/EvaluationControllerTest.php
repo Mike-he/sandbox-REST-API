@@ -6,9 +6,6 @@ use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Sandbox\ApiBundle\Tests\Traits\CommonTestsUtilsTrait;
 
-/**
- * Class EvaluationControllerTest.
- */
 class EvaluationControllerTest extends WebTestCase
 {
     use ApiHelpersTrait;
