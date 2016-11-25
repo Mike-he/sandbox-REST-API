@@ -4,7 +4,7 @@ This project use composer to manage dependencies
 and symfony2 as the framework
 
 all these API will require authentification with  Basic HTTP Auth
-with username = "sharedsecret"  and password = "device's uii"
+with username = "token"  and password = "id of client"
 
 ## Useful commands
   * to refresh tokens: run the script `utils/refresh_token.sh`
