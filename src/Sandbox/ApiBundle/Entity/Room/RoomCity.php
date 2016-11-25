@@ -83,7 +83,7 @@ class RoomCity
     /**
      * @var string
      *
-     * @ORM\Column(name="enName", type="string", length=255, nullable=false)
+     * @ORM\Column(name="enName", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({
      *      "main",
