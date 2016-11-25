@@ -84,6 +84,8 @@ class LocationController extends SalesRestController
         $permissionArray = $paramFetcher->get('permission');
         $salesCompanyId = $paramFetcher->get('sales_company');
 
+        $language = $request->getPreferredLanguage(array('zh', 'en'));
+
         // filter by sales admin
         $cities = null;
         if (!is_null($salesCompanyId)) {
@@ -118,7 +120,8 @@ class LocationController extends SalesRestController
                         'level' => RoomCity::LEVEL_CITY,
                     ));
                 $citiesArray = $this->generateCitiesArray(
-                    $cities
+                    $cities,
+                    $language
                 );
 
                 return new View($citiesArray);
@@ -127,7 +130,8 @@ class LocationController extends SalesRestController
 
         // generate cities array
         $citiesArray = $this->generateCitiesArray(
-            $cities
+            $cities,
+            $language
         );
 
         return new View($citiesArray);
@@ -739,11 +743,13 @@ class LocationController extends SalesRestController
 
     /**
      * @param $cities
+     * @param $language
      *
      * @return array
      */
     protected function generateCitiesArray(
-        $cities
+        $cities,
+        $language = null
     ) {
         if (is_null($cities) || empty($cities)) {
             return array();
@@ -751,7 +757,14 @@ class LocationController extends SalesRestController
 
         $citiesArray = array();
         foreach ($cities as $city) {
-            $name = $city->getName();
+            switch ($language) {
+                case 'en':
+                    $name = $city->getEnName();
+                    break;
+                default:
+                    $name = $city->getName();
+                    break;
+            }
 
             $cityArray = array(
                 'id' => $city->getId(),
