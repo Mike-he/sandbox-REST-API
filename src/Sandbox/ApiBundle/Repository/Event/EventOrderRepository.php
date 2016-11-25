@@ -246,6 +246,7 @@ class EventOrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
             ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('eo.userId = :userId')
+            ->andWhere('er.userId = :userId')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->setParameter('userId', $userId);
@@ -257,7 +258,7 @@ class EventOrderRepository extends EntityRepository
                     $query->andWhere('
                             (
                                 eo.status = :unpaid OR
-                                (e.verify = TRUE AND er.userId = :userId AND er.status = :pending AND eo.status = :paid)
+                                (e.verify = TRUE AND er.status = :pending AND eo.status = :paid)
                             )
                         ')
                         ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
@@ -268,7 +269,7 @@ class EventOrderRepository extends EntityRepository
                 case EventOrder::CLIENT_STATUS_PASSED:
                     $query->andWhere('
                             (
-                                (e.verify = TRUE AND er.userId = :userId AND (er.status = :accepted OR er.status = :rejected)) OR 
+                                (e.verify = TRUE AND (er.status = :accepted OR er.status = :rejected)) OR 
                                 (e.verify = FAlSE AND (eo.status = :paid OR eo.status = :completed))
                             )
                         ')
