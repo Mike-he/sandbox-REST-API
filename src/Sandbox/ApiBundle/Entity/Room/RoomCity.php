@@ -105,6 +105,30 @@ class RoomCity
     private $enName;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="`key`", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "admin_detail",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
+     * })
+     */
+    private $key;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="level", type="integer")
@@ -199,6 +223,22 @@ class RoomCity
     public function setEnName($enName)
     {
         $this->enName = $enName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
     }
 
     /**

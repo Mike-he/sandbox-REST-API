@@ -16,17 +16,17 @@ class Version20161125081731 extends AbstractMigration
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql("UPDATE `room_city` SET `enName`='Beijing' WHERE `id`=4");
-        $this->addSql("UPDATE `room_city` SET `enName`='Shanghai' WHERE `id`=22");
-        $this->addSql("UPDATE `room_city` SET `enName`='Guangzhou' WHERE `id`=41");
-        $this->addSql("UPDATE `room_city` SET `enName`='Shenzhen' WHERE `id`=53");
-        $this->addSql("UPDATE `room_city` SET `enName`='Xiamen' WHERE `id`=61");
-        $this->addSql("UPDATE `room_city` SET `enName`='Hangzhou' WHERE `id`=75");
-        $this->addSql("UPDATE `room_city` SET `enName`='Chongqing' WHERE `id`=90");
-        $this->addSql("UPDATE `room_city` SET `enName`='Qingdao' WHERE `id`=130");
-        $this->addSql("UPDATE `room_city` SET `enName`='Xi`an' WHERE `id`=142");
-        $this->addSql("UPDATE `room_city` SET `enName`='Boston' WHERE `id`=157");
-        $this->addSql("UPDATE `room_city` SET `enName`='San Francisco' WHERE `id`=159");
+        $this->addSql("UPDATE `room_city` SET `enName`='Beijing',`key`='BJ' WHERE `id`=4");
+        $this->addSql("UPDATE `room_city` SET `enName`='Shanghai',`key`='SH' WHERE `id`=22");
+        $this->addSql("UPDATE `room_city` SET `enName`='Guangzhou',`key`='GZ' WHERE `id`=41");
+        $this->addSql("UPDATE `room_city` SET `enName`='Shenzhen',`key`='SZ' WHERE `id`=53");
+        $this->addSql("UPDATE `room_city` SET `enName`='Xiamen',`key`='XM' WHERE `id`=61");
+        $this->addSql("UPDATE `room_city` SET `enName`='Hangzhou',`key`='HZ' WHERE `id`=75");
+        $this->addSql("UPDATE `room_city` SET `enName`='Chongqing',`key`='CQ' WHERE `id`=90");
+        $this->addSql("UPDATE `room_city` SET `enName`='Qingdao',`key`='QD' WHERE `id`=130");
+        $this->addSql("UPDATE `room_city` SET `enName`='Xi`an',`key`='XI`AN' WHERE `id`=142");
+        $this->addSql("UPDATE `room_city` SET `enName`='Boston',`key`='BOS' WHERE `id`=157");
+        $this->addSql("UPDATE `room_city` SET `enName`='San Francisco',`key`='SFO' WHERE `id`=159");
     }
 
     /**
