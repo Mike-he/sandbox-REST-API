@@ -679,6 +679,7 @@ class RoomRepository extends EntityRepository
             ->where('r.building = :buildingId')
             ->andWhere('r.isDeleted = FALSE')
             ->setParameter('buildingId', $buildingId)
+            ->groupBy('r.id')
             ->orderBy('r.id', 'DESC');
 
         if (!empty($roomTypes)) {
