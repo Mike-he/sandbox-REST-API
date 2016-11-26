@@ -19,6 +19,7 @@ class Version20161125081559 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE room_city ADD enName VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE room_city ADD `key` VARCHAR(16) DEFAULT NULL');
     }
 
     /**
@@ -29,6 +30,5 @@ class Version20161125081559 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE room_city DROP enName');
     }
 }
