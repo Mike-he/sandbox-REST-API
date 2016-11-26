@@ -652,7 +652,6 @@ class RoomRepository extends EntityRepository
         $pageLimit,
         $offset,
         $roomTypes,
-        $hasProduct,
         $visible,
         $search
     ) {
@@ -665,14 +664,7 @@ class RoomRepository extends EntityRepository
                     r.type,
                     rt.type as rent_type,
                     r.area, 
-                    r.allowedPeople as allowed_people, 
-                    p.basePrice as base_price, 
-                    p.unitPrice as unit_price,
-                    p.id as product_id,
-                    p.startDate as start_date,
-                    p.visible,
-                    p.isDeleted as is_deleted,
-                    p.recommend
+                    r.allowedPeople as allowed_people
             ')
             ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
@@ -684,10 +676,6 @@ class RoomRepository extends EntityRepository
         if (!empty($roomTypes)) {
             $query->andWhere('r.type IN (:types)')
                 ->setParameter('types', $roomTypes);
-        }
-
-        if (!$hasProduct) {
-            $query->andWhere('p.id is null');
         }
 
         if (!is_null($visible)) {

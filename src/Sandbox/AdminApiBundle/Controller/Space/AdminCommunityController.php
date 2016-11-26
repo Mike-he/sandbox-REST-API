@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use FOS\RestBundle\Controller\Annotations;
+use Sandbox\ApiBundle\Traits\HandleSpacesDataTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
@@ -19,6 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AdminCommunityController extends SandboxRestController
 {
+    use HandleSpacesDataTrait;
+
     /**
      * Get Sales Companies.
      *
@@ -175,14 +178,6 @@ class AdminCommunityController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="has_product",
-     *    default=true,
-     *    nullable=true,
-     *    array=false,
-     *    description="has product or not"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="visible",
      *    default=null,
      *    nullable=true,
@@ -214,7 +209,6 @@ class AdminCommunityController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $offset = ($pageIndex - 1) * $pageLimit;
         $roomType = $paramFetcher->get('room_types');
-        $hasProduct = $paramFetcher->get('has_product');
         $visible = $paramFetcher->get('visible');
         $query = $paramFetcher->get('query');
 
@@ -224,7 +218,6 @@ class AdminCommunityController extends SandboxRestController
                 $pageLimit,
                 $offset,
                 $roomType,
-                $hasProduct,
                 $visible,
                 $query
             );
@@ -237,53 +230,6 @@ class AdminCommunityController extends SandboxRestController
         );
 
         return $view;
-    }
-
-    private function handleSpacesData(
-        $spaces
-    ) {
-        $limit = 1;
-        foreach ($spaces as &$space) {
-            $attachment = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
-                ->findAttachmentsByRoom($space['id'], $limit);
-
-            if (!empty($attachment)) {
-                $space['content'] = $attachment[0]['content'];
-                $space['preview'] = $attachment[0]['preview'];
-            }
-
-            $space['product'] = [];
-            if ($space['is_deleted'] == false) {
-                if ($space['type'] == 'fixed') {
-                    $seats = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:Room\RoomFixed')
-                        ->findBy(array(
-                            'room' => $space['id'],
-                        ));
-
-                    $space['product']['seats'] = $seats;
-                } else {
-                    $space['product']['base_price'] = $space['base_price'];
-                }
-
-                $space['product']['id'] = $space['product_id'];
-                $space['product']['unit_price'] = $space['unit_price'];
-                $space['product']['start_date'] = $space['start_date'];
-                $space['product']['recommend'] = $space['recommend'];
-                $space['product']['visible'] = $space['visible'];
-            }
-
-            unset($space['product_id']);
-            unset($space['base_price']);
-            unset($space['unit_price']);
-            unset($space['start_date']);
-            unset($space['visible']);
-            unset($space['recommend']);
-            unset($space['is_deleted']);
-        }
-
-        return $spaces;
     }
 
     /**
