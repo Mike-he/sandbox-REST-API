@@ -58,7 +58,7 @@ class Product
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text")
+     * @ORM\Column(name="description", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room", "current_order"})
      */
