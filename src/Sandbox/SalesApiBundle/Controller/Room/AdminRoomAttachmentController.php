@@ -74,20 +74,6 @@ class AdminRoomAttachmentController extends SalesRestController
         $types = $paramFetcher->get('type');
         $buildingId = $paramFetcher->get('building');
 
-        // get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_SALES_BUILDING_ROOM,
-                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
-            )
-        );
-
-        // check user permission
-        if (empty($myBuildingIds) || !in_array((int) $buildingId, $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
         // get attachment
         $attachments = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomAttachment')
@@ -124,20 +110,6 @@ class AdminRoomAttachmentController extends SalesRestController
     ) {
         // get attachment
         $attachments = $this->getRepo('Room\RoomAttachment')->find($id);
-
-        // get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_SALES_BUILDING_ROOM,
-                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
-            )
-        );
-
-        // check user permission
-        if (empty($myBuildingIds) || !in_array($attachments->getBuildingId(), $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
 
         return new View($attachments);
     }
