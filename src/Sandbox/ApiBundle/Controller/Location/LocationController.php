@@ -204,6 +204,7 @@ class LocationController extends SalesRestController
         $user = $this->getUser();
 
         $ids = $paramFetcher->get('id');
+        $ids = !empty($ids) ? $ids : null;
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
         $platform = $paramFetcher->get('platform');
