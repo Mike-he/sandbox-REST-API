@@ -1080,6 +1080,7 @@ class AdminRoomController extends SalesRestController
         foreach ($products as $product) {
             if (!is_null($product) || !empty($product)) {
                 $product->setVisible(false);
+                $product->setIsDeleted(true);
             }
         }
 
