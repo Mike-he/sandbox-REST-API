@@ -7,7 +7,7 @@ all these API will require authentification with  Basic HTTP Auth
 with username = "token"  and password = "id of client"
 
 ## Useful commands
-  * to refresh tokens: run the script `utils/refresh_token.sh`
+  * to start vagrant `vagrant up`
   * to see list of available sharedsecret/uii run the script 
   * to ssh into the virtual machine `vagrant ssh`
 
