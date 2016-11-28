@@ -371,6 +371,15 @@ class AdminProductController extends ProductController
             AdminPermission::OP_LEVEL_VIEW
         );
 
+        $room = $product->getRoom();
+        $roomType = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
+            ->findOneBy(array(
+                'name' => $room->getType(),
+            ));
+
+        $room->setRentType($roomType->getType());
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($product);
