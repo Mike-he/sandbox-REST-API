@@ -691,6 +691,7 @@ class AdminProductController extends ProductController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
             ],
             $opLevel
         );
