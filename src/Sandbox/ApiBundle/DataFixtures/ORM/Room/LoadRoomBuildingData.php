@@ -35,11 +35,13 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rbs1 = new RoomBuildingServices();
         $rbs1->setKey('free_wifi');
         $rbs1->setIcon('http://image.sandbox3.cn/icon/5.png');
+        $rbs1->setSelectedIcon('http://image.sandbox3.cn/icon/5.png');
         $this->addReference('first-building-service', $rbs1);
 
         $rbs2 = new RoomBuildingServices();
         $rbs2->setKey('printing_devices');
         $rbs2->setIcon('http://image.sandbox3.cn/icon/6.png');
+        $rbs2->setSelectedIcon('http://image.sandbox3.cn/icon/6.png');
         $this->addReference('second-building-service', $rbs2);
 
         $date = new \DateTime('now');

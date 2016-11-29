@@ -659,9 +659,13 @@ class AdminPositionController extends PaymentController
 
         foreach ($icons as $icon) {
             $icon->setUrl($global_image_url.$icon->getIcon());
+            $icon->setSelectedUrl($global_image_url.$icon->getSelectedIcon());
         }
 
-        return new View($icons);
+        $view = new View($icons);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin']));
+
+        return $view;
     }
 
     /**

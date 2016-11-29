@@ -52,6 +52,15 @@ class RoomBuildingServices
     private $icon;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="selectedIcon", type="text")
+     *
+     * @Serializer\Groups({"main", "list", "admin_building"})
+     */
+    private $selectedIcon;
+
+    /**
      * Get id.
      *
      * @return int
@@ -123,5 +132,21 @@ class RoomBuildingServices
     public function getIcon()
     {
         return $this->icon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSelectedIcon()
+    {
+        return $this->selectedIcon;
+    }
+
+    /**
+     * @param string $selectedIcon
+     */
+    public function setSelectedIcon($selectedIcon)
+    {
+        $this->selectedIcon = $selectedIcon;
     }
 }
