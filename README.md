@@ -7,8 +7,7 @@ all these API will require authentification with  Basic HTTP Auth
 with username = "token"  and password = "id of client"
 
 ## Useful commands
-  * to start vagrant ENV `vagrant up`
-  * to see list of available sharedsecret/uii run the script 
+  * to start vagrant ENV `vagrant up` 
   * to ssh into the virtual machine `vagrant ssh`
 
 
