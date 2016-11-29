@@ -29,26 +29,26 @@ class Version20161129070108 extends AbstractMigration
         $this->addSql("UPDATE `room_building_services` SET `selectedIcon`='https://image.sandbox3.cn/icon/building_service_community_manager_selected.png' WHERE `key`='community_manager'");
         $this->addSql("UPDATE `room_building_services` SET `selectedIcon`='https://image.sandbox3.cn/icon/building_service_enterprise_service_selected.png' WHERE `key`='enterprise_service'");
 
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_01_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_02_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_03_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_04_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_05_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_06_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_07_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_08_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_09_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_10_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_11_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_12_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_13_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_14_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_15_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_16_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_17_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_18_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_19_selected.png'");
-        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_20_selected.png'");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_01_selected.png' WHERE `id`=1");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_02_selected.png' WHERE `id`=2");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_03_selected.png' WHERE `id`=3");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_04_selected.png' WHERE `id`=4");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_05_selected.png' WHERE `id`=5");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_06_selected.png' WHERE `id`=6");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_07_selected.png' WHERE `id`=7");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_08_selected.png' WHERE `id`=8");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_09_selected.png' WHERE `id`=9");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_10_selected.png' WHERE `id`=10");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_11_selected.png' WHERE `id`=11");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_12_selected.png' WHERE `id`=12");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_13_selected.png' WHERE `id`=13");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_14_selected.png' WHERE `id`=14");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_15_selected.png' WHERE `id`=15");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_16_selected.png' WHERE `id`=16");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_17_selected.png' WHERE `id`=17");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_18_selected.png' WHERE `id`=18");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_19_selected.png' WHERE `id`=19");
+        $this->addSql("UPDATE `admin_position_icons` SET `selectedIcon`='/icon/admin_position_icon_20_selected.png' WHERE `id`=20");
     }
 
     /**
