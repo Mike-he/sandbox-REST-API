@@ -366,22 +366,11 @@ class ProductRepository extends EntityRepository
             $query = $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
                 ->andWhere(
-                    '(
-                        p.id NOT IN (
-                            SELECT po1.productId FROM SandboxApiBundle:Order\ProductOrder po1
-                            WHERE po1.status != :status
-                            AND
-                            (
-                                (po1.startDate <= :startDate AND po1.endDate > :startDate) OR
-                                (po1.startDate < :endDate AND po1.endDate >= :endDate) OR
-                                (po1.startDate >= :startDate AND po1.endDate <= :endDate)
-                            )
-                        )
-                        OR
+                    '(                      
                         p.id IN (
                             SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
                             WHERE po2.status != :status
-                            AND r.type = :roomType
+                            AND (r.type = :flex OR r.type = :fixed)
                             AND
                             (
                                 (po2.startDate <= :startDate AND po2.endDate > :startDate) OR
@@ -394,7 +383,8 @@ class ProductRepository extends EntityRepository
                     )'
                 )
                 ->setParameter('status', ProductOrder::STATUS_CANCELLED)
-                ->setParameter('roomType', Room::TYPE_FLEXIBLE)
+                ->setParameter('flex', Room::TYPE_FLEXIBLE)
+                ->setParameter('fixed', Room::TYPE_FIXED)
                 ->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
@@ -1098,11 +1088,13 @@ class ProductRepository extends EntityRepository
 
     /**
      * @param $building
+     * @param $visible
      *
      * @return mixed
      */
     public function countsProductByBuilding(
-        $building
+        $building,
+        $visible = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
@@ -1110,6 +1102,11 @@ class ProductRepository extends EntityRepository
             ->where('r.building = :building')
             ->andWhere('p.isDeleted = FALSE')
             ->setParameter('building', $building);
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
 
         return $query->getQuery()->getSingleScalarResult();
     }
@@ -1184,23 +1181,34 @@ class ProductRepository extends EntityRepository
      *
      * @return array
      */
-    public function getAllProductsForOneBuilding(
+    public function getAllProductsForOneBuildingOrCompany(
         $buildingId,
         $userId,
         $limit,
-        $offset
+        $offset,
+        $includeIds
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->where('p.visible = TRUE')
             ->andWhere('p.isDeleted = FALSE')
-            ->andWhere('r.buildingId = :buildingId')
-            ->setParameter('buildingId', $buildingId)
             ->setMaxResults($limit)
             ->setFirstResult($offset)
-            ->orderBy('p.creationDate', 'DESC')
+            ->orderBy('p.recommend', 'DESC')
+            ->addOrderBy('p.creationDate', 'DESC')
         ;
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.buildingId = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->leftjoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+                ->andWhere('b.companyId IN (:ids)')
+                ->setParameter('ids', $includeIds);
+        }
 
         if (!is_null($userId)) {
             $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
@@ -1212,5 +1220,28 @@ class ProductRepository extends EntityRepository
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    public function countsProductByType(
+        $building,
+        $type,
+        $visible = null
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('COUNT(p)')
+            ->leftJoin('p.room', 'r')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('r.building = :building')
+            ->andWhere('r.type = :type')
+            ->setParameter('building', $building)
+            ->setParameter('type', $type);
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

@@ -63,7 +63,7 @@ class Event
     /**
      * @var int
      *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
+     * @ORM\Column(name="cityId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */
@@ -74,7 +74,7 @@ class Event
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="cityId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     *   @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="SET NULL")
      * })
      * @Serializer\Groups({
      *      "main",

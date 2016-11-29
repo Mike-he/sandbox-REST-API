@@ -33,7 +33,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $em = $this->getContainer()->get('doctrine')->getEntityManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $imgUrl = $this->getContainer()->getParameter('image_url');
 

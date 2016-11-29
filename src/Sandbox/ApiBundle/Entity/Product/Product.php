@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Product;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Sandbox\ApiBundle\Entity\Room\Room;
 
 /**
@@ -45,22 +46,23 @@ class Product
     private $roomId;
 
     /**
-     * @var string
+     * @var \Sandbox\ApiBundle\Entity\Room\Room
      *
-     * @ORM\Column(name="description", type="text")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
+     * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "current_order"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room"})
      */
-    private $description;
+    private $room;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="seatNumber", type="string", length=64, nullable=true)
+     * @ORM\Column(name="description", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "client", "admin_room", "current_order"})
      */
-    private $seatNumber;
+    private $description;
 
     /**
      * @var int
@@ -74,7 +76,7 @@ class Product
     /**
      * @var string
      *
-     * @ORM\Column(name="basePrice", type="decimal")
+     * @ORM\Column(name="basePrice", type="string", length=10, nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
@@ -200,6 +202,7 @@ class Product
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
      *
      * @Serializer\Groups({"main", "admin_room"})
@@ -209,21 +212,12 @@ class Product
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modificationDate", type="datetime")
      *
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $modificationDate;
-
-    /**
-     * @var \Sandbox\ApiBundle\Entity\Room\Room
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
-     * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
-     *
-     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room"})
-     */
-    private $room;
 
     /**
      * @var bool
@@ -250,6 +244,11 @@ class Product
      * @Serializer\Groups({"main", "client"})
      */
     private $distance;
+
+    /**
+     * @var array
+     */
+    private $seats;
 
     /**
      * Get id.
@@ -356,27 +355,27 @@ class Product
     }
 
     /**
-     * Set seatNumber.
+     * Set seats.
      *
-     * @param string $seatNumber
+     * @param array $seats
      *
      * @return Product
      */
-    public function setSeatNumber($seatNumber)
+    public function setSeats($seats)
     {
-        $this->seatNumber = $seatNumber;
+        $this->seats = $seats;
 
         return $this;
     }
 
     /**
-     * Get seatNumber.
+     * Get seats.
      *
-     * @return string
+     * @return array
      */
-    public function getSeatNumber()
+    public function getSeats()
     {
-        return $this->seatNumber;
+        return $this->seats;
     }
 
     /**

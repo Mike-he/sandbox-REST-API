@@ -17,7 +17,7 @@ class InitializeDatabaseCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $filename = 'app/sql/createView.sql';
-        $em = $this->getContainer()->get('doctrine')->getEntityManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $sql = file_get_contents($filename);  // Read file contents
         $em->getConnection()->exec($sql);  // Execute native SQL

@@ -210,50 +210,39 @@ class RoomBuildingRepository extends EntityRepository
         $visible = null,
         $excludeIds = null
     ) {
-        $notFirst = false;
         $buildingsQuery = $this->createQueryBuilder('rb');
+
+        // filter by building delete
+        $buildingsQuery->where('rb.isDeleted = FALSE');
 
         // query by city id
         if (!is_null($cityId)) {
-            $buildingsQuery->where('rb.cityId = :cityId');
-            $buildingsQuery->setParameter('cityId', $cityId);
-
-            $notFirst = true;
+            $buildingsQuery->andWhere('rb.cityId = :cityId')
+                ->setParameter('cityId', $cityId);
         }
 
         // filter by building id
-        if (!empty($myBuildingIds)) {
-            if ($notFirst) {
-                $buildingsQuery->andWhere('rb.id IN (:ids)');
-            } else {
-                $buildingsQuery->where('rb.id IN (:ids)');
-            }
-            $buildingsQuery->setParameter('ids', $myBuildingIds);
+        if (!is_null($myBuildingIds)) {
+            $buildingsQuery->andWhere('rb.id IN (:ids)')
+                ->setParameter('ids', $myBuildingIds);
         }
 
         // filter by company id
         if (!is_null($companyId)) {
-            if ($notFirst) {
-                $buildingsQuery->andWhere('rb.companyId = :companyId');
-            } else {
-                $buildingsQuery->where('rb.companyId = :companyId');
-            }
-            $buildingsQuery->setParameter('companyId', $companyId);
+            $buildingsQuery->andWhere('rb.companyId = :companyId')
+                ->setParameter('companyId', $companyId);
         }
-
-        // filter by building delete
-        $buildingsQuery->andWhere('rb.isDeleted = FALSE');
 
         // filter by building status
         if (!is_null($status)) {
-            $buildingsQuery->andWhere('rb.status = :status');
-            $buildingsQuery->setParameter('status', $status);
+            $buildingsQuery->andWhere('rb.status = :status')
+                ->setParameter('status', $status);
         }
 
         // filter by building visible
         if (!is_null($visible)) {
-            $buildingsQuery->andWhere('rb.visible = :visible');
-            $buildingsQuery->setParameter('visible', $visible);
+            $buildingsQuery->andWhere('rb.visible = :visible')
+                ->setParameter('visible', $visible);
         }
 
         if (!is_null($excludeIds) && !empty($excludeIds)) {
@@ -420,6 +409,7 @@ class RoomBuildingRepository extends EntityRepository
                 ) as distance,
                 rb.evaluationStar as evaluation_star,
                 rb.avatar,
+                rb.districtId as district_id,
                 rb.lat,
                 rb.lng,
                 (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_evaluation_number

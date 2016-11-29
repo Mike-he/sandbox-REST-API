@@ -625,11 +625,13 @@ class RoomRepository extends EntityRepository
 
     /**
      * @param $building
+     * @param null $roomtype
      *
      * @return mixed
      */
     public function countsRoomByBuilding(
-        $building
+        $building,
+        $roomtype = null
     ) {
         $query = $this->createQueryBuilder('r')
             ->select('COUNT(r)')
@@ -637,6 +639,59 @@ class RoomRepository extends EntityRepository
             ->andWhere('r.isDeleted = FALSE')
             ->setParameter('building', $building);
 
+        if (!is_null($roomtype)) {
+            $query->andWhere('r.type = :type')
+                ->setParameter('type', $roomtype);
+        }
+
         return $query->getQuery()->getSingleScalarResult();
+    }
+
+    public function findSpacesByBuilding(
+        $buildingId,
+        $pageLimit,
+        $offset,
+        $roomTypes,
+        $visible,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->select('
+                distinct
+                    r.id, 
+                    r.name, 
+                    r.buildingId as building_id,
+                    r.type,
+                    rt.type as rent_type,
+                    r.area, 
+                    r.allowedPeople as allowed_people
+            ')
+            ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->where('r.building = :buildingId')
+            ->andWhere('r.isDeleted = FALSE')
+            ->setParameter('buildingId', $buildingId)
+            ->orderBy('r.id', 'DESC');
+
+        if (!empty($roomTypes)) {
+            $query->andWhere('r.type IN (:types)')
+                ->setParameter('types', $roomTypes);
+        }
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        return $query
+            ->setFirstResult($offset)
+            ->setMaxResults($pageLimit)
+            ->getQuery()
+            ->getResult();
     }
 }

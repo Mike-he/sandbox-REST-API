@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use JsonSerializable;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
 /**
@@ -93,7 +94,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var int
      *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
+     * @ORM\Column(name="cityId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main", "admin"})
      */
@@ -101,7 +102,7 @@ class RoomBuilding implements JsonSerializable
 
     /**
      * @ORM\ManyToOne(targetEntity="RoomCity")
-     * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups({
      *     "main",
      *     "building_nearby",
@@ -113,6 +114,39 @@ class RoomBuilding implements JsonSerializable
      * })
      **/
     private $city;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin","admin_building"})
+     */
+    private $country;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin", "admin_building"})
+     */
+    private $province;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="districtId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $districtId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="RoomCity")
+     * @ORM\JoinColumn(name="districtId", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\Groups({
+     *     "main",
+     *     "admin_building",
+     * })
+     **/
+    private $district;
 
     /**
      * @var string
@@ -252,7 +286,8 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="creationDate", type="datetime")
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
@@ -261,7 +296,8 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(name="modificationDate", type="datetime")
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
@@ -770,6 +806,70 @@ class RoomBuilding implements JsonSerializable
     public function getCity()
     {
         return $this->city;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param array $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProvince()
+    {
+        return $this->province;
+    }
+
+    /**
+     * @param array $province
+     */
+    public function setProvince($province)
+    {
+        $this->province = $province;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDistrictId()
+    {
+        return $this->districtId;
+    }
+
+    /**
+     * @param int $districtId
+     */
+    public function setDistrictId($districtId)
+    {
+        $this->districtId = $districtId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDistrict()
+    {
+        return $this->district;
+    }
+
+    /**
+     * @param mixed $district
+     */
+    public function setDistrict($district)
+    {
+        $this->district = $district;
     }
 
     /**

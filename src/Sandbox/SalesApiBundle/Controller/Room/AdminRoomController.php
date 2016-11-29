@@ -633,6 +633,15 @@ class AdminRoomController extends SalesRestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
+        // set rent type
+        $roomType = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
+            ->findOneBy(array(
+                'name' => $room->getType(),
+            ));
+
+        $room->setRentType($roomType->getType());
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($room);
@@ -1077,6 +1086,7 @@ class AdminRoomController extends SalesRestController
         foreach ($products as $product) {
             if (!is_null($product) || !empty($product)) {
                 $product->setVisible(false);
+                $product->setIsDeleted(true);
             }
         }
 
@@ -1137,13 +1147,10 @@ class AdminRoomController extends SalesRestController
         }
 
         // handle fixed rooms
-        if (!is_null($fixed) && $room->getType() == Room::TYPE_FIXED) {
-            $roomsFixed = $this->getRepo('Room\RoomFixed')->findByRoom($room);
-            array_map($this->removeFixedSeatNumbers($em), $roomsFixed);
-            $this->addRoomTypeData(
+        if (!is_null($fixed) && !empty($fixed) && $type == Room::TYPE_FIXED) {
+            $this->handleRoomFixed(
                 $em,
                 $room,
-                null,
                 $fixed
             );
         }
@@ -1188,6 +1195,62 @@ class AdminRoomController extends SalesRestController
     }
 
     /**
+     * @param $em
+     * @param $room
+     * @param $fixed
+     */
+    private function handleRoomFixed(
+        $em,
+        $room,
+        $fixed
+    ) {
+        if (array_key_exists('add', $fixed) && !empty($fixed['add'])) {
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                null,
+                $fixed['add']
+            );
+        }
+
+        if (array_key_exists('modify', $fixed) && !empty($fixed['modify'])) {
+            foreach ($fixed['modify'] as $modifySeat) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $modifySeat['seat_id'],
+                        'room' => $room,
+                    ]);
+
+                if (is_null($seat)) {
+                    continue;
+                }
+
+                $seat->setSeatNumber($modifySeat['seat_number']);
+            }
+        }
+
+        if (array_key_exists('remove', $fixed) && !empty($fixed['remove'])) {
+            foreach ($fixed['remove'] as $removeSeat) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $removeSeat['seat_id'],
+                        'room' => $room,
+                    ]);
+
+                if (is_null($seat)) {
+                    continue;
+                }
+
+                $em->remove($seat);
+            }
+        }
+
+        $em->flush();
+    }
+
+    /**
      * @param Room                  $room
      * @param RoomMeeting           $meeting
      * @param RoomFixed             $roomsFixed
@@ -1205,8 +1268,8 @@ class AdminRoomController extends SalesRestController
         $office_supplies,
         $doors_control
     ) {
-        $roomCity = $this->getRepo('Room\RoomCity')->find($room->getCityId());
         $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($room->getBuildingId());
+        $roomCity = $this->getRepo('Room\RoomCity')->find($roomBuilding->getCityId());
         $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
 
         $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
@@ -1441,7 +1504,11 @@ class AdminRoomController extends SalesRestController
                     $roomFixed = new RoomFixed();
                     $roomFixed->setRoom($room);
                     $roomFixed->setSeatNumber($fixed['seat_number']);
-                    $roomFixed->setAvailable($fixed['available']);
+
+                    if (array_key_exists('price', $fixed)) {
+                        $roomFixed->setBasePrice($fixed['price']);
+                    }
+
                     $em->persist($roomFixed);
                     $em->flush();
                 }
@@ -1450,27 +1517,6 @@ class AdminRoomController extends SalesRestController
                 /* Do nothing */
                 break;
         }
-    }
-
-    /**
-     * Check user permission.
-     *
-     * @param int   $opLevel
-     * @param array $permissions
-     * @param int   $buildingId
-     */
-    private function checkAdminRoomPermission(
-        $opLevel,
-        $permissions,
-        $buildingId = null
-    ) {
-        $this->throwAccessDeniedIfSalesAdminNotAllowed(
-            $this->getAdminId(),
-            SalesAdminType::KEY_PLATFORM,
-            $permissions,
-            $opLevel,
-            $buildingId
-        );
     }
 
     /**
@@ -1551,16 +1597,7 @@ class AdminRoomController extends SalesRestController
         $products = $this->getRepo('Product\Product')->findBy(['roomId' => $id]);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                    'building_id' => $room->getBuildingId(),
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $this->checkPermissionForRoomUsage($room->getBuildingId());
 
         $yearString = $paramFetcher->get('year');
         $results = [];
@@ -1629,22 +1666,12 @@ class AdminRoomController extends SalesRestController
             $product = $this->getRepo('Product\Product')->findOneBy(
                 [
                     'roomId' => $id,
-                    'seatNumber' => $seat,
                 ]
             );
             $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
             // check user permission
-            $this->throwAccessDeniedIfAdminNotAllowed(
-                $this->getAdminId(),
-                array(
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                        'building_id' => $product->getRoom()->getBuildingId(),
-                    ),
-                ),
-                AdminPermission::OP_LEVEL_VIEW
-            );
+            $this->checkPermissionForRoomUsage($product->getRoom()->getBuildingId());
 
             $startString = $paramFetcher->get('start');
             $endString = $paramFetcher->get('end');
@@ -1664,7 +1691,8 @@ class AdminRoomController extends SalesRestController
                 $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
                     $productId,
                     $start,
-                    $end
+                    $end,
+                    $seat
                 );
             }
         }
@@ -1709,16 +1737,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                    'building_id' => $product->getRoom()->getBuildingId(),
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $this->checkPermissionForRoomUsage($product->getRoom()->getBuildingId());
 
         $startString = $paramFetcher->get('start');
         $endString = $paramFetcher->get('end');
@@ -1801,16 +1820,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                    'building_id' => $product->getRoom()->getBuildingId(),
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $this->checkPermissionForRoomUsage($product->getRoom()->getBuildingId());
 
         $dayString = $paramFetcher->get('day');
         $results = [];
@@ -1833,5 +1843,35 @@ class AdminRoomController extends SalesRestController
         $view->setData($results);
 
         return $view;
+    }
+
+    /**
+     * @param $product
+     */
+    private function checkPermissionForRoomUsage(
+        $buildingId
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
+        );
     }
 }

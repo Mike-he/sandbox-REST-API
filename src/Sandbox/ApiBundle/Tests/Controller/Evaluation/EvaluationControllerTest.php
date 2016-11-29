@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Tests\Controller;
+namespace Sandbox\ApiBundle\Tests\Controller\Evaluation;
 
 use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -28,9 +28,10 @@ class EvaluationControllerTest extends WebTestCase
 
         $fixtures = [
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
-            'Sandbox\ApiBundle\DataFixtures\ORM\Location\LoadLocationData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomBuildingData',
             'Sandbox\ApiBundle\DataFixtures\ORM\User\LoadUserData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Evaluation\LoadEvaluationData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
         ];
 
         $fixtureExecutor = $this->loadFixtures($fixtures);
@@ -137,7 +138,7 @@ class EvaluationControllerTest extends WebTestCase
                         'size' => $firstEvaluationAttachment->getSize(),
                     ],
                 ],
-                'creation_date' => $firstEvaluation->getCreationDate(),
+                'creation_date' => $firstEvaluation->getCreationDate()->format("Y-m-d\TH:i:sO"),
             ],
             [
                 'id' => $secondEvaluation->getId(),
@@ -155,7 +156,7 @@ class EvaluationControllerTest extends WebTestCase
                         'size' => $secondEvaluationAttachment->getSize(),
                     ],
                 ],
-                'creation_date' => $secondEvaluation->getCreationDate(),
+                'creation_date' => $secondEvaluation->getCreationDate()->format("Y-m-d\TH:i:sO"),
             ],
             [
                 'id' => $thirdEvaluation->getId(),
@@ -167,7 +168,7 @@ class EvaluationControllerTest extends WebTestCase
                     'name' => $userProfile->getName(),
                 ],
                 'evaluation_attachments' => [],
-                'creation_date' => $thirdEvaluation->getCreationDate(),
+                'creation_date' => $thirdEvaluation->getCreationDate()->format("Y-m-d\TH:i:sO"),
             ],
         ];
 

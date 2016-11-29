@@ -1246,6 +1246,7 @@ class AdminOrderController extends OrderController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
             ],
@@ -1387,6 +1388,7 @@ class AdminOrderController extends OrderController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
             ],
@@ -1447,7 +1449,21 @@ class AdminOrderController extends OrderController
             );
 
             // check if price match
+            $seatId = $order->getSeatId();
             $basePrice = $product->getBasePrice();
+
+            if (!is_null($seatId)) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $seatId,
+                        'roomId' => $product->getRoomId(),
+                    ]);
+                $this->throwNotFoundIfNull($seat, self::NOT_FOUND_MESSAGE);
+
+                $basePrice = $seat->getBasePrice();
+            }
+
             $calculatedPrice = $basePrice * $period;
 
             if ($order->getPrice() != $calculatedPrice) {

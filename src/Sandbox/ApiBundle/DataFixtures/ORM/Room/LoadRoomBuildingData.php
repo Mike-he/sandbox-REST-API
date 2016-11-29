@@ -1,18 +1,17 @@
 <?php
 
-namespace Sandbox\ApiBundle\DataFixtures\ORM\Location;
+namespace Sandbox\ApiBundle\DataFixtures\ORM\Room;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
-use Sandbox\ApiBundle\Entity\Room\RoomTypes;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 
-class LoadLocationData extends AbstractFixture implements OrderedFixtureInterface
+class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInterface
 {
     const SHANGHAI_ZHANXIANG_LAT = 39.87658;
     const SHANGHAI_ZHANXIANG_LNG = 116.365549;
@@ -21,52 +20,37 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
 
     public function load(ObjectManager $manager)
     {
-        $rt1 = new RoomTypes();
-        $rt1->setName('office');
-        $rt1->setDescription('Private Office');
-        $rt1->setIcon('/icon/1.png');
-        $this->addReference('first-room-type', $rt1);
-
-        $rt2 = new RoomTypes();
-        $rt2->setName('meeting');
-        $rt2->setDescription('Meeting Room');
-        $rt2->setIcon('/icon/2.png');
-        $this->addReference('second-room-type', $rt2);
-
         $rbt1 = new RoomBuildingTag();
         $rbt1->setKey('sandbox3_manage');
-        $rbt1->setIcon('/icon/3.png');
+        $rbt1->setIcon('http://image.sandbox3.cn/icon/3.png');
+        $rbt1->setIconWithBg('/icon/bg-3.png');
         $this->addReference('first-building-tag', $rbt1);
 
         $rbt2 = new RoomBuildingTag();
         $rbt2->setKey('round_the_clock_service');
-        $rbt2->setIcon('/icon/4.png');
+        $rbt2->setIcon('http://image.sandbox3.cn/icon/4.png');
+        $rbt2->setIconWithBg('/icon/bg-4.png');
         $this->addReference('second-building-tag', $rbt2);
 
         $rbs1 = new RoomBuildingServices();
         $rbs1->setKey('free_wifi');
-        $rbs1->setIcon('/icon/5.png');
+        $rbs1->setIcon('http://image.sandbox3.cn/icon/5.png');
+        $rbs1->setSelectedIcon('http://image.sandbox3.cn/icon/5.png');
         $this->addReference('first-building-service', $rbs1);
 
         $rbs2 = new RoomBuildingServices();
         $rbs2->setKey('printing_devices');
-        $rbs2->setIcon('/icon/6.png');
+        $rbs2->setIcon('http://image.sandbox3.cn/icon/6.png');
+        $rbs2->setSelectedIcon('http://image.sandbox3.cn/icon/6.png');
         $this->addReference('second-building-service', $rbs2);
 
         $date = new \DateTime('now');
 
-        $sc1 = new SalesCompany();
-        $sc1->setName('展现创合');
-        $sc1->setEmail('sandbox@sandbox3.cn');
-        $sc1->setPhone('05012312312');
-        $sc1->setAddress('浦东新区祖冲之路2290, 1#楼');
-        $sc1->setDescription('咖啡销售');
-        $sc1->setApplicantName('sandbox');
-        $sc1->setCreationDate($date);
-        $sc1->setModificationDate($date);
+        $sc1 = $this->getReference('sales-company-sandbox');
 
         $rb1 = new RoomBuilding();
         $rb1->setCity($this->getReference('shanghai'));
+        $rb1->setDistrict($this->getReference('pudongxinqu'));
         $rb1->setName('展想广场');
         $rb1->setAddress('浦东新区祖冲之路2290, 1#楼');
         $rb1->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
@@ -80,8 +64,6 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb1->setBuildingStar(4.2);
         $rb1->setStatus('accept');
         $rb1->setVisible(true);
-        $rb1->setCreationDate($date);
-        $rb1->setModificationDate($date);
         $rb1->setCompany($sc1);
         $this->addReference('room-building-for-data-structure', $rb1);
 
@@ -100,9 +82,8 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb2->setBuildingStar(4.5);
         $rb2->setStatus('accept');
         $rb2->setVisible(true);
-        $rb2->setCreationDate($date);
-        $rb2->setModificationDate($date);
         $rb2->setCompany($sc1);
+        $this->addReference('room-building-without-room', $rb2);
 
         $rb3 = new RoomBuilding();
         $rb3->setCity($this->getReference('shanghai'));
@@ -119,12 +100,11 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb3->setBuildingStar(4.0);
         $rb3->setStatus('accept');
         $rb3->setVisible(true);
-        $rb3->setCreationDate($date);
-        $rb3->setModificationDate($date);
         $rb3->setCompany($sc1);
 
         $rb4 = new RoomBuilding();
         $rb4->setCity($this->getReference('beijing'));
+        $rb4->setDistrict($this->getReference('dongchengqu'));
         $rb4->setName('北京南站');
         $rb4->setAddress('北京南站路, 1#楼');
         $rb4->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
@@ -138,9 +118,49 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rb4->setBuildingStar(4.0);
         $rb4->setStatus('accept');
         $rb4->setVisible(true);
-        $rb4->setCreationDate($date);
-        $rb4->setModificationDate($date);
         $rb4->setCompany($sc1);
+
+        $rb5 = new RoomBuilding();
+        $rb5->setCity($this->getReference('shanghai'));
+        $rb5->setName('展想广场5');
+        $rb5->setAddress('浦东新区祖冲之路2290, 1#楼');
+        $rb5->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
+        $rb5->setDescription('room-building-for-pengding-1');
+        $rb5->setDetail('上海市浦东张江高科技园区');
+        $rb5->setSubtitle('buzhidao');
+        $rb5->setLat('31.216193');
+        $rb5->setLng('121.632682');
+        $rb5->setCompany($sc1);
+        $this->addReference('room-building-for-pengding-1', $rb5);
+
+        $rb6 = new RoomBuilding();
+        $rb6->setCity($this->getReference('shanghai'));
+        $rb6->setName('展想广场6');
+        $rb6->setAddress('浦东新区祖冲之路2290, 1#楼');
+        $rb6->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
+        $rb6->setDescription('room-building-for-accept-invisible-1');
+        $rb6->setDetail('上海市浦东张江高科技园区');
+        $rb6->setSubtitle('buzhidao');
+        $rb6->setLat('31.216193');
+        $rb6->setLng('121.632682');
+        $rb6->setStatus('accept');
+        $rb6->setCompany($sc1);
+        $this->addReference('room-building-for-accept-invisible-1', $rb6);
+
+        $rb7 = new RoomBuilding();
+        $rb7->setCity($this->getReference('shanghai'));
+        $rb7->setName('展想广场7');
+        $rb7->setAddress('浦东新区祖冲之路2290, 1#楼');
+        $rb7->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
+        $rb7->setDescription('room-building-for-banned-1');
+        $rb7->setDetail('上海市浦东张江高科技园区');
+        $rb7->setSubtitle('buzhidao');
+        $rb7->setLat('31.216193');
+        $rb7->setLng('121.632682');
+        $rb7->setStatus('banned');
+        $rb7->setVisible(true);
+        $rb7->setCompany($sc1);
+        $this->addReference('room-building-for-banned-1', $rb7);
 
         $rba1 = new RoomBuildingAttachment();
         $rba1->setBuilding($rb1);
@@ -172,8 +192,35 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $rba3->setCreationDate($date);
         $this->addReference('first-attachment-for-building-4', $rba3);
 
-        $manager->persist($rt1);
-        $manager->persist($rt2);
+        $ra1 = new RoomAttachment();
+        $ra1->setRoomType('meeting');
+        $ra1->setAttachmentType('office');
+        $ra1->setBuilding($rb1);
+        $ra1->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra1->setFilename('49-a448-6f2b8cf4.jpg');
+        $ra1->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra1->setSize(1);
+        $ra1->setCreationDate(new \DateTime('now'));
+
+        $ra2 = new RoomAttachment();
+        $ra2->setRoomType('fixed');
+        $ra2->setAttachmentType('image/jpeg');
+        $ra2->setBuilding($rb1);
+        $ra2->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra2->setFilename('49-a448-6f2b8cf4.jpg');
+        $ra2->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra2->setSize(1);
+        $ra2->setCreationDate(new \DateTime('now'));
+
+        $ra3 = new RoomAttachment();
+        $ra3->setRoomType('office');
+        $ra3->setAttachmentType('image/jpeg');
+        $ra3->setBuilding($rb1);
+        $ra3->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra3->setFilename('49-a448-6f2b8cf4.jpg');
+        $ra3->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $ra3->setSize(1);
+        $ra3->setCreationDate(new \DateTime('now'));
 
         $manager->persist($rbt1);
         $manager->persist($rbt2);
@@ -186,16 +233,23 @@ class LoadLocationData extends AbstractFixture implements OrderedFixtureInterfac
         $manager->persist($rb2);
         $manager->persist($rb3);
         $manager->persist($rb4);
+        $manager->persist($rb5);
+        $manager->persist($rb6);
+        $manager->persist($rb7);
 
         $manager->persist($rba1);
         $manager->persist($rba2);
         $manager->persist($rba3);
+
+        $manager->persist($ra1);
+        $manager->persist($ra2);
+        $manager->persist($ra3);
 
         $manager->flush();
     }
 
     public function getOrder()
     {
-        return 3;
+        return 7;
     }
 }

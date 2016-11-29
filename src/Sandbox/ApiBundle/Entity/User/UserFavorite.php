@@ -3,12 +3,13 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * UserFavorite.
  *
  * @ORM\Table(name="user_favorites")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\User\UserFavoriteRepository")
  */
 class UserFavorite
 {
@@ -21,6 +22,8 @@ class UserFavorite
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -28,6 +31,7 @@ class UserFavorite
      * @var int
      *
      * @ORM\Column(name="userId", type="integer")
+     * @Serializer\Groups({"main"})
      */
     private $userId;
 
@@ -35,6 +39,7 @@ class UserFavorite
      * @var string
      *
      * @ORM\Column(name="object", type="string", length=16)
+     * @Serializer\Groups({"main", "user"})
      */
     private $object;
 
@@ -42,6 +47,7 @@ class UserFavorite
      * @var int
      *
      * @ORM\Column(name="objectId", type="integer")
+     * @Serializer\Groups({"main", "user"})
      */
     private $objectId;
 
@@ -49,6 +55,7 @@ class UserFavorite
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime")
+     * @Serializer\Groups({"main", "user"})
      */
     private $creationDate;
 

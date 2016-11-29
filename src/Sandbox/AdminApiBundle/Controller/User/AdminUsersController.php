@@ -449,6 +449,7 @@ class AdminUsersController extends DoorController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE],
@@ -515,6 +516,7 @@ class AdminUsersController extends DoorController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE],

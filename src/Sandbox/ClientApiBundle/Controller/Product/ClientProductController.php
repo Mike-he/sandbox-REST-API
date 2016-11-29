@@ -97,6 +97,7 @@ class ClientProductController extends ProductController
      * @Annotations\QueryParam(
      *    name="include_company_id",
      *    array=true,
+     *    default=null,
      *    nullable=true,
      *    description="include_company_id"
      * )
@@ -235,14 +236,15 @@ class ClientProductController extends ProductController
             );
         }
 
-        if (!is_null($buildingId) && is_null($type)) {
+        if (is_null($type)) {
             $products = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
-                ->getAllProductsForOneBuilding(
+                ->getAllProductsForOneBuildingOrCompany(
                     $buildingId,
                     $userId,
                     $limit,
-                    $offset
+                    $offset,
+                    $includeIds
                 );
         } else {
             $products = $this->getRepo('Product\Product')->productSortByNearestBuilding(
@@ -255,10 +257,28 @@ class ClientProductController extends ProductController
         }
 
         foreach ($products as $product) {
+            $room = $product->getRoom();
+
+            if ($room->getType() == Room::TYPE_FIXED) {
+                $priceRange = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->getFixedSeats($room);
+
+                if (!is_null($priceRange) && !empty($priceRange)) {
+                    $min = $priceRange[1];
+                    $max = $priceRange[2];
+
+                    if ($min == $max) {
+                        $product->setBasePrice($min);
+                    } else {
+                        $product->setBasePrice("$min - $max");
+                    }
+                }
+            }
+
             $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
             $product->setUnitPrice($unitPrice);
 
-            $room = $product->getRoom();
             $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
             $room->setTypeDescription($type);
         }
@@ -677,6 +697,15 @@ class ClientProductController extends ProductController
      *    "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="seat_id",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *        seat id
+     *    "
+     * )
+     *
      * @param Request $request
      * @param $id
      * @param ParamFetcherInterface $paramFetcher
@@ -725,6 +754,11 @@ class ClientProductController extends ProductController
             }
 
             return new View($response);
+        } elseif ($type == Room::TYPE_FIXED) {
+            $seatId = $paramFetcher->get('seat_id');
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getBookedDates($id, $seatId);
         } else {
             $orders = $this->getRepo('Order\ProductOrder')->getBookedDates($id);
         }

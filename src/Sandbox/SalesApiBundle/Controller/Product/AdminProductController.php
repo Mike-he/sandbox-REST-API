@@ -352,17 +352,33 @@ class AdminProductController extends ProductController
             $this->getAdminId(),
             array(
                 array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                    'building_id' => $buildingId,
+                ),
+                array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                    'building_id' => $buildingId,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                    'building_id' => $buildingId,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
+
+        $room = $product->getRoom();
+        $roomType = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
+            ->findOneBy(array(
+                'name' => $room->getType(),
+            ));
+
+        $room->setRentType($roomType->getType());
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
@@ -416,15 +432,17 @@ class AdminProductController extends ProductController
         $roomId = $product->getRoomId();
         $room = $this->getRepo('Room\Room')->find($roomId);
         $type = $room->getType();
-        $seatNumber = $product->getSeatNumber();
-        if ($type == Room::TYPE_FIXED && !is_null($seatNumber)) {
-            $fixed = $this->getRepo('Room\RoomFixed')->findOneBy(
+
+        if ($type == Room::TYPE_FIXED) {
+            $fixedSeats = $this->getRepo('Room\RoomFixed')->findBy(
                 [
-                    'seatNumber' => $seatNumber,
                     'room' => $roomId,
                 ]
             );
-            !is_null($fixed) ? $fixed->setAvailable(true) : null;
+
+            foreach ($fixedSeats as $fixedSeat) {
+                $fixedSeat->setBasePrice(null);
+            }
         }
 
         $product->setVisible(false);
@@ -474,7 +492,7 @@ class AdminProductController extends ProductController
 
         $rule_include = $form['price_rule_include_ids']->getData();
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
-        $seatNumber = $form['seat_number']->getData();
+        $seats = $form['seats']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -503,58 +521,34 @@ class AdminProductController extends ProductController
         }
 
         $type = $room->getType();
-        $allowedPeople = $room->getAllowedPeople();
-        if ($type == Room::TYPE_FIXED) {
-            $count = $this->getRepo('Product\Product')->checkFixedRoomInProduct($product->getRoomId());
-            if ((int) $count >= $allowedPeople) {
-                return $this->customErrorView(
-                    400,
-                    400003,
-                    self::ROOM_IS_FULL
-                );
-            }
-            $roomInProduct = $this->getRepo('Product\Product')->findOneBy(
-                [
-                    'roomId' => $product->getRoomId(),
-                    'visible' => true,
-                    'seatNumber' => $seatNumber,
-                ]
+
+        $roomInProduct = $this->getRepo('Product\Product')->findOneBy(
+            [
+                'roomId' => $product->getRoomId(),
+                'isDeleted' => false,
+            ]
+        );
+        if (!is_null($roomInProduct)) {
+            return $this->customErrorView(
+                400,
+                400002,
+                self::PRODUCT_EXISTS
             );
-            if (!is_null($roomInProduct)) {
-                return $this->customErrorView(
-                    400,
-                    400002,
-                    self::PRODUCT_EXISTS
-                );
-            }
-        } else {
-            $roomInProduct = $this->getRepo('Product\Product')->findOneBy(
-                [
-                    'roomId' => $product->getRoomId(),
-                    'visible' => true,
-                ]
-            );
-            if (!is_null($roomInProduct)) {
-                return $this->customErrorView(
-                    400,
-                    400002,
-                    self::PRODUCT_EXISTS
-                );
-            }
         }
 
         $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
 
-        if (!is_null($seatNumber) && !empty($seatNumber) && $type == Room::TYPE_FIXED) {
-            $product->setSeatNumber($seatNumber);
-            $fixed = $this->getRepo('Room\RoomFixed')->findOneBy(
-                [
-                    'seatNumber' => $seatNumber,
-                    'room' => $product->getRoomId(),
-                ]
-            );
-            !is_null($fixed) ? $fixed->setAvailable(false) : null;
+        if (!is_null($seats) && $type == Room::TYPE_FIXED) {
+            foreach ($seats as $seat) {
+                if (array_key_exists('id', $seat) && array_key_exists('price', $seat)) {
+                    $fixed = $this->getRepo('Room\RoomFixed')->findOneBy([
+                        'id' => $seat['id'],
+                        'roomId' => $product->getRoomId(),
+                    ]);
+                    !is_null($fixed) ? $fixed->setBasePrice($seat['price']) : null;
+                }
+            }
         } elseif ($type == Room::TYPE_FIXED) {
             throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
         }
@@ -664,11 +658,22 @@ class AdminProductController extends ProductController
         $product->setStartDate($startDate);
         $product->setModificationDate(new \DateTime('now'));
 
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
         $roomId = $product->getRoomId();
         $roomEm = $this->getRepo('Room\Room')->findOneById($roomId);
+        $seats = $form['seats']->getData();
+
+        if (!is_null($seats)) {
+            foreach ($seats as $seat) {
+                if (array_key_exists('id', $seat) && array_key_exists('price', $seat)) {
+                    $fixed = $this->getRepo('Room\RoomFixed')->findOneBy([
+                        'id' => $seat['id'],
+                        'roomId' => $product->getRoomId(),
+                    ]);
+                    !is_null($fixed) ? $fixed->setBasePrice($seat['price']) : null;
+                }
+            }
+        }
+
         $roomNumber = $roomEm->getNumber();
         $buildingId = $roomEm->getBuilding()->getId();
         $this->handleProductPut(
@@ -677,6 +682,9 @@ class AdminProductController extends ProductController
             $rule_include,
             $rule_exclude
         );
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
 
         $private = $product->getPrivate();
 

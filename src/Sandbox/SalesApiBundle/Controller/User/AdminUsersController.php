@@ -134,6 +134,9 @@ class AdminUsersController extends DoorController
             $this->getAdminId(),
             array(
                 array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                ),
+                array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_USER,
                 ),
                 array(
@@ -294,6 +297,9 @@ class AdminUsersController extends DoorController
             $this->getAdminId(),
             array(
                 array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                ),
+                array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_USER,
                 ),
                 array(
@@ -403,6 +409,9 @@ class AdminUsersController extends DoorController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_USER,
                 ),

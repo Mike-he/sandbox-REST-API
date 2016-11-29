@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\Controller\Annotations;
@@ -43,7 +42,7 @@ class AdminRoomAttachmentController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
      *    strict=true,
@@ -71,29 +70,16 @@ class AdminRoomAttachmentController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $type = $paramFetcher->get('type');
+        $types = $paramFetcher->get('type');
         $buildingId = $paramFetcher->get('building');
 
-        // get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_SALES_BUILDING_ROOM,
-            )
-        );
-
-        // check user permission
-        if (empty($myBuildingIds) || !in_array((int) $buildingId, $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        $filters = $this->getFilters(
-            $type,
-            $buildingId
-        );
-
         // get attachment
-        $attachments = $this->getRepo('Room\RoomAttachment')->findBy($filters);
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomAttachment')
+            ->getAttachmentsByTypes(
+                $types,
+                $buildingId
+            );
 
         return new View($attachments);
     }
@@ -123,19 +109,6 @@ class AdminRoomAttachmentController extends SalesRestController
     ) {
         // get attachment
         $attachments = $this->getRepo('Room\RoomAttachment')->find($id);
-
-        // get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_SALES_BUILDING_ROOM,
-            )
-        );
-
-        // check user permission
-        if (empty($myBuildingIds) || !in_array($attachments->getBuildingId(), $myBuildingIds)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
 
         return new View($attachments);
     }
@@ -240,30 +213,5 @@ class AdminRoomAttachmentController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->remove($attachment);
         $em->flush();
-    }
-
-    /**
-     * Get filters.
-     *
-     * @param $type
-     * @param $buildingId
-     *
-     * @return array
-     */
-    private function getFilters(
-        $type,
-        $buildingId
-    ) {
-        $filters = [];
-
-        if (!is_null($type)) {
-            $filters['roomType'] = $type;
-        }
-
-        if (!is_null($buildingId)) {
-            $filters['buildingId'] = $buildingId;
-        }
-
-        return $filters;
     }
 }

@@ -114,6 +114,11 @@ class ClientUserFavoriteController extends LocationController
                 'object' => $object,
             ]);
 
+        $view = new View();
+        if (empty($favorites)) {
+            return $view;
+        }
+
         // get all objectIds
         $objectIds = [];
         foreach ($favorites as $favorite) {
@@ -121,7 +126,6 @@ class ClientUserFavoriteController extends LocationController
             array_push($objectIds, $objectId);
         }
 
-        $view = new View();
         switch ($object) {
             case UserFavorite::OBJECT_BUILDING:
                 $objects = $this->getDoctrine()
@@ -261,6 +265,65 @@ class ClientUserFavoriteController extends LocationController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * Get user's favorite list.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="object",
+     *    default=null,
+     *    nullable=true,
+     *    description="favorite object"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="ids of object"
+     * )
+     *
+     * @Route("/favorites/list")
+     * @Method({"GET"})
+     *
+     * @return array
+     */
+    public function getFavoriteListAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy(
+                [
+                    'banned' => false,
+                    'id' => $userId,
+                ]
+            );
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $object = $paramFetcher->get('object');
+        $ids = $paramFetcher->get('id');
+
+        $favorites = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserFavorite')
+            ->getUserFavoriteList(
+                $userId,
+                $object,
+                $ids
+            );
+
+        $view = new View($favorites);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['user']));
+
+        return $view;
     }
 
     /**

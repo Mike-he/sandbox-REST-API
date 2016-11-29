@@ -17,7 +17,7 @@ class CalculateStarCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $em = $this->getContainer()->get('doctrine')->getEntityManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $buildings = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->findBy(
@@ -50,10 +50,6 @@ class CalculateStarCommand extends ContainerAwareCommand
                     true
                 );
 
-            if (($buildingStarCount + $orderStarCount) < 10) {
-                continue;
-            }
-
             $buildingStarSum = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
                 ->sumEvaluation(
                     $building,
@@ -79,7 +75,7 @@ class CalculateStarCommand extends ContainerAwareCommand
                 $orderStar = $orderStarSum / $orderStarCount;
             }
 
-            if ($officialStar) {
+            if ($officialStar && ($buildingStarCount + $orderStarCount) >= 10) {
                 if ($buildingStarCount == 0) {
                     $evaluationStar = ($officialStar->getTotalStar() + $orderStar) * 0.5;
                 } elseif ($orderStarCount == 0) {

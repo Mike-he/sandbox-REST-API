@@ -32,8 +32,30 @@ class UserPhoneCodeController extends SandboxRestController
             self::LANGUAGE_EN,
         ));
 
-        $lists = $this->getRepo('User\UserPhoneCode')->getPhoneCodeByLanguage($language);
+        $lists = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserPhoneCode')
+            ->getPhoneCodeByLanguage($language);
 
         return new View($lists);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/phonecode/admin_login")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getPhoneCodeAdminLoginAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $codes = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->getPhoneCodes();
+
+        return new View($codes);
     }
 }

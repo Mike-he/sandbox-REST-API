@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Room.
@@ -59,7 +60,7 @@ class Room
     /**
      * @var int
      *
-     * @ORM\Column(name="cityId", type="integer", nullable=false)
+     * @ORM\Column(name="cityId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */
@@ -69,7 +70,7 @@ class Room
      * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
-     * @ORM\JoinColumn(name="cityId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
      */
@@ -221,6 +222,7 @@ class Room
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room"})
@@ -230,6 +232,7 @@ class Room
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room"})
@@ -250,6 +253,13 @@ class Room
      * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
      */
     private $attachment;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $rentType;
 
     /**
      * Get id.
@@ -743,5 +753,21 @@ class Room
         $this->typeDescription = $description;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRentType()
+    {
+        return $this->rentType;
+    }
+
+    /**
+     * @param string $rentType
+     */
+    public function setRentType($rentType)
+    {
+        $this->rentType = $rentType;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Tests\Controller;
+namespace Sandbox\ApiBundle\Tests\Controller\Location;
 
 use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -30,7 +30,9 @@ class LocationControllerTest extends WebTestCase
 
         $fixtures = [
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
-            'Sandbox\ApiBundle\DataFixtures\ORM\Location\LoadLocationData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomBuildingData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomTypesData',
         ];
 
         $fixtureExecutor = $this->loadFixtures($fixtures);
@@ -195,6 +197,8 @@ class LocationControllerTest extends WebTestCase
         $firstSpaceType = $this->entity;
         $this->given('second-room-type');
         $secondSpaceType = $this->entity;
+        $this->given('third-room-type');
+        $thirdSpaceType = $this->entity;
 
         $this->given('first-building-tag');
         $firstBuildingTag = $this->entity;
@@ -208,11 +212,11 @@ class LocationControllerTest extends WebTestCase
 
         return [
             [
-                'name' => 'Space Type',
+                'name' => 'Type',
                 'filters' => [
                     [
                         'type' => 'tag',
-                        'name' => 'Space Type',
+                        'name' => 'Type',
                         'queryParamKey' => 'room_types[]',
                         'filterAllTitle' => 'All Space',
                         'items' => [
@@ -225,6 +229,11 @@ class LocationControllerTest extends WebTestCase
                                 'id' => $secondSpaceType->getId(),
                                 'name' => $this->getContainer()->get('translator')
                                     ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$secondSpaceType->getName()),
+                            ],
+                            [
+                                'id' => $thirdSpaceType->getId(),
+                                'name' => $this->getContainer()->get('translator')
+                                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$thirdSpaceType->getName()),
                             ],
                         ],
                     ],
@@ -257,7 +266,7 @@ class LocationControllerTest extends WebTestCase
                 'filters' => [
                     [
                         'type' => 'tag',
-                        'name' => 'Tag',
+                        'name' => 'Tag（Multiple Choices）:',
                         'queryParamKey' => 'building_tags[]',
                         'filterAllTitle' => 'All Space',
                         'items' => [
@@ -275,7 +284,7 @@ class LocationControllerTest extends WebTestCase
                     ],
                     [
                         'type' => 'tag',
-                        'name' => 'Configure',
+                        'name' => 'Configure（Multiple Choices）:',
                         'queryParamKey' => 'building_services[]',
                         'items' => [
                             [

@@ -262,6 +262,10 @@ class AdminBuildingController extends LocationController
             $this->getAdminId(),
             [
                 [
+                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                    'building_id' => $id,
+                ],
+                [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
                     'building_id' => $id,
                 ],
@@ -313,9 +317,8 @@ class AdminBuildingController extends LocationController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING,
-                ),
+                ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
             ),
             AdminPermission::OP_LEVEL_EDIT
         );
@@ -370,6 +373,10 @@ class AdminBuildingController extends LocationController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
+                [
+                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                    'building_id' => $id,
+                ],
                 [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
                     'building_id' => $id,
@@ -438,6 +445,10 @@ class AdminBuildingController extends LocationController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
+                [
+                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
+                    'building_id' => $id,
+                ],
                 [
                     'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
                     'building_id' => $id,
@@ -681,17 +692,23 @@ class AdminBuildingController extends LocationController
         $buildingServices = $building->getBuildingServices();
 
         // check city
-        $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
+        $roomCity = !is_null($building->getCityId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCityId()) : null;
+
         if (is_null($roomCity)) {
-            throw new BadRequestHttpException(self::NOT_FOUND_MESSAGE);
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $district = !is_null($building->getDistrictId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getDistrictId()) : null;
 
         // add room building
         $this->addAdminBuilding(
             $building,
             $roomCity,
             $salesCompany,
-            $em
+            $em,
+            $district
         );
 
         // add room attachments
@@ -768,16 +785,22 @@ class AdminBuildingController extends LocationController
         $buildingServices = $building->getBuildingServices();
 
         // check city
-        $roomCity = $this->getRepo('Room\RoomCity')->find($building->getCityId());
+        $roomCity = !is_null($building->getCityId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getCityId()) : null;
+
         if (is_null($roomCity)) {
-            throw new BadRequestHttpException(self::NOT_FOUND_MESSAGE);
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $district = !is_null($building->getDistrictId()) ?
+            $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomCity')->find($building->getDistrictId()) : null;
 
         // modify room building
         $this->modifyAdminBuilding(
             $building,
             $roomCity,
-            $em
+            $em,
+            $district
         );
 
         // add room attachments
@@ -870,11 +893,13 @@ class AdminBuildingController extends LocationController
      * @param RoomBuilding $building
      * @param RoomCity     $roomCity
      * @param              $em
+     * @param RoomCity     $district
      */
     private function modifyAdminBuilding(
         $building,
         $roomCity,
-        $em
+        $em,
+        $district
     ) {
         $now = new \DateTime('now');
 
@@ -885,6 +910,7 @@ class AdminBuildingController extends LocationController
         }
 
         $building->setCity($roomCity);
+        $building->setDistrict($district);
         $building->setModificationDate($now);
 
         $em->flush();
@@ -971,17 +997,20 @@ class AdminBuildingController extends LocationController
      * @param RoomCity      $roomCity
      * @param SalesCompany  $salesCompany
      * @param EntityManager $em
+     * @param RoomCity      $area
      */
     private function addAdminBuilding(
         $building,
         $roomCity,
         $salesCompany,
-        $em
+        $em,
+        $area
     ) {
         $now = new \DateTime('now');
 
         $building->setCompany($salesCompany);
         $building->setCity($roomCity);
+        $building->setDistrict($area);
         $building->setStatus(RoomBuilding::STATUS_PENDING);
         $building->setCreationDate($now);
         $building->setModificationDate($now);
@@ -1086,10 +1115,6 @@ class AdminBuildingController extends LocationController
             return;
         }
 
-        if (!empty($buildingCompany['phone']) && !is_numeric($buildingCompany['phone'])) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $company = new RoomBuildingCompany();
         $form = $this->createForm(new RoomBuildingCompanyPostType(), $company);
         $form->submit($buildingCompany);
@@ -1117,10 +1142,6 @@ class AdminBuildingController extends LocationController
     ) {
         if (empty($buildingCompany)) {
             return;
-        }
-
-        if (!empty($buildingCompany['phone']) && !is_numeric($buildingCompany['phone'])) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $company = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($building);

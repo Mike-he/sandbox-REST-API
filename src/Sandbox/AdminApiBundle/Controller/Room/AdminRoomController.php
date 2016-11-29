@@ -470,6 +470,7 @@ class AdminRoomController extends RoomController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -480,6 +481,15 @@ class AdminRoomController extends RoomController
             'isDeleted' => false,
         ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
+
+        // set rent type
+        $roomType = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
+            ->findOneBy(array(
+                'name' => $room->getType(),
+            ));
+
+        $room->setRentType($roomType->getType());
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
@@ -588,7 +598,7 @@ class AdminRoomController extends RoomController
         return $this->handleRoomPatch(
             $room,
             $meeting,
-            $fixed,
+            $fixed, true,
             $attachments,
             $office_supplies
         );
@@ -853,6 +863,7 @@ class AdminRoomController extends RoomController
         foreach ($products as $product) {
             if (!is_null($product) || !empty($product)) {
                 $product->setVisible(false);
+                $product->setIsDeleted(true);
             }
         }
 
@@ -865,7 +876,7 @@ class AdminRoomController extends RoomController
     /**
      * @param Room   $room
      * @param object $meeting
-     * @param object $fixed
+     * @param array  $fixed
      * @param object $attachments
      * @param object $office_supplies
      *
@@ -906,13 +917,10 @@ class AdminRoomController extends RoomController
         }
 
         // handle fixed rooms
-        if (!is_null($fixed) && $type == Room::TYPE_FIXED) {
-            $roomsFixed = $this->getRepo('Room\RoomFixed')->findByRoom($room);
-            array_map($this->removeFixedSeatNumbers($em), $roomsFixed);
-            $this->addRoomTypeData(
+        if (!is_null($fixed) && !empty($fixed) && $type == Room::TYPE_FIXED) {
+            $this->handleRoomFixed(
                 $em,
                 $room,
-                null,
                 $fixed
             );
         }
@@ -947,6 +955,62 @@ class AdminRoomController extends RoomController
         );
 
         return new View($response);
+    }
+
+    /**
+     * @param $em
+     * @param $room
+     * @param $fixed
+     */
+    private function handleRoomFixed(
+        $em,
+        $room,
+        $fixed
+    ) {
+        if (array_key_exists('add', $fixed) && !empty($fixed['add'])) {
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                null,
+                $fixed['add']
+            );
+        }
+
+        if (array_key_exists('modify', $fixed) && !empty($fixed['modify'])) {
+            foreach ($fixed['modify'] as $modifySeat) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $modifySeat['seat_id'],
+                        'room' => $room,
+                    ]);
+
+                if (is_null($seat)) {
+                    continue;
+                }
+
+                $seat->setSeatNumber($modifySeat['seat_number']);
+            }
+        }
+
+        if (array_key_exists('remove', $fixed) && !empty($fixed['remove'])) {
+            foreach ($fixed['remove'] as $removeSeat) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $removeSeat['seat_id'],
+                        'room' => $room,
+                    ]);
+
+                if (is_null($seat)) {
+                    continue;
+                }
+
+                $em->remove($seat);
+            }
+        }
+
+        $em->flush();
     }
 
     /**
@@ -1196,10 +1260,11 @@ class AdminRoomController extends RoomController
                     $roomFixed = new RoomFixed();
                     $roomFixed->setRoom($room);
                     $roomFixed->setSeatNumber($fixed['seat_number']);
-                    $roomFixed->setAvailable($fixed['available']);
+
                     $em->persist($roomFixed);
-                    $em->flush();
                 }
+
+                $em->flush();
             break;
             default:
                 /* Do nothing */
@@ -1218,7 +1283,10 @@ class AdminRoomController extends RoomController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
             ],
             $opLevel
         );
@@ -1365,7 +1433,6 @@ class AdminRoomController extends RoomController
             $product = $this->getRepo('Product\Product')->findOneBy(
                 [
                     'roomId' => $id,
-                    'seatNumber' => $seat,
                 ]
             );
             $startString = $paramFetcher->get('start');
@@ -1386,7 +1453,8 @@ class AdminRoomController extends RoomController
                 $results = $this->getRepo('Room\RoomUsageView')->getRoomUsersUsage(
                     $productId,
                     $start,
-                    $end
+                    $end,
+                    $seat
                 );
             }
         }

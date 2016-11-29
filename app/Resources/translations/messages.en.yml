@@ -286,7 +286,7 @@ building:
     smart: Smart Sorting
   filter:
     sort_by: Sort By
-    space_type: Space Type
+    space_type: Type
     filter: Filter
     tag: Tag（Multiple Choices）:
     configure: Configure（Multiple Choices）:

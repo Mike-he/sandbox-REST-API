@@ -29,7 +29,7 @@ class RoomBuildingServices
     /**
      * @var string
      *
-     * @Serializer\Groups({"main", "list", "build_filter"})
+     * @Serializer\Groups({"main", "list", "build_filter", "admin_building"})
      */
     private $name;
 
@@ -47,9 +47,18 @@ class RoomBuildingServices
      *
      * @ORM\Column(name="icon", type="text")
      *
-     * @Serializer\Groups({"main", "list"})
+     * @Serializer\Groups({"main", "list", "admin_building"})
      */
     private $icon;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="selectedIcon", type="text")
+     *
+     * @Serializer\Groups({"main", "list", "admin_building"})
+     */
+    private $selectedIcon;
 
     /**
      * Get id.
@@ -123,5 +132,21 @@ class RoomBuildingServices
     public function getIcon()
     {
         return $this->icon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSelectedIcon()
+    {
+        return $this->selectedIcon;
+    }
+
+    /**
+     * @param string $selectedIcon
+     */
+    public function setSelectedIcon($selectedIcon)
+    {
+        $this->selectedIcon = $selectedIcon;
     }
 }

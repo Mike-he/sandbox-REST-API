@@ -16,6 +16,7 @@ trait HasOrderField
             ->add('product_id')
             ->add('user_id')
             ->add('start_date')
-            ->add('rent_period');
+            ->add('rent_period')
+            ->add('seat_id');
     }
 }

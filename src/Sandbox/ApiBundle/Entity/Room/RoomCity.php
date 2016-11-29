@@ -4,21 +4,20 @@ namespace Sandbox\ApiBundle\Entity\Room;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use JsonSerializable;
 
 /**
  * RoomCity.
  *
- * @ORM\Table(
- *      name="room_city",
- *      uniqueConstraints={
- *          @ORM\UniqueConstraint(name="key_UNIQUE", columns={"key"})
- *      }
- * )
+ * @ORM\Table(name="room_city")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomCityRepository")
  */
-class RoomCity implements JsonSerializable
+class RoomCity
 {
+    const LEVEL_COUNTRY = 1;
+    const LEVEL_PROVINCE = 2;
+    const LEVEL_CITY = 3;
+    const LEVEL_AREA = 4;
+
     /**
      * @var int
      *
@@ -43,6 +42,19 @@ class RoomCity implements JsonSerializable
      * })
      */
     private $id;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="parentId", type="integer", nullable=true)
+     */
+    private $parentId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="RoomCity")
+     * @ORM\JoinColumn(name="parentId", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $parent;
 
     /**
      * @var string
@@ -71,7 +83,7 @@ class RoomCity implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="`key`", type="string", length=16, nullable=false)
+     * @ORM\Column(name="enName", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({
      *      "main",
@@ -84,10 +96,44 @@ class RoomCity implements JsonSerializable
      *      "current_order",
      *      "building_nearby",
      *      "admin_building",
-     *      "shop_nearby"
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
+     * })
+     */
+    private $enName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="`key`", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "admin_detail",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop"
      * })
      */
     private $key;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="level", type="integer")
+     */
+    private $level;
 
     /**
      * Get id.
@@ -97,6 +143,46 @@ class RoomCity implements JsonSerializable
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set parentId.
+     *
+     * @param int $parentId
+     *
+     * @return RoomCity
+     */
+    public function setParentId($parentId)
+    {
+        $this->parentId = $parentId;
+
+        return $this;
+    }
+
+    /**
+     * Get parentId.
+     *
+     * @return int
+     */
+    public function getParentId()
+    {
+        return $this->parentId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * @param mixed $parent
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
     }
 
     /**
@@ -124,22 +210,22 @@ class RoomCity implements JsonSerializable
     }
 
     /**
-     * Set key.
-     *
-     * @param string $key
-     *
-     * @return RoomCity
+     * @return string
      */
-    public function setKey($key)
+    public function getEnName()
     {
-        $this->key = $key;
-
-        return $this;
+        return $this->enName;
     }
 
     /**
-     * Get key.
-     *
+     * @param string $enName
+     */
+    public function setEnName($enName)
+    {
+        $this->enName = $enName;
+    }
+
+    /**
      * @return string
      */
     public function getKey()
@@ -147,11 +233,35 @@ class RoomCity implements JsonSerializable
         return $this->key;
     }
 
-    public function jsonSerialize()
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
     {
-        return array(
-            'id' => $this->id,
-            'name' => $this->name,
-        );
+        $this->key = $key;
+    }
+
+    /**
+     * Set level.
+     *
+     * @param int $level
+     *
+     * @return RoomCity
+     */
+    public function setLevel($level)
+    {
+        $this->level = $level;
+
+        return $this;
+    }
+
+    /**
+     * Get level.
+     *
+     * @return int
+     */
+    public function getLevel()
+    {
+        return $this->level;
     }
 }

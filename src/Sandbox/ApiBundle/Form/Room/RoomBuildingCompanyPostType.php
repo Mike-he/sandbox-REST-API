@@ -15,7 +15,13 @@ class RoomBuildingCompanyPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
+            ->add(
+                'name',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
             ->add(
                 'website',
                 null,

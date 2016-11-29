@@ -13,6 +13,9 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class RoomTypes
 {
+    const TYPE_SECONDS = 'seconds';
+    const TYPE_LONG = 'long';
+
     /**
      * @var int
      *
@@ -62,6 +65,15 @@ class RoomTypes
      * @Serializer\Groups({"main", "drop_down"})
      */
     private $icon;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="type", type="string", length=16)
+     *
+     * @Serializer\Groups({"main", "drop_down"})
+     */
+    private $type;
 
     /**
      * @var string
@@ -182,5 +194,21 @@ class RoomTypes
     public function setQuickBookingUrl($quickBookingUrl)
     {
         $this->quickBookingUrl = $quickBookingUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
     }
 }

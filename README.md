@@ -4,10 +4,10 @@ This project use composer to manage dependencies
 and symfony2 as the framework
 
 all these API will require authentification with  Basic HTTP Auth
-with username = "sharedsecret"  and password = "device's uii"
+with username = "token"  and password = "id of client"
 
 ## Useful commands
-  * to refresh tokens: run the script `utils/refresh_token.sh`
+  * to start vagrant ENV `vagrant up`
   * to see list of available sharedsecret/uii run the script 
   * to ssh into the virtual machine `vagrant ssh`
 
@@ -24,6 +24,4 @@ All you should need to do is execute `vagrant up` from your working copy root.
 
 ## Api documentation
 
-check redmine
-
-http://redmine.gobeta.com.cn:8086/projects/s/knowledgebase/articles/829
+http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs
