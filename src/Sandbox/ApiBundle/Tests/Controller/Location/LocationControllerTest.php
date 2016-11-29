@@ -212,11 +212,11 @@ class LocationControllerTest extends WebTestCase
 
         return [
             [
-                'name' => 'Space Type',
+                'name' => 'Type',
                 'filters' => [
                     [
                         'type' => 'tag',
-                        'name' => 'Space Type',
+                        'name' => 'Type',
                         'queryParamKey' => 'room_types[]',
                         'filterAllTitle' => 'All Space',
                         'items' => [

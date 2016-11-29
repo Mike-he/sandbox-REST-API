@@ -4,7 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\Space;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Sandbox\AdminApiBundle\Controller\Traits\HandleArrayTrait;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
