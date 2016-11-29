@@ -1141,13 +1141,10 @@ class AdminRoomController extends SalesRestController
         }
 
         // handle fixed rooms
-        if (!is_null($fixed) && $room->getType() == Room::TYPE_FIXED) {
-            $roomsFixed = $this->getRepo('Room\RoomFixed')->findByRoom($room);
-            array_map($this->removeFixedSeatNumbers($em), $roomsFixed);
-            $this->addRoomTypeData(
+        if (!is_null($fixed) && !empty($fixed) && $type == Room::TYPE_FIXED) {
+            $this->handleRoomFixed(
                 $em,
                 $room,
-                null,
                 $fixed
             );
         }
@@ -1189,6 +1186,62 @@ class AdminRoomController extends SalesRestController
         );
 
         return new View($response);
+    }
+
+    /**
+     * @param $em
+     * @param $room
+     * @param $fixed
+     */
+    private function handleRoomFixed(
+        $em,
+        $room,
+        $fixed
+    ) {
+        if (array_key_exists('add', $fixed) && !empty($fixed['add'])) {
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                null,
+                $fixed['add']
+            );
+        }
+
+        if (array_key_exists('modify', $fixed) && !empty($fixed['modify'])) {
+            foreach ($fixed['modify'] as $modifySeat) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $modifySeat['seat_id'],
+                        'room' => $room,
+                    ]);
+
+                if (is_null($seat)) {
+                    continue;
+                }
+
+                $seat->setSeatNumber($modifySeat['seat_number']);
+            }
+        }
+
+        if (array_key_exists('remove', $fixed) && !empty($fixed['remove'])) {
+            foreach ($fixed['remove'] as $removeSeat) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $removeSeat['seat_id'],
+                        'room' => $room,
+                    ]);
+
+                if (is_null($seat)) {
+                    continue;
+                }
+
+                $em->remove($seat);
+            }
+        }
+
+        $em->flush();
     }
 
     /**

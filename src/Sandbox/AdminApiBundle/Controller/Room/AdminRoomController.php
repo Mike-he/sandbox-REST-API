@@ -598,7 +598,7 @@ class AdminRoomController extends RoomController
         return $this->handleRoomPatch(
             $room,
             $meeting,
-            $fixed,
+            $fixed, true,
             $attachments,
             $office_supplies
         );
@@ -876,7 +876,7 @@ class AdminRoomController extends RoomController
     /**
      * @param Room   $room
      * @param object $meeting
-     * @param object $fixed
+     * @param array  $fixed
      * @param object $attachments
      * @param object $office_supplies
      *
@@ -917,13 +917,10 @@ class AdminRoomController extends RoomController
         }
 
         // handle fixed rooms
-        if (!is_null($fixed) && $type == Room::TYPE_FIXED) {
-            $roomsFixed = $this->getRepo('Room\RoomFixed')->findByRoom($room);
-            array_map($this->removeFixedSeatNumbers($em), $roomsFixed);
-            $this->addRoomTypeData(
+        if (!is_null($fixed) && !empty($fixed) && $type == Room::TYPE_FIXED) {
+            $this->handleRoomFixed(
                 $em,
                 $room,
-                null,
                 $fixed
             );
         }
@@ -958,6 +955,62 @@ class AdminRoomController extends RoomController
         );
 
         return new View($response);
+    }
+
+    /**
+     * @param $em
+     * @param $room
+     * @param $fixed
+     */
+    private function handleRoomFixed(
+        $em,
+        $room,
+        $fixed
+    ) {
+        if (array_key_exists('add', $fixed) && !empty($fixed['add'])) {
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                null,
+                $fixed['add']
+            );
+        }
+
+        if (array_key_exists('modify', $fixed) && !empty($fixed['modify'])) {
+            foreach ($fixed['modify'] as $modifySeat) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $modifySeat['seat_id'],
+                        'room' => $room,
+                    ]);
+
+                if (is_null($seat)) {
+                    continue;
+                }
+
+                $seat->setSeatNumber($modifySeat['seat_number']);
+            }
+        }
+
+        if (array_key_exists('remove', $fixed) && !empty($fixed['remove'])) {
+            foreach ($fixed['remove'] as $removeSeat) {
+                $seat = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findOneBy([
+                        'id' => $removeSeat['seat_id'],
+                        'room' => $room,
+                    ]);
+
+                if (is_null($seat)) {
+                    continue;
+                }
+
+                $em->remove($seat);
+            }
+        }
+
+        $em->flush();
     }
 
     /**
@@ -1208,13 +1261,10 @@ class AdminRoomController extends RoomController
                     $roomFixed->setRoom($room);
                     $roomFixed->setSeatNumber($fixed['seat_number']);
 
-                    if (array_key_exists('price', $fixed)) {
-                        $roomFixed->setBasePrice($fixed['price']);
-                    }
-
                     $em->persist($roomFixed);
-                    $em->flush();
                 }
+
+                $em->flush();
             break;
             default:
                 /* Do nothing */
