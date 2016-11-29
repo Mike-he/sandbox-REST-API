@@ -98,6 +98,7 @@ class AdminRoomSuppliesController extends RoomSuppliesController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
             ],
             $opLevel
         );

@@ -214,6 +214,7 @@ class AdminRoomAttachmentController extends RoomAttachmentController
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
             ],
             $opLevel
         );
