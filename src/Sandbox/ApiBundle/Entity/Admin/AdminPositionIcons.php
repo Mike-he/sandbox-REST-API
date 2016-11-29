@@ -32,9 +32,22 @@ class AdminPositionIcons
 
     /**
      * @var string
+     *
+     * @ORM\Column(name="selectedIcon", type="string", length=1024)
+     */
+    private $selectedIcon;
+
+    /**
+     * @var string
      * @Serializer\Groups({"main", "admin"})
      */
     private $url;
+
+    /**
+     * @var string
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $selectedUrl;
 
     /**
      * Get id.
@@ -84,5 +97,37 @@ class AdminPositionIcons
     public function setUrl($url)
     {
         $this->url = $url;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSelectedIcon()
+    {
+        return $this->selectedIcon;
+    }
+
+    /**
+     * @param string $selectedIcon
+     */
+    public function setSelectedIcon($selectedIcon)
+    {
+        $this->selectedIcon = $selectedIcon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSelectedUrl()
+    {
+        return $this->selectedUrl;
+    }
+
+    /**
+     * @param string $selectedUrl
+     */
+    public function setSelectedUrl($selectedUrl)
+    {
+        $this->selectedUrl = $selectedUrl;
     }
 }

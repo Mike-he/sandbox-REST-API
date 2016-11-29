@@ -14,10 +14,12 @@ class LoadAdminPositionData extends AbstractFixture implements OrderedFixtureInt
     {
         $icon1 = new AdminPositionIcons();
         $icon1->setIcon('/icon/admin_position_icon_01.png');
+        $icon1->setSelectedIcon('/icon/admin_position_icon_01.png');
         $this->addReference('admin-position-icon-1', $icon1);
 
         $icon2 = new AdminPositionIcons();
         $icon2->setIcon('/icon/admin_position_icon_02.png');
+        $icon2->setSelectedIcon('/icon/admin_position_icon_02.png');
         $this->addReference('admin-position-icon-2', $icon2);
 
         $p1 = new AdminPosition();
