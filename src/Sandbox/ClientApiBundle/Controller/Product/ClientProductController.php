@@ -257,10 +257,28 @@ class ClientProductController extends ProductController
         }
 
         foreach ($products as $product) {
+            $room = $product->getRoom();
+
+            if ($room->getType() == Room::TYPE_FIXED) {
+                $priceRange = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->getFixedSeats($room);
+
+                if (!is_null($priceRange) && !empty($priceRange)) {
+                    $min = $priceRange[1];
+                    $max = $priceRange[2];
+
+                    if ($min == $max) {
+                        $product->setBasePrice($min);
+                    } else {
+                        $product->setBasePrice("$min - $max");
+                    }
+                }
+            }
+
             $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
             $product->setUnitPrice($unitPrice);
 
-            $room = $product->getRoom();
             $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
             $room->setTypeDescription($type);
         }
