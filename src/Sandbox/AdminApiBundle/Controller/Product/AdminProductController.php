@@ -351,6 +351,15 @@ class AdminProductController extends ProductController
         ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
+        $room = $product->getRoom();
+        $roomType = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
+            ->findOneBy(array(
+                'name' => $room->getType(),
+            ));
+
+        $room->setRentType($roomType->getType());
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($product);
