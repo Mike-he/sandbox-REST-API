@@ -76,7 +76,7 @@ class Product
     /**
      * @var string
      *
-     * @ORM\Column(name="basePrice", type="decimal", nullable=true)
+     * @ORM\Column(name="basePrice", type="string", length=10, nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
