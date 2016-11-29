@@ -54,7 +54,7 @@ class RoomFixed
     /**
      * @var int
      *
-     * @ORM\Column(name="seatNumber", type="integer", nullable=false)
+     * @ORM\Column(name="seatNumber", type="string", length=16, nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room", "client", "current_order", "admin_detail", "admin_spaces"})
      */
