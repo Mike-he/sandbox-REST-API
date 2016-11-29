@@ -600,6 +600,12 @@ class AdminRoomController extends SalesRestController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -1591,16 +1597,7 @@ class AdminRoomController extends SalesRestController
         $products = $this->getRepo('Product\Product')->findBy(['roomId' => $id]);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                    'building_id' => $room->getBuildingId(),
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $this->checkPermissionForRoomUsage($room->getBuildingId());
 
         $yearString = $paramFetcher->get('year');
         $results = [];
@@ -1674,16 +1671,7 @@ class AdminRoomController extends SalesRestController
             $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
             // check user permission
-            $this->throwAccessDeniedIfAdminNotAllowed(
-                $this->getAdminId(),
-                array(
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                        'building_id' => $product->getRoom()->getBuildingId(),
-                    ),
-                ),
-                AdminPermission::OP_LEVEL_VIEW
-            );
+            $this->checkPermissionForRoomUsage($product->getRoom()->getBuildingId());
 
             $startString = $paramFetcher->get('start');
             $endString = $paramFetcher->get('end');
@@ -1749,16 +1737,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                    'building_id' => $product->getRoom()->getBuildingId(),
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $this->checkPermissionForRoomUsage($product->getRoom()->getBuildingId());
 
         $startString = $paramFetcher->get('start');
         $endString = $paramFetcher->get('end');
@@ -1841,16 +1820,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                    'building_id' => $product->getRoom()->getBuildingId(),
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $this->checkPermissionForRoomUsage($product->getRoom()->getBuildingId());
 
         $dayString = $paramFetcher->get('day');
         $results = [];
@@ -1873,5 +1843,35 @@ class AdminRoomController extends SalesRestController
         $view->setData($results);
 
         return $view;
+    }
+
+    /**
+     * @param $product
+     */
+    private function checkPermissionForRoomUsage(
+        $buildingId
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                    'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
+        );
     }
 }

@@ -1283,7 +1283,9 @@ class AdminRoomController extends RoomController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
             ],
             $opLevel
