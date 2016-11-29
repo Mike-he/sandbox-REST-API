@@ -382,7 +382,7 @@ class AdminUserLoginController extends AdminRestController
 
         if (is_null($userCheckCode)) {
             return $this->customErrorView(
-                401,
+                400,
                 self::ERROR_WRONG_CHECK_CODE_CODE,
                 self::ERROR_WRONG_CHECK_CODE_MESSAGE
             );
