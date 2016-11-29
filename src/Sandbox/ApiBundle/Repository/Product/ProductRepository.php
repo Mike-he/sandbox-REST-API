@@ -1231,6 +1231,7 @@ class ProductRepository extends EntityRepository
             ->select('COUNT(p)')
             ->leftJoin('p.room', 'r')
             ->where('p.isDeleted = FALSE')
+            ->andWhere('r.isDeleted = FALSE')
             ->andWhere('r.building = :building')
             ->andWhere('r.type = :type')
             ->setParameter('building', $building)

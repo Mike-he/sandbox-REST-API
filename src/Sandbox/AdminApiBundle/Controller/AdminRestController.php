@@ -15,7 +15,7 @@ class AdminRestController extends SandboxRestController
     const ERROR_ACCOUNT_WRONG_PASSWORD_CODE = 401003;
     const ERROR_ACCOUNT_WRONG_PASSWORD_MESSAGE = 'client.login.wrong_password';
 
-    const ERROR_WRONG_CHECK_CODE_CODE = 401004;
+    const ERROR_WRONG_CHECK_CODE_CODE = 400003;
     const ERROR_WRONG_CHECK_CODE_MESSAGE = 'client.login.wrong_check_code';
 
     const ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_CODE = 401005;
