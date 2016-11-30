@@ -342,7 +342,15 @@ class RoomBuildingRepository extends EntityRepository
                     'WITH',
                     'rt.name = r.type'
                 )
+                ->leftJoin(
+                    'SandboxApiBundle:Product\Product',
+                    'p',
+                    'WITH',
+                    'r.id = p.room'
+                )
                 ->andWhere('rt.id IN (:spaceTypes)')
+                ->andWhere('p.isDeleted = FALSE')
+                ->andWhere('p.visible = TRUE')
                 ->setParameter('spaceTypes', $roomTypes);
         }
 

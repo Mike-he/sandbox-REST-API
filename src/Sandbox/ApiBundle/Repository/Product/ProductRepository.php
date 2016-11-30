@@ -1113,11 +1113,13 @@ class ProductRepository extends EntityRepository
 
     /**
      * @param $building
+     * @param $userId
      *
      * @return int
      */
     public function countRoomsWithProductByBuilding(
-        $building
+        $building,
+        $userId
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('count(distinct r.id)')
@@ -1125,6 +1127,15 @@ class ProductRepository extends EntityRepository
             ->where('r.building = :building')
             ->andWhere('p.isDeleted = FALSE')
             ->setParameter('building', $building);
+
+        if (!is_null($userId)) {
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('userId', $userId)
+                ->setParameter('private', false);
+        } else {
+            $query->andWhere('p.private = :private')
+                ->setParameter('private', false);
+        }
 
         return $query->getQuery()->getSingleScalarResult();
     }
