@@ -578,8 +578,12 @@ class LocationController extends SalesRestController
             $building->setDistance($distance);
         }
 
+        $userId = $this->getUser() ? $this->getUserId() : null;
         $roomWithProductNumber = $this->getRepo('Product\Product')
-            ->countRoomsWithProductByBuilding($building->getId());
+            ->countRoomsWithProductByBuilding(
+                $building->getId(),
+                $userId
+            );
         $building->setRoomWithProductNumber((int) $roomWithProductNumber);
 
         $view = new View();
