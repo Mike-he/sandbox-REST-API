@@ -136,6 +136,13 @@ class RoomCity
     private $level;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="capital", type="boolean")
+     */
+    private $capital = false;
+
+    /**
      * Get id.
      *
      * @return int
@@ -263,5 +270,21 @@ class RoomCity
     public function getLevel()
     {
         return $this->level;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCapital()
+    {
+        return $this->capital;
+    }
+
+    /**
+     * @param bool $capital
+     */
+    public function setCapital($capital)
+    {
+        $this->capital = $capital;
     }
 }
