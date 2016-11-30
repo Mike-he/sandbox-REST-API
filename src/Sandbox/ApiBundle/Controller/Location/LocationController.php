@@ -96,9 +96,10 @@ class LocationController extends SalesRestController
             // get all cities
             $cities = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->findBy(array(
-                'level' => RoomCity::LEVEL_CITY,
-            ));
+                ->findBy(
+                    array('level' => RoomCity::LEVEL_CITY),
+                    array('capital' => 'desc')
+                );
         }
 
         if (!is_null($user) && is_null($all)) {
@@ -771,6 +772,7 @@ class LocationController extends SalesRestController
                 'id' => $city->getId(),
                 'name' => $name,
                 'key' => $city->getKey(),
+                'capital' => $city->isCapital(),
             );
             array_push($citiesArray, $cityArray);
         }
