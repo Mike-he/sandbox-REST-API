@@ -1204,15 +1204,6 @@ class AdminRoomController extends SalesRestController
         $room,
         $fixed
     ) {
-        if (array_key_exists('add', $fixed) && !empty($fixed['add'])) {
-            $this->addRoomTypeData(
-                $em,
-                $room,
-                null,
-                $fixed['add']
-            );
-        }
-
         if (array_key_exists('remove', $fixed) && !empty($fixed['remove'])) {
             foreach ($fixed['remove'] as $removeSeat) {
                 $seat = $this->getDoctrine()
@@ -1230,6 +1221,15 @@ class AdminRoomController extends SalesRestController
             }
 
             $em->flush();
+        }
+
+        if (array_key_exists('add', $fixed) && !empty($fixed['add'])) {
+            $this->addRoomTypeData(
+                $em,
+                $room,
+                null,
+                $fixed['add']
+            );
         }
 
         if (array_key_exists('modify', $fixed) && !empty($fixed['modify'])) {
