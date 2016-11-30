@@ -457,7 +457,7 @@ class ProductOrder
      *
      * @ORM\Column(name="seatId", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
     private $seatId;
 
