@@ -533,8 +533,6 @@ class LocationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->getPresentRoomTypes($building);
 
-        $lang = $this->get('request')->getLocale();
-
         // generate a url of web page to get all spaces
         $allSpaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
@@ -554,14 +552,14 @@ class LocationController extends SalesRestController
             $typeText = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type->getName());
             $type->setDescription($typeText);
 
-            $url = $tmpUrl.$type->getName().'&lang='.$lang;
+            $url = $tmpUrl.$type->getName();
             $type->setQuickBookingUrl($url);
         }
         $building->setBuildingRoomTypes($types);
 
         // generate a url of web page to weChat Share Url
         $mobileUrl = $this->container->getParameter('room_mobile_url');
-        $wxShareUrl = $mobileUrl.'/building?id='.$building->getId().'&lang='.$lang;
+        $wxShareUrl = $mobileUrl.'/building?id='.$building->getId();
         $building->setWxShareUrl($wxShareUrl);
 
         $totalEvaluationNumber = $building->getOrderEvaluationNumber() + $building->getBuildingEvaluationNumber();
