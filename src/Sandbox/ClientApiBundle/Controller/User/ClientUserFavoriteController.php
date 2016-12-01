@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\User;
 
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
@@ -169,8 +170,18 @@ class ClientUserFavoriteController extends LocationController
                         $content['distance'] = 0;
                     }
 
-                    $content['product']->setDistance($content['distance']);
-                    array_push($objects, $content['product']);
+                    $product = $content['product'];
+                    $product->setDistance($content['distance']);
+
+                    $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
+                    $product->setUnitPrice($unitPrice);
+
+                    $room = $product->getRoom();
+
+                    $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
+                    $room->setTypeDescription($type);
+
+                    array_push($objects, $product);
                 }
 
                 $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
