@@ -2,7 +2,9 @@
 
 namespace Sandbox\ClientApiBundle\Controller\User;
 
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ApiBundle\Form\User\UserFavoriteType;
@@ -169,8 +171,36 @@ class ClientUserFavoriteController extends LocationController
                         $content['distance'] = 0;
                     }
 
-                    $content['product']->setDistance($content['distance']);
-                    array_push($objects, $content['product']);
+                    $product = $content['product'];
+                    $product->setDistance($content['distance']);
+
+                    $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
+                    $product->setUnitPrice($unitPrice);
+
+                    $room = $product->getRoom();
+                    $roomType = $room->getType();
+
+                    if ($roomType == Room::TYPE_FIXED) {
+                        $priceRange = $this->getDoctrine()
+                            ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                            ->getFixedSeats($room);
+
+                        if (!is_null($priceRange) && !empty($priceRange)) {
+                            $min = $priceRange[1];
+                            $max = $priceRange[2];
+
+                            if ($min == $max) {
+                                $product->setBasePrice($min);
+                            } else {
+                                $product->setBasePrice("$min - $max");
+                            }
+                        }
+                    }
+
+                    $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType);
+                    $room->setTypeDescription($type);
+
+                    array_push($objects, $product);
                 }
 
                 $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
