@@ -363,7 +363,7 @@ class MenuController extends SandboxRestController
                         $roomTypeItem[] = array(
                             'type' => 'web',
                             'name' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
-                            'icon_url' => $d->getIcon(),
+                            'icon_url' => $d->getHomepageIcon(),
                             'web' => array(
                                 'url' => $this->container->getParameter('room_mobile_url').'/search',
                                 'cookie' => array(
