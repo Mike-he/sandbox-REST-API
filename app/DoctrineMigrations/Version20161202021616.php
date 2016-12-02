@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20161130062827 extends AbstractMigration
+class Version20161202021616 extends AbstractMigration
 {
     /**
      * @param Schema $schema
@@ -18,7 +18,9 @@ class Version20161130062827 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE room_city ADD capital TINYINT(1) NOT NULL');
+        $this->addSql('ALTER TABLE product CHANGE basePrice basePrice VARCHAR(10) DEFAULT NULL');
+        $this->addSql('ALTER TABLE room_fixed CHANGE seatNumber seatNumber VARCHAR(16) NOT NULL');
+        $this->addSql('ALTER TABLE room_types ADD homepageIcon LONGTEXT NOT NULL');
     }
 
     /**
@@ -29,6 +31,8 @@ class Version20161130062827 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE room_city DROP capital');
+        $this->addSql('ALTER TABLE product CHANGE basePrice basePrice NUMERIC(10, 0) DEFAULT NULL');
+        $this->addSql('ALTER TABLE room_fixed CHANGE seatNumber seatNumber INT NOT NULL');
+        $this->addSql('ALTER TABLE room_types DROP homepageIcon');
     }
 }

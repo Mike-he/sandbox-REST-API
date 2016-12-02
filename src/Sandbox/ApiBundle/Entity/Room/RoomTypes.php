@@ -78,6 +78,15 @@ class RoomTypes
     /**
      * @var string
      *
+     * @ORM\Column(name="homepageIcon", type="text")
+     *
+     * @Serializer\Groups({"main", "drop_down"})
+     */
+    private $homepageIcon;
+
+    /**
+     * @var string
+     *
      * @Serializer\Groups({"main", "client"})
      */
     private $quickBookingUrl;
@@ -210,5 +219,21 @@ class RoomTypes
     public function setType($type)
     {
         $this->type = $type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHomepageIcon()
+    {
+        return $this->homepageIcon;
+    }
+
+    /**
+     * @param string $homepageIcon
+     */
+    public function setHomepageIcon($homepageIcon)
+    {
+        $this->homepageIcon = $homepageIcon;
     }
 }
