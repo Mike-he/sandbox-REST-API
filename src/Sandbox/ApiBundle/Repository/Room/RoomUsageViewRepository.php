@@ -40,9 +40,8 @@ class RoomUsageViewRepository extends EntityRepository
             ->setParameter('end', $end);
 
         if (!is_null($seat)) {
-            $query->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
-                ->leftJoin('SandboxApiBundle:Room\RoomFixed', 'f', 'WITH', 'r.id = f.roomId')
-                ->andwhere('f.seatNumber = :seat')
+            $query->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'r.id = o.id')
+                ->andwhere('o.seatId = :seat')
                 ->setParameter('seat', $seat);
         }
 
@@ -79,9 +78,8 @@ class RoomUsageViewRepository extends EntityRepository
             ->setParameter('end', $end);
 
         if (!is_null($seat)) {
-            $query->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
-                ->leftJoin('SandboxApiBundle:Room\RoomFixed', 'f', 'WITH', 'r.id = f.roomId')
-                ->andwhere('f.seatNumber = :seat')
+            $query->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'r.id = o.id')
+                ->andwhere('o.seatId = :seat')
                 ->setParameter('seat', $seat);
         }
 
