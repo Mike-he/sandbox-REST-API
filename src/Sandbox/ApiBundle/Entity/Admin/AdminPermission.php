@@ -54,6 +54,8 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_REFUND = 'platform.order.refund';
     const KEY_OFFICIAL_PLATFORM_FINANCE = 'platform.finance';
     const KEY_OFFICIAL_PLATFORM_SPACE = 'platform.space';
+    const KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE = 'platform.long_term_lease';
+    const KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT = 'platform.long_term_appointment';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';
@@ -70,6 +72,8 @@ class AdminPermission
     const KEY_SALES_BUILDING_PRODUCT = 'sales.building.product';
     const KEY_SALES_BUILDING_ACCESS = 'sales.building.access';
     const KEY_SALES_BUILDING_SPACE = 'sales.building.space';
+    const KEY_SALES_BUILDING_LONG_TERM_LEASE = 'sales.building.long_term_lease';
+    const KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT = 'sales.building.long_term_appointment';
 
     const KEY_SHOP_PLATFORM_DASHBOARD = 'shop.platform.dashboard';
     const KEY_SHOP_PLATFORM_ADMIN = 'shop.platform.admin';
@@ -137,20 +141,6 @@ class AdminPermission
      * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
      */
     private $opLevelSelect;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="parentId", type="integer", nullable=true)
-     * @Serializer\Groups({"main"})
-     */
-    private $parentId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="AdminPermission")
-     * @ORM\JoinColumn(name="parentId", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $parent;
 
     /**
      * @var \DateTime
@@ -290,38 +280,6 @@ class AdminPermission
     public function setOpLevelSelect($opLevelSelect)
     {
         $this->opLevelSelect = $opLevelSelect;
-    }
-
-    /**
-     * @return int
-     */
-    public function getParentId()
-    {
-        return $this->parentId;
-    }
-
-    /**
-     * @param int $parentId
-     */
-    public function setParentId($parentId)
-    {
-        $this->parentId = $parentId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    /**
-     * @param mixed $parent
-     */
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
     }
 
     /**
