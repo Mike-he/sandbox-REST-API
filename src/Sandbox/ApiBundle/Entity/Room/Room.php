@@ -135,7 +135,7 @@ class Room
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", nullable=false)
+     * @ORM\Column(name="type", type="string", length=64, nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
      */
