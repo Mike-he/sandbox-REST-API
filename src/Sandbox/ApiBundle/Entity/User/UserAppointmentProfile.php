@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * @ORM\Table(name="user_appointment_profile")
+ * @ORM\Table(name="user_appointment_profiles")
  * @ORM\Entity()
  */
 class UserAppointmentProfile
@@ -26,6 +26,13 @@ class UserAppointmentProfile
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
      */
     private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="contact", type="string", length=64)
+     */
+    private $contact;
 
     /**
      * @var string
@@ -110,6 +117,22 @@ class UserAppointmentProfile
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContact()
+    {
+        return $this->contact;
+    }
+
+    /**
+     * @param string $contact
+     */
+    public function setContact($contact)
+    {
+        $this->contact = $contact;
     }
 
     /**

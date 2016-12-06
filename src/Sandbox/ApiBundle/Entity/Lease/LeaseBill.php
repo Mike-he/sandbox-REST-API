@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LeaseBill
 {
+    const STATUS_PENDING = 'pending';
+    const STATUS_UNPAID = 'unpaid';
+    const STATUS_PAID = 'paid';
+    const STATUS_CANCELLED = 'cancelled';
+
     /**
      * @var int
      *
