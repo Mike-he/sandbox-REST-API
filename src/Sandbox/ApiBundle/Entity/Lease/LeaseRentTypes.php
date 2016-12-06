@@ -40,12 +40,6 @@ class LeaseRentTypes
      */
     private $status = true;
 
-    public function __construct(
-
-    ) {
-        $this->leases = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
     /**
      * @return int
      */
