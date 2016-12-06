@@ -79,10 +79,8 @@ class UserAppointmentProfile
      **/
     private $user;
 
-    public function __construct(
-        \DateTime $creationDate,
-        \DateTime $modificationDate
-    ) {
+    public function __construct()
+    {
         $this->creationDate = new \DateTime('now');
         $this->modificationDate = new \DateTime('now');
     }
