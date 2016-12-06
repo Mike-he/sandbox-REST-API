@@ -551,6 +551,23 @@ class AdminProductController extends ProductController
             }
         } elseif ($type == Room::TYPE_FIXED) {
             throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
+        } elseif ($type == Room::TYPE_LONG_TERM) {
+            $earliestRendDate = $product->getEarliestRentDate();
+            $deposit = $product->getDeposit();
+            $rentalInfo = $product->getRentalInfo();
+
+            if (is_null($earliestRendDate) ||
+                empty($earliestRendDate) ||
+                is_null($deposit) ||
+                is_null($rentalInfo) ||
+                empty($rentalInfo)
+            ) {
+                return $this->customErrorView(
+                    400,
+                    Product::LONG_TERM_ROOM_MISSING_INFO_CODE,
+                    Product::LONG_TERM_ROOM_MISSING_INFO_MESSAGE
+                );
+            }
         }
 
         $product->setRoom($room);
@@ -661,8 +678,9 @@ class AdminProductController extends ProductController
         $roomId = $product->getRoomId();
         $roomEm = $this->getRepo('Room\Room')->findOneById($roomId);
         $seats = $form['seats']->getData();
+        $type = $room->getType();
 
-        if (!is_null($seats)) {
+        if (!is_null($seats) && $type == Room::TYPE_FIXED) {
             foreach ($seats as $seat) {
                 if (array_key_exists('id', $seat) && array_key_exists('price', $seat)) {
                     $fixed = $this->getRepo('Room\RoomFixed')->findOneBy([
@@ -671,6 +689,23 @@ class AdminProductController extends ProductController
                     ]);
                     !is_null($fixed) ? $fixed->setBasePrice($seat['price']) : null;
                 }
+            }
+        } elseif ($type == Room::TYPE_LONG_TERM) {
+            $earliestRendDate = $product->getEarliestRentDate();
+            $deposit = $product->getDeposit();
+            $rentalInfo = $product->getRentalInfo();
+
+            if (is_null($earliestRendDate) ||
+                empty($earliestRendDate) ||
+                is_null($deposit) ||
+                is_null($rentalInfo) ||
+                empty($rentalInfo)
+            ) {
+                return $this->customErrorView(
+                    400,
+                    Product::LONG_TERM_ROOM_MISSING_INFO_CODE,
+                    Product::LONG_TERM_ROOM_MISSING_INFO_MESSAGE
+                );
             }
         }
 
