@@ -208,8 +208,14 @@ client:
     my_company: My Company
     scan_qr: Scan QR Code
     balance: Balance
-    my_order: My Orders
+    my_space_order: Space Order
+    my_lease: Lease & Bills
+    my_long_term_appointment: Long Rent Application
+    my_shop_order: Shop Order
+    my_activity_order: Activity Order
     my_room: My Rooms
+    my_favorite: My Favorites
+    my_evaluation: My Reviews
     notification: Notification
     my_invoice: My Invoice
     membership_card: Membership Card
