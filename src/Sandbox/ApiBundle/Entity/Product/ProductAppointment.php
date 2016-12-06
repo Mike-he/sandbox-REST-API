@@ -139,6 +139,13 @@ class ProductAppointment
     private $user;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="rent_type", type="string", length=20, nullable=true)
+     */
+    private $rentType;
+
+    /**
      * Get id.
      *
      * @return int
@@ -483,5 +490,21 @@ class ProductAppointment
     {
         $this->creationDate = new \DateTime('now');
         $this->modificationDate = new \DateTime('now');
+    }
+
+    /**
+     * @return string
+     */
+    public function getRentType()
+    {
+        return $this->rentType;
+    }
+
+    /**
+     * @param string $rentType
+     */
+    public function setRentType($rentType)
+    {
+        $this->rentType = $rentType;
     }
 }
