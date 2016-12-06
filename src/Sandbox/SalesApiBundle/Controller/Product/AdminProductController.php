@@ -552,7 +552,7 @@ class AdminProductController extends ProductController
         } elseif ($type == Room::TYPE_FIXED) {
             throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
         } elseif ($type == Room::TYPE_LONG_TERM) {
-            $earliestRendDate = $form['earliestRentDate']->getData();
+            $earliestRendDate = $product->getEarliestRentDate();
             $deposit = $product->getDeposit();
             $rentalInfo = $product->getRentalInfo();
 
@@ -694,7 +694,7 @@ class AdminProductController extends ProductController
                 }
             }
         } elseif ($type == Room::TYPE_LONG_TERM) {
-            $earliestRendDate = $form['earliestRentDate']->getData();
+            $earliestRendDate = $product->getEarliestRentDate();
             $deposit = $product->getDeposit();
             $rentalInfo = $product->getRentalInfo();
 
