@@ -72,7 +72,7 @@ class RoomAttachment
     /**
      * @var string
      *
-     * @ORM\Column(name="roomType", type="string", nullable=false)
+     * @ORM\Column(name="roomType", type="string", length=64, nullable=false)
      *
      * @Serializer\Groups({"main"})
      */
