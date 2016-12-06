@@ -139,6 +139,13 @@ class ProductAppointment
     private $user;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="rent_type", type="string", length=20, nullable=true)
+     */
+    private $rentType;
+
+    /**
      * Get id.
      *
      * @return int

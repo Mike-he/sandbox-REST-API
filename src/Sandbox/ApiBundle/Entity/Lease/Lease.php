@@ -1,0 +1,658 @@
+<?php
+
+namespace Sandbox\ApiBundle\Entity\Lease;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
+use Sandbox\ApiBundle\Entity\User\User;
+
+/**
+ * @ORM\Table(name="leases")
+ * @ORM\Entity()
+ */
+class Lease
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
+     */
+    private $serialNumber;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $drawee;
+
+    /**
+     * @var string
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $product;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="contact", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $contact;
+
+    /**
+     * House used purpose.
+     *
+     * @var string
+     *
+     * @ORM\Column(name="purpose", type="text", nullable=true)
+     */
+    private $purpose;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="other_expenses", type="text", nullable=true)
+     */
+    private $otherExpenses;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="supplementary_terms", type="text", nullable=true)
+     */
+    private $supplementaryTerms;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="start_date", type="datetime", nullable=true)
+     */
+    private $startDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="end_date", type="datetime", nullable=true)
+     */
+    private $endDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="termination_date", type="datetime", nullable=true)
+     */
+    private $terminationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creation_date", type="datetime", nullable=true)
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modification_date", type="datetime", nullable=true)
+     */
+    private $modificationDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=15, nullable=true)
+     */
+    private $status;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="monthly_rent", type="decimal", precision=10, scale=2, nullable=true)
+     */
+    private $monthlyRent;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="total_rent", type="decimal", precision=10, scale=2, nullable=true)
+     */
+    private $totalRent;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
+     */
+    private $deposit;
+
+    /**
+     * @var ProductAppointment
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAppointment")
+     * @ORM\JoinColumn(name="product_appointment_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $productAppointment;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_name", type="string", length=40, nullable=true)
+     */
+    private $lesseeName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_address", type="string", length=255, nullable=true)
+     */
+    private $lesseeAddress;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_phone", type="string", length=128, nullable=true)
+     */
+    private $lesseePhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_email", type="string", length=128, nullable=true)
+     */
+    private $lesseeEmail;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_name", type="string", length=40, nullable=true)
+     */
+    private $lessorName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_address", type="string", length=255, nullable=true)
+     */
+    private $lessorAddress;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_phone", type="string", length=128, nullable=true)
+     */
+    private $lessorPhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_email", type="string", length=128, nullable=true)
+     */
+    private $lessorEmail;
+
+    /**
+     * @var LeaseRentTypes
+     *
+     * @ORM\ManyToMany(targetEntity="LeaseRentTypes")
+     * @ORM\JoinTable(
+     *      name="lease_has_rent_types",
+     *      joinColumns={@ORM\JoinColumn(name="lease_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="lease_rent_types_id", referencedColumnName="id")}
+     * )
+     */
+    private $LeaseRentTypes;
+
+    public function __construct(
+        \DateTime $creationDate,
+        \DateTime $modificationDate
+    ) {
+        $this->creationDate = new \DateTime('now');
+        $this->modificationDate = new \DateTime('now');
+        $this->leaserentTypes = new ArrayCollection();
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSerialNumber()
+    {
+        return $this->serialNumber;
+    }
+
+    /**
+     * @param string $serialNumber
+     */
+    public function setSerialNumber($serialNumber)
+    {
+        $this->serialNumber = $serialNumber;
+    }
+
+    /**
+     * @return User
+     */
+    public function getDrawee()
+    {
+        return $this->drawee;
+    }
+
+    /**
+     * @param User $drawee
+     */
+    public function setDrawee($drawee)
+    {
+        $this->drawee = $drawee;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    /**
+     * @param string $product
+     */
+    public function setProduct($product)
+    {
+        $this->product = $product;
+    }
+
+    /**
+     * @return User
+     */
+    public function getContact()
+    {
+        return $this->contact;
+    }
+
+    /**
+     * @param User $contact
+     */
+    public function setContact($contact)
+    {
+        $this->contact = $contact;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPurpose()
+    {
+        return $this->purpose;
+    }
+
+    /**
+     * @param string $purpose
+     */
+    public function setPurpose($purpose)
+    {
+        $this->purpose = $purpose;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOtherExpenses()
+    {
+        return $this->otherExpenses;
+    }
+
+    /**
+     * @param string $otherExpenses
+     */
+    public function setOtherExpenses($otherExpenses)
+    {
+        $this->otherExpenses = $otherExpenses;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSupplementaryTerms()
+    {
+        return $this->supplementaryTerms;
+    }
+
+    /**
+     * @param string $supplementaryTerms
+     */
+    public function setSupplementaryTerms($supplementaryTerms)
+    {
+        $this->supplementaryTerms = $supplementaryTerms;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * @param \DateTime $startDate
+     */
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    /**
+     * @param \DateTime $endDate
+     */
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getTerminationDate()
+    {
+        return $this->terminationDate;
+    }
+
+    /**
+     * @param \DateTime $terminationDate
+     */
+    public function setTerminationDate($terminationDate)
+    {
+        $this->terminationDate = $terminationDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * @param \DateTime $creationDate
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * @param \DateTime $modificationDate
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return float
+     */
+    public function getMonthlyRent()
+    {
+        return $this->monthlyRent;
+    }
+
+    /**
+     * @param float $monthlyRent
+     */
+    public function setMonthlyRent($monthlyRent)
+    {
+        $this->monthlyRent = $monthlyRent;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalRent()
+    {
+        return $this->totalRent;
+    }
+
+    /**
+     * @param float $totalRent
+     */
+    public function setTotalRent($totalRent)
+    {
+        $this->totalRent = $totalRent;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDeposit()
+    {
+        return $this->deposit;
+    }
+
+    /**
+     * @param float $deposit
+     */
+    public function setDeposit($deposit)
+    {
+        $this->deposit = $deposit;
+    }
+
+    /**
+     * @return ProductAppointment
+     */
+    public function getProductAppointment()
+    {
+        return $this->productAppointment;
+    }
+
+    /**
+     * @param ProductAppointment $productAppointment
+     */
+    public function setProductAppointment($productAppointment)
+    {
+        $this->productAppointment = $productAppointment;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLesseeName()
+    {
+        return $this->lesseeName;
+    }
+
+    /**
+     * @param string $lesseeName
+     */
+    public function setLesseeName($lesseeName)
+    {
+        $this->lesseeName = $lesseeName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLesseeAddress()
+    {
+        return $this->lesseeAddress;
+    }
+
+    /**
+     * @param string $lesseeAddress
+     */
+    public function setLesseeAddress($lesseeAddress)
+    {
+        $this->lesseeAddress = $lesseeAddress;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLesseePhone()
+    {
+        return $this->lesseePhone;
+    }
+
+    /**
+     * @param string $lesseePhone
+     */
+    public function setLesseePhone($lesseePhone)
+    {
+        $this->lesseePhone = $lesseePhone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLesseeEmail()
+    {
+        return $this->lesseeEmail;
+    }
+
+    /**
+     * @param string $lesseeEmail
+     */
+    public function setLesseeEmail($lesseeEmail)
+    {
+        $this->lesseeEmail = $lesseeEmail;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorName()
+    {
+        return $this->lessorName;
+    }
+
+    /**
+     * @param string $lessorName
+     */
+    public function setLessorName($lessorName)
+    {
+        $this->lessorName = $lessorName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorAddress()
+    {
+        return $this->lessorAddress;
+    }
+
+    /**
+     * @param string $lessorAddress
+     */
+    public function setLessorAddress($lessorAddress)
+    {
+        $this->lessorAddress = $lessorAddress;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorPhone()
+    {
+        return $this->lessorPhone;
+    }
+
+    /**
+     * @param string $lessorPhone
+     */
+    public function setLessorPhone($lessorPhone)
+    {
+        $this->lessorPhone = $lessorPhone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorEmail()
+    {
+        return $this->lessorEmail;
+    }
+
+    /**
+     * @param string $lessorEmail
+     */
+    public function setLessorEmail($lessorEmail)
+    {
+        $this->lessorEmail = $lessorEmail;
+    }
+
+    /**
+     * @return LeaseRentTypes
+     */
+    public function getLeaseRentTypes()
+    {
+        return $this->LeaseRentTypes;
+    }
+
+    /**
+     * @param LeaseRentTypes $LeaseRentTypes
+     */
+    public function addLeaseRentTypes($LeaseRentTypes)
+    {
+        $this->LeaseRentTypes[] = $LeaseRentTypes;
+    }
+}
