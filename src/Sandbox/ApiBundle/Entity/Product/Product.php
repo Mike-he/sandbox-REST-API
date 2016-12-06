@@ -229,6 +229,51 @@ class Product
     private $salesInvoice = false;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="earliestRentDate", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     */
+    private $earliestRentDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="deposit", type="string", length=10, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     */
+    private $deposit;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="rentalInfo", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     */
+    private $rentalInfo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="filename", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     */
+    private $filename;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="fileType", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     */
+    private $fileType;
+
+    /**
      * @var int
      */
     private $pendingAppointmentCounts;
@@ -258,6 +303,86 @@ class Product
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEarliestRentDate()
+    {
+        return $this->earliestRentDate;
+    }
+
+    /**
+     * @param \DateTime $earliestRentDate
+     */
+    public function setEarliestRentDate($earliestRentDate)
+    {
+        $this->earliestRentDate = $earliestRentDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDeposit()
+    {
+        return $this->deposit;
+    }
+
+    /**
+     * @param string $deposit
+     */
+    public function setDeposit($deposit)
+    {
+        $this->deposit = $deposit;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRentalInfo()
+    {
+        return $this->rentalInfo;
+    }
+
+    /**
+     * @param string $rentalInfo
+     */
+    public function setRentalInfo($rentalInfo)
+    {
+        $this->rentalInfo = $rentalInfo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
+    /**
+     * @param string $filename
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileType()
+    {
+        return $this->fileType;
+    }
+
+    /**
+     * @param string $fileType
+     */
+    public function setFileType($fileType)
+    {
+        $this->fileType = $fileType;
     }
 
     /**

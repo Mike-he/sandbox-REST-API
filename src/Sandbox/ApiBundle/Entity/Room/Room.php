@@ -27,6 +27,7 @@ class Room
     const TYPE_MEETING = 'meeting';
     const TYPE_STUDIO = 'studio';
     const TYPE_SPACE = 'space';
+    const TYPE_LONG_TERM = 'longterm';
 
     /**
      * @var int
