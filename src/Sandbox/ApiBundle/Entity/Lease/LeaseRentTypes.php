@@ -34,11 +34,11 @@ class LeaseRentTypes
     private $nameEn;
 
     /**
-     * @var string
+     * @var bool
      *
-     * @ORM\Column(name="status", type="string", length=15, nullable=true)
+     * @ORM\Column(name="status", type="boolean")
      */
-    private $status;
+    private $status = true;
 
     public function __construct(
 
@@ -95,15 +95,15 @@ class LeaseRentTypes
     }
 
     /**
-     * @return string
+     * @return boolean
      */
-    public function getStatus()
+    public function isStatus()
     {
         return $this->status;
     }
 
     /**
-     * @param string $status
+     * @param boolean $status
      */
     public function setStatus($status)
     {

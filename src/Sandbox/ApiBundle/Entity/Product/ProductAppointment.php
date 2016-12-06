@@ -491,4 +491,20 @@ class ProductAppointment
         $this->creationDate = new \DateTime('now');
         $this->modificationDate = new \DateTime('now');
     }
+
+    /**
+     * @return string
+     */
+    public function getRentType()
+    {
+        return $this->rentType;
+    }
+
+    /**
+     * @param string $rentType
+     */
+    public function setRentType($rentType)
+    {
+        $this->rentType = $rentType;
+    }
 }

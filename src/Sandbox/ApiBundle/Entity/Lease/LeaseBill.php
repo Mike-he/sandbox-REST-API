@@ -5,8 +5,6 @@ namespace Sandbox\ApiBundle\Entity\Lease;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Food.
- *
  * @ORM\Table(name="lease_bill")
  * @ORM\Entity()
  */
@@ -52,14 +50,14 @@ class LeaseBill
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creation_date", type="datetime", nullable=true)
+     * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="modification_date", type="datetime", nullable=true)
+     * @ORM\Column(name="modification_date", type="datetime")
      */
     private $modificationDate;
 
@@ -95,7 +93,7 @@ class LeaseBill
      * @var Lease
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Lease\Lease")
-     * @ORM\JoinColumn(name="lease_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="lease_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $lease;
 
