@@ -99,3 +99,15 @@ sandbox_admin_api_space:
     resource: "@SandboxSalesApiBundle/Controller/Space/AdminCommunityController.php"
     type:     annotation
     prefix:   /admin/space
+
+# Admin Lease /sales/admin/lease
+sandbox_admin_api_lease:
+    resource: "@SandboxSalesApiBundle/Controller/Lease/LeaseController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Lease Bill /sales/admin/lease/bill
+sandbox_admin_api_lease_bill:
+    resource: "@SandboxSalesApiBundle/Controller/Lease/LeaseBillController.php"
+    type:     annotation
+    prefix:   /admin

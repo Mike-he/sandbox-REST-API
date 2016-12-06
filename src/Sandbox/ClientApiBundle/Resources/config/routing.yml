@@ -341,3 +341,15 @@ sandbox_client_api_user_share:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserShareController.php"
     type:     annotation
     prefix:   /user
+
+# Lease /lease
+sandbox_client_api_lease:
+    resource: "@SandboxClientApiBundle/Controller/Lease/ClientLeaseController.php"
+    type:     annotation
+    prefix:   /
+
+# Lease Bill /lease/bill
+sandbox_client_api_lease:
+    resource: "@SandboxClientApiBundle/Controller/Lease/ClientLeaseBillController.php"
+    type:     annotation
+    prefix:   /
