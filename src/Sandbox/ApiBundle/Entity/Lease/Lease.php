@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\User\User;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Table(name="leases")
@@ -19,6 +20,8 @@ class Lease
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $id;
 
@@ -26,6 +29,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $serialNumber;
 
@@ -34,6 +39,8 @@ class Lease
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $drawee;
 
@@ -42,6 +49,8 @@ class Lease
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
      * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="SET NULL")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $product;
 
@@ -50,6 +59,8 @@ class Lease
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="contact", referencedColumnName="id", onDelete="SET NULL")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $contact;
 
@@ -59,6 +70,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="purpose", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $purpose;
 
@@ -66,6 +79,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="other_expenses", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $otherExpenses;
 
@@ -73,6 +88,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="supplementary_terms", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $supplementaryTerms;
 
@@ -80,6 +97,8 @@ class Lease
      * @var \DateTime
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $startDate;
 
@@ -87,6 +106,8 @@ class Lease
      * @var \DateTime
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $endDate;
 
@@ -94,6 +115,8 @@ class Lease
      * @var \DateTime
      *
      * @ORM\Column(name="termination_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $terminationDate;
 
@@ -101,6 +124,8 @@ class Lease
      * @var \DateTime
      *
      * @ORM\Column(name="creation_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -108,6 +133,8 @@ class Lease
      * @var \DateTime
      *
      * @ORM\Column(name="modification_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -115,6 +142,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=15, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $status;
 
@@ -122,6 +151,8 @@ class Lease
      * @var float
      *
      * @ORM\Column(name="monthly_rent", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $monthlyRent;
 
@@ -129,6 +160,8 @@ class Lease
      * @var float
      *
      * @ORM\Column(name="total_rent", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $totalRent;
 
@@ -136,6 +169,8 @@ class Lease
      * @var float
      *
      * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $deposit;
 
@@ -144,6 +179,8 @@ class Lease
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAppointment")
      * @ORM\JoinColumn(name="product_appointment_id", referencedColumnName="id", onDelete="SET NULL")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $productAppointment;
 
@@ -151,6 +188,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_name", type="string", length=40, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $lesseeName;
 
@@ -158,6 +197,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_address", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $lesseeAddress;
 
@@ -165,6 +206,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_phone", type="string", length=128, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $lesseePhone;
 
@@ -172,6 +215,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_email", type="string", length=128, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $lesseeEmail;
 
@@ -179,6 +224,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessor_name", type="string", length=40, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $lessorName;
 
@@ -186,6 +233,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessor_address", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $lessorAddress;
 
@@ -193,6 +242,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessor_phone", type="string", length=128, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $lessorPhone;
 
@@ -200,6 +251,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessor_email", type="string", length=128, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $lessorEmail;
 
@@ -212,6 +265,8 @@ class Lease
      *      joinColumns={@ORM\JoinColumn(name="lease_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="lease_rent_types_id", referencedColumnName="id")}
      * )
+     *
+     * @Serializer\Groups({"main"})
      */
     private $LeaseRentTypes;
 
