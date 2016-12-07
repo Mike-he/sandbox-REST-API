@@ -40,12 +40,6 @@ class LeaseRentTypes
      */
     private $status = true;
 
-    public function __construct(
-
-    ) {
-        $this->leases = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
     /**
      * @return int
      */
@@ -95,7 +89,7 @@ class LeaseRentTypes
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isStatus()
     {
@@ -103,7 +97,7 @@ class LeaseRentTypes
     }
 
     /**
-     * @param boolean $status
+     * @param bool $status
      */
     public function setStatus($status)
     {

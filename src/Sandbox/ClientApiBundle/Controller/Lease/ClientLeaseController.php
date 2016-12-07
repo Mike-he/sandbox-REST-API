@@ -6,5 +6,4 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 
 class ClientLeaseController extends SandboxRestController
 {
-
 }

@@ -348,8 +348,9 @@ sandbox_client_api_lease:
     type:     annotation
     prefix:   /
 
-# Lease Bill /lease/bill
-sandbox_client_api_lease:
-    resource: "@SandboxClientApiBundle/Controller/Lease/ClientLeaseBillController.php"
+# Appointment Profile /appointment/profile
+sandbox_client_api_user_appointment_profile:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserAppointmentProfileController.php"
     type:     annotation
-    prefix:   /
+    prefix:   /user/appointment
+

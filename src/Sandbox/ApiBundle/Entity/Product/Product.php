@@ -24,7 +24,7 @@ class Product
     const UNIT_MONTH = 'month';
     const UNIT_DAYS = 'days';
     const UNIT_MIN = 'min';
-    
+
     const LONG_TERM_ROOM_MISSING_INFO_CODE = 400100;
     const LONG_TERM_ROOM_MISSING_INFO_MESSAGE = 'Information Missing for Long Term Room';
 
@@ -77,9 +77,9 @@ class Product
     private $visibleUserId;
 
     /**
-     * @var string
+     * @var float
      *
-     * @ORM\Column(name="basePrice", type="string", length=10, nullable=true)
+     * @ORM\Column(name="basePrice", type="decimal", precision=10, scale=2, nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
      */
@@ -241,9 +241,9 @@ class Product
     private $earliestRentDate;
 
     /**
-     * @var string
+     * @var float
      *
-     * @ORM\Column(name="deposit", type="string", length=10, nullable=true)
+     * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
      *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
@@ -266,15 +266,6 @@ class Product
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $filename;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="fileType", type="string", length=16, nullable=true)
-     *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
-     */
-    private $fileType;
 
     /**
      * @var int
@@ -325,7 +316,7 @@ class Product
     }
 
     /**
-     * @return string
+     * @return float
      */
     public function getDeposit()
     {
@@ -333,7 +324,7 @@ class Product
     }
 
     /**
-     * @param string $deposit
+     * @param float $deposit
      */
     public function setDeposit($deposit)
     {
@@ -370,22 +361,6 @@ class Product
     public function setFilename($filename)
     {
         $this->filename = $filename;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFileType()
-    {
-        return $this->fileType;
-    }
-
-    /**
-     * @param string $fileType
-     */
-    public function setFileType($fileType)
-    {
-        $this->fileType = $fileType;
     }
 
     /**
@@ -533,7 +508,7 @@ class Product
     /**
      * Set basePrice.
      *
-     * @param string $basePrice
+     * @param float $basePrice
      *
      * @return Product
      */
@@ -547,7 +522,7 @@ class Product
     /**
      * Get basePrice.
      *
-     * @return string
+     * @return float
      */
     public function getBasePrice()
     {

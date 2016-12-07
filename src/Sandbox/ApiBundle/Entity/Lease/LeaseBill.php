@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Lease;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Entity\User\User;
 
 /**
  * @ORM\Table(name="lease_bill")
@@ -10,6 +11,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LeaseBill
 {
+    const STATUS_PENDING = 'pending';
+    const STATUS_UNPAID = 'unpaid';
+    const STATUS_PAID = 'paid';
+    const STATUS_CANCELLED = 'cancelled';
+    const ORDER_METHOD_BACKEND = 'backend';
+
     /**
      * @var int
      *
@@ -111,10 +118,45 @@ class LeaseBill
      */
     private $revisionNote;
 
-    public function __construct(
-        \DateTime $creationDate,
-        \DateTime $modificationDate
-    ) {
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="payment_date", type="datetime", nullable=true)
+     */
+    private $paymentDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="send_date", type="datetime", nullable=true)
+     */
+    private $sendDate;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="sender", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $sender;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $drawee;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="order_method", type="string", length=15)
+     */
+    private $orderMethod = self::ORDER_METHOD_BACKEND;
+
+    public function __construct()
+    {
         $this->creationDate = new \DateTime('now');
         $this->modificationDate = new \DateTime('now');
     }
@@ -341,5 +383,85 @@ class LeaseBill
     public function setRevisionNote($revisionNote)
     {
         $this->revisionNote = $revisionNote;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getPaymentDate()
+    {
+        return $this->paymentDate;
+    }
+
+    /**
+     * @param \DateTime $paymentDate
+     */
+    public function setPaymentDate($paymentDate)
+    {
+        $this->paymentDate = $paymentDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getSendDate()
+    {
+        return $this->sendDate;
+    }
+
+    /**
+     * @param \DateTime $sendDate
+     */
+    public function setSendDate($sendDate)
+    {
+        $this->sendDate = $sendDate;
+    }
+
+    /**
+     * @return User
+     */
+    public function getSender()
+    {
+        return $this->sender;
+    }
+
+    /**
+     * @param User $sender
+     */
+    public function setSender($sender)
+    {
+        $this->sender = $sender;
+    }
+
+    /**
+     * @return User
+     */
+    public function getDrawee()
+    {
+        return $this->drawee;
+    }
+
+    /**
+     * @param User $drawee
+     */
+    public function setDrawee($drawee)
+    {
+        $this->drawee = $drawee;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderMethod()
+    {
+        return $this->orderMethod;
+    }
+
+    /**
+     * @param string $orderMethod
+     */
+    public function setOrderMethod($orderMethod)
+    {
+        $this->orderMethod = $orderMethod;
     }
 }
