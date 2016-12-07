@@ -29,14 +29,14 @@ class ProductAppointment
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @ORM\Column(name="user_id", type="integer", nullable=false)
      */
     private $userId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="productId", type="integer", nullable=false)
+     * @ORM\Column(name="product_id", type="integer", nullable=false)
      */
     private $productId;
 
@@ -45,7 +45,7 @@ class ProductAppointment
      *
      * @Assert\NotBlank()
      *
-     * @ORM\Column(name="applicantName", type="string", length=255, nullable=false)
+     * @ORM\Column(name="applicant_name", type="string", length=255, nullable=false)
      */
     private $applicantName;
 
@@ -54,7 +54,7 @@ class ProductAppointment
      *
      * @Assert\NotBlank()
      *
-     * @ORM\Column(name="applicantCompany", type="string", length=255, nullable=false)
+     * @ORM\Column(name="applicant_company", type="string", length=255, nullable=false)
      */
     private $applicantCompany;
 
@@ -64,7 +64,7 @@ class ProductAppointment
      * @Assert\NotBlank()
      * @Assert\Regex("/^\d+$/")
      *
-     * @ORM\Column(name="applicantPhone", type="string", length=255, nullable=false)
+     * @ORM\Column(name="applicant_phone", type="string", length=255, nullable=false)
      */
     private $applicantPhone;
 
@@ -74,7 +74,7 @@ class ProductAppointment
      * @Assert\NotBlank()
      * @Assert\Email()
      *
-     * @ORM\Column(name="applicantEmail", type="string", length=255, nullable=false)
+     * @ORM\Column(name="applicant_email", type="string", length=255, nullable=false)
      */
     private $applicantEmail;
 
@@ -83,7 +83,7 @@ class ProductAppointment
      *
      * @Assert\NotBlank()
      *
-     * @ORM\Column(name="startRentDate", type="datetime", nullable=false)
+     * @ORM\Column(name="start_rent_date", type="datetime", nullable=false)
      */
     private $startRentDate;
 
@@ -92,7 +92,7 @@ class ProductAppointment
      *
      * @Assert\NotBlank()
      *
-     * @ORM\Column(name="rentTimeLength", type="integer", nullable=false)
+     * @ORM\Column(name="rent_time_length", type="integer", nullable=false)
      */
     private $rentTimeLength;
 
@@ -101,7 +101,7 @@ class ProductAppointment
      *
      * @Assert\NotBlank()
      *
-     * @ORM\Column(name="rentTimeUnit", type="string", length=64, nullable=false)
+     * @ORM\Column(name="rent_time_unit", type="string", length=64, nullable=false)
      */
     private $rentTimeUnit;
 
@@ -122,14 +122,14 @@ class ProductAppointment
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @ORM\Column(name="creation_date", type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @ORM\Column(name="modification_date", type="datetime", nullable=false)
      */
     private $modificationDate;
 
@@ -144,6 +144,13 @@ class ProductAppointment
      * @ORM\Column(name="rent_type", type="string", length=20, nullable=true)
      */
     private $rentType;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address", type="string", length=255, nullable=true)
+     */
+    private $address;
 
     /**
      * Get id.
@@ -506,5 +513,21 @@ class ProductAppointment
     public function setRentType($rentType)
     {
         $this->rentType = $rentType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
     }
 }

@@ -58,7 +58,7 @@ class UserAppointmentProfile
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     * @ORM\Column(name="creation_date", type="datetime", nullable=false)
      * @Serializer\Groups({"main"})
      */
     private $creationDate;
@@ -66,7 +66,7 @@ class UserAppointmentProfile
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="datetime", nullable=false)
+     * @ORM\Column(name="modification_date", type="datetime", nullable=false)
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
