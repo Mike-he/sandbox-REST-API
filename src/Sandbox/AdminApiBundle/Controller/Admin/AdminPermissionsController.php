@@ -28,6 +28,62 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminPermissionsController extends SandboxRestController
 {
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/permissions/groups_map")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAdminPermissionsGroupMapAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
+        $groups = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+            ->findBy(array(
+                'platform' => $platform,
+            ));
+
+        $response = array();
+        foreach ($groups as $group) {
+            $item = array(
+                'group' => array(
+                    'group_name' => $group->getGroupName(),
+                ),
+                'permissions' => array(),
+            );
+
+            $maps = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
+                ->findBy(array(
+                    'group' => $group,
+                ));
+
+            foreach ($maps as $map) {
+                $permission = $map->getPermission();
+
+                $permissionsArray = array(
+                    'id' => $permission->getId(),
+                    'name' => $permission->getName(),
+                    'max_op_level' => $permission->getMaxOpLevel(),
+                    'op_level_select' => $permission->getOpLevelSelect(),
+                );
+
+                array_push($item['permissions'], $permissionsArray);
+            }
+
+            array_push($response, $item);
+        }
+
+        return new View($response);
+    }
+
+    /**
      * List all admin permissions.
      *
      * @param Request $request the request object

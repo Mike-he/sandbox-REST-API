@@ -30,6 +30,20 @@ class AdminPermissionGroups
     private $groupKey;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="group_name", type="string", length=64)
+     */
+    private $groupName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string", length=32)
+     */
+    private $platform;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -52,7 +66,7 @@ class AdminPermissionGroups
      *
      * @param string $groupKey
      *
-     * @return AdminPermissionGroup
+     * @return AdminPermissionGroups
      */
     public function setGroupKey($groupKey)
     {
@@ -76,13 +90,45 @@ class AdminPermissionGroups
      *
      * @param \DateTime $creationDate
      *
-     * @return AdminPermissionGroup
+     * @return AdminPermissionGroups
      */
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGroupName()
+    {
+        return $this->groupName;
+    }
+
+    /**
+     * @param string $groupName
+     */
+    public function setGroupName($groupName)
+    {
+        $this->groupName = $groupName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 
     /**

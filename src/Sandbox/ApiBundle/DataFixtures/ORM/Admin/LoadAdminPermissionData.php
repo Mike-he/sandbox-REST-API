@@ -141,7 +141,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $building->setLevel('global');
         $building->setMaxOpLevel(2);
         $building->setOpLevelSelect('1,2');
-        $building->setParent($this->getReference('platform-space'));
 
         $room = new AdminPermission();
         $room->setKey('platform.room');
@@ -150,7 +149,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $room->setLevel('global');
         $room->setMaxOpLevel(2);
         $room->setOpLevelSelect('1,2');
-        $room->setParent($this->getReference('platform-space'));
 
         $product = new AdminPermission();
         $product->setKey('platform.product');
@@ -159,7 +157,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $product->setLevel('global');
         $product->setMaxOpLevel(2);
         $product->setOpLevelSelect('1,2');
-        $product->setParent($this->getReference('platform-space'));
 
         $preorder = new AdminPermission();
         $preorder->setKey('platform.order.preorder');
@@ -168,7 +165,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $preorder->setLevel('global');
         $preorder->setMaxOpLevel(2);
         $preorder->setOpLevelSelect('2');
-        $preorder->setParent($this->getReference('platform-space'));
 
         $reserve = new AdminPermission();
         $reserve->setKey('platform.order.reserve');
@@ -177,7 +173,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $reserve->setLevel('global');
         $reserve->setMaxOpLevel(2);
         $reserve->setOpLevelSelect('2');
-        $reserve->setParent($this->getReference('platform-space'));
 
         $p16 = new AdminPermission();
         $p16->setKey('platform.price');
@@ -307,8 +302,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesBuilding->setLevel('specify');
         $salesBuilding->setMaxOpLevel(2);
         $salesBuilding->setOpLevelSelect('1,2');
-        $salesBuilding->setParent($this->getReference('sales-building-space'));
-
         $salesRoom = new AdminPermission();
         $salesRoom->setKey('sales.building.room');
         $salesRoom->setName('空间设置');
@@ -316,7 +309,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesRoom->setLevel('specify');
         $salesRoom->setMaxOpLevel(2);
         $salesRoom->setOpLevelSelect('1,2');
-        $salesRoom->setParent($this->getReference('sales-building-space'));
 
         $salesProduct = new AdminPermission();
         $salesProduct->setKey('sales.building.product');
@@ -325,7 +317,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesProduct->setLevel('specify');
         $salesProduct->setMaxOpLevel(2);
         $salesProduct->setOpLevelSelect('1,2');
-        $salesProduct->setParent($this->getReference('sales-building-space'));
 
         $salesReserve = new AdminPermission();
         $salesReserve->setKey('sales.building.order.reserve');
@@ -334,7 +325,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesReserve->setLevel('specify');
         $salesReserve->setMaxOpLevel(2);
         $salesReserve->setOpLevelSelect('2');
-        $salesReserve->setParent($this->getReference('sales-building-space'));
 
         $salesPreorder = new AdminPermission();
         $salesPreorder->setKey('sales.building.order.preorder');
@@ -343,7 +333,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesPreorder->setLevel('specify');
         $salesPreorder->setMaxOpLevel(2);
         $salesPreorder->setOpLevelSelect('2');
-        $salesPreorder->setParent($this->getReference('sales-building-space'));
 
         $p34 = new AdminPermission();
         $p34->setKey('sales.building.user');
