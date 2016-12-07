@@ -21,7 +21,7 @@ class UserView
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "account", "client", "room_usage"})
+     * @Serializer\Groups({"main", "account", "client", "room_usage", "lease_bill"})
      */
     private $id;
 
@@ -29,7 +29,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "account", "client", "room_usage"})
+     * @Serializer\Groups({"main", "account", "client", "room_usage", "lease_bill"})
      */
     private $email;
 
@@ -37,7 +37,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "account", "client", "room_usage"})
+     * @Serializer\Groups({"main", "account", "client", "room_usage", "lease_bill"})
      */
     private $phone;
 
@@ -61,7 +61,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="cardNo", type="string", length=32, nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_bill"})
      */
     private $cardNo;
 
@@ -77,7 +77,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "account", "client", "room_usage"})
+     * @Serializer\Groups({"main", "account", "client", "room_usage", "lease_bill"})
      */
     private $name;
 

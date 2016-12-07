@@ -3,11 +3,11 @@
 namespace Sandbox\ApiBundle\Entity\Lease;
 
 use Doctrine\ORM\Mapping as ORM;
-use Sandbox\ApiBundle\Entity\User\User;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Table(name="lease_bill")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Lease\LeaseBillRepository")
  */
 class LeaseBill
 {
@@ -15,6 +15,10 @@ class LeaseBill
     const STATUS_UNPAID = 'unpaid';
     const STATUS_PAID = 'paid';
     const STATUS_CANCELLED = 'cancelled';
+
+    const TYPE_LEASE = 'lease';
+    const TYPE_OTHER = 'other';
+
     const ORDER_METHOD_BACKEND = 'backend';
 
     /**
@@ -23,6 +27,8 @@ class LeaseBill
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $id;
 
@@ -30,6 +36,8 @@ class LeaseBill
      * @var string
      *
      * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $serialNumber;
 
@@ -37,6 +45,8 @@ class LeaseBill
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=40, nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $name;
 
@@ -44,6 +54,8 @@ class LeaseBill
      * @var \DateTime
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $startDate;
 
@@ -51,6 +63,8 @@ class LeaseBill
      * @var \DateTime
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $endDate;
 
@@ -58,6 +72,8 @@ class LeaseBill
      * @var \DateTime
      *
      * @ORM\Column(name="creation_date", type="datetime")
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $creationDate;
 
@@ -65,6 +81,8 @@ class LeaseBill
      * @var \DateTime
      *
      * @ORM\Column(name="modification_date", type="datetime")
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $modificationDate;
 
@@ -72,6 +90,8 @@ class LeaseBill
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $description;
 
@@ -79,6 +99,8 @@ class LeaseBill
      * @var float
      *
      * @ORM\Column(name="amount", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $amount;
 
@@ -86,6 +108,8 @@ class LeaseBill
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=15, nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $status;
 
@@ -93,14 +117,25 @@ class LeaseBill
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=10, nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $type;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="lease_id", type="integer")
+     */
+    private $leaseId;
 
     /**
      * @var Lease
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Lease\Lease")
      * @ORM\JoinColumn(name="lease_id", referencedColumnName="id", onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $lease;
 
@@ -108,6 +143,8 @@ class LeaseBill
      * @var float
      *
      * @ORM\Column(name="revised_amount", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $revisedAmount;
 
@@ -115,6 +152,8 @@ class LeaseBill
      * @var string
      *
      * @ORM\Column(name="revision_note", type="string", length=225, nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $revisionNote;
 
@@ -122,6 +161,8 @@ class LeaseBill
      * @var \DateTime
      *
      * @ORM\Column(name="payment_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $paymentDate;
 
@@ -129,29 +170,49 @@ class LeaseBill
      * @var \DateTime
      *
      * @ORM\Column(name="send_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $sendDate;
 
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="sender", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\Column(name="sender", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $sender;
 
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\Groups({"lease_bill"})
+     */
+    private $pushPeople;
+
+    /**
+     * @var User
+     *
+     * @ORM\Column(name="drawee", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $drawee;
+
+    /**
+     * @var User
+     *
+     * @Serializer\Groups({"lease_bill"})
+     */
+    private $payer;
 
     /**
      * @var string
      *
      * @ORM\Column(name="order_method", type="string", length=15)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $orderMethod = self::ORDER_METHOD_BACKEND;
 
@@ -338,6 +399,22 @@ class LeaseBill
     }
 
     /**
+     * @return int
+     */
+    public function getLeaseId()
+    {
+        return $this->leaseId;
+    }
+
+    /**
+     * @param int $leaseId
+     */
+    public function setLeaseId($leaseId)
+    {
+        $this->leaseId = $leaseId;
+    }
+
+    /**
      * @return Lease
      */
     public function getLease()
@@ -436,6 +513,22 @@ class LeaseBill
     /**
      * @return User
      */
+    public function getPushPeople()
+    {
+        return $this->pushPeople;
+    }
+
+    /**
+     * @param User $pushPeople
+     */
+    public function setPushPeople($pushPeople)
+    {
+        $this->pushPeople = $pushPeople;
+    }
+
+    /**
+     * @return User
+     */
     public function getDrawee()
     {
         return $this->drawee;
@@ -447,6 +540,22 @@ class LeaseBill
     public function setDrawee($drawee)
     {
         $this->drawee = $drawee;
+    }
+
+    /**
+     * @return User
+     */
+    public function getPayer()
+    {
+        return $this->payer;
+    }
+
+    /**
+     * @param User $payer
+     */
+    public function setPayer($payer)
+    {
+        $this->payer = $payer;
     }
 
     /**
