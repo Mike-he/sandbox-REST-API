@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Product;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * ProductAppointment.
@@ -123,6 +124,7 @@ class ProductAppointment
      * @var \DateTime
      *
      * @ORM\Column(name="creation_date", type="datetime", nullable=false)
+     * @Gedmo\Timestampable(on="create")
      */
     private $creationDate;
 
@@ -130,6 +132,7 @@ class ProductAppointment
      * @var \DateTime
      *
      * @ORM\Column(name="modification_date", type="datetime", nullable=false)
+     * @Gedmo\Timestampable(on="update")
      */
     private $modificationDate;
 
@@ -488,15 +491,6 @@ class ProductAppointment
     public function setUser($user)
     {
         $this->user = $user;
-    }
-
-    /**
-     * ProductAppointment constructor.
-     */
-    public function __construct()
-    {
-        $this->creationDate = new \DateTime('now');
-        $this->modificationDate = new \DateTime('now');
     }
 
     /**

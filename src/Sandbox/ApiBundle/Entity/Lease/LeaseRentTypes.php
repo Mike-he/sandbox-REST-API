@@ -89,7 +89,7 @@ class LeaseRentTypes
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isStatus()
     {
@@ -97,7 +97,7 @@ class LeaseRentTypes
     }
 
     /**
-     * @param boolean $status
+     * @param bool $status
      */
     public function setStatus($status)
     {

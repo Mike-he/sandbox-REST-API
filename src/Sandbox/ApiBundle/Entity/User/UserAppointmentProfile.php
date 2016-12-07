@@ -4,6 +4,8 @@ namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="user_appointment_profiles")
@@ -17,6 +19,7 @@ class UserAppointmentProfile
      * @ORM\Id
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Groups({"main", "client"})
      */
     private $id;
 
@@ -24,6 +27,8 @@ class UserAppointmentProfile
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
+     * @Serializer\Groups({"main", "client"})
+     * @Assert\NotBlank()
      */
     private $name;
 
@@ -31,27 +36,35 @@ class UserAppointmentProfile
      * @var string
      *
      * @ORM\Column(name="contact", type="string", length=64)
+     * @Serializer\Groups({"main", "client"})
+     * @Assert\NotBlank()
      */
     private $contact;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="email", type="string", length=128, nullable=true)
+     * @ORM\Column(name="email", type="string", length=128)
+     * @Serializer\Groups({"main", "client"})
+     * @Assert\NotBlank()
      */
     private $email;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="phone", type="string", length=128, nullable=true)
+     * @ORM\Column(name="phone", type="string", length=128)
+     * @Serializer\Groups({"main", "client"})
+     * @Assert\NotBlank()
      */
     private $phone;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="address", type="string", length=255, nullable=true)
+     * @ORM\Column(name="address", type="string", length=255)
+     * @Serializer\Groups({"main", "client"})
+     * @Assert\NotBlank()
      */
     private $address;
 
@@ -59,6 +72,7 @@ class UserAppointmentProfile
      * @var \DateTime
      *
      * @ORM\Column(name="creation_date", type="datetime", nullable=false)
+     * @Gedmo\Timestampable(on="create")
      * @Serializer\Groups({"main"})
      */
     private $creationDate;
@@ -67,6 +81,7 @@ class UserAppointmentProfile
      * @var \DateTime
      *
      * @ORM\Column(name="modification_date", type="datetime", nullable=false)
+     * @Gedmo\Timestampable(on="update")
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
@@ -78,12 +93,6 @@ class UserAppointmentProfile
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
      **/
     private $user;
-
-    public function __construct()
-    {
-        $this->creationDate = new \DateTime('now');
-        $this->modificationDate = new \DateTime('now');
-    }
 
     /**
      * @return int

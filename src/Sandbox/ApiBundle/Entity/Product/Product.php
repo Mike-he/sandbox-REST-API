@@ -24,7 +24,7 @@ class Product
     const UNIT_MONTH = 'month';
     const UNIT_DAYS = 'days';
     const UNIT_MIN = 'min';
-    
+
     const LONG_TERM_ROOM_MISSING_INFO_CODE = 400100;
     const LONG_TERM_ROOM_MISSING_INFO_MESSAGE = 'Information Missing for Long Term Room';
 
