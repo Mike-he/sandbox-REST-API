@@ -55,8 +55,7 @@ class AdminPermissionRepository extends EntityRepository
                 ap.id,
                 ap.name,
                 ap.key,
-                ap.maxOpLevel as op_level,
-                ap.parentId as permission_parent_id
+                ap.maxOpLevel as op_level
             ')
             ->from('SandboxApiBundle:Admin\AdminPermission', 'ap')
             ->where('ap.platform = :platform')
