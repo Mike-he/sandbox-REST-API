@@ -12,7 +12,6 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use JMS\Serializer\SerializationContext;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -148,7 +147,7 @@ class ClientUserAppointmentProfileController extends LocationController
 
         $this->handleProfilePut($request, $profile);
 
-        return new Response();
+        return new View();
     }
 
     /**
@@ -168,7 +167,7 @@ class ClientUserAppointmentProfileController extends LocationController
 
         $this->handleProfileDelete($profile);
 
-        return new Response();
+        return new View();
     }
 
  /********************** PRIVATE FUNCTIONS ******************************************/
@@ -261,6 +260,9 @@ class ClientUserAppointmentProfileController extends LocationController
         $em->persist($profile);
         $em->flush();
 
-        return new View(['id' => $profile->getId()]);
+        return new View(
+            ['id' => $profile->getId()],
+            self::HTTP_STATUS_CREATE_SUCCESS
+        );
     }
 }

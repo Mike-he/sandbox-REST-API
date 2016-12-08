@@ -23,6 +23,7 @@ class LeaseController extends SalesRestController
      * @Method({"PATCH"})
      *
      * @throws \Exception
+     *
      * @return View
      */
     public function patchLeaseStatusAction(

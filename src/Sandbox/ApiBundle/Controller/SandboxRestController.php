@@ -46,6 +46,7 @@ class SandboxRestController extends FOSRestController
 
     const HTTP_STATUS_OK = 200;
     const HTTP_STATUS_OK_NO_CONTENT = 204;
+    const HTTP_STATUS_CREATE_SUCCESS = 201;
 
     const VERIFICATION_CODE_LENGTH = 6;
 
