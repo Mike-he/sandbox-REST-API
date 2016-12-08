@@ -176,7 +176,12 @@ class LeaseBillController extends SalesRestController
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
-        if ($bill->getStatus() != LeaseBill::STATUS_UNPAID) {
+        $status = array(
+            LeaseBill::STATUS_PENDING,
+            LeaseBill::STATUS_UNPAID,
+        );
+
+        if (!in_array($bill->getStatus(), $status)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -185,6 +190,10 @@ class LeaseBillController extends SalesRestController
         $billJson = $patch->apply();
         $form = $this->createForm(new LeaseBillPatchType(), $bill);
         $form->submit(json_decode($billJson, true));
+
+        if ($bill->getStatus() != LeaseBill::STATUS_UNPAID) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
