@@ -198,7 +198,7 @@ client:
     coffee: 创合店铺
     event: 创合活动
     location: 寻找社区
-    community: 创合社区
+    community: 创合秒租
     blog: 创合博客
     message: 创合消息
     contact: 我的联系人
@@ -221,7 +221,7 @@ client:
     reset_password: 重置密码
     email: 绑定邮箱
     phone: 绑定手机
-    about_us: 关于展想创合
+    about_us: 关于创合秒租
     setting: 设置
   profile:
     room_order: 空间订单

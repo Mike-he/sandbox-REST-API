@@ -199,7 +199,7 @@ client:
     coffee: Coffee
     event: Events
     location: Location
-    community: Community
+    community: Sandbox
     blog: Blogs
     message: Messages
     contact: Contacts
