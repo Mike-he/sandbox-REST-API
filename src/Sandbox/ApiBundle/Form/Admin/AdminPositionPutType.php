@@ -19,6 +19,7 @@ class AdminPositionPutType extends AbstractType
             ->add('parentPositionId')
             ->add('iconId')
             ->add('permissions')
+            ->add('permissionGroups')
             ;
     }
 

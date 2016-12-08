@@ -10,6 +10,7 @@ use Sandbox\AdminApiBundle\Data\Position\Position;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
+use Sandbox\ApiBundle\Entity\Admin\AdminPositionGroupBinding;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionPermissionMapType;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionPostType;
@@ -245,6 +246,13 @@ class AdminPositionController extends PaymentController
             $permissions
         );
 
+        // add groups
+        $this->addPermissionGroups(
+            $em,
+            $position,
+            $position->getPermissionGroups()
+        );
+
         $em->flush();
 
         return new View(array('id' => $position->getId()));
@@ -324,6 +332,13 @@ class AdminPositionController extends PaymentController
 
         // set permissions
         $this->handleUpdatePermissions($em, $position);
+
+        // add groups
+        $this->addPermissionGroups(
+            $em,
+            $position,
+            $position->getPermissionGroups()
+        );
 
         $em->flush();
 
@@ -948,6 +963,46 @@ class AdminPositionController extends PaymentController
             }
 
             $em->remove($existPermission);
+        }
+    }
+
+    /**
+     * @param $em
+     * @param $position
+     * @param $groups
+     */
+    private function addPermissionGroups(
+        $em,
+        $position,
+        $groups
+    ) {
+        $bindingsOld = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionGroupBinding')
+            ->findBy(array(
+                'position' => $position,
+            ));
+
+        if (!empty($bindingsOld)) {
+            foreach ($bindingsOld as $item) {
+                $em->remove($item);
+            }
+            $em->flush();
+        }
+
+        foreach ($groups as $group) {
+            $groupEntity = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+                ->find($group['id']);
+
+            if (is_null($groupEntity)) {
+                continue;
+            }
+
+            $binding = new AdminPositionGroupBinding();
+            $binding->setPosition($position);
+            $binding->setGroup($groupEntity);
+
+            $em->persist($binding);
         }
     }
 
