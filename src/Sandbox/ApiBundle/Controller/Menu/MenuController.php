@@ -37,8 +37,14 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_MY_COMPANY = 'client.menu.my_company';
     const CLIENT_MENU_SCAN_QR = 'client.menu.scan_qr';
     const CLIENT_MENU_BALANCE = 'client.menu.balance';
-    const CLIENT_MENU_MY_ORDER = 'client.menu.my_order';
+    const CLIENT_MENU_MY_SPACE_ORDER = 'client.menu.my_space_order';
+    const CLIENT_MENU_MY_LEASE = 'client.menu.my_lease';
+    const CLIENT_MENU_MY_LONG_TERM_APPOINTMENT = 'client.menu.my_long_term_appointment';
+    const CLIENT_MENU_MY_SHOP_ORDER = 'client.menu.my_shop_order';
+    const CLIENT_MENU_MY_ACTIVITY_ORDER = 'client.menu.my_activity_order';
     const CLIENT_MENU_MY_ROOM = 'client.menu.my_room';
+    const CLIENT_MENU_MY_FAVORITE = 'client.menu.my_favorite';
+    const CLIENT_MENU_MY_EVALUATION = 'client.menu.my_evaluation';
     const CLIENT_MENU_NOTIFICATION = 'client.menu.notification';
     const CLIENT_MENU_MY_INVOICE = 'client.menu.my_invoice';
     const CLIENT_MENU_MEMBERSHIP_CARD = 'client.menu.membership_card';
@@ -138,8 +144,14 @@ class MenuController extends SandboxRestController
             self::CLIENT_MENU_MY_COMPANY,
             self::CLIENT_MENU_SCAN_QR,
             self::CLIENT_MENU_BALANCE,
-            self::CLIENT_MENU_MY_ORDER,
+            self::CLIENT_MENU_MY_SPACE_ORDER,
+            self::CLIENT_MENU_MY_LEASE,
+            self::CLIENT_MENU_MY_LONG_TERM_APPOINTMENT,
+            self::CLIENT_MENU_MY_SHOP_ORDER,
+            self::CLIENT_MENU_MY_ACTIVITY_ORDER,
             self::CLIENT_MENU_MY_ROOM,
+            self::CLIENT_MENU_MY_FAVORITE,
+            self::CLIENT_MENU_MY_EVALUATION,
             self::CLIENT_MENU_NOTIFICATION,
             self::CLIENT_MENU_MY_INVOICE,
             self::CLIENT_MENU_MEMBERSHIP_CARD,
