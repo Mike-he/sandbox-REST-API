@@ -21,6 +21,15 @@ class LeaseBill
 
     const ORDER_METHOD_BACKEND = 'backend';
 
+    const CHANNEL_ACCOUNT = 'account';
+    const CHANNEL_ALIPAY = 'alipay';
+    const CHANNEL_UNIONPAY = 'upacp';
+    const CHANNEL_WECHAT = 'wx';
+    const CHANNEL_FOREIGN_CREDIT = 'cnp_f';
+    const CHANNEL_UNION_CREDIT = 'cnp_u';
+    const CHANNEL_WECHAT_PUB = 'wx_pub';
+    const CHANNEL_OFFLINE = 'offline';
+
     /**
      * @var int
      *
@@ -107,11 +116,11 @@ class LeaseBill
     /**
      * @var string
      *
-     * @ORM\Column(name="status", type="string", length=15, nullable=true)
+     * @ORM\Column(name="status", type="string", length=15)
      *
      * @Serializer\Groups({"main","lease_bill"})
      */
-    private $status;
+    private $status = self::STATUS_PENDING;
 
     /**
      * @var string
@@ -206,6 +215,15 @@ class LeaseBill
      * @Serializer\Groups({"lease_bill"})
      */
     private $payer;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="payChannel", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_bill"})
+     */
+    private $payChannel;
 
     /**
      * @var string
@@ -572,5 +590,21 @@ class LeaseBill
     public function setOrderMethod($orderMethod)
     {
         $this->orderMethod = $orderMethod;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPayChannel()
+    {
+        return $this->payChannel;
+    }
+
+    /**
+     * @param string $payChannel
+     */
+    public function setPayChannel($payChannel)
+    {
+        $this->payChannel = $payChannel;
     }
 }
