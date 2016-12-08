@@ -14,6 +14,13 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class Lease
 {
+    const LEASE_STATUS_DRAFTING = 'drafting';
+    const LEASE_STATUS_REVIEWING = 'reviewing';
+    const LEASE_STATUS_CONFIRMING = 'confirming';
+    const LEASE_STATUS_CONFIRMED = 'confirmed';
+    const LEASE_STATUS_PERFORMING = 'performing';
+    const LEASE_STATUS_END = 'end';
+
     /**
      * @var int
      *
@@ -268,7 +275,7 @@ class Lease
      *
      * @Serializer\Groups({"main"})
      */
-    private $LeaseRentTypes;
+    private $leaseRentTypes;
 
     public function __construct()
     {
@@ -283,14 +290,6 @@ class Lease
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
     }
 
     /**
@@ -698,14 +697,14 @@ class Lease
      */
     public function getLeaseRentTypes()
     {
-        return $this->LeaseRentTypes;
+        return $this->leaseRentTypes;
     }
 
     /**
-     * @param LeaseRentTypes $LeaseRentTypes
+     * @param LeaseRentTypes $leaseRentTypes
      */
-    public function addLeaseRentTypes($LeaseRentTypes)
+    public function addLeaseRentTypes($leaseRentTypes)
     {
-        $this->LeaseRentTypes[] = $LeaseRentTypes;
+        $this->leaseRentTypes[] = $leaseRentTypes;
     }
 }
