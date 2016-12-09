@@ -556,11 +556,17 @@ class AdminPositionController extends PaymentController
             $positions = array_merge($globalPositions, $specifyPositions);
         }
 
-        // transfer image url
+        // set position extra info
         $global_image_url = $this->container->getParameter('image_url');
         foreach ($positions as $position) {
             $icon = $position->getIcon();
             $icon->setUrl($global_image_url.$icon->getIcon());
+
+            // set groups
+            $this->setPositionGroups(
+                $position,
+                $platform
+            );
         }
 
         $positions = $this->get('serializer')->serialize(
@@ -578,6 +584,45 @@ class AdminPositionController extends PaymentController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * @param $position
+     * @param $platform
+     */
+    private function setPositionGroups(
+        $position,
+        $platform
+    ) {
+        $groupArray = array();
+
+        if ($position->getIsSuperAdmin()) {
+            $groups = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+                ->findBy(array(
+                    'platform' => $platform,
+                ));
+
+            foreach ($groups as $group) {
+                array_push($groupArray, array(
+                    'name' => $group->getGroupName(),
+                ));
+            }
+        } else {
+            $groups = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionGroupBinding')
+                ->findBy(array(
+                    'position' => $position,
+                ));
+
+            foreach ($groups as $group) {
+                array_push($groupArray, array(
+                    'name' => $group->getGroup()->getGroupName(),
+                ));
+            }
+        }
+
+        $position->setPermissionGroups($groupArray);
     }
 
     /**

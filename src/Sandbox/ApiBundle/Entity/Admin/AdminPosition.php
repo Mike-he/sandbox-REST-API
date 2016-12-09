@@ -149,6 +149,8 @@ class AdminPosition
 
     /**
      * @var array
+     *
+     * @Serializer\Groups({"main", "admin"})
      */
     private $permissionGroups;
 

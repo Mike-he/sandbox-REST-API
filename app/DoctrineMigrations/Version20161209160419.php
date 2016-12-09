@@ -4,6 +4,9 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroupMap;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -203,27 +206,23 @@ class Version20161209160419 extends AbstractMigration implements ContainerAwareI
             ));
         $p23->setGroupName('管理员管理');
 
-        $em->persist($p1);
-        $em->persist($p2);
-        $em->persist($p3);
-        $em->persist($p4);
-        $em->persist($p5);
-        $em->persist($p6);
-        $em->persist($p7);
-        $em->persist($p8);
-        $em->persist($p9);
-        $em->persist($p10);
-        $em->persist($p11);
-        $em->persist($p12);
-        $em->persist($p13);
-        $em->persist($p14);
-        $em->persist($p15);
-        $em->persist($p16);
-        $em->persist($p17);
-        $em->persist($p19);
-        $em->persist($p20);
-        $em->persist($p22);
-        $em->persist($p23);
+        $refundGroup = new AdminPermissionGroups();
+        $refundGroup->setGroupKey('refund');
+        $refundGroup->setGroupName('退款管理');
+        $refundGroup->setPlatform('official');
+
+        $refundPermission = $em
+            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND,
+            ));
+
+        $map = new AdminPermissionGroupMap();
+        $map->setPermission($refundPermission);
+        $map->setGroup($refundGroup);
+
+        $em->persist($refundGroup);
+        $em->persist($map);
 
         $em->flush();
     }
