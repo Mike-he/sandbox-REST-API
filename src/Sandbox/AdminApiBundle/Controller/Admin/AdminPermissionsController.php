@@ -72,6 +72,7 @@ class AdminPermissionsController extends SandboxRestController
                     'name' => $permission->getName(),
                     'max_op_level' => $permission->getMaxOpLevel(),
                     'op_level_select' => $permission->getOpLevelSelect(),
+                    'level' => $permission->getLevel(),
                 );
 
                 array_push($item['permissions'], $permissionsArray);
