@@ -62,14 +62,16 @@ class Lease
     private $product;
 
     /**
+     * Person in charge.
+     *
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="contact", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="supervisor", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Groups({"main"})
      */
-    private $contact;
+    private $supervisor;
 
     /**
      * House used purpose.
@@ -212,6 +214,15 @@ class Lease
     /**
      * @var string
      *
+     * @ORM\Column(name="lessee_contact", type="string", length=20, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $lesseeContact;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="lessee_phone", type="string", length=128, nullable=true)
      *
      * @Serializer\Groups({"main"})
@@ -248,6 +259,15 @@ class Lease
     /**
      * @var string
      *
+     * @ORM\Column(name="lessor_contact", type="string", length=20, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $lessorContact;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="lessor_phone", type="string", length=128, nullable=true)
      *
      * @Serializer\Groups({"main"})
@@ -276,6 +296,11 @@ class Lease
      * @Serializer\Groups({"main"})
      */
     private $leaseRentTypes;
+
+    /**
+     * @var array
+     */
+    private $bills;
 
     public function __construct()
     {
@@ -343,17 +368,17 @@ class Lease
     /**
      * @return User
      */
-    public function getContact()
+    public function getSupervisor()
     {
-        return $this->contact;
+        return $this->supervisor;
     }
 
     /**
-     * @param User $contact
+     * @param User $supervisor
      */
-    public function setContact($contact)
+    public function setSupervisor($supervisor)
     {
-        $this->contact = $contact;
+        $this->supervisor = $supervisor;
     }
 
     /**
@@ -701,10 +726,58 @@ class Lease
     }
 
     /**
-     * @param LeaseRentTypes $leaseRentTypes
+     * @param LeaseRentTypes $leaseRentType
      */
-    public function addLeaseRentTypes($leaseRentTypes)
+    public function addLeaseRentTypes($leaseRentType)
     {
-        $this->leaseRentTypes[] = $leaseRentTypes;
+        $this->leaseRentTypes[] = $leaseRentType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLesseeContact()
+    {
+        return $this->lesseeContact;
+    }
+
+    /**
+     * @param string $lesseeContact
+     */
+    public function setLesseeContact($lesseeContact)
+    {
+        $this->lesseeContact = $lesseeContact;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorContact()
+    {
+        return $this->lessorContact;
+    }
+
+    /**
+     * @param string $lessorContact
+     */
+    public function setLessorContact($lessorContact)
+    {
+        $this->lessorContact = $lessorContact;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBills()
+    {
+        return $this->bills;
+    }
+
+    /**
+     * @param array $bills
+     */
+    public function setBills($bills)
+    {
+        $this->bills = $bills;
     }
 }

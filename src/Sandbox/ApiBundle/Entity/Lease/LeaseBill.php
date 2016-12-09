@@ -35,6 +35,8 @@ class LeaseBill
     const PAYMENT_SUBJECT = 'SANDBOX3-支付账单';
     const PAYMENT_BODY = 'PAY THE BILLS';
 
+    const LEASE_BILL_LETTER_HEAD = 'B';
+
     /**
      * @var int
      *

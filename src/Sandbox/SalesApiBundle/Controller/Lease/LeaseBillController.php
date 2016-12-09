@@ -22,8 +22,6 @@ class LeaseBillController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
 
-    const LEASE_BILL_LETTER_HEAD = 'B';
-
     /**
      * Get Room Buildings.
      *
@@ -212,7 +210,7 @@ class LeaseBillController extends SalesRestController
         $lease,
         $bill
     ) {
-        $serialNumber = $this->generateSerialNumber(self::LEASE_BILL_LETTER_HEAD);
+        $serialNumber = $this->generateSerialNumber(LeaseBill::LEASE_BILL_LETTER_HEAD);
         $startDate = new \DateTime($bill->getStartDate());
         $endDate = new \DateTime($bill->getEndDate());
 
