@@ -341,10 +341,10 @@ trait SendNotification
                             if ((int) $versionNumber < 9) {
                                 continue;
                             }
-
-                            array_push($jpushReceivers, $receiver);
                         }
                     }
+
+                    array_push($jpushReceivers, $receiver);
                 }
             }
         }
