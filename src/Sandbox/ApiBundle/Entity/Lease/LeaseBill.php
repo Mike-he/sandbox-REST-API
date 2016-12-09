@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Lease;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="lease_bill")
@@ -13,6 +14,7 @@ class LeaseBill
 {
     const STATUS_PENDING = 'pending';
     const STATUS_UNPAID = 'unpaid';
+    const STATUS_VERIFY = 'verify';
     const STATUS_PAID = 'paid';
     const STATUS_CANCELLED = 'cancelled';
 
@@ -30,6 +32,9 @@ class LeaseBill
     const CHANNEL_WECHAT_PUB = 'wx_pub';
     const CHANNEL_OFFLINE = 'offline';
 
+    const PAYMENT_SUBJECT = 'SANDBOX3-支付账单';
+    const PAYMENT_BODY = 'PAY THE BILLS';
+
     /**
      * @var int
      *
@@ -46,7 +51,7 @@ class LeaseBill
      *
      * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $serialNumber;
 
@@ -55,7 +60,7 @@ class LeaseBill
      *
      * @ORM\Column(name="name", type="string", length=40, nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $name;
 
@@ -64,7 +69,7 @@ class LeaseBill
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $startDate;
 
@@ -73,25 +78,27 @@ class LeaseBill
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $endDate;
 
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $creationDate;
 
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime")
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $modificationDate;
 
@@ -100,7 +107,7 @@ class LeaseBill
      *
      * @ORM\Column(name="description", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $description;
 
@@ -109,7 +116,7 @@ class LeaseBill
      *
      * @ORM\Column(name="amount", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $amount;
 
@@ -118,7 +125,7 @@ class LeaseBill
      *
      * @ORM\Column(name="status", type="string", length=15)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $status = self::STATUS_PENDING;
 
@@ -127,7 +134,7 @@ class LeaseBill
      *
      * @ORM\Column(name="type", type="string", length=10, nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $type;
 
@@ -144,7 +151,7 @@ class LeaseBill
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Lease\Lease")
      * @ORM\JoinColumn(name="lease_id", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $lease;
 
@@ -153,7 +160,7 @@ class LeaseBill
      *
      * @ORM\Column(name="revised_amount", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $revisedAmount;
 
@@ -162,7 +169,7 @@ class LeaseBill
      *
      * @ORM\Column(name="revision_note", type="string", length=225, nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $revisionNote;
 
@@ -171,7 +178,7 @@ class LeaseBill
      *
      * @ORM\Column(name="payment_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $paymentDate;
 
@@ -180,7 +187,7 @@ class LeaseBill
      *
      * @ORM\Column(name="send_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $sendDate;
 
@@ -205,23 +212,23 @@ class LeaseBill
      *
      * @ORM\Column(name="drawee", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","client"})
      */
     private $drawee;
 
     /**
      * @var User
      *
-     * @Serializer\Groups({"lease_bill"})
+     * @Serializer\Groups({"lease_bill","client"})
      */
     private $payer;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="payChannel", type="string", length=16, nullable=true)
+     * @ORM\Column(name="pay_channel", type="string", length=16, nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_bill"})
+     * @Serializer\Groups({"main","client", "lease_bill"})
      */
     private $payChannel;
 
@@ -233,12 +240,6 @@ class LeaseBill
      * @Serializer\Groups({"main","lease_bill"})
      */
     private $orderMethod = self::ORDER_METHOD_BACKEND;
-
-    public function __construct()
-    {
-        $this->creationDate = new \DateTime('now');
-        $this->modificationDate = new \DateTime('now');
-    }
 
     /**
      * @return int
