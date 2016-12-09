@@ -111,3 +111,9 @@ sandbox_admin_api_lease_bill:
     resource: "@SandboxSalesApiBundle/Controller/Lease/LeaseBillController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Product Appointments /sales/admin/products/appointments
+sandbox_sales_admin_products_appointments:
+    resource: "@SandboxSalesApiBundle/Controller/Product/AdminProductAppointmentController.php"
+    type:     annotation
+    prefix:   /admin/products

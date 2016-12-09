@@ -204,7 +204,7 @@ class ProductAppointment
      *
      * @ORM\Column(name="address", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "client_appointment_detail"})
      */
     private $address;
 
