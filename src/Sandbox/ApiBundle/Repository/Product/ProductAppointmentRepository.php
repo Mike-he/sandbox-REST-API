@@ -41,13 +41,13 @@ class ProductAppointmentRepository extends EntityRepository
             ->select('COUNT(a)')
             ->where('a.id is not null');
 
-//        if (!is_null($buildingId)) {
-//            $query->andWhere('r.buildingId = :buildingId')
-//                ->setParameter('buildingId', $buildingId);
-//        } else {
-//            $query->andWhere('r.buildingId IN (:buildingIds)')
-//                ->setParameter('buildingIds', $buildingIds);
-//        }
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.buildingId = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        } else {
+            $query->andWhere('r.buildingId IN (:buildingIds)')
+                ->setParameter('buildingIds', $buildingIds);
+        }
 
         if (!is_null($status)) {
             $query->andWhere('a.status = :status')
@@ -79,13 +79,13 @@ class ProductAppointmentRepository extends EntityRepository
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
-//        if (!is_null($buildingId)) {
-//            $query->andWhere('r.buildingId = :buildingId')
-//                ->setParameter('buildingId', $buildingId);
-//        } else {
-//            $query->andWhere('r.buildingId IN (:buildingIds)')
-//                ->setParameter('buildingIds', $buildingIds);
-//        }
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.buildingId = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        } else {
+            $query->andWhere('r.buildingId IN (:buildingIds)')
+                ->setParameter('buildingIds', $buildingIds);
+        }
 
         if (!is_null($status)) {
             $query->andWhere('a.status = :status')

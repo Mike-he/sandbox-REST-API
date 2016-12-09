@@ -3,7 +3,6 @@
 namespace Sandbox\SalesApiBundle\Controller\Product;
 
 use JMS\Serializer\SerializationContext;
-use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -82,7 +81,7 @@ class AdminProductAppointmentController extends AdminProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="query",
+     *    name="search",
      *    default=null,
      *    nullable=true,
      *    description="search query"
@@ -118,19 +117,19 @@ class AdminProductAppointmentController extends AdminProductController
         $status = $paramFetcher->get('status');
 
         // search by name and number
-        $search = $paramFetcher->get('query');
+        $search = $paramFetcher->get('search');
 
         // get my buildings list
-//        $myBuildingIds = $this->getMySalesBuildingIds(
-//            $this->getAdminId(),
-//            array(
-//                AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT,
-//            )
-//        );
-//
-//        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
-//            return new View(array());
-//        }
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT,
+            )
+        );
+
+        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
+            return new View();
+        }
 
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
@@ -139,7 +138,7 @@ class AdminProductAppointmentController extends AdminProductController
             ->getRepository('SandboxApiBundle:Product\ProductAppointment')
             ->countSalesProductAppointments(
                 $buildingId,
-                null,
+                $myBuildingIds,
                 $status,
                 $search
             );
@@ -148,7 +147,7 @@ class AdminProductAppointmentController extends AdminProductController
             ->getRepository('SandboxApiBundle:Product\ProductAppointment')
             ->getSalesProductAppointments(
                 $buildingId,
-                null,
+                $myBuildingIds,
                 $status,
                 $search,
                 $limit,
@@ -159,8 +158,8 @@ class AdminProductAppointmentController extends AdminProductController
         $view->setSerializationContext(
             SerializationContext::create()->setGroups([
                 'client_appointment_list',
-                'client_appointment_detail', 
-                'admin_appointment'
+                'client_appointment_detail',
+                'admin_appointment',
             ]));
         $view->setData(
             array(
@@ -175,7 +174,7 @@ class AdminProductAppointmentController extends AdminProductController
     }
 
     /**
-     * @Route("/products/appointments/{id}")
+     * @Route("/appointments/{id}")
      * @Method({"PATCH"})
      *
      * @param Request $request
@@ -217,7 +216,7 @@ class AdminProductAppointmentController extends AdminProductController
     }
 
     /**
-     * @param Request $request
+     * @param Request            $request
      * @param ProductAppointment $appointment
      */
     private function handleProductAppointmentPatch(
