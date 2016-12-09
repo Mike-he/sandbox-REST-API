@@ -1256,4 +1256,24 @@ class ProductRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param id
+     *
+     * @return array
+     */
+    public function getLongTermProductById(
+        $id
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('p.id = :id')
+            ->andWhere('p.visible = TRUE')
+            ->andWhere('p.isDeleted = FALSE')
+            ->andWhere('r.type = :longterm')
+            ->setParameter('id', $id)
+            ->setParameter('longterm', Room::TYPE_LONG_TERM);
+
+        return $query->getQuery()->getOneOrNullResult();
+    }
 }

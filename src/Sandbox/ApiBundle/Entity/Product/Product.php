@@ -35,7 +35,7 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "current_order", "client_appointment_list"})
      */
     private $id;
 
@@ -54,7 +54,7 @@ class Product
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room", "client_appointment_list"})
      */
     private $room;
 
@@ -81,7 +81,7 @@ class Product
      *
      * @ORM\Column(name="basePrice", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "client_appointment_list"})
      */
     private $basePrice;
 
@@ -90,7 +90,7 @@ class Product
      *
      * @ORM\Column(name="unitPrice", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "client_appointment_list"})
      */
     private $unitPrice;
 
@@ -117,7 +117,7 @@ class Product
      *
      * @ORM\Column(name="visible", type="boolean")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $visible = true;
 
@@ -254,7 +254,7 @@ class Product
      *
      * @ORM\Column(name="rentalInfo", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_detail"})
      */
     private $rentalInfo;
 
@@ -263,7 +263,7 @@ class Product
      *
      * @ORM\Column(name="filename", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_detail"})
      */
     private $filename;
 

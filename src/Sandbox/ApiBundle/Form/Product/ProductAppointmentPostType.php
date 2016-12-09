@@ -15,13 +15,11 @@ class ProductAppointmentPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('applicant_name')
-            ->add('applicant_company')
-            ->add('applicant_phone')
-            ->add('applicant_email')
+            ->add('product_id')
+            ->add('profile_id')
+            ->add('rent_type')
             ->add('start_rent_date')
-            ->add('rent_time_length')
-            ->add('rent_time_unit');
+            ->add('rent_time_length');
     }
 
     /**

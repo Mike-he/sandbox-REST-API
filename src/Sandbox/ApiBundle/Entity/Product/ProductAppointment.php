@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * ProductAppointment.
@@ -17,6 +18,8 @@ class ProductAppointment
     const STATUS_PENDING = 'pending';
     const STATUS_ACCEPTED = 'accepted';
     const STATUS_REJECTED = 'rejected';
+    const STATUS_WITHDRAWN = 'withdrawn';
+    const APPOINTMENT_NUMBER_LETTER = 'Y';
 
     /**
      * @var int
@@ -24,6 +27,7 @@ class ProductAppointment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "client_appointment_list"})
      */
     private $id;
 
@@ -31,51 +35,64 @@ class ProductAppointment
      * @var int
      *
      * @ORM\Column(name="user_id", type="integer", nullable=false)
+     * @Serializer\Groups({"main"})
      */
     private $userId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="product_id", type="integer", nullable=false)
+     * @ORM\Column(name="product_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $productId;
 
     /**
+     * @var \Sandbox\ApiBundle\Entity\Product\Product
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="SET NULL")
+     *
+     * @Serializer\Groups({"main", "client_appointment_list"})
+     */
+    private $product;
+
+    /**
      * @var string
      *
-     * @Assert\NotBlank()
-     *
      * @ORM\Column(name="applicant_name", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_appointment_detail"})
      */
     private $applicantName;
 
     /**
      * @var string
      *
-     * @Assert\NotBlank()
-     *
      * @ORM\Column(name="applicant_company", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_appointment_detail"})
      */
     private $applicantCompany;
 
     /**
      * @var string
-     *
-     * @Assert\NotBlank()
      * @Assert\Regex("/^\d+$/")
      *
      * @ORM\Column(name="applicant_phone", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_appointment_detail"})
      */
     private $applicantPhone;
 
     /**
      * @var string
-     *
-     * @Assert\NotBlank()
      * @Assert\Email()
      *
      * @ORM\Column(name="applicant_email", type="string", length=255, nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_appointment_detail"})
      */
     private $applicantEmail;
 
@@ -85,8 +102,19 @@ class ProductAppointment
      * @Assert\NotBlank()
      *
      * @ORM\Column(name="start_rent_date", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_appointment_list"})
      */
     private $startRentDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="end_rent_date", type="datetime", nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_appointment_list"})
+     */
+    private $endRentDate;
 
     /**
      * @var int
@@ -94,15 +122,17 @@ class ProductAppointment
      * @Assert\NotBlank()
      *
      * @ORM\Column(name="rent_time_length", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_appointment_list"})
      */
     private $rentTimeLength;
 
     /**
-     * @var int
-     *
-     * @Assert\NotBlank()
+     * @var string
      *
      * @ORM\Column(name="rent_time_unit", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $rentTimeUnit;
 
@@ -110,6 +140,8 @@ class ProductAppointment
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({"main", "client_appointment_list"})
      */
     private $status = self::STATUS_PENDING;
 
@@ -117,14 +149,27 @@ class ProductAppointment
      * @var string
      *
      * @ORM\Column(name="comment", type="string", length=2048, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $comment;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="appointment_number", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "client_appointment_list"})
+     */
+    private $appointmentNumber;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="creation_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
+     *
+     * @Serializer\Groups({"main", "client_appointment_list"})
      */
     private $creationDate;
 
@@ -133,11 +178,15 @@ class ProductAppointment
      *
      * @ORM\Column(name="modification_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
     /**
      * @var mixed
+     *
+     * @Serializer\Groups({"main"})
      */
     private $user;
 
@@ -145,6 +194,8 @@ class ProductAppointment
      * @var string
      *
      * @ORM\Column(name="rent_type", type="string", length=20, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $rentType;
 
@@ -152,8 +203,15 @@ class ProductAppointment
      * @var string
      *
      * @ORM\Column(name="address", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $address;
+
+    /**
+     * @var int
+     */
+    private $profileId;
 
     /**
      * Get id.
@@ -163,6 +221,70 @@ class ProductAppointment
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return Product
+     */
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    /**
+     * @param Product $product
+     */
+    public function setProduct($product)
+    {
+        $this->product = $product;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEndRentDate()
+    {
+        return $this->endRentDate;
+    }
+
+    /**
+     * @param \DateTime $endRentDate
+     */
+    public function setEndRentDate($endRentDate)
+    {
+        $this->endRentDate = $endRentDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAppointmentNumber()
+    {
+        return $this->appointmentNumber;
+    }
+
+    /**
+     * @param string $appointmentNumber
+     */
+    public function setAppointmentNumber($appointmentNumber)
+    {
+        $this->appointmentNumber = $appointmentNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getProfileId()
+    {
+        return $this->profileId;
+    }
+
+    /**
+     * @param int $profileId
+     */
+    public function setProfileId($profileId)
+    {
+        $this->profileId = $profileId;
     }
 
     /**
