@@ -56,4 +56,19 @@ class AdminPermissionGroupRepository extends EntityRepository
 
         return $groupBindingsQuery->getQuery()->getResult();
     }
+
+    public function getPermissionGroupByPlatform(
+        $platform
+    ) {
+        $query = $this->createQueryBuilder('g')
+            ->select('
+                g.id,
+                g.groupKey as key,
+                g.groupName as name
+            ')
+            ->where('g.platform = :platform')
+            ->setParameter('platform', $platform);
+
+        return $query->getQuery()->getResult();
+    }
 }

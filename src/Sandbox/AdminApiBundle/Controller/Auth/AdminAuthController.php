@@ -143,13 +143,25 @@ class AdminAuthController extends AuthController
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $platform = $adminPlatform['platform'];
 
-        $groups = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
-            ->getMyPermissionGroups(
-                $adminId,
-                $platform,
-                $salesCompanyId
-            );
+        $isSuper = $this->hasSuperAdminPosition(
+            $adminId,
+            $platform,
+            $salesCompanyId
+        );
+
+        if ($isSuper) {
+            $groups = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+                ->getPermissionGroupByPlatform($platform);
+        } else {
+            $groups = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+                ->getMyPermissionGroups(
+                    $adminId,
+                    $platform,
+                    $salesCompanyId
+                );
+        }
 
         return new View($groups);
     }
