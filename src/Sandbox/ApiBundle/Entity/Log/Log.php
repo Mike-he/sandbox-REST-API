@@ -33,6 +33,7 @@ class Log
     const MODULE_ORDER_PREORDER = 'room_order_preorder';
     const MODULE_USER = 'user';
     const MODULE_PRODUCT = 'product';
+    const MODULE_PRODUCT_APPOINTMENT = 'product_appointment';
 
     const ACTION_CREATE = 'create';
     const ACTION_DELETE = 'delete';
@@ -59,6 +60,7 @@ class Log
     const OBJECT_ROOM = 'room';
     const OBJECT_USER = 'user';
     const OBJECT_PRODUCT = 'product';
+    const OBJECT_PRODUCT_APPOINTMENT = 'product_appointment';
 
     /**
      * @var int

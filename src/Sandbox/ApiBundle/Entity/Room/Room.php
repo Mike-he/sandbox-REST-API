@@ -119,7 +119,7 @@ class Room
      *
      * @ORM\Column(name="number", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "admin_appointment"})
      */
     private $number;
 
