@@ -37,7 +37,7 @@ class Lease
      *
      * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $serialNumber;
 
@@ -47,7 +47,7 @@ class Lease
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","client"})
      */
     private $drawee;
 
@@ -57,7 +57,7 @@ class Lease
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
      * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="SET NULL")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","client"})
      */
     private $product;
 

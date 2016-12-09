@@ -22,7 +22,7 @@ class LeaseBillController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
 
-    const LEASE_BILL_LETTER_HEAD = 'P';
+    const LEASE_BILL_LETTER_HEAD = 'B';
 
     /**
      * Get Room Buildings.
@@ -101,7 +101,7 @@ class LeaseBillController extends SalesRestController
      * @param Request $request
      * @param int     $id
      *
-     * @Route("/leases/bill/{id}")
+     * @Route("/leases/bills/{id}")
      * @Method({"GET"})
      *
      * @throws \Exception
@@ -129,7 +129,7 @@ class LeaseBillController extends SalesRestController
      *
      * @param Request $request
      *
-     * @Route("/leases/bill")
+     * @Route("/leases/bills")
      * @Method({"POST"})
      *
      * @return View
@@ -162,7 +162,7 @@ class LeaseBillController extends SalesRestController
      * @param Request $request the request object
      * @param int     $id
      *
-     * @Route("/leases/bill/{id}")
+     * @Route("/leases/bills/{id}")
      * @Method({"PATCH"})
      *
      * @return View

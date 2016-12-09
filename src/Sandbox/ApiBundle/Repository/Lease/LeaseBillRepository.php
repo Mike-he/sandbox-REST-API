@@ -25,4 +25,72 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $user
+     * @param $lease
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function findMyBills(
+        $user,
+        $lease,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->leftJoin('lb.lease', 'l')
+            ->where('lb.status != :status')
+            ->andWhere('
+                        (l.contact = :user OR
+                        l.drawee = :user OR 
+                        lb.drawee = :user)
+                    ')
+            ->setParameter('status', LeaseBill::STATUS_PENDING)
+            ->setParameter('user', $user);
+
+        if (!is_null($lease)) {
+            $query->andWhere('lb.lease = :lease')
+                ->setParameter('lease', $lease);
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        $query->orderBy('lb.id', 'DESC');
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $id
+     * @param $user
+     *
+     * @return array
+     */
+    public function findOneBill(
+        $id,
+        $user
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->leftJoin('lb.lease', 'l')
+            ->where('lb.id = :id')
+            ->andWhere('
+                        (l.contact = :user OR
+                        l.drawee = :user OR 
+                        lb.drawee = :user)
+                    ')
+            ->setParameter('id', $id)
+            ->setParameter('user', $user);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
