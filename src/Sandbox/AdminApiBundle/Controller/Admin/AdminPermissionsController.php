@@ -53,6 +53,7 @@ class AdminPermissionsController extends SandboxRestController
         foreach ($groups as $group) {
             $item = array(
                 'group' => array(
+                    'id' => $group->getId(),
                     'group_name' => $group->getGroupName(),
                 ),
                 'permissions' => array(),
