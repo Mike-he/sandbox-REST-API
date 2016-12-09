@@ -36,7 +36,7 @@ class Room
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_list"})
      */
     private $id;
 
@@ -45,7 +45,7 @@ class Room
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_list"})
      */
     private $name;
 
@@ -92,7 +92,7 @@ class Room
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_detail"})
      */
     private $building;
 
@@ -128,7 +128,7 @@ class Room
      *
      * @ORM\Column(name="area", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "client_appointment_detail"})
      */
     private $area;
 
@@ -137,7 +137,7 @@ class Room
      *
      * @ORM\Column(name="type", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_detail"})
      */
     private $type;
 
@@ -153,7 +153,7 @@ class Room
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "client_appointment_detail"})
      */
     private $allowedPeople;
 
@@ -251,7 +251,7 @@ class Room
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      * @ORM\OrderBy({"id" = "ASC"})
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order", "client_appointment_list"})
      */
     private $attachment;
 
