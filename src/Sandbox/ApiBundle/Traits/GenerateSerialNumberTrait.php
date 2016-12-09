@@ -16,4 +16,14 @@ trait GenerateSerialNumberTrait
 
         return $letter.$date;
     }
+
+    public function generateLeaseSerialNumber()
+    {
+        $date = new \DateTime('now');
+
+        return 'C'.'-'.
+            $date->format('Ymd').'-'.
+            $date->format('His').'-'.
+            rand(100, 999);
+    }
 }
