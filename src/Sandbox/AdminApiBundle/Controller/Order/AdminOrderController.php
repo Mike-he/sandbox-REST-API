@@ -211,6 +211,13 @@ class AdminOrderController extends OrderController
                 $salesCompanyId
             );
 
+        $ordersQuery = $this->get('serializer')->serialize(
+            $ordersQuery,
+            'json',
+            SerializationContext::create()->setGroups(['admin_detail'])
+        );
+        $ordersQuery = json_decode($ordersQuery, true);
+        
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $ordersQuery,

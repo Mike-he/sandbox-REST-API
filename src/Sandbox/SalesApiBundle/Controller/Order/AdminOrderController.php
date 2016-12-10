@@ -220,6 +220,13 @@ class AdminOrderController extends OrderController
                 $salesCompanyId
             );
 
+        $ordersQuery = $this->get('serializer')->serialize(
+            $ordersQuery,
+            'json',
+            SerializationContext::create()->setGroups(['admin_detail'])
+        );
+        $ordersQuery = json_decode($ordersQuery, true);
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $ordersQuery,
@@ -791,6 +798,13 @@ class AdminOrderController extends OrderController
                 $orderStartPoint,
                 $orderEndPoint
             );
+
+        $query = $this->get('serializer')->serialize(
+            $query,
+            'json',
+            SerializationContext::create()->setGroups(['admin_detail'])
+        );
+        $query = json_decode($query, true);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
