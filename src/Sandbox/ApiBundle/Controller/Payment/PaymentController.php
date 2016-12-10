@@ -28,9 +28,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 
 /**
  * Payment Controller.
@@ -117,6 +119,53 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    /**
+     * Get All Payments.
+     *
+     * @Get("/payments")
+     *
+     * @return View
+     */
+    public function getPaymentsAction()
+    {
+        $payments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Payment\Payment')
+            ->findAll();
+
+        return new View($payments);
+    }
+
+    /**
+     * Get Payments By type.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="type"
+     * )
+     *
+     * @Get("/payments/types")
+     *
+     * @return View
+     */
+    public function getPaymentsByTypeAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $type = $paramFetcher->get('type');
+
+        $payments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Payment\PaymentMap')
+            ->findBy(array('type' => $type));
+
+        return new View($payments);
+    }
 
     /**
      * @param $order
