@@ -38,7 +38,8 @@ class RoomCity
      *      "admin_shop",
      *      "client_order",
      *      "shop_nearby",
-     *      "client_shop"
+     *      "client_shop",
+     *      "admin_appointment"
      * })
      */
     private $id;
@@ -75,7 +76,8 @@ class RoomCity
      *      "admin_shop",
      *      "client_order",
      *      "shop_nearby",
-     *      "client_shop"
+     *      "client_shop",
+     *      "admin_appointment"
      * })
      */
     private $name;
@@ -99,7 +101,8 @@ class RoomCity
      *      "admin_shop",
      *      "client_order",
      *      "shop_nearby",
-     *      "client_shop"
+     *      "client_shop",
+     *      "admin_appointment"
      * })
      */
     private $enName;

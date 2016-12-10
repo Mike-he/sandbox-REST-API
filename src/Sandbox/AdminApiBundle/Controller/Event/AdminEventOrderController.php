@@ -116,6 +116,13 @@ class AdminEventOrderController extends AdminOrderController
             $search
         );
 
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['client_event, admin_event'])
+        );
+        $orders = json_decode($orders, true);
+
         // set event dates
         foreach ($orders as $order) {
             $event = $order->getEvent();
@@ -376,9 +383,23 @@ class AdminEventOrderController extends AdminOrderController
         $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
         $event->setDates($dates);
 
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($order->getUserId());
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $userInfo = [
+            'email' => $user->getEmail(),
+            'phone_code' => $user->getPhoneCode(),
+            'phone' => $user->getPhone(),
+            'card_no' => $user->getCardNo(),
+        ];
+
+        $order->setUser($userInfo);
+
         $view = new View($order);
         $view->setSerializationContext(
-            SerializationContext::create()->setGroups(['main'])
+            SerializationContext::create()->setGroups(['client_event, admin_event'])
         );
 
         return $view;
