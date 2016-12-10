@@ -104,7 +104,7 @@ class AdminProductAppointmentController extends AdminProductController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT,
+                    'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
@@ -123,7 +123,7 @@ class AdminProductAppointmentController extends AdminProductController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT,
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
             )
         );
 
@@ -202,7 +202,7 @@ class AdminProductAppointmentController extends AdminProductController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT,
+                    'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
                     'building_id' => $buildingId,
                 ),
             ),
