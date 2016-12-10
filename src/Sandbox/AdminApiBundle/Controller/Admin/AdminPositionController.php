@@ -520,11 +520,11 @@ class AdminPositionController extends PaymentController
             null
         );
 
-        $globalPositions = $this->getDoctrine()
+        $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->getAdminPositions(
                 $platform,
-                AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                null,
                 $companyId
             );
 
@@ -537,24 +537,7 @@ class AdminPositionController extends PaymentController
                 'salesCompanyId' => $companyId,
             ));
 
-        array_unshift($globalPositions, $superAdminPosition);
-
-        $specifyPositions = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->getAdminPositions(
-                $platform,
-                AdminPermission::PERMISSION_LEVEL_SPECIFY,
-                $companyId
-            );
-
-        // set super admin in global type
-        if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL) {
-            $positions = $globalPositions;
-        } elseif ($type == AdminPermission::PERMISSION_LEVEL_SPECIFY) {
-            $positions = $specifyPositions;
-        } else {
-            $positions = array_merge($globalPositions, $specifyPositions);
-        }
+        array_unshift($positions, $superAdminPosition);
 
         // set position extra info
         $global_image_url = $this->container->getParameter('image_url');
