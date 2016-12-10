@@ -605,6 +605,7 @@ class AdminPositionController extends PaymentController
 
             foreach ($groups as $group) {
                 array_push($groupArray, array(
+                    'id' => $group->getId(),
                     'name' => $group->getGroupName(),
                 ));
             }
@@ -617,6 +618,7 @@ class AdminPositionController extends PaymentController
 
             foreach ($groups as $group) {
                 array_push($groupArray, array(
+                    'id' => $group->getGroup()->getId(),
                     'name' => $group->getGroup()->getGroupName(),
                 ));
             }
