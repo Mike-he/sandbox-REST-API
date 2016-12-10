@@ -73,7 +73,7 @@ class Room
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="SET NULL")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "admin_appointment"})
      */
     private $city;
 

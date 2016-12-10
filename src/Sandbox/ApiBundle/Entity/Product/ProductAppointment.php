@@ -179,7 +179,7 @@ class ProductAppointment
      * @ORM\Column(name="modification_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="update")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_appointment"})
      */
     private $modificationDate;
 

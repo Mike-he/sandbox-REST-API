@@ -131,55 +131,60 @@ class AdminProductAppointmentController extends AdminProductController
             return new View();
         }
 
-        $offset = ($pageIndex - 1) * $pageLimit;
-        $limit = $pageLimit;
+        return $this->handleProductAppointmentList(
+            $buildingId,
+            $myBuildingIds,
+            $status,
+            $search,
+            $pageIndex,
+            $pageLimit
+        );
+    }
 
-        $count = $this->getDoctrine()
+    /**
+     * Get product appointments by Id.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/appointments/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getProductAppointmentByIdAction(
+        Request $request,
+        $id
+    ) {
+        $appointment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->countSalesProductAppointments(
-                $buildingId,
-                $myBuildingIds,
-                $status,
-                $search
-            );
+            ->find($id);
+        $this->throwNotFoundIfNull($appointment, self::NOT_FOUND_MESSAGE);
 
-        $appointments = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->getSalesProductAppointments(
-                $buildingId,
-                $myBuildingIds,
-                $status,
-                $search,
-                $limit,
-                $offset
-            );
+        $buildingId = $appointment->getProduct()->getRoom()->getBuildingId();
 
-        foreach ($appointments as $appointment) {
-            $profile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy([
-                    'userId' => $appointment->getUserId(),
-                ]);
-            if (!is_null($profile)) {
-                $appointment->setUser($profile->getName());
-            }
-        }
+        // check user permission
+        $adminId = $this->getAdminId();
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
 
-        $view = new View();
+        $view = new View($appointment);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups([
                 'client_appointment_list',
                 'client_appointment_detail',
                 'admin_appointment',
             ]));
-        $view->setData(
-            array(
-                'current_page_number' => $pageIndex,
-                'num_items_per_page' => (int) $pageLimit,
-                'items' => $appointments,
-                'total_count' => (int) $count,
-            )
-        );
 
         return $view;
     }
@@ -260,5 +265,76 @@ class AdminProductAppointmentController extends AdminProductController
             'logObjectKey' => Log::OBJECT_PRODUCT_APPOINTMENT,
             'logObjectId' => $appointment->getId(),
         ));
+    }
+
+    /**
+     * @param $buildingId
+     * @param $myBuildingIds
+     * @param $status
+     * @param $search
+     * @param $pageIndex
+     * @param $pageLimit
+     *
+     * @return View
+     */
+    private function handleProductAppointmentList(
+        $buildingId,
+        $myBuildingIds,
+        $status,
+        $search,
+        $pageIndex,
+        $pageLimit
+    ) {
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+            ->countSalesProductAppointments(
+                $buildingId,
+                $myBuildingIds,
+                $status,
+                $search
+            );
+
+        $appointments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+            ->getSalesProductAppointments(
+                $buildingId,
+                $myBuildingIds,
+                $status,
+                $search,
+                $limit,
+                $offset
+            );
+
+        foreach ($appointments as $appointment) {
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy([
+                    'userId' => $appointment->getUserId(),
+                ]);
+            if (!is_null($profile)) {
+                $appointment->setUser($profile->getName());
+            }
+        }
+
+        $view = new View();
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups([
+                'client_appointment_list',
+                'client_appointment_detail',
+                'admin_appointment',
+            ]));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $appointments,
+                'total_count' => (int) $count,
+            )
+        );
+
+        return $view;
     }
 }
