@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -248,6 +249,23 @@ class LeaseController extends SalesRestController
             $lease->setSupplementaryTerms($payload['supplementary_terms']);
         }
 
+        // If lease create from product appointment
+        if (
+            isset($payload['product_appointment']) &&
+            gettype($payload['product_appointment'] == 'doulbe')
+        ) {
+            $productAppointment = $this->getProductAppointmentRepo()
+                ->find($payload['product_appointment']);
+
+            $this->throwNotFoundIfNull($productAppointment, self::NOT_FOUND_MESSAGE);
+
+            if ($productAppointment->getStatus() != ProductAppointment::STATUS_ACCEPTED) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            $lease->setProductAppointment($productAppointment);
+        }
+
         $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
         $this->handleLeaseBillPost($payload['bills'], $lease, $em);
 
@@ -400,6 +418,12 @@ class LeaseController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\Lease');
     }
 
+    private function getProductAppointmentRepo()
+    {
+        return $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductAppointment');
+    }
+
     private function handleLeaseRentTypesPost(
         $leaseRentTypeIds,
         $lease
@@ -500,6 +524,23 @@ class LeaseController extends SalesRestController
             gettype($payload['supplementary_terms'] == 'string')
         ) {
             $lease->setSupplementaryTerms($payload['supplementary_terms']);
+        }
+
+        // If lease from product appointment
+        if (
+            isset($payload['product_appointment']) &&
+            gettype($payload['product_appointment'] == 'doulbe')
+        ) {
+            $productAppointment = $this->getProductAppointmentRepo()
+                ->find($payload['product_appointment']);
+
+            $this->throwNotFoundIfNull($productAppointment, self::NOT_FOUND_MESSAGE);
+
+            if ($productAppointment->getStatus() != ProductAppointment::STATUS_ACCEPTED) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            $lease->setProductAppointment($productAppointment);
         }
 
         $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
