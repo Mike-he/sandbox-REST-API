@@ -6,6 +6,7 @@ use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -133,6 +134,14 @@ class LeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
+        // generate log
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_LEASE,
+            'logObjectId' => $lease->getId(),
+        ));
+
         return new View();
     }
 
@@ -165,6 +174,14 @@ class LeaseController extends SalesRestController
 
         $em->remove($lease);
         $em->flush();
+
+        // generate log
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_DELETE,
+            'logObjectKey' => Log::OBJECT_LEASE,
+            'logObjectId' => $lease->getId(),
+        ));
     }
 
     /**
@@ -240,6 +257,14 @@ class LeaseController extends SalesRestController
         $response = array(
             'id' => $lease->getId(),
         );
+
+        // generate log
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_CREATE,
+            'logObjectKey' => Log::OBJECT_LEASE,
+            'logObjectId' => $lease->getId(),
+        ));
 
         return new View($response, 201);
     }
@@ -483,6 +508,14 @@ class LeaseController extends SalesRestController
         $em->persist($lease);
         $em->flush();
 
+        // generate log
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_LEASE,
+            'logObjectId' => $lease->getId(),
+        ));
+
         return new View();
     }
 
@@ -494,7 +527,7 @@ class LeaseController extends SalesRestController
         $bills = $this->getLeaseBillRepo()->findBy(array(
             'lease' => $lease->getId(),
             'status' => LeaseBill::STATUS_PENDING,
-            'type' => LeaseBill::TYPE_LEASE
+            'type' => LeaseBill::TYPE_LEASE,
         ));
 
         foreach ($bills as $bill) {

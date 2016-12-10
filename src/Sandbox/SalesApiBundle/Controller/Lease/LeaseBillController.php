@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
@@ -197,6 +198,14 @@ class LeaseBillController extends SalesRestController
         $em->persist($bill);
         $em->flush();
 
+        // generate log
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_LEASE_BILL,
+            'logObjectId' => $bill->getId(),
+        ));
+
         return new View();
     }
 
@@ -230,6 +239,14 @@ class LeaseBillController extends SalesRestController
         $response = array(
             'id' => $bill->getId(),
         );
+
+        // generate log
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_CREATE,
+            'logObjectKey' => Log::OBJECT_LEASE_BILL,
+            'logObjectId' => $bill->getId(),
+        ));
 
         return new View($response, 201);
     }

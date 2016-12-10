@@ -34,6 +34,7 @@ class Log
     const MODULE_USER = 'user';
     const MODULE_PRODUCT = 'product';
     const MODULE_PRODUCT_APPOINTMENT = 'product_appointment';
+    const MODULE_LEASE = 'lease';
 
     const ACTION_CREATE = 'create';
     const ACTION_DELETE = 'delete';
@@ -61,6 +62,8 @@ class Log
     const OBJECT_USER = 'user';
     const OBJECT_PRODUCT = 'product';
     const OBJECT_PRODUCT_APPOINTMENT = 'product_appointment';
+    const OBJECT_LEASE = 'lease';
+    const OBJECT_LEASE_BILL = 'lease_bill';
 
     /**
      * @var int

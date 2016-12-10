@@ -217,7 +217,7 @@ class AdminOrderController extends OrderController
             SerializationContext::create()->setGroups(['admin_detail'])
         );
         $ordersQuery = json_decode($ordersQuery, true);
-        
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $ordersQuery,

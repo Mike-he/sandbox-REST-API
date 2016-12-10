@@ -26,7 +26,6 @@ class PaymentMap
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Payment\Payment")
      * @ORM\JoinColumn(name="payment_id", referencedColumnName="id", onDelete="CASCADE")
-     *
      */
     private $payment;
 

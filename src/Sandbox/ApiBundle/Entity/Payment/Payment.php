@@ -111,7 +111,7 @@ class Payment
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isStatus()
     {
@@ -119,7 +119,7 @@ class Payment
     }
 
     /**
-     * @param boolean $status
+     * @param bool $status
      */
     public function setStatus($status)
     {
