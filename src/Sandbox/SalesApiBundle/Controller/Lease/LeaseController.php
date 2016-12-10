@@ -73,6 +73,29 @@ class LeaseController extends SalesRestController
     }
 
     /**
+     * Edit a lease.
+     *
+     * @param $request
+     * @param $id
+     *
+     * @Route("/leases/{id}")
+     * @Method({"PUT"})
+     *
+     * @return View
+     */
+    public function putLeaseAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $payload = json_decode($request->getContent(), true);
+
+        return $this->handleLeasePut($payload, $id);
+    }
+
+    /**
      * Patch Lease Status.
      *
      * @param $request
@@ -218,7 +241,7 @@ class LeaseController extends SalesRestController
             'id' => $lease->getId(),
         );
 
-        return new View($response);
+        return new View($response, 201);
     }
 
     private function checkLeaseAttributesIsValid($payload)
@@ -340,10 +363,16 @@ class LeaseController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\Product');
     }
 
-    private function getLeaseRentTypes()
+    private function getLeaseRentTypesRepo()
     {
         return $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes');
+    }
+
+    private function getLeaseRepo()
+    {
+        return $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease');
     }
 
     private function handleLeaseRentTypesPost(
@@ -351,7 +380,7 @@ class LeaseController extends SalesRestController
         $lease
     ) {
         foreach ($leaseRentTypeIds as $leaseRentTypeId) {
-            $leaseRentType = $this->getLeaseRentTypes()->find($leaseRentTypeId);
+            $leaseRentType = $this->getLeaseRentTypesRepo()->find($leaseRentTypeId);
             if (is_null($leaseRentType)) {
                 throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
             }
@@ -382,5 +411,119 @@ class LeaseController extends SalesRestController
 
             $em->persist($bill);
         }
+    }
+
+    /**
+     * @param $payload
+     * @param $leaseId
+     *
+     * @return View
+     */
+    private function handleLeasePut($payload, $leaseId)
+    {
+        $this->checkLeaseAttributesIsValid($payload);
+
+        $em = $this->getDoctrine()->getManager();
+        $lease = $this->getLeaseRepo()->find($leaseId);
+
+        $drawee = $this->getUserRepo()->find($payload['drawee']);
+        $supervisor = $this->getUserRepo()->find($payload['supervisor']);
+        $product = $this->getProductRepo()->find($payload['product']);
+
+        if (
+            is_null($drawee) ||
+            is_null($supervisor) ||
+            is_null($product)
+        ) {
+            throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+        }
+
+        $startDate = new \DateTime($payload['start_date']);
+        $endDate = new \DateTime($payload['end_date']);
+
+        $lease->setDeposit($payload['deposit']);
+        $lease->setDrawee($drawee);
+        $lease->setEndDate($endDate);
+        $lease->setLesseeAddress($payload['lessee_address']);
+        $lease->setLesseeContact($payload['lessee_contact']);
+        $lease->setLesseeEmail($payload['lessee_email']);
+        $lease->setLesseeName($payload['lessee_name']);
+        $lease->setLesseePhone($payload['lessee_phone']);
+        $lease->setLessorAddress($payload['lessor_address']);
+        $lease->setLessorName($payload['lessor_name']);
+        $lease->setLessorPhone($payload['lessor_phone']);
+        $lease->setLessorEmail($payload['lessor_email']);
+        $lease->setLessorContact($payload['lessor_contact']);
+        $lease->setMonthlyRent($payload['monthly_rent']);
+        $lease->setPurpose($payload['purpose']);
+        $lease->setProduct($product);
+        $lease->setSupervisor($supervisor);
+        $lease->setStatus($payload['status']);
+        $lease->setStartDate($startDate);
+        $lease->setSerialNumber($this->generateLeaseSerialNumber());
+        $lease->setTotalRent($payload['total_rent']);
+
+        if (
+            isset($payload['other_expenses']) &&
+            gettype($payload['other_expenses'] == 'string')
+        ) {
+            $lease->setOtherExpenses($payload['other_expenses']);
+        }
+
+        if (
+            isset($payload['supplementary_terms']) &&
+            gettype($payload['supplementary_terms'] == 'string')
+        ) {
+            $lease->setSupplementaryTerms($payload['supplementary_terms']);
+        }
+
+        $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
+        $this->handleLeaseBillPut($payload['bills'], $lease, $em);
+
+        $em->persist($lease);
+        $em->flush();
+
+        return new View();
+    }
+
+    private function handleLeaseBillPut(
+        $payloadBills,
+        $lease,
+        $em
+    ) {
+        $bills = $this->getLeaseBillRepo()->findBy(array(
+            'lease' => $lease->getId(),
+            'status' => LeaseBill::STATUS_PENDING,
+            'type' => LeaseBill::TYPE_LEASE
+        ));
+
+        foreach ($bills as $bill) {
+            $em->remove($bill);
+        }
+
+        foreach ($payloadBills as $billAttributes) {
+            $bill = new LeaseBill();
+
+            $startDate = new \DateTime($billAttributes['start_date']);
+            $endDate = new \DateTime($billAttributes['end_date']);
+
+            $bill->setName($billAttributes['name']);
+            $bill->setAmount($billAttributes['amount']);
+            $bill->setDescription($billAttributes['description']);
+            $bill->setSerialNumber($this->generateSerialNumber(LeaseBill::LEASE_BILL_LETTER_HEAD));
+            $bill->setStartDate($startDate);
+            $bill->setEndDate($endDate);
+            $bill->setType(LeaseBill::TYPE_LEASE);
+            $bill->setStatus(LeaseBill::STATUS_PENDING);
+            $bill->setLease($lease);
+
+            $em->persist($bill);
+        }
+    }
+
+    private function getLeaseBillRepo()
+    {
+        return $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill');
     }
 }
