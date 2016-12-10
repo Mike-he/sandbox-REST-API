@@ -216,6 +216,7 @@ class SandboxRestController extends FOSRestController
             $platform,
             $salesCompanyId
         );
+
         if ($isSuperAdmin) {
             $myPermissions = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermission')

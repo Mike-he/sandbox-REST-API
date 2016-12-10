@@ -154,6 +154,17 @@ class AdminProductAppointmentController extends AdminProductController
                 $offset
             );
 
+        foreach ($appointments as $appointment) {
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy([
+                    'userId' => $appointment->getUserId(),
+                ]);
+            if (!is_null($profile)) {
+                $appointment->setUser($profile->getName());
+            }
+        }
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups([

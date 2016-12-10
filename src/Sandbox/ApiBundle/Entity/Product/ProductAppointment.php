@@ -186,7 +186,7 @@ class ProductAppointment
     /**
      * @var mixed
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_appointment"})
      */
     private $user;
 

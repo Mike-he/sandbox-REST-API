@@ -4,10 +4,8 @@ namespace Sandbox\AdminApiBundle\Controller\Product;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
-use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
@@ -41,15 +39,14 @@ class AdminProductAppointmentController extends SandboxRestController
      *    description="page number "
      * )
      *
-     * @Route("/products/{id}/appointments")
+     * @Route("/products/appointments/list")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getProductAppointmentsAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
+        ParamFetcherInterface $paramFetcher
     ) {
         $this->checkAdminProductAppointmentPermission(AdminPermission::OP_LEVEL_VIEW);
 
@@ -88,54 +85,13 @@ class AdminProductAppointmentController extends SandboxRestController
         return new View($pagination);
     }
 
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
-     *
-     * @Route("/product/appointments/{id}")
-     * @Method({"PATCH"})
-     *
-     * @return View
-     */
-    public function patchProductAppointmentAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
-    ) {
-        // check user permission
-        $this->checkAdminProductAppointmentPermission(AdminPermission::OP_LEVEL_EDIT);
-
-        // get appointment
-        $appointment = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->find($id);
-        $this->throwNotFoundIfNull($appointment, self::NOT_FOUND_MESSAGE);
-
-        // bind data
-        $appointmentJson = $this->get('serializer')->serialize($appointment, 'json');
-        $patch = new Patch($appointmentJson, $request->getContent());
-        $appointmentJson = $patch->apply();
-
-        $form = $this->createForm(new ProductAppointmentPatchType(), $appointment);
-        $form->submit(json_decode($appointmentJson, true));
-
-        $appointment->setModificationDate(new \DateTime('now'));
-
-        // save to db
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        return new View();
-    }
-
     private function checkAdminProductAppointmentPermission(
         $opLevel
     ) {
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT],
             ],
             $opLevel
         );
