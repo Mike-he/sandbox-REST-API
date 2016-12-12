@@ -48,7 +48,7 @@ class AdminProductAppointmentController extends AdminProductController
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    description="status"
+     *    description="pending, withdrawn, accepted, rejected"
      * )
      *
      * @Annotations\QueryParam(
@@ -81,10 +81,52 @@ class AdminProductAppointmentController extends AdminProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="search",
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="applicant, room, number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
      *    default=null,
      *    nullable=true,
      *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="last_week, last_month"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment end date"
      * )
      *
      * @Route("/appointments/list")
@@ -116,8 +158,18 @@ class AdminProductAppointmentController extends AdminProductController
         $buildingId = $paramFetcher->get('buildingId');
         $status = $paramFetcher->get('status');
 
-        // search by name and number
-        $search = $paramFetcher->get('search');
+        // search keyword and query
+        $keyword = $paramFetcher->get('keyword');
+        $search = $paramFetcher->get('keyword_search');
+
+        // creation date filter
+        $createRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+
+        // appointment date filter
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -135,7 +187,13 @@ class AdminProductAppointmentController extends AdminProductController
             $buildingId,
             $myBuildingIds,
             $status,
+            $keyword,
             $search,
+            $createRange,
+            $createStart,
+            $createEnd,
+            $startDate,
+            $endDate,
             $pageIndex,
             $pageLimit
         );
@@ -271,7 +329,13 @@ class AdminProductAppointmentController extends AdminProductController
      * @param $buildingId
      * @param $myBuildingIds
      * @param $status
+     * @param $keyword
      * @param $search
+     * @param $createRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $startDate
+     * @param $endDate
      * @param $pageIndex
      * @param $pageLimit
      *
@@ -281,7 +345,13 @@ class AdminProductAppointmentController extends AdminProductController
         $buildingId,
         $myBuildingIds,
         $status,
+        $keyword,
         $search,
+        $createRange,
+        $createStart,
+        $createEnd,
+        $startDate,
+        $endDate,
         $pageIndex,
         $pageLimit
     ) {
@@ -294,7 +364,13 @@ class AdminProductAppointmentController extends AdminProductController
                 $buildingId,
                 $myBuildingIds,
                 $status,
-                $search
+                $keyword,
+                $search,
+                $createRange,
+                $createStart,
+                $createEnd,
+                $startDate,
+                $endDate
             );
 
         $appointments = $this->getDoctrine()
@@ -303,7 +379,13 @@ class AdminProductAppointmentController extends AdminProductController
                 $buildingId,
                 $myBuildingIds,
                 $status,
+                $keyword,
                 $search,
+                $createRange,
+                $createStart,
+                $createEnd,
+                $startDate,
+                $endDate,
                 $limit,
                 $offset
             );

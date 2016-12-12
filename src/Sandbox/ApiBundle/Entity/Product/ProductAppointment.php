@@ -21,6 +21,12 @@ class ProductAppointment
     const STATUS_WITHDRAWN = 'withdrawn';
     const APPOINTMENT_NUMBER_LETTER = 'Y';
 
+    const KEYWORD_APPLICANT = 'applicant';
+    const KEYWORD_ROOM = 'room';
+    const KEYWORD_NUMBER = 'number';
+    const RANGE_LAST_WEEK = 'last_week';
+    const RANGE_LAST_MONTH = 'last_month';
+
     /**
      * @var int
      *
