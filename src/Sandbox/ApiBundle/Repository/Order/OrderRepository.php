@@ -1663,21 +1663,21 @@ class OrderRepository extends EntityRepository
                 ->andWhere('o.paymentDate <= :payEnd')
                 ->setParameter('payStart', $payDateStart)
                 ->setParameter('payEnd', $payDateEnd);
-        }
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('o.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
 
-        //filter by payStart
-        if (!is_null($payStart)) {
-            $payStart = new \DateTime($payStart);
-            $query->andWhere('o.paymentDate >= :payStart')
-                ->setParameter('payStart', $payStart);
-        }
-
-        //filter by payEnd
-        if (!is_null($payEnd)) {
-            $payEnd = new \DateTime($payEnd);
-            $payEnd->setTime(23, 59, 59);
-            $query->andWhere('o.paymentDate <= :payEnd')
-                ->setParameter('payEnd', $payEnd);
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
         }
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
@@ -1695,39 +1695,34 @@ class OrderRepository extends EntityRepository
 
         if (!is_null($createDateRange)) {
             $now = new \DateTime();
-            $today = new \DateTime();
             switch ($createDateRange) {
                 case 'last_week':
-                    $lastWeek = $now->sub(new \DateInterval('P7D'));
-                    $query->andWhere('o.creationDate >= :createStart')
-                        ->andWhere('o.creationDate <= :createEnd')
-                        ->setParameter('createStart', $lastWeek)
-                        ->setParameter('createEnd', $today);
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
                     break;
                 case 'last_month':
-                    $lastMonth = $now->sub(new \DateInterval('P1M'));
-                    $query->andWhere('o.creationDate >= :createStart')
-                        ->andWhere('o.creationDate <= :createEnd')
-                        ->setParameter('createStart', $lastMonth)
-                        ->setParameter('createEnd', $today);
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
                     break;
+                default :
+                    $lastDate = new \DateTime();
             }
-        }
-
-        // filter by order start point
-        if (!is_null($createStart)) {
-            $createStart = new \DateTime($createStart);
-            $createStart->setTime(00, 00, 00);
             $query->andWhere('o.creationDate >= :createStart')
-                ->setParameter('createStart', $createStart);
-        }
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('o.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
 
-        // filter by order end point
-        if (!is_null($createEnd)) {
-            $createEnd = new \DateTime($createEnd);
-            $createEnd->setTime(23, 59, 59);
-            $query->andWhere('o.creationDate <= :createEnd')
-                ->setParameter('createEnd', $createEnd);
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('o.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+            }
         }
 
         //order by

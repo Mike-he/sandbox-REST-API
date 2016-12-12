@@ -90,29 +90,29 @@ class EventOrderRepository extends EntityRepository
 
     /**
      * @param $city
-     * @param $flag
-     * @param $startDate
-     * @param $endDate
      * @param $channel
      * @param $keyword
      * @param $keywordSearch
      * @param $payDate
      * @param $payStart
      * @param $payEnd
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
      *
      * @return array
      */
     public function getEventOrdersForAdmin(
         $city,
-        $flag,
-        $startDate,
-        $endDate,
         $channel,
         $keyword,
         $keywordSearch,
         $payDate,
         $payStart,
-        $payEnd
+        $payEnd,
+        $createDateRange,
+        $createStart,
+        $createEnd
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
@@ -124,31 +124,6 @@ class EventOrderRepository extends EntityRepository
         if (!is_null($city)) {
             $query->andWhere('e.city = :city');
             $query->setParameter('city', $city);
-        }
-
-        // filter by start date
-        if (!is_null($startDate)) {
-            $startDate = new \DateTime($startDate);
-
-            if (self::FLAG_EVENT == $flag) {
-                $query->andWhere('e.eventEndDate > :startDate');
-            } elseif (self::FLAG_EVENT_REGISTRATION == $flag) {
-                $query->andWhere('e.registrationEndDate > :startDate');
-            }
-            $query->setParameter('startDate', $startDate);
-        }
-
-        // filter by end date
-        if (!is_null($endDate)) {
-            $endDate = new \DateTime($endDate);
-            $endDate->setTime(23, 59, 59);
-
-            if (self::FLAG_EVENT == $flag) {
-                $query->andWhere('e.eventStartDate <= :endDate');
-            } elseif (self::FLAG_EVENT_REGISTRATION == $flag) {
-                $query->andWhere('e.registrationStartDate <= :endDate');
-            }
-            $query->setParameter('endDate', $endDate);
         }
 
         if (!is_null($channel)) {
@@ -196,6 +171,38 @@ class EventOrderRepository extends EntityRepository
             }
         }
 
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default:
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('e.eventEndDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('e.eventEndDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
+
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('e.eventStartDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+            }
+        }
+
         // order by
         $query->orderBy('eo.creationDate', 'DESC');
 
@@ -206,30 +213,30 @@ class EventOrderRepository extends EntityRepository
 
     /**
      * @param $city
-     * @param $flag
-     * @param $startDate
-     * @param $endDate
      * @param $channel
      * @param $keyword
      * @param $keywordSearch
      * @param $payDate
      * @param $payStart
      * @param $payEnd
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
      * @param $salesCompanyId
      *
      * @return array
      */
     public function getEventOrdersForSalesAdmin(
         $city,
-        $flag,
-        $startDate,
-        $endDate,
         $channel,
         $keyword,
         $keywordSearch,
         $payDate,
         $payStart,
         $payEnd,
+        $createDateRange,
+        $createStart,
+        $createEnd,
         $salesCompanyId
     ) {
         $query = $this->createQueryBuilder('eo')
@@ -246,31 +253,6 @@ class EventOrderRepository extends EntityRepository
             $query->setParameter('city', $city);
         }
 
-        // filter by start date
-        if (!is_null($startDate)) {
-            $startDate = new \DateTime($startDate);
-
-            if (self::FLAG_EVENT == $flag) {
-                $query->andWhere('e.eventEndDate > :startDate');
-            } elseif (self::FLAG_EVENT_REGISTRATION == $flag) {
-                $query->andWhere('e.registrationEndDate > :startDate');
-            }
-            $query->setParameter('startDate', $startDate);
-        }
-
-        // filter by end date
-        if (!is_null($endDate)) {
-            $endDate = new \DateTime($endDate);
-            $endDate->setTime(23, 59, 59);
-
-            if (self::FLAG_EVENT == $flag) {
-                $query->andWhere('e.eventStartDate <= :endDate');
-            } elseif (self::FLAG_EVENT_REGISTRATION == $flag) {
-                $query->andWhere('e.registrationStartDate <= :endDate');
-            }
-            $query->setParameter('endDate', $endDate);
-        }
-
         if (!is_null($channel)) {
             $query->andWhere('eo.payChannel = :channel')
                 ->setParameter('channel', $channel);
@@ -313,6 +295,38 @@ class EventOrderRepository extends EntityRepository
                 $payEnd->setTime(23, 59, 59);
                 $query->andWhere('eo.paymentDate <= :payEnd')
                     ->setParameter('payEnd', $payEnd);
+            }
+        }
+
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default:
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('e.eventEndDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('e.eventEndDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
+
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('e.eventStartDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
             }
         }
 

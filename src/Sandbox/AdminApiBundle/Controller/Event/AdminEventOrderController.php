@@ -43,34 +43,6 @@ class AdminEventOrderController extends AdminOrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="startDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="flag",
-     *    default="event",
-     *    requirements="(event|event_registration)",
-     *    nullable=true,
-     *    description="search flag"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="endDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="channel",
      *    default=null,
      *    nullable=true,
@@ -121,6 +93,33 @@ class AdminEventOrderController extends AdminOrderController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
      *
      * @Route("/events/orders")
      * @Method({"GET"})
@@ -136,29 +135,29 @@ class AdminEventOrderController extends AdminOrderController
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $flag = $paramFetcher->get('flag');
-        $startDate = $paramFetcher->get('startDate');
-        $endDate = $paramFetcher->get('endDate');
         $channel = $paramFetcher->get('channel');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
         $payDate = $paramFetcher->get('pay_date');
         $payStart = $paramFetcher->get('pay_start');
         $payEnd = $paramFetcher->get('pay_end');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
             ->getEventOrdersForAdmin(
                 null,
-                $flag,
-                $startDate,
-                $endDate,
                 $channel,
                 $keyword,
                 $keywordSearch,
                 $payDate,
                 $payStart,
-                $payEnd
+                $payEnd,
+                $createDateRange,
+                $createStart,
+                $createEnd
             );
 
         // set event dates
