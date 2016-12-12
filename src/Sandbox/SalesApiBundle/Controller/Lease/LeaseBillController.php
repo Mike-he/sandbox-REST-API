@@ -197,6 +197,35 @@ class LeaseBillController extends SalesRestController
     }
 
     /**
+     * Get Unpaid Bills.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/leases/{id}/bills/unpaid")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getUnpaidBillsAction(
+        Request $request,
+        $id
+    ) {
+        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
+        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findUnpaidBills(
+                $lease
+            );
+
+        return new View($bills);
+    }
+
+    /**
      * @param $lease
      * @param $bill
      *

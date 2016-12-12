@@ -93,4 +93,27 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $lease
+     *
+     * @return array
+     */
+    public function findUnpaidBills(
+        $lease
+    ) {
+        $status = array(
+            LeaseBill::STATUS_PENDING,
+            LeaseBill::STATUS_UNPAID
+        );
+        $query = $this->createQueryBuilder('lb')
+            ->where('lb.status in (:status)')
+            ->andWhere('lb.lease = :lease')
+            ->setParameter('status', $status)
+            ->setParameter('lease', $lease);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
