@@ -1028,6 +1028,8 @@ class OrderRepository extends EntityRepository
      * @param $createEnd
      * @param $status
      * @param $refundStatus
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
@@ -1048,7 +1050,9 @@ class OrderRepository extends EntityRepository
         $createStart,
         $createEnd,
         $status,
-        $refundStatus
+        $refundStatus,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
@@ -1126,22 +1130,23 @@ class OrderRepository extends EntityRepository
                 ->andWhere('o.paymentDate <= :payEnd')
                 ->setParameter('payStart', $payDateStart)
                 ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('o.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
         }
 
-        //filter by payStart
-        if (!is_null($payStart)) {
-            $payStart = new \DateTime($payStart);
-            $query->andWhere('o.paymentDate >= :payStart')
-                ->setParameter('payStart', $payStart);
-        }
-
-        //filter by payEnd
-        if (!is_null($payEnd)) {
-            $payEnd = new \DateTime($payEnd);
-            $payEnd->setTime(23, 59, 59);
-            $query->andWhere('o.paymentDate <= :payEnd')
-                ->setParameter('payEnd', $payEnd);
-        }
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
@@ -1158,39 +1163,34 @@ class OrderRepository extends EntityRepository
 
         if (!is_null($createDateRange)) {
             $now = new \DateTime();
-            $today = new \DateTime();
             switch ($createDateRange) {
                 case 'last_week':
-                    $lastWeek = $now->sub(new \DateInterval('P7D'));
-                    $query->andWhere('o.creationDate >= :createStart')
-                        ->andWhere('o.creationDate <= :createEnd')
-                        ->setParameter('createStart', $lastWeek)
-                        ->setParameter('createEnd', $today);
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
                     break;
                 case 'last_month':
-                    $lastMonth = $now->sub(new \DateInterval('P1M'));
-                    $query->andWhere('o.creationDate >= :createStart')
-                        ->andWhere('o.creationDate <= :createEnd')
-                        ->setParameter('createStart', $lastMonth)
-                        ->setParameter('createEnd', $today);
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
                     break;
+                default :
+                    $lastDate = new \DateTime();
             }
-        }
-
-        // filter by order start point
-        if (!is_null($createStart)) {
-            $createStart = new \DateTime($createStart);
-            $createStart->setTime(00, 00, 00);
             $query->andWhere('o.creationDate >= :createStart')
-                ->setParameter('createStart', $createStart);
-        }
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('o.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
 
-        // filter by order end point
-        if (!is_null($createEnd)) {
-            $createEnd = new \DateTime($createEnd);
-            $createEnd->setTime(23, 59, 59);
-            $query->andWhere('o.creationDate <= :createEnd')
-                ->setParameter('createEnd', $createEnd);
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('o.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+            }
         }
 
         //order by
@@ -1210,7 +1210,211 @@ class OrderRepository extends EntityRepository
             $query->orderBy('o.creationDate', 'DESC');
         }
 
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
         $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $channel
+     * @param $type
+     * @param $city
+     * @param $building
+     * @param $userId
+     * @param $startDate
+     * @param $endDate
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $status
+     * @param $refundStatus
+     *
+     * @return mixed
+     */
+    public function countOrdersForAdmin(
+        $channel,
+        $type,
+        $city,
+        $building,
+        $userId,
+        $startDate,
+        $endDate,
+        $payDate,
+        $payStart,
+        $payEnd,
+        $keyword,
+        $keywordSearch,
+        $createDateRange,
+        $createStart,
+        $createEnd,
+        $status,
+        $refundStatus
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o)')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
+            ->where('
+                    (
+                        (o.status != :unpaid) AND 
+                        (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder) OR 
+                        (o.payChannel = :offline)
+                    )
+               ')
+            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+            ->setParameter('offline',  ProductOrder::CHANNEL_OFFLINE);
+
+        // filter by payment channel
+        if (!is_null($channel)) {
+            $query->andWhere('o.payChannel = :channel')
+                ->setParameter('channel', $channel);
+        }
+
+        // filter by status
+        if (!is_null($status)) {
+            $query->andWhere('o.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->andWhere('por.roomType = :type')
+                ->setParameter('type', $type);
+        }
+
+        // filter by city
+        if (!is_null($city)) {
+            $query->andWhere('por.cityId = :city')
+                ->setParameter('city', $city);
+        }
+
+        // filter by building
+        if (!is_null($building)) {
+            $query->andWhere('por.buildingId = :building')
+                ->setParameter('building', $building);
+        }
+
+        //filter by start date
+        if (!is_null($startDate)) {
+            $startDate = new \DateTime($startDate);
+            $query->andWhere('o.endDate > :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        //filter by end date
+        if (!is_null($endDate)) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+            $query->andWhere('o.startDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        //filter by payDate
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('o.paymentDate >= :payStart')
+                ->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('o.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+                case 'room':
+                    $query->andWhere('r.name LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
+        }
+
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default :
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('o.creationDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('o.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
+
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('o.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+            }
+        }
+
+        //order by
+        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+            $query->andWhere('o.refunded = :refunded')
+                ->setParameter('refunded', true)
+                ->orderBy('o.modificationDate', 'DESC');
+        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+            $query->andWhere('o.refunded = :refunded')
+                ->andWhere('o.needToRefund = :needed')
+                ->andWhere('o.status = :cancelled')
+                ->setParameter('refunded', false)
+                ->setParameter('needed', true)
+                ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+                ->orderBy('o.modificationDate', 'ASC');
+        } else {
+            $query->orderBy('o.creationDate', 'DESC');
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
 
         return $result;
     }

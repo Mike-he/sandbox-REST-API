@@ -929,9 +929,36 @@ class AdminOrderController extends OrderController
         $pageIndex = $paramFetcher->get('pageIndex');
         $refundStatus = $paramFetcher->get('refundStatus');
 
-        $query = $this->getDoctrine()
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
+        $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getOrdersForAdmin(
+                $channel,
+                $type,
+                null,
+                null,
+                null,
+                $startDate,
+                $endDate,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $keyword,
+                $keywordSearch,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                $status,
+                $refundStatus,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countOrdersForAdmin(
                 $channel,
                 $type,
                 null,
@@ -951,21 +978,19 @@ class AdminOrderController extends OrderController
                 $refundStatus
             );
 
-        $query = $this->get('serializer')->serialize(
-            $query,
-            'json',
-            SerializationContext::create()->setGroups(['admin_detail'])
-        );
-        $query = json_decode($query, true);
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $query,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_detail']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
