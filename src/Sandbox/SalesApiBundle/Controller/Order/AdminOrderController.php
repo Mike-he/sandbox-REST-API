@@ -586,33 +586,110 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="city",
-     *    array=false,
+     *    name="channel",
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Filter by city id"
+     *    description="payment channel"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="building",
-     *    array=false,
+     *    name="keyword",
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Filter by building id"
+     *    description="search query"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="user",
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="Filter by user id"
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Order Status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
      * @Annotations\QueryParam(
@@ -635,79 +712,6 @@ class AdminOrderController extends OrderController
      *    description="page number "
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="startDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="endDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="query",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="channel",
-     *    default=null,
-     *    nullable=true,
-     *    description="payment channel"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="payStart",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="filter for payment start. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="payEnd",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="filter for payment end. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="orderStartPoint",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="filter for order start point. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="orderEndPoint",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="filter for order end point. Must be YYYY-mm-dd"
-     * )
      *
      * @Route("/orders")
      * @Method({"GET"})
@@ -721,49 +725,36 @@ class AdminOrderController extends OrderController
         ParamFetcherInterface $paramFetcher
     ) {
         $adminId = $this->getAdminId();
-        $userId = $paramFetcher->get('user');
 
         // check user permission
-        if (!is_null($userId) || !empty($userId)) {
-            $this->throwAccessDeniedIfAdminNotAllowed(
-                $adminId,
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            array(
                 array(
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_USER,
-                    ),
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
-                    ),
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
                 ),
-                AdminPermission::OP_LEVEL_VIEW
-            );
-        } else {
-            $this->throwAccessDeniedIfAdminNotAllowed(
-                $adminId,
-                array(
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
-                    ),
-                ),
-                AdminPermission::OP_LEVEL_VIEW
-            );
-        }
+            ),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         //filters
+        $type = $paramFetcher->get('type');
         $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+        $status = $paramFetcher->get('status');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $type = $paramFetcher->get('type');
-        $cityId = $paramFetcher->get('city');
-        $buildingId = $paramFetcher->get('building');
-        $startDate = $paramFetcher->get('startDate');
-        $endDate = $paramFetcher->get('endDate');
-        $payStart = $paramFetcher->get('payStart');
-        $payEnd = $paramFetcher->get('payEnd');
-        $orderStartPoint = $paramFetcher->get('orderStartPoint');
-        $orderEndPoint = $paramFetcher->get('orderEndPoint');
 
-        // get my buildings list
+        //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
@@ -771,32 +762,26 @@ class AdminOrderController extends OrderController
             )
         );
 
-        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
-            return new View(array());
-        }
-
-        //search by name and number
-        $search = $paramFetcher->get('query');
-
-        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
-        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
-
         $query = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
                 $channel,
                 $type,
-                $city,
-                $building,
-                $userId,
+                null,
+                null,
+                null,
                 $startDate,
                 $endDate,
+                $payDate,
                 $payStart,
                 $payEnd,
-                $search,
+                $keyword,
+                $keywordSearch,
                 $myBuildingIds,
-                $orderStartPoint,
-                $orderEndPoint
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                $status
             );
 
         $query = $this->get('serializer')->serialize(
