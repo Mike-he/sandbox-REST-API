@@ -387,8 +387,14 @@ class AdminEventOrderController extends AdminOrderController
             ->getRepository('SandboxApiBundle:User\User')
             ->find($order->getUserId());
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+        
+        $profile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findOneBy(['user' => $user]);
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         $userInfo = [
+            'name' => $profile->getName(),
             'email' => $user->getEmail(),
             'phone_code' => $user->getPhoneCode(),
             'phone' => $user->getPhone(),
@@ -399,8 +405,10 @@ class AdminEventOrderController extends AdminOrderController
 
         $view = new View($order);
         $view->setSerializationContext(
-            SerializationContext::create()->setGroups(['client_event, admin_event'])
-        );
+            SerializationContext::create()->setGroups([
+                'client_event',
+                'admin_event'
+            ]));
 
         return $view;
     }
