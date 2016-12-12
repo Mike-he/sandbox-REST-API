@@ -126,7 +126,7 @@ class AdminEventOrderController extends AdminOrderController
         $orders = $this->get('serializer')->serialize(
             $orders,
             'json',
-            SerializationContext::create()->setGroups(['client_event, admin_event'])
+            SerializationContext::create()->setGroups(['client_event'])
         );
         $orders = json_decode($orders, true);
         
