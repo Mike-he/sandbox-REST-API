@@ -67,10 +67,18 @@ class LeaseBillController extends SalesRestController
         $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
+        $status = array(
+            LeaseBill::STATUS_UNPAID,
+            LeaseBill::STATUS_PAID,
+            LeaseBill::STATUS_VERIFY,
+            LeaseBill::STATUS_CANCELLED,
+        );
+
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBills(
-                $lease
+                $lease,
+                $status
             );
 
         $paginator = new Paginator();
@@ -216,10 +224,16 @@ class LeaseBillController extends SalesRestController
         $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
+        $status = array(
+            LeaseBill::STATUS_PENDING,
+            LeaseBill::STATUS_UNPAID,
+        );
+
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findUnpaidBills(
-                $lease
+            ->findBills(
+                $lease,
+                $status
             );
 
         return new View($bills);
