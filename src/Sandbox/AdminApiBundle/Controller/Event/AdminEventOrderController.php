@@ -116,13 +116,6 @@ class AdminEventOrderController extends AdminOrderController
             $search
         );
 
-        $orders = $this->get('serializer')->serialize(
-            $orders,
-            'json',
-            SerializationContext::create()->setGroups(['client_event, admin_event'])
-        );
-        $orders = json_decode($orders, true);
-
         // set event dates
         foreach ($orders as $order) {
             $event = $order->getEvent();
@@ -130,6 +123,13 @@ class AdminEventOrderController extends AdminOrderController
             $event->setDates($dates);
         }
 
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['client_event, admin_event'])
+        );
+        $orders = json_decode($orders, true);
+        
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $orders,

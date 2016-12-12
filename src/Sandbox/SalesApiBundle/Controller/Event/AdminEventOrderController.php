@@ -123,19 +123,19 @@ class AdminEventOrderController extends SalesRestController
                 $this->getSalesCompanyId()
             );
 
-        $orders = $this->get('serializer')->serialize(
-            $orders,
-            'json',
-            SerializationContext::create()->setGroups(['client_event, admin_event'])
-        );
-        $orders = json_decode($orders, true);
-
         // set event dates
         foreach ($orders as $order) {
             $event = $order->getEvent();
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $event->setDates($dates);
         }
+
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['client_event, admin_event'])
+        );
+        $orders = json_decode($orders, true);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
