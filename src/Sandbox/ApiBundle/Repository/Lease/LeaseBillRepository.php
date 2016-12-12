@@ -44,7 +44,7 @@ class LeaseBillRepository extends EntityRepository
             ->leftJoin('lb.lease', 'l')
             ->where('lb.status != :status')
             ->andWhere('
-                        (l.contact = :user OR
+                        (l.supervisor = :user OR
                         l.drawee = :user OR 
                         lb.drawee = :user)
                     ')
@@ -82,7 +82,7 @@ class LeaseBillRepository extends EntityRepository
             ->leftJoin('lb.lease', 'l')
             ->where('lb.id = :id')
             ->andWhere('
-                        (l.contact = :user OR
+                        (l.supervisor = :user OR
                         l.drawee = :user OR 
                         lb.drawee = :user)
                     ')

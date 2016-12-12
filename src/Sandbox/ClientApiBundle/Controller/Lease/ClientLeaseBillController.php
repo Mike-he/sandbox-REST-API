@@ -126,7 +126,7 @@ class ClientLeaseBillController extends PaymentController
         $data = array();
         if ($bill->getDrawee() == $userId ||
             $bill->getLease()->getDrawee()->getId() == $userId ||
-            $bill->getLease()->getContact()->getId() == $userId
+            $bill->getLease()->getSupervisor()->getId() == $userId
         ) {
             $data = $this->handleBillInfo($bill);
         }

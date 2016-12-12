@@ -24,7 +24,7 @@ class LeaseBillController extends SalesRestController
     use GenerateSerialNumberTrait;
 
     /**
-     * Get Room Buildings.
+     * Get Lease Bills.
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -49,14 +49,7 @@ class LeaseBillController extends SalesRestController
      *    description="page number"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="lease_id",
-     *    default=null,
-     *    nullable=false,
-     *    description="lease id"
-     * )
-     *
-     * @Route("/leases/bills")
+     * @Route("/leases/{id}/bills")
      * @Method({"GET"})
      *
      * @return View
@@ -65,13 +58,13 @@ class LeaseBillController extends SalesRestController
      */
     public function getBillsAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher
+        ParamFetcherInterface $paramFetcher,
+        $id
     ) {
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $leaseId = $paramFetcher->get('lease_id');
 
-        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($leaseId);
+        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
         $bills = $this->getDoctrine()
@@ -79,10 +72,6 @@ class LeaseBillController extends SalesRestController
             ->findBills(
                 $lease
             );
-
-        foreach ($bills as $bill) {
-            $this->handleBills($bill);
-        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -113,8 +102,6 @@ class LeaseBillController extends SalesRestController
     ) {
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
-
-        $this->handleBills($bill);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['lease_bill']));
@@ -249,19 +236,5 @@ class LeaseBillController extends SalesRestController
         ));
 
         return new View($response, 201);
-    }
-
-    /**
-     * @param $bill
-     */
-    private function handleBills(
-        $bill
-    ) {
-        $sender = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($bill->getSender());
-        $bill->setPushPeople($sender);
-
-        $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee();
-        $payer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($drawee);
-        $bill->setPayer($payer);
     }
 }

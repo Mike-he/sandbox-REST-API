@@ -198,32 +198,18 @@ class LeaseBill
      *
      * @ORM\Column(name="sender", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $sender;
 
     /**
      * @var User
      *
-     * @Serializer\Groups({"lease_bill"})
-     */
-    private $pushPeople;
-
-    /**
-     * @var User
-     *
      * @ORM\Column(name="drawee", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $drawee;
-
-    /**
-     * @var User
-     *
-     * @Serializer\Groups({"lease_bill","client"})
-     */
-    private $payer;
 
     /**
      * @var string
@@ -534,22 +520,6 @@ class LeaseBill
     /**
      * @return User
      */
-    public function getPushPeople()
-    {
-        return $this->pushPeople;
-    }
-
-    /**
-     * @param User $pushPeople
-     */
-    public function setPushPeople($pushPeople)
-    {
-        $this->pushPeople = $pushPeople;
-    }
-
-    /**
-     * @return User
-     */
     public function getDrawee()
     {
         return $this->drawee;
@@ -563,21 +533,6 @@ class LeaseBill
         $this->drawee = $drawee;
     }
 
-    /**
-     * @return User
-     */
-    public function getPayer()
-    {
-        return $this->payer;
-    }
-
-    /**
-     * @param User $payer
-     */
-    public function setPayer($payer)
-    {
-        $this->payer = $payer;
-    }
 
     /**
      * @return string
