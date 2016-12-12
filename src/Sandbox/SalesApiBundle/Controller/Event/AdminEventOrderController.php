@@ -430,7 +430,7 @@ class AdminEventOrderController extends SalesRestController
         $view->setSerializationContext(
             SerializationContext::create()->setGroups([
                 'client_event',
-                'admin_event'
+                'admin_event',
             ]));
 
         return $view;

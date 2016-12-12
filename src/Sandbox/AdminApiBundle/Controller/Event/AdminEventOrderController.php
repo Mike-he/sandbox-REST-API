@@ -129,7 +129,7 @@ class AdminEventOrderController extends AdminOrderController
             SerializationContext::create()->setGroups(['client_event'])
         );
         $orders = json_decode($orders, true);
-        
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $orders,
@@ -387,7 +387,7 @@ class AdminEventOrderController extends AdminOrderController
             ->getRepository('SandboxApiBundle:User\User')
             ->find($order->getUserId());
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
-        
+
         $profile = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserProfile')
             ->findOneBy(['user' => $user]);
@@ -407,7 +407,7 @@ class AdminEventOrderController extends AdminOrderController
         $view->setSerializationContext(
             SerializationContext::create()->setGroups([
                 'client_event',
-                'admin_event'
+                'admin_event',
             ]));
 
         return $view;
