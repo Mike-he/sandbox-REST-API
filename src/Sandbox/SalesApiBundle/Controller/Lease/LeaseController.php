@@ -2,6 +2,7 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
@@ -17,6 +18,7 @@ use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use FOS\RestBundle\Controller\Annotations;
 
 class LeaseController extends SalesRestController
 {
@@ -49,6 +51,49 @@ class LeaseController extends SalesRestController
             SerializationContext::create()->setGroups(['main'])
         );
         $view->setData($lease);
+
+        return $view;
+    }
+
+
+    /**
+     * Get List of Lease.
+     *
+     * @Route("/leases")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="building_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    description="id of building"
+     * )
+     *
+     * @return View
+     */
+    public function getLeasesAction(
+        ParamFetcherInterface $paramFetcher,
+        Request $request
+    ) {
+        // check user permission
+//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $buildingId = $paramFetcher->get('building_id');
+
+        // TODO: refactor query to find leases
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->findLeases(
+                $buildingId
+            );
+
+        // TODO: To get necessary fields of drawee, contact
+        $view = new View();
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(['main'])
+        );
+        $view->setData($leases);
 
         return $view;
     }
@@ -198,23 +243,26 @@ class LeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $lease = new Lease();
 
-        $drawee = $this->getUserRepo()->find($payload['drawee']);
-        $supervisor = $this->getUserRepo()->find($payload['supervisor']);
-        $product = $this->getProductRepo()->find($payload['product']);
-
-        if (
-            is_null($drawee) ||
-            is_null($supervisor) ||
-            is_null($product)
-        ) {
-            throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+        if (!empty($payload['drawee'])){
+            $drawee = $this->getUserRepo()->find($payload['drawee']);
+            $this->throwNotFoundIfNull($drawee, self::NOT_FOUND_MESSAGE);
+            $lease->setDrawee($drawee);
         }
+
+        if (!empty($payload['supervisor'])){
+            $supervisor = $this->getUserRepo()->find($payload['drawee']);
+            $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
+            $lease->setDrawee($supervisor);
+        }
+
+        $product = $this->getProductRepo()->find($payload['product']);
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+        $lease->setProduct($product);
 
         $startDate = new \DateTime($payload['start_date']);
         $endDate = new \DateTime($payload['end_date']);
 
         $lease->setDeposit($payload['deposit']);
-        $lease->setDrawee($drawee);
         $lease->setEndDate($endDate);
         $lease->setLesseeAddress($payload['lessee_address']);
         $lease->setLesseeContact($payload['lessee_contact']);
@@ -228,8 +276,6 @@ class LeaseController extends SalesRestController
         $lease->setLessorContact($payload['lessor_contact']);
         $lease->setMonthlyRent($payload['monthly_rent']);
         $lease->setPurpose($payload['purpose']);
-        $lease->setProduct($product);
-        $lease->setSupervisor($supervisor);
         $lease->setStatus($payload['status']);
         $lease->setStartDate($startDate);
         $lease->setSerialNumber($this->generateLeaseSerialNumber());
