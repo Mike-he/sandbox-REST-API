@@ -20,6 +20,7 @@ class Lease
     const LEASE_STATUS_CONFIRMED = 'confirmed';
     const LEASE_STATUS_PERFORMING = 'performing';
     const LEASE_STATUS_END = 'end';
+    const LEASE_STATUS_REJECTED = 'rejected';
 
     /**
      * @var int
