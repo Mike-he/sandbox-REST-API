@@ -93,7 +93,12 @@ class EventOrderRepository extends EntityRepository
      * @param $flag
      * @param $startDate
      * @param $endDate
-     * @param $search
+     * @param $channel
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
      *
      * @return array
      */
@@ -102,20 +107,18 @@ class EventOrderRepository extends EntityRepository
         $flag,
         $startDate,
         $endDate,
-        $search = null
+        $channel,
+        $keyword,
+        $keywordSearch,
+        $payDate,
+        $payStart,
+        $payEnd
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
             ->where('eo.status != :unpaid')
             ->andWhere('eo.paymentDate IS NOT NULL')
             ->setParameter('unpaid', EventOrder::STATUS_UNPAID);
-
-        // searching orders
-        if (!is_null($search)) {
-            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = eo.userId');
-            $query->andWhere('(eo.orderNumber LIKE :search OR up.name LIKE :search)');
-            $parameters['search'] = "%$search%";
-        }
 
         // filter by city
         if (!is_null($city)) {
@@ -146,6 +149,51 @@ class EventOrderRepository extends EntityRepository
                 $query->andWhere('e.registrationStartDate <= :endDate');
             }
             $query->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($channel)) {
+            $query->andWhere('eo.payChannel = :channel')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('eo.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+                case 'event':
+                    $query->andWhere('e.name LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
+        }
+
+        //filter by payDate
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('eo.paymentDate >= :payStart')
+                ->andWhere('eo.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('eo.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('eo.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
         }
 
         // order by
@@ -161,7 +209,12 @@ class EventOrderRepository extends EntityRepository
      * @param $flag
      * @param $startDate
      * @param $endDate
-     * @param $search
+     * @param $channel
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
      * @param $salesCompanyId
      *
      * @return array
@@ -171,7 +224,12 @@ class EventOrderRepository extends EntityRepository
         $flag,
         $startDate,
         $endDate,
-        $search,
+        $channel,
+        $keyword,
+        $keywordSearch,
+        $payDate,
+        $payStart,
+        $payEnd,
         $salesCompanyId
     ) {
         $query = $this->createQueryBuilder('eo')
@@ -181,13 +239,6 @@ class EventOrderRepository extends EntityRepository
             ->andWhere('e.salesCompanyId = :salesCompanyId')
             ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
             ->setParameter('salesCompanyId', $salesCompanyId);
-
-        // searching orders
-        if (!is_null($search)) {
-            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = eo.userId');
-            $query->andWhere('(eo.orderNumber LIKE :search OR up.name LIKE :search)');
-            $parameters['search'] = "%$search%";
-        }
 
         // filter by city
         if (!is_null($city)) {
@@ -218,6 +269,51 @@ class EventOrderRepository extends EntityRepository
                 $query->andWhere('e.registrationStartDate <= :endDate');
             }
             $query->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($channel)) {
+            $query->andWhere('eo.payChannel = :channel')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('eo.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+                case 'event':
+                    $query->andWhere('e.name LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
+        }
+
+        //filter by payDate
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('eo.paymentDate >= :payStart')
+                ->andWhere('eo.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('eo.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('eo.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
         }
 
         // order by
