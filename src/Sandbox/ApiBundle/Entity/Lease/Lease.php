@@ -304,19 +304,19 @@ class Lease
     private $bills;
 
     /**
-     * @var integer
+     * @var int
      * @Serializer\Groups({"lease_list"})
      */
     private $paidLeaseBillsAmount;
 
     /**
-     * @var integer
+     * @var int
      * @Serializer\Groups({"lease_list"})
      */
     private $otherBillsAmount;
 
     /**
-     * @var integer
+     * @var int
      * @Serializer\Groups({"lease_list"})
      */
     private $totalLeaseBillsAmount;

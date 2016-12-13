@@ -32,7 +32,6 @@ class ProductAppointmentRepository extends EntityRepository
     }
 
     /**
-     * @param $buildingId
      * @param $myBuildingIds
      * @param $status
      * @param $keyword
@@ -42,11 +41,11 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $createEnd
      * @param $startDate
      * @param $endDate
+     * @param $companyId
      *
      * @return int
      */
     public function countSalesProductAppointments(
-        $buildingId,
         $myBuildingIds,
         $status,
         $keyword,
@@ -55,7 +54,8 @@ class ProductAppointmentRepository extends EntityRepository
         $createStart,
         $createEnd,
         $startDate,
-        $endDate
+        $endDate,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('a')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = a.productId')
@@ -65,7 +65,6 @@ class ProductAppointmentRepository extends EntityRepository
 
         $query = $this->getQueryForSalesProductAppointments(
             $query,
-            $buildingId,
             $myBuildingIds,
             $status,
             $keyword,
@@ -74,20 +73,30 @@ class ProductAppointmentRepository extends EntityRepository
             $createStart,
             $createEnd,
             $startDate,
-            $endDate
+            $endDate,
+            $companyId
         );
 
         return (int) $query->getQuery()->getSingleScalarResult();
     }
 
     /**
-     * @param $productId
+     * @param $myBuildingIds
      * @param $status
+     * @param $keyword
+     * @param $search
+     * @param $createRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $startDate
+     * @param $endDate
+     * @param $limit
+     * @param $offset
+     * @param null $companyId
      *
      * @return mixed
      */
     public function getSalesProductAppointments(
-        $buildingId,
         $myBuildingIds,
         $status,
         $keyword,
@@ -98,7 +107,8 @@ class ProductAppointmentRepository extends EntityRepository
         $startDate,
         $endDate,
         $limit,
-        $offset
+        $offset,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('a')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = a.productId')
@@ -110,7 +120,6 @@ class ProductAppointmentRepository extends EntityRepository
 
         $query = $this->getQueryForSalesProductAppointments(
             $query,
-            $buildingId,
             $myBuildingIds,
             $status,
             $keyword,
@@ -119,7 +128,8 @@ class ProductAppointmentRepository extends EntityRepository
             $createStart,
             $createEnd,
             $startDate,
-            $endDate
+            $endDate,
+            $companyId
         );
 
         return $query->getQuery()->getResult();
@@ -127,7 +137,6 @@ class ProductAppointmentRepository extends EntityRepository
 
     /**
      * @param QueryBuilder $query
-     * @param $buildingId
      * @param $myBuildingIds
      * @param $status
      * @param $keyword
@@ -137,12 +146,12 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $createEnd
      * @param $startDate
      * @param $endDate
+     * @param $companyId
      *
      * @return mixed
      */
     private function getQueryForSalesProductAppointments(
         $query,
-        $buildingId,
         $myBuildingIds,
         $status,
         $keyword,
@@ -151,14 +160,18 @@ class ProductAppointmentRepository extends EntityRepository
         $createStart,
         $createEnd,
         $startDate,
-        $endDate
+        $endDate,
+        $companyId
     ) {
-        if (!is_null($buildingId)) {
-            $query = $query->andWhere('r.buildingId = :buildingId')
-                ->setParameter('buildingId', $buildingId);
-        } else {
+        if (!is_null($myBuildingIds) && !empty($myBuildingIds)) {
             $query->andWhere('r.buildingId IN (:buildingIds)')
                 ->setParameter('buildingIds', $myBuildingIds);
+        }
+
+        if (!is_null($companyId) && !empty($companyId)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.buildingId = rb.id')
+                ->andWhere('rb.companyId = :companyId')
+                ->setParameter('companyId', $companyId);
         }
 
         if (!is_null($status)) {

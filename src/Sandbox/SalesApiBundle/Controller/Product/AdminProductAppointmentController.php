@@ -233,7 +233,7 @@ class AdminProductAppointmentController extends AdminProductController
                     'building_id' => $buildingId,
                 ),
             ),
-            AdminPermission::OP_LEVEL_EDIT
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $view = new View($appointment);
@@ -358,10 +358,13 @@ class AdminProductAppointmentController extends AdminProductController
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
 
+        if (!is_null($buildingId) && !empty($buildingId)) {
+            $myBuildingIds = [$buildingId];
+        }
+
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductAppointment')
             ->countSalesProductAppointments(
-                $buildingId,
                 $myBuildingIds,
                 $status,
                 $keyword,
@@ -376,7 +379,6 @@ class AdminProductAppointmentController extends AdminProductController
         $appointments = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductAppointment')
             ->getSalesProductAppointments(
-                $buildingId,
                 $myBuildingIds,
                 $status,
                 $keyword,
