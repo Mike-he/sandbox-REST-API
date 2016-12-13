@@ -819,8 +819,19 @@ class AdminProductController extends ProductController
 
         !$newVisible ? $product->setAppointment(false) : null;
 
-        if ($newVisible !== $oldVisible) {
-            $newVisible ? $product->setAppointment(true) : null;
+        $rentDate = $form['earliest_rent_date']->getData();
+
+        if ($newVisible && ($newVisible !== $oldVisible)) {
+            $this->setAppointmentEarliestDate(
+                $product,
+                $rentDate
+            );
+            $product->setAppointment(true);
+        } elseif ($newVisible && $product->isAppointment()) {
+            $this->setAppointmentEarliestDate(
+                $product,
+                $rentDate
+            );
         }
 
         $product->setModificationDate(new \DateTime('now'));
@@ -853,6 +864,20 @@ class AdminProductController extends ProductController
             ),
             $opLevel
         );
+    }
+
+    /**
+     * @param $product
+     * @param $rentDate
+     */
+    private function setAppointmentEarliestDate(
+        $product,
+        $rentDate
+    ) {
+        if (!is_null($rentDate) && !empty($rentDate)) {
+            $rentDate->setTime(0, 0, 0);
+            $product->setEarliestRentDate($rentDate);
+        }
     }
 
     /**
