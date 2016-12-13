@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Repository\Lease;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\ApiBundle\Entity\Lease\Lease;
 
 class LeaseRepository extends EntityRepository
 {

@@ -290,6 +290,31 @@ class Product
     private $seats;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="appointment", type="boolean", options={"default":true})
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $appointment = true;
+
+    /**
+     * @return bool
+     */
+    public function isAppointment()
+    {
+        return $this->appointment;
+    }
+
+    /**
+     * @param bool $appointment
+     */
+    public function setAppointment($appointment)
+    {
+        $this->appointment = $appointment;
+    }
+
+    /**
      * Get id.
      *
      * @return int

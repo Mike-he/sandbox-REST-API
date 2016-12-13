@@ -14,7 +14,8 @@ class ProductPatchVisibleType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('visible');
+        $builder->add('visible')
+            ->add('appointment');
     }
 
     /**
