@@ -206,13 +206,26 @@ class AdminShopOrderController extends ShopController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="shop",
-     *    array=false,
+     *    name="channel",
      *    default=null,
      *    nullable=true,
-     *    strict=true,
-     *    description="Filter by shop"
+     *    description="payment channel"
      * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
      *
      * @Annotations\QueryParam(
      *    name="status",
@@ -225,39 +238,33 @@ class AdminShopOrderController extends ShopController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="start",
+     *    name="pay_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="Filter by payment date start"
+     *    description="filter for payment start. Must be YYYY-mm-dd"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="end",
+     *    name="pay_start",
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="Filter by payment date end"
+     *    description="filter for payment start. Must be YYYY-mm-dd"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="sort",
-     *    array=false,
-     *    default="DESC",
-     *    nullable=false,
-     *    strict=true,
-     *    description="sort direction"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="search",
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="search by order orderNumber, username"
+     *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
      * @Annotations\QueryParam(
@@ -281,23 +288,13 @@ class AdminShopOrderController extends ShopController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="user",
+     *    name="company",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="Filter by user id"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="city",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Filter by city id"
+     *    description="Filter by sales company id"
      * )
      *
      * @Annotations\QueryParam(
@@ -334,17 +331,17 @@ class AdminShopOrderController extends ShopController
         // check user permission
         $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $shopId = $paramFetcher->get('shop');
-        $status = $paramFetcher->get('status');
-        $start = $paramFetcher->get('start');
-        $end = $paramFetcher->get('end');
-        $sort = $paramFetcher->get('sort');
-        $search = $paramFetcher->get('search');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $user = $paramFetcher->get('user');
-        $cityId = $paramFetcher->get('city');
+        $channel = $paramFetcher->get('channel');
+        $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+        $status = $paramFetcher->get('status');
         $refundStatus = $paramFetcher->get('refundStatus');
 
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -353,14 +350,17 @@ class AdminShopOrderController extends ShopController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Shop\ShopOrder')
             ->getAdminShopOrdersForBackend(
-                $shopId,
+                null,
+                $channel,
                 $status,
-                $start,
-                $end,
-                $sort,
-                $search,
-                $user,
-                $cityId,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $keyword,
+                $keywordSearch,
+                null,
+                null,
+                $companyId,
                 $buildingId,
                 $refundStatus,
                 $limit,
@@ -370,13 +370,17 @@ class AdminShopOrderController extends ShopController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Shop\ShopOrder')
             ->countAdminShopOrdersForBackend(
-                $shopId,
+                null,
+                $channel,
                 $status,
-                $start,
-                $end,
-                $search,
-                $user,
-                $cityId,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $keyword,
+                $keywordSearch,
+                null,
+                null,
+                $companyId,
                 $buildingId,
                 $refundStatus
             );
@@ -400,57 +404,86 @@ class AdminShopOrderController extends ShopController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="shop",
-     *    array=false,
+     *    name="channel",
      *    default=null,
      *    nullable=true,
-     *    strict=true,
-     *    description="Filter by shop"
+     *    description="payment channel"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="status",
-     *    array=false,
+     *    name="keyword",
      *    default=null,
      *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="{|unpaid|cancelled|paid|ready|completed|issue|waiting|refunded|}",
      *    strict=true,
      *    description="Filter by status"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="start",
+     *    name="pay_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="Filter by payment date start"
+     *    description="filter for payment start. Must be YYYY-mm-dd"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="end",
+     *    name="pay_start",
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="Filter by payment date end"
+     *    description="filter for payment start. Must be YYYY-mm-dd"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="sort",
-     *    array=false,
-     *    default="DESC",
-     *    nullable=false,
-     *    strict=true,
-     *    description="sort direction"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="search",
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
      *    array=false,
      *    default=null,
      *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="search by order orderNumber, username"
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by sales company id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
      * )
      *
      * @Annotations\QueryParam(
@@ -484,12 +517,15 @@ class AdminShopOrderController extends ShopController
             AdminPermission::PERMISSION_PLATFORM_OFFICIAL
         );
 
-        $shopId = $paramFetcher->get('shop');
+        $channel = $paramFetcher->get('channel');
+        $companyId = $paramFetcher->get('company');
+        $buildingId = $paramFetcher->get('building');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
         $status = $paramFetcher->get('status');
-        $start = $paramFetcher->get('start');
-        $end = $paramFetcher->get('end');
-        $sort = $paramFetcher->get('sort');
-        $search = $paramFetcher->get('search');
         $language = $paramFetcher->get('language');
 
         if (!is_null($status) && !empty($status)) {
@@ -499,15 +535,18 @@ class AdminShopOrderController extends ShopController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Shop\ShopOrder')
             ->getAdminShopOrdersForBackend(
-                $shopId,
+                null,
+                $channel,
                 $status,
-                $start,
-                $end,
-                $sort,
-                $search,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $keyword,
+                $keywordSearch,
                 null,
                 null,
-                null,
+                $companyId,
+                $buildingId,
                 null
             );
 
