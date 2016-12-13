@@ -210,14 +210,14 @@ client:
     my_space_order: 空间订单
     my_lease: 合同及账单
     my_long_term_appointment: 长租申请
-    my_shop_order: 店铺订单
+    my_order: 店铺订单
     my_activity_order: 活动订单
     my_room: 我的可用房间
     my_favorite: 我的收藏
     my_evaluation: 我的评价
     notification: 通知
     my_invoice: 我的发票
-    membership_card: 我的会员卡
+    my_membership_card: 我的会员卡
     reset_password: 重置密码
     email: 绑定邮箱
     phone: 绑定手机
