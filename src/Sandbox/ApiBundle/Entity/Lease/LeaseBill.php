@@ -176,6 +176,15 @@ class LeaseBill
     private $revisionNote;
 
     /**
+     * @var User
+     *
+     * @ORM\Column(name="reviser", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main","lease_bill"})
+     */
+    private $reviser;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="payment_date", type="datetime", nullable=true)
@@ -533,7 +542,6 @@ class LeaseBill
         $this->drawee = $drawee;
     }
 
-
     /**
      * @return string
      */
@@ -564,5 +572,21 @@ class LeaseBill
     public function setPayChannel($payChannel)
     {
         $this->payChannel = $payChannel;
+    }
+
+    /**
+     * @return User
+     */
+    public function getReviser()
+    {
+        return $this->reviser;
+    }
+
+    /**
+     * @param User $reviser
+     */
+    public function setReviser($reviser)
+    {
+        $this->reviser = $reviser;
     }
 }

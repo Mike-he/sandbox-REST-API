@@ -256,26 +256,10 @@ trait LogsTrait
             return;
         }
 
-        $this->handleBills($bill);
-
         return $this->transferToJsonWithViewGroup(
             $bill,
             'lease_bill'
         );
-    }
-
-    /**
-     * @param $bill
-     */
-    private function handleBills(
-        $bill
-    ) {
-        $sender = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($bill->getSender());
-        $bill->setPushPeople($sender);
-
-        $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee();
-        $payer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($drawee);
-        $bill->setPayer($payer);
     }
 
     /**

@@ -24,6 +24,7 @@ class ClientLeaseBillController extends PaymentController
     const BILL_NOT_FOUND_MESSAGE = 'Can not find bill';
     const BILL_NOT_SUPPORT_BALANCE_PAYMENT_CODE = 400002;
     const BILL_NOT_SUPPORT_BALANCE_PAYMENT__MESSAGE = 'Does not support the balance payment';
+
     /**
      * Get all bills for current user.
      *
@@ -59,7 +60,8 @@ class ClientLeaseBillController extends PaymentController
      *    description="Offset of page"
      * )
      *
-     * @Get("/leases/bills/my")
+     * @Route("/leases/bills/my")
+     * @Method({"GET"})
      *
      * @return View
      */

@@ -81,6 +81,13 @@ class LeaseBillController extends SalesRestController
                 $status
             );
 
+        $bills = $this->get('serializer')->serialize(
+            $bills,
+            'json',
+            SerializationContext::create()->setGroups(['lease_bill'])
+        );
+        $bills = json_decode($bills, true);
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $bills,
@@ -188,6 +195,8 @@ class LeaseBillController extends SalesRestController
         if ($bill->getStatus() != LeaseBill::STATUS_UNPAID) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $bill->setReviser($this->getUserId());
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
