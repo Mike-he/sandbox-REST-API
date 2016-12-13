@@ -1270,6 +1270,7 @@ class ProductRepository extends EntityRepository
             ->where('p.id = :id')
             ->andWhere('p.visible = TRUE')
             ->andWhere('p.isDeleted = FALSE')
+            ->andWhere('p.appointment = TRUE')
             ->andWhere('r.type = :longterm')
             ->setParameter('id', $id)
             ->setParameter('longterm', Room::TYPE_LONG_TERM);
