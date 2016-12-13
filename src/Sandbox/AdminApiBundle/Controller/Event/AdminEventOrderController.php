@@ -120,6 +120,25 @@ class AdminEventOrderController extends AdminOrderController
      *    description="end date. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by sales company id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
      *
      * @Route("/events/orders")
      * @Method({"GET"})
@@ -144,11 +163,18 @@ class AdminEventOrderController extends AdminOrderController
         $createDateRange = $paramFetcher->get('create_date_range');
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
+        $companyId = $paramFetcher->get('company');
+        $buildingId = $paramFetcher->get('building');
+
+        $company = !is_null($companyId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId) : null;
+        $building = !is_null($buildingId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId) : null;
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
             ->getEventOrdersForAdmin(
                 null,
+                $company,
+                $building,
                 $channel,
                 $keyword,
                 $keywordSearch,
@@ -262,21 +288,37 @@ class AdminEventOrderController extends AdminOrderController
         );
 
         $language = $paramFetcher->get('language');
-        $cityId = $paramFetcher->get('city');
-        $flag = $paramFetcher->get('flag');
-        $startDate = $paramFetcher->get('startDate');
-        $endDate = $paramFetcher->get('endDate');
-        $search = $paramFetcher->get('query');
+        $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+        $companyId = $paramFetcher->get('company');
+        $buildingId = $paramFetcher->get('building');
 
-        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
+        $company = !is_null($companyId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId) : null;
+        $building = !is_null($buildingId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId) : null;
 
-        $orders = $this->getRepo('Event\EventOrder')->getEventOrdersForAdmin(
-            $city,
-            $flag,
-            $startDate,
-            $endDate,
-            $search
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getEventOrdersForAdmin(
+                null,
+                $company,
+                $building,
+                $channel,
+                $keyword,
+                $keywordSearch,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $createDateRange,
+                $createStart,
+                $createEnd
+            );
 
         return $this->getEventOrderExport($orders, $language);
     }

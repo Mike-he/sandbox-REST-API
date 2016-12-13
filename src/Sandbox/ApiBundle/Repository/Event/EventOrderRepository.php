@@ -90,6 +90,8 @@ class EventOrderRepository extends EntityRepository
 
     /**
      * @param $city
+     * @param $company
+     * @param $building
      * @param $channel
      * @param $keyword
      * @param $keywordSearch
@@ -104,6 +106,8 @@ class EventOrderRepository extends EntityRepository
      */
     public function getEventOrdersForAdmin(
         $city,
+        $company,
+        $building,
         $channel,
         $keyword,
         $keywordSearch,
@@ -116,6 +120,7 @@ class EventOrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = e.buildingId')
             ->where('eo.status != :unpaid')
             ->andWhere('eo.paymentDate IS NOT NULL')
             ->setParameter('unpaid', EventOrder::STATUS_UNPAID);
@@ -124,6 +129,16 @@ class EventOrderRepository extends EntityRepository
         if (!is_null($city)) {
             $query->andWhere('e.city = :city');
             $query->setParameter('city', $city);
+        }
+
+        if (!is_null($company)) {
+            $query->andWhere('b.company = :company')
+                ->setParameter('company', $company);
+        }
+
+        if (!is_null($building)) {
+            $query->andWhere('e.buildingId = :building')
+                ->setParameter('building', $building->getId());
         }
 
         if (!is_null($channel)) {
