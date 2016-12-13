@@ -37,7 +37,7 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_MY_COMPANY = 'client.menu.my_company';
     const CLIENT_MENU_SCAN_QR = 'client.menu.scan_qr';
     const CLIENT_MENU_BALANCE = 'client.menu.balance';
-    const CLIENT_MENU_MY_SPACE_ORDER = 'client.menu.my_space_order';
+    const CLIENT_MENU_MY_SPACE_ORDER = 'client.menu.my_order';
     const CLIENT_MENU_MY_LEASE = 'client.menu.my_lease';
     const CLIENT_MENU_MY_LONG_TERM_APPOINTMENT = 'client.menu.my_long_term_appointment';
     const CLIENT_MENU_MY_SHOP_ORDER = 'client.menu.my_shop_order';
