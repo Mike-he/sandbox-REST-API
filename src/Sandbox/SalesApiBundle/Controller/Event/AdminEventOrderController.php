@@ -200,17 +200,65 @@ class AdminEventOrderController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="city",
-     *    array=false,
+     *    name="channel",
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Filter by city id"
+     *    description="payment channel"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="startDate",
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -219,38 +267,14 @@ class AdminEventOrderController extends SalesRestController
      *    description="start date. Must be YYYY-mm-dd"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="flag",
-     *    default="event",
-     *    requirements="(event|event_registration)",
-     *    nullable=true,
-     *    description="search flag"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="endDate",
+     *  @Annotations\QueryParam(
+     *    name="create_end",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
      *    description="end date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="query",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="sales_company",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description="company id"
      * )
      *
      * @Route("/events/orders/export")
@@ -262,36 +286,37 @@ class AdminEventOrderController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        //authenticate with web browser cookie
-        $admin = $this->authenticateAdminCookie();
-        $companyId = $paramFetcher->get('sales_company');
-
         // check user permission
         $this->checkSalesAdminEventOrderPermission(
-            $admin->getId(),
-            AdminPermission::OP_LEVEL_VIEW,
-            AdminPermission::PERMISSION_PLATFORM_SALES,
-            $companyId
+            $this->getAdminId(),
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $language = $paramFetcher->get('language');
-        $cityId = $paramFetcher->get('city');
-        $flag = $paramFetcher->get('flag');
-        $startDate = $paramFetcher->get('startDate');
-        $endDate = $paramFetcher->get('endDate');
-        $search = $paramFetcher->get('query');
-
-        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
+        $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
             ->getEventOrdersForSalesAdmin(
-                $city,
-                $flag,
-                $startDate,
-                $endDate,
-                $search,
-                $companyId
+                null,
+                $channel,
+                $keyword,
+                $keywordSearch,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                $this->getSalesCompanyId()
             );
 
         return $this->getEventOrderExport($orders, $language);

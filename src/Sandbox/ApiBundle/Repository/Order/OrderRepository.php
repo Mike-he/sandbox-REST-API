@@ -1819,20 +1819,23 @@ class OrderRepository extends EntityRepository
     }
 
     /**
-     * Get list of orders for admin.
-     *
-     * @param string   $channel
-     * @param string   $type
-     * @param int      $city
-     * @param int      $building
-     * @param int      $userId
-     * @param datetime $startDate
-     * @param datetime $endDate
-     * @param          $payStart
-     * @param          $payEnd
-     * @param array    $myBuildingIds
-     * @param DateTime $orderStartPoint
-     * @param DateTime $orderEndPoint
+     * @param $channel
+     * @param $type
+     * @param $city
+     * @param $building
+     * @param $userId
+     * @param $startDate
+     * @param $endDate
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $myBuildingIds
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $status
      *
      * @return array
      */
@@ -1844,105 +1847,149 @@ class OrderRepository extends EntityRepository
         $userId,
         $startDate,
         $endDate,
+        $payDate,
         $payStart,
         $payEnd,
+        $keyword,
+        $keywordSearch,
         $myBuildingIds,
-        $orderStartPoint,
-        $orderEndPoint
+        $createDateRange,
+        $createStart,
+        $createEnd,
+        $status
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId');
-
-        // filter by user id
-        if (!is_null($userId)) {
-            $query->where('o.userId = :userId');
-            $parameters['userId'] = $userId;
-        } else {
-            $query->where('o.status != :unpaid');
-            $parameters['unpaid'] = 'unpaid';
-        }
-
-        // only export order that is paid
-        $query->andWhere('o.paymentDate IS NOT NULL');
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('o.paymentDate IS NOT NULL');
 
         // filter by payment channel
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel');
-            $parameters['channel'] = $channel;
+            $query->andWhere('o.payChannel = :channel')
+                ->setParameter('channel', $channel);
+        }
+
+        // filter by status
+        if (!is_null($status)) {
+            $query->andWhere('o.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
         }
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('r.type = :type');
-            $parameters['type'] = $type;
+            $query->andWhere('por.roomType = :type')
+                ->setParameter('type', $type);
         }
 
         // filter by city
         if (!is_null($city)) {
-            $query->andWhere('r.city = :city');
-            $parameters['city'] = $city;
+            $query->andWhere('por.cityId = :city')
+                ->setParameter('city', $city);
         }
 
         // filter by building
         if (!is_null($building)) {
-            $query->andWhere('r.building = :building');
-            $parameters['building'] = $building;
+            $query->andWhere('por.buildingId = :building')
+                ->setParameter('building', $building);
         } else {
-            $query->andWhere('r.buildingId IN (:buildingIds)');
-            $parameters['buildingIds'] = $myBuildingIds;
+            $query->andWhere('por.buildingId IN (:buildingIds)')
+                ->setParameter('buildingIds', $myBuildingIds);
         }
 
-        // filter by start date
+        //filter by start date
         if (!is_null($startDate)) {
             $startDate = new \DateTime($startDate);
-            $query->andWhere('o.endDate > :startDate');
-            $parameters['startDate'] = $startDate;
+            $query->andWhere('o.endDate > :startDate')
+                ->setParameter('startDate', $startDate);
         }
 
-        // filter by end date
+        //filter by end date
         if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
-            $query->andWhere('o.startDate <= :endDate');
-            $parameters['endDate'] = $endDate;
+            $query->andWhere('o.startDate <= :endDate')
+                ->setParameter('endDate', $endDate);
         }
 
-        // filter by payStart
-        if (!is_null($payStart)) {
-            $payStart = new \DateTime($payStart);
-            $query->andWhere('o.creationDate >= :payStart');
-            $parameters['payStart'] = $payStart;
+        //filter by payDate
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('o.paymentDate >= :payStart')
+                ->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('o.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
         }
 
-        // filter by payEnd
-        if (!is_null($payEnd)) {
-            $payEnd = new \DateTime($payEnd);
-            $payEnd->setTime(23, 59, 59);
-            $query->andWhere('o.creationDate <= :payEnd');
-            $parameters['payEnd'] = $payEnd;
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+                case 'room':
+                    $query->andWhere('r.name LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
         }
 
-        // filter by order start point
-        if (!is_null($orderStartPoint)) {
-            $orderStartPoint = new \DateTime($orderStartPoint);
-            $orderStartPoint->setTime(00, 00, 00);
-            $query->andWhere('o.startDate >= :orderStartPoint');
-            $parameters['orderStartPoint'] = $orderStartPoint;
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default:
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('o.creationDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('o.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
 
             // filter by order end point
-            if (!is_null($orderEndPoint)) {
-                $orderEndPoint = new \DateTime($orderEndPoint);
-                $orderEndPoint->setTime(23, 59, 59);
-                $query->andWhere('o.startDate <= :orderEndPoint');
-                $parameters['orderEndPoint'] = $orderEndPoint;
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('o.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
             }
         }
 
         $query->orderBy('o.creationDate', 'DESC');
-
-        //set all parameters
-        $query->setParameters($parameters);
 
         return $query->getQuery()->getResult();
     }
