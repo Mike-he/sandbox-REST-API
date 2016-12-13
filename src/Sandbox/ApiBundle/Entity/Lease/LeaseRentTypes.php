@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Lease;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Table(name="lease_rent_types")
@@ -16,6 +17,7 @@ class LeaseRentTypes
      * @ORM\Id
      * @ORM\Column(name="id", type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "lease_rent_types_list"})
      */
     private $id;
 
@@ -23,6 +25,7 @@ class LeaseRentTypes
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=100)
+     * @Serializer\Groups({"main", "lease_rent_types_list"})
      */
     private $name;
 
@@ -30,6 +33,7 @@ class LeaseRentTypes
      * @var string
      *
      * @ORM\Column(name="name_en", type="string", length=100)
+     * @Serializer\Groups({"main", "lease_rent_types_list"})
      */
     private $nameEn;
 
