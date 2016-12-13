@@ -106,7 +106,7 @@ trait ProductOrderNotification
                         $order->getId(),
                         $order->getOrderNumber(),
                         $fromUserId,
-                        $receivers,
+                        $jpushReceivers,
                         $action,
                         $bodyZh,
                         $bodyEn
