@@ -207,10 +207,10 @@ client:
     my_company: 我的企业
     scan_qr: 扫一扫
     balance: 账户余额
-    my_space_order: 空间订单
+    my_order: 空间订单
     my_lease: 合同及账单
     my_long_term_appointment: 长租申请
-    my_order: 店铺订单
+    my_shop_order: 店铺订单
     my_activity_order: 活动订单
     my_room: 我的可用房间
     my_favorite: 我的收藏
