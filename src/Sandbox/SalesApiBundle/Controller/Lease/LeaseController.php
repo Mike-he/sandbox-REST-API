@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
@@ -63,11 +64,90 @@ class LeaseController extends SalesRestController
      * @Method({"GET"})
      *
      * @Annotations\QueryParam(
-     *    name="building_id",
+     *    name="status",
      *    array=false,
      *    default=null,
-     *    nullable=false,
-     *    description="id of building"
+     *    nullable=true,
+     *    strict=true,
+     *    description="pending, withdrawn, accepted, rejected"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="buildingId",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="applicant, room, number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="last_week, last_month"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment end date"
      * )
      *
      * @return View
@@ -79,21 +159,101 @@ class LeaseController extends SalesRestController
         // check user permission
 //        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $buildingId = $paramFetcher->get('building_id');
+        // filters
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
 
-        // TODO: refactor query to find leases
+        $status = $paramFetcher->get('status');
+
+        // search keyword and query
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+
+        // creation date filter
+        $createRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+
+        // appointment date filter
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+            )
+        );
+
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->findLeases(
-                $buildingId
+                $myBuildingIds,
+                $status,
+                $keyword,
+                $keywordSearch,
+                $createRange,
+                $createStart,
+                $createEnd,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset
             );
 
-        // TODO: To get necessary fields of drawee, contact
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->countLeasesAmount(
+                $myBuildingIds,
+                $status,
+                $keyword,
+                $keywordSearch,
+                $createRange,
+                $createStart,
+                $createEnd,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset
+            );
+
+        foreach ($leases as $lease) {
+            $totalLeaseBills = $this->getLeaseBillRepo()->findBy(array(
+                'lease' => $lease->getId(),
+                'type' => LeaseBill::TYPE_LEASE
+            ));
+            $lease->setTotalLeaseBillsAmount(count($totalLeaseBills));
+
+            $paidLeaseBills = $this->getLeaseBillRepo()->findBy(array(
+                'lease' => $lease->getId(),
+                'type' => LeaseBill::TYPE_LEASE,
+                'status' => LeaseBill::STATUS_PAID
+            ));
+            $lease->setPaidLeaseBillsAmount(count($paidLeaseBills));
+
+            $otherBills = $this->getLeaseBillRepo()->findBy(array(
+                'lease' => $lease->getId(),
+                'type' => LeaseBill::TYPE_OTHER
+            ));
+
+            $lease->setOtherBillsAmount(count($otherBills));
+        }
+
         $view = new View();
         $view->setSerializationContext(
-            SerializationContext::create()->setGroups(['main'])
+            SerializationContext::create()->setGroups(['lease_list'])
         );
-        $view->setData($leases);
+
+        $view->setData(
+            array(
+            'current_page_number' => (int) $pageIndex,
+            'num_items_per_page' => (int) $pageLimit,
+            'items' => $leases,
+            'total_count' => (int) $count,
+        ));
 
         return $view;
     }
@@ -521,23 +681,26 @@ class LeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $lease = $this->getLeaseRepo()->find($leaseId);
 
-        $drawee = $this->getUserRepo()->find($payload['drawee']);
-        $supervisor = $this->getUserRepo()->find($payload['supervisor']);
-        $product = $this->getProductRepo()->find($payload['product']);
-
-        if (
-            is_null($drawee) ||
-            is_null($supervisor) ||
-            is_null($product)
-        ) {
-            throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+        if (!empty($payload['drawee'])){
+            $drawee = $this->getUserRepo()->find($payload['drawee']);
+            $this->throwNotFoundIfNull($drawee, self::NOT_FOUND_MESSAGE);
+            $lease->setDrawee($drawee);
         }
+
+        if (!empty($payload['supervisor'])){
+            $supervisor = $this->getUserRepo()->find($payload['drawee']);
+            $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
+            $lease->setDrawee($supervisor);
+        }
+
+        $product = $this->getProductRepo()->find($payload['product']);
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+        $lease->setProduct($product);
 
         $startDate = new \DateTime($payload['start_date']);
         $endDate = new \DateTime($payload['end_date']);
 
         $lease->setDeposit($payload['deposit']);
-        $lease->setDrawee($drawee);
         $lease->setEndDate($endDate);
         $lease->setLesseeAddress($payload['lessee_address']);
         $lease->setLesseeContact($payload['lessee_contact']);
@@ -551,8 +714,6 @@ class LeaseController extends SalesRestController
         $lease->setLessorContact($payload['lessor_contact']);
         $lease->setMonthlyRent($payload['monthly_rent']);
         $lease->setPurpose($payload['purpose']);
-        $lease->setProduct($product);
-        $lease->setSupervisor($supervisor);
         $lease->setStatus($payload['status']);
         $lease->setStartDate($startDate);
         $lease->setSerialNumber($this->generateLeaseSerialNumber());

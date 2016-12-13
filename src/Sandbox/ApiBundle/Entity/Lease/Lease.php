@@ -29,7 +29,7 @@ class Lease
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","lease_bill", "lease_list"})
      */
     private $id;
 
@@ -38,7 +38,7 @@ class Lease
      *
      * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
      *
-     * @Serializer\Groups({"main","client","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill", "lease_list"})
      */
     private $serialNumber;
 
@@ -108,7 +108,7 @@ class Lease
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $startDate;
 
@@ -117,7 +117,7 @@ class Lease
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $endDate;
 
@@ -135,7 +135,7 @@ class Lease
      *
      * @ORM\Column(name="creation_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $creationDate;
 
@@ -153,7 +153,7 @@ class Lease
      *
      * @ORM\Column(name="status", type="string", length=15, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $status;
 
@@ -171,7 +171,7 @@ class Lease
      *
      * @ORM\Column(name="total_rent", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $totalRent;
 
@@ -199,7 +199,7 @@ class Lease
      *
      * @ORM\Column(name="lessee_name", type="string", length=40, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseeName;
 
@@ -208,7 +208,7 @@ class Lease
      *
      * @ORM\Column(name="lessee_address", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseeAddress;
 
@@ -226,7 +226,7 @@ class Lease
      *
      * @ORM\Column(name="lessee_phone", type="string", length=128, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseePhone;
 
@@ -235,7 +235,7 @@ class Lease
      *
      * @ORM\Column(name="lessee_email", type="string", length=128, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseeEmail;
 
@@ -302,6 +302,72 @@ class Lease
      * @var array
      */
     private $bills;
+
+    /**
+     * @var integer
+     * @Serializer\Groups({"lease_list"})
+     */
+    private $paidLeaseBillsAmount;
+
+    /**
+     * @var integer
+     * @Serializer\Groups({"lease_list"})
+     */
+    private $otherBillsAmount;
+
+    /**
+     * @var integer
+     * @Serializer\Groups({"lease_list"})
+     */
+    private $totalLeaseBillsAmount;
+
+    /**
+     * @return int
+     */
+    public function getTotalLeaseBillsAmount()
+    {
+        return $this->totalLeaseBillsAmount;
+    }
+
+    /**
+     * @param int $totalLeaseBillsAmount
+     */
+    public function setTotalLeaseBillsAmount($totalLeaseBillsAmount)
+    {
+        $this->totalLeaseBillsAmount = $totalLeaseBillsAmount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaidLeaseBillsAmount()
+    {
+        return $this->paidLeaseBillsAmount;
+    }
+
+    /**
+     * @param int $paidLeaseBillsAmount
+     */
+    public function setPaidLeaseBillsAmount($paidLeaseBillsAmount)
+    {
+        $this->paidLeaseBillsAmount = $paidLeaseBillsAmount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOtherBillsAmount()
+    {
+        return $this->otherBillsAmount;
+    }
+
+    /**
+     * @param int $otherBillsAmount
+     */
+    public function setOtherBillsAmount($otherBillsAmount)
+    {
+        $this->otherBillsAmount = $otherBillsAmount;
+    }
 
     public function __construct()
     {
@@ -780,5 +846,35 @@ class Lease
     public function setBills($bills)
     {
         $this->bills = $bills;
+    }
+
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("drawee")
+     * @Serializer\Groups({"lease_list"})
+     */
+    public function getDraweeId()
+    {
+        return $this->drawee->getId();
+    }
+
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("surpervisor")
+     * @Serializer\Groups({"lease_list"})
+     */
+    public function getSurpervisorId()
+    {
+        return $this->supervisor->getId();
+    }
+
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("product")
+     * @Serializer\Groups({"lease_list"})
+     */
+    public function getProductId()
+    {
+        return $this->product->getId();
     }
 }
