@@ -44,7 +44,6 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l2->setSupervisor($this->getReference('user-mike'));
         $l2->setDrawee($this->getReference('user-mike'));
 
-
         $l3 = new Lease();
         $l3->setSerialNumber('HT12356890564');
         $l3->setSupervisor($this->getReference('user-mike'));

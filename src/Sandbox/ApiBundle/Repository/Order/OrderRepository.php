@@ -5,8 +5,6 @@ namespace Sandbox\ApiBundle\Repository\Order;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
-use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
-use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
@@ -1147,7 +1145,6 @@ class OrderRepository extends EntityRepository
             }
         }
 
-
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
@@ -1170,7 +1167,7 @@ class OrderRepository extends EntityRepository
                 case 'last_month':
                     $lastDate = $now->sub(new \DateInterval('P1M'));
                     break;
-                default :
+                default:
                     $lastDate = new \DateTime();
             }
             $query->andWhere('o.creationDate >= :createStart')
@@ -1374,7 +1371,7 @@ class OrderRepository extends EntityRepository
                 case 'last_month':
                     $lastDate = $now->sub(new \DateInterval('P1M'));
                     break;
-                default :
+                default:
                     $lastDate = new \DateTime();
             }
             $query->andWhere('o.creationDate >= :createStart')
@@ -1702,7 +1699,7 @@ class OrderRepository extends EntityRepository
                 case 'last_month':
                     $lastDate = $now->sub(new \DateInterval('P1M'));
                     break;
-                default :
+                default:
                     $lastDate = new \DateTime();
             }
             $query->andWhere('o.creationDate >= :createStart')

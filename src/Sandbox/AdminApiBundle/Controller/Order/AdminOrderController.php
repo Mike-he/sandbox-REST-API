@@ -978,7 +978,6 @@ class AdminOrderController extends OrderController
                 $refundStatus
             );
 
-
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_detail']));
         $view->setData(

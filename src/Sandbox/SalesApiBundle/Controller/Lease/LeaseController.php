@@ -56,7 +56,6 @@ class LeaseController extends SalesRestController
         return $view;
     }
 
-
     /**
      * Get List of Lease.
      *
@@ -403,13 +402,13 @@ class LeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $lease = new Lease();
 
-        if (!empty($payload['drawee'])){
+        if (!empty($payload['drawee'])) {
             $drawee = $this->getUserRepo()->find($payload['drawee']);
             $this->throwNotFoundIfNull($drawee, self::NOT_FOUND_MESSAGE);
             $lease->setDrawee($drawee);
         }
 
-        if (!empty($payload['supervisor'])){
+        if (!empty($payload['supervisor'])) {
             $supervisor = $this->getUserRepo()->find($payload['drawee']);
             $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
             $lease->setDrawee($supervisor);

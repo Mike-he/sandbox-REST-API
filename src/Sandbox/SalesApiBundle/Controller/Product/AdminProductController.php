@@ -784,10 +784,16 @@ class AdminProductController extends ProductController
         $id
     ) {
         // get product
-        $product = $this->getRepo('Product\Product')->find($id);
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->findOneBy([
+                'id' => $id,
+                'isDeleted' => false,
+            ]);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $buildingId = $product->getRoom()->getBuildingId();
+        $oldVisible = $product->getVisible();
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
@@ -808,6 +814,14 @@ class AdminProductController extends ProductController
 
         $form = $this->createForm(new ProductPatchVisibleType(), $product);
         $form->submit(json_decode($productJson, true));
+
+        $newVisible = $product->getVisible();
+
+        !$newVisible ? $product->setAppointment(false) : null;
+
+        if ($newVisible !== $oldVisible) {
+            $newVisible ? $product->setAppointment(true) : null;
+        }
 
         $product->setModificationDate(new \DateTime('now'));
 
