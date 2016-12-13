@@ -67,6 +67,7 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $lb2->setStartDate(new \DateTime('2016-11-11'));
         $lb2->setEndDate(new \DateTime('2016-12-12'));
         $lb2->setType(LeaseBill::TYPE_OTHER);
+        $lb2->setStatus(LeaseBill::STATUS_UNPAID);
         $lb2->setLease($l1);
 
         $manager->persist($l1);

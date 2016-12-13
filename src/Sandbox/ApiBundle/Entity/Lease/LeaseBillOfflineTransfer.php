@@ -19,8 +19,6 @@ class LeaseBillOfflineTransfer
     const STATUS_RETURNED = 'returned';
     const STATUS_PAID = 'paid';
     const STATUS_VERIFY = 'verify';
-    const STATUS_REJECT_REFUND = 'reject_refund';
-    const STATUS_ACCEPT_REFUND = 'accept_refund';
 
     /**
      * @var int
