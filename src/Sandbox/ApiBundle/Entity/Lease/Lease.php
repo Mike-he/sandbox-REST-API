@@ -855,7 +855,8 @@ class Lease
      */
     public function getDraweeId()
     {
-        return $this->drawee->getId();
+        return is_null($this->drawee) ?
+            null : $this->drawee->getId();
     }
 
     /**
@@ -865,7 +866,8 @@ class Lease
      */
     public function getSurpervisorId()
     {
-        return $this->supervisor->getId();
+        return is_null($this->supervisor) ?
+            null : $this->supervisor->getId();
     }
 
     /**
@@ -875,6 +877,7 @@ class Lease
      */
     public function getProductId()
     {
-        return $this->product->getId();
+        return is_null($this->product) ?
+            null : $this->product->getId();
     }
 }
