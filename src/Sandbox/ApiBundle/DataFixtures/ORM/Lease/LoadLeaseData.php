@@ -6,6 +6,7 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 
 class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
 {
@@ -36,28 +37,51 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l1->setStatus('reviewing');
         $l1->setSupplementaryTerms('woquniqutaqu');
         $l1->setTotalRent(96000);
+        $l1->setProduct($this->getReference('product-for-get-spaces-data-structure'));
 
         $l2 = new Lease();
+        $l2->setSerialNumber('HT345689892');
         $l2->setSupervisor($this->getReference('user-mike'));
         $l2->setDrawee($this->getReference('user-mike'));
 
-        $l2 = new Lease();
-        $l2->setSupervisor($this->getReference('user-mike'));
-        $l2->setDrawee($this->getReference('user-mike'));
 
         $l3 = new Lease();
+        $l3->setSerialNumber('HT12356890564');
         $l3->setSupervisor($this->getReference('user-mike'));
         $l3->setDrawee($this->getReference('user-mike'));
+
+        $lb1 = new LeaseBill();
+        $lb1->setSerialNumber('B1234567');
+        $lb1->setName('账单1');
+        $lb1->setDescription('账单描述1');
+        $lb1->setAmount('199.9');
+        $lb1->setStartDate(new \DateTime('2016-12-01'));
+        $lb1->setEndDate(new \DateTime('2016-12-31'));
+        $lb1->setType(LeaseBill::TYPE_LEASE);
+        $lb1->setLease($l1);
+
+        $lb2 = new LeaseBill();
+        $lb2->setSerialNumber('B2345678');
+        $lb2->setName('其他账单1');
+        $lb2->setDescription('其他账单描述1');
+        $lb2->setAmount('88.8');
+        $lb2->setStartDate(new \DateTime('2016-11-11'));
+        $lb2->setEndDate(new \DateTime('2016-12-12'));
+        $lb2->setType(LeaseBill::TYPE_OTHER);
+        $lb2->setLease($l1);
 
         $manager->persist($l1);
         $manager->persist($l2);
         $manager->persist($l3);
+
+        $manager->persist($lb1);
+        $manager->persist($lb2);
 
         $manager->flush();
     }
 
     public function getOrder()
     {
-        return 17;
+        return 21;
     }
 }
