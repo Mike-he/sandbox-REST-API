@@ -185,7 +185,7 @@ class ProductAppointmentRepository extends EntityRepository
                     return array();
             }
 
-            $query->setParameter('search', $search);
+            $query->setParameter('search', "%$search%");
         }
 
         if (!is_null($createRange) && !empty($createRange)) {
