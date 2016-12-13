@@ -207,7 +207,7 @@ client:
     my_company: My Company
     scan_qr: Scan QR Code
     balance: Balance
-    my_space_order: Space Order
+    my_order: Space Order
     my_lease: Lease & Bills
     my_long_term_appointment: Long Rent Application
     my_shop_order: Shop Order
@@ -217,7 +217,7 @@ client:
     my_evaluation: My Reviews
     notification: Notification
     my_invoice: My Invoice
-    membership_card: Membership Card
+    my_membership_card: Membership Card
     reset_password: Reset Password
     email: Email
     phone: Phone

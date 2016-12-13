@@ -47,7 +47,7 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_MY_EVALUATION = 'client.menu.my_evaluation';
     const CLIENT_MENU_NOTIFICATION = 'client.menu.notification';
     const CLIENT_MENU_MY_INVOICE = 'client.menu.my_invoice';
-    const CLIENT_MENU_MEMBERSHIP_CARD = 'client.menu.membership_card';
+    const CLIENT_MENU_MEMBERSHIP_CARD = 'client.menu.my_membership_card';
     const CLIENT_MENU_RESET_PASSWORD = 'client.menu.reset_password';
     const CLIENT_MENU_EMAIL = 'client.menu.email';
     const CLIENT_MENU_PHONE = 'client.menu.phone';
