@@ -207,11 +207,11 @@ client:
     my_company: My Company
     scan_qr: Scan QR Code
     balance: Balance
-    my_order: Space Order
-    my_lease: Lease & Bills
-    my_long_term_appointment: Long Rent Application
+    my_order: Room Order
+    my_lease: Contract
+    my_long_term_appointment: Application
     my_shop_order: Shop Order
-    my_activity_order: Activity Order
+    my_activity_order: Event Order
     my_room: My Rooms
     my_favorite: My Favorites
     my_evaluation: My Reviews
