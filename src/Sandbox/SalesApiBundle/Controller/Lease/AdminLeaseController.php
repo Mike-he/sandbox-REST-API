@@ -52,7 +52,6 @@ class AdminLeaseController extends SalesRestController
         ));
         $lease->setBills($bills);
 
-        // TODO: To get necessary fields of drawee, contact
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])

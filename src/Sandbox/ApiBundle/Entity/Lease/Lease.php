@@ -15,7 +15,7 @@ use JMS\Serializer\Annotation as Serializer;
 class Lease
 {
     const LEASE_STATUS_DRAFTING = 'drafting';
-    const LEASE_STATUS_REVIEWING = 'reviewing';
+    const LEASE_STATUS_RECONFIRMING = 'reconfirming';
     const LEASE_STATUS_CONFIRMING = 'confirming';
     const LEASE_STATUS_CONFIRMED = 'confirmed';
     const LEASE_STATUS_PERFORMING = 'performing';
@@ -868,7 +868,7 @@ class Lease
 
     /**
      * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("surpervisor")
+     * @Serializer\SerializedName("supervisor")
      * @Serializer\Groups({"main", "lease_list"})
      */
     public function getSurpervisorId()
@@ -901,7 +901,7 @@ class Lease
                 ],
                 'city' => $this->product->getRoom()->getBuilding()->getCity()->getName(),
                 'attachment' => $this->product->getRoom()->degenerateAttachment(),
-            ]
+            ],
         ];
     }
 }
