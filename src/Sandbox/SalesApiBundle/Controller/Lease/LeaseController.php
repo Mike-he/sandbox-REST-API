@@ -48,7 +48,7 @@ class LeaseController extends SalesRestController
 
         $bills = $this->getLeaseBillRepo()->findBy(array(
             'lease' => $lease,
-            'type' => LeaseBill::TYPE_LEASE
+            'type' => LeaseBill::TYPE_LEASE,
         ));
         $lease->setBills($bills);
 
@@ -228,20 +228,20 @@ class LeaseController extends SalesRestController
         foreach ($leases as $lease) {
             $totalLeaseBills = $this->getLeaseBillRepo()->findBy(array(
                 'lease' => $lease->getId(),
-                'type' => LeaseBill::TYPE_LEASE
+                'type' => LeaseBill::TYPE_LEASE,
             ));
             $lease->setTotalLeaseBillsAmount(count($totalLeaseBills));
 
             $paidLeaseBills = $this->getLeaseBillRepo()->findBy(array(
                 'lease' => $lease->getId(),
                 'type' => LeaseBill::TYPE_LEASE,
-                'status' => LeaseBill::STATUS_PAID
+                'status' => LeaseBill::STATUS_PAID,
             ));
             $lease->setPaidLeaseBillsAmount(count($paidLeaseBills));
 
             $otherBills = $this->getLeaseBillRepo()->findBy(array(
                 'lease' => $lease->getId(),
-                'type' => LeaseBill::TYPE_OTHER
+                'type' => LeaseBill::TYPE_OTHER,
             ));
 
             $lease->setOtherBillsAmount(count($otherBills));
@@ -686,13 +686,13 @@ class LeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $lease = $this->getLeaseRepo()->find($leaseId);
 
-        if (!empty($payload['drawee'])){
+        if (!empty($payload['drawee'])) {
             $drawee = $this->getUserRepo()->find($payload['drawee']);
             $this->throwNotFoundIfNull($drawee, self::NOT_FOUND_MESSAGE);
             $lease->setDrawee($drawee);
         }
 
-        if (!empty($payload['supervisor'])){
+        if (!empty($payload['supervisor'])) {
             $supervisor = $this->getUserRepo()->find($payload['drawee']);
             $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
             $lease->setDrawee($supervisor);

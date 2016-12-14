@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
@@ -61,6 +62,9 @@ class LeaseBillController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
@@ -115,6 +119,9 @@ class LeaseBillController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
@@ -140,6 +147,9 @@ class LeaseBillController extends SalesRestController
     public function postBillAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
         $bill = new LeaseBill();
         $form = $this->createForm(new LeaseBillPostType(), $bill);
         $form->handleRequest($request);
@@ -174,6 +184,9 @@ class LeaseBillController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
@@ -230,6 +243,9 @@ class LeaseBillController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+
         $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
@@ -288,5 +304,20 @@ class LeaseBillController extends SalesRestController
         ));
 
         return new View($response, 201);
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminLeasePermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+            ],
+            $opLevel
+        );
     }
 }

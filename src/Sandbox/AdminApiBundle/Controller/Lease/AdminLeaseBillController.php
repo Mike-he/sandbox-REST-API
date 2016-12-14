@@ -6,6 +6,7 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Lease\LeaseController;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Form\Order\LeaseBillOfflineTransferPatch;
@@ -59,6 +60,9 @@ class AdminLeaseBillController extends LeaseController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
@@ -113,6 +117,9 @@ class AdminLeaseBillController extends LeaseController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
@@ -138,6 +145,9 @@ class AdminLeaseBillController extends LeaseController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
         $bill = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findOneBy(
@@ -197,5 +207,20 @@ class AdminLeaseBillController extends LeaseController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminLeasePermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE],
+            ],
+            $opLevel
+        );
     }
 }

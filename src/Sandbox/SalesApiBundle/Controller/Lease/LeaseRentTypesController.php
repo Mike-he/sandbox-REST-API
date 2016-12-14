@@ -22,10 +22,10 @@ class LeaseRentTypesController extends SalesRestController
      */
     public function getLeaseRentTypesAction()
     {
-        $leaseRentTypes =  $this->getDoctrine()
+        $leaseRentTypes = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')
             ->findBy(array(
-                'status' => true
+                'status' => true,
             ));
 
         $view = new View();
@@ -34,5 +34,4 @@ class LeaseRentTypesController extends SalesRestController
 
         return $view;
     }
-   
 }
