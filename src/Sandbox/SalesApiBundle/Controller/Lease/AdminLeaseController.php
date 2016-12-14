@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use FOS\RestBundle\Controller\Annotations;
 
-class LeaseController extends SalesRestController
+class AdminLeaseController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
 
