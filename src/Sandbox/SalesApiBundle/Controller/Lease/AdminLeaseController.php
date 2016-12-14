@@ -528,7 +528,10 @@ class AdminLeaseController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        if ($payload['status'] == Lease::LEASE_STATUS_REVIEWING) {
+        if (
+            $payload['status'] == Lease::LEASE_STATUS_CONFIRMING ||
+            $payload['status'] == Lease::LEASE_STATUS_RECONFIRMING
+        ) {
             if (
                 gettype($payload['lessee_address']) != 'string' ||
                 gettype($payload['lessee_contact']) != 'string' ||
