@@ -41,6 +41,12 @@ class ClientLeaseController extends SandboxRestController
     ) {
         $ids = $paramFetcher->get('ids');
 
+        $expireInParameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array(
+                'key' => Parameter::KEY_LEASE_CONFIRM_EXPIRE_IN,
+            ));
+
         $response = array();
         foreach ($ids as $id) {
             $lease = $this->getDoctrine()
@@ -55,11 +61,6 @@ class ClientLeaseController extends SandboxRestController
             }
 
             $modificationDate = $lease->getModificationDate();
-            $expireInParameter = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Parameter\Parameter')
-                ->findOneBy(array(
-                    'key' => Parameter::KEY_LEASE_CONFIRM_EXPIRE_IN,
-                ));
             $leaseExpireInDate = $modificationDate->add(new \DateInterval('P'.$expireInParameter->getValue()));
 
             $now = new \DateTime('now');
