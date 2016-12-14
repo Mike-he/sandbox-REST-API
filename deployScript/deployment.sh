@@ -4,6 +4,7 @@ sudo cp -r web/image/ /data/openfire/  # synchronous images files
 
 sudo php app/console doc:mig:exe 20161207025409  # add permission group data
 sudo php app/console doc:mig:exe 20161209160419  # change permission group's name data
+sudo php app/console doc:mig:exe 20161214161831  # add lease expire in time in parameter table
 
 
 ## version 2.3.1

@@ -15,6 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Parameter
 {
+    const KEY_LEASE_CONFIRM_EXPIRE_IN = 'lease_confirm_expire_in';
+
     /**
      * @var int
      *
