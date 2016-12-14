@@ -46,6 +46,12 @@ class LeaseController extends SalesRestController
 
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
+        $bills = $this->getLeaseBillRepo()->findBy(array(
+            'lease' => $lease,
+            'type' => LeaseBill::TYPE_LEASE
+        ));
+        $lease->setBills($bills);
+
         // TODO: To get necessary fields of drawee, contact
         $view = new View();
         $view->setSerializationContext(
@@ -749,7 +755,7 @@ class LeaseController extends SalesRestController
             $lease->setProductAppointment($productAppointment);
         }
 
-        $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
+        $this->handleLeaseRentTypesPut($payload['lease_rent_types'], $lease);
         $this->handleLeaseBillPut($payload['bills'], $lease, $em);
 
         $em->persist($lease);
@@ -764,6 +770,24 @@ class LeaseController extends SalesRestController
         ));
 
         return new View();
+    }
+
+    private function handleLeaseRentTypesPut(
+        $leaseRentTypeIds,
+        $lease
+    ) {
+        $leaseRentTypes = $lease->getLeaseRentTypes();
+        foreach ($leaseRentTypes as $leaseRentType) {
+            $lease->removeLeaseRentTypes($leaseRentType);
+        }
+
+        foreach ($leaseRentTypeIds as $leaseRentTypeId) {
+            $leaseRentType = $this->getLeaseRentTypesRepo()->find($leaseRentTypeId);
+            if (is_null($leaseRentType)) {
+                throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+            }
+            $lease->addLeaseRentTypes($leaseRentType);
+        }
     }
 
     private function handleLeaseBillPut(

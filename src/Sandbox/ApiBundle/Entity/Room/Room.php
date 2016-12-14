@@ -771,4 +771,18 @@ class Room
     {
         $this->rentType = $rentType;
     }
+
+    public function degenerateAttachment()
+    {
+        $attachment =  array_map(
+            function ($attachment) {
+                return
+                    $attachment->getAttachmentId()->getContent()
+                ;
+            },
+            $this->attachment->toArray()
+        );
+
+        return $attachment[0];
+    }
 }

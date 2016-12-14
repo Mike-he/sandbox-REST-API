@@ -29,7 +29,7 @@ class Lease
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main","lease_bill", "lease_list"})
+     * @Serializer\Groups({"main", "lease_bill", "lease_list"})
      */
     private $id;
 
@@ -38,7 +38,7 @@ class Lease
      *
      * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
      *
-     * @Serializer\Groups({"main","client","lease_bill", "lease_list"})
+     * @Serializer\Groups({"main", "client","lease_bill", "lease_list"})
      */
     private $serialNumber;
 
@@ -48,7 +48,7 @@ class Lease
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"client"})
      */
     private $drawee;
 
@@ -58,7 +58,7 @@ class Lease
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
      * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="SET NULL")
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"client"})
      */
     private $product;
 
@@ -69,8 +69,6 @@ class Lease
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="supervisor", referencedColumnName="id", onDelete="SET NULL")
-     *
-     * @Serializer\Groups({"main"})
      */
     private $supervisor;
 
@@ -300,6 +298,7 @@ class Lease
 
     /**
      * @var array
+     * @Serializer\Groups({"main"})
      */
     private $bills;
 
@@ -320,54 +319,6 @@ class Lease
      * @Serializer\Groups({"lease_list"})
      */
     private $totalLeaseBillsAmount;
-
-    /**
-     * @return int
-     */
-    public function getTotalLeaseBillsAmount()
-    {
-        return $this->totalLeaseBillsAmount;
-    }
-
-    /**
-     * @param int $totalLeaseBillsAmount
-     */
-    public function setTotalLeaseBillsAmount($totalLeaseBillsAmount)
-    {
-        $this->totalLeaseBillsAmount = $totalLeaseBillsAmount;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPaidLeaseBillsAmount()
-    {
-        return $this->paidLeaseBillsAmount;
-    }
-
-    /**
-     * @param int $paidLeaseBillsAmount
-     */
-    public function setPaidLeaseBillsAmount($paidLeaseBillsAmount)
-    {
-        $this->paidLeaseBillsAmount = $paidLeaseBillsAmount;
-    }
-
-    /**
-     * @return int
-     */
-    public function getOtherBillsAmount()
-    {
-        return $this->otherBillsAmount;
-    }
-
-    /**
-     * @param int $otherBillsAmount
-     */
-    public function setOtherBillsAmount($otherBillsAmount)
-    {
-        $this->otherBillsAmount = $otherBillsAmount;
-    }
 
     public function __construct()
     {
@@ -801,6 +752,14 @@ class Lease
     }
 
     /**
+     * @param LeaseRentTypes $leaseRentType
+     */
+    public function removeLeaseRentTypes($leaseRentType)
+    {
+        return $this->leaseRentTypes->removeElement($leaseRentType);
+    }
+
+    /**
      * @return string
      */
     public function getLesseeContact()
@@ -849,9 +808,57 @@ class Lease
     }
 
     /**
+     * @return int
+     */
+    public function getTotalLeaseBillsAmount()
+    {
+        return $this->totalLeaseBillsAmount;
+    }
+
+    /**
+     * @param int $totalLeaseBillsAmount
+     */
+    public function setTotalLeaseBillsAmount($totalLeaseBillsAmount)
+    {
+        $this->totalLeaseBillsAmount = $totalLeaseBillsAmount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaidLeaseBillsAmount()
+    {
+        return $this->paidLeaseBillsAmount;
+    }
+
+    /**
+     * @param int $paidLeaseBillsAmount
+     */
+    public function setPaidLeaseBillsAmount($paidLeaseBillsAmount)
+    {
+        $this->paidLeaseBillsAmount = $paidLeaseBillsAmount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOtherBillsAmount()
+    {
+        return $this->otherBillsAmount;
+    }
+
+    /**
+     * @param int $otherBillsAmount
+     */
+    public function setOtherBillsAmount($otherBillsAmount)
+    {
+        $this->otherBillsAmount = $otherBillsAmount;
+    }
+
+    /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("drawee")
-     * @Serializer\Groups({"lease_list"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     public function getDraweeId()
     {
@@ -862,7 +869,7 @@ class Lease
     /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("surpervisor")
-     * @Serializer\Groups({"lease_list"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     public function getSurpervisorId()
     {
@@ -873,11 +880,28 @@ class Lease
     /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("product")
-     * @Serializer\Groups({"lease_list"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
-    public function getProductId()
+    public function degenerateProduct()
     {
-        return is_null($this->product) ?
-            null : $this->product->getId();
+        return [
+            'id' => $this->product->getId(),
+            'unit_price' => $this->product->getUnitPrice(),
+            'base_price' => $this->product->getBasePrice(),
+            'room' => [
+                'id' => $this->product->getRoom()->getId(),
+                'number' => $this->product->getRoom()->getNumber(),
+                'name' => $this->product->getRoom()->getName(),
+                'type' => $this->product->getRoom()->getType(),
+                'area' => $this->product->getRoom()->getArea(),
+                'allowed_people' => $this->product->getRoom()->getAllowedPeople(),
+                'building' => [
+                    'name' => $this->product->getRoom()->getBuilding()->getName(),
+                    'address' => $this->product->getRoom()->getBuilding()->getAddress(),
+                ],
+                'city' => $this->product->getRoom()->getBuilding()->getCity()->getName(),
+                'attachment' => $this->product->getRoom()->degenerateAttachment(),
+            ]
+        ];
     }
 }
