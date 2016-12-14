@@ -8,7 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 
-class LeaseRentTypesController extends SalesRestController
+class AdminLeaseRentTypesController extends SalesRestController
 {
     /**
      * Get List of Rent Types.

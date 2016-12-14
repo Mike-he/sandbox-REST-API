@@ -20,7 +20,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class LeaseBillController extends SalesRestController
+class AdminLeaseBillController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
 
