@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Lease;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 
 class LeaseRepository extends EntityRepository
@@ -238,5 +239,31 @@ class LeaseRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getClientLeases(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->leftJoin('l.supervisor', 'u')
+            ->where('u.id = :userId')
+            ->andWhere('l.status != :status')
+            ->orderBy('l.creationDate')
+            ->setParameter('userId', $userId)
+            ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
     }
 }
