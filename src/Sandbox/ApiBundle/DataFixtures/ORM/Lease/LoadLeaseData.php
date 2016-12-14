@@ -38,6 +38,7 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l1->setSupplementaryTerms('woquniqutaqu');
         $l1->setTotalRent(96000);
         $l1->setProduct($this->getReference('product-for-get-spaces-data-structure'));
+        $this->addReference('lease_one', $l1);
 
         $l2 = new Lease();
         $l2->setSerialNumber('HT345689892');
@@ -58,6 +59,7 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $lb1->setEndDate(new \DateTime('2016-12-31'));
         $lb1->setType(LeaseBill::TYPE_LEASE);
         $lb1->setLease($l1);
+        $this->addReference('lease_bill_for_type_lease', $lb1);
 
         $lb2 = new LeaseBill();
         $lb2->setSerialNumber('B2345678');
@@ -69,6 +71,7 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $lb2->setType(LeaseBill::TYPE_OTHER);
         $lb2->setStatus(LeaseBill::STATUS_UNPAID);
         $lb2->setLease($l1);
+        $this->addReference('lease_bill_for_type_other', $lb1);
 
         $manager->persist($l1);
         $manager->persist($l2);
