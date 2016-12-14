@@ -45,7 +45,10 @@ class LeaseRepository extends EntityRepository
         $query->andWhere('r.buildingId IN (:buildingIds)')
             ->setParameter('buildingIds', $myBuildingIds);
 
-        if (!is_null($status)) {
+        if ($status == 'all') {
+            $query->andWhere('l.status != :status')
+                ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
+        } else {
             $query->andWhere('l.status = :status')
                 ->setParameter('status', $status);
         }
@@ -162,7 +165,10 @@ class LeaseRepository extends EntityRepository
         $query->andWhere('r.buildingId IN (:buildingIds)')
             ->setParameter('buildingIds', $myBuildingIds);
 
-        if (!is_null($status)) {
+        if ($status == 'all') {
+            $query->andWhere('l.status != :status')
+                ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
+        } else {
             $query->andWhere('l.status = :status')
                 ->setParameter('status', $status);
         }
