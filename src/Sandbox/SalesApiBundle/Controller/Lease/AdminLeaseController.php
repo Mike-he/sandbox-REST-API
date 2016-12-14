@@ -70,19 +70,10 @@ class AdminLeaseController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="status",
      *    array=false,
-     *    default=null,
+     *    default="all",
      *    nullable=true,
      *    strict=true,
-     *    description="pending, withdrawn, accepted, rejected"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="buildingId",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by building id"
+     *    description="status of lease"
      * )
      *
      * @Annotations\QueryParam(
@@ -523,84 +514,62 @@ class AdminLeaseController extends SalesRestController
             !key_exists('product', $payload) ||
             !key_exists('product', $payload) ||
             !key_exists('lease_rent_types', $payload) ||
-            !key_exists('bills', $payload)
+            !key_exists('bills', $payload) ||
+            gettype($payload['lease_rent_types']) != 'array' ||
+            gettype($payload['bills']) != 'array'
         ) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         if (
-            $payload['status'] == Lease::LEASE_STATUS_CONFIRMING ||
-            $payload['status'] == Lease::LEASE_STATUS_RECONFIRMING
+            $payload['status'] != Lease::LEASE_STATUS_DRAFTING
         ) {
             if (
-                gettype($payload['lessee_address']) != 'string' ||
-                gettype($payload['lessee_contact']) != 'string' ||
-                gettype($payload['lessee_email']) != 'string' ||
-                gettype($payload['lessee_name']) != 'string' ||
-                gettype($payload['lessee_phone']) != 'string' ||
-                gettype($payload['lessor_address']) != 'string' ||
-                gettype($payload['lessor_name']) != 'string' ||
-                gettype($payload['lessor_phone']) != 'string' ||
-                gettype($payload['lessor_email']) != 'string' ||
-                gettype($payload['lessor_contact']) != 'string' ||
                 (gettype($payload['deposit']) != 'double' && gettype($payload['deposit']) != 'integer') ||
                 (gettype($payload['monthly_rent']) != 'double' && gettype($payload['deposit']) != 'integer') ||
                 (gettype($payload['total_rent']) != 'double' && gettype($payload['deposit']) != 'integer') ||
-                gettype($payload['status']) != 'string' ||
-                gettype($payload['purpose']) != 'string' ||
-                gettype($payload['start_date']) != 'string' ||
-                gettype($payload['end_date']) != 'string' ||
-                gettype($payload['drawee']) != 'integer' ||
-                gettype($payload['supervisor']) != 'integer' ||
-                gettype($payload['product']) != 'integer' ||
-                gettype($payload['lease_rent_types']) != 'array' ||
-                gettype($payload['bills']) != 'array' ||
-                empty($payload['lessee_address']) ||
-                empty($payload['lessee_contact']) ||
-                empty($payload['lessee_email']) ||
-                empty($payload['lessee_name']) ||
-                empty($payload['lessee_phone']) ||
-                empty($payload['lessor_address']) ||
-                empty($payload['lessor_contact']) ||
-                empty($payload['lessor_name']) ||
-                empty($payload['lessor_phone']) ||
-                empty($payload['lessor_email']) ||
                 empty($payload['deposit']) ||
                 empty($payload['monthly_rent']) ||
                 empty($payload['total_rent']) ||
-                empty($payload['status']) ||
-                empty($payload['purpose']) ||
-                empty($payload['start_date']) ||
-                empty($payload['end_date']) ||
-                empty($payload['drawee']) ||
-                empty($payload['supervisor']) ||
-                empty($payload['product']) ||
                 empty($payload['lease_rent_types']) ||
-                empty($payload['bills'])
+                empty($payload['bills']) ||
+                !preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $payload['start_date']) ||
+                !preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $payload['end_date']) ||
+                !filter_var($payload['lessee_address'], FILTER_DEFAULT) ||
+                !filter_var($payload['lessee_contact'], FILTER_DEFAULT) ||
+                !filter_var($payload['lessee_name'], FILTER_DEFAULT) ||
+                !filter_var($payload['lessee_phone'], FILTER_DEFAULT) ||
+                !filter_var($payload['lessee_email'], FILTER_VALIDATE_EMAIL) ||
+                !filter_var($payload['lessor_email'], FILTER_VALIDATE_EMAIL) ||
+                !filter_var($payload['lessor_address'], FILTER_DEFAULT) ||
+                !filter_var($payload['lessor_name'], FILTER_DEFAULT) ||
+                !filter_var($payload['lessor_phone'], FILTER_DEFAULT) ||
+                !filter_var($payload['lessor_contact'], FILTER_DEFAULT) ||
+                !filter_var($payload['purpose'], FILTER_DEFAULT) ||
+                !filter_var($payload['status'], FILTER_DEFAULT) ||
+                !filter_var($payload['drawee'], FILTER_VALIDATE_INT) ||
+                !filter_var($payload['supervisor'], FILTER_VALIDATE_INT) ||
+                !filter_var($payload['product'], FILTER_VALIDATE_INT)
             ) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
-        }
 
-        foreach ($payload['bills'] as $billAttributes) {
-            if (
-                !key_exists('name', $billAttributes) ||
-                !key_exists('amount', $billAttributes) ||
-                !key_exists('description', $billAttributes) ||
-                !key_exists('start_date', $billAttributes) ||
-                !key_exists('end_date', $billAttributes) ||
-                gettype($billAttributes['name']) != 'string' ||
-                (gettype($billAttributes['amount']) != 'double' && gettype($billAttributes['amount']) != 'integer') ||
-                gettype($billAttributes['description']) != 'string' ||
-                gettype($billAttributes['start_date']) != 'string' ||
-                gettype($billAttributes['end_date']) != 'string' ||
-                empty($billAttributes['name']) ||
-                empty($billAttributes['amount']) ||
-                empty($billAttributes['description']) ||
-                empty($billAttributes['start_date']) ||
-                empty($billAttributes['end_date'])
-            ) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            foreach ($payload['bills'] as $billAttributes) {
+                if (
+                    !key_exists('name', $billAttributes) ||
+                    !key_exists('amount', $billAttributes) ||
+                    !key_exists('description', $billAttributes) ||
+                    !key_exists('start_date', $billAttributes) ||
+                    !key_exists('end_date', $billAttributes) ||
+                    (gettype($billAttributes['amount']) != 'double' && gettype($billAttributes['amount']) != 'integer') ||
+                    empty($billAttributes['amount']) ||
+                    !filter_var($billAttributes['name'], FILTER_DEFAULT) ||
+                    !filter_var($billAttributes['description'], FILTER_DEFAULT) ||
+                    !preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $billAttributes['start_date']) ||
+                    !preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $billAttributes['end_date'])
+                ) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
             }
         }
 
@@ -695,7 +664,7 @@ class AdminLeaseController extends SalesRestController
         }
 
         if (!empty($payload['supervisor'])) {
-            $supervisor = $this->getUserRepo()->find($payload['drawee']);
+            $supervisor = $this->getUserRepo()->find($payload['supervisor']);
             $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
             $lease->setDrawee($supervisor);
         }
@@ -721,10 +690,19 @@ class AdminLeaseController extends SalesRestController
         $lease->setLessorContact($payload['lessor_contact']);
         $lease->setMonthlyRent($payload['monthly_rent']);
         $lease->setPurpose($payload['purpose']);
-        $lease->setStatus($payload['status']);
         $lease->setStartDate($startDate);
         $lease->setSerialNumber($this->generateLeaseSerialNumber());
         $lease->setTotalRent($payload['total_rent']);
+
+        switch ($lease->getStatus()) {
+            case Lease::LEASE_STATUS_DRAFTING:
+                $lease->setStatus($payload['status']);
+                break;
+            case Lease::LEASE_STATUS_CONFIRMING:
+                break;
+            default:
+                $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
+        }
 
         if (
             isset($payload['other_expenses']) &&

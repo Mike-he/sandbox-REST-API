@@ -21,6 +21,7 @@ class Lease
     const LEASE_STATUS_PERFORMING = 'performing';
     const LEASE_STATUS_END = 'end';
     const LEASE_STATUS_REJECTED = 'rejected';
+    const LEASE_STATUS_OVERTIME = 'overtime';
 
     /**
      * @var int
