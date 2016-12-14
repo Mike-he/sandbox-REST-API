@@ -10,7 +10,6 @@ with username = "token" and password = "id of client"
   * to start vagrant ENV `vagrant up` 
   * to ssh into the virtual machine `vagrant ssh`
 
-
 ## Pre-requisites
 
 * [VirtualBox](http://www.virtualbox.org/) for full machine virtualization
@@ -19,7 +18,6 @@ with username = "token" and password = "id of client"
 ## Dev envirorment with Vagrant
 
 All you should need to do is execute `vagrant up` from your working copy root.
-
 
 ## Api documentation
 
