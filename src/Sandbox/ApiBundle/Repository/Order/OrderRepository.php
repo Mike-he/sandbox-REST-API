@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\Repository\Order;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {

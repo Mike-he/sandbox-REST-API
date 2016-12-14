@@ -3,8 +3,10 @@
 namespace Sandbox\ClientApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
+use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +16,45 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ClientLeaseController extends SandboxRestController
 {
+    /**
+     * Get Lease Detail.
+     *
+     * @param $id
+     *
+     * @Route("/leases/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getLeaseAction(
+        $id
+    ) {
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+
+        // check user permission
+        $this->checkUserLeasePermission($lease);
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(array(
+                'lease' => $lease,
+                'type' => LeaseBill::TYPE_LEASE,
+            ));
+        $lease->setBills($bills);
+
+        $view = new View();
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(['main'])
+        );
+        $view->setData($lease);
+
+        return $view;
+    }
+
     /**
      * Patch Lease Status.
      *
@@ -37,9 +78,7 @@ class ClientLeaseController extends SandboxRestController
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        if ($this->getUser() != $lease->getSuperVisor()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
+        $this->checkUserLeasePermission($lease);
 
         $leaseJson = $this->container
             ->get('serializer')
@@ -63,5 +102,12 @@ class ClientLeaseController extends SandboxRestController
         ));
 
         return new View();
+    }
+
+    public function checkUserLeasePermission($lease)
+    {
+        if ($this->getUser() != $lease->getSuperVisor()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
     }
 }

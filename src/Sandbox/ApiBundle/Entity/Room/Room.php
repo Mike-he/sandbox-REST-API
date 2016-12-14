@@ -774,7 +774,7 @@ class Room
 
     public function degenerateAttachment()
     {
-        $attachment =  array_map(
+        $attachment = array_map(
             function ($attachment) {
                 return
                     $attachment->getAttachmentId()->getContent()
