@@ -235,7 +235,7 @@ class ClientLeaseController extends SandboxRestController
 
     public function checkUserLeasePermission($lease)
     {
-        if ($this->getUser() != $lease->getSuperVisor()) {
+        if ($this->getUserId() != $lease->getSuperVisor()->getId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
     }
