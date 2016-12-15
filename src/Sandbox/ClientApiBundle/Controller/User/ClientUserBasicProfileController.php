@@ -30,6 +30,34 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientUserBasicProfileController extends UserProfileController
 {
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="ids",
+     *     array=true,
+     *     strict=true
+     * )
+     *
+     * @Route("/open_user")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenUserAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('ids');
+
+        $users = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->getUsersByIds($ids);
+
+        return new View($users);
+    }
+
+    /**
      * Get user's basic profile.
      *
      * @param Request               $request      the request object
