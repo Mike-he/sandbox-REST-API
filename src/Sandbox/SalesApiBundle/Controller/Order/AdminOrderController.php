@@ -923,6 +923,15 @@ class AdminOrderController extends OrderController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
      *
      * @Route("/orders/export")
      * @Method({"GET"})
@@ -938,6 +947,7 @@ class AdminOrderController extends OrderController
         //authenticate with web browser cookie
         $admin = $this->authenticateAdminCookie();
         $adminId = $admin->getId();
+        $companyId = $paramFetcher->get('company');
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
@@ -947,7 +957,9 @@ class AdminOrderController extends OrderController
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
                 ),
             ),
-            AdminPermission::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
         );
 
         $language = $paramFetcher->get('language');

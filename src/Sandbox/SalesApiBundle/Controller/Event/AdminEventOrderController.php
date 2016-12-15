@@ -277,6 +277,16 @@ class AdminEventOrderController extends SalesRestController
      *    description="end date. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     *
      * @Route("/events/orders/export")
      * @Method({"GET"})
      *
@@ -289,11 +299,14 @@ class AdminEventOrderController extends SalesRestController
         //authenticate with web browser cookie
         $admin = $this->authenticateAdminCookie();
         $adminId = $admin->getId();
+        $companyId = $paramFetcher->get('company');
 
         // check user permission
         $this->checkSalesAdminEventOrderPermission(
             $adminId,
-            AdminPermission::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
         );
 
         $language = $paramFetcher->get('language');
