@@ -104,14 +104,6 @@ class ClientLeaseController extends SandboxRestController
         // check user permission
         $this->checkUserLeasePermission($lease);
 
-        $bills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(array(
-                'lease' => $lease,
-                'type' => LeaseBill::TYPE_LEASE,
-            ));
-        $lease->setBills($bills);
-
         $unpaidBills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBy(array(
