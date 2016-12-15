@@ -1858,8 +1858,9 @@ class OrderRepository extends EntityRepository
         $status
     ) {
         $query = $this->createQueryBuilder('o')
-            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
             ->where('o.paymentDate IS NOT NULL');
 
         // filter by payment channel
