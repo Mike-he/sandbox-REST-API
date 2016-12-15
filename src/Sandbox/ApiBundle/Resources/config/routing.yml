@@ -129,3 +129,9 @@ sandbox_api_parameter:
     resource: "@SandboxApiBundle/Controller/Parameter/ParameterController.php"
     type:     annotation
     prefix:   /
+
+# Lease Rent Types /leases/renttypes
+sandbox_api_lease_rent_types:
+    resource: "@SandboxApiBundle/Controller/Lease/LeaseRentTypesController.php"
+    type:     annotation
+    prefix:   /

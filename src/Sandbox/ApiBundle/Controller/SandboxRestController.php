@@ -1089,7 +1089,7 @@ class SandboxRestController extends FOSRestController
     /**
      * @throws NotFoundHttpException when resource not exist
      */
-    protected function throwNotFoundIfNull($resource, $message)
+    protected function throwNotFoundIfNull($resource, $message = self::NOT_FOUND_MESSAGE)
     {
         $this->_throwHttpErrorIfNull(
             $resource,

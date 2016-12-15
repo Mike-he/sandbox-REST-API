@@ -1,14 +1,13 @@
 <?php
 
-namespace Sandbox\SalesApiBundle\Controller\Lease;
+namespace Sandbox\ApiBundle\Controller\Lease;
 
-use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 
-class AdminLeaseRentTypesController extends SalesRestController
+class LeaseRentTypesController extends LeaseController
 {
     /**
      * Get List of Rent Types.

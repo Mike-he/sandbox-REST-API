@@ -20,8 +20,7 @@ class Lease
     const LEASE_STATUS_CONFIRMED = 'confirmed';
     const LEASE_STATUS_PERFORMING = 'performing';
     const LEASE_STATUS_END = 'end';
-    const LEASE_STATUS_REJECTED = 'rejected';
-    const LEASE_STATUS_OVERTIME = 'overtime';
+    const LEASE_STATUS_OVERTIME = 'expired';
 
     /**
      * @var int
@@ -327,11 +326,62 @@ class Lease
      */
     private $unpaidLeaseBillsAmount;
 
+    /**
+     * @var User
+     *
+     * @ORM\ManyToMany(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinTable(
+     *      name="lease_has_invited_persons",
+     *      joinColumns={@ORM\JoinColumn(name="lease_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
+     * )
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $invitedPeople;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="effective_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $effectiveDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="confirmation_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $confirmationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="expiration_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $expirationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="reconfirmation_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $reconfirmationDate;
+
     public function __construct()
     {
         $this->creationDate = new \DateTime('now');
         $this->modificationDate = new \DateTime('now');
         $this->leaserentTypes = new ArrayCollection();
+        $this->invitedPeople = new ArrayCollection();
     }
 
     /**
@@ -926,5 +976,93 @@ class Lease
                 'attachment' => $this->product->getRoom()->degenerateAttachment(),
             ],
         ];
+    }
+
+    /**
+     * @return User
+     */
+    public function getInvitedPeople()
+    {
+        return $this->invitedPeople;
+    }
+
+    /**
+     * @param User $invitedPeople
+     */
+    public function addInvitedPeople($invitedPeople)
+    {
+        $this->invitedPeople[] = $invitedPeople;
+    }
+
+    /**
+     * @param User $invitedPeople
+     */
+    public function removeInvitedPeople($invitedPeople)
+    {
+        $this->invitedPeople[] = $invitedPeople;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEffectiveDate()
+    {
+        return $this->effectiveDate;
+    }
+
+    /**
+     * @param \DateTime $effectiveDate
+     */
+    public function setEffectiveDate($effectiveDate)
+    {
+        $this->effectiveDate = $effectiveDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getConfirmationDate()
+    {
+        return $this->confirmationDate;
+    }
+
+    /**
+     * @param \DateTime $confirmationDate
+     */
+    public function setConfirmationDate($confirmationDate)
+    {
+        $this->confirmationDate = $confirmationDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getExpirationDate()
+    {
+        return $this->expirationDate;
+    }
+
+    /**
+     * @param \DateTime $expirationDate
+     */
+    public function setExpirationDate($expirationDate)
+    {
+        $this->expirationDate = $expirationDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getReconfirmationDate()
+    {
+        return $this->reconfirmationDate;
+    }
+
+    /**
+     * @param \DateTime $reconfirmationDate
+     */
+    public function setReconfirmationDate($reconfirmationDate)
+    {
+        $this->reconfirmationDate = $reconfirmationDate;
     }
 }

@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
+use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -24,6 +25,7 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminLeaseController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
+    use HasAccessToEntityRepositoryTrait;
 
     /**
      * Get Lease Detail.
@@ -39,7 +41,7 @@ class AdminLeaseController extends SalesRestController
         $id
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
 
         $lease = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
@@ -152,7 +154,7 @@ class AdminLeaseController extends SalesRestController
         Request $request
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -267,7 +269,7 @@ class AdminLeaseController extends SalesRestController
         Request $request
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $payload = json_decode($request->getContent(), true);
 
@@ -290,7 +292,7 @@ class AdminLeaseController extends SalesRestController
         $id
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $payload = json_decode($request->getContent(), true);
 
@@ -315,10 +317,9 @@ class AdminLeaseController extends SalesRestController
         $id
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $lease = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
+        $lease = $this->getLeaseRepo()->find($id);
 
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
@@ -360,11 +361,11 @@ class AdminLeaseController extends SalesRestController
         $id
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
         $em = $this->getDoctrine()->getManager();
 
-        $lease = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\Lease')->findOneBy(
+        $lease = $this->getLeaseRepo()->findOneBy(
                 array(
                     'id' => $id,
                     'status' => Lease::LEASE_STATUS_DRAFTING,
@@ -576,36 +577,6 @@ class AdminLeaseController extends SalesRestController
         return;
     }
 
-    private function getUserRepo()
-    {
-        return $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\User');
-    }
-
-    private function getProductRepo()
-    {
-        return $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\Product');
-    }
-
-    private function getLeaseRentTypesRepo()
-    {
-        return $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes');
-    }
-
-    private function getLeaseRepo()
-    {
-        return $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\Lease');
-    }
-
-    private function getProductAppointmentRepo()
-    {
-        return $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment');
-    }
-
     private function handleLeaseRentTypesPost(
         $leaseRentTypeIds,
         $lease
@@ -693,6 +664,7 @@ class AdminLeaseController extends SalesRestController
         $lease->setStartDate($startDate);
         $lease->setSerialNumber($this->generateLeaseSerialNumber());
         $lease->setTotalRent($payload['total_rent']);
+        $lease->setModificationDate(new \DateTime('now'));
 
         switch ($lease->getStatus()) {
             case Lease::LEASE_STATUS_DRAFTING:
@@ -805,9 +777,18 @@ class AdminLeaseController extends SalesRestController
         }
     }
 
-    private function getLeaseBillRepo()
-    {
-        return $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill');
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminLeasePermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+            ],
+            $opLevel
+        );
     }
 }
