@@ -533,8 +533,8 @@ class AdminLeaseController extends SalesRestController
                 empty($payload['total_rent']) ||
                 empty($payload['lease_rent_types']) ||
                 empty($payload['bills']) ||
-                !preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $payload['start_date']) ||
-                !preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $payload['end_date']) ||
+                !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['start_date']) ||
+                !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['end_date']) ||
                 !filter_var($payload['lessee_address'], FILTER_DEFAULT) ||
                 !filter_var($payload['lessee_contact'], FILTER_DEFAULT) ||
                 !filter_var($payload['lessee_name'], FILTER_DEFAULT) ||
@@ -565,8 +565,8 @@ class AdminLeaseController extends SalesRestController
                     empty($billAttributes['amount']) ||
                     !filter_var($billAttributes['name'], FILTER_DEFAULT) ||
                     !filter_var($billAttributes['description'], FILTER_DEFAULT) ||
-                    !preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $billAttributes['start_date']) ||
-                    !preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $billAttributes['end_date'])
+                    !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['start_date']) ||
+                    !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['end_date'])
                 ) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }

@@ -265,6 +265,77 @@ class AdminLeaseBillController extends SalesRestController
     }
 
     /**
+     * Batch Push Bills.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/leases/{id}/bills/batch/push")
+     * @Method({"POST"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function postBatchPushAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
+        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+
+        $payload = json_decode($request->getContent(), true);
+
+        $this->handleBatchPush($payload);
+    }
+
+    /**
+     * @param $payloads
+     */
+    private function handleBatchPush(
+        $payloads
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($payloads as $payload) {
+            $bill = $this->getDoctrine()
+                ->getRepository("SandboxApiBundle:Lease\LeaseBill")
+                ->findOneBy(
+                    array(
+                        'id' => $payload['id'],
+                        'status' => LeaseBill::STATUS_PENDING,
+                        'type' => LeaseBill::TYPE_LEASE,
+                    )
+                );
+            if (!$bill) {
+                continue;
+            }
+            if (!is_null($payload['revised_amount'])) {
+                $bill->setRevisedAmount($payload['revised_amount']);
+            }
+            if (!is_null($payload['revision_note'])) {
+                $bill->setRevisionNote($payload['revision_note']);
+            }
+            $bill->setReviser($this->getUserId());
+            $bill->setStatus(LeaseBill::STATUS_UNPAID);
+
+            $em->persist($bill);
+            $em->flush();
+
+            // generate log
+            $this->generateAdminLogs(array(
+                'logModule' => Log::MODULE_LEASE,
+                'logAction' => Log::ACTION_EDIT,
+                'logObjectKey' => Log::OBJECT_LEASE_BILL,
+                'logObjectId' => $bill->getId(),
+            ));
+        }
+    }
+
+    /**
      * @param $lease
      * @param $bill
      *
