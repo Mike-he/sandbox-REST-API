@@ -1056,11 +1056,10 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('o.status != :unpaid')
-            ->andWhere('
+            ->where('
                     (
-                        (o.paymentDate IS NOT NULL) OR
-                        (o.type = :preOrder) OR
+                        (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder) OR 
                         (o.payChannel = :offline)
                     )
                ')
@@ -1268,11 +1267,10 @@ class OrderRepository extends EntityRepository
             ->select('COUNT(o)')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('o.status != :unpaid')
-            ->andWhere('
+            ->where('
                     (
-                        (o.paymentDate IS NOT NULL) OR
-                        (o.type = :preOrder) OR
+                        (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR
+                        (o.type = :preOrder) OR 
                         (o.payChannel = :offline)
                     )
                ')
@@ -1474,18 +1472,19 @@ class OrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('o.status != :unpaid')
-            ->andWhere('
-                    (
-                        (o.paymentDate IS NOT NULL) OR
-                        (o.type = :preOrder) OR
-                        (o.payChannel = :offline)
-                    )
-               ')
-            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
-            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
-            ->setParameter('offline',  ProductOrder::CHANNEL_OFFLINE);
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id');
+
+        // only export order that is paid
+        $query->where('o.paymentDate IS NOT NULL');
+
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
+        } else {
+            $query->andWhere('o.status != :unpaid')
+                ->setParameter('unpaid', ProductOrder::STATUS_UNPAID);
+        }
 
         // filter by payment channel
         if (!is_null($channel)) {
@@ -1497,12 +1496,6 @@ class OrderRepository extends EntityRepository
         if (!is_null($status)) {
             $query->andWhere('o.status = :status')
                 ->setParameter('status', $status);
-        }
-
-        // filter by user id
-        if (!is_null($userId)) {
-            $query->andWhere('o.userId = :userId')
-                ->setParameter('userId', $userId);
         }
 
         // filter by type
