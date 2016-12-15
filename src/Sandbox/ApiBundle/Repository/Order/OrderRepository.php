@@ -1056,11 +1056,11 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('
+            ->where('o.status != :unpaid')
+            ->andWhere('
                     (
-                        (o.status != :unpaid) AND 
-                        (o.paymentDate IS NOT NULL) OR 
-                        (o.type = :preOrder) OR 
+                        (o.paymentDate IS NOT NULL) OR
+                        (o.type = :preOrder) OR
                         (o.payChannel = :offline)
                     )
                ')
@@ -1268,11 +1268,11 @@ class OrderRepository extends EntityRepository
             ->select('COUNT(o)')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('
+            ->where('o.status != :unpaid')
+            ->andWhere('
                     (
-                        (o.status != :unpaid) AND 
-                        (o.paymentDate IS NOT NULL) OR 
-                        (o.type = :preOrder) OR 
+                        (o.paymentDate IS NOT NULL) OR
+                        (o.type = :preOrder) OR
                         (o.payChannel = :offline)
                     )
                ')
@@ -1475,11 +1475,11 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->where('
+            ->where('o.status != :unpaid')
+            ->andWhere('
                     (
-                        (o.status != :unpaid) AND 
-                        (o.paymentDate IS NOT NULL) OR 
-                        (o.type = :preOrder) OR 
+                        (o.paymentDate IS NOT NULL) OR
+                        (o.type = :preOrder) OR
                         (o.payChannel = :offline)
                     )
                ')
