@@ -935,7 +935,9 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminId = $this->getAdminId();
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(

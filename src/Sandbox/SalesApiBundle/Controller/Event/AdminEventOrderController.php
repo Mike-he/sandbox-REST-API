@@ -286,9 +286,13 @@ class AdminEventOrderController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+
         // check user permission
         $this->checkSalesAdminEventOrderPermission(
-            $this->getAdminId(),
+            $adminId,
             AdminPermission::OP_LEVEL_VIEW
         );
 
