@@ -988,10 +988,13 @@ class AdminOrderController extends OrderController
 
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
+            $adminId,
             array(
                 AdminPermission::KEY_SALES_BUILDING_ORDER,
-            )
+            ),
+            null,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
         );
 
         //get array of orders

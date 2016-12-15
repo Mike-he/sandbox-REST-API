@@ -1026,6 +1026,15 @@ class AdminOrderController extends OrderController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *    name="language",
+     *    default="zh",
+     *    nullable=true,
+     *    requirements="(zh|en)",
+     *    strict=true,
+     *    description="export language"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="type",
      *    array=false,
      *    default=null,
