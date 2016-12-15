@@ -112,6 +112,15 @@ class ClientLeaseController extends SandboxRestController
             ));
         $lease->setBills($bills);
 
+        $unpaidBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(array(
+                'lease' => $lease,
+                'status' => LeaseBill::STATUS_UNPAID,
+                'type' => LeaseBill::TYPE_LEASE,
+            ));
+        $lease->setUnpaidLeaseBillsAmount(count($unpaidBills));
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])
@@ -176,7 +185,7 @@ class ClientLeaseController extends SandboxRestController
                 'product' => $lease->degenerateProduct(),
                 'start_date' => $lease->getStartDate(),
                 'end_date' => $lease->getEndDate(),
-                'unpaid_bill_counts' => count($bills),
+                'unpaid_lease_bills_amount' => count($bills),
                 'creation_date' => $lease->getCreationDate(),
             ));
         }

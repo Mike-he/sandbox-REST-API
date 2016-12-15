@@ -321,6 +321,12 @@ class Lease
      */
     private $totalLeaseBillsAmount;
 
+    /**
+     * @var int
+     * @Serializer\Groups({"main"})
+     */
+    private $unpaidLeaseBillsAmount;
+
     public function __construct()
     {
         $this->creationDate = new \DateTime('now');
@@ -876,6 +882,22 @@ class Lease
     {
         return is_null($this->supervisor) ?
             null : $this->supervisor->getId();
+    }
+
+    /**
+     * @return int
+     */
+    public function getUnpaidLeaseBillsAmount()
+    {
+        return $this->unpaidLeaseBillsAmount;
+    }
+
+    /**
+     * @param int $unpaidLeaseBillsAmount
+     */
+    public function setUnpaidLeaseBillsAmount($unpaidLeaseBillsAmount)
+    {
+        $this->unpaidLeaseBillsAmount = $unpaidLeaseBillsAmount;
     }
 
     /**
