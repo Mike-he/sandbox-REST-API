@@ -170,6 +170,7 @@ class ClientLeaseController extends SandboxRestController
                 ));
 
             array_push($response, array(
+                'id' => $lease->getId(),
                 'serial_number' => $lease->getSerialNumber(),
                 'status' => $lease->getStatus(),
                 'product' => $lease->degenerateProduct(),
