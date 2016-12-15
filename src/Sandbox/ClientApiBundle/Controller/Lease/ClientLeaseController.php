@@ -173,6 +173,8 @@ class ClientLeaseController extends SandboxRestController
                 'serial_number' => $lease->getSerialNumber(),
                 'status' => $lease->getStatus(),
                 'product' => $lease->degenerateProduct(),
+                'start_date' => $lease->getStartDate(),
+                'end_date' => $lease->getEndDate(),
                 'unpaid_bill_counts' => count($bills),
                 'creation_date' => $lease->getCreationDate(),
             ));
