@@ -348,10 +348,6 @@ class ShopOrderRepository extends EntityRepository
                     $query->andWhere('o.orderNumber LIKE :search')
                         ->setParameter('search', '%'.$keywordSearch.'%');
                     break;
-//                case 'event':
-//                    $query->andWhere('e.name LIKE :search')
-//                        ->setParameter('search', '%'.$keywordSearch.'%');
-//                    break;
             }
         }
 
