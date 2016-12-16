@@ -278,6 +278,7 @@ class AdminLeaseController extends SalesRestController
                     $lease,
                     LeaseBill::STATUS_UNPAID
                 );
+            $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
             $lease->setPushedLeaseBillsFees($pendingLeaseBill);
         }
 
