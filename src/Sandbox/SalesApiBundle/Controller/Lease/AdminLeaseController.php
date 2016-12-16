@@ -83,7 +83,7 @@ class AdminLeaseController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->sumBillsFees(
                 $lease,
-                LeaseBill::STATUS_UNPAID
+                LeaseBill::STATUS_PENDING
             );
         $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
         $lease->setPushedLeaseBillsFees($pendingLeaseBill);
@@ -279,7 +279,7 @@ class AdminLeaseController extends SalesRestController
                 ->getRepository('SandboxApiBundle:Lease\LeaseBill')
                 ->sumBillsFees(
                     $lease,
-                    LeaseBill::STATUS_UNPAID
+                    LeaseBill::STATUS_PENDING
                 );
             $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
             $lease->setPushedLeaseBillsFees($pendingLeaseBill);

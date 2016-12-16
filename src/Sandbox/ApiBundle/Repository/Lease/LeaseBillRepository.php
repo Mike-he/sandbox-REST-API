@@ -20,7 +20,7 @@ class LeaseBillRepository extends EntityRepository
         $query = $this->createQueryBuilder('b')
             ->select('SUM(b.revisedAmount)')
             ->where('b.lease = :lease')
-            ->andWhere('b.status = :status')
+            ->andWhere('b.status != :status')
             ->setParameter('lease', $lease)
             ->setParameter('status', $status);
 
