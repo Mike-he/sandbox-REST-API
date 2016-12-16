@@ -389,7 +389,6 @@ class ClientLeaseBillController extends PaymentController
         $building = $room->getBuilding();
 
         $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
-        $user = $this->getDoctrine()->getRepository("SandboxApiBundle:User\UserView")->find($drawee);
 
         $attachment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
@@ -417,7 +416,7 @@ class ClientLeaseBillController extends PaymentController
                         'type' => $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType()),
                         'address' => $building->getCity()->getName().$building->getAddress(),
                     ),
-            'drawee' => $user,
+            'drawee' => $drawee,
             'attachment' => $attachment,
             'can_pay' => $this->getUserId() == $drawee ? true : false,
         );
