@@ -56,13 +56,13 @@ class LeaseRepository extends EntityRepository
         ) {
             switch ($keyword) {
                 case ProductAppointment::KEYWORD_APPLICANT:
-                    $query->andWhere('l.lessee LIKE :keywordSearch');
+                    $query->andWhere('l.lesseeName LIKE :keywordSearch');
                     break;
                 case ProductAppointment::KEYWORD_ROOM:
                     $query->andWhere('r.name LIKE :keywordSearch');
                     break;
                 case ProductAppointment::KEYWORD_NUMBER:
-                    $query->andWhere('a.appointmentNumber LIKE :keywordSearch');
+                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
                     break;
                 default:
                     return array();
@@ -176,13 +176,13 @@ class LeaseRepository extends EntityRepository
         ) {
             switch ($keyword) {
                 case ProductAppointment::KEYWORD_APPLICANT:
-                    $query->andWhere('l.lessee LIKE :keywordSearch');
+                    $query->andWhere('l.lesseeName LIKE :keywordSearch');
                     break;
                 case ProductAppointment::KEYWORD_ROOM:
                     $query->andWhere('r.name LIKE :keywordSearch');
                     break;
                 case ProductAppointment::KEYWORD_NUMBER:
-                    $query->andWhere('a.appointmentNumber LIKE :keywordSearch');
+                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
                     break;
                 default:
                     return array();
