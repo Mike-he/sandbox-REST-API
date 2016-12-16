@@ -18,8 +18,6 @@ class LeaseRepository extends EntityRepository
      * @param $createStart
      * @param $createEnd
      * @param $status
-     * @param $limit
-     * @param $offset
      *
      * @return array
      */
@@ -32,9 +30,7 @@ class LeaseRepository extends EntityRepository
         $createStart,
         $createEnd,
         $startDate,
-        $endDate,
-        $limit,
-        $offset
+        $endDate
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
@@ -60,13 +56,13 @@ class LeaseRepository extends EntityRepository
         ) {
             switch ($keyword) {
                 case ProductAppointment::KEYWORD_APPLICANT:
-                    $query->andWhere('l.lessee LIKE :keywordSearch');
+                    $query->andWhere('l.lesseeName LIKE :keywordSearch');
                     break;
                 case ProductAppointment::KEYWORD_ROOM:
                     $query->andWhere('r.name LIKE :keywordSearch');
                     break;
                 case ProductAppointment::KEYWORD_NUMBER:
-                    $query->andWhere('a.appointmentNumber LIKE :keywordSearch');
+                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
                     break;
                 default:
                     return array();
@@ -110,7 +106,7 @@ class LeaseRepository extends EntityRepository
             $startDate = new \DateTime($startDate);
             $startDate->setTime(0, 0, 0);
 
-            $query->andWhere('l.endRentDate > :startDate')
+            $query->andWhere('l.endDate > :startDate')
                 ->setParameter('startDate', $startDate);
         }
 
@@ -118,7 +114,7 @@ class LeaseRepository extends EntityRepository
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
 
-            $query->andWhere('l.startRentDate <= :endDate')
+            $query->andWhere('l.startDate <= :endDate')
                 ->setParameter('endDate', $endDate);
         }
 
@@ -180,13 +176,13 @@ class LeaseRepository extends EntityRepository
         ) {
             switch ($keyword) {
                 case ProductAppointment::KEYWORD_APPLICANT:
-                    $query->andWhere('l.lessee LIKE :keywordSearch');
+                    $query->andWhere('l.lesseeName LIKE :keywordSearch');
                     break;
                 case ProductAppointment::KEYWORD_ROOM:
                     $query->andWhere('r.name LIKE :keywordSearch');
                     break;
                 case ProductAppointment::KEYWORD_NUMBER:
-                    $query->andWhere('a.appointmentNumber LIKE :keywordSearch');
+                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
                     break;
                 default:
                     return array();
@@ -230,7 +226,7 @@ class LeaseRepository extends EntityRepository
             $startDate = new \DateTime($startDate);
             $startDate->setTime(0, 0, 0);
 
-            $query->andWhere('l.endRentDate > :startDate')
+            $query->andWhere('l.endDate > :startDate')
                 ->setParameter('startDate', $startDate);
         }
 
@@ -238,7 +234,7 @@ class LeaseRepository extends EntityRepository
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
 
-            $query->andWhere('l.startRentDate <= :endDate')
+            $query->andWhere('l.startDate <= :endDate')
                 ->setParameter('endDate', $endDate);
         }
 

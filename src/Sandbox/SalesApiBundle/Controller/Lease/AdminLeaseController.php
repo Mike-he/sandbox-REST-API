@@ -54,6 +54,40 @@ class AdminLeaseController extends SalesRestController
         ));
         $lease->setBills($bills);
 
+        $totalLeaseBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_LEASE
+            );
+        $lease->setTotalLeaseBillsAmount($totalLeaseBills);
+
+        $paidLeaseBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_LEASE,
+                LeaseBill::STATUS_PAID
+            );
+        $lease->setPaidLeaseBillsAmount($paidLeaseBills);
+
+        $otherBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_OTHER
+            );
+        $lease->setOtherBillsAmount($otherBills);
+
+        $pendingLeaseBill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->sumBillsFees(
+                $lease,
+                LeaseBill::STATUS_UNPAID
+            );
+        $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
+        $lease->setPushedLeaseBillsFees($pendingLeaseBill);
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])
@@ -212,31 +246,34 @@ class AdminLeaseController extends SalesRestController
                 $createStart,
                 $createEnd,
                 $startDate,
-                $endDate,
-                $limit,
-                $offset
+                $endDate
             );
 
         foreach ($leases as $lease) {
-            $totalLeaseBills = $this->getLeaseBillRepo()->findBy(array(
-                'lease' => $lease->getId(),
-                'type' => LeaseBill::TYPE_LEASE,
-            ));
-            $lease->setTotalLeaseBillsAmount(count($totalLeaseBills));
+            $totalLeaseBills = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->countBills(
+                    $lease,
+                    LeaseBill::TYPE_LEASE
+                );
+            $lease->setTotalLeaseBillsAmount($totalLeaseBills);
 
-            $paidLeaseBills = $this->getLeaseBillRepo()->findBy(array(
-                'lease' => $lease->getId(),
-                'type' => LeaseBill::TYPE_LEASE,
-                'status' => LeaseBill::STATUS_PAID,
-            ));
-            $lease->setPaidLeaseBillsAmount(count($paidLeaseBills));
+            $paidLeaseBills = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->countBills(
+                    $lease,
+                    LeaseBill::TYPE_LEASE,
+                    LeaseBill::STATUS_PAID
+                );
+            $lease->setPaidLeaseBillsAmount($paidLeaseBills);
 
-            $otherBills = $this->getLeaseBillRepo()->findBy(array(
-                'lease' => $lease->getId(),
-                'type' => LeaseBill::TYPE_OTHER,
-            ));
-
-            $lease->setOtherBillsAmount(count($otherBills));
+            $otherBills = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->countBills(
+                    $lease,
+                    LeaseBill::TYPE_OTHER
+                );
+            $lease->setOtherBillsAmount($otherBills);
 
             $pendingLeaseBill = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Lease\LeaseBill')
