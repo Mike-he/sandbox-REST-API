@@ -54,6 +54,40 @@ class AdminLeaseController extends SalesRestController
         ));
         $lease->setBills($bills);
 
+        $totalLeaseBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_LEASE
+            );
+        $lease->setTotalLeaseBillsAmount($totalLeaseBills);
+
+        $paidLeaseBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_LEASE,
+                LeaseBill::STATUS_PAID
+            );
+        $lease->setPaidLeaseBillsAmount($paidLeaseBills);
+
+        $otherBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_OTHER
+            );
+        $lease->setOtherBillsAmount($otherBills);
+
+        $pendingLeaseBill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->sumBillsFees(
+                $lease,
+                LeaseBill::STATUS_UNPAID
+            );
+        $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
+        $lease->setPushedLeaseBillsFees($pendingLeaseBill);
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])

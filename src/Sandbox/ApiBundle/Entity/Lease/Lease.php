@@ -304,13 +304,13 @@ class Lease
 
     /**
      * @var int
-     * @Serializer\Groups({"lease_list"})
+     * @Serializer\Groups({"main","lease_list"})
      */
     private $paidLeaseBillsAmount;
 
     /**
      * @var int
-     * @Serializer\Groups({"lease_list"})
+     * @Serializer\Groups({"main","lease_list"})
      */
     private $otherBillsAmount;
 
@@ -370,7 +370,7 @@ class Lease
     /**
      * @var float
      *
-     * @Serializer\Groups({"lease_list"})
+     * @Serializer\Groups({"main","lease_list"})
      */
     private $pushedLeaseBillsFees;
 
