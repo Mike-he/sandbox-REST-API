@@ -10,6 +10,7 @@ class LeaseBillRepository extends EntityRepository
     /**
      * @param $lease
      * @param $status
+     *
      * @return mixed
      */
     public function sumBillsFees(
@@ -144,6 +145,8 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        return $query->getQuery()->getSingleScalarResult();
+        $query = $query->getQuery();
+
+        return (int) $query->getSingleScalarResult();
     }
 }
