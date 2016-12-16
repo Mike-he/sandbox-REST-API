@@ -119,6 +119,11 @@ class UserView
     private $building;
 
     /**
+     * @var float
+     */
+    private $salesInvoiceAmount;
+
+    /**
      * Get id.
      *
      * @return int
@@ -266,5 +271,21 @@ class UserView
     public function setBuilding($building)
     {
         $this->building = $building;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSalesInvoiceAmount()
+    {
+        return $this->salesInvoiceAmount;
+    }
+
+    /**
+     * @param float $salesInvoiceAmount
+     */
+    public function setSalesInvoiceAmount($salesInvoiceAmount)
+    {
+        $this->salesInvoiceAmount = $salesInvoiceAmount;
     }
 }
