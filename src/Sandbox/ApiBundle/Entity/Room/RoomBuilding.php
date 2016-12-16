@@ -363,7 +363,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
      * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_shop"})
      **/
     private $company;
 
