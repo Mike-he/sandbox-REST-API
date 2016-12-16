@@ -324,8 +324,10 @@ class AdminLeaseBillController extends SalesRestController
             if (!is_null($payload['revision_note'])) {
                 $bill->setRevisionNote($payload['revision_note']);
             }
-            $bill->setReviser($this->getUserId());
             $bill->setStatus(LeaseBill::STATUS_UNPAID);
+            $bill->setSendDate(new \DateTime());
+            $bill->setSender($this->getUserId());
+            $bill->setReviser($this->getUserId());
 
             $em->persist($bill);
             $em->flush();
