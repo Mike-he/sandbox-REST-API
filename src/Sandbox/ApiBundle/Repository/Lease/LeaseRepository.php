@@ -158,8 +158,10 @@ class LeaseRepository extends EntityRepository
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
-        $query->andWhere('r.buildingId IN (:buildingIds)')
-            ->setParameter('buildingIds', $myBuildingIds);
+        if (!is_null($myBuildingIds)) {
+            $query->andWhere('r.buildingId IN (:buildingIds)')
+                ->setParameter('buildingIds', $myBuildingIds);
+        }
 
         if ($status == 'all') {
             $query->andWhere('l.status != :status')
