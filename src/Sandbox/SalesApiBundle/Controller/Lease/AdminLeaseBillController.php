@@ -209,6 +209,9 @@ class AdminLeaseBillController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        if(is_null($bill->getRevisedAmount())) {
+            $bill->setRevisedAmount($bill->getAmount());
+        }
         $bill->setReviser($this->getUserId());
 
         $em = $this->getDoctrine()->getManager();
@@ -315,6 +318,8 @@ class AdminLeaseBillController extends SalesRestController
             }
             if (!is_null($payload['revised_amount'])) {
                 $bill->setRevisedAmount($payload['revised_amount']);
+            } else {
+                $bill->setRevisedAmount($bill->getAmount());
             }
             if (!is_null($payload['revision_note'])) {
                 $bill->setRevisionNote($payload['revision_note']);
@@ -356,6 +361,7 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSendDate(new \DateTime());
         $bill->setStatus(LeaseBill::STATUS_UNPAID);
         $bill->setSender($this->getUserId());
+        $bill->setRevisedAmount($bill->getAmount());
         $bill->setLease($lease);
 
         $em = $this->getDoctrine()->getManager();
