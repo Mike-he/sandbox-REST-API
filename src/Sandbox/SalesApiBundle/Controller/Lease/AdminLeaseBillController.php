@@ -213,6 +213,8 @@ class AdminLeaseBillController extends SalesRestController
             $bill->setRevisedAmount($bill->getAmount());
         }
         $bill->setReviser($this->getUserId());
+        $bill->setSendDate(new \DateTime());
+        $bill->setSender($this->getUserId());
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
