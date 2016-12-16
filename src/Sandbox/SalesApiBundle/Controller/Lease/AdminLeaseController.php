@@ -237,6 +237,14 @@ class AdminLeaseController extends SalesRestController
             ));
 
             $lease->setOtherBillsAmount(count($otherBills));
+
+            $pendingLeaseBill = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->sumBillsFees(
+                    $lease,
+                    LeaseBill::STATUS_UNPAID
+                );
+            $lease->setPushedLeaseBillsFees($pendingLeaseBill);
         }
 
         $view = new View();

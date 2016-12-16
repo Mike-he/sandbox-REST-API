@@ -368,6 +368,13 @@ class Lease
     private $expirationDate;
 
     /**
+     * @var float
+     *
+     * @Serializer\Groups({"lease_list"})
+     */
+    private $pushedLeaseBillsFees;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="reconfirmation_date", type="datetime", nullable=true)
@@ -1064,5 +1071,21 @@ class Lease
     public function setReconfirmationDate($reconfirmationDate)
     {
         $this->reconfirmationDate = $reconfirmationDate;
+    }
+
+    /**
+     * @return float
+     */
+    public function getPushedLeaseBillsFees()
+    {
+        return $this->pushedLeaseBillsFees;
+    }
+
+    /**
+     * @param float $pushedLeaseBillsFees
+     */
+    public function setPushedLeaseBillsFees($pushedLeaseBillsFees)
+    {
+        $this->pushedLeaseBillsFees = $pushedLeaseBillsFees;
     }
 }

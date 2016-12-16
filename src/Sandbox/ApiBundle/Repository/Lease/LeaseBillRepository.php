@@ -10,6 +10,27 @@ class LeaseBillRepository extends EntityRepository
     /**
      * @param $lease
      * @param $status
+     * @return mixed
+     */
+    public function sumBillsFees(
+        $lease,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->select('SUM(b.amount)')
+            ->where('b.lease = :lease')
+            ->andWhere('b.type = :type')
+            ->andWhere('b.status = :status')
+            ->setParameter('lease', $lease)
+            ->setParameter('type', LeaseBill::TYPE_LEASE)
+            ->setParameter('status', $status);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $lease
+     * @param $status
      *
      * @return array
      */
