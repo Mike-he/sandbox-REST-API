@@ -316,7 +316,7 @@ class Lease
 
     /**
      * @var int
-     * @Serializer\Groups({"lease_list"})
+     * @Serializer\Groups({"main","lease_list"})
      */
     private $totalLeaseBillsAmount;
 

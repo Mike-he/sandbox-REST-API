@@ -95,4 +95,34 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $lease
+     * @param null $type
+     * @param null $status
+     *
+     * @return mixed
+     */
+    public function countBills(
+        $lease,
+        $type = null,
+        $status = null
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('count(lb)')
+            ->where('lb.lease = :lease')
+            ->setParameter('lease', $lease);
+
+        if (!is_null($type)) {
+            $query->andWhere('lb.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        if (!is_null($status)) {
+            $query->andWhere('lb.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

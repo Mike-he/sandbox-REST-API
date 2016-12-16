@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientLeaseController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -106,12 +106,20 @@ class ClientLeaseController extends SandboxRestController
 
         $unpaidBills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(array(
-                'lease' => $lease,
-                'status' => LeaseBill::STATUS_UNPAID,
-                'type' => LeaseBill::TYPE_LEASE,
-            ));
-        $lease->setUnpaidLeaseBillsAmount(count($unpaidBills));
+            ->countBills(
+                $lease,
+                null,
+                LeaseBill::STATUS_UNPAID
+            );
+        $lease->setUnpaidLeaseBillsAmount($unpaidBills);
+
+        $totalLeaseBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_LEASE
+            );
+        $lease->setTotalLeaseBillsAmount($totalLeaseBills);
 
         $view = new View();
         $view->setSerializationContext(
