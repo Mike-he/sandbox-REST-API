@@ -419,6 +419,7 @@ class ClientLeaseBillController extends PaymentController
             'drawee' => $drawee,
             'attachment' => $attachment,
             'can_pay' => $this->getUserId() == $drawee ? true : false,
+            'pay_channel' => $bill->getPayChannel(),
         );
 
         return $result;
