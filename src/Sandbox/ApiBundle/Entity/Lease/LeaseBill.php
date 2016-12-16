@@ -239,6 +239,17 @@ class LeaseBill
     private $orderMethod = self::ORDER_METHOD_BACKEND;
 
     /**
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer",
+     *      mappedBy="bill"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
+     *
+     * @Serializer\Groups({"main","client"})
+     */
+    private $transfer;
+
+    /**
      * @return int
      */
     public function getId()
@@ -588,5 +599,21 @@ class LeaseBill
     public function setReviser($reviser)
     {
         $this->reviser = $reviser;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTransfer()
+    {
+        return $this->transfer;
+    }
+
+    /**
+     * @param mixed $transfer
+     */
+    public function setTransfer($transfer)
+    {
+        $this->transfer = $transfer;
     }
 }

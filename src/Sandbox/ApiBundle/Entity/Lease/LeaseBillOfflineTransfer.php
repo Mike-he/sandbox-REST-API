@@ -91,9 +91,19 @@ class LeaseBillOfflineTransfer
     /**
      * @var array
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","client"})
      */
     private $attachments;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Sandbox\ApiBundle\Entity\Lease\LeaseBillTransferAttachment", mappedBy="transfer")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="id", referencedColumnName="transfer_id")
+     * })
+     *
+     * @Serializer\Groups({"main" ,"client"})
+     */
+    private $transferAttachments;
 
     /**
      * @return int
@@ -213,5 +223,21 @@ class LeaseBillOfflineTransfer
     public function setAttachments($attachments)
     {
         $this->attachments = $attachments;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTransferAttachments()
+    {
+        return $this->transferAttachments;
+    }
+
+    /**
+     * @param mixed $transferAttachments
+     */
+    public function setTransferAttachments($transferAttachments)
+    {
+        $this->transferAttachments = $transferAttachments;
     }
 }

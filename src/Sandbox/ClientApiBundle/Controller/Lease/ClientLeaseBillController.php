@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Lease;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
@@ -394,6 +395,15 @@ class ClientLeaseBillController extends PaymentController
             ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
             ->findAttachmentsByRoom($room);
 
+        $transfer = $bill->getTransfer();
+
+        $transfer = $this->get('serializer')->serialize(
+            $transfer,
+            'json',
+            SerializationContext::create()->setGroups(['client'])
+        );
+        $transfer = json_decode($transfer, true);
+
         $result = array(
             'id' => $bill->getId(),
             'serial_number' => $bill->getserialNumber(),
@@ -420,6 +430,7 @@ class ClientLeaseBillController extends PaymentController
             'attachment' => $attachment,
             'can_pay' => $this->getUserId() == $drawee ? true : false,
             'pay_channel' => $bill->getPayChannel(),
+            'transfer' => $transfer,
         );
 
         return $result;
