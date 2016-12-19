@@ -365,19 +365,47 @@ class AdminLeaseController extends SalesRestController
         // check user permission
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $lease = $this->getLeaseRepo()->find($id);
+        $payload = json_decode($request->getContent(), true);
 
+        if (
+            !key_exists('status', $payload) ||
+            !filter_var($payload['status'], FILTER_DEFAULT)
+        ) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $lease = $this->getLeaseRepo()->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
-        $leaseJson = $this->container
-            ->get('serializer')
-            ->serialize($lease, 'json');
+        if ($payload['status'] != Lease::LEASE_STATUS_CONFIRMED) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
 
-        $patch = new Patch($leaseJson, $request->getContent());
-        $leaseJson = $patch->apply();
+        switch ($payload['status']) {
+            case Lease::LEASE_STATUS_CONFIRMING:
+                break;
+            case Lease::LEASE_STATUS_CONFIRMED:
+                break;
+            case Lease::LEASE_STATUS_EXPIRED:
+                break;
+            case Lease::LEASE_STATUS_PERFORMING:
+                break;
+            case Lease::LEASE_STATUS_RECONFIRMING:
+                break;
+            case Lease::LEASE_STATUS_TERMINATED:
+                // TODO: 4 disable door access
+                break;
+            case Lease::LEASE_STATUS_DRAFTING:
+                break;
+            case Lease::LEASE_STATUS_END:
+                break;
+            default:
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
 
-        $form = $this->createForm(new LeasePatchType(), $lease);
-        $form->submit(json_decode($leaseJson, true));
+        //TODO: 2 set current user to door access
+        $lease->setAccessNo($this->generateAccessNumber());
+        $lease->setStatus($payload['status']);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -717,6 +745,15 @@ class AdminLeaseController extends SalesRestController
                 $lease->setStatus($payload['status']);
                 break;
             case Lease::LEASE_STATUS_CONFIRMING:
+                break;
+            case Lease::LEASE_STATUS_RECONFIRMING:
+                if (
+                    $payload['start_date'] != $lease->getStartDate() ||
+                    $payload['end_date'] != $lease->getEndDate()
+                ) {
+                    // TODO: 3 reset door access
+                };
+
                 break;
             default:
                 $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);

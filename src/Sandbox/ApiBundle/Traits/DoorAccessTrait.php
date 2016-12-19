@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Constants\BundleConstants;
+use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
@@ -494,17 +495,18 @@ trait DoorAccessTrait
      * @param $base
      * @param $userArray
      * @param $roomDoors
-     * @param $order
+     * @param $accessNo
+     * @param $startDate
+     * @param $endDate
      */
     public function setRoomOrderAccessIfUserArray(
         $base,
         $userArray,
         $roomDoors,
-        $order
+        $accessNo,
+        $startDate,
+        $endDate
     ) {
-        $orderId = $order->getId();
-        $startDate = $order->getStartDate();
-        $endDate = $order->getEndDate();
         $doorArray = [];
         foreach ($roomDoors as $roomDoor) {
             $door = ['doorid' => $roomDoor->getDoorControlId()];
@@ -514,7 +516,7 @@ trait DoorAccessTrait
         $this->setRoomOrderPermission(
             $base,
             $userArray,
-            $orderId,
+            $accessNo,
             $startDate,
             $endDate,
             $doorArray
@@ -574,5 +576,69 @@ trait DoorAccessTrait
         }
 
         $em->flush();
+    }
+
+    /**
+     * @param $em
+     * @param $accessNumber
+     * @param $userId
+     * @param $buildingId
+     * @param $roomId
+     * @param $startDate
+     * @param $endDate
+     */
+    public function storeDoorAccess(
+        $em,
+        $accessNumber,
+        $userId,
+        $buildingId,
+        $roomId,
+        $startDate,
+        $endDate
+    ) {
+        $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
+            [
+                'userId' => $userId,
+                'accessNo' => $accessNumber,
+            ]
+        );
+
+        if (is_null($doorAccess)) {
+            $doorAccess = new DoorAccess();
+            $doorAccess->setBuildingId($buildingId);
+            $doorAccess->setUserId($userId);
+            $doorAccess->setRoomId($roomId);
+            $doorAccess->setAccessNo($accessNumber);
+        } else {
+            $doorAccess->setAction(DoorAccessConstants::METHOD_ADD);
+            $doorAccess->isAccess() ?
+                $doorAccess->setAccess(false) : $doorAccess->setAccess(true);
+        }
+
+        $doorAccess->setStartDate($startDate);
+        $doorAccess->setEndDate($endDate);
+
+        $em->persist($doorAccess);
+    }
+
+    /**
+     * @param $accessNo
+     * @param $userId
+     */
+    public function setAccessActionToDelete(
+        $accessNo,
+        $userId = null
+    ) {
+        $controls = $this->getRepo('Door\DoorAccess')->getAddAccessByOrder(
+            $userId,
+            $accessNo
+        );
+
+        if (!empty($controls)) {
+            foreach ($controls as $control) {
+                $control->setAction(DoorAccessConstants::METHOD_DELETE);
+                $control->isAccess() ? $control->setAccess(false) : $control->setAccess(true);
+            }
+        }
     }
 }
