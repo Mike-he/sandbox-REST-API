@@ -549,7 +549,7 @@ class AdminEventOrderController extends SalesRestController
      */
     protected function authenticateAdminCookie()
     {
-        $cookie_name = self::SALES_COOKIE_NAME;
+        $cookie_name = self::ADMIN_COOKIE_NAME;
         if (!isset($_COOKIE[$cookie_name])) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
