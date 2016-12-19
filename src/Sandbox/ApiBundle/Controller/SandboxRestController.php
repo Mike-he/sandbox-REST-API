@@ -66,10 +66,6 @@ class SandboxRestController extends FOSRestController
 
     const ADMIN_COOKIE_NAME = 'sandbox_admin_token';
 
-    const SALES_COOKIE_NAME = 'sandbox_sales_admin_token';
-
-    const SHOP_COOKIE_NAME = 'sandbox_shop_admin_token';
-
     const HASH_ALGO_SHA256 = 'sha256';
 
     //-------------------- Global --------------------//
