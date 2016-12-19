@@ -522,10 +522,10 @@ class AdminPositionController extends PaymentController
 
         $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->getAdminPositions(
+            ->getPositions(
                 $platform,
-                null,
-                $companyId
+                $companyId,
+                false
             );
 
         $superAdminPosition = $this->getDoctrine()
