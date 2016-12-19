@@ -164,7 +164,9 @@ class AdminAdminsController extends SandboxRestController
             $positionIds[] = $position->getId();
         }
 
-        if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL) {
+        if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL ||
+            $type == self::ADMINS_MENU_KEY_SUPER
+        ) {
             $superPositions = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                 ->getPositions(
@@ -525,10 +527,19 @@ class AdminAdminsController extends SandboxRestController
                 return new View();
         }
 
+        $superAdmins = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->findBy(array(
+                'isHidden' => false,
+                'isSuperAdmin' => true,
+                'platform' => $platform,
+                'salesCompanyId' => $companyId,
+            ));
+
         $platformAdmin = array(
-            'key' => self::ADMINS_MENU_KEY_PLATFORM,
-            'name' => $this->get('translator')->trans(self::ADMINS_PLATFORM_ADMIN),
-            'count' => count($allPlatformUser),
+            'key' => self::ADMINS_MENU_KEY_SUPER,
+            'name' => $this->get('translator')->trans(self::ADMINS_SUPER_ADMIN),
+            'count' => count($superAdmins),
        );
 
         $result = array($allAdmin, $platformAdmin);

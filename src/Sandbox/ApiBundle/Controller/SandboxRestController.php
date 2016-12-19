@@ -46,6 +46,7 @@ class SandboxRestController extends FOSRestController
 
     const HTTP_STATUS_OK = 200;
     const HTTP_STATUS_OK_NO_CONTENT = 204;
+    const HTTP_STATUS_CREATE_SUCCESS = 201;
 
     const VERIFICATION_CODE_LENGTH = 6;
 
@@ -215,6 +216,7 @@ class SandboxRestController extends FOSRestController
             $platform,
             $salesCompanyId
         );
+
         if ($isSuperAdmin) {
             $myPermissions = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermission')
@@ -422,7 +424,6 @@ class SandboxRestController extends FOSRestController
                     'name' => $permission->getName(),
                     'id' => $permission->getId(),
                     'position_id' => $position->getId(),
-                    'permission_parent_id' => $permission->getParentId(),
                 );
 
                 array_push($myPermissions, $permissionArray);
@@ -1088,7 +1089,7 @@ class SandboxRestController extends FOSRestController
     /**
      * @throws NotFoundHttpException when resource not exist
      */
-    protected function throwNotFoundIfNull($resource, $message)
+    protected function throwNotFoundIfNull($resource, $message = self::NOT_FOUND_MESSAGE)
     {
         $this->_throwHttpErrorIfNull(
             $resource,

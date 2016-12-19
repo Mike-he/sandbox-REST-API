@@ -3,11 +3,9 @@
 namespace Sandbox\AdminApiBundle\Controller\Product;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Knp\Component\Pager\Paginator;
-use Rs\Json\Patch;
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
@@ -20,6 +18,33 @@ class AdminProductAppointmentController extends SandboxRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param int                   $id
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="pending, withdrawn, accepted, rejected"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by company id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
      *
      * @Annotations\QueryParam(
      *    name="pageLimit",
@@ -41,92 +66,235 @@ class AdminProductAppointmentController extends SandboxRestController
      *    description="page number "
      * )
      *
-     * @Route("/products/{id}/appointments")
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="applicant, room, number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="last_week, last_month"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment end date"
+     * )
+     *
+     * @Route("/products/appointments/list")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getProductAppointmentsAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
+        ParamFetcherInterface $paramFetcher
     ) {
         $this->checkAdminProductAppointmentPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $companyId = $paramFetcher->get('company');
+        $buildingId = $paramFetcher->get('building');
+        $status = $paramFetcher->get('status');
 
-        $appointments = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->findBy(array(
-                'productId' => $id,
-            ));
+        // search keyword and query
+        $keyword = $paramFetcher->get('keyword');
+        $search = $paramFetcher->get('keyword_search');
 
-        // set extra
-        foreach ($appointments as $appointment) {
-            $user = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserView')
-                ->findOneBy(array(
-                    'id' => $appointment->getUserId(),
-                ));
+        // creation date filter
+        $createRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
 
-            if (is_null($user)) {
-                continue;
-            }
+        // appointment date filter
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
 
-            $appointment->setUser($user);
-        }
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $appointments,
+        return $this->handleProductAppointmentList(
+            $buildingId,
+            $companyId,
+            $status,
+            $keyword,
+            $search,
+            $createRange,
+            $createStart,
+            $createEnd,
+            $startDate,
+            $endDate,
             $pageIndex,
             $pageLimit
         );
-
-        return new View($pagination);
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
+     * Get product appointments by Id.
      *
-     * @Route("/product/appointments/{id}")
-     * @Method({"PATCH"})
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/products/appointments/{id}")
+     * @Method({"GET"})
      *
      * @return View
+     *
+     * @throws \Exception
      */
-    public function patchProductAppointmentAction(
+    public function getProductAppointmentByIdAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        // check user permission
-        $this->checkAdminProductAppointmentPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminProductAppointmentPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        // get appointment
         $appointment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductAppointment')
             ->find($id);
         $this->throwNotFoundIfNull($appointment, self::NOT_FOUND_MESSAGE);
 
-        // bind data
-        $appointmentJson = $this->get('serializer')->serialize($appointment, 'json');
-        $patch = new Patch($appointmentJson, $request->getContent());
-        $appointmentJson = $patch->apply();
+        $view = new View($appointment);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups([
+                'client_appointment_list',
+                'client_appointment_detail',
+                'admin_appointment',
+            ]));
 
-        $form = $this->createForm(new ProductAppointmentPatchType(), $appointment);
-        $form->submit(json_decode($appointmentJson, true));
+        return $view;
+    }
 
-        $appointment->setModificationDate(new \DateTime('now'));
+    /**
+     * @param $buildingId
+     * @param $companyId
+     * @param $status
+     * @param $keyword
+     * @param $search
+     * @param $createRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $startDate
+     * @param $endDate
+     * @param $pageIndex
+     * @param $pageLimit
+     *
+     * @return View
+     */
+    private function handleProductAppointmentList(
+        $buildingId,
+        $companyId,
+        $status,
+        $keyword,
+        $search,
+        $createRange,
+        $createStart,
+        $createEnd,
+        $startDate,
+        $endDate,
+        $pageIndex,
+        $pageLimit
+    ) {
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
 
-        // save to db
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
+        $myBuildingIds = [];
+        if (!is_null($buildingId) && !empty($buildingId)) {
+            $myBuildingIds = [$buildingId];
+        }
 
-        return new View();
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+            ->countSalesProductAppointments(
+                $myBuildingIds,
+                $status,
+                $keyword,
+                $search,
+                $createRange,
+                $createStart,
+                $createEnd,
+                $startDate,
+                $endDate,
+                $companyId
+            );
+
+        $appointments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+            ->getSalesProductAppointments(
+                $myBuildingIds,
+                $status,
+                $keyword,
+                $search,
+                $createRange,
+                $createStart,
+                $createEnd,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset,
+                $companyId
+            );
+
+        foreach ($appointments as $appointment) {
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy([
+                    'userId' => $appointment->getUserId(),
+                ]);
+            if (!is_null($profile)) {
+                $appointment->setUser($profile->getName());
+            }
+        }
+
+        $view = new View();
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups([
+                'client_appointment_list',
+                'client_appointment_detail',
+                'admin_appointment',
+            ]));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $appointments,
+                'total_count' => (int) $count,
+            )
+        );
+
+        return $view;
     }
 
     private function checkAdminProductAppointmentPermission(
@@ -135,7 +303,7 @@ class AdminProductAppointmentController extends SandboxRestController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT_APPOINTMENT_VERIFY],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT],
             ],
             $opLevel
         );

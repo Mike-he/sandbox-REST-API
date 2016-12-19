@@ -10,6 +10,7 @@ use Sandbox\AdminApiBundle\Data\Position\Position;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
+use Sandbox\ApiBundle\Entity\Admin\AdminPositionGroupBinding;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionPermissionMapType;
 use Sandbox\ApiBundle\Form\Admin\AdminPositionPostType;
@@ -245,6 +246,13 @@ class AdminPositionController extends PaymentController
             $permissions
         );
 
+        // add groups
+        $this->addPermissionGroups(
+            $em,
+            $position,
+            $position->getPermissionGroups()
+        );
+
         $em->flush();
 
         return new View(array('id' => $position->getId()));
@@ -324,6 +332,13 @@ class AdminPositionController extends PaymentController
 
         // set permissions
         $this->handleUpdatePermissions($em, $position);
+
+        // add groups
+        $this->addPermissionGroups(
+            $em,
+            $position,
+            $position->getPermissionGroups()
+        );
 
         $em->flush();
 
@@ -505,11 +520,11 @@ class AdminPositionController extends PaymentController
             null
         );
 
-        $globalPositions = $this->getDoctrine()
+        $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->getAdminPositions(
                 $platform,
-                AdminPermission::PERMISSION_LEVEL_GLOBAL,
+                null,
                 $companyId
             );
 
@@ -522,30 +537,19 @@ class AdminPositionController extends PaymentController
                 'salesCompanyId' => $companyId,
             ));
 
-        array_unshift($globalPositions, $superAdminPosition);
+        array_unshift($positions, $superAdminPosition);
 
-        $specifyPositions = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->getAdminPositions(
-                $platform,
-                AdminPermission::PERMISSION_LEVEL_SPECIFY,
-                $companyId
-            );
-
-        // set super admin in global type
-        if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL) {
-            $positions = $globalPositions;
-        } elseif ($type == AdminPermission::PERMISSION_LEVEL_SPECIFY) {
-            $positions = $specifyPositions;
-        } else {
-            $positions = array_merge($globalPositions, $specifyPositions);
-        }
-
-        // transfer image url
+        // set position extra info
         $global_image_url = $this->container->getParameter('image_url');
         foreach ($positions as $position) {
             $icon = $position->getIcon();
             $icon->setUrl($global_image_url.$icon->getIcon());
+
+            // set groups
+            $this->setPositionGroups(
+                $position,
+                $platform
+            );
         }
 
         $positions = $this->get('serializer')->serialize(
@@ -563,6 +567,47 @@ class AdminPositionController extends PaymentController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * @param $position
+     * @param $platform
+     */
+    private function setPositionGroups(
+        $position,
+        $platform
+    ) {
+        $groupArray = array();
+
+        if ($position->getIsSuperAdmin()) {
+            $groups = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+                ->findBy(array(
+                    'platform' => $platform,
+                ));
+
+            foreach ($groups as $group) {
+                array_push($groupArray, array(
+                    'id' => $group->getId(),
+                    'name' => $group->getGroupName(),
+                ));
+            }
+        } else {
+            $groups = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionGroupBinding')
+                ->findBy(array(
+                    'position' => $position,
+                ));
+
+            foreach ($groups as $group) {
+                array_push($groupArray, array(
+                    'id' => $group->getGroup()->getId(),
+                    'name' => $group->getGroup()->getGroupName(),
+                ));
+            }
+        }
+
+        $position->setPermissionGroups($groupArray);
     }
 
     /**
@@ -948,6 +993,46 @@ class AdminPositionController extends PaymentController
             }
 
             $em->remove($existPermission);
+        }
+    }
+
+    /**
+     * @param $em
+     * @param $position
+     * @param $groups
+     */
+    private function addPermissionGroups(
+        $em,
+        $position,
+        $groups
+    ) {
+        $bindingsOld = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionGroupBinding')
+            ->findBy(array(
+                'position' => $position,
+            ));
+
+        if (!empty($bindingsOld)) {
+            foreach ($bindingsOld as $item) {
+                $em->remove($item);
+            }
+            $em->flush();
+        }
+
+        foreach ($groups as $group) {
+            $groupEntity = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+                ->find($group['id']);
+
+            if (is_null($groupEntity)) {
+                continue;
+            }
+
+            $binding = new AdminPositionGroupBinding();
+            $binding->setPosition($position);
+            $binding->setGroup($groupEntity);
+
+            $em->persist($binding);
         }
     }
 

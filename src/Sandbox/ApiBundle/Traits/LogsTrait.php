@@ -46,6 +46,12 @@ trait LogsTrait
             case Log::OBJECT_ADMIN:
                 $json = $this->getAdminJson($objectId);
                 break;
+            case Log::OBJECT_LEASE:
+                $json = $this->getLeaseJson($objectId);
+                break;
+            case Log::OBJECT_LEASE_BILL:
+                $json = $this->getLeaseBillJson($objectId);
+                break;
             default:
                 return false;
         }
@@ -210,6 +216,50 @@ trait LogsTrait
         }
 
         return $this->transferToJsonWithViewGroup($admin, 'admin');
+    }
+
+    /**
+     * @param $objectId
+     *
+     * @return mixed|void
+     */
+    private function getLeaseJson(
+        $objectId
+    ) {
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->find($objectId);
+
+        if (is_null($lease)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup(
+            $lease,
+            'main'
+        );
+    }
+
+    /**
+     * @param $objectId
+     *
+     * @return mixed|void
+     */
+    private function getLeaseBillJson(
+        $objectId
+    ) {
+        $bill = $this->getDoctrine()
+            ->getRepository("SandboxApiBundle:Lease\LeaseBill")
+            ->find($objectId);
+
+        if (is_null($bill)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup(
+            $bill,
+            'lease_bill'
+        );
     }
 
     /**

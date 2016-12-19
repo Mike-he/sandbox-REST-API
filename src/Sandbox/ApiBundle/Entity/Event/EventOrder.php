@@ -140,6 +140,29 @@ class EventOrder
     private $modificationDate;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_event"})
+     */
+    private $user;
+
+    /**
+     * @return array
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param array $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
      * Get id.
      *
      * @return int

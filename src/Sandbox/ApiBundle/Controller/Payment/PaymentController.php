@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
@@ -27,9 +28,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 
 /**
  * Payment Controller.
@@ -107,6 +110,8 @@ class PaymentController extends DoorController
     const REFUND_AMOUNT_NOT_FOUND_MESSAGE = 'Refund Amount Does Not Exist';
     const REFUND_SSN_NOT_FOUND_CODE = 400030;
     const REFUND_SSN_NOT_FOUND_MESSAGE = 'Refund SSN Does Not Exist';
+    const CHANNEL_IS_EMPTY_CODE = 400031;
+    const CHANNEL_IS_EMPTY_MESSAGE = 'CHANNER CANNOT BE EMPTY';
     const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';
@@ -114,6 +119,53 @@ class PaymentController extends DoorController
     const PAYMENT_CHANNEL_UPACP = 'upacp';
     const PAYMENT_CHANNEL_WECHAT = 'wx';
     const ORDER_REFUND = 'refund';
+
+    /**
+     * Get All Payments.
+     *
+     * @Get("/payments")
+     *
+     * @return View
+     */
+    public function getPaymentsAction()
+    {
+        $payments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Payment\Payment')
+            ->findAll();
+
+        return new View($payments);
+    }
+
+    /**
+     * Get Payments By type.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="type"
+     * )
+     *
+     * @Get("/payments/types")
+     *
+     * @return View
+     */
+    public function getPaymentsByTypeAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $type = $paramFetcher->get('type');
+
+        $payments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Payment\PaymentMap')
+            ->findBy(array('type' => $type));
+
+        return new View($payments);
+    }
 
     /**
      * @param $order
@@ -1509,5 +1561,36 @@ class PaymentController extends DoorController
         } catch (\Exception $e) {
             error_log('Send order email and sms went wrong!');
         }
+    }
+
+    /**
+     * @param $orderNumber
+     * @param $channel
+     *
+     * @return null|object|LeaseBill
+     */
+    public function setLeaseBillStatus(
+        $orderNumber,
+        $channel
+    ) {
+        $bill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findOneBy(
+                array(
+                    'serialNumber' => $orderNumber,
+                    'status' => LeaseBill::STATUS_UNPAID,
+                )
+            );
+        $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
+
+        $bill->setStatus(LeaseBill::STATUS_PAID);
+        $bill->setPaymentDate(new \DateTime());
+        $bill->setPayChannel($channel);
+        $bill->setDrawee($this->getUserId());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return $bill;
     }
 }

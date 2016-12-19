@@ -328,8 +328,8 @@ class AdminUsersController extends DoorController
                 $query
             );
 
-        // set authorized building
         foreach ($results as $user) {
+            // set authorized building
             $salesUser = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')
                 ->findOneBy(array(
@@ -346,6 +346,14 @@ class AdminUsersController extends DoorController
                     $user->setBuilding($building->getName());
                 }
             }
+
+            // set sales invoice amount
+            $amount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getInvoiceOrdersAmount($user->getId());
+
+            $amount = is_null($amount) ? 0 : $amount;
+            $user->setSalesInvoiceAmount($amount);
         }
 
         if (!is_null($pageIndex) && !is_null($pageLimit)) {

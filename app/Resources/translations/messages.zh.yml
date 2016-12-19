@@ -33,6 +33,7 @@ room:
     studio: 录音棚
     space: 活动空间
     video_studio: 演播厅
+    longterm: 长租办公室
   unit:
     hour: 小时
     day: 天

@@ -61,7 +61,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="cardNo", type="string", length=32, nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_bill"})
      */
     private $cardNo;
 
@@ -77,7 +77,7 @@ class UserView
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "account", "client", "room_usage"})
+     * @Serializer\Groups({"main", "account", "client", "room_usage", "lease_bill"})
      */
     private $name;
 
@@ -117,6 +117,11 @@ class UserView
      * @var array
      */
     private $building;
+
+    /**
+     * @var float
+     */
+    private $salesInvoiceAmount;
 
     /**
      * Get id.
@@ -266,5 +271,21 @@ class UserView
     public function setBuilding($building)
     {
         $this->building = $building;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSalesInvoiceAmount()
+    {
+        return $this->salesInvoiceAmount;
+    }
+
+    /**
+     * @param float $salesInvoiceAmount
+     */
+    public function setSalesInvoiceAmount($salesInvoiceAmount)
+    {
+        $this->salesInvoiceAmount = $salesInvoiceAmount;
     }
 }

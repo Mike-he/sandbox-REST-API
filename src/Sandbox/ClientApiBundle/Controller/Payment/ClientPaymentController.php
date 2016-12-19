@@ -209,6 +209,13 @@ class ClientPaymentController extends PaymentController
                 $orderMap = EventOrder::EVENT_MAP;
 
                 break;
+            case 'B':
+                $bill = $this->setLeaseBillStatus(
+                    $orderNumber,
+                    $channel
+                );
+
+                break;
             default:
                 $orderMap = null;
 

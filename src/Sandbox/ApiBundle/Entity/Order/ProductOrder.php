@@ -98,6 +98,7 @@ class ProductOrder
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main", "admin_detail"})
      **/
     private $user;
 

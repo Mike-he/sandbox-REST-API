@@ -33,6 +33,7 @@ room:
     studio: Recording Studio
     space: Activity Space
     video_studio: Studio
+    longterm: Long Term Office
   unit:
     hour: Hour
     day: Day

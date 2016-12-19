@@ -341,3 +341,28 @@ sandbox_client_api_user_share:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserShareController.php"
     type:     annotation
     prefix:   /user
+
+# Lease /leases
+sandbox_client_api_lease:
+    resource: "@SandboxClientApiBundle/Controller/Lease/ClientLeaseController.php"
+    type:     annotation
+    prefix:   /
+
+# Appointment Profile /appointment/profile
+sandbox_client_api_user_appointment_profile:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserAppointmentProfileController.php"
+    type:     annotation
+    prefix:   /user/appointment
+
+# ProductsAppointment /products/appointments
+sandbox_client_api_product_appointment:
+    resource: "@SandboxClientApiBundle/Controller/Product/ClientProductAppointmentController.php"
+    type:     annotation
+    prefix:   /
+
+# Lease /leases/bills
+sandbox_client_api_lease_bill:
+    resource: "@SandboxClientApiBundle/Controller/Lease/ClientLeaseBillController.php"
+    type:     annotation
+    prefix:   /
+

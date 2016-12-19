@@ -59,7 +59,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "login", "buddy"})
+     * @Serializer\Groups({"main", "login", "buddy", "admin_detail"})
      */
     private $email;
 
@@ -67,7 +67,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="phoneCode", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "login", "buddy"})
+     * @Serializer\Groups({"main", "login", "buddy", "admin_detail"})
      */
     private $phoneCode;
 
@@ -75,7 +75,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "login", "buddy"})
+     * @Serializer\Groups({"main", "login", "buddy", "admin_detail"})
      */
     private $phone;
 
@@ -99,7 +99,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="cardNo", type="string", length=32, nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $cardNo;
 

@@ -43,6 +43,14 @@ class ProductType extends AbstractType
                 )
             )
             ->add('seats')
+            ->add('earliest_rent_date', 'date', array(
+                    'widget' => 'single_text',
+                    'mapped' => false,
+                )
+            )
+            ->add('deposit')
+            ->add('rental_info')
+            ->add('filename')
         ;
     }
 

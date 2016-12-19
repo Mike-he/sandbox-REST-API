@@ -4,12 +4,11 @@ This project use composer to manage dependencies
 and symfony2 as the framework
 
 all these API will require authentification with  Basic HTTP Auth
-with username = "token"  and password = "id of client"
+with username = "token" and password = "id of client"
 
 ## Useful commands
   * to start vagrant ENV `vagrant up` 
   * to ssh into the virtual machine `vagrant ssh`
-
 
 ## Pre-requisites
 
@@ -18,8 +17,9 @@ with username = "token"  and password = "id of client"
 
 ## Dev envirorment with Vagrant
 
-All you should need to do is execute `vagrant up` from your working copy root.
+* run the command "bin/homestead make"
 
+All you should need to do is execute `vagrant up` from your working copy root.
 
 ## API documentation
 

@@ -551,6 +551,26 @@ class AdminProductController extends ProductController
             }
         } elseif ($type == Room::TYPE_FIXED) {
             throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
+        } elseif ($type == Room::TYPE_LONG_TERM) {
+            $earliestRendDate = $form['earliest_rent_date']->getData();
+            $deposit = $product->getDeposit();
+            $rentalInfo = $product->getRentalInfo();
+
+            if (is_null($earliestRendDate) ||
+                empty($earliestRendDate) ||
+                is_null($deposit) ||
+                is_null($rentalInfo) ||
+                empty($rentalInfo)
+            ) {
+                return $this->customErrorView(
+                    400,
+                    Product::LONG_TERM_ROOM_MISSING_INFO_CODE,
+                    Product::LONG_TERM_ROOM_MISSING_INFO_MESSAGE
+                );
+            }
+
+            $earliestRendDate->setTime(00, 00, 00);
+            $product->setEarliestRentDate($earliestRendDate);
         }
 
         $product->setRoom($room);
@@ -661,8 +681,9 @@ class AdminProductController extends ProductController
         $roomId = $product->getRoomId();
         $roomEm = $this->getRepo('Room\Room')->findOneById($roomId);
         $seats = $form['seats']->getData();
+        $type = $room->getType();
 
-        if (!is_null($seats)) {
+        if (!is_null($seats) && $type == Room::TYPE_FIXED) {
             foreach ($seats as $seat) {
                 if (array_key_exists('id', $seat) && array_key_exists('price', $seat)) {
                     $fixed = $this->getRepo('Room\RoomFixed')->findOneBy([
@@ -671,6 +692,27 @@ class AdminProductController extends ProductController
                     ]);
                     !is_null($fixed) ? $fixed->setBasePrice($seat['price']) : null;
                 }
+            }
+        } elseif ($type == Room::TYPE_LONG_TERM) {
+            $earliestRendDate = $form['earliest_rent_date']->getData();
+
+            if (!is_null($earliestRendDate) && !empty($earliestRendDate)) {
+                $earliestRendDate->setTime(00, 00, 00);
+                $product->setEarliestRentDate($earliestRendDate);
+            }
+
+            $deposit = $product->getDeposit();
+            $rentalInfo = $product->getRentalInfo();
+
+            if (is_null($deposit) ||
+                is_null($rentalInfo) ||
+                empty($rentalInfo)
+            ) {
+                return $this->customErrorView(
+                    400,
+                    Product::LONG_TERM_ROOM_MISSING_INFO_CODE,
+                    Product::LONG_TERM_ROOM_MISSING_INFO_MESSAGE
+                );
             }
         }
 
@@ -742,10 +784,16 @@ class AdminProductController extends ProductController
         $id
     ) {
         // get product
-        $product = $this->getRepo('Product\Product')->find($id);
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->findOneBy([
+                'id' => $id,
+                'isDeleted' => false,
+            ]);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $buildingId = $product->getRoom()->getBuildingId();
+        $oldVisible = $product->getVisible();
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
@@ -766,6 +814,25 @@ class AdminProductController extends ProductController
 
         $form = $this->createForm(new ProductPatchVisibleType(), $product);
         $form->submit(json_decode($productJson, true));
+
+        $newVisible = $product->getVisible();
+
+        !$newVisible ? $product->setAppointment(false) : null;
+
+        $rentDate = $form['earliest_rent_date']->getData();
+
+        if ($newVisible && ($newVisible !== $oldVisible)) {
+            $this->setAppointmentEarliestDate(
+                $product,
+                $rentDate
+            );
+            $product->setAppointment(true);
+        } elseif ($newVisible && $product->isAppointment()) {
+            $this->setAppointmentEarliestDate(
+                $product,
+                $rentDate
+            );
+        }
 
         $product->setModificationDate(new \DateTime('now'));
 
@@ -797,6 +864,20 @@ class AdminProductController extends ProductController
             ),
             $opLevel
         );
+    }
+
+    /**
+     * @param $product
+     * @param $rentDate
+     */
+    private function setAppointmentEarliestDate(
+        $product,
+        $rentDate
+    ) {
+        if (!is_null($rentDate) && !empty($rentDate)) {
+            $rentDate->setTime(0, 0, 0);
+            $product->setEarliestRentDate($rentDate);
+        }
     }
 
     /**
