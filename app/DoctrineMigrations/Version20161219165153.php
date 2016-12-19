@@ -53,7 +53,7 @@ class Version20161219165153 extends AbstractMigration implements ContainerAwareI
         $activityOrderPermissionSales->setKey(AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER);
         $activityOrderPermissionSales->setName('活动订单');
         $activityOrderPermissionSales->setLevel('global');
-        $activityOrderPermissionSales->setPlatform('official');
+        $activityOrderPermissionSales->setPlatform('sales');
         $activityOrderPermissionSales->setOpLevelSelect('1');
         $activityOrderPermissionSales->setMaxOpLevel('1');
 
