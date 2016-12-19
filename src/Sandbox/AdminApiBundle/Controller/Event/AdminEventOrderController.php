@@ -513,7 +513,7 @@ class AdminEventOrderController extends AdminOrderController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT_ORDER],
             ],
             $opLevel,
             $platform

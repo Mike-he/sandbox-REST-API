@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
-use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Log\Log;
 
 /**

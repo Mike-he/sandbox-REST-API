@@ -533,7 +533,7 @@ class AdminEventOrderController extends SalesRestController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER,
                 ),
             ),
             $opLevel,

@@ -9,7 +9,6 @@ use Sandbox\ApiBundle\Tests\Traits\CommonTestsUtilsTrait;
 /**
  * @group li
  * Class AdminLeaseBillControllerTest
- * @package Sandbox\SaleApiBundle\Tests\Controller\Lease
  */
 class AdminLeaseBillControllerTest extends WebTestCase
 {
@@ -59,7 +58,6 @@ class AdminLeaseBillControllerTest extends WebTestCase
 
         $this->assertPermissionDenied();
     }
-
 
     public function testGetLeaseBillsShouldReturnCorrectFieldsAmount()
     {

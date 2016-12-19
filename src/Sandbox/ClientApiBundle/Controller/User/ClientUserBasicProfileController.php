@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientUserBasicProfileController extends UserProfileController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
