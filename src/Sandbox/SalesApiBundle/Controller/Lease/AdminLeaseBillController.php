@@ -209,7 +209,7 @@ class AdminLeaseBillController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        if(is_null($bill->getRevisedAmount())) {
+        if (is_null($bill->getRevisedAmount())) {
             $bill->setRevisedAmount($bill->getAmount());
         }
         $bill->setReviser($this->getUserId());

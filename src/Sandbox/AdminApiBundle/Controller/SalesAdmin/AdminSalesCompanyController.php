@@ -46,7 +46,7 @@ class AdminSalesCompanyController extends LocationController
 
     /**
      * @param $id
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/companies/{id}")

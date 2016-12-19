@@ -5,21 +5,15 @@ namespace Sandbox\AdminApiBundle\Controller\Lease;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
-use Rs\Json\Patch;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
-use Sandbox\ApiBundle\Entity\Log\Log;
-use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
-use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use FOS\RestBundle\Controller\Annotations;
 
 class AdminLeaseController extends AdminRestController

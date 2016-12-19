@@ -140,7 +140,7 @@ class Version20161207025409 extends AbstractMigration implements ContainerAwareI
         $officialPermissionDashboard = $em
             ->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
-                'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD,
             ));
 
         $officialPermissionBanner = $em

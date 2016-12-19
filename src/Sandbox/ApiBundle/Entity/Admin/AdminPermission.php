@@ -56,12 +56,14 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_SPACE = 'platform.space';
     const KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE = 'platform.long_term_lease';
     const KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT = 'platform.long_term_appointment';
+    const KEY_OFFICIAL_PLATFORM_EVENT_ORDER = 'platform.event_order';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';
     const KEY_SALES_PLATFORM_BUILDING = 'sales.platform.building';
     const KEY_SALES_PLATFORM_INVOICE = 'sales.platform.invoice';
     const KEY_SALES_PLATFORM_EVENT = 'sales.platform.event';
+    const KEY_SALES_PLATFORM_EVENT_ORDER = 'sales.platform.event_order';
     const KEY_SALES_BUILDING_PRICE = 'sales.building.price';
     const KEY_SALES_BUILDING_ORDER = 'sales.building.order';
     const KEY_SALES_BUILDING_ORDER_RESERVE = 'sales.building.order.reserve';
