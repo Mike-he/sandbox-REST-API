@@ -211,6 +211,7 @@ class AdminShopOrderController extends ShopController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
@@ -227,7 +228,6 @@ class AdminShopOrderController extends ShopController
      *    nullable=true,
      *    description="search query"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="status",
@@ -422,6 +422,7 @@ class AdminShopOrderController extends ShopController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *

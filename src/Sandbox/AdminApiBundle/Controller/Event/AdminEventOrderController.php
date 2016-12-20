@@ -46,6 +46,7 @@ class AdminEventOrderController extends AdminOrderController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
@@ -220,6 +221,14 @@ class AdminEventOrderController extends AdminOrderController
      *    requirements="(zh|en)",
      *    strict=true,
      *    description="export language"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="payment channel"
      * )
      *
      * @Annotations\QueryParam(

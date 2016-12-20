@@ -151,7 +151,7 @@ class ShopOrderRepository extends EntityRepository
 
     /**
      * @param $shopId
-     * @param $channel
+     * @param array $channel
      * @param $status
      * @param $payDate
      * @param $payStart
@@ -203,7 +203,7 @@ class ShopOrderRepository extends EntityRepository
         }
 
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -288,7 +288,7 @@ class ShopOrderRepository extends EntityRepository
 
     /**
      * @param $shopId
-     * @param $channel
+     * @param array $channel
      * @param $status
      * @param $payDate
      * @param $payStart
@@ -337,7 +337,7 @@ class ShopOrderRepository extends EntityRepository
         }
 
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 

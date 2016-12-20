@@ -1008,8 +1008,8 @@ class OrderRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
-     * @param $channel
-     * @param $type
+     * @param array $channel
+     * @param array $type
      * @param $city
      * @param $company
      * @param $building
@@ -1069,7 +1069,7 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -1087,7 +1087,7 @@ class OrderRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('por.roomType = :type')
+            $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
 
@@ -1223,8 +1223,8 @@ class OrderRepository extends EntityRepository
     }
 
     /**
-     * @param $channel
-     * @param $type
+     * @param array $channel
+     * @param array $type
      * @param $city
      * @param $building
      * @param $userId
@@ -1280,7 +1280,7 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -1298,7 +1298,7 @@ class OrderRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('por.roomType = :type')
+            $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
 
@@ -1431,8 +1431,8 @@ class OrderRepository extends EntityRepository
     }
 
     /**
-     * @param $channel
-     * @param $type
+     * @param array $channel
+     * @param array $type
      * @param $city
      * @param $company
      * @param $building
@@ -1488,7 +1488,7 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -1500,7 +1500,7 @@ class OrderRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('por.roomType = :type')
+            $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
 
@@ -1623,8 +1623,8 @@ class OrderRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
-     * @param $channel
-     * @param $type
+     * @param array $channel
+     * @param array $type
      * @param $city
      * @param $building
      * @param $userId
@@ -1678,7 +1678,7 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -1696,7 +1696,7 @@ class OrderRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('por.roomType = :type')
+            $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
 
@@ -1811,8 +1811,8 @@ class OrderRepository extends EntityRepository
     }
 
     /**
-     * @param $channel
-     * @param $type
+     * @param array $channel
+     * @param array $type
      * @param $city
      * @param $building
      * @param $userId
@@ -1858,7 +1858,7 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -1876,7 +1876,7 @@ class OrderRepository extends EntityRepository
 
         // filter by type
         if (!is_null($type)) {
-            $query->andWhere('por.roomType = :type')
+            $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
 

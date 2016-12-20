@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityRepository;
 class TopUpOrderRepository extends EntityRepository
 {
     /**
-     * @param $channel
+     * @param array $channel
      * @param $payStart
      * @param $payEnd
      * @param $limit
@@ -30,7 +30,7 @@ class TopUpOrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -76,7 +76,7 @@ class TopUpOrderRepository extends EntityRepository
     }
 
     /**
-     * @param $channel
+     * @param array $channel
      * @param $payStart
      * @param $payEnd
      *
@@ -94,7 +94,7 @@ class TopUpOrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 

@@ -92,7 +92,7 @@ class EventOrderRepository extends EntityRepository
      * @param $city
      * @param $company
      * @param $building
-     * @param $channel
+     * @param array $channel
      * @param $keyword
      * @param $keywordSearch
      * @param $payDate
@@ -142,7 +142,7 @@ class EventOrderRepository extends EntityRepository
         }
 
         if (!is_null($channel)) {
-            $query->andWhere('eo.payChannel = :channel')
+            $query->andWhere('eo.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -228,7 +228,7 @@ class EventOrderRepository extends EntityRepository
 
     /**
      * @param $city
-     * @param $channel
+     * @param array $channel
      * @param $keyword
      * @param $keywordSearch
      * @param $payDate
@@ -269,7 +269,7 @@ class EventOrderRepository extends EntityRepository
         }
 
         if (!is_null($channel)) {
-            $query->andWhere('eo.payChannel = :channel')
+            $query->andWhere('eo.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
