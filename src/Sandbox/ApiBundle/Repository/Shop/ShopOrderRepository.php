@@ -202,7 +202,7 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('userId', $user);
         }
 
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
@@ -336,7 +336,7 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('userId', $user);
         }
 
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }

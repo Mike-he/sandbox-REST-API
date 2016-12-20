@@ -1068,7 +1068,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('offline',  ProductOrder::CHANNEL_OFFLINE);
 
         // filter by payment channel
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
@@ -1086,7 +1086,7 @@ class OrderRepository extends EntityRepository
         }
 
         // filter by type
-        if (!is_null($type)) {
+        if (!is_null($type) && !empty($type)) {
             $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
@@ -1279,7 +1279,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('offline',  ProductOrder::CHANNEL_OFFLINE);
 
         // filter by payment channel
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
@@ -1297,7 +1297,7 @@ class OrderRepository extends EntityRepository
         }
 
         // filter by type
-        if (!is_null($type)) {
+        if (!is_null($type) && !empty($type)) {
             $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
@@ -1487,7 +1487,7 @@ class OrderRepository extends EntityRepository
         }
 
         // filter by payment channel
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
@@ -1499,7 +1499,7 @@ class OrderRepository extends EntityRepository
         }
 
         // filter by type
-        if (!is_null($type)) {
+        if (!is_null($type) && !empty($type)) {
             $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
@@ -1677,7 +1677,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('preOrder', ProductOrder::PREORDER_TYPE);
 
         // filter by payment channel
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
@@ -1695,7 +1695,7 @@ class OrderRepository extends EntityRepository
         }
 
         // filter by type
-        if (!is_null($type)) {
+        if (!is_null($type) && !empty($type)) {
             $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }
@@ -1857,7 +1857,7 @@ class OrderRepository extends EntityRepository
             ->where('o.paymentDate IS NOT NULL');
 
         // filter by payment channel
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
@@ -1875,7 +1875,7 @@ class OrderRepository extends EntityRepository
         }
 
         // filter by type
-        if (!is_null($type)) {
+        if (!is_null($type) && !empty($type)) {
             $query->andWhere('por.roomType in (:type)')
                 ->setParameter('type', $type);
         }

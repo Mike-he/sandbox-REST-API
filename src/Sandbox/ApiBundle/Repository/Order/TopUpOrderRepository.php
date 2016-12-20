@@ -29,7 +29,7 @@ class TopUpOrderRepository extends EntityRepository
             ->where('o.id IS NOT NULL');
 
         // filter by payment channel
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
@@ -93,7 +93,7 @@ class TopUpOrderRepository extends EntityRepository
             ->where('o.id IS NOT NULL');
 
         // filter by payment channel
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
