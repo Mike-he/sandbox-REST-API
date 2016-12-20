@@ -310,6 +310,16 @@ class AdminShopOrderController extends ShopController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by shop id"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="refundStatus",
      *    array=false,
      *    default=null,
@@ -338,6 +348,7 @@ class AdminShopOrderController extends ShopController
         $channel = $paramFetcher->get('channel');
         $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
+        $shopId = $paramFetcher->get('shop');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
         $payDate = $paramFetcher->get('pay_date');
@@ -364,6 +375,7 @@ class AdminShopOrderController extends ShopController
                 null,
                 $companyId,
                 $buildingId,
+                $shopId,
                 $refundStatus,
                 $limit,
                 $offset
@@ -384,6 +396,7 @@ class AdminShopOrderController extends ShopController
                 null,
                 $companyId,
                 $buildingId,
+                $shopId,
                 $refundStatus
             );
 

@@ -1281,21 +1281,21 @@ class AdminRoomController extends SalesRestController
         $roomCity = $this->getRepo('Room\RoomCity')->find($roomBuilding->getCityId());
         $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
 
-        $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
-                'building' => $roomBuilding,
-                'number' => $room->getNumber(),
-                'isDeleted' => false,
-            )
-        );
-
-        if (!is_null($myRoom)) {
-            //304 Not Modified
-            return $this->customErrorView(
-                400,
-                400001,
-                self::ALREADY_EXISTS_MESSAGE
-            );
-        }
+//        $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
+//                'building' => $roomBuilding,
+//                'number' => $room->getNumber(),
+//                'isDeleted' => false,
+//            )
+//        );
+//
+//        if (!is_null($myRoom)) {
+//            //304 Not Modified
+//            return $this->customErrorView(
+//                400,
+//                400001,
+//                self::ALREADY_EXISTS_MESSAGE
+//            );
+//        }
 
         if (is_null($roomCity) ||
             is_null($roomBuilding) ||
