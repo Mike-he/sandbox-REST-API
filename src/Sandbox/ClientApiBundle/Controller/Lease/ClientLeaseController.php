@@ -311,7 +311,7 @@ class ClientLeaseController extends SandboxRestController
 
         // limit inviting people conditions
         if ((
-                $status !== Lease::LEASE_STATUS_CONFIRMED ||
+                $status !== Lease::LEASE_STATUS_CONFIRMED &&
                 $status !== Lease::LEASE_STATUS_PERFORMING
             ) ||
             $now >= $endDate
