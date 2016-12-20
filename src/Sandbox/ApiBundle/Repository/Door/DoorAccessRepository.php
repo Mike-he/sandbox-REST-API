@@ -117,18 +117,18 @@ class DoorAccessRepository extends EntityRepository
 
     /**
      * @param $userId
-     * @param $orderId
+     * @param $accessNo
      *
      * @return array
      */
     public function getAddAccessByOrder(
         $userId,
-        $orderId
+        $accessNo
     ) {
         $query = $this->createQueryBuilder('d')
-            ->where('d.orderId = :orderId')
+            ->where('d.accessNo = :accessNo')
             ->andWhere('d.action = :action')
-            ->setParameter('orderId', $orderId)
+            ->setParameter('accessNo', $accessNo)
             ->setParameter('action', DoorAccessConstants::METHOD_ADD);
 
         if (!is_null($userId)) {

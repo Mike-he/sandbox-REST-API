@@ -1675,11 +1675,14 @@ class ClientOrderController extends OrderController
 
                 $this->storeDoorAccess(
                     $em,
-                    $order,
+                    $order->getOrderNumber(),
                     $userId,
                     $buildingId,
-                    $roomId
+                    $roomId,
+                    $order->getStartDate(),
+                    $order->getEndDate()
                 );
+
                 $userArray = $this->getUserArrayIfAuthed(
                     $base,
                     $userId,
@@ -1803,10 +1806,12 @@ class ClientOrderController extends OrderController
         // add new door access
         $this->storeDoorAccess(
             $em,
-            $order,
+            $order->getOrderNumber(),
             $newUser,
             $buildingId,
-            $roomId
+            $roomId,
+            $order->getStartDate(),
+            $order->getEndDate()
         );
         $em->flush();
 
@@ -1883,10 +1888,12 @@ class ClientOrderController extends OrderController
 
         $this->storeDoorAccess(
             $em,
-            $order,
+            $order->getOrderNumber(),
             $orderUser,
             $buildingId,
-            $roomId
+            $roomId,
+            $order->getStartDate(),
+            $order->getEndDate()
         );
         $em->flush();
 
