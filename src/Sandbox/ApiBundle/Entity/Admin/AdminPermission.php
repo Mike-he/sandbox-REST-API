@@ -57,6 +57,8 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE = 'platform.long_term_lease';
     const KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT = 'platform.long_term_appointment';
     const KEY_OFFICIAL_PLATFORM_EVENT_ORDER = 'platform.event_order';
+    const KEY_OFFICIAL_PLATFORM_SHOP_ORDER = 'platform.shop_order';
+    const KEY_OFFICIAL_PLATFORM_TOP_UP = 'platform.top_up';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';
