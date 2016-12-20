@@ -21,7 +21,7 @@ class Version20161220020142 extends AbstractMigration
         $this->addSql('ALTER TABLE room_types ADD `range` INT DEFAULT 30 NOT NULL');
         $this->addSql("
             INSERT INTO `room_types` (`name`, `icon`, `type`, `homepageIcon`) 
-            VALUES ('longterm', 'https://image.sandbox3.cn/icon/room_type_office.png', 'long', 'https://image.sandbox3.cn/icon/room_type_office_homepage.png')
+            VALUES ('longterm', 'https://testimage.sandbox3.cn/icon/room_type_office.png', 'long', 'https://image.sandbox3.cn/icon/room_type_office_homepage.png')
         ");
     }
 
