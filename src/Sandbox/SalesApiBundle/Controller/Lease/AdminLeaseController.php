@@ -6,10 +6,11 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
@@ -399,7 +400,7 @@ class AdminLeaseController extends SalesRestController
 
                 // send notification to removed users
                 $removeUsers = $lease->getInvitedPeopleIds();
-                array_push($removeUsers, $this->getUserId());
+                array_push($removeUsers, $lease->getSupervisorId());
                 if (!empty($removeUsers)) {
                     $this->sendXmppLeaseNotification(
                         $lease,
@@ -728,7 +729,7 @@ class AdminLeaseController extends SalesRestController
         if (!empty($payload['supervisor'])) {
             $supervisor = $this->getUserRepo()->find($payload['supervisor']);
             $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
-            $lease->setDrawee($supervisor);
+            $lease->setSupervisor($supervisor);
         }
 
         $product = $this->getProductRepo()->find($payload['product']);
@@ -821,18 +822,19 @@ class AdminLeaseController extends SalesRestController
             $startDate != $lease->getStartDate() ||
             $endDate != $lease->getEndDate()
         ) {
-            $this->removeInvitedPeople(
-                $lease->getInvitedPeople(),
-                $lease,
-                $lease->getBuilding()->getServer()
+            $this->callRepealRoomOrderCommand(
+                $lease->getBuilding()->getServer(),
+                $lease->getAccessNo()
             );
 
             $lease->setAccessNo($this->generateAccessNumber());
             $lease->setStartDate($startDate);
             $lease->setEndDate($endDate);
 
+            $users = $lease->getInvitedPeople();
+            array_push($users, $lease->getSupervisor());
             $this->addPeople(
-                $lease->getInvitedPeople(),
+                $users,
                 $lease,
                 $lease->getBuilding()->getServer()
             );
@@ -933,35 +935,18 @@ class AdminLeaseController extends SalesRestController
         $base
     ) {
         $em = $this->getDoctrine()->getManager();
-
-        $userArray = [];
-        $recvUsers = [];
-
         $roomDoors = $lease->getRoom()->getDoorControl();
 
-        $invitedPeople = $lease->getInvitedPeople();
-        foreach ($users as $userId) {
-            // find user
-            $user = $this->getUserRepo()->find($userId);
-            $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+        if (is_null($base) || empty($base) || empty($roomDoors)) {
+            return;
+        }
 
-            // find user in invitedPeople
-            if (!$invitedPeople->contains($user)) {
-                $lease->addInvitedPeople($user);
-                $em->persist($lease);
-
-                // set user array for message
-                array_push($recvUsers, $userId);
-            }
-
-            if (is_null($base) || empty($base) || empty($roomDoors)) {
-                continue;
-            }
-
+        $userArray = [];
+        foreach ($users as $user) {
             $this->storeDoorAccess(
                 $em,
                 $lease->getAccessNo(),
-                $userId,
+                $user->getId(),
                 $lease->getBuildingId(),
                 $lease->getRoomId(),
                 $lease->getStartDate(),
@@ -970,87 +955,23 @@ class AdminLeaseController extends SalesRestController
 
             $userArray = $this->getUserArrayIfAuthed(
                 $base,
-                $userId,
+                $user->getId(),
                 $userArray
             );
-
-            // set room access
-            if (!empty($userArray)) {
-                $this->callSetRoomOrderCommand(
-                    $base,
-                    $userArray,
-                    $roomDoors,
-                    $lease->getAccessNo()
-                );
-            }
         }
 
         $em->flush();
 
-        return $recvUsers;
-    }
-
-    /**
-     * @param $removeUsers
-     * @param $lease
-     * @param $base
-     *
-     * @return array
-     */
-    private function removeInvitedPeople(
-        $removeUsers,
-        $lease,
-        $base
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        $userArray = [];
-        $recvUsers = [];
-        foreach ($removeUsers as $removeUserId) {
-            $removeUser = $this->getUserRepo()->find($removeUserId);
-            $this->throwNotFoundIfNull($removeUser);
-
-            $hasAccess = $lease->getInvitedPeople()->contains($removeUser);
-
-            if ($hasAccess) {
-                $em = $this->getDoctrine()->getManager();
-
-                $lease->removeInvitedPeople($removeUser);
-
-                $em->flush();
-
-                // set user array for message
-                array_push($recvUsers, $removeUserId);
-            }
-
-            if (is_null($base) || empty($base)) {
-                continue;
-            }
-
-            // set action of door access to delete
-            $this->setAccessActionToDelete(
-                $lease->getAccessNo(),
-                $removeUserId
-            );
-
-            $result = $this->getCardNoByUser($removeUserId);
-            if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
-                $empUser = ['empid' => $removeUserId];
-                array_push($userArray, $empUser);
-            }
-        }
-
-        $em->flush();
-
-        // remove room access
+        // set room access
         if (!empty($userArray)) {
-            $this->callRemoveFromOrderCommand(
+            $this->callSetRoomOrderCommand(
                 $base,
-                $lease->getAccessNo(),
-                $userArray
+                $userArray,
+                $roomDoors,
+                $lease->getAccessNo()
             );
         }
 
-        return $recvUsers;
+        return;
     }
 }

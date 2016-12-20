@@ -448,19 +448,19 @@ class ClientLeaseController extends SandboxRestController
                 $userId,
                 $userArray
             );
-
-            // set room access
-            if (!empty($userArray)) {
-                $this->callSetRoomOrderCommand(
-                    $base,
-                    $userArray,
-                    $roomDoors,
-                    $lease->getAccessNo()
-                );
-            }
         }
 
         $em->flush();
+
+        // set room access
+        if (!empty($userArray)) {
+            $this->callSetRoomOrderCommand(
+                $base,
+                $userArray,
+                $roomDoors,
+                $lease->getAccessNo()
+            );
+        }
 
         return $recvUsers;
     }
