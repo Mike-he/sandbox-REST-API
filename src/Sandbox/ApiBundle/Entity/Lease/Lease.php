@@ -1178,4 +1178,17 @@ class Lease
     {
         $this->accessNo = $accessNo;
     }
+
+    /**
+     * @return array
+     */
+    public function getInvitedPeopleIds()
+    {
+        return array_map(
+            function ($invitedPerson) {
+                return $invitedPerson->getId();
+            },
+            $this->invitedPeople->toArray()
+        );
+    }
 }

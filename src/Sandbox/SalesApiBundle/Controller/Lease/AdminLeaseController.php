@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -339,7 +340,7 @@ class AdminLeaseController extends SalesRestController
         $id
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $payload = json_decode($request->getContent(), true);
 
@@ -378,10 +379,6 @@ class AdminLeaseController extends SalesRestController
         $lease = $this->getLeaseRepo()->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
-        if ($payload['status'] != Lease::LEASE_STATUS_CONFIRMED) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         switch ($payload['status']) {
             case Lease::LEASE_STATUS_CONFIRMING:
                 break;
@@ -394,23 +391,19 @@ class AdminLeaseController extends SalesRestController
             case Lease::LEASE_STATUS_RECONFIRMING:
                 break;
             case Lease::LEASE_STATUS_TERMINATED:
-                // remove people
-                $removedUserArray = [];
-                $removeUsers = $lease->getInvitedPeople();
-                if (!empty($removeUsers) && !is_null($removeUsers)) {
-                    // remove user
-                    $removedUserArray = $this->removeInvitedPeople(
-                        $removeUsers,
-                        $lease,
-                        $lease->getBuilding()->getServer()
-                    );
-                }
+                // remove door access
+                $this->callRepealRoomOrderCommand(
+                    $lease->getBuilding()->getServer(),
+                    $lease->getAccessNo()
+                );
 
-                // send notification to invited users
-                if (!empty($removedUserArray)) {
+                // send notification to removed users
+                $removeUsers = $lease->getInvitedPeopleIds();
+                array_push($removeUsers, $this->getUserId());
+                if (!empty($removeUsers)) {
                     $this->sendXmppLeaseNotification(
                         $lease,
-                        $removedUserArray,
+                        $removeUsers,
                         ProductOrder::ACTION_INVITE_REMOVE,
                         $lease->getSupervisorId(),
                         [],
