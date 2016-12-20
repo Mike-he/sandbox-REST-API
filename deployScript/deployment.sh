@@ -6,6 +6,7 @@ sudo php app/console doc:mig:exe 20161207025409  # add permission group data
 sudo php app/console doc:mig:exe 20161209160419  # change permission group's name data
 sudo php app/console doc:mig:exe 20161214161831  # add lease expire in time in parameter table
 sudo php app/console doc:mig:exe 20161219165153  # add event order permission
+sudo php app/console doc:mig:exe 20161220101253  # change permission names
 
 
 ## version 2.3.1

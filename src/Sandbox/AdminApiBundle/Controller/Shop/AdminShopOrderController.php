@@ -161,6 +161,8 @@ class AdminShopOrderController extends ShopController
      *    strict=true,
      *    description="page number "
      * )
+     *
+     * @return View
      */
     public function getRefundShopOrdersAction(
         Request $request,
@@ -602,7 +604,7 @@ class AdminShopOrderController extends ShopController
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SHOP_ORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
             ],
             $opLevel,
