@@ -557,10 +557,16 @@ class ClientOrderController extends OrderController
 
                 $startDate->setTime(00, 00, 00);
             } else {
-                $diff = $startDate->diff($now)->days;
-                if ($diff > 7) {
-                    return $this->customErrorView(
+                $roomType = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomTypes')
+                    ->findOneBy(['name' => $type]);
+                $this->throwNotFoundIfNull($roomType, self::NOT_FOUND_MESSAGE);
 
+                $diff = $startDate->diff($now)->days;
+                $range = $roomType->getRange();
+
+                if ($diff > $range) {
+                    return $this->customErrorView(
                         400,
                         self::NOT_WITHIN_DATE_RANGE_CODE,
                         self::NOT_WITHIN_DATE_RANGE_MESSAGE
