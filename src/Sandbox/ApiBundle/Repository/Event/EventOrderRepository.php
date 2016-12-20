@@ -141,7 +141,7 @@ class EventOrderRepository extends EntityRepository
                 ->setParameter('building', $building->getId());
         }
 
-        if (!is_null($channel)) {
+        if (!is_null($channel) && !empty($channel)) {
             $query->andWhere('eo.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }

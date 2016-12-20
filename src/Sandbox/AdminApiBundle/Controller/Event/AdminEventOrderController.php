@@ -232,17 +232,58 @@ class AdminEventOrderController extends AdminOrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="city",
-     *    array=false,
+     *    name="keyword",
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Filter by city id"
+     *    description="search query"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="startDate",
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -251,16 +292,8 @@ class AdminEventOrderController extends AdminOrderController
      *    description="start date. Must be YYYY-mm-dd"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="flag",
-     *    default="event",
-     *    requirements="(event|event_registration)",
-     *    nullable=true,
-     *    description="search flag"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="endDate",
+     *  @Annotations\QueryParam(
+     *    name="create_end",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -270,10 +303,23 @@ class AdminEventOrderController extends AdminOrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="query",
+     *    name="company",
+     *    array=false,
      *    default=null,
      *    nullable=true,
-     *    description="search query"
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by sales company id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
      * )
      *
      * @Route("/events/orders/export")
