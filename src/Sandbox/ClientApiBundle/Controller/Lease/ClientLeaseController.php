@@ -6,23 +6,19 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\User\User;
-use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
-use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -250,7 +246,27 @@ class ClientLeaseController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        //TODO: 2 set current user to door access
+        $recvUsers = $this->addPeople(
+            [
+                $this->getUserId(),
+            ],
+            $lease,
+            $lease->getBuilding()->getServer()
+        );
+
+        // send notification to invited users
+        if (!empty($recvUsers)) {
+            $this->sendXmppLeaseNotification(
+                $lease,
+                $recvUsers,
+                ProductOrder::ACTION_INVITE_ADD,
+                $lease->getSupervisorId(),
+                [],
+                ProductOrderMessage::APPOINT_MESSAGE_PART1,
+                ProductOrderMessage::APPOINT_MESSAGE_PART2
+            );
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $lease->setAccessNo($this->generateAccessNumber());
@@ -270,7 +286,7 @@ class ClientLeaseController extends SandboxRestController
     }
 
     /**
-     * Add Invited People
+     * Add Invited People.
      *
      * @Route("/leases/{id}/people")
      * @Method({"POST"})
@@ -280,7 +296,7 @@ class ClientLeaseController extends SandboxRestController
      *
      * @return View
      */
-    public function addPeopleAction(
+    public function invitePeopleAction(
         Request $request,
         $id
     ) {
@@ -294,8 +310,11 @@ class ClientLeaseController extends SandboxRestController
         $endDate = $lease->getEndDate();
         $now = new \DateTime();
 
-        if (
-            $status !== Lease::LEASE_STATUS_PERFORMING &&
+        // limit inviting people conditions
+        if ((
+                $status !== Lease::LEASE_STATUS_CONFIRMED ||
+                $status !== Lease::LEASE_STATUS_PERFORMING
+            ) ||
             $now >= $endDate
         ) {
             return $this->customErrorView(
@@ -327,62 +346,15 @@ class ClientLeaseController extends SandboxRestController
         $removeUsers
     ) {
         $base = $lease->getBuilding()->getServer();
-        // TODO: 1 remove after testing
-        $base = 'door access server';
-
-        $roomDoors = $lease->getRoom()->getDoorControl();
-
-        $userArray = [];
         $recvUsers = [];
 
-        $em = $this->getDoctrine()->getManager();
-
         // invite people
-        $invitedPeople = $lease->getInvitedPeople();
         if (!empty($users) && !is_null($users)) {
-
-//            $this->addpeople(
-//                $users,
-//                $lease,
-//                $base
-//            );
-
-            foreach ($users as $userId) {
-                // find user
-                $user = $this->getUserRepo()->find($userId);
-                $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
-
-                // find user in invitedPeople
-                if (!$invitedPeople->contains($user)) {
-                    $lease->addInvitedPeople($user);
-                    $em->persist($lease);
-
-                    // set user array for message
-                    array_push($recvUsers, $userId);
-                }
-
-                if (is_null($base) || empty($base) || empty($roomDoors)) {
-                    continue;
-                }
-
-                $this->storeDoorAccess(
-                    $em,
-                    $lease->getAccessNo(),
-                    $userId,
-                    $lease->getBuildingId(),
-                    $lease->getRoomId(),
-                    $lease->getStartDate(),
-                    $lease->getEndDate()
-                );
-
-                $userArray = $this->getUserArrayIfAuthed(
-                    $base,
-                    $userId,
-                    $userArray
-                );
-            }
-
-            $em->flush();
+            $recvUsers = $this->addPeople(
+                $users,
+                $lease,
+                $base
+            );
         }
 
         // remove people
@@ -393,16 +365,6 @@ class ClientLeaseController extends SandboxRestController
                 $removeUsers,
                 $lease,
                 $base
-            );
-        }
-
-        // set room access
-        if (!empty($userArray)) {
-            $this->callSetRoomOrderCommand(
-                $base,
-                $userArray,
-                $roomDoors,
-                $lease->getAccessNo()
             );
         }
 
@@ -432,7 +394,77 @@ class ClientLeaseController extends SandboxRestController
             );
         }
     }
-    
+
+    /**
+     * @param $users
+     * @param $lease
+     * @param $base
+     *
+     * @return array|mixed
+     */
+    private function addPeople(
+        $users,
+        $lease,
+        $base
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $userArray = [];
+        $recvUsers = [];
+
+        $roomDoors = $lease->getRoom()->getDoorControl();
+
+        $invitedPeople = $lease->getInvitedPeople();
+        foreach ($users as $userId) {
+            // find user
+            $user = $this->getUserRepo()->find($userId);
+            $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+
+            // find user in invitedPeople
+            if (!$invitedPeople->contains($user)) {
+                $lease->addInvitedPeople($user);
+                $em->persist($lease);
+
+                // set user array for message
+                array_push($recvUsers, $userId);
+            }
+
+            if (is_null($base) || empty($base) || empty($roomDoors)) {
+                continue;
+            }
+
+            $this->storeDoorAccess(
+                $em,
+                $lease->getAccessNo(),
+                $userId,
+                $lease->getBuildingId(),
+                $lease->getRoomId(),
+                $lease->getStartDate(),
+                $lease->getEndDate()
+            );
+
+            $userArray = $this->getUserArrayIfAuthed(
+                $base,
+                $userId,
+                $userArray
+            );
+
+            // set room access
+            if (!empty($userArray)) {
+                $this->callSetRoomOrderCommand(
+                    $base,
+                    $userArray,
+                    $roomDoors,
+                    $lease->getAccessNo()
+                );
+            }
+        }
+
+        $em->flush();
+
+        return $recvUsers;
+    }
+
     /**
      * @param $removeUsers
      * @param $lease

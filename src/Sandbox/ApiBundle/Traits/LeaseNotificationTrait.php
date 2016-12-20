@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\Security\Acl\Exception\Exception;
 
@@ -24,13 +23,13 @@ trait LeaseNotificationTrait
     use SendNotification;
 
     /**
-     * @param Lease $lease
-     * @param array        $receivers
-     * @param string       $action
-     * @param null         $fromUserId
-     * @param array        $leases
-     * @param null         $first
-     * @param null         $second
+     * @param Lease  $lease
+     * @param array  $receivers
+     * @param string $action
+     * @param null   $fromUserId
+     * @param array  $leases
+     * @param null   $first
+     * @param null   $second
      */
     protected function sendXmppLeaseNotification(
         $lease,

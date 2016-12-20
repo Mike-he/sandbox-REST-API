@@ -10,9 +10,9 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
-use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
+use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -26,6 +26,7 @@ class AdminLeaseController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
     use HasAccessToEntityRepositoryTrait;
+    use LeaseNotificationTrait;
 
     /**
      * Get Lease Detail.
@@ -338,7 +339,7 @@ class AdminLeaseController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $payload = json_decode($request->getContent(), true);
 
@@ -393,7 +394,31 @@ class AdminLeaseController extends SalesRestController
             case Lease::LEASE_STATUS_RECONFIRMING:
                 break;
             case Lease::LEASE_STATUS_TERMINATED:
-                // TODO: 4 disable door access
+                // remove people
+                $removedUserArray = [];
+                $removeUsers = $lease->getInvitedPeople();
+                if (!empty($removeUsers) && !is_null($removeUsers)) {
+                    // remove user
+                    $removedUserArray = $this->removeInvitedPeople(
+                        $removeUsers,
+                        $lease,
+                        $lease->getBuilding()->getServer()
+                    );
+                }
+
+                // send notification to invited users
+                if (!empty($removedUserArray)) {
+                    $this->sendXmppLeaseNotification(
+                        $lease,
+                        $removedUserArray,
+                        ProductOrder::ACTION_INVITE_REMOVE,
+                        $lease->getSupervisorId(),
+                        [],
+                        ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                        ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                    );
+                }
+
                 break;
             case Lease::LEASE_STATUS_DRAFTING:
                 break;
@@ -403,7 +428,6 @@ class AdminLeaseController extends SalesRestController
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        //TODO: 2 set current user to door access
         $lease->setAccessNo($this->generateAccessNumber());
         $lease->setStatus($payload['status']);
 
@@ -746,17 +770,45 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_CONFIRMING:
                 break;
+            case Lease::LEASE_STATUS_CONFIRMED:
+                if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
+                $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
+                break;
             case Lease::LEASE_STATUS_RECONFIRMING:
-                if (
-                    $payload['start_date'] != $lease->getStartDate() ||
-                    $payload['end_date'] != $lease->getEndDate()
-                ) {
-                    // TODO: 3 reset door access
-                };
-
+                if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
+                $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
+                break;
+            case Lease::LEASE_STATUS_PERFORMING:
+                if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
+                $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
                 break;
             default:
-                $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        if (
+            $payload['start_date'] != $lease->getStartDate() ||
+            $payload['end_date'] != $lease->getEndDate()
+        ) {
+            $this->removeInvitedPeople(
+                $lease->getInvitedPeople(),
+                $lease,
+                $lease->getBuilding()->getServer()
+            );
+
+            $lease->setAccessNo($this->generateAccessNumber());
+
+            $this->addPeople(
+                $lease->getInvitedPeople(),
+                $lease,
+                $lease->getBuilding()->getServer()
+            );
         }
 
         if (
@@ -873,5 +925,139 @@ class AdminLeaseController extends SalesRestController
             ],
             $opLevel
         );
+    }
+
+    /**
+     * @param $users
+     * @param $lease
+     * @param $base
+     *
+     * @return array|mixed
+     */
+    private function addPeople(
+        $users,
+        $lease,
+        $base
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $userArray = [];
+        $recvUsers = [];
+
+        $roomDoors = $lease->getRoom()->getDoorControl();
+
+        $invitedPeople = $lease->getInvitedPeople();
+        foreach ($users as $userId) {
+            // find user
+            $user = $this->getUserRepo()->find($userId);
+            $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+
+            // find user in invitedPeople
+            if (!$invitedPeople->contains($user)) {
+                $lease->addInvitedPeople($user);
+                $em->persist($lease);
+
+                // set user array for message
+                array_push($recvUsers, $userId);
+            }
+
+            if (is_null($base) || empty($base) || empty($roomDoors)) {
+                continue;
+            }
+
+            $this->storeDoorAccess(
+                $em,
+                $lease->getAccessNo(),
+                $userId,
+                $lease->getBuildingId(),
+                $lease->getRoomId(),
+                $lease->getStartDate(),
+                $lease->getEndDate()
+            );
+
+            $userArray = $this->getUserArrayIfAuthed(
+                $base,
+                $userId,
+                $userArray
+            );
+
+            // set room access
+            if (!empty($userArray)) {
+                $this->callSetRoomOrderCommand(
+                    $base,
+                    $userArray,
+                    $roomDoors,
+                    $lease->getAccessNo()
+                );
+            }
+        }
+
+        $em->flush();
+
+        return $recvUsers;
+    }
+
+    /**
+     * @param $removeUsers
+     * @param $lease
+     * @param $base
+     *
+     * @return array
+     */
+    private function removeInvitedPeople(
+        $removeUsers,
+        $lease,
+        $base
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $userArray = [];
+        $recvUsers = [];
+        foreach ($removeUsers as $removeUserId) {
+            $removeUser = $this->getUserRepo()->find($removeUserId);
+            $this->throwNotFoundIfNull($removeUser);
+
+            $hasAccess = $lease->getInvitedPeople()->contains($removeUser);
+
+            if ($hasAccess) {
+                $em = $this->getDoctrine()->getManager();
+
+                $lease->removeInvitedPeople($removeUser);
+
+                $em->flush();
+
+                // set user array for message
+                array_push($recvUsers, $removeUserId);
+            }
+
+            if (is_null($base) || empty($base)) {
+                continue;
+            }
+
+            // set action of door access to delete
+            $this->setAccessActionToDelete(
+                $lease->getAccessNo(),
+                $removeUserId
+            );
+
+            $result = $this->getCardNoByUser($removeUserId);
+            if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
+                $empUser = ['empid' => $removeUserId];
+                array_push($userArray, $empUser);
+            }
+        }
+
+        $em->flush();
+
+        // remove room access
+        if (!empty($userArray)) {
+            $this->callRemoveFromOrderCommand(
+                $base,
+                $lease->getAccessNo(),
+                $userArray
+            );
+        }
+
+        return $recvUsers;
     }
 }

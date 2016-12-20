@@ -1100,15 +1100,15 @@ class Lease
     }
 
     /**
-     * @return Int
+     * @return int
      */
     public function getSupervisorId()
     {
-       return $this->supervisor->getId();
+        return $this->supervisor->getId();
     }
 
     /**
-     * @return Int
+     * @return int
      */
     public function getRoomId()
     {
@@ -1124,7 +1124,7 @@ class Lease
     }
 
     /**
-     * @return Int
+     * @return int
      */
     public function getBuildingId()
     {
