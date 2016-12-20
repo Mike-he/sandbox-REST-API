@@ -742,11 +742,7 @@ class AdminLeaseController extends SalesRestController
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
         $lease->setProduct($product);
 
-        $startDate = new \DateTime($payload['start_date']);
-        $endDate = new \DateTime($payload['end_date']);
-
         $lease->setDeposit($payload['deposit']);
-        $lease->setEndDate($endDate);
         $lease->setLesseeAddress($payload['lessee_address']);
         $lease->setLesseeContact($payload['lessee_contact']);
         $lease->setLesseeEmail($payload['lessee_email']);
@@ -759,7 +755,6 @@ class AdminLeaseController extends SalesRestController
         $lease->setLessorContact($payload['lessor_contact']);
         $lease->setMonthlyRent($payload['monthly_rent']);
         $lease->setPurpose($payload['purpose']);
-        $lease->setStartDate($startDate);
         $lease->setSerialNumber($this->generateLeaseSerialNumber());
         $lease->setTotalRent($payload['total_rent']);
         $lease->setModificationDate(new \DateTime('now'));
@@ -790,25 +785,6 @@ class AdminLeaseController extends SalesRestController
                 break;
             default:
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        if (
-            $payload['start_date'] != $lease->getStartDate() ||
-            $payload['end_date'] != $lease->getEndDate()
-        ) {
-            $this->removeInvitedPeople(
-                $lease->getInvitedPeople(),
-                $lease,
-                $lease->getBuilding()->getServer()
-            );
-
-            $lease->setAccessNo($this->generateAccessNumber());
-
-            $this->addPeople(
-                $lease->getInvitedPeople(),
-                $lease,
-                $lease->getBuilding()->getServer()
-            );
         }
 
         if (
@@ -844,6 +820,30 @@ class AdminLeaseController extends SalesRestController
 
         $this->handleLeaseRentTypesPut($payload['lease_rent_types'], $lease);
         $this->handleLeaseBillPut($payload['bills'], $lease, $em);
+
+        $startDate = new \DateTime($payload['start_date']);
+        $endDate = new \DateTime($payload['end_date']);
+
+        if (
+            $startDate != $lease->getStartDate() ||
+            $endDate != $lease->getEndDate()
+        ) {
+            $this->removeInvitedPeople(
+                $lease->getInvitedPeople(),
+                $lease,
+                $lease->getBuilding()->getServer()
+            );
+
+            $lease->setAccessNo($this->generateAccessNumber());
+            $lease->setStartDate($startDate);
+            $lease->setEndDate($endDate);
+
+            $this->addPeople(
+                $lease->getInvitedPeople(),
+                $lease,
+                $lease->getBuilding()->getServer()
+            );
+        }
 
         $em->persist($lease);
         $em->flush();
