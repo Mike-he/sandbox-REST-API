@@ -246,6 +246,9 @@ class ClientLeaseController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $lease->setAccessNo($this->generateAccessNumber());
+        $lease->setStatus($payload['status']);
+
         $recvUsers = $this->addPeople(
             [
                 $this->getUserId(),
@@ -268,10 +271,6 @@ class ClientLeaseController extends SandboxRestController
         }
 
         $em = $this->getDoctrine()->getManager();
-
-        $lease->setAccessNo($this->generateAccessNumber());
-        $lease->setStatus($payload['status']);
-
         $em->flush();
 
         // generate log
