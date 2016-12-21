@@ -380,6 +380,8 @@ class AdminLeaseController extends SalesRestController
         $lease = $this->getLeaseRepo()->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
+        $em = $this->getDoctrine()->getManager();
+
         $status = $lease->getStatus();
         switch ($payload['status']) {
             case Lease::LEASE_STATUS_CONFIRMING:
@@ -394,23 +396,53 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_CLOSED:
                 if (
-                    $status != Lease::LEASE_STATUS_DRAFTING ||
-                    $status != Lease::LEASE_STATUS_CONFIRMING ||
+                    $status != Lease::LEASE_STATUS_DRAFTING &&
+                    $status != Lease::LEASE_STATUS_CONFIRMING &&
                     $status != Lease::LEASE_STATUS_CONFIRMED
                 ) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
+
+                if ($status == Lease::LEASE_STATUS_CONFIRMED) {
+                    $this->setAccessActionToDelete($lease->getAccessNo());
+
+                    $em->flush();
+
+                    // remove door access
+                    $this->callRepealRoomOrderCommand(
+                        $lease->getBuilding()->getServer(),
+                        $lease->getAccessNo()
+                    );
+
+                    // send notification to removed users
+                    $removeUsers = $lease->getInvitedPeopleIds();
+                    array_push($removeUsers, $lease->getSupervisorId());
+                    if (!empty($removeUsers)) {
+                        $this->sendXmppLeaseNotification(
+                            $lease,
+                            $removeUsers,
+                            ProductOrder::ACTION_INVITE_REMOVE,
+                            $lease->getSupervisorId(),
+                            [],
+                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                        );
+                    }
+                }
+
                 break;
             case Lease::LEASE_STATUS_TERMINATED:
                 if (
-                    $status != Lease::LEASE_STATUS_PERFORMING ||
-                    $status != Lease::LEASE_STATUS_RECONFIRMING ||
+                    ($status != Lease::LEASE_STATUS_PERFORMING &&
+                    $status != Lease::LEASE_STATUS_RECONFIRMING) ||
                     $lease->getEndDate() < new \DateTime('now')
                 ) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
 
                 $this->setAccessActionToDelete($lease->getAccessNo());
+
+                $em->flush();
 
                 // remove door access
                 $this->callRepealRoomOrderCommand(
@@ -435,7 +467,10 @@ class AdminLeaseController extends SalesRestController
 
                 break;
             case Lease::LEASE_STATUS_END:
-                if ($status != Lease::LEASE_STATUS_PERFORMING) {
+                if (
+                    $status != Lease::LEASE_STATUS_PERFORMING ||
+                    new \DateTime('now') <= $lease->getEndDate()
+                ) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
                 break;
@@ -445,7 +480,6 @@ class AdminLeaseController extends SalesRestController
 
         $lease->setStatus($payload['status']);
 
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         // generate log
@@ -843,6 +877,9 @@ class AdminLeaseController extends SalesRestController
             $endDate != $lease->getEndDate()
         ) {
             $this->setAccessActionToDelete($lease->getAccessNo());
+
+            $em->flush();
+
             $this->callRepealRoomOrderCommand(
                 $lease->getBuilding()->getServer(),
                 $lease->getAccessNo()
@@ -861,7 +898,6 @@ class AdminLeaseController extends SalesRestController
             );
         }
 
-        $em->persist($lease);
         $em->flush();
 
         // generate log
@@ -989,7 +1025,9 @@ class AdminLeaseController extends SalesRestController
                 $base,
                 $userArray,
                 $roomDoors,
-                $lease->getAccessNo()
+                $lease->getAccessNo(),
+                $lease->getStartDate(),
+                $lease->getEndDate()
             );
         }
 

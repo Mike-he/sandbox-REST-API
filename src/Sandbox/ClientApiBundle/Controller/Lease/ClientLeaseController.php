@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
@@ -270,6 +271,8 @@ class ClientLeaseController extends SandboxRestController
                     $lease->getEndDate()
                 );
 
+                $em->flush();
+
                 $userArray = $this->getUserArrayIfAuthed(
                     $base,
                     $lease->getSupervisorId(),
@@ -282,7 +285,9 @@ class ClientLeaseController extends SandboxRestController
                         $base,
                         $userArray,
                         $roomDoors,
-                        $lease->getAccessNo()
+                        $lease->getAccessNo(),
+                        $lease->getStartDate(),
+                        $lease->getEndDate()
                     );
                 }
             }
@@ -475,7 +480,9 @@ class ClientLeaseController extends SandboxRestController
                 $base,
                 $userArray,
                 $roomDoors,
-                $lease->getAccessNo()
+                $lease->getAccessNo(),
+                $lease->getStartDate(),
+                $lease->getEndDate()
             );
         }
 
@@ -522,7 +529,8 @@ class ClientLeaseController extends SandboxRestController
             // set action of door access to delete
             $this->setAccessActionToDelete(
                 $lease->getAccessNo(),
-                $removeUserId
+                $removeUserId,
+                DoorAccessConstants::METHOD_DELETE
             );
 
             $result = $this->getCardNoByUser($removeUserId);

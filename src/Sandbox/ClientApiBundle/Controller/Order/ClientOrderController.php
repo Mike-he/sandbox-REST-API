@@ -1675,7 +1675,7 @@ class ClientOrderController extends OrderController
 
                 $this->storeDoorAccess(
                     $em,
-                    $order->getOrderNumber(),
+                    $order->getId(),
                     $userId,
                     $buildingId,
                     $roomId,
@@ -1708,7 +1708,9 @@ class ClientOrderController extends OrderController
                 $base,
                 $userArray,
                 $roomDoors,
-                $order
+                $order->getId(),
+                $order->getStartDate(),
+                $order->getEndDate()
             );
         }
 
@@ -1806,7 +1808,7 @@ class ClientOrderController extends OrderController
         // add new door access
         $this->storeDoorAccess(
             $em,
-            $order->getOrderNumber(),
+            $order->getId(),
             $newUser,
             $buildingId,
             $roomId,
@@ -1827,7 +1829,9 @@ class ClientOrderController extends OrderController
                 $base,
                 $userArray,
                 $roomDoors,
-                $order
+                $order->getId(),
+                $order->getStartDate(),
+                $order->getEndDate()
             );
         }
 
@@ -1888,7 +1892,7 @@ class ClientOrderController extends OrderController
 
         $this->storeDoorAccess(
             $em,
-            $order->getOrderNumber(),
+            $order->getId(),
             $orderUser,
             $buildingId,
             $roomId,
@@ -1909,7 +1913,9 @@ class ClientOrderController extends OrderController
                 $base,
                 $userArray,
                 $roomDoors,
-                $order
+                $order->getId(),
+                $order->getStartDate(),
+                $order->getEndDate()
             );
         }
 

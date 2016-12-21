@@ -274,11 +274,11 @@ trait DoorAccessTrait
 
     /**
      * @param $base
-     * @param $orderId
+     * @param $accessNo
      */
     public function repealRoomOrder(
         $base,
-        $orderId
+        $accessNo
     ) {
         $sessionId = null;
 
@@ -289,7 +289,7 @@ trait DoorAccessTrait
         try {
             $sessionId = $this->getSessionId($base);
 
-            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_order_no'].$orderId;
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_order_no'].$accessNo;
 
             $periodArray = $this->postDoorApi($base.$globals['door_api_repeal_room_order'], $data);
             $this->logOut($sessionId, $base);
@@ -297,7 +297,7 @@ trait DoorAccessTrait
             if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
                 $this->updateDoorAccess(
                     null,
-                    $orderId,
+                    $accessNo,
                     ProductOrder::STATUS_CANCELLED
                 );
             }
@@ -525,11 +525,11 @@ trait DoorAccessTrait
 
     /**
      * @param $userArray
-     * @param $orderId
+     * @param $accessNo
      */
     protected function updateDoorAccess(
         $userArray,
-        $orderId,
+        $accessNo,
         $status = DoorAccessConstants::METHOD_ADD
     ) {
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -540,7 +540,7 @@ trait DoorAccessTrait
                           ->getRepository(BundleConstants::BUNDLE.':'.'Door\DoorAccess')
                           ->findBy(
                               array(
-                                  'orderId' => $orderId,
+                                  'accessNo' => $accessNo,
                                   'access' => false,
                                   'action' => $status,
                               )
@@ -561,7 +561,7 @@ trait DoorAccessTrait
                               ->findBy(
                                   array(
                                       'userId' => $userId,
-                                      'orderId' => $orderId,
+                                      'accessNo' => $accessNo,
                                       'access' => false,
                                       'action' => $status,
                                   )
@@ -627,7 +627,8 @@ trait DoorAccessTrait
      */
     public function setAccessActionToDelete(
         $accessNo,
-        $userId = null
+        $userId = null,
+        $method = DoorAccessConstants::METHOD_CANCELLED
     ) {
         $controls = $this->getRepo('Door\DoorAccess')->getAddAccessByOrder(
             $userId,
@@ -636,7 +637,7 @@ trait DoorAccessTrait
 
         if (!empty($controls)) {
             foreach ($controls as $control) {
-                $control->setAction(DoorAccessConstants::METHOD_DELETE);
+                $control->setAction($method);
                 $control->isAccess() ? $control->setAccess(false) : $control->setAccess(true);
             }
         }

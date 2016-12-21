@@ -1464,11 +1464,11 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $base
-     * @param $orderId
+     * @param $accessNo
      */
     protected function callRepealRoomOrderCommand(
         $base,
-        $orderId
+        $accessNo
     ) {
         try {
             $kernel = $this->get('kernel');
@@ -1478,7 +1478,7 @@ class SandboxRestController extends FOSRestController
             $input = new ArrayInput(array(
                 'command' => 'RoomOrder:Repeal',
                 'base' => $base,
-                'orderId' => $orderId,
+                'accessNo' => $accessNo,
             ));
 
             $output = new NullOutput();
@@ -1498,7 +1498,9 @@ class SandboxRestController extends FOSRestController
         $base,
         $userArray,
         $roomDoors,
-        $order
+        $accessNo,
+        $startDate,
+        $endDate
     ) {
         try {
             $kernel = $this->get('kernel');
@@ -1510,7 +1512,9 @@ class SandboxRestController extends FOSRestController
                 'base' => $base,
                 'userArray' => $userArray,
                 'roomDoors' => $roomDoors,
-                'order' => $order,
+                'accessNo' => $accessNo,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
             ));
 
             $output = new NullOutput();
@@ -1661,7 +1665,9 @@ class SandboxRestController extends FOSRestController
                         $base,
                         $userArray,
                         $roomDoors,
-                        $order
+                        $order->getId(),
+                        $order->getStartDate(),
+                        $order->getEndDate()
                     );
                 }
             }

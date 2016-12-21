@@ -1140,7 +1140,7 @@ class PaymentController extends DoorController
         $userId = $order->getUserId();
         $this->storeDoorAccess(
             $em,
-            $order->getOrderNumber(),
+            $order->getId(),
             $userId,
             $buildingId,
             $roomId,
@@ -1166,19 +1166,19 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $orderId
+     * @param $accessNo
      * @param $currentUser
      * @param $base
      * @param $globals
      */
     public function removeUserAccess(
-        $orderId,
+        $accessNo,
         $base
     ) {
         $currentUserArray = [];
         $controls = $this->getRepo('Door\DoorAccess')->findBy(
             [
-                'orderId' => $orderId,
+                'accessNo' => $accessNo,
                 'action' => DoorAccessConstants::METHOD_DELETE,
                 'access' => false,
             ]
@@ -1198,23 +1198,23 @@ class PaymentController extends DoorController
         if (!empty($currentUserArray)) {
             $this->callRemoveFromOrderCommand(
                 $base,
-                $orderId,
+                $accessNo,
                 $currentUserArray
             );
         }
     }
 
     /**
-     * @param $orderId
+     * @param $accessNo
      * @param $userId
      */
     public function setControlToDelete(
-        $orderId,
+        $accessNo,
         $userId = null
     ) {
         $controls = $this->getRepo('Door\DoorAccess')->getAddAccessByOrder(
             $userId,
-            $orderId
+            $accessNo
         );
 
         if (!empty($controls)) {
