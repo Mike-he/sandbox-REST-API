@@ -468,6 +468,18 @@ class ClientOrderController extends OrderController
             $search
         );
 
+        foreach ($orders as $order) {
+            $room = $order->getProduct()->getRoom();
+            $roomType = $room->getType();
+
+            if ($roomType == Room::TYPE_LONG_TERM) {
+                $roomType = Room::TYPE_OFFICE;
+            }
+
+            $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType);
+            $room->setTypeDescription($type);
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['current_order']));
         $view->setData($orders);

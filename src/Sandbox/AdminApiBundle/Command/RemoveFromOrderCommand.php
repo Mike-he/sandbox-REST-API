@@ -18,7 +18,7 @@ class RemoveFromOrderCommand extends ContainerAwareCommand
             ->setDescription('Remove user from room order in door access')
             ->addArgument('base', InputArgument::REQUIRED, 'Server Address')
             ->addArgument('userArray', InputArgument::REQUIRED, 'Array of user IDs')
-            ->addArgument('orderId', InputArgument::REQUIRED, 'order ID');
+            ->addArgument('accessNo', InputArgument::REQUIRED, 'accessNo');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -26,12 +26,12 @@ class RemoveFromOrderCommand extends ContainerAwareCommand
         $arguments = $input->getArguments();
         $base = $arguments['base'];
         $userArray = $arguments['userArray'];
-        $orderId = $arguments['orderId'];
+        $accessNo = $arguments['accessNo'];
 
         try {
             $this->deleteEmployeeToOrder(
                 $base,
-                $orderId,
+                $accessNo,
                 $userArray
             );
         } catch (\Exception $e) {

@@ -1526,12 +1526,12 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $base
-     * @param $orderId
+     * @param $accessNo
      * @param $userArray
      */
     protected function callRemoveFromOrderCommand(
         $base,
-        $orderId,
+        $accessNo,
         $userArray
     ) {
         try {
@@ -1543,7 +1543,7 @@ class SandboxRestController extends FOSRestController
                 'command' => 'RoomOrderUser:Remove',
                 'base' => $base,
                 'userArray' => $userArray,
-                'orderId' => $orderId,
+                'accessNo' => $accessNo,
             ));
 
             $output = new NullOutput();

@@ -205,7 +205,7 @@ trait DoorAccessTrait
     /**
      * @param $base
      * @param $userArray
-     * @param $orderId
+     * @param $accessNo
      * @param $start
      * @param $end
      * @param $doorArray
@@ -213,7 +213,7 @@ trait DoorAccessTrait
     public function setRoomOrderPermission(
         $base,
         $userArray,
-        $orderId,
+        $accessNo,
         $start,
         $end,
         $doorArray
@@ -233,7 +233,7 @@ trait DoorAccessTrait
 
             $data = [
                 'ads_room_order' => [
-                    'orderno' => "$orderId", //from user account
+                    'orderno' => "$accessNo", //from user account
                     'emps' => $userArray,
                     'doors' => $doorArray,
                 ],
@@ -254,12 +254,12 @@ trait DoorAccessTrait
             if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
                 $this->updateDoorAccess(
                     $userArray,
-                    $orderId
+                    $accessNo
                 );
             } elseif ($periodArray['exceptionmsg'] == '订单号重复，不能添加订单') {
                 $this->addEmployeeToOrder(
                     $base,
-                    $orderId,
+                    $accessNo,
                     $userArray
                 );
             } elseif ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
@@ -314,12 +314,12 @@ trait DoorAccessTrait
 
     /**
      * @param $base
-     * @param $orderId
+     * @param $accessNo
      * @param $userArray
      */
     public function addEmployeeToOrder(
         $base,
-        $orderId,
+        $accessNo,
         $userArray
     ) {
         $sessionId = null;
@@ -333,7 +333,7 @@ trait DoorAccessTrait
 
             $data = [
                 'ads_room_order_add_emp' => [
-                    'orderno' => "$orderId", //from user account
+                    'orderno' => "$accessNo", //from user account
                     'emps' => $userArray,
                 ],
             ];
@@ -346,7 +346,7 @@ trait DoorAccessTrait
             if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
                 $this->updateDoorAccess(
                     $userArray,
-                    $orderId
+                    $accessNo
                 );
             }
             if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
@@ -361,12 +361,12 @@ trait DoorAccessTrait
 
     /**
      * @param $base
-     * @param $orderId
+     * @param $accessNo
      * @param $userArray
      */
     public function deleteEmployeeToOrder(
         $base,
-        $orderId,
+        $accessNo,
         $userArray
     ) {
         $sessionId = null;
@@ -380,7 +380,7 @@ trait DoorAccessTrait
 
             $data = [
                 'ads_room_order_del_emp' => [
-                    'orderno' => "$orderId", //from user account
+                    'orderno' => "$accessNo", //from user account
                     'emps' => $userArray,
                 ],
             ];
@@ -393,7 +393,7 @@ trait DoorAccessTrait
             if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
                 $this->updateDoorAccess(
                     $userArray,
-                    $orderId,
+                    $accessNo,
                     DoorAccessConstants::METHOD_DELETE
                 );
             }

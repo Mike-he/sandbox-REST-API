@@ -195,6 +195,8 @@ class ClientUserFavoriteController extends LocationController
                                 $product->setBasePrice("$min - $max");
                             }
                         }
+                    } elseif ($roomType == Room::TYPE_LONG_TERM) {
+                        $roomType = Room::TYPE_OFFICE;
                     }
 
                     $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType);
