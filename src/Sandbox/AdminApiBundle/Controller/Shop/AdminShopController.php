@@ -311,6 +311,7 @@ class AdminShopController extends ShopController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SHOP_ORDER],
             ],
             $opLevel
         );
