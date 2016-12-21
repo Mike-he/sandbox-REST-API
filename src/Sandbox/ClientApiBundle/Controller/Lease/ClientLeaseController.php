@@ -242,35 +242,53 @@ class ClientLeaseController extends SandboxRestController
         // check user permission
         $this->checkUserLeasePermission($lease);
 
-        if ($payload['status'] != Lease::LEASE_STATUS_CONFIRMED) {
+        $status = $lease->getStatus();
+
+        if (
+            $payload['status'] != Lease::LEASE_STATUS_CONFIRMED ||
+            ($status != Lease::LEASE_STATUS_RECONFIRMING &&
+            $status != Lease::LEASE_STATUS_CONFIRMING)
+        ) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $lease->setAccessNo($this->generateAccessNumber());
-        $lease->setStatus($payload['status']);
+        $em = $this->getDoctrine()->getManager();
+        if ($status == Lease::LEASE_STATUS_CONFIRMING) {
+            $lease->setAccessNo($this->generateAccessNumber());
 
-        $recvUsers = $this->addPeople(
-            [
-                $this->getUserId(),
-            ],
-            $lease,
-            $lease->getBuilding()->getServer()
-        );
+            $base = $lease->getBuilding()->getServer();
+            $roomDoors = $lease->getRoom()->getDoorControl();
 
-        // send notification to invited users
-        if (!empty($recvUsers)) {
-            $this->sendXmppLeaseNotification(
-                $lease,
-                $recvUsers,
-                ProductOrder::ACTION_INVITE_ADD,
-                $lease->getSupervisorId(),
-                [],
-                ProductOrderMessage::APPOINT_MESSAGE_PART1,
-                ProductOrderMessage::APPOINT_MESSAGE_PART2
-            );
+            if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
+                $this->storeDoorAccess(
+                    $em,
+                    $lease->getAccessNo(),
+                    $lease->getSupervisorId(),
+                    $lease->getBuildingId(),
+                    $lease->getRoomId(),
+                    $lease->getStartDate(),
+                    $lease->getEndDate()
+                );
+
+                $userArray = $this->getUserArrayIfAuthed(
+                    $base,
+                    $lease->getSupervisorId(),
+                    []
+                );
+
+                // set room access
+                if (!empty($userArray)) {
+                    $this->callSetRoomOrderCommand(
+                        $base,
+                        $userArray,
+                        $roomDoors,
+                        $lease->getAccessNo()
+                    );
+                }
+            }
         }
 
-        $em = $this->getDoctrine()->getManager();
+        $lease->setStatus($payload['status']);
         $em->flush();
 
         // generate log

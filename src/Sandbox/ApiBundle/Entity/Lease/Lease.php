@@ -24,6 +24,7 @@ class Lease
     const LEASE_STATUS_END = 'end';
     const LEASE_STATUS_EXPIRED = 'expired';
     const LEASE_STATUS_TERMINATED = 'terminated';
+    const LEASE_STATUS_CLOSED = 'closed';
 
     /**
      * @var int

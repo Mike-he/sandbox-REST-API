@@ -380,18 +380,38 @@ class AdminLeaseController extends SalesRestController
         $lease = $this->getLeaseRepo()->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
+        $status = $lease->getStatus();
         switch ($payload['status']) {
             case Lease::LEASE_STATUS_CONFIRMING:
-                break;
-            case Lease::LEASE_STATUS_CONFIRMED:
-                break;
-            case Lease::LEASE_STATUS_EXPIRED:
+                if ($status != Lease::LEASE_STATUS_DRAFTING) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
                 break;
             case Lease::LEASE_STATUS_PERFORMING:
+                if ($status != Lease::LEASE_STATUS_CONFIRMED) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
                 break;
-            case Lease::LEASE_STATUS_RECONFIRMING:
+            case Lease::LEASE_STATUS_CLOSED:
+                if (
+                    $status != Lease::LEASE_STATUS_DRAFTING ||
+                    $status != Lease::LEASE_STATUS_CONFIRMING ||
+                    $status != Lease::LEASE_STATUS_CONFIRMED
+                ) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
                 break;
             case Lease::LEASE_STATUS_TERMINATED:
+                if (
+                    $status != Lease::LEASE_STATUS_PERFORMING ||
+                    $status != Lease::LEASE_STATUS_RECONFIRMING ||
+                    $lease->getEndDate() < new \DateTime('now')
+                ) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
+
+                $this->setAccessActionToDelete($lease->getAccessNo());
+
                 // remove door access
                 $this->callRepealRoomOrderCommand(
                     $lease->getBuilding()->getServer(),
@@ -414,15 +434,15 @@ class AdminLeaseController extends SalesRestController
                 }
 
                 break;
-            case Lease::LEASE_STATUS_DRAFTING:
-                break;
             case Lease::LEASE_STATUS_END:
+                if ($status != Lease::LEASE_STATUS_PERFORMING) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
                 break;
             default:
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $lease->setAccessNo($this->generateAccessNumber());
         $lease->setStatus($payload['status']);
 
         $em = $this->getDoctrine()->getManager();
@@ -822,6 +842,7 @@ class AdminLeaseController extends SalesRestController
             $startDate != $lease->getStartDate() ||
             $endDate != $lease->getEndDate()
         ) {
+            $this->setAccessActionToDelete($lease->getAccessNo());
             $this->callRepealRoomOrderCommand(
                 $lease->getBuilding()->getServer(),
                 $lease->getAccessNo()
@@ -831,8 +852,8 @@ class AdminLeaseController extends SalesRestController
             $lease->setStartDate($startDate);
             $lease->setEndDate($endDate);
 
-            $users = $lease->getInvitedPeople();
-            array_push($users, $lease->getSupervisor());
+            $users = $lease->getInvitedPeopleIds();
+            array_push($users, $lease->getSupervisorId());
             $this->addPeople(
                 $users,
                 $lease,
@@ -942,11 +963,11 @@ class AdminLeaseController extends SalesRestController
         }
 
         $userArray = [];
-        foreach ($users as $user) {
+        foreach ($users as $userId) {
             $this->storeDoorAccess(
                 $em,
                 $lease->getAccessNo(),
-                $user->getId(),
+                $userId,
                 $lease->getBuildingId(),
                 $lease->getRoomId(),
                 $lease->getStartDate(),
@@ -955,7 +976,7 @@ class AdminLeaseController extends SalesRestController
 
             $userArray = $this->getUserArrayIfAuthed(
                 $base,
-                $user->getId(),
+                $userId,
                 $userArray
             );
         }
