@@ -20,7 +20,9 @@ class Version20161215094905 extends AbstractMigration
 
         $this->addSql('ALTER TABLE door_access CHANGE orderid accessNo INT NOT NULL');
         $this->addSql('ALTER TABLE door_access CHANGE accessNo accessNo VARCHAR(30) NOT NULL');
-        $this->addSql('ALTER TABLE leases ADD access_no VARCHAR(30) NOT NULL');
+        $this->addSql('ALTER TABLE leases ADD access_no VARCHAR(30) DEFAULT NULL');
+        $this->addSql('ALTER TABLE leases DROP FOREIGN KEY FK_9B8D6FB44584665A');
+        $this->addSql('ALTER TABLE leases ADD CONSTRAINT FK_9B8D6FB44584665A FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE');
     }
 
     /**
@@ -34,5 +36,7 @@ class Version20161215094905 extends AbstractMigration
         $this->addSql('ALTER TABLE door_access CHANGE accessno orderId INT NOT NULL');
         $this->addSql('ALTER TABLE door_access CHANGE accessNo accessNo INT NOT NULL');
         $this->addSql('ALTER TABLE leases DROP access_no');
+        $this->addSql('ALTER TABLE leases DROP FOREIGN KEY FK_9B8D6FB44584665A');
+        $this->addSql('ALTER TABLE leases ADD CONSTRAINT FK_9B8D6FB44584665A FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE SET NULL');
     }
 }

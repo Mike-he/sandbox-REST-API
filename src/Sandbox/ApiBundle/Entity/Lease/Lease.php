@@ -390,7 +390,7 @@ class Lease
     /**
      * @var string
      *
-     * @ORM\Column(name="access_no", type="string", length=30)
+     * @ORM\Column(name="access_no", type="string", length=30, nullable=true)
      */
     private $accessNo;
 
