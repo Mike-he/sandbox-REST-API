@@ -108,6 +108,7 @@ shop_order:
     account: Balance
     cnp_u: Domestic Quick Pay
     cnp_f: International Quick Pay
+    wx_pub: Wechat Public Pay
   status:
     unpaid: Unpaid
     paid: Paid
