@@ -440,7 +440,6 @@ class AdminShopOrderController extends ShopController
      *    description="search query"
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="status",
      *    array=true,
@@ -480,7 +479,6 @@ class AdminShopOrderController extends ShopController
      *    strict=true,
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="company",

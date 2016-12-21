@@ -335,7 +335,7 @@ class AdminEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
-                $this->getSalesCompanyId()
+                $companyId
             );
 
         return $this->getEventOrderExport($orders, $language);
