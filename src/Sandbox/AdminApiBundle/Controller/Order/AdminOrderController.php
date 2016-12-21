@@ -1788,6 +1788,7 @@ class AdminOrderController extends OrderController
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
             ],
             $opLevel,
             $platform
