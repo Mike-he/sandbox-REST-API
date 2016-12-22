@@ -43,7 +43,6 @@ class DoorAccessRepository extends EntityRepository
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.accessNo')
             ->where('d.userId = :userId')
             ->andWhere('d.buildingId = :buildingId')
             ->andWhere('d.endDate > :now')
@@ -55,61 +54,6 @@ class DoorAccessRepository extends EntityRepository
             ->setParameter('buildingId', $buildingId)
             ->setParameter('now', $now)
             ->setParameter('access', false)
-            ->getQuery();
-
-        return $query->getResult();
-    }
-
-    /**
-     * @param $userId
-     * @param $buildingId
-     * @param $doorId
-     *
-     * @return array
-     */
-    public function getDoorsByDoorId(
-        $userId,
-        $buildingId,
-        $doorId
-    ) {
-        $now = new \DateTime();
-        $query = $this->createQueryBuilder('d')
-            ->where('d.userId = :userId')
-            ->andWhere('d.buildingId = :buildingId')
-            ->andWhere('d.doorId = :doorId')
-            ->andWhere('d.endDate > :now')
-            ->setParameter('userId', $userId)
-            ->setParameter('buildingId', $buildingId)
-            ->setParameter('doorId', $doorId)
-            ->setParameter('now', $now)
-            ->getQuery();
-
-        return $query->getResult();
-    }
-
-    /**
-     * @param $userId
-     * @param $buildingId
-     * @param $roomId
-     *
-     * @return array
-     */
-    public function getAccessByRoom(
-        $userId,
-        $buildingId,
-        $roomId
-    ) {
-        $now = new \DateTime();
-        $query = $this->createQueryBuilder('d')
-            ->where('d.userId = :userId')
-            ->andWhere('d.buildingId = :buildingId')
-            ->andWhere('d.roomId = :roomId')
-            ->andWhere('d.endDate > :now')
-            ->groupBy('d.accessNo')
-            ->setParameter('userId', $userId)
-            ->setParameter('buildingId', $buildingId)
-            ->setParameter('roomId', $roomId)
-            ->setParameter('now', $now)
             ->getQuery();
 
         return $query->getResult();
@@ -156,10 +100,13 @@ class DoorAccessRepository extends EntityRepository
             ->andWhere('d.accessNo = :accessNo')
             ->setParameter('accessNo', $accessNo)
             ->setParameter('access', false)
-            ->setParameter('action', $action)
-            ->getQuery();
+            ->setParameter('action', $action);
 
-        return $query->getResult();
+        if ($action == DoorAccessConstants::METHOD_CANCELLED) {
+            $query->groupBy('d.accessNo');
+        }
+
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -172,7 +119,6 @@ class DoorAccessRepository extends EntityRepository
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.accessNo')
             ->where('d.buildingId = :buildingId')
             ->andWhere('d.endDate > :now')
             ->andWhere('d.access = :access')
