@@ -257,19 +257,12 @@ class ClientProductController extends ProductController
             $type = $room->getType();
 
             if ($type == Room::TYPE_FIXED) {
-                $priceRange = $this->getDoctrine()
+                $price = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')
                     ->getFixedSeats($room);
 
-                if (!is_null($priceRange) && !empty($priceRange)) {
-                    $min = $priceRange[1];
-                    $max = $priceRange[2];
-
-                    if ($min == $max) {
-                        $product->setBasePrice($min);
-                    } else {
-                        $product->setBasePrice("$min - $max");
-                    }
+                if (!is_null($price)) {
+                    $product->setBasePrice($price);
                 }
             } elseif ($type == Room::TYPE_LONG_TERM) {
                 $type = Room::TYPE_OFFICE;

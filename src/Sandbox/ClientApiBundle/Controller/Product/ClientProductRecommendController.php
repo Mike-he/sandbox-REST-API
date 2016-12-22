@@ -102,6 +102,21 @@ class ClientProductRecommendController extends ProductController
 //            $products = array_merge($products, $notRecommends);
 //        }
 
+        foreach ($products as $product) {
+            $room = $product->getRoom();
+            $type = $room->getType();
+
+            if ($type == Room::TYPE_FIXED) {
+                $price = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->getFixedSeats($room);
+
+                if (!is_null($price)) {
+                    $product->setBasePrice($price);
+                }
+            }
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($products);
