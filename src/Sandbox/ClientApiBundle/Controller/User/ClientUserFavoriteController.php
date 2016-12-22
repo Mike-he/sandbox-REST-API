@@ -181,19 +181,12 @@ class ClientUserFavoriteController extends LocationController
                     $roomType = $room->getType();
 
                     if ($roomType == Room::TYPE_FIXED) {
-                        $priceRange = $this->getDoctrine()
+                        $price = $this->getDoctrine()
                             ->getRepository('SandboxApiBundle:Room\RoomFixed')
                             ->getFixedSeats($room);
 
-                        if (!is_null($priceRange) && !empty($priceRange)) {
-                            $min = $priceRange[1];
-                            $max = $priceRange[2];
-
-                            if ($min == $max) {
-                                $product->setBasePrice($min);
-                            } else {
-                                $product->setBasePrice("$min - $max");
-                            }
+                        if (!is_null($price)) {
+                            $product->setBasePrice($price);
                         }
                     } elseif ($roomType == Room::TYPE_LONG_TERM) {
                         $roomType = Room::TYPE_OFFICE;

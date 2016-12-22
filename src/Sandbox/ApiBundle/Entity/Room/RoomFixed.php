@@ -63,7 +63,7 @@ class RoomFixed
     /**
      * @var string
      *
-     * @ORM\Column(name="basePrice", type="decimal", nullable=true)
+     * @ORM\Column(name="basePrice", type="decimal", precision=10, scale=2, nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room", "current_order", "admin_detail", "admin_spaces"})
      */
