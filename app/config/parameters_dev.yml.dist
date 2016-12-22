@@ -1,8 +1,8 @@
 parameters:
     database_driver: pdo_mysql
-    database_host: 139.224.210.135
+    database_host: sandbox_db
     database_port: '3306'
-    database_name: sandbox_rest_api_db
+    database_name: sandbox_rest_db
     database_user: sandbox
     database_password: sandbox
     mailer_transport: smtp

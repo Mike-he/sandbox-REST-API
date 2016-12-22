@@ -796,7 +796,7 @@ class OrderController extends PaymentController
 
         // set access action to cancelled
         $orderId = $order->getId();
-        $controls = $this->getRepo('Door\DoorAccess')->findByOrderId($orderId);
+        $controls = $this->getRepo('Door\DoorAccess')->findByAccessNo($orderId);
         if (!empty($controls)) {
             foreach ($controls as $control) {
                 $control->setAction(ProductOrder::STATUS_CANCELLED);
