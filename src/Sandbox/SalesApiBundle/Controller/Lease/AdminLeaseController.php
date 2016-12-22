@@ -30,6 +30,9 @@ class AdminLeaseController extends SalesRestController
     use HasAccessToEntityRepositoryTrait;
     use LeaseNotificationTrait;
 
+    const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_CODE = '400034';
+    const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE = 'Sorry, you can not remove all bills, please keeping at least one bill.';
+
     /**
      * Get Lease Detail.
      *
@@ -662,14 +665,13 @@ class AdminLeaseController extends SalesRestController
             !key_exists('product', $payload) ||
             !key_exists('lease_rent_types', $payload) ||
             !key_exists('bills', $payload) ||
-            gettype($payload['lease_rent_types']) != 'array' ||
-            gettype($payload['bills']) != 'array'
+            gettype($payload['lease_rent_types']) != 'array'
         ) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         if (
-            $payload['status'] != Lease::LEASE_STATUS_DRAFTING
+            $payload['status'] !== Lease::LEASE_STATUS_DRAFTING
         ) {
             if (
                 (gettype($payload['deposit']) != 'double' && gettype($payload['deposit']) != 'integer') ||
@@ -679,7 +681,6 @@ class AdminLeaseController extends SalesRestController
                 empty($payload['monthly_rent']) ||
                 empty($payload['total_rent']) ||
                 empty($payload['lease_rent_types']) ||
-                empty($payload['bills']) ||
                 !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['start_date']) ||
                 !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['end_date']) ||
                 !filter_var($payload['lessee_address'], FILTER_DEFAULT) ||
@@ -699,24 +700,6 @@ class AdminLeaseController extends SalesRestController
                 !filter_var($payload['product'], FILTER_VALIDATE_INT)
             ) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-
-            foreach ($payload['bills'] as $billAttributes) {
-                if (
-                    !key_exists('name', $billAttributes) ||
-                    !key_exists('amount', $billAttributes) ||
-                    !key_exists('description', $billAttributes) ||
-                    !key_exists('start_date', $billAttributes) ||
-                    !key_exists('end_date', $billAttributes) ||
-                    (gettype($billAttributes['amount']) != 'double' && gettype($billAttributes['amount']) != 'integer') ||
-                    empty($billAttributes['amount']) ||
-                    !filter_var($billAttributes['name'], FILTER_DEFAULT) ||
-                    !filter_var($billAttributes['description'], FILTER_DEFAULT) ||
-                    !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['start_date']) ||
-                    !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['end_date'])
-                ) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-                }
             }
         }
 
@@ -741,24 +724,11 @@ class AdminLeaseController extends SalesRestController
         $lease,
         $em
     ) {
-        foreach ($payloadBills as $billAttributes) {
-            $bill = new LeaseBill();
-
-            $startDate = new \DateTime($billAttributes['start_date']);
-            $endDate = new \DateTime($billAttributes['end_date']);
-
-            $bill->setName($billAttributes['name']);
-            $bill->setAmount($billAttributes['amount']);
-            $bill->setDescription($billAttributes['description']);
-            $bill->setSerialNumber($this->generateSerialNumber(LeaseBill::LEASE_BILL_LETTER_HEAD));
-            $bill->setStartDate($startDate);
-            $bill->setEndDate($endDate);
-            $bill->setType(LeaseBill::TYPE_LEASE);
-            $bill->setStatus(LeaseBill::STATUS_PENDING);
-            $bill->setLease($lease);
-
-            $em->persist($bill);
+        if (empty($payloadBills['add'])) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
+
+        $this->addBills($payloadBills, $em, $lease);
     }
 
     /**
@@ -780,6 +750,7 @@ class AdminLeaseController extends SalesRestController
             $lease->setDrawee($drawee);
         }
 
+        // TODO: If supervisor changed, should remove door access and add new user
         if (!empty($payload['supervisor'])) {
             $supervisor = $this->getUserRepo()->find($payload['supervisor']);
             $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
@@ -852,7 +823,7 @@ class AdminLeaseController extends SalesRestController
         // If lease from product appointment
         if (
             isset($payload['product_appointment']) &&
-            gettype($payload['product_appointment'] == 'doulbe')
+            gettype($payload['product_appointment'] == 'integer')
         ) {
             $productAppointment = $this->getProductAppointmentRepo()
                 ->find($payload['product_appointment']);
@@ -867,7 +838,7 @@ class AdminLeaseController extends SalesRestController
         }
 
         $this->handleLeaseRentTypesPut($payload['lease_rent_types'], $lease);
-        $this->handleLeaseBillPut($payload['bills'], $lease, $em);
+        $this->handleLeaseBillPut($payload, $lease, $em);
 
         $startDate = new \DateTime($payload['start_date']);
         $endDate = new \DateTime($payload['end_date']);
@@ -930,29 +901,58 @@ class AdminLeaseController extends SalesRestController
     }
 
     private function handleLeaseBillPut(
-        $payloadBills,
+        $payload,
         $lease,
         $em
     ) {
-        $bills = $this->getLeaseBillRepo()->findBy(array(
-            'lease' => $lease->getId(),
-            'status' => LeaseBill::STATUS_PENDING,
-            'type' => LeaseBill::TYPE_LEASE,
-        ));
+        $payloadBills = $payload['bills'];
 
-        foreach ($bills as $bill) {
-            $em->remove($bill);
+        if (!empty($payloadBills['add'])) {
+            $this->addBills($payloadBills['add'], $em, $lease);
         }
 
-        foreach ($payloadBills as $billAttributes) {
+        if (!empty($payloadBills['edit'])) {
+            $this->editBills($payloadBills['edit'], $em);
+        }
+
+        $currentBillsAmount =
+            count($this->getLeaseBillRepo()
+                ->findBy(array(
+                    'lease' => $lease,
+                )
+            ));
+        $removeAmount = 0;
+
+        if (!empty($payloadBills['remove'])) {
+            $removeAmount = $this->removeBills($payloadBills['remove'], $em);
+        }
+
+        if ($payload['status'] != Lease::LEASE_STATUS_DRAFTING) {
+            if ($currentBillsAmount == $removeAmount) {
+                if (count($payloadBills['add']) > 0) {
+                    return;
+                }
+
+                throw new BadRequestHttpException(
+                    self::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
+                );
+            }
+        }
+    }
+
+    public function addBills($addBills, $em, $lease)
+    {
+        foreach ($addBills as $addBill) {
+            $this->checkLeaseBillAttributesIsValid($addBill);
+
             $bill = new LeaseBill();
 
-            $startDate = new \DateTime($billAttributes['start_date']);
-            $endDate = new \DateTime($billAttributes['end_date']);
+            $startDate = new \DateTime($addBill['start_date']);
+            $endDate = new \DateTime($addBill['end_date']);
 
-            $bill->setName($billAttributes['name']);
-            $bill->setAmount($billAttributes['amount']);
-            $bill->setDescription($billAttributes['description']);
+            $bill->setName($addBill['name']);
+            $bill->setAmount($addBill['amount']);
+            $bill->setDescription($addBill['description']);
             $bill->setSerialNumber($this->generateSerialNumber(LeaseBill::LEASE_BILL_LETTER_HEAD));
             $bill->setStartDate($startDate);
             $bill->setEndDate($endDate);
@@ -961,6 +961,69 @@ class AdminLeaseController extends SalesRestController
             $bill->setLease($lease);
 
             $em->persist($bill);
+        }
+    }
+
+    public function editBills($editBills)
+    {
+        foreach ($editBills as $editBill) {
+            if (empty($editBill['id'])) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            $this->checkLeaseBillAttributesIsValid($editBill);
+
+            $bill = $this->getLeaseBillRepo()->find($editBill['id']);
+            $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
+
+            // only pending bills could be edited
+            if ($bill->getStatus() !== LeaseBill::STATUS_PENDING) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            $startDate = new \DateTime($editBill['start_date']);
+            $endDate = new \DateTime($editBill['end_date']);
+
+            $bill->setName($editBill['name']);
+            $bill->setAmount($editBill['amount']);
+            $bill->setDescription($editBill['description']);
+            $bill->setStartDate($startDate);
+            $bill->setEndDate($endDate);
+            $bill->setType(LeaseBill::TYPE_LEASE);
+            $bill->setStatus(LeaseBill::STATUS_PENDING);
+        }
+    }
+
+    public function removeBills($removedBills, $em)
+    {
+        $removeAmount = 0;
+        foreach ($removedBills as $removedBill) {
+            $bill = $this->getLeaseBillRepo()->find($removedBill);
+            if (!is_null($bill)) {
+                $em->remove($bill);
+                $removeAmount += 1;
+            }
+        }
+
+        return $removeAmount;
+    }
+
+    private function checkLeaseBillAttributesIsValid($billAttributes)
+    {
+        if (
+            !key_exists('name', $billAttributes) ||
+            !key_exists('amount', $billAttributes) ||
+            !key_exists('description', $billAttributes) ||
+            !key_exists('start_date', $billAttributes) ||
+            !key_exists('end_date', $billAttributes) ||
+            (gettype($billAttributes['amount']) != 'double' && gettype($billAttributes['amount']) != 'integer') ||
+            empty($billAttributes['amount']) ||
+            !filter_var($billAttributes['name'], FILTER_DEFAULT) ||
+            !filter_var($billAttributes['description'], FILTER_DEFAULT) ||
+            !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['start_date']) ||
+            !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['end_date'])
+        ) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
     }
 
