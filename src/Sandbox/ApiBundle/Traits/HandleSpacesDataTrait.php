@@ -56,6 +56,7 @@ trait HandleSpacesDataTrait
                 $space['product']['start_date'] = $product->getStartDate();
                 $space['product']['recommend'] = $product->isRecommend();
                 $space['product']['visible'] = $product->getVisible();
+                $space['product']['earliest_rent_date'] = $product->getEarliestRentDate();
             }
         }
 

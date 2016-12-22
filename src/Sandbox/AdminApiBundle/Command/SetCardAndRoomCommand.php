@@ -46,7 +46,9 @@ class SetCardAndRoomCommand extends ContainerAwareCommand
                 $base,
                 $userArray,
                 $roomDoors,
-                $order
+                $order->getId(),
+                $order->getStartDate(),
+                $order->getEndDate()
             );
         } catch (\Exception $e) {
             error_log('Set card and room door access went wrong!');

@@ -211,6 +211,7 @@ class AdminShopOrderController extends ShopController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
@@ -227,7 +228,6 @@ class AdminShopOrderController extends ShopController
      *    nullable=true,
      *    description="search query"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="status",
@@ -422,6 +422,7 @@ class AdminShopOrderController extends ShopController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
@@ -438,7 +439,6 @@ class AdminShopOrderController extends ShopController
      *    nullable=true,
      *    description="search query"
      * )
-     *
      *
      * @Annotations\QueryParam(
      *    name="status",
@@ -480,7 +480,6 @@ class AdminShopOrderController extends ShopController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
-     *
      * @Annotations\QueryParam(
      *    name="company",
      *    array=false,
@@ -499,6 +498,16 @@ class AdminShopOrderController extends ShopController
      *    requirements="\d+",
      *    strict=true,
      *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="shop",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by shop id"
      * )
      *
      * @Annotations\QueryParam(
@@ -535,6 +544,7 @@ class AdminShopOrderController extends ShopController
         $channel = $paramFetcher->get('channel');
         $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
+        $shopId = $paramFetcher->get('shop');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
         $payDate = $paramFetcher->get('pay_date');
@@ -562,6 +572,7 @@ class AdminShopOrderController extends ShopController
                 null,
                 $companyId,
                 $buildingId,
+                $shopId,
                 null
             );
 
@@ -619,6 +630,7 @@ class AdminShopOrderController extends ShopController
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SHOP_ORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
             ],
             $opLevel,
             $platform

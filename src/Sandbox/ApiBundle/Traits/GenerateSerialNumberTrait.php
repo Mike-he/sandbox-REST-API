@@ -26,4 +26,11 @@ trait GenerateSerialNumberTrait
             $date->format('His').'-'.
             rand(100, 999);
     }
+
+    public function generateAccessNumber()
+    {
+        $date = new \DateTime('now');
+
+        return 'AN'.$date->format('YmdHis').rand(1000, 9999);
+    }
 }

@@ -46,6 +46,7 @@ class AdminEventOrderController extends SalesRestController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
@@ -203,6 +204,7 @@ class AdminEventOrderController extends SalesRestController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
@@ -333,7 +335,7 @@ class AdminEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
-                $this->getSalesCompanyId()
+                $companyId
             );
 
         return $this->getEventOrderExport($orders, $language);

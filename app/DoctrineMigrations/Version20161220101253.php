@@ -273,12 +273,6 @@ class Version20161220101253 extends AbstractMigration implements ContainerAwareI
             ));
         $permission32->setName('预定权限');
 
-        $permission33 = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findOneBy(array(
-                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
-            ));
-        $permission33->setName('预约权限');
-
         $permission34 = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
                 'key' => AdminPermission::KEY_SALES_BUILDING_USER,

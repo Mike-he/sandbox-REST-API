@@ -43,13 +43,13 @@ class DoorAccessRepository extends EntityRepository
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.orderId')
+            ->select('DISTINCT d.accessNo')
             ->where('d.userId = :userId')
             ->andWhere('d.buildingId = :buildingId')
             ->andWhere('d.endDate > :now')
             ->andWhere('d.access = :access')
             ->andWhere('d.action = :action')
-            ->groupBy('d.orderId')
+            ->groupBy('d.accessNo')
             ->setParameter('action', DoorAccessConstants::METHOD_ADD)
             ->setParameter('userId', $userId)
             ->setParameter('buildingId', $buildingId)
@@ -105,7 +105,7 @@ class DoorAccessRepository extends EntityRepository
             ->andWhere('d.buildingId = :buildingId')
             ->andWhere('d.roomId = :roomId')
             ->andWhere('d.endDate > :now')
-            ->groupBy('d.orderId')
+            ->groupBy('d.accessNo')
             ->setParameter('userId', $userId)
             ->setParameter('buildingId', $buildingId)
             ->setParameter('roomId', $roomId)
@@ -117,18 +117,18 @@ class DoorAccessRepository extends EntityRepository
 
     /**
      * @param $userId
-     * @param $orderId
+     * @param $accessNo
      *
      * @return array
      */
     public function getAddAccessByOrder(
         $userId,
-        $orderId
+        $accessNo
     ) {
         $query = $this->createQueryBuilder('d')
-            ->where('d.orderId = :orderId')
+            ->where('d.accessNo = :accessNo')
             ->andWhere('d.action = :action')
-            ->setParameter('orderId', $orderId)
+            ->setParameter('accessNo', $accessNo)
             ->setParameter('action', DoorAccessConstants::METHOD_ADD);
 
         if (!is_null($userId)) {
@@ -142,19 +142,19 @@ class DoorAccessRepository extends EntityRepository
 
     /**
      * @param $action
-     * @param $orderId
+     * @param $accessNo
      *
      * @return array
      */
     public function getAllWithoutAccess(
         $action,
-        $orderId
+        $accessNo
     ) {
         $query = $this->createQueryBuilder('d')
             ->where('d.action = :action')
             ->andWhere('d.access = :access')
-            ->andWhere('d.orderId = :orderId')
-            ->setParameter('orderId', $orderId)
+            ->andWhere('d.accessNo = :accessNo')
+            ->setParameter('accessNo', $accessNo)
             ->setParameter('access', false)
             ->setParameter('action', $action)
             ->getQuery();
@@ -172,11 +172,11 @@ class DoorAccessRepository extends EntityRepository
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.orderId')
+            ->select('DISTINCT d.accessNo')
             ->where('d.buildingId = :buildingId')
             ->andWhere('d.endDate > :now')
             ->andWhere('d.access = :access')
-            ->groupBy('d.orderId')
+            ->groupBy('d.accessNo')
             ->setParameter('buildingId', $buildingId)
             ->setParameter('now', $now)
             ->setParameter('access', false)

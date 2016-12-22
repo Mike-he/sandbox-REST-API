@@ -94,11 +94,11 @@ class RoomTypes
     /**
      * @var int
      *
-     * @ORM\Column(name="range", type="integer", options={"default": 30})
+     * @ORM\Column(name="`range`", type="integer", options={"default": 30})
      *
      * @Serializer\Groups({"main", "drop_down"})
      */
-    private $range;
+    private $range = 30;
 
     /**
      * @return int

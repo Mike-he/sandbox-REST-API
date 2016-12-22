@@ -52,6 +52,7 @@ class AdminTopUpOrderController extends PaymentController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *

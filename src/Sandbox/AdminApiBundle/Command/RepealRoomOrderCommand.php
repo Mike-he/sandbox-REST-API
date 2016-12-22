@@ -17,19 +17,19 @@ class RepealRoomOrderCommand extends ContainerAwareCommand
         $this->setName('RoomOrder:Repeal')
             ->setDescription('Remove room order in door access')
             ->addArgument('base', InputArgument::REQUIRED, 'Server Address')
-            ->addArgument('orderId', InputArgument::REQUIRED, 'order ID');
+            ->addArgument('accessNo', InputArgument::REQUIRED, 'Access Number');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $arguments = $input->getArguments();
         $base = $arguments['base'];
-        $orderId = $arguments['orderId'];
+        $accessNo = $arguments['accessNo'];
 
         try {
             $this->repealRoomOrder(
                 $base,
-                $orderId
+                $accessNo
             );
         } catch (\Exception $e) {
             error_log('remove door access went wrong!');

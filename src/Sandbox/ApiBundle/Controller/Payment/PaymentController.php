@@ -13,7 +13,6 @@ use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
-use Sandbox\ApiBundle\Entity\Door\DoorAccess;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Sandbox\ApiBundle\Entity\Food\FoodOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -1141,10 +1140,12 @@ class PaymentController extends DoorController
         $userId = $order->getUserId();
         $this->storeDoorAccess(
             $em,
-            $order,
+            $order->getId(),
             $userId,
             $buildingId,
-            $roomId
+            $roomId,
+            $order->getStartDate(),
+            $order->getEndDate()
         );
 
         $em->flush();
@@ -1165,53 +1166,19 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $order
-     * @param $roomDoors
-     */
-    public function storeDoorAccess(
-        $em,
-        $order,
-        $userId,
-        $buildingId,
-        $roomId
-    ) {
-        $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
-            [
-                'userId' => $userId,
-                'orderId' => $order->getId(),
-            ]
-        );
-        if (is_null($doorAccess)) {
-            $access = new DoorAccess();
-            $access->setBuildingId($buildingId);
-            $access->setUserId($userId);
-            $access->setRoomId($roomId);
-            $access->setOrderId($order->getId());
-            $access->setStartDate($order->getStartDate());
-            $access->setEndDate($order->getEndDate());
-
-            $em->persist($access);
-        } else {
-            $doorAccess->setAction(DoorAccessConstants::METHOD_ADD);
-            $doorAccess->isAccess() ?
-                $doorAccess->setAccess(false) : $doorAccess->setAccess(true);
-        }
-    }
-
-    /**
-     * @param $orderId
+     * @param $accessNo
      * @param $currentUser
      * @param $base
      * @param $globals
      */
     public function removeUserAccess(
-        $orderId,
+        $accessNo,
         $base
     ) {
         $currentUserArray = [];
         $controls = $this->getRepo('Door\DoorAccess')->findBy(
             [
-                'orderId' => $orderId,
+                'accessNo' => $accessNo,
                 'action' => DoorAccessConstants::METHOD_DELETE,
                 'access' => false,
             ]
@@ -1231,23 +1198,23 @@ class PaymentController extends DoorController
         if (!empty($currentUserArray)) {
             $this->callRemoveFromOrderCommand(
                 $base,
-                $orderId,
+                $accessNo,
                 $currentUserArray
             );
         }
     }
 
     /**
-     * @param $orderId
+     * @param $accessNo
      * @param $userId
      */
     public function setControlToDelete(
-        $orderId,
+        $accessNo,
         $userId = null
     ) {
         $controls = $this->getRepo('Door\DoorAccess')->getAddAccessByOrder(
             $userId,
-            $orderId
+            $accessNo
         );
 
         if (!empty($controls)) {

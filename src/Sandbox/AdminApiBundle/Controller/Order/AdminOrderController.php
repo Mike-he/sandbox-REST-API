@@ -752,7 +752,7 @@ class AdminOrderController extends OrderController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
      *    strict=true,
@@ -763,6 +763,7 @@ class AdminOrderController extends OrderController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
@@ -1036,7 +1037,7 @@ class AdminOrderController extends OrderController
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
      *    strict=true,
@@ -1047,6 +1048,7 @@ class AdminOrderController extends OrderController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
@@ -1786,6 +1788,7 @@ class AdminOrderController extends OrderController
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
             ],
             $opLevel,
             $platform

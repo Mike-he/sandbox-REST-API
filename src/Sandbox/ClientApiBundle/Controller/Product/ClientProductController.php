@@ -254,8 +254,9 @@ class ClientProductController extends ProductController
 
         foreach ($products as $product) {
             $room = $product->getRoom();
+            $type = $room->getType();
 
-            if ($room->getType() == Room::TYPE_FIXED) {
+            if ($type == Room::TYPE_FIXED) {
                 $priceRange = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')
                     ->getFixedSeats($room);
@@ -270,13 +271,15 @@ class ClientProductController extends ProductController
                         $product->setBasePrice("$min - $max");
                     }
                 }
+            } elseif ($type == Room::TYPE_LONG_TERM) {
+                $type = Room::TYPE_OFFICE;
             }
 
             $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
             $product->setUnitPrice($unitPrice);
 
-            $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
-            $room->setTypeDescription($type);
+            $typeDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
+            $room->setTypeDescription($typeDescription);
         }
 
         $view = new View();

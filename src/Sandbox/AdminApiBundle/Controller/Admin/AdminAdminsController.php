@@ -528,13 +528,10 @@ class AdminAdminsController extends SandboxRestController
         }
 
         $superAdmins = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->findBy(array(
-                'isHidden' => false,
-                'isSuperAdmin' => true,
-                'platform' => $platform,
-                'salesCompanyId' => $companyId,
-            ));
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUser(
+                $superPositionId
+            );
 
         $platformAdmin = array(
             'key' => self::ADMINS_MENU_KEY_SUPER,

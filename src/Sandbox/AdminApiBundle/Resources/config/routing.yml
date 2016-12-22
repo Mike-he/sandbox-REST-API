@@ -290,3 +290,9 @@ sandbox_admin_api_leases:
     resource: "@SandboxAdminApiBundle/Controller/Lease/AdminLeaseController.php"
     type:     annotation
     prefix:   /
+
+# Location /admin/location
+sandbox_admin_api_location:
+    resource: "@SandboxAdminApiBundle/Controller/Location/AdminLocationController.php"
+    type:     annotation
+    prefix:   /

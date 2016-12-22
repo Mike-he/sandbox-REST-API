@@ -468,6 +468,18 @@ class ClientOrderController extends OrderController
             $search
         );
 
+        foreach ($orders as $order) {
+            $room = $order->getProduct()->getRoom();
+            $roomType = $room->getType();
+
+            if ($roomType == Room::TYPE_LONG_TERM) {
+                $roomType = Room::TYPE_OFFICE;
+            }
+
+            $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType);
+            $room->setTypeDescription($type);
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['current_order']));
         $view->setData($orders);
@@ -1675,11 +1687,14 @@ class ClientOrderController extends OrderController
 
                 $this->storeDoorAccess(
                     $em,
-                    $order,
+                    $order->getId(),
                     $userId,
                     $buildingId,
-                    $roomId
+                    $roomId,
+                    $order->getStartDate(),
+                    $order->getEndDate()
                 );
+
                 $userArray = $this->getUserArrayIfAuthed(
                     $base,
                     $userId,
@@ -1705,7 +1720,9 @@ class ClientOrderController extends OrderController
                 $base,
                 $userArray,
                 $roomDoors,
-                $order
+                $order->getId(),
+                $order->getStartDate(),
+                $order->getEndDate()
             );
         }
 
@@ -1803,10 +1820,12 @@ class ClientOrderController extends OrderController
         // add new door access
         $this->storeDoorAccess(
             $em,
-            $order,
+            $order->getId(),
             $newUser,
             $buildingId,
-            $roomId
+            $roomId,
+            $order->getStartDate(),
+            $order->getEndDate()
         );
         $em->flush();
 
@@ -1822,7 +1841,9 @@ class ClientOrderController extends OrderController
                 $base,
                 $userArray,
                 $roomDoors,
-                $order
+                $order->getId(),
+                $order->getStartDate(),
+                $order->getEndDate()
             );
         }
 
@@ -1883,10 +1904,12 @@ class ClientOrderController extends OrderController
 
         $this->storeDoorAccess(
             $em,
-            $order,
+            $order->getId(),
             $orderUser,
             $buildingId,
-            $roomId
+            $roomId,
+            $order->getStartDate(),
+            $order->getEndDate()
         );
         $em->flush();
 
@@ -1902,7 +1925,9 @@ class ClientOrderController extends OrderController
                 $base,
                 $userArray,
                 $roomDoors,
-                $order
+                $order->getId(),
+                $order->getStartDate(),
+                $order->getEndDate()
             );
         }
 

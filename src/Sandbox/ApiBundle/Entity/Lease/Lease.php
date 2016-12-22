@@ -5,6 +5,8 @@ namespace Sandbox\ApiBundle\Entity\Lease;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
+use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\User;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -20,7 +22,9 @@ class Lease
     const LEASE_STATUS_CONFIRMED = 'confirmed';
     const LEASE_STATUS_PERFORMING = 'performing';
     const LEASE_STATUS_END = 'end';
-    const LEASE_STATUS_OVERTIME = 'expired';
+    const LEASE_STATUS_EXPIRED = 'expired';
+    const LEASE_STATUS_TERMINATED = 'terminated';
+    const LEASE_STATUS_CLOSED = 'closed';
 
     /**
      * @var int
@@ -56,7 +60,7 @@ class Lease
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
-     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="CASCADE")
      *
      * @Serializer\Groups({"client"})
      */
@@ -382,6 +386,13 @@ class Lease
      * @Serializer\Groups({"main", "lease_list"})
      */
     private $reconfirmationDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="access_no", type="string", length=30, nullable=true)
+     */
+    private $accessNo;
 
     public function __construct()
     {
@@ -1006,7 +1017,7 @@ class Lease
      */
     public function removeInvitedPeople($invitedPeople)
     {
-        $this->invitedPeople[] = $invitedPeople;
+        $this->invitedPeople->removeElement($invitedPeople);
     }
 
     /**
@@ -1087,5 +1098,98 @@ class Lease
     public function setPushedLeaseBillsFees($pushedLeaseBillsFees)
     {
         $this->pushedLeaseBillsFees = $pushedLeaseBillsFees;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSupervisorId()
+    {
+        return $this->supervisor->getId();
+    }
+
+    /**
+     * @return int
+     */
+    public function getRoomId()
+    {
+        return $this->product->getRoom()->getId();
+    }
+
+    /**
+     * @return Room
+     */
+    public function getRoom()
+    {
+        return $this->product->getRoom();
+    }
+
+    /**
+     * @return int
+     */
+    public function getBuildingId()
+    {
+        return $this->product->getRoom()->getBuilding()->getId();
+    }
+
+    /**
+     * @return RoomBuilding
+     */
+    public function getBuilding()
+    {
+        return $this->product->getRoom()->getBuilding();
+    }
+
+    /**
+     * @return string
+     */
+    public function getCityName()
+    {
+        return $this->product->getRoom()->getCity()->getName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getBuildingName()
+    {
+        return $this->product->getRoom()->getBuilding()->getName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoomName()
+    {
+        return $this->product->getRoom()->getName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccessNo()
+    {
+        return $this->accessNo;
+    }
+
+    /**
+     * @param string $accessNo
+     */
+    public function setAccessNo($accessNo)
+    {
+        $this->accessNo = $accessNo;
+    }
+
+    /**
+     * @return array
+     */
+    public function getInvitedPeopleIds()
+    {
+        return array_map(
+            function ($invitedPerson) {
+                return $invitedPerson->getId();
+            },
+            $this->invitedPeople->toArray()
+        );
     }
 }
