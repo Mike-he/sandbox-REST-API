@@ -558,7 +558,13 @@ class AdminOrderController extends OrderController
         }
 
         $base = $order->getProduct()->getRoom()->getBuilding()->getServer();
-        $this->syncAccessByOrder($base, $order);
+        if (is_null($base) || empty($base)) {
+            return;
+        }
+
+        $orderControl = $this->getRepo('Door\DoorAccess')->findOneByAccessNo($id);
+
+        $this->syncAccessByOrder($base, $orderControl);
 
         return new Response();
     }

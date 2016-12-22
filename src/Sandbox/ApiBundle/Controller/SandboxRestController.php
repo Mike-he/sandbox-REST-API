@@ -7,7 +7,6 @@ use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Log\Log;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Log\LogType;
 use Sandbox\ApiBundle\Traits\CurlUtil;
 use Sandbox\ApiBundle\Traits\LogsTrait;
@@ -1620,77 +1619,88 @@ class SandboxRestController extends FOSRestController
      */
     public function syncAccessByOrder(
         $base,
-        $order
+        $orderControl
     ) {
-        $orderId = $order->getId();
-        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomId = $orderControl->getRoomId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findByRoomId($roomId);
         if (empty($roomDoors)) {
             return;
         }
 
-        // check if order cancelled
-        if ($order->getStatus() == ProductOrder::STATUS_CANCELLED) {
-            // cancel order
-            $this->callRepealRoomOrderCommand(
-                $base,
-                $orderId
-            );
+        $accessNo = $orderControl->getAccessNo();
+        $startDate = $orderControl->getStartDate();
+        $endDate = $orderControl->getEndDate();
+
+        // get cancelled action controls
+        $cancelledControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
+            DoorAccessConstants::METHOD_CANCELLED,
+            $accessNo
+        );
+
+        if (!empty($cancelledControls)) {
+            foreach ($cancelledControls as $cancelledControl) {
+                // cancel order
+                $this->callRepealRoomOrderCommand(
+                    $base,
+                    $cancelledControl->getAccessNo()
+                );
+            }
         } else {
             // get add action controls
             $addControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
                 DoorAccessConstants::METHOD_ADD,
-                $orderId
+                $accessNo
             );
+
+            $userArray = [];
+            foreach ($addControls as $addControl) {
+                $userArray = $this->getUserArrayIfAuthed(
+                    $base,
+                    $addControl->getUserId(),
+                    $userArray
+                );
+            }
+
+            // set room access
+            if (!empty($userArray)) {
+                $this->callSetRoomOrderCommand(
+                    $base,
+                    $userArray,
+                    $roomDoors,
+                    $accessNo,
+                    $startDate,
+                    $endDate
+                );
+            }
 
             // get delete action controls
             $deleteControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
                 DoorAccessConstants::METHOD_DELETE,
-                $orderId
+                $accessNo
             );
 
-            if (!empty($addControls)) {
-                $userArray = [];
-                foreach ($addControls as $addControl) {
-                    $userArray = $this->getUserArrayIfAuthed(
-                        $base,
-                        $addControl->getUserId(),
-                        $userArray
-                    );
-                }
-
-                // set room access
-                if (!empty($userArray)) {
-                    $this->callSetRoomOrderCommand(
-                        $base,
-                        $userArray,
-                        $roomDoors,
-                        $order->getId(),
-                        $order->getStartDate(),
-                        $order->getEndDate()
-                    );
+            $removeUserArray = [];
+            foreach ($deleteControls as $deleteControl) {
+                $userId = $deleteControl->getUserId();
+                $result = $this->getCardNoByUser($userId);
+                if (!is_null($result['card_no']) && !empty($result['card_no'])) {
+                    $empUser = ['empid' => $userId];
+                    array_push($removeUserArray, $empUser);
+                } else {
+                    $deleteControl->setAccess(true);
                 }
             }
 
-            if (!empty($deleteControls)) {
-                $removeUserArray = [];
-                foreach ($deleteControls as $deleteControl) {
-                    $userId = $deleteControl->getUserId();
-                    $result = $this->getCardNoByUser($userId);
-                    if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
-                        $empUser = ['empid' => $userId];
-                        array_push($removeUserArray, $empUser);
-                    }
-                }
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
 
-                // remove room access
-                if (!empty($removeUserArray)) {
-                    $this->callRemoveFromOrderCommand(
-                        $base,
-                        $orderId,
-                        $removeUserArray
-                    );
-                }
+            // remove room access
+            if (!empty($removeUserArray)) {
+                $this->callRemoveFromOrderCommand(
+                    $base,
+                    $accessNo,
+                    $removeUserArray
+                );
             }
         }
     }

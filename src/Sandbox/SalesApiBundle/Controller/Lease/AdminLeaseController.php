@@ -603,7 +603,7 @@ class AdminLeaseController extends SalesRestController
         // If lease create from product appointment
         if (
             isset($payload['product_appointment']) &&
-            gettype($payload['product_appointment'] == 'doulbe')
+            gettype($payload['product_appointment'] == 'integer')
         ) {
             $productAppointment = $this->getProductAppointmentRepo()
                 ->find($payload['product_appointment']);
@@ -618,7 +618,7 @@ class AdminLeaseController extends SalesRestController
         }
 
         $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
-        $this->handleLeaseBillPost($payload['bills'], $lease, $em);
+        $this->handleLeaseBillPost($payload, $lease, $em);
 
         $em->persist($lease);
         $em->flush();
@@ -720,15 +720,17 @@ class AdminLeaseController extends SalesRestController
     }
 
     private function handleLeaseBillPost(
-        $payloadBills,
+        $payload,
         $lease,
         $em
     ) {
-        if (empty($payloadBills['add'])) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
+        if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
+            if (empty($payload['bills']['add'])) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
 
-        $this->addBills($payloadBills, $em, $lease);
+            $this->addBills($payload['bills']['add'], $em, $lease);
+        }
     }
 
     /**

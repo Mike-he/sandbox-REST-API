@@ -56,22 +56,15 @@ class AdminSalesBuildingController extends LocationController
             throw new NotFoundHttpException(RoomBuilding::BUILDING_NOT_FOUND_MESSAGE);
         }
 
-        $orderControls = $this->getRepo('Door\DoorAccess')->getAccessByBuilding($id);
-        if (is_null($orderControls) || empty($orderControls)) {
-            return new Response();
+        $base = $building->getServer();
+        if (is_null($base) || empty($base)) {
+            return;
         }
 
-        $base = $building->getServer();
+        $orderControls = $this->getRepo('Door\DoorAccess')->getAccessByBuilding($id);
+
         foreach ($orderControls as $orderControl) {
-            $orderId = $orderControl['orderId'];
-
-            // check if order exists
-            $order = $this->getRepo('Order\ProductOrder')->find($orderId);
-            if (is_null($order)) {
-                continue;
-            }
-
-            $this->syncAccessByOrder($base, $order);
+            $this->syncAccessByOrder($base, $orderControl);
         }
 
         return new Response();
