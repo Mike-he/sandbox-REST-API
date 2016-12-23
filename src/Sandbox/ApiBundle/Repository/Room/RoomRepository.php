@@ -156,6 +156,7 @@ class RoomRepository extends EntityRepository
             ->where('up.name IS NOT NULL')
             ->andWhere('r.id = :roomId')
             ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('o.rejected = FALSE')
             ->setParameter('roomId', $roomId);
 
         return $query->getQuery()->getResult();
@@ -522,6 +523,7 @@ class RoomRepository extends EntityRepository
             ->where('up.name IS NOT NULL')
             ->andWhere('r.id = :roomId')
             ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('o.rejected = FALSE')
             ->setParameter('roomId', $roomId);
 
         // filter by my buildings
