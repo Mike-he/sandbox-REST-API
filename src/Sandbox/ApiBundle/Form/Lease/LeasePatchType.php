@@ -16,6 +16,7 @@ class LeasePatchType extends AbstractType
     {
         $builder
             ->add('status')
+            ->add('deposit_note')
         ;
     }
 
