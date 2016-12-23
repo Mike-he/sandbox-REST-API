@@ -2,7 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Lease;
 
-us FOS\RestBundle\Request\ParamFetcherInterface;
+u FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
