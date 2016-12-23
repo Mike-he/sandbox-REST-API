@@ -221,6 +221,8 @@ class ProductAppointment
 
     /**
      * @var int
+     *
+     * @Serializer\Groups({"main", "admin_appointment"})
      */
     private $leaseId;
 

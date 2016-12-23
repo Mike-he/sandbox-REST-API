@@ -28,7 +28,9 @@ class RoomUsageViewRepository extends EntityRepository
         $seat = null
     ) {
         $query = $this->createQueryBuilder('r')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'r.id = o.id')
             ->where('r.productId = :productId')
+            ->andWhere('o.rejected = FALSE')
             ->andWhere('r.status = \'paid\' OR r.status = \'completed\'')
             ->andWhere('
                 (r.startDate <= :start AND r.endDate > :start) OR
@@ -40,8 +42,7 @@ class RoomUsageViewRepository extends EntityRepository
             ->setParameter('end', $end);
 
         if (!is_null($seat)) {
-            $query->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'r.id = o.id')
-                ->andwhere('o.seatId = :seat')
+            $query->andwhere('o.seatId = :seat')
                 ->setParameter('seat', $seat);
         }
 
@@ -66,7 +67,9 @@ class RoomUsageViewRepository extends EntityRepository
         $seat = null
     ) {
         $query = $this->createQueryBuilder('r')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'r.id = o.id')
             ->where('r.productId = :productId')
+            ->andWhere('o.rejected = FALSE')
             ->andWhere('r.status = \'paid\' OR r.status = \'completed\'')
             ->andWhere('
                 (r.startDate <= :start AND r.endDate > :start) OR
@@ -78,8 +81,7 @@ class RoomUsageViewRepository extends EntityRepository
             ->setParameter('end', $end);
 
         if (!is_null($seat)) {
-            $query->leftJoin('SandboxApiBundle:Order\ProductOrder', 'o', 'WITH', 'r.id = o.id')
-                ->andwhere('o.seatId = :seat')
+            $query->andwhere('o.seatId = :seat')
                 ->setParameter('seat', $seat);
         }
 

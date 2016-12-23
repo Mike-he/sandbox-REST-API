@@ -996,6 +996,7 @@ class Lease
                 'area' => $this->product->getRoom()->getArea(),
                 'allowed_people' => $this->product->getRoom()->getAllowedPeople(),
                 'building' => [
+                    'id' => $this->product->getRoom()->getBuilding()->getId(),
                     'name' => $this->product->getRoom()->getBuilding()->getName(),
                     'address' => $this->product->getRoom()->getBuilding()->getAddress(),
                 ],
