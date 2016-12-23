@@ -234,6 +234,14 @@ trait LogsTrait
             return;
         }
 
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(array(
+            'lease' => $lease,
+            'type' => LeaseBill::TYPE_LEASE,
+        ));
+        $lease->setBills($bills);
+
         return $this->transferToJsonWithViewGroup(
             $lease,
             'main'
