@@ -41,7 +41,7 @@ class ProductAppointment
      * @var int
      *
      * @ORM\Column(name="user_id", type="integer", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_appointment"})
      */
     private $userId;
 
@@ -192,7 +192,7 @@ class ProductAppointment
     /**
      * @var mixed
      *
-     * @Serializer\Groups({"main", "admin_appointment"})
+     * @Serializer\Groups({"main"})
      */
     private $user;
 

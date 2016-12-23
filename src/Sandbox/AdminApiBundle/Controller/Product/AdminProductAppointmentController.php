@@ -268,13 +268,11 @@ class AdminProductAppointmentController extends SandboxRestController
             );
 
         foreach ($appointments as $appointment) {
-            $profile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy([
-                    'userId' => $appointment->getUserId(),
-                ]);
-            if (!is_null($profile)) {
-                $appointment->setUser($profile->getName());
+            $lease = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\Lease')
+                ->findOneBy(['productAppointment' => $appointment]);
+            if (!is_null($lease)) {
+                $appointment->setLeaseId($lease->getId());
             }
         }
 
