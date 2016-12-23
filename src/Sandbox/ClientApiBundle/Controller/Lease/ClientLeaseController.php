@@ -403,7 +403,7 @@ class ClientLeaseController extends SandboxRestController
             );
         }
 
-        // send notification to invited users
+        // send notification to removed users
         if (!empty($removedUserArray)) {
             $this->sendXmppLeaseNotification(
                 $lease,
