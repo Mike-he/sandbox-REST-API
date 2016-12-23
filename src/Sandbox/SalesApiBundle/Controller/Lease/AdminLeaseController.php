@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
+use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
@@ -533,6 +534,49 @@ class AdminLeaseController extends SalesRestController
             'logObjectKey' => Log::OBJECT_LEASE,
             'logObjectId' => $lease->getId(),
         ));
+    }
+
+    /**
+     * Patch Lease Deposit Note.
+     *
+     * @param $request
+     * @param $id
+     *
+     * @Route("/leases/{id}/deposit")
+     * @Method({"PATCH"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function patchLeaseDepositAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $lease = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\Lease")->find($id);
+        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+
+        $leaseJson = $this->container->get('serializer')->serialize($lease, 'json');
+        $patch = new Patch($leaseJson, $request->getContent());
+        $leaseJson = $patch->apply();
+        $form = $this->createForm(new LeasePatchType(), $lease);
+        $form->submit(json_decode($leaseJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        // generate log
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_LEASE,
+            'logObjectId' => $lease->getId(),
+        ));
+
+        return new View();
     }
 
     /**

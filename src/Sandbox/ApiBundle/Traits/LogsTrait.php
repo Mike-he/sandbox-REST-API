@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 
 /**

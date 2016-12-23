@@ -187,6 +187,15 @@ class Lease
     private $deposit;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="deposit_note", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $depositNote;
+
+    /**
      * @var ProductAppointment
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAppointment")
@@ -1191,5 +1200,21 @@ class Lease
             },
             $this->invitedPeople->toArray()
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getDepositNote()
+    {
+        return $this->depositNote;
+    }
+
+    /**
+     * @param string $depositNote
+     */
+    public function setDepositNote($depositNote)
+    {
+        $this->depositNote = $depositNote;
     }
 }
