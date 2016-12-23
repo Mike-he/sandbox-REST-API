@@ -34,6 +34,7 @@ return array(
     'Liuggio\\ExcelBundle\\' => array($vendorDir . '/liuggio/ExcelBundle'),
     'Liip\\FunctionalTestBundle\\' => array($vendorDir . '/liip/functional-test-bundle'),
     'Laravel\\Homestead\\' => array($vendorDir . '/laravel/homestead/src'),
+    'Knp\\Bundle\\SnappyBundle\\' => array($vendorDir . '/knplabs/knp-snappy-bundle'),
     'Knp\\Bundle\\PaginatorBundle\\' => array($vendorDir . '/knplabs/knp-paginator-bundle'),
     'Hautelook\\TemplatedUriRouter\\' => array($vendorDir . '/hautelook/templated-uri-router'),
     'FOS\\HttpCache\\Tests\\' => array($vendorDir . '/friendsofsymfony/http-cache/tests'),
