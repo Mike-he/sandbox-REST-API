@@ -220,6 +220,27 @@ class ProductAppointment
     private $profileId;
 
     /**
+     * @var int
+     */
+    private $leaseId;
+
+    /**
+     * @return int
+     */
+    public function getLeaseId()
+    {
+        return $this->leaseId;
+    }
+
+    /**
+     * @param int $leaseId
+     */
+    public function setLeaseId($leaseId)
+    {
+        $this->leaseId = $leaseId;
+    }
+
+    /**
      * Get id.
      *
      * @return int
