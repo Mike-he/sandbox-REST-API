@@ -256,6 +256,13 @@ class ClientProductController extends ProductController
             $room = $product->getRoom();
             $type = $room->getType();
 
+            $myType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomTypes')
+                ->findOneBy(['name' => $type]);
+            if (!is_null($myType)) {
+                $room->setRentType($myType->getType());
+            }
+
             if ($type == Room::TYPE_FIXED) {
                 $price = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')

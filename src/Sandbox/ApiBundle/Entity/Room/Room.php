@@ -258,7 +258,7 @@ class Room
     /**
      * @var string
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $rentType;
 

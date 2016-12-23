@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\SaleApiBundle\Controller\Log;
+namespace Sandbox\SalesApiBundle\Controller\Log;
 
 use Rs\Json\Patch;
 use Knp\Component\Pager\Paginator;

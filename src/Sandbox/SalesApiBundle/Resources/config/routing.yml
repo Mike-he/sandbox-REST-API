@@ -117,3 +117,9 @@ sandbox_sales_admin_products_appointments:
     resource: "@SandboxSalesApiBundle/Controller/Product/AdminProductAppointmentController.php"
     type:     annotation
     prefix:   /admin/products
+
+# Admin Log
+sandbox_sales_admin_log:
+    resource: "@SandboxSalesApiBundle/Controller/Log/AdminLogController.php"
+    type:     annotation
+    prefix:   /admin
