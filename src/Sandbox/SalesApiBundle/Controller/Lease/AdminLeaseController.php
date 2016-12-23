@@ -729,7 +729,7 @@ class AdminLeaseController extends SalesRestController
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
 
-            $this->addBills($payload['bills']['add'], $em, $lease);
+            $this->addBills($payload, $em, $lease);
         }
     }
 
@@ -752,10 +752,86 @@ class AdminLeaseController extends SalesRestController
             $lease->setDrawee($drawee);
         }
 
-        // TODO: If supervisor changed, should remove door access and add new user
         if (!empty($payload['supervisor'])) {
+            $previousSupervisorId = $lease->getSupervisorId();
             $supervisor = $this->getUserRepo()->find($payload['supervisor']);
             $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
+
+            if ($previousSupervisorId !== $payload['supervisor']) {
+                if (
+                    $payload['status'] == Lease::LEASE_STATUS_RECONFIRMING
+                ) {
+                    $base = $lease->getBuilding()->getServer();
+                    $roomDoors = $lease->getRoom()->getDoorControl();
+
+                    if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
+                        $this->setAccessActionToDelete($lease->getAccessNo());
+
+                        $em->flush();
+
+                        // remove the previous supervisor from door access
+                        $this->callRemoveFromOrderCommand(
+                            $lease->getBuilding()->getServer(),
+                            $lease->getAccessNo(),
+                            [$previousSupervisorId]
+                        );
+
+                        // send notification to removed users
+                        $this->sendXmppLeaseNotification(
+                            $lease,
+                            [$previousSupervisorId],
+                            ProductOrder::ACTION_INVITE_REMOVE,
+                            $payload['supervisor'],
+                            [],
+                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                        );
+
+                        // add the new supervisor to door access
+                        $this->storeDoorAccess(
+                            $em,
+                            $lease->getAccessNo(),
+                            $payload['supervisor'],
+                            $lease->getBuildingId(),
+                            $lease->getRoomId(),
+                            $lease->getStartDate(),
+                            $lease->getEndDate()
+                        );
+
+                        $em->flush();
+
+                        $userArray = $this->getUserArrayIfAuthed(
+                            $base,
+                            $payload['supervisor'],
+                            []
+                        );
+
+                        // set room access
+                        if (!empty($userArray)) {
+                            $this->callSetRoomOrderCommand(
+                                $base,
+                                $userArray,
+                                $roomDoors,
+                                $lease->getAccessNo(),
+                                $lease->getStartDate(),
+                                $lease->getEndDate()
+                            );
+                        }
+
+                        // send notification to the new supervisor
+                        $this->sendXmppLeaseNotification(
+                            $lease,
+                            [$payload['supervisor']],
+                            ProductOrder::ACTION_INVITE_ADD,
+                            $lease->getSupervisorId(),
+                            [],
+                            ProductOrderMessage::APPOINT_MESSAGE_PART1,
+                            ProductOrderMessage::APPOINT_MESSAGE_PART2
+                        );
+                    }
+                }
+            }
+
             $lease->setSupervisor($supervisor);
         }
 
@@ -910,11 +986,11 @@ class AdminLeaseController extends SalesRestController
         $payloadBills = $payload['bills'];
 
         if (!empty($payloadBills['add'])) {
-            $this->addBills($payloadBills['add'], $em, $lease);
+            $this->addBills($payload, $em, $lease);
         }
 
         if (!empty($payloadBills['edit'])) {
-            $this->editBills($payloadBills['edit'], $em);
+            $this->editBills($payload);
         }
 
         $currentBillsAmount =
@@ -942,10 +1018,13 @@ class AdminLeaseController extends SalesRestController
         }
     }
 
-    public function addBills($addBills, $em, $lease)
+    public function addBills($payload, $em, $lease)
     {
+        $addBills = $payload['bills']['add'];
         foreach ($addBills as $addBill) {
-            $this->checkLeaseBillAttributesIsValid($addBill);
+            if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
+                $this->checkLeaseBillAttributesIsValid($addBill);
+            }
 
             $bill = new LeaseBill();
 
@@ -966,14 +1045,17 @@ class AdminLeaseController extends SalesRestController
         }
     }
 
-    public function editBills($editBills)
+    public function editBills($payload)
     {
+        $editBills = $payload['bills']['edit'];
         foreach ($editBills as $editBill) {
             if (empty($editBill['id'])) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
 
-            $this->checkLeaseBillAttributesIsValid($editBill);
+            if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
+                $this->checkLeaseBillAttributesIsValid($editBill);
+            }
 
             $bill = $this->getLeaseBillRepo()->find($editBill['id']);
             $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
