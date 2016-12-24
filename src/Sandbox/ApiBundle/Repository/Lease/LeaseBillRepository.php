@@ -51,6 +51,7 @@ class LeaseBillRepository extends EntityRepository
     /**
      * @param $user
      * @param $lease
+     * @param $type
      * @param $limit
      * @param $offset
      *
@@ -59,19 +60,26 @@ class LeaseBillRepository extends EntityRepository
     public function findMyBills(
         $user,
         $lease,
+        $type,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
-            ->where('lb.status != :status')
-            ->andWhere('
+            ->where('
                         (l.supervisor = :user OR
                         l.drawee = :user OR 
                         lb.drawee = :user)
                     ')
-            ->setParameter('status', LeaseBill::STATUS_PENDING)
             ->setParameter('user', $user);
+
+        if ($type == 'all') {
+            $query->andWhere('lb.status != :status')
+                ->setParameter('status', LeaseBill::STATUS_PENDING);
+        } else {
+            $query->andWhere('lb.type = :type')
+                ->setParameter('type', $type);
+        }
 
         if (!is_null($lease)) {
             $query->andWhere('lb.lease = :lease')
