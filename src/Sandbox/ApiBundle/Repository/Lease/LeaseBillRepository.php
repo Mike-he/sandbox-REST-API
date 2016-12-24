@@ -147,4 +147,33 @@ class LeaseBillRepository extends EntityRepository
 
         return (int) $query->getSingleScalarResult();
     }
+
+    /**
+     * @param $ids
+     * @param $status
+     * @param $type
+     * @param $lease
+     *
+     * @return array
+     */
+    public function findBillsByIds(
+        $ids,
+        $status,
+        $type,
+        $lease
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->where('lb.lease = :lease')
+            ->andWhere('lb.status = :status')
+            ->andWhere('lb.id in (:ids)')
+            ->andWhere('lb.type = :type')
+            ->setParameter('status', $status)
+            ->setParameter('type', $type)
+            ->setParameter('ids', $ids)
+            ->setParameter('lease', $lease);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
