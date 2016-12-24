@@ -52,6 +52,7 @@ class LeaseBillRepository extends EntityRepository
      * @param $user
      * @param $lease
      * @param $type
+     * @param $status
      * @param $limit
      * @param $offset
      *
@@ -61,6 +62,7 @@ class LeaseBillRepository extends EntityRepository
         $user,
         $lease,
         $type,
+        $status,
         $limit,
         $offset
     ) {
@@ -79,6 +81,11 @@ class LeaseBillRepository extends EntityRepository
         } else {
             $query->andWhere('lb.type = :type')
                 ->setParameter('type', $type);
+        }
+
+        if (!is_null($status)) {
+            $query->andWhere('lb.status = :sta')
+                ->setParameter('sta', $status);
         }
 
         if (!is_null($lease)) {

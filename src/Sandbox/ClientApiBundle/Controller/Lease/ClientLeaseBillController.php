@@ -48,6 +48,13 @@ class ClientLeaseBillController extends PaymentController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="lease status"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
@@ -81,6 +88,7 @@ class ClientLeaseBillController extends PaymentController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
         $type = $paramFetcher->get('type');
+        $status = $paramFetcher->get('status');
 
         if (!is_null($leaseId)) {
             $lease = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\Lease")->find($leaseId);
@@ -95,6 +103,7 @@ class ClientLeaseBillController extends PaymentController
                 $userId,
                 $leaseId,
                 $type,
+                $status,
                 $limit,
                 $offset
             );
