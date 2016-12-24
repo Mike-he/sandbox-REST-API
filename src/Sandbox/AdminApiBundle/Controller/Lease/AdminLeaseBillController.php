@@ -200,6 +200,8 @@ class AdminLeaseBillController extends LeaseController
                     );
                 }
 
+                $bill->setStatus(LeaseBill::STATUS_UNPAID);
+
                 break;
         }
 
