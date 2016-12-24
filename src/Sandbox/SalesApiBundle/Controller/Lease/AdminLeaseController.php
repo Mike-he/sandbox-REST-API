@@ -772,7 +772,9 @@ class AdminLeaseController extends SalesRestController
             if (empty($payload['bills']['add'])) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
+        }
 
+        if (!empty($payload['bills']['add'])) {
             $this->addBills($payload, $em, $lease);
         }
     }
@@ -1046,7 +1048,7 @@ class AdminLeaseController extends SalesRestController
         $removeAmount = 0;
 
         if (!empty($payloadBills['remove'])) {
-            $removeAmount = $this->removeBills($payloadBills['remove'], $em);
+            $removeAmount = $this->removeBills($payloadBills['remove'], $lease ,$em);
         }
 
         if ($payload['status'] != Lease::LEASE_STATUS_DRAFTING) {
@@ -1062,8 +1064,11 @@ class AdminLeaseController extends SalesRestController
         }
     }
 
-    public function addBills($payload, $em, $lease)
-    {
+    private function addBills(
+        $payload,
+        $em,
+        $lease
+    ) {
         $addBills = $payload['bills']['add'];
         foreach ($addBills as $addBill) {
             if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
@@ -1072,15 +1077,20 @@ class AdminLeaseController extends SalesRestController
 
             $bill = new LeaseBill();
 
-            $startDate = new \DateTime($addBill['start_date']);
-            $endDate = new \DateTime($addBill['end_date']);
+            if (!empty($addBill['start_date']) || !is_null($addBill['start_date'])) {
+                $startDate = new \DateTime($addBill['start_date']);
+                $bill->setStartDate($startDate);
+            }
+
+            if (!empty($addBill['end_date']) || !is_null($addBill['end_date'])) {
+                $endDate = new \DateTime($addBill['end_date']);
+                $bill->setEndDate($endDate);
+            }
 
             $bill->setName($addBill['name']);
             $bill->setAmount($addBill['amount']);
             $bill->setDescription($addBill['description']);
             $bill->setSerialNumber($this->generateSerialNumber(LeaseBill::LEASE_BILL_LETTER_HEAD));
-            $bill->setStartDate($startDate);
-            $bill->setEndDate($endDate);
             $bill->setType(LeaseBill::TYPE_LEASE);
             $bill->setStatus(LeaseBill::STATUS_PENDING);
             $bill->setLease($lease);
@@ -1089,8 +1099,9 @@ class AdminLeaseController extends SalesRestController
         }
     }
 
-    public function editBills($payload)
-    {
+    private function editBills(
+        $payload
+    ) {
         $editBills = $payload['bills']['edit'];
         foreach ($editBills as $editBill) {
             if (empty($editBill['id'])) {
@@ -1122,15 +1133,32 @@ class AdminLeaseController extends SalesRestController
         }
     }
 
-    public function removeBills($removedBills, $em)
-    {
+    /**
+     * @param $removedBills
+     * @param $lease
+     * @param $em
+     *
+     * @return int
+     */
+    private function removeBills(
+        $removedBills,
+        $lease,
+        $em
+    ) {
         $removeAmount = 0;
-        foreach ($removedBills as $removedBill) {
-            $bill = $this->getLeaseBillRepo()->find($removedBill);
-            if (!is_null($bill)) {
-                $em->remove($bill);
-                $removeAmount += 1;
-            }
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillsByIds(
+                $removedBills,
+                LeaseBill::STATUS_PENDING,
+                LeaseBill::TYPE_LEASE,
+                $lease
+            );
+
+        foreach ($bills as $bill) {
+            $em->remove($bill);
+            $removeAmount += 1;
         }
 
         return $removeAmount;
