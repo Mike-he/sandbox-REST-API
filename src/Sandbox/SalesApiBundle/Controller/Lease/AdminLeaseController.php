@@ -21,6 +21,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use FOS\RestBundle\Controller\Annotations;
@@ -102,6 +103,113 @@ class AdminLeaseController extends SalesRestController
         $view->setData($lease);
 
         return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     * @Route("/leases/{id}/export_to_pdf")
+     * @Method({"GET"})
+     *
+     * @return Response
+     */
+    public function exportLeaseToPdfAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+        $companyId = $paramFetcher->get('company');
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
+        );
+
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
+
+        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(array(
+            'lease' => $lease,
+            'type' => LeaseBill::TYPE_LEASE,
+        ));
+
+        $drawee = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->find($lease->getDrawee()->getId());
+
+        $supervisor = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->find($lease->getSupervisor()->getId());
+
+        $excludeLeaseRentTypes = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')
+            ->getExcludeLeaseRentTypes($lease);
+
+        $html = $this->renderView(':Leases:leases_print.html.twig', array(
+            'lease' => $lease,
+            'drawee' => $drawee,
+            'supervisor' => $supervisor,
+            'draweeAvatarUrl' => $this->generateAvatarUrl($drawee->getId()),
+            'supervisorAvatarUrl' => $this->generateAvatarUrl($supervisor->getId()),
+            'excludeTypes' => $excludeLeaseRentTypes,
+            'bills' => $bills,
+        ));
+
+        $fileName = $lease->getSerialNumber().'.pdf';
+
+        return new Response(
+            $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
+            200,
+            array(
+                'Content-Type'          => 'application/pdf',
+                'Content-Disposition'   => "attachment; filename='$fileName'"
+            )
+        );
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return string
+     */
+    private function generateAvatarUrl(
+        $userId
+    ) {
+        $imageDomain = $this->container->getParameter('image_url');
+        $supervisorAvatarUrl = $imageDomain.'/person/'.$userId.'/avatar_small.jpg';
+        $ch = curl_init($supervisorAvatarUrl);
+        $this->callAPI($ch, 'GET');
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if ($httpCode == '404') {
+            return 'https://property.sandbox3.cn/img/head.png';
+        }
     }
 
     /**
@@ -1223,5 +1331,28 @@ class AdminLeaseController extends SalesRestController
         }
 
         return;
+    }
+
+    /**
+     * authenticate with web browser cookie.
+     */
+    private function authenticateAdminCookie()
+    {
+        $cookie_name = self::ADMIN_COOKIE_NAME;
+        if (!isset($_COOKIE[$cookie_name])) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $token = $_COOKIE[$cookie_name];
+        $adminToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(array(
+                'token' => $token,
+            ));
+        if (is_null($adminToken)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        return $adminToken->getUser();
     }
 }
