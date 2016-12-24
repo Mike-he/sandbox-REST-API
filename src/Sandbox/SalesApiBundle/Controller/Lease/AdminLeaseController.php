@@ -599,9 +599,9 @@ class AdminLeaseController extends SalesRestController
         }
 
         if (!empty($payload['supervisor'])) {
-            $supervisor = $this->getUserRepo()->find($payload['drawee']);
+            $supervisor = $this->getUserRepo()->find($payload['supervisor']);
             $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
-            $lease->setDrawee($supervisor);
+            $lease->setSupervisor($supervisor);
         }
 
         $product = $this->getProductRepo()->find($payload['product']);

@@ -955,7 +955,7 @@ class Lease
      * @Serializer\SerializedName("supervisor")
      * @Serializer\Groups({"main", "lease_list"})
      */
-    public function getSurpervisorId()
+    public function getSupervisorId()
     {
         return is_null($this->supervisor) ?
             null : $this->supervisor->getId();
@@ -1108,14 +1108,6 @@ class Lease
     public function setPushedLeaseBillsFees($pushedLeaseBillsFees)
     {
         $this->pushedLeaseBillsFees = $pushedLeaseBillsFees;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSupervisorId()
-    {
-        return $this->supervisor->getId();
     }
 
     /**
