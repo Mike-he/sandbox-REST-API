@@ -16,6 +16,7 @@ class LeaseBill
     const STATUS_UNPAID = 'unpaid';
     const STATUS_VERIFY = 'verify';
     const STATUS_PAID = 'paid';
+    const STATUS_CANCELLED = 'cancelled';
 
     const TYPE_LEASE = 'lease';
     const TYPE_OTHER = 'other';
