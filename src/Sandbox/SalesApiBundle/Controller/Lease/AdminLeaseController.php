@@ -444,6 +444,15 @@ class AdminLeaseController extends SalesRestController
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
 
+                $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
+                    'lease' => $lease,
+                    'status' => LeaseBill::STATUS_UNPAID
+                ));
+
+                foreach ($unpaidBills as $unpaidBill) {
+                    $unpaidBill->setStatus(LeaseBill::STATUS_CANCELLED);
+                }
+
                 $this->setAccessActionToDelete($lease->getAccessNo());
 
                 $em->flush();
