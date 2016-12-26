@@ -129,8 +129,14 @@ class OrderController extends PaymentController
                 $language
             );
 
+            $building = $order->getProduct()->getRoom()->getBuilding();
+            $buildingName = $building->getName();
+            $companyName = $building->getCompany()->getName();
+
             // set excel body
             $body = array(
+                ProductOrderExport::COMPANY_NAME => $companyName,
+                ProductOrderExport::BUILDING_NAME => $buildingName,
                 ProductOrderExport::ORDER_NUMBER => $order->getOrderNumber(),
                 ProductOrderExport::PRODUCT_NAME => $productName,
                 ProductOrderExport::ROOM_TYPE => $productType,
@@ -154,6 +160,8 @@ class OrderController extends PaymentController
         }
 
         $headers = [
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COMPANY_NAME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE, array(), null, $language),
