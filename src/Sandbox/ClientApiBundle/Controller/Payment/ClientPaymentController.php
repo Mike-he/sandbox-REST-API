@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Payment;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
@@ -215,6 +216,7 @@ class ClientPaymentController extends PaymentController
                     $channel
                 );
 
+                $orderMap = LeaseBill::BILL_MAP;
                 break;
             default:
                 $orderMap = null;
