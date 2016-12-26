@@ -102,6 +102,13 @@ class AdminProductAppointmentController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent time filter keywords"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="start_date",
      *    default=null,
      *    nullable=true,
@@ -143,6 +150,7 @@ class AdminProductAppointmentController extends SandboxRestController
         $createEnd = $paramFetcher->get('create_end');
 
         // appointment date filter
+        $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
@@ -155,6 +163,7 @@ class AdminProductAppointmentController extends SandboxRestController
             $createRange,
             $createStart,
             $createEnd,
+            $rentFilter,
             $startDate,
             $endDate,
             $pageIndex,
@@ -206,6 +215,7 @@ class AdminProductAppointmentController extends SandboxRestController
      * @param $createRange
      * @param $createStart
      * @param $createEnd
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $pageIndex
@@ -222,6 +232,7 @@ class AdminProductAppointmentController extends SandboxRestController
         $createRange,
         $createStart,
         $createEnd,
+        $rentFilter,
         $startDate,
         $endDate,
         $pageIndex,
@@ -245,6 +256,7 @@ class AdminProductAppointmentController extends SandboxRestController
                 $createRange,
                 $createStart,
                 $createEnd,
+                $rentFilter,
                 $startDate,
                 $endDate,
                 $companyId
@@ -260,6 +272,7 @@ class AdminProductAppointmentController extends SandboxRestController
                 $createRange,
                 $createStart,
                 $createEnd,
+                $rentFilter,
                 $startDate,
                 $endDate,
                 $limit,
