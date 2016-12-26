@@ -51,6 +51,11 @@ class Log
     const ACTION_REJECT = 'reject';
     const ACTION_PRIVATE = 'private';
     const ACTION_REMOVE_PRIVATE = 'remove_private';
+    const ACTION_CONFORMING = 'conforming';
+    const ACTION_PERFORMING = 'performing';
+    const ACTION_CLOSE = 'close';
+    const ACTION_TERMINATE = 'terminate';
+    const ACTION_END = 'end';
 
     const OBJECT_ADMIN = 'admin';
     const OBJECT_BUILDING = 'building';

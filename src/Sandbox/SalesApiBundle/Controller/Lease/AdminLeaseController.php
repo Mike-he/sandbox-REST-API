@@ -187,8 +187,8 @@ class AdminLeaseController extends SalesRestController
             $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
             200,
             array(
-                'Content-Type'          => 'application/pdf',
-                'Content-Disposition'   => "attachment; filename='$fileName'"
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => "attachment; filename='$fileName'",
             )
         );
     }
@@ -500,11 +500,15 @@ class AdminLeaseController extends SalesRestController
                 if ($status != Lease::LEASE_STATUS_DRAFTING) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
+
+                $action = Log::ACTION_CONFORMING;
                 break;
             case Lease::LEASE_STATUS_PERFORMING:
                 if ($status != Lease::LEASE_STATUS_CONFIRMED) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
+
+                $action = Log::ACTION_PERFORMING;
                 break;
             case Lease::LEASE_STATUS_CLOSED:
                 if (
@@ -542,6 +546,7 @@ class AdminLeaseController extends SalesRestController
                     }
                 }
 
+                $action = Log::ACTION_CLOSE;
                 break;
             case Lease::LEASE_STATUS_TERMINATED:
                 if (
@@ -554,7 +559,7 @@ class AdminLeaseController extends SalesRestController
 
                 $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
                     'lease' => $lease,
-                    'status' => LeaseBill::STATUS_UNPAID
+                    'status' => LeaseBill::STATUS_UNPAID,
                 ));
 
                 foreach ($unpaidBills as $unpaidBill) {
@@ -586,6 +591,7 @@ class AdminLeaseController extends SalesRestController
                     );
                 }
 
+                $action = Log::ACTION_TERMINATE;
                 break;
             case Lease::LEASE_STATUS_END:
                 if (
@@ -594,6 +600,8 @@ class AdminLeaseController extends SalesRestController
                 ) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
+
+                $action = Log::ACTION_END;
                 break;
             default:
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -606,7 +614,7 @@ class AdminLeaseController extends SalesRestController
         // generate log
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_LEASE,
-            'logAction' => Log::ACTION_EDIT,
+            'logAction' => $action,
             'logObjectKey' => Log::OBJECT_LEASE,
             'logObjectId' => $lease->getId(),
         ));
@@ -1165,7 +1173,7 @@ class AdminLeaseController extends SalesRestController
         $removeAmount = 0;
 
         if (!empty($payloadBills['remove'])) {
-            $removeAmount = $this->removeBills($payloadBills['remove'], $lease ,$em);
+            $removeAmount = $this->removeBills($payloadBills['remove'], $lease, $em);
         }
 
         if ($payload['status'] != Lease::LEASE_STATUS_DRAFTING) {

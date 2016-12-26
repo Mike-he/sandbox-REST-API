@@ -254,11 +254,11 @@ class ProductAppointmentRepository extends EntityRepository
             $endDate->setTime(23, 59, 59);
 
             switch ($rentFilter) {
-                case 'rent_start' :
+                case 'rent_start':
                     $query->andWhere('a.startRentDate >= :startDate')
                         ->andWhere('a.startRentDate <= :endDate');
                     break;
-                case 'rent_range' :
+                case 'rent_range':
                     $query->andWhere(
                         '(
                             (a.startRentDate <= :startDate AND a.endRentDate > :startDate) OR
@@ -267,11 +267,11 @@ class ProductAppointmentRepository extends EntityRepository
                         )'
                     );
                     break;
-                case 'rent_end' :
+                case 'rent_end':
                     $query->andWhere('a.endRentDate >= :startDate')
                         ->andWhere('a.endRentDate <= :endDate');
                     break;
-                default :
+                default:
                     return $query;
             }
 
