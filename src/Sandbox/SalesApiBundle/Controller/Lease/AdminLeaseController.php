@@ -187,8 +187,8 @@ class AdminLeaseController extends SalesRestController
             $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
             200,
             array(
-                'Content-Type'          => 'application/pdf',
-                'Content-Disposition'   => "attachment; filename='$fileName'"
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => "attachment; filename='$fileName'",
             )
         );
     }
@@ -554,7 +554,7 @@ class AdminLeaseController extends SalesRestController
 
                 $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
                     'lease' => $lease,
-                    'status' => LeaseBill::STATUS_UNPAID
+                    'status' => LeaseBill::STATUS_UNPAID,
                 ));
 
                 foreach ($unpaidBills as $unpaidBill) {
@@ -1165,7 +1165,7 @@ class AdminLeaseController extends SalesRestController
         $removeAmount = 0;
 
         if (!empty($payloadBills['remove'])) {
-            $removeAmount = $this->removeBills($payloadBills['remove'], $lease ,$em);
+            $removeAmount = $this->removeBills($payloadBills['remove'], $lease, $em);
         }
 
         if ($payload['status'] != Lease::LEASE_STATUS_DRAFTING) {

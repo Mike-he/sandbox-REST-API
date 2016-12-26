@@ -2,11 +2,9 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Log;
 
-use Rs\Json\Patch;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\Log\LogController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Form\Log\LogPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;

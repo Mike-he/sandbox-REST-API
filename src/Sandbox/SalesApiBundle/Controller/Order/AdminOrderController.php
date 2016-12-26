@@ -650,6 +650,13 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent filter"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="start_date",
      *    array=false,
      *    default=null,
@@ -753,6 +760,7 @@ class AdminOrderController extends OrderController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
         $status = $paramFetcher->get('status');
+        $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
         $payDate = $paramFetcher->get('pay_date');
@@ -777,6 +785,7 @@ class AdminOrderController extends OrderController
                 null,
                 null,
                 null,
+                $rentFilter,
                 $startDate,
                 $endDate,
                 $payDate,
@@ -891,6 +900,13 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent filter"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="start_date",
      *    array=false,
      *    default=null,
@@ -988,6 +1004,7 @@ class AdminOrderController extends OrderController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
         $status = $paramFetcher->get('status');
+        $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
         $payDate = $paramFetcher->get('pay_date');
@@ -1014,6 +1031,7 @@ class AdminOrderController extends OrderController
                 null,
                 null,
                 null,
+                $rentFilter,
                 $startDate,
                 $endDate,
                 $payDate,
