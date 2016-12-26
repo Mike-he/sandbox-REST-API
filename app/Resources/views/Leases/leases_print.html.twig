@@ -220,8 +220,8 @@
                         <div class="bill-item per22">
                             <span>{{ b.name }}</span>
                         </div>
-                        <div class="bill-item per12">{{ b.startDate|date('Y-m-d H:i:s') }}</div>
-                        <div class="bill-item per12">{{ b.endDate|date('Y-m-d H:i:s') }}</div>
+                        <div class="bill-item per12">{{ b.startDate|date('Y-m-d') }}</div>
+                        <div class="bill-item per12">{{ b.endDate|date('Y-m-d') }}</div>
                         <div class="bill-item per12">{{ b.amount }} 元</div>
                         <div class="bill-item per33">{{ b.description }}</div>
                     </div>
