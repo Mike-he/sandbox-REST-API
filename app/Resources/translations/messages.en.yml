@@ -62,6 +62,8 @@ product_order:
     preorder: Pre-Order
     reserve: Reserve
   export_header:
+    company_name: Sales Company
+    building_name: Commuity
     order_number: Order Number
     product_name: Product Name
     type: Room Type
@@ -119,6 +121,7 @@ shop_order:
     waiting: To be refunded
     refunded: Refunded
   export_header:
+    building_name: Commuity
     order_number: Order Number
     shop: Shop
     order_time: Order Time

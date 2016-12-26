@@ -69,6 +69,7 @@ class ShopController extends ShopRestController
 
             $orderNumber = $order->getOrderNumber();
             $shopName = $order->getShop()->getName();
+            $buildingName = $order->getShop()->getBuilding()->getName();
 
             $orderTime = null;
             $paymentDate = $order->getPaymentDate();
@@ -179,6 +180,7 @@ class ShopController extends ShopRestController
 
             // set excel body
             $body = array(
+                ShopOrderExport::BUILDING_NAME => $buildingName,
                 ShopOrderExport::ORDER_NUMBER => $orderNumber,
                 ShopOrderExport::SHOP_NAME => $shopName,
                 ShopOrderExport::ORDER_TIME => $orderTime,
@@ -197,6 +199,7 @@ class ShopController extends ShopRestController
         }
 
         $headers = [
+            $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_BUILDING_NAME, array(), null, $language),
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_ORDER_NO, array(), null, $language),
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_SHOP, array(), null, $language),
             $this->get('translator')->trans(ShopOrderExport::TRANS_SHOP_ORDER_HEADER_ORDER_TIME, array(), null, $language),

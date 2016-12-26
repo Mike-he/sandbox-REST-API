@@ -1499,6 +1499,7 @@ class PaymentController extends DoorController
                             'product_info' => $productInfo,
                             'status' => $status,
                             'user' => $user,
+                            'user_profile' => $userProfile,
                             'pay_channel' => $payChannel,
                             'room_type' => $roomType,
                             'unit_price' => $unitPrice,
