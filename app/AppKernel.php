@@ -30,7 +30,7 @@ class AppKernel extends Kernel
             new Sandbox\ClientApiBundle\SandboxClientApiBundle(),
             new Sandbox\AdminApiBundle\SandboxAdminApiBundle(),
             new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
-            new FOS\ElasticaBundle\FOSElasticaBundle(),
+//            new FOS\ElasticaBundle\FOSElasticaBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new Sandbox\SalesApiBundle\SandboxSalesApiBundle(),
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
