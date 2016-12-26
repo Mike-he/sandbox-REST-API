@@ -980,7 +980,7 @@ class Lease
     /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("product")
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list", "lease_bill"})
      */
     public function degenerateProduct()
     {
