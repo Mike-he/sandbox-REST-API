@@ -8,6 +8,10 @@ sudo php app/console doc:mig:exe 20161214161831  # add lease expire in time in p
 sudo php app/console doc:mig:exe 20161219165153  # add event order permission
 sudo php app/console doc:mig:exe 20161220101253  # change permission names
 
+# install wkhtmltopdf
+sudo cp ./pdf_bin/* /usr/bin/
+sudo yum install wqy-zenhei-fonts.noarch -y
+
 
 ## version 2.3.1
 #
