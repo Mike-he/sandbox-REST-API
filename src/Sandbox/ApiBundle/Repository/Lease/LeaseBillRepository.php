@@ -98,7 +98,7 @@ class LeaseBillRepository extends EntityRepository
                 ->setFirstResult($offset);
         }
 
-        $query->orderBy('lb.id', 'DESC');
+        $query->orderBy('lb.sendDate', 'DESC');
 
         $result = $query->getQuery()->getResult();
 
