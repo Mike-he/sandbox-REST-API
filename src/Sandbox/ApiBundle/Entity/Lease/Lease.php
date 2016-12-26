@@ -942,7 +942,7 @@ class Lease
     /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("drawee")
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list", "lease_bill"})
      */
     public function getDraweeId()
     {
