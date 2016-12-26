@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Constants;
 
 class ShopOrderExport
 {
+    const BUILDING_NAME = 'building_name';
     const ORDER_NUMBER = 'order_number';
     const SHOP_NAME = 'shop';
     const ORDER_TIME = 'order_time';
@@ -23,6 +24,7 @@ class ShopOrderExport
     const TRANS_SHOP_ORDER_STATUS = 'shop_order.status.';
     const TRANS_SHOP_ORDER_CHANNEL = 'shop_order.channel.';
 
+    const TRANS_SHOP_ORDER_HEADER_BUILDING_NAME = 'shop_order.export_header.building_name';
     const TRANS_SHOP_ORDER_HEADER_ORDER_NO = 'shop_order.export_header.order_number';
     const TRANS_SHOP_ORDER_HEADER_SHOP = 'shop_order.export_header.shop';
     const TRANS_SHOP_ORDER_HEADER_ORDER_TIME = 'shop_order.export_header.order_time';

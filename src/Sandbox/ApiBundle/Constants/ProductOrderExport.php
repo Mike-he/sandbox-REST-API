@@ -4,6 +4,8 @@ namespace Sandbox\ApiBundle\Constants;
 
 class ProductOrderExport
 {
+    const COMPANY_NAME = 'company_name';
+    const BUILDING_NAME = 'building_name';
     const ORDER_NUMBER = 'order_number';
     const PRODUCT_NAME = 'product_name';
     const ROOM_TYPE = 'type';
@@ -25,6 +27,8 @@ class ProductOrderExport
     const TRANS_ROOM_TYPE = 'room.type.';
     const TRANS_ROOM_UNIT = 'room.unit.';
 
+    const TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME = 'product_order.export_header.building_name';
+    const TRANS_PRODUCT_ORDER_HEADER_COMPANY_NAME = 'product_order.export_header.company_name';
     const TRANS_PRODUCT_ORDER_STATUS = 'product_order.status.';
     const TRANS_PRODUCT_ORDER_CHANNEL = 'product_order.channel.';
     const TRANS_PRODUCT_ORDER_TYPE = 'product_order.order_type.';
