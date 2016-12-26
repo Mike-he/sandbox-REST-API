@@ -1554,7 +1554,7 @@ class PaymentController extends DoorController
         $bill->setStatus(LeaseBill::STATUS_PAID);
         $bill->setPaymentDate(new \DateTime());
         $bill->setPayChannel($channel);
-        $bill->setDrawee($this->getUserId());
+        $bill->setDrawee($bill->getLease()->getDrawee()->getId());
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

@@ -37,6 +37,8 @@ class LeaseBill
 
     const LEASE_BILL_LETTER_HEAD = 'B';
 
+    const BILL_MAP = 'lease_bill';
+
     /**
      * @var int
      *
