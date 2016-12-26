@@ -405,7 +405,8 @@ class ClientLeaseBillController extends PaymentController
     private function handleBillInfo(
         $bill
     ) {
-        $room = $bill->getLease()->getProduct()->getRoom();
+        $product = $bill->getLease()->getProduct();
+        $room = $product->getRoom();
         $building = $room->getBuilding();
 
         $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
@@ -441,6 +442,7 @@ class ClientLeaseBillController extends PaymentController
                     'serial_number' => $bill->getLease()->getserialNumber(),
                     ),
             'product' => array(
+                        'id' => $product->getId(),
                         'name' => $room->getName(),
                         'type' => $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType()),
                         'address' => $building->getCity()->getName().$building->getAddress(),
