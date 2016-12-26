@@ -93,7 +93,6 @@ class AdminLeaseController extends AdminRestController
         return $view;
     }
 
-
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -164,8 +163,8 @@ class AdminLeaseController extends AdminRestController
             $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
             200,
             array(
-                'Content-Type'          => 'application/pdf',
-                'Content-Disposition'   => "attachment; filename='$fileName'"
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => "attachment; filename='$fileName'",
             )
         );
     }

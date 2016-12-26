@@ -1014,6 +1014,7 @@ class OrderRepository extends EntityRepository
      * @param $company
      * @param $building
      * @param $userId
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $payDate
@@ -1038,6 +1039,7 @@ class OrderRepository extends EntityRepository
         $company,
         $building,
         $userId,
+        $rentFilter,
         $startDate,
         $endDate,
         $payDate,
@@ -1110,18 +1112,37 @@ class OrderRepository extends EntityRepository
                 ->setParameter('building', $building);
         }
 
-        //filter by start date
-        if (!is_null($startDate)) {
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
             $startDate = new \DateTime($startDate);
-            $query->andWhere('o.endDate > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
-
-        //filter by end date
-        if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
-            $query->andWhere('o.startDate <= :endDate')
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('o.startDate >= :startDate')
+                        ->andWhere('o.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                            (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                            (o.startDate >= :startDate AND o.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+                    break;
+                default:
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+            }
+            $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
 
@@ -1228,6 +1249,7 @@ class OrderRepository extends EntityRepository
      * @param $city
      * @param $building
      * @param $userId
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $payDate
@@ -1250,6 +1272,7 @@ class OrderRepository extends EntityRepository
         $company,
         $building,
         $userId,
+        $rentFilter,
         $startDate,
         $endDate,
         $payDate,
@@ -1321,18 +1344,37 @@ class OrderRepository extends EntityRepository
                 ->setParameter('building', $building);
         }
 
-        //filter by start date
-        if (!is_null($startDate)) {
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
             $startDate = new \DateTime($startDate);
-            $query->andWhere('o.endDate > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
-
-        //filter by end date
-        if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
-            $query->andWhere('o.startDate <= :endDate')
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('o.startDate >= :startDate')
+                        ->andWhere('o.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                            (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                            (o.startDate >= :startDate AND o.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+                    break;
+                default:
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+            }
+            $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
 
@@ -1437,6 +1479,7 @@ class OrderRepository extends EntityRepository
      * @param $company
      * @param $building
      * @param $userId
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $payDate
@@ -1458,6 +1501,7 @@ class OrderRepository extends EntityRepository
         $company,
         $building,
         $userId,
+        $rentFilter,
         $startDate,
         $endDate,
         $payDate,
@@ -1523,18 +1567,37 @@ class OrderRepository extends EntityRepository
                 ->setParameter('building', $building);
         }
 
-        //filter by start date
-        if (!is_null($startDate)) {
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
             $startDate = new \DateTime($startDate);
-            $query->andWhere('o.endDate > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
-
-        //filter by end date
-        if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
-            $query->andWhere('o.startDate <= :endDate')
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('o.startDate >= :startDate')
+                        ->andWhere('o.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                            (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                            (o.startDate >= :startDate AND o.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+                    break;
+                default:
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+            }
+            $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
 
@@ -1628,6 +1691,7 @@ class OrderRepository extends EntityRepository
      * @param $city
      * @param $building
      * @param $userId
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $payDate
@@ -1649,6 +1713,7 @@ class OrderRepository extends EntityRepository
         $city,
         $building,
         $userId,
+        $rentFilter,
         $startDate,
         $endDate,
         $payDate,
@@ -1715,23 +1780,42 @@ class OrderRepository extends EntityRepository
                 ->setParameter('buildingIds', $myBuildingIds);
         }
 
-        //filter by start date
-        if (!is_null($startDate)) {
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
             $startDate = new \DateTime($startDate);
-            $query->andWhere('o.endDate > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
-
-        //filter by end date
-        if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
-            $query->andWhere('o.startDate <= :endDate')
-                ->setParameter('endDate', $endDate);
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('o.startDate >= :startDate')
+                        ->andWhere('o.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                            (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                            (o.startDate >= :startDate AND o.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+                    break;
+                default:
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+            }
+            $query->setParameter('startDate', $startDate)
+                    ->setParameter('endDate', $endDate);
         }
 
         //filter by payDate
-        if (!is_null($payDate)) {
+        if (!is_null($payDate) && !empty($payDate)) {
             $payDateStart = new \DateTime($payDate);
             $payDateEnd = new \DateTime($payDate);
             $payDateEnd->setTime(23, 59, 59);
@@ -1816,6 +1900,7 @@ class OrderRepository extends EntityRepository
      * @param $city
      * @param $building
      * @param $userId
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $payDate
@@ -1837,6 +1922,7 @@ class OrderRepository extends EntityRepository
         $city,
         $building,
         $userId,
+        $rentFilter,
         $startDate,
         $endDate,
         $payDate,
@@ -1895,18 +1981,37 @@ class OrderRepository extends EntityRepository
                 ->setParameter('buildingIds', $myBuildingIds);
         }
 
-        //filter by start date
-        if (!is_null($startDate)) {
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
             $startDate = new \DateTime($startDate);
-            $query->andWhere('o.endDate > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
-
-        //filter by end date
-        if (!is_null($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
-            $query->andWhere('o.startDate <= :endDate')
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('o.startDate >= :startDate')
+                        ->andWhere('o.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                            (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                            (o.startDate >= :startDate AND o.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+                    break;
+                default:
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+            }
+            $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
 
