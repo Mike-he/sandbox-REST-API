@@ -7,6 +7,7 @@ use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPlatform;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
@@ -120,7 +121,8 @@ class AdminLeaseController extends AdminRestController
                     'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE,
                 ),
             ),
-            AdminPermission::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
         );
 
         $lease = $this->getDoctrine()
