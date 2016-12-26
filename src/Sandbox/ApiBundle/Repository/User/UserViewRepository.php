@@ -60,6 +60,7 @@ class UserViewRepository extends EntityRepository
                     u.banned,
                     u.name,
                     u.gender,
+                    u.cardNo,
                     u.authorizedPlatform,
                     u.authorizedAdminUsername
                     FROM SandboxApiBundle:User\UserView u
