@@ -39,6 +39,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $createRange
      * @param $createStart
      * @param $createEnd
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $companyId
@@ -53,6 +54,7 @@ class ProductAppointmentRepository extends EntityRepository
         $createRange,
         $createStart,
         $createEnd,
+        $rentFilter,
         $startDate,
         $endDate,
         $companyId = null
@@ -72,6 +74,7 @@ class ProductAppointmentRepository extends EntityRepository
             $createRange,
             $createStart,
             $createEnd,
+            $rentFilter,
             $startDate,
             $endDate,
             $companyId
@@ -88,6 +91,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $createRange
      * @param $createStart
      * @param $createEnd
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $limit
@@ -104,6 +108,7 @@ class ProductAppointmentRepository extends EntityRepository
         $createRange,
         $createStart,
         $createEnd,
+        $rentFilter,
         $startDate,
         $endDate,
         $limit,
@@ -127,6 +132,7 @@ class ProductAppointmentRepository extends EntityRepository
             $createRange,
             $createStart,
             $createEnd,
+            $rentFilter,
             $startDate,
             $endDate,
             $companyId
@@ -144,6 +150,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $createRange
      * @param $createStart
      * @param $createEnd
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $companyId
@@ -159,6 +166,7 @@ class ProductAppointmentRepository extends EntityRepository
         $createRange,
         $createStart,
         $createEnd,
+        $rentFilter,
         $startDate,
         $endDate,
         $companyId
@@ -232,19 +240,42 @@ class ProductAppointmentRepository extends EntityRepository
             }
         }
 
-        if (!is_null($startDate) && !empty($startDate)) {
+        if (!is_null($rentFilter) &&
+            !empty($rentFilter) &&
+            !is_null($startDate) &&
+            !empty($startDate) &&
+            !is_null($endDate) &&
+            !empty($endDate)
+        ) {
             $startDate = new \DateTime($startDate);
             $startDate->setTime(0, 0, 0);
 
-            $query->andWhere('a.endRentDate > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
-
-        if (!is_null($endDate) && !empty($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
 
-            $query->andWhere('a.startRentDate <= :endDate')
+            switch ($rentFilter) {
+                case 'rent_start' :
+                    $query->andWhere('a.startRentDate >= :startDate')
+                        ->andWhere('a.startRentDate <= :endDate');
+                    break;
+                case 'rent_range' :
+                    $query->andWhere(
+                        '(
+                            (a.startRentDate <= :startDate AND a.endRentDate > :startDate) OR
+                            (a.startRentDate < :endDate AND a.endRentDate >= :endDate) OR
+                            (a.startRentDate >= :startDate AND a.endRentDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end' :
+                    $query->andWhere('a.endRentDate >= :startDate')
+                        ->andWhere('a.endRentDate <= :endDate');
+                    break;
+                default :
+                    return $query;
+            }
+
+            $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
 
