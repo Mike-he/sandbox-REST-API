@@ -9,7 +9,7 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
-use Sandbox\ApiBundle\Form\Order\LeaseBillOfflineTransferPatch;
+use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPatch;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
