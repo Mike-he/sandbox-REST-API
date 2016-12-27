@@ -561,7 +561,7 @@ class ClientLeaseController extends SandboxRestController
     {
         $userId = $this->getUserId();
         if ($userId != $lease->getSupervisorId()
-        || $userId != $lease->getDraweeId()) {
+        && $userId != $lease->getDraweeId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
     }
