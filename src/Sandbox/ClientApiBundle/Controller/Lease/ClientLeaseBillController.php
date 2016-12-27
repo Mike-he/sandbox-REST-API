@@ -340,7 +340,7 @@ class ClientLeaseBillController extends PaymentController
 
         $attachment = new LeaseBillTransferAttachment();
         $attachment->setContent($attachmentArray[0]['content']);
-        $attachment->setAttachmentType($attachmentArray[0]['attachmentType']);
+        $attachment->setAttachmentType($attachmentArray[0]['attachment_type']);
         $attachment->setFilename($attachmentArray[0]['filename']);
         $attachment->setPreview($attachmentArray[0]['preview']);
         $attachment->setSize($attachmentArray[0]['size']);

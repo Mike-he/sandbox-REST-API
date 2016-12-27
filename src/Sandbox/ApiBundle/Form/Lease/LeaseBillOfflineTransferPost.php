@@ -15,8 +15,8 @@ class LeaseBillOfflineTransferPost extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('accountName')
-            ->add('accountNo')
+            ->add('account_name')
+            ->add('account_no')
             ->add('attachments')
         ;
     }
