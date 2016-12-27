@@ -125,7 +125,8 @@ class LeaseRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.supervisor', 'u')
-            ->where('u.id = :userId')
+            ->leftJoin('l.drawee', 'du')
+            ->where('(u.id = :userId OR du.id = :userId)')
             ->andWhere('l.status != :status')
             ->orderBy('l.creationDate')
             ->setParameter('userId', $userId)
