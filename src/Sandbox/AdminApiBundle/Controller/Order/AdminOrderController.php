@@ -482,7 +482,7 @@ class AdminOrderController extends OrderController
 
         $multiplier = $this->getRefundFeeMultiplier($channel);
 
-        $fee = $refund * $multiplier;
+        $fee = round($refund * $multiplier, 2);
         $actualRefund = $refund - $fee;
 
         $view = new View();
