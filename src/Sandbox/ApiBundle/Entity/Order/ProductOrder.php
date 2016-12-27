@@ -454,9 +454,9 @@ class ProductOrder
     private $refundTo;
 
     /**
-     * @var int
+     * @var string
      *
-     * @ORM\Column(name="seatId", type="integer", nullable=true)
+     * @ORM\Column(name="seatId", type="string", length=20, nullable=true)
      *
      * @Serializer\Groups({"main", "current_order", "admin_detail", "client_order", "admin_order" ,"client"})
      */
@@ -465,7 +465,7 @@ class ProductOrder
     /**
      * Set seatId.
      *
-     * @param int $seatId
+     * @param string $seatId
      *
      * @return ProductOrder
      */
@@ -479,7 +479,7 @@ class ProductOrder
     /**
      * Get seatId.
      *
-     * @return int
+     * @return string
      */
     public function getSeatId()
     {
