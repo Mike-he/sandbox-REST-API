@@ -187,7 +187,12 @@ class AdminProductAppointmentController extends AdminProductController
             )
         );
 
-        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
+        if (empty($myBuildingIds) ||
+            (
+                !is_null($buildingId) &&
+                !in_array((int) $buildingId, $myBuildingIds)
+            )
+        ) {
             return new View();
         }
 

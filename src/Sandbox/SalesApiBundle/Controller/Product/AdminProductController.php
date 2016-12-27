@@ -271,8 +271,13 @@ class AdminProductController extends ProductController
             $permissions
         );
 
-        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
-            return new View(array());
+        if (empty($myBuildingIds) ||
+            (
+                !is_null($buildingId) &&
+                !in_array((int) $buildingId, $myBuildingIds)
+            )
+        ) {
+            return new View();
         }
 
         // sort by
