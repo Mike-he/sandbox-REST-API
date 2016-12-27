@@ -74,7 +74,7 @@ class ClientLeaseController extends SandboxRestController
                 continue;
             }
 
-            $modificationDate = $lease->getModificationDate();
+            $modificationDate = $lease->getModificationDate()->setTime(23, 59, 59);
             $leaseExpireInDate = $modificationDate->add(new \DateInterval('P'.$expireInParameter->getValue()));
 
             $now = new \DateTime('now');
