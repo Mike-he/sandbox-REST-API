@@ -42,7 +42,7 @@ class RoomUsageViewRepository extends EntityRepository
             ->setParameter('end', $end);
 
         if (!is_null($seat)) {
-            $query->andwhere('o.seatId = :seat')
+            $query->andWhere('o.seatId = :seat')
                 ->setParameter('seat', $seat);
         }
 
@@ -81,7 +81,7 @@ class RoomUsageViewRepository extends EntityRepository
             ->setParameter('end', $end);
 
         if (!is_null($seat)) {
-            $query->andwhere('o.seatId = :seat')
+            $query->andWhere('o.seatId = :seat')
                 ->setParameter('seat', $seat);
         }
 
