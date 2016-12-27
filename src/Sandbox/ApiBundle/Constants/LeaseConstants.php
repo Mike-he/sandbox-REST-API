@@ -5,13 +5,18 @@ namespace Sandbox\ApiBundle\Constants;
 class LeaseConstants
 {
     const ACTION_TYPE = 'lease';
-    const ACTION_INVITE_ADD = 'invite_add';
-    const ACTION_APPOINT_ADD = 'appoint_add';
-    const ACTION_INVITE_REMOVE = 'invite_remove';
-    const ACTION_APPOINT_REMOVE = 'appoint_remove';
-    const ACTION_START = 'start';
-    const ACTION_END = 'end';
-    const ACTION_ACCEPTED = 'accepted';
-    const ACTION_REJECTED = 'rejected';
-    const ACTION_OFFICE_ORDER = 'office_order';
+
+    // push messages
+    const APPLICATION_REJECTED_MESSAGE = 'lease.push_message.application_rejected';
+    const APPLICATION_APPROVED_MESSAGE = 'lease.push_message.application_approved';
+    const LEASE_CONFIRMING_MESSAGE = 'lease.push_message.lease_confirming';
+    const LEASE_EXPIRED_MESSAGE = 'lease.push_message.lease_expired';
+    const LEASE_CLOSED_MESSAGE = 'lease.push_message.lease_closed';
+    const LEASE_PERFORMING_MESSAGE = 'lease.push_message.lease_performing';
+    const LEASE_RECONFIRMING_MESSAGE = 'lease.push_message.lease_reconfirming';
+    const LEASE_ENDED_WITH_UNPAID_BILLS_MESSAGE = 'lease.push_message.lease_ended_with_unpaid_bills';
+    const LEASE_ENDED_WITHOUT_UNPAID_BILLS_MESSAGE = 'lease.push_message.lease_ended_without_unpaid_bills';
+    const LEASE_ENDED_MESSAGE = 'lease.push_message.lease_ended';
+    const LEASE_BILL_UNPAID_MESSAGE_PART1 = 'lease.push_message.lease_bill_unpaid_first';
+    const LEASE_BILL_UNPAID_MESSAGE_PART2 = 'lease.push_message.lease_bill_unpaid_second';
 }

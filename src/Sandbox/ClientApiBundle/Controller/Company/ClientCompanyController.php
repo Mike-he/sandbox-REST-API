@@ -330,13 +330,13 @@ class ClientCompanyController extends CompanyController
 
         // find all companies who have the query in any of their mapped fields
 //        $finder = $this->container->get('fos_elastica.finder.search.company');
-//
+
 //        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-//
+
 //        $multiMatchQuery->setQuery($query);
 //        $multiMatchQuery->setType('phrase_prefix');
 //        $multiMatchQuery->setFields(array('name'));
-//
+
 //        $results = $finder->find($multiMatchQuery);
 
         $results = $this->getDoctrine()
