@@ -145,6 +145,17 @@ class Lease
     private $modificationDate;
 
     /**
+     * The creation date of formal lease.
+     *
+     * @var \DateTime
+     *
+     * @ORM\Column(name="confirming_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $confirmingDate;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=15, nullable=true)
@@ -1101,5 +1112,21 @@ class Lease
     public function setDepositNote($depositNote)
     {
         $this->depositNote = $depositNote;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getConfirmingDate()
+    {
+        return $this->confirmingDate;
+    }
+
+    /**
+     * @param \DateTime $confirmingDate
+     */
+    public function setConfirmingDate($confirmingDate)
+    {
+        $this->confirmingDate = $confirmingDate;
     }
 }

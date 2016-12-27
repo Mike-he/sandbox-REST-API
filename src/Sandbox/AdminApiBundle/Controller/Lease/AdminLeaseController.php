@@ -321,7 +321,8 @@ class AdminLeaseController extends AdminRestController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
 
-        // appointment date filter
+        // rent date filter
+        $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
@@ -335,6 +336,7 @@ class AdminLeaseController extends AdminRestController
                 $createRange,
                 $createStart,
                 $createEnd,
+                $rentFilter,
                 $startDate,
                 $endDate,
                 $limit,
@@ -351,6 +353,7 @@ class AdminLeaseController extends AdminRestController
                 $createRange,
                 $createStart,
                 $createEnd,
+                $rentFilter,
                 $startDate,
                 $endDate
             );
