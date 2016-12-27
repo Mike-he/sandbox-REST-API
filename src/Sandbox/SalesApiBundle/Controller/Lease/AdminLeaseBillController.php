@@ -3,8 +3,10 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
@@ -23,6 +25,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminLeaseBillController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
+    use SendNotification;
 
     /**
      * Get Lease Bills.
@@ -190,6 +193,8 @@ class AdminLeaseBillController extends SalesRestController
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
+        $oldStatus = $bill->getStatus();
+
         $status = array(
             LeaseBill::STATUS_PENDING,
             LeaseBill::STATUS_UNPAID,
@@ -219,6 +224,26 @@ class AdminLeaseBillController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
         $em->flush();
+
+        if ($oldStatus == LeaseBill::STATUS_PENDING) {
+            $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->countBills(
+                    $bill->getLease(),
+                    null,
+                    LeaseBill::STATUS_UNPAID
+                );
+
+            // send Jpush notification
+            $this->generateJpushNotification(
+                [
+                    $bill->getLease()->getDraweeId(),
+                ],
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
+                [],
+                $billsAmount
+            );
+        }
 
         // generate log
         $this->generateAdminLogs(array(
@@ -342,6 +367,24 @@ class AdminLeaseBillController extends SalesRestController
                 'logObjectId' => $bill->getId(),
             ));
         }
+
+        $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $bill->getLease(),
+                null,
+                LeaseBill::STATUS_UNPAID
+            );
+
+        // send Jpush notification
+        $this->generateJpushNotification(
+            [
+                $bill->getLease()->getDraweeId(),
+            ],
+            LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
+            LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
+            [],
+            $billsAmount
+        );
     }
 
     /**
@@ -383,6 +426,24 @@ class AdminLeaseBillController extends SalesRestController
             'logObjectKey' => Log::OBJECT_LEASE_BILL,
             'logObjectId' => $bill->getId(),
         ));
+
+        $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $bill->getLease(),
+                null,
+                LeaseBill::STATUS_UNPAID
+            );
+
+        // send Jpush notification
+        $this->generateJpushNotification(
+            [
+                $bill->getLease()->getDraweeId(),
+            ],
+            LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
+            LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
+            [],
+            $billsAmount
+        );
 
         return new View($response, 201);
     }
