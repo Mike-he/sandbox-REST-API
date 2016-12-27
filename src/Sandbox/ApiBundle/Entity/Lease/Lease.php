@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\User;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="leases")
@@ -126,15 +127,7 @@ class Lease
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="termination_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $terminationDate;
-
-    /**
-     * @var \DateTime
-     *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime", nullable=true)
      *
      * @Serializer\Groups({"main", "lease_list"})
@@ -144,6 +137,7 @@ class Lease
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime", nullable=true)
      *
      * @Serializer\Groups({"main"})
@@ -354,47 +348,11 @@ class Lease
     private $invitedPeople;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="effective_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $effectiveDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="confirmation_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $confirmationDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="expiration_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $expirationDate;
-
-    /**
      * @var float
      *
      * @Serializer\Groups({"main","lease_list"})
      */
     private $pushedLeaseBillsFees;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="reconfirmation_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $reconfirmationDate;
 
     /**
      * @var string
@@ -405,8 +363,6 @@ class Lease
 
     public function __construct()
     {
-        $this->creationDate = new \DateTime('now');
-        $this->modificationDate = new \DateTime('now');
         $this->leaserentTypes = new ArrayCollection();
         $this->invitedPeople = new ArrayCollection();
     }
@@ -1028,70 +984,6 @@ class Lease
     public function removeInvitedPeople($invitedPeople)
     {
         $this->invitedPeople->removeElement($invitedPeople);
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getEffectiveDate()
-    {
-        return $this->effectiveDate;
-    }
-
-    /**
-     * @param \DateTime $effectiveDate
-     */
-    public function setEffectiveDate($effectiveDate)
-    {
-        $this->effectiveDate = $effectiveDate;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getConfirmationDate()
-    {
-        return $this->confirmationDate;
-    }
-
-    /**
-     * @param \DateTime $confirmationDate
-     */
-    public function setConfirmationDate($confirmationDate)
-    {
-        $this->confirmationDate = $confirmationDate;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getExpirationDate()
-    {
-        return $this->expirationDate;
-    }
-
-    /**
-     * @param \DateTime $expirationDate
-     */
-    public function setExpirationDate($expirationDate)
-    {
-        $this->expirationDate = $expirationDate;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getReconfirmationDate()
-    {
-        return $this->reconfirmationDate;
-    }
-
-    /**
-     * @param \DateTime $reconfirmationDate
-     */
-    public function setReconfirmationDate($reconfirmationDate)
-    {
-        $this->reconfirmationDate = $reconfirmationDate;
     }
 
     /**

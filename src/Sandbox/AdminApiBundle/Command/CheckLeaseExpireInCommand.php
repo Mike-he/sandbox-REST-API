@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -40,6 +41,14 @@ class CheckLeaseExpireInCommand extends ContainerAwareCommand
 
             if ($now > $leaseExpireInDate) {
                 $lease->setStatus('expired');
+
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $lease->getSupervisorId(),
+                    ],
+                    LeaseConstants::LEASE_EXPIRED_MESSAGE
+                );
             }
         }
         $em->flush();
