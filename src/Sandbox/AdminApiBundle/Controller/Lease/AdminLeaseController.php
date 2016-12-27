@@ -282,6 +282,13 @@ class AdminLeaseController extends AdminRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent time filter keywords"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="start_date",
      *    default=null,
      *    nullable=true,
