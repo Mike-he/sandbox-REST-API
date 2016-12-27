@@ -9,15 +9,16 @@ use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 class LeaseRepository extends EntityRepository
 {
     /**
-     * @param $startDate
-     * @param $endDate
+     * @param $myBuildingIds
+     * @param $status
      * @param $keyword
      * @param $keywordSearch
-     * @param $myBuildingIds
      * @param $createRange
      * @param $createStart
      * @param $createEnd
-     * @param $status
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
      *
      * @return array
      */
@@ -29,6 +30,7 @@ class LeaseRepository extends EntityRepository
         $createRange,
         $createStart,
         $createEnd,
+        $rentFilter,
         $startDate,
         $endDate
     ) {
@@ -38,103 +40,34 @@ class LeaseRepository extends EntityRepository
             ->select('COUNT(l)')
             ->where('l.id is not null');
 
-        if (!is_null($myBuildingIds)) {
-            $query->andWhere('r.buildingId IN (:buildingIds)')
-                ->setParameter('buildingIds', $myBuildingIds);
-        }
+        $query = $this->generateQueryForLeases(
+            $query,
+            $myBuildingIds,
+            $status,
+            $keyword,
+            $keywordSearch,
+            $createRange,
+            $createStart,
+            $createEnd,
+            $rentFilter,
+            $startDate,
+            $endDate
+        );
 
-        if ($status == 'all') {
-            $query->andWhere('l.status != :status')
-                ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
-        } else {
-            $query->andWhere('l.status = :status')
-                ->setParameter('status', $status);
-        }
-
-        if (!is_null($keyword) &&
-            !empty($keyword) &&
-            !is_null($keywordSearch) &&
-            !empty($keywordSearch)
-        ) {
-            switch ($keyword) {
-                case ProductAppointment::KEYWORD_APPLICANT:
-                    $query->andWhere('l.lesseeName LIKE :keywordSearch');
-                    break;
-                case ProductAppointment::KEYWORD_ROOM:
-                    $query->andWhere('r.name LIKE :keywordSearch');
-                    break;
-                case ProductAppointment::KEYWORD_NUMBER:
-                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
-                    break;
-                default:
-                    return array();
-            }
-
-            $query->setParameter('keywordSearch', "%$keywordSearch%");
-        }
-
-        if (!is_null($createRange) && !empty($createRange)) {
-            $now = new \DateTime();
-
-            if ($createRange == ProductAppointment::RANGE_LAST_WEEK) {
-                $last = $now->modify('-1 week');
-            } elseif ($createRange == ProductAppointment::RANGE_LAST_MONTH) {
-                $last = $now->modify('-1 month');
-            } else {
-                $last = $now;
-            }
-
-            $query->andWhere('l.creationDate >= :last')
-                ->setParameter('last', $last);
-        } else {
-            if (!is_null($createStart) && !empty($createStart)) {
-                $createStart = new \DateTime($createStart);
-                $createStart->setTime(0, 0, 0);
-
-                $query->andWhere('l.creationDate >= :createStart')
-                    ->setParameter('createStart', $createStart);
-            }
-
-            if (!is_null($createEnd) && !empty($createEnd)) {
-                $createEnd = new \DateTime($createEnd);
-                $createEnd->setTime(23, 59, 59);
-
-                $query->andWhere('l.creationDate <= :createEnd')
-                    ->setParameter('createEnd', $createEnd);
-            }
-        }
-
-        if (!is_null($startDate) && !empty($startDate)) {
-            $startDate = new \DateTime($startDate);
-            $startDate->setTime(0, 0, 0);
-
-            $query->andWhere('l.endDate > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
-
-        if (!is_null($endDate) && !empty($endDate)) {
-            $endDate = new \DateTime($endDate);
-            $endDate->setTime(23, 59, 59);
-
-            $query->andWhere('l.startDate <= :endDate')
-                ->setParameter('endDate', $endDate);
-        }
-
-        $result = $query->getQuery()->getSingleScalarResult();
-
-        return $result;
+        return $query->getQuery()->getSingleScalarResult();
     }
 
     /**
-     * @param $startDate
-     * @param $endDate
+     * @param $myBuildingIds
+     * @param $status
      * @param $keyword
      * @param $keywordSearch
-     * @param $myBuildingIds
      * @param $createRange
      * @param $createStart
      * @param $createEnd
-     * @param $status
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
      * @param $limit
      * @param $offset
      *
@@ -148,6 +81,7 @@ class LeaseRepository extends EntityRepository
         $createRange,
         $createStart,
         $createEnd,
+        $rentFilter,
         $startDate,
         $endDate,
         $limit,
@@ -160,91 +94,21 @@ class LeaseRepository extends EntityRepository
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
-        if (!is_null($myBuildingIds)) {
-            $query->andWhere('r.buildingId IN (:buildingIds)')
-                ->setParameter('buildingIds', $myBuildingIds);
-        }
+        $query = $this->generateQueryForLeases(
+            $query,
+            $myBuildingIds,
+            $status,
+            $keyword,
+            $keywordSearch,
+            $createRange,
+            $createStart,
+            $createEnd,
+            $rentFilter,
+            $startDate,
+            $endDate
+        );
 
-        if ($status == 'all') {
-            $query->andWhere('l.status != :status')
-                ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
-        } else {
-            $query->andWhere('l.status = :status')
-                ->setParameter('status', $status);
-        }
-
-        if (!is_null($keyword) &&
-            !empty($keyword) &&
-            !is_null($keywordSearch) &&
-            !empty($keywordSearch)
-        ) {
-            switch ($keyword) {
-                case ProductAppointment::KEYWORD_APPLICANT:
-                    $query->andWhere('l.lesseeName LIKE :keywordSearch');
-                    break;
-                case ProductAppointment::KEYWORD_ROOM:
-                    $query->andWhere('r.name LIKE :keywordSearch');
-                    break;
-                case ProductAppointment::KEYWORD_NUMBER:
-                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
-                    break;
-                default:
-                    return array();
-            }
-
-            $query->setParameter('keywordSearch', "%$keywordSearch%");
-        }
-
-        if (!is_null($createRange) && !empty($createRange)) {
-            $now = new \DateTime();
-
-            if ($createRange == ProductAppointment::RANGE_LAST_WEEK) {
-                $last = $now->modify('-1 week');
-            } elseif ($createRange == ProductAppointment::RANGE_LAST_MONTH) {
-                $last = $now->modify('-1 month');
-            } else {
-                $last = $now;
-            }
-
-            $query->andWhere('l.creationDate >= :last')
-                ->setParameter('last', $last);
-        } else {
-            if (!is_null($createStart) && !empty($createStart)) {
-                $createStart = new \DateTime($createStart);
-                $createStart->setTime(0, 0, 0);
-
-                $query->andWhere('l.creationDate >= :createStart')
-                    ->setParameter('createStart', $createStart);
-            }
-
-            if (!is_null($createEnd) && !empty($createEnd)) {
-                $createEnd = new \DateTime($createEnd);
-                $createEnd->setTime(23, 59, 59);
-
-                $query->andWhere('l.creationDate <= :createEnd')
-                    ->setParameter('createEnd', $createEnd);
-            }
-        }
-
-        if (!is_null($startDate) && !empty($startDate)) {
-            $startDate = new \DateTime($startDate);
-            $startDate->setTime(0, 0, 0);
-
-            $query->andWhere('l.endDate > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
-
-        if (!is_null($endDate) && !empty($endDate)) {
-            $endDate = new \DateTime($endDate);
-            $endDate->setTime(23, 59, 59);
-
-            $query->andWhere('l.startDate <= :endDate')
-                ->setParameter('endDate', $endDate);
-        }
-
-        $result = $query->getQuery()->getResult();
-
-        return $result;
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -271,5 +135,141 @@ class LeaseRepository extends EntityRepository
             ->setFirstResult($offset);
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $query
+     * @param $myBuildingIds
+     * @param $status
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $createRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return $query
+     */
+    private function generateQueryForLeases(
+        $query,
+        $myBuildingIds,
+        $status,
+        $keyword,
+        $keywordSearch,
+        $createRange,
+        $createStart,
+        $createEnd,
+        $rentFilter,
+        $startDate,
+        $endDate
+    ) {
+        if (!is_null($myBuildingIds)) {
+            $query->andWhere('r.buildingId IN (:buildingIds)')
+                ->setParameter('buildingIds', $myBuildingIds);
+        }
+
+        if ($status == 'all') {
+            $query->andWhere('l.status != :status')
+                ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
+        } else {
+            $query->andWhere('l.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($keyword) &&
+            !empty($keyword) &&
+            !is_null($keywordSearch) &&
+            !empty($keywordSearch)
+        ) {
+            switch ($keyword) {
+                case ProductAppointment::KEYWORD_APPLICANT:
+                    $query->andWhere('l.lesseeName LIKE :keywordSearch');
+                    break;
+                case ProductAppointment::KEYWORD_ROOM:
+                    $query->andWhere('r.name LIKE :keywordSearch');
+                    break;
+                case ProductAppointment::KEYWORD_NUMBER:
+                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
+                    break;
+                default:
+                    return array();
+            }
+
+            $query->setParameter('keywordSearch', "%$keywordSearch%");
+        }
+
+        if (!is_null($createRange) && !empty($createRange)) {
+            $now = new \DateTime();
+
+            if ($createRange == ProductAppointment::RANGE_LAST_WEEK) {
+                $last = $now->modify('-1 week');
+            } elseif ($createRange == ProductAppointment::RANGE_LAST_MONTH) {
+                $last = $now->modify('-1 month');
+            } else {
+                $last = $now;
+            }
+
+            $query->andWhere('l.confirmingDate >= :last')
+                ->setParameter('last', $last);
+        } else {
+            if (!is_null($createStart) && !empty($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(0, 0, 0);
+
+                $query->andWhere('l.confirmingDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
+
+            if (!is_null($createEnd) && !empty($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+
+                $query->andWhere('l.confirmingDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+            }
+        }
+
+        if (!is_null($rentFilter) &&
+            !empty($rentFilter) &&
+            !is_null($startDate) &&
+            !empty($startDate) &&
+            !is_null($endDate) &&
+            !empty($endDate)
+        ) {
+            $startDate = new \DateTime($startDate);
+            $startDate->setTime(0, 0, 0);
+
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('l.startDate >= :startDate')
+                        ->andWhere('l.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (l.startDate <= :startDate AND l.endDate > :startDate) OR
+                            (l.startDate < :endDate AND l.endDate >= :endDate) OR
+                            (l.startDate >= :startDate AND l.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('l.endDate >= :startDate')
+                        ->andWhere('l.endDate <= :endDate');
+                    break;
+                default:
+                    return $query;
+            }
+
+            $query->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+        }
+
+        return $query;
     }
 }

@@ -284,6 +284,13 @@ class AdminLeaseController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent time filter keywords"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="start_date",
      *    default=null,
      *    nullable=true,
@@ -323,7 +330,8 @@ class AdminLeaseController extends SalesRestController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
 
-        // appointment date filter
+        // rent date filter
+        $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
@@ -345,6 +353,7 @@ class AdminLeaseController extends SalesRestController
                 $createRange,
                 $createStart,
                 $createEnd,
+                $rentFilter,
                 $startDate,
                 $endDate,
                 $limit,
@@ -361,6 +370,7 @@ class AdminLeaseController extends SalesRestController
                 $createRange,
                 $createStart,
                 $createEnd,
+                $rentFilter,
                 $startDate,
                 $endDate
             );
@@ -501,6 +511,8 @@ class AdminLeaseController extends SalesRestController
                 if ($status != Lease::LEASE_STATUS_DRAFTING) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
+
+                $lease->setConfirmingDate(new \DateTime('now'));
 
                 // send Jpush notification
                 $this->generateJpushNotification(
@@ -819,6 +831,10 @@ class AdminLeaseController extends SalesRestController
             $lease->setProductAppointment($productAppointment);
         }
 
+        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+            $lease->setConfirmingDate(new \DateTime('now'));
+        }
+
         $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
         $this->handleLeaseBillPost($payload, $lease, $em);
 
@@ -1066,7 +1082,6 @@ class AdminLeaseController extends SalesRestController
         $lease->setLessorContact($payload['lessor_contact']);
         $lease->setMonthlyRent($payload['monthly_rent']);
         $lease->setPurpose($payload['purpose']);
-        $lease->setSerialNumber($this->generateLeaseSerialNumber());
         $lease->setTotalRent($payload['total_rent']);
         $lease->setModificationDate(new \DateTime('now'));
 
@@ -1076,6 +1091,8 @@ class AdminLeaseController extends SalesRestController
 
                 // send Jpush notification
                 if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+                    $lease->setConfirmingDate(new \DateTime('now'));
+
                     $this->generateJpushNotification(
                         [
                             $lease->getSupervisorId(),
