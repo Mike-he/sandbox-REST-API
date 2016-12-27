@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Form\Order;
+namespace Sandbox\ApiBundle\Form\Lease;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
