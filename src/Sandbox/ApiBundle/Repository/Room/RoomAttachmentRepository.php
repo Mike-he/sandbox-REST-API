@@ -53,7 +53,7 @@ class RoomAttachmentRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomAttachment', 'ra', 'WITH', 'ra.id = rb.attachmentId')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = rb.room')
             ->where('r.id = :roomId')
-            ->orderBy('ra.id', 'ASC')
+            ->orderBy('rb.id', 'ASC')
             ->setParameter('roomId', $room);
 
         if (!is_null($limit)) {
