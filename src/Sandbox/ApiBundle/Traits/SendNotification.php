@@ -222,7 +222,7 @@ trait SendNotification
      * @param $title
      * @param $contentArray
      *
-     * @return string
+     * @return object
      */
     protected function getJpushData(
         $users,
@@ -355,5 +355,72 @@ trait SendNotification
             'users' => $receivers,
             'jpush_users' => $jpushReceivers,
         );
+    }
+
+    private function generateJpushNotification(
+        $receivers,
+        $first = null,
+        $second = null,
+        $contentArray = [],
+        $extra = null
+    ) {
+        $firstZh = '';
+        $secondZh = '';
+        $secondEn = '';
+        $firstEn = '';
+
+        if (!is_null($first)) {
+            $firstZh = $this->getContainer()->get('translator')->trans(
+                $first,
+                array(),
+                null,
+                'zh'
+            );
+
+            $firstEn = $this->getContainer()->get('translator')->trans(
+                $first,
+                array(),
+                null,
+                'en'
+            );
+        }
+
+        if (!is_null($second)) {
+            $secondZh = $this->getContainer()->get('translator')->trans(
+                $second,
+                array(),
+                null,
+                'zh'
+            );
+
+            $secondEn = $this->getContainer()->get('translator')->trans(
+                $second,
+                array(),
+                null,
+                'en'
+            );
+        }
+
+        $bodyZh = $firstZh.$extra.$secondZh;
+        $bodyEn = $firstEn.$extra.$secondEn;
+
+        $zhData = $this->getJpushData(
+            $receivers,
+            ['lang_zh'],
+            $bodyZh,
+            '展想创合',
+            $contentArray
+        );
+
+        $enData = $this->getJpushData(
+            $receivers,
+            ['lang_en'],
+            $bodyEn,
+            'Sandbox3',
+            $contentArray
+        );
+
+        $this->sendJpushNotification($zhData);
+        $this->sendJpushNotification($enData);
     }
 }

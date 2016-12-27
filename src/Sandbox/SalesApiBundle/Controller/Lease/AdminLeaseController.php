@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
@@ -501,12 +502,28 @@ class AdminLeaseController extends SalesRestController
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
 
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $lease->getSupervisorId(),
+                    ],
+                    LeaseConstants::LEASE_CONFIRMING_MESSAGE
+                );
+
                 $action = Log::ACTION_CONFORMING;
                 break;
             case Lease::LEASE_STATUS_PERFORMING:
                 if ($status != Lease::LEASE_STATUS_CONFIRMED) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
+
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $lease->getSupervisorId(),
+                    ],
+                    LeaseConstants::LEASE_PERFORMING_MESSAGE
+                );
 
                 $action = Log::ACTION_PERFORMING;
                 break;
@@ -518,6 +535,14 @@ class AdminLeaseController extends SalesRestController
                 ) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
+
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $lease->getSupervisorId(),
+                    ],
+                    LeaseConstants::LEASE_CLOSED_MESSAGE
+                );
 
                 if ($status == Lease::LEASE_STATUS_CONFIRMED) {
                     $this->setAccessActionToDelete($lease->getAccessNo());
@@ -600,6 +625,14 @@ class AdminLeaseController extends SalesRestController
                 ) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
+
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $lease->getSupervisorId(),
+                    ],
+                    LeaseConstants::LEASE_ENDED_MESSAGE
+                );
 
                 $action = Log::ACTION_END;
                 break;
@@ -795,6 +828,16 @@ class AdminLeaseController extends SalesRestController
         $response = array(
             'id' => $lease->getId(),
         );
+
+        // send Jpush notification
+        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+            $this->generateJpushNotification(
+                [
+                    $lease->getSupervisorId(),
+                ],
+                LeaseConstants::LEASE_CONFIRMING_MESSAGE
+            );
+        }
 
         // generate log
         $this->generateAdminLogs(array(
@@ -1030,6 +1073,17 @@ class AdminLeaseController extends SalesRestController
         switch ($lease->getStatus()) {
             case Lease::LEASE_STATUS_DRAFTING:
                 $lease->setStatus($payload['status']);
+
+                // send Jpush notification
+                if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+                    $this->generateJpushNotification(
+                        [
+                            $lease->getSupervisorId(),
+                        ],
+                        LeaseConstants::LEASE_CONFIRMING_MESSAGE
+                    );
+                }
+
                 break;
             case Lease::LEASE_STATUS_CONFIRMING:
                 break;
@@ -1044,6 +1098,15 @@ class AdminLeaseController extends SalesRestController
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
                 $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
+
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $lease->getSupervisorId(),
+                    ],
+                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE
+                );
+
                 break;
             case Lease::LEASE_STATUS_PERFORMING:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
