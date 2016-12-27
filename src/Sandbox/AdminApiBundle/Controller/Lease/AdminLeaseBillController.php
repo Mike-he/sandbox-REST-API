@@ -86,7 +86,7 @@ class AdminLeaseBillController extends LeaseController
         $bills = $this->get('serializer')->serialize(
             $bills,
             'json',
-            SerializationContext::create()->setGroups(['lease_bill'])
+            SerializationContext::create()->setGroups(['main'])
         );
         $bills = json_decode($bills, true);
 
