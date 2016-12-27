@@ -275,15 +275,12 @@ class ClientLeaseBillController extends PaymentController
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
-
         $bill = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Lease\LeaseBill")
             ->findOneBy(
                 array(
                     'id' => $id,
                     'status' => ProductOrder::STATUS_UNPAID,
-                    'drawee' => $userId,
                     'payChannel' => ProductOrder::CHANNEL_OFFLINE,
                 )
             );
@@ -349,8 +346,6 @@ class ClientLeaseBillController extends PaymentController
         $attachment->setSize($attachmentArray[0]['size']);
         $attachment->setTransfer($transfer);
         $em->persist($attachment);
-
-        $bill->setStatus(LeaseBill::STATUS_VERIFY);
 
         $transfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_PENDING);
 
@@ -469,7 +464,6 @@ class ClientLeaseBillController extends PaymentController
     ) {
         $bill->setPayChannel($channel);
         $bill->setDrawee($this->getUserId());
-        $bill->setPaymentDate(new \DateTime());
 
         $transfer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
