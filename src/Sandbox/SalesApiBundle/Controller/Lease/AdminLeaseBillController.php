@@ -232,7 +232,8 @@ class AdminLeaseBillController extends SalesRestController
                     LeaseBill::STATUS_UNPAID
                 );
 
-            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$bill->getLease()->getId();
+            $leaseId = $bill->getLease()->getId();
+            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
             $contentArray = $this->generateLeaseContentArray($urlParam);
             // send Jpush notification
             $this->generateJpushNotification(
@@ -376,7 +377,8 @@ class AdminLeaseBillController extends SalesRestController
                 LeaseBill::STATUS_UNPAID
             );
 
-        $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$bill->getLease()->getId();
+        $leaseId = $bill->getLease()->getId();
+        $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
         $contentArray = $this->generateLeaseContentArray($urlParam);
         // send Jpush notification
         $this->generateJpushNotification(
@@ -437,7 +439,8 @@ class AdminLeaseBillController extends SalesRestController
                 LeaseBill::STATUS_UNPAID
             );
 
-        $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$bill->getLease()->getId();
+        $leaseId = $bill->getLease()->getId();
+        $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
         $contentArray = $this->generateLeaseContentArray($urlParam);
         // send Jpush notification
         $this->generateJpushNotification(

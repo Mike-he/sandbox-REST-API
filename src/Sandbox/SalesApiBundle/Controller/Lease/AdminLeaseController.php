@@ -507,7 +507,8 @@ class AdminLeaseController extends SalesRestController
 
         $status = $lease->getStatus();
 
-        $urlParam = 'ptype=leasesDetail&leasesId='.$lease->getId();
+        $leaseId = $lease->getId();
+        $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
         $contentArray = $this->generateLeaseContentArray($urlParam);
 
         switch ($payload['status']) {
@@ -892,7 +893,8 @@ class AdminLeaseController extends SalesRestController
             'id' => $lease->getId(),
         );
 
-        $urlParam = 'ptype=leasesDetail&leasesId='.$lease->getId();
+        $leaseId = $lease->getId();
+        $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
         $contentArray = $this->generateLeaseContentArray($urlParam);
         // send Jpush notification
         if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
@@ -1136,7 +1138,7 @@ class AdminLeaseController extends SalesRestController
         $lease->setTotalRent($payload['total_rent']);
         $lease->setModificationDate(new \DateTime('now'));
 
-        $urlParam = 'ptype=leasesDetail&leasesId='.$lease()->getId();
+        $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
         $contentArray = $this->generateLeaseContentArray($urlParam);
         switch ($lease->getStatus()) {
             case Lease::LEASE_STATUS_DRAFTING:
