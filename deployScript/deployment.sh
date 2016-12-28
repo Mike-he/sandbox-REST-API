@@ -16,8 +16,9 @@ sudo yum install wqy-zenhei-fonts.noarch -y
 sudo cp app/config/parameter_production.yml app/config/parameter.yml
 
 # cron jobs
-30 1 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_bills
-30 1 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_expire_in
+# sudo crontab -e
+#30 1 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_bills
+#30 1 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_expire_in
 
 ## version 2.3.1
 #
