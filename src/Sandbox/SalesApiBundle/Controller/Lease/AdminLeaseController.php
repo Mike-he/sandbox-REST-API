@@ -76,7 +76,7 @@ class AdminLeaseController extends SalesRestController
             ->countBills(
                 $lease,
                 LeaseBill::TYPE_LEASE,
-                [LeaseBill::STATUS_UNPAID,LeaseBill::STATUS_PAID]
+                [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
             );
         $lease->setPaidLeaseBillsAmount($paidLeaseBills);
 
@@ -389,7 +389,7 @@ class AdminLeaseController extends SalesRestController
                 ->countBills(
                     $lease,
                     LeaseBill::TYPE_LEASE,
-                    [LeaseBill::STATUS_UNPAID,LeaseBill::STATUS_PAID]
+                    [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
                 );
             $lease->setPaidLeaseBillsAmount($paidLeaseBills);
 

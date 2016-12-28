@@ -8,6 +8,7 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -44,6 +45,79 @@ class AdminLeaseController extends AdminRestController
 
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
+        $this->setLeaseAttributions($lease);
+
+        $view = new View();
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(['main'])
+        );
+        $view->setData($lease);
+
+        return $view;
+    }
+
+    /**
+     * @param Lease $lease
+     */
+    private function setLeaseAttributions(
+        $lease
+    ) {
+        $changeLogs = array();
+        $appointment = $lease->getProductAppointment();
+        if (!is_null($appointment)) {
+            $changeLogs['applicant'] = $appointment->getApplicantName();
+            $changeLogs['apply_date'] = $appointment->getCreationDate();
+        }
+
+        $logConforming = $this->getDoctrine()
+           ->getRepository('SandboxApiBundle:Log\Log')
+           ->getLatestAdminLog(
+               Log::MODULE_LEASE,
+               Log::OBJECT_LEASE,
+               $lease->getId(),
+               array(
+                   Log::ACTION_CONFORMING,
+               )
+           );
+        if (!is_null($logConforming)) {
+            $changeLogs['lease_conforming_admin'] = $this->getUserProfileName($logConforming->getAdminUsername());
+            $changeLogs['lease_conforming_date'] = $logConforming->getCreationDate();
+        }
+
+        $logPerforming = $this->getDoctrine()
+           ->getRepository('SandboxApiBundle:Log\Log')
+           ->getLatestAdminLog(
+               Log::MODULE_LEASE,
+               Log::OBJECT_LEASE,
+               $lease->getId(),
+               array(
+                   Log::ACTION_PERFORMING,
+               )
+           );
+        if (!is_null($logPerforming)) {
+            $changeLogs['lease_performing_admin'] = $this->getUserProfileName($logPerforming->getAdminUsername());
+            $changeLogs['lease_performing_date'] = $logPerforming->getCreationDate();
+        }
+
+        $logClose = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Log\Log')
+            ->getLatestAdminLog(
+                Log::MODULE_LEASE,
+                Log::OBJECT_LEASE,
+                $lease->getId(),
+                array(
+                    Log::ACTION_CLOSE,
+                    Log::ACTION_TERMINATE,
+                    Log::ACTION_END,
+                )
+            );
+        if (!is_null($logClose)) {
+            $changeLogs['lease_close_admin'] = $this->getUserProfileName($logClose->getAdminUsername());
+            $changeLogs['lease_close_date'] = $logClose->getCreationDate();
+        }
+
+        $lease->setChangeLogs($changeLogs);
+
         $bills = $this->getLeaseBillRepo()->findBy(array(
             'lease' => $lease,
             'type' => LeaseBill::TYPE_LEASE,
@@ -63,7 +137,7 @@ class AdminLeaseController extends AdminRestController
             ->countBills(
                 $lease,
                 LeaseBill::TYPE_LEASE,
-                [LeaseBill::STATUS_UNPAID,LeaseBill::STATUS_PAID]
+                [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
             );
         $lease->setPaidLeaseBillsAmount($paidLeaseBills);
 
@@ -83,14 +157,25 @@ class AdminLeaseController extends AdminRestController
             );
         $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
         $lease->setPushedLeaseBillsFees($pendingLeaseBill);
+    }
 
-        $view = new View();
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(['main'])
-        );
-        $view->setData($lease);
+    /**
+     * @param $userId
+     *
+     * @return string
+     */
+    private function getUserProfileName(
+        $userId
+    ) {
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->find($userId);
 
-        return $view;
+        if (is_null($user)) {
+            return '';
+        }
+
+        return $user->getName();
     }
 
     /**
@@ -379,7 +464,7 @@ class AdminLeaseController extends AdminRestController
                 ->countBills(
                     $lease,
                     LeaseBill::TYPE_LEASE,
-                    [LeaseBill::STATUS_UNPAID,LeaseBill::STATUS_PAID]
+                    [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
                 );
             $lease->setPaidLeaseBillsAmount($paidLeaseBills);
 
