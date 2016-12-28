@@ -140,7 +140,7 @@ class Lease
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $modificationDate;
 
