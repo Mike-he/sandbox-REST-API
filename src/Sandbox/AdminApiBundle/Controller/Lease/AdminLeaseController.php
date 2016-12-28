@@ -84,6 +84,21 @@ class AdminLeaseController extends AdminRestController
             $changeLogs['lease_conforming_date'] = $logConforming->getCreationDate();
         }
 
+        $logConformed = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Log\Log')
+            ->getLatestAdminLog(
+                Log::MODULE_LEASE,
+                Log::OBJECT_LEASE,
+                $lease->getId(),
+                array(
+                    Log::ACTION_CONFORMED,
+                )
+            );
+        if (!is_null($logConformed)) {
+            $changeLogs['lease_conformed_user'] = $this->getUserProfileName($logConformed->getAdminUsername());
+            $changeLogs['lease_conformed_date'] = $logConformed->getCreationDate();
+        }
+
         $logPerforming = $this->getDoctrine()
            ->getRepository('SandboxApiBundle:Log\Log')
            ->getLatestAdminLog(
