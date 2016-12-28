@@ -379,6 +379,11 @@ class Lease
      */
     private $changeLogs;
 
+    /**
+     * @var \DateTime
+     */
+    private $conformedDate;
+
     public function __construct()
     {
         $this->leaserentTypes = new ArrayCollection();
@@ -1135,5 +1140,21 @@ class Lease
     public function setChangeLogs($changeLogs)
     {
         $this->changeLogs = $changeLogs;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getConformedDate()
+    {
+        return $this->conformedDate;
+    }
+
+    /**
+     * @param \DateTime $conformedDate
+     */
+    public function setConformedDate($conformedDate)
+    {
+        $this->conformedDate = $conformedDate;
     }
 }

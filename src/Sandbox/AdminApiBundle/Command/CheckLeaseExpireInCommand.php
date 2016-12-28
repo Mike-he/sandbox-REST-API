@@ -45,12 +45,18 @@ class CheckLeaseExpireInCommand extends ContainerAwareCommand
             if ($now > $leaseExpireInDate) {
                 $lease->setStatus('expired');
 
+                $leaseId = $lease->getId();
+                $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
+                $contentArray = $this->generateLeaseContentArray($urlParam);
+
                 // send Jpush notification
                 $this->generateJpushNotification(
                     [
                         $lease->getSupervisorId(),
                     ],
-                    LeaseConstants::LEASE_EXPIRED_MESSAGE
+                    LeaseConstants::LEASE_EXPIRED_MESSAGE,
+                    null,
+                    $contentArray
                 );
             }
         }
