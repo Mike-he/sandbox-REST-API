@@ -124,6 +124,7 @@ class LogRepository extends EntityRepository
                 ->setParameter('actions', $actions);
         }
 
+        $query->setMaxResults(1);
         $query->orderBy('l.creationDate', 'DESC');
 
         return $query->getQuery()->getOneOrNullResult();
