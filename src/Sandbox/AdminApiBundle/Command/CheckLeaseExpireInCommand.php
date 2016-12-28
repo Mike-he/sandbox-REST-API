@@ -5,12 +5,15 @@ namespace Sandbox\AdminApiBundle\Command;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckLeaseExpireInCommand extends ContainerAwareCommand
 {
+    use SendNotification;
+
     protected function configure()
     {
         $this->setName('sandbox:api-bundle:check_lease_expire_in')
