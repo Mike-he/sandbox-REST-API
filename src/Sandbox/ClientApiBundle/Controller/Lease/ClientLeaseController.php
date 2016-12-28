@@ -238,7 +238,7 @@ class ClientLeaseController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $lease = $this->getLeaseRepo()->find($id);
+        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
         // check user permission
@@ -295,15 +295,8 @@ class ClientLeaseController extends SandboxRestController
         }
 
         $lease->setStatus($payload['status']);
+        $lease->setConformedDate(new \DateTime('now'));
         $em->flush();
-
-        // generate log
-        $this->generateAdminLogs(array(
-            'logModule' => Log::MODULE_LEASE,
-            'logAction' => Log::ACTION_CONFORMED,
-            'logObjectKey' => Log::OBJECT_LEASE,
-            'logObjectId' => $lease->getId(),
-        ));
 
         return new View();
     }
