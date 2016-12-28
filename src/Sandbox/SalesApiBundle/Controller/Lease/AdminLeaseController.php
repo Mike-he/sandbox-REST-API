@@ -36,6 +36,9 @@ class AdminLeaseController extends SalesRestController
     const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_CODE = '400034';
     const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE = 'Sorry, you can not remove all bills, please keeping at least one bill.';
 
+    const ERROR_LEASE_END_BILL_UNPAID_CODE = '400035';
+    const ERROR_LEASE_END_BILL_UNPAID_MESSAGE = 'Sorry, you can not end lease, there are bills unpaid.';
+
     /**
      * Get Lease Detail.
      *
@@ -506,18 +509,20 @@ class AdminLeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         $status = $lease->getStatus();
+        $newStatus = $payload['status'];
 
         $leaseId = $lease->getId();
         $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
         $contentArray = $this->generateLeaseContentArray($urlParam);
 
-        switch ($payload['status']) {
+        $now = new \DateTime('now');
+        switch ($newStatus) {
             case Lease::LEASE_STATUS_CONFIRMING:
                 if ($status != Lease::LEASE_STATUS_DRAFTING) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
 
-                $lease->setConfirmingDate(new \DateTime('now'));
+                $lease->setConfirmingDate($now);
 
                 // set apointment status to accepted
                 $appointment = $lease->getProductAppointment();
@@ -631,11 +636,9 @@ class AdminLeaseController extends SalesRestController
 
                 $action = Log::ACTION_CLOSE;
                 break;
-            case Lease::LEASE_STATUS_TERMINATED:
+            case Lease::LEASE_STATUS_END:
                 if (
-                    ($status != Lease::LEASE_STATUS_PERFORMING &&
-                    $status != Lease::LEASE_STATUS_RECONFIRMING) ||
-                    $lease->getEndDate() < new \DateTime('now')
+                    $status != Lease::LEASE_STATUS_PERFORMING
                 ) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
@@ -645,62 +648,73 @@ class AdminLeaseController extends SalesRestController
                     'status' => LeaseBill::STATUS_UNPAID,
                 ));
 
-                foreach ($unpaidBills as $unpaidBill) {
-                    $unpaidBill->setStatus(LeaseBill::STATUS_CANCELLED);
-                }
+                if ($now < $lease->getEndDate()) {
+                    foreach ($unpaidBills as $unpaidBill) {
+                        $unpaidBill->setStatus(LeaseBill::STATUS_CANCELLED);
+                    }
 
-                $this->setAccessActionToDelete($lease->getAccessNo());
+                    $this->setAccessActionToDelete($lease->getAccessNo());
 
-                $em->flush();
+                    $em->flush();
 
-                // remove door access
-                $this->callRepealRoomOrderCommand(
-                    $lease->getBuilding()->getServer(),
-                    $lease->getAccessNo()
-                );
-
-                // send notification to removed users
-                $removeUsers = $lease->getInvitedPeopleIds();
-                array_push($removeUsers, $lease->getSupervisorId());
-                if (!empty($removeUsers)) {
-                    $this->sendXmppLeaseNotification(
-                        $lease,
-                        $removeUsers,
-                        ProductOrder::ACTION_INVITE_REMOVE,
-                        $lease->getSupervisorId(),
-                        [],
-                        ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                        ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                    // remove door access
+                    $this->callRepealRoomOrderCommand(
+                        $lease->getBuilding()->getServer(),
+                        $lease->getAccessNo()
                     );
+
+                    // send notification to removed users
+                    $removeUsers = $lease->getInvitedPeopleIds();
+                    array_push($removeUsers, $lease->getSupervisorId());
+                    if (!empty($removeUsers)) {
+                        $this->sendXmppLeaseNotification(
+                            $lease,
+                            $removeUsers,
+                            ProductOrder::ACTION_INVITE_REMOVE,
+                            $lease->getSupervisorId(),
+                            [],
+                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                        );
+                    }
+
+                    $action = Log::ACTION_TERMINATE;
+
+                    // send Jpush notification
+                    $this->generateJpushNotification(
+                        [
+                            $lease->getSupervisorId(),
+                        ],
+                        LeaseConstants::LEASE_TERMINATED_MESSAGE,
+                        null,
+                        $contentArray
+                    );
+
+                    $newStatus = Lease::LEASE_STATUS_TERMINATED;
+                } else {
+                    if (!empty($unpaidBills)) {
+                        throw new BadRequestHttpException(self::ERROR_LEASE_END_BILL_UNPAID_MESSAGE);
+                    }
+
+                    // send Jpush notification
+                    $this->generateJpushNotification(
+                        [
+                            $lease->getSupervisorId(),
+                        ],
+                        LeaseConstants::LEASE_ENDED_MESSAGE,
+                        null,
+                        $contentArray
+                    );
+
+                    $action = Log::ACTION_END;
                 }
 
-                $action = Log::ACTION_TERMINATE;
-                break;
-            case Lease::LEASE_STATUS_END:
-                if (
-                    $status != Lease::LEASE_STATUS_PERFORMING ||
-                    new \DateTime('now') <= $lease->getEndDate()
-                ) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-                }
-
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $lease->getSupervisorId(),
-                    ],
-                    LeaseConstants::LEASE_ENDED_MESSAGE,
-                    null,
-                    $contentArray
-                );
-
-                $action = Log::ACTION_END;
                 break;
             default:
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $lease->setStatus($payload['status']);
+        $lease->setStatus($newStatus);
 
         $em->flush();
 
@@ -1176,7 +1190,7 @@ class AdminLeaseController extends SalesRestController
                     null,
                     $contentArray
                 );
-                
+
                 break;
             case Lease::LEASE_STATUS_RECONFIRMING:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
