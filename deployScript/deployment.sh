@@ -12,6 +12,12 @@ sudo php app/console doc:mig:exe 20161220101253  # change permission names
 sudo cp ./pdf_bin/* /usr/bin/
 sudo yum install wqy-zenhei-fonts.noarch -y
 
+# update parameter
+sudo cp app/config/parameter_production.yml app/config/parameter.yml
+
+# cron jobs
+30 1 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_bills
+30 1 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_expire_in
 
 ## version 2.3.1
 #
