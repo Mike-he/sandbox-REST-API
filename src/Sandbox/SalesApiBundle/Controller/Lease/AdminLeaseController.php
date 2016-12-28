@@ -1166,6 +1166,17 @@ class AdminLeaseController extends SalesRestController
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
                 $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
+
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $lease->getSupervisorId(),
+                    ],
+                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE,
+                    null,
+                    $contentArray
+                );
+                
                 break;
             case Lease::LEASE_STATUS_RECONFIRMING:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
