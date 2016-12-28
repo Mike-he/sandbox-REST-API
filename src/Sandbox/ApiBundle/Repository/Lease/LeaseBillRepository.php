@@ -153,8 +153,8 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('type', $type);
         }
 
-        if (!is_null($status)) {
-            $query->andWhere('lb.status = :status')
+        if (!is_null($status) && !empty($status)) {
+            $query->andWhere('lb.status in (:status)')
                 ->setParameter('status', $status);
         }
 

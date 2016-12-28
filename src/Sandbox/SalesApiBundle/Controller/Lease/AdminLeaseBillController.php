@@ -77,7 +77,6 @@ class AdminLeaseBillController extends SalesRestController
         $status = array(
             LeaseBill::STATUS_UNPAID,
             LeaseBill::STATUS_PAID,
-            LeaseBill::STATUS_VERIFY,
             LeaseBill::STATUS_CANCELLED,
         );
 
