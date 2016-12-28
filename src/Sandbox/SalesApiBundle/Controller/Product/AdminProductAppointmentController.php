@@ -4,11 +4,13 @@ namespace Sandbox\SalesApiBundle\Controller\Product;
 
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
+use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -30,6 +32,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminProductAppointmentController extends AdminProductController
 {
+    use SendNotification;
+
     /**
      * Get product appointments.
      *
@@ -319,17 +323,22 @@ class AdminProductAppointmentController extends AdminProductController
         $form->submit(json_decode($appointmentJson, true));
 
         $status = $appointment->getStatus();
-        if ($status !== ProductAppointment::STATUS_REJECTED && $status !== ProductAppointment::STATUS_ACCEPTED) {
+        if ($status !== ProductAppointment::STATUS_REJECTED) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $action = Log::ACTION_AGREE;
-        if ($status == ProductAppointment::STATUS_REJECTED) {
-            $action = Log::ACTION_REJECT;
-        }
+        $action = Log::ACTION_REJECT;
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        // send Jpush notification
+        $this->generateJpushNotification(
+            [
+                $appointment->getUserId(),
+            ],
+            LeaseConstants::APPLICATION_REJECTED_MESSAGE
+        );
 
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_PRODUCT_APPOINTMENT,
