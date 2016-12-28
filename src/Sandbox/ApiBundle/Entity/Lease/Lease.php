@@ -372,6 +372,13 @@ class Lease
      */
     private $accessNo;
 
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $changeLogs;
+
     public function __construct()
     {
         $this->leaserentTypes = new ArrayCollection();
@@ -1112,5 +1119,21 @@ class Lease
     public function setConfirmingDate($confirmingDate)
     {
         $this->confirmingDate = $confirmingDate;
+    }
+
+    /**
+     * @return array
+     */
+    public function getChangeLogs()
+    {
+        return $this->changeLogs;
+    }
+
+    /**
+     * @param array $changeLogs
+     */
+    public function setChangeLogs($changeLogs)
+    {
+        $this->changeLogs = $changeLogs;
     }
 }
