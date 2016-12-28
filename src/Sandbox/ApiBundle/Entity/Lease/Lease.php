@@ -533,22 +533,6 @@ class Lease
     /**
      * @return \DateTime
      */
-    public function getTerminationDate()
-    {
-        return $this->terminationDate;
-    }
-
-    /**
-     * @param \DateTime $terminationDate
-     */
-    public function setTerminationDate($terminationDate)
-    {
-        $this->terminationDate = $terminationDate;
-    }
-
-    /**
-     * @return \DateTime
-     */
     public function getCreationDate()
     {
         return $this->creationDate;

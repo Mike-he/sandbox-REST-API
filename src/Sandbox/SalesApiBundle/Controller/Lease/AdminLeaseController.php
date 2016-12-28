@@ -514,6 +514,41 @@ class AdminLeaseController extends SalesRestController
 
                 $lease->setConfirmingDate(new \DateTime('now'));
 
+                // set apointment status to accepted
+                $appointment = $lease->getProductAppointment();
+                if (!is_null($appointment)) {
+                    $appointment->setStatus(ProductAppointment::STATUS_ACCEPTED);
+
+                    $this->generateAdminLogs(array(
+                        'logModule' => Log::MODULE_PRODUCT_APPOINTMENT,
+                        'logAction' => Log::ACTION_AGREE,
+                        'logObjectKey' => Log::OBJECT_PRODUCT_APPOINTMENT,
+                        'logObjectId' => $appointment->getId(),
+                    ));
+
+                    // send Jpush notification
+                    $this->generateJpushNotification(
+                        [
+                            $appointment->getUserId(),
+                        ],
+                        LeaseConstants::APPLICATION_APPROVED_MESSAGE
+                    );
+                }
+
+                // set product visible to false
+                $product = $lease->getProduct();
+                if (!is_null($product)) {
+                    $product->setVisible(false);
+                    $product->setAppointment(false);
+
+                    $this->generateAdminLogs(array(
+                        'logModule' => Log::MODULE_PRODUCT,
+                        'logAction' => Log::ACTION_EDIT,
+                        'logObjectKey' => Log::OBJECT_PRODUCT,
+                        'logObjectId' => $product->getId(),
+                    ));
+                }
+
                 // send Jpush notification
                 $this->generateJpushNotification(
                     [
