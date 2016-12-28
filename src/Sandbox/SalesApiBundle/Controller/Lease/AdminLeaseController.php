@@ -17,6 +17,7 @@ use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
+use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -32,6 +33,7 @@ class AdminLeaseController extends SalesRestController
     use GenerateSerialNumberTrait;
     use HasAccessToEntityRepositoryTrait;
     use LeaseNotificationTrait;
+    use LeaseTrait;
 
     const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_CODE = '400034';
     const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE = 'Sorry, you can not remove all bills, please keeping at least one bill.';
@@ -60,45 +62,7 @@ class AdminLeaseController extends SalesRestController
 
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
-        $bills = $this->getLeaseBillRepo()->findBy(array(
-            'lease' => $lease,
-            'type' => LeaseBill::TYPE_LEASE,
-        ));
-        $lease->setBills($bills);
-
-        $totalLeaseBills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $lease,
-                LeaseBill::TYPE_LEASE
-            );
-        $lease->setTotalLeaseBillsAmount($totalLeaseBills);
-
-        $paidLeaseBills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $lease,
-                LeaseBill::TYPE_LEASE,
-                [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
-            );
-        $lease->setPaidLeaseBillsAmount($paidLeaseBills);
-
-        $otherBills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $lease,
-                LeaseBill::TYPE_OTHER
-            );
-        $lease->setOtherBillsAmount($otherBills);
-
-        $pendingLeaseBill = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->sumBillsFees(
-                $lease,
-                LeaseBill::STATUS_PENDING
-            );
-        $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
-        $lease->setPushedLeaseBillsFees($pendingLeaseBill);
+        $this->setLeaseAttributions($lease);
 
         $view = new View();
         $view->setSerializationContext(
