@@ -43,20 +43,26 @@ class CheckLeaseBillsCommand extends ContainerAwareCommand
                     LeaseBill::STATUS_UNPAID
                 );
 
+            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$lease()->getId();
+            $contentArray = $this->generateLeaseContentArray($urlParam);
             // send Jpush notification
             if ($billCount == 0) {
                 $this->generateJpushNotification(
                     [
                         $lease->getSupervisorId(),
                     ],
-                    LeaseConstants::LEASE_ENDED_WITHOUT_UNPAID_BILLS_MESSAGE
+                    LeaseConstants::LEASE_ENDED_WITHOUT_UNPAID_BILLS_MESSAGE,
+                    null,
+                    $contentArray
                 );
             } else {
                 $this->generateJpushNotification(
                     [
                         $lease->getSupervisorId(),
                     ],
-                    LeaseConstants::LEASE_ENDED_WITH_UNPAID_BILLS_MESSAGE
+                    LeaseConstants::LEASE_ENDED_WITH_UNPAID_BILLS_MESSAGE,
+                    null,
+                    $contentArray
                 );
             }
         }

@@ -128,11 +128,10 @@ class LeaseRepository extends EntityRepository
             ->leftJoin('l.drawee', 'du')
             ->where('(u.id = :userId OR du.id = :userId)')
             ->andWhere('l.status != :status')
-            ->orderBy('l.creationDate')
+            ->orderBy('l.confirmingDate', 'DESC')
             ->setParameter('userId', $userId)
-            ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
-
-        $query->setMaxResults($limit)
+            ->setParameter('status', Lease::LEASE_STATUS_DRAFTING)
+            ->setMaxResults($limit)
             ->setFirstResult($offset);
 
         return $query->getQuery()->getResult();

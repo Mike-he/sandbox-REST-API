@@ -14,7 +14,6 @@ class LeaseBill
 {
     const STATUS_PENDING = 'pending';
     const STATUS_UNPAID = 'unpaid';
-    const STATUS_VERIFY = 'verify';
     const STATUS_PAID = 'paid';
     const STATUS_CANCELLED = 'cancelled';
 

@@ -76,7 +76,7 @@ class AdminLeaseController extends SalesRestController
             ->countBills(
                 $lease,
                 LeaseBill::TYPE_LEASE,
-                LeaseBill::STATUS_PAID
+                [LeaseBill::STATUS_UNPAID,LeaseBill::STATUS_PAID]
             );
         $lease->setPaidLeaseBillsAmount($paidLeaseBills);
 
@@ -389,7 +389,7 @@ class AdminLeaseController extends SalesRestController
                 ->countBills(
                     $lease,
                     LeaseBill::TYPE_LEASE,
-                    LeaseBill::STATUS_PAID
+                    [LeaseBill::STATUS_UNPAID,LeaseBill::STATUS_PAID]
                 );
             $lease->setPaidLeaseBillsAmount($paidLeaseBills);
 
@@ -506,6 +506,10 @@ class AdminLeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         $status = $lease->getStatus();
+
+        $urlParam = 'ptype=leasesDetail&leasesId='.$lease->getId();
+        $contentArray = $this->generateLeaseContentArray($urlParam);
+
         switch ($payload['status']) {
             case Lease::LEASE_STATUS_CONFIRMING:
                 if ($status != Lease::LEASE_STATUS_DRAFTING) {
@@ -519,7 +523,9 @@ class AdminLeaseController extends SalesRestController
                     [
                         $lease->getSupervisorId(),
                     ],
-                    LeaseConstants::LEASE_CONFIRMING_MESSAGE
+                    LeaseConstants::LEASE_CONFIRMING_MESSAGE,
+                    null,
+                    $contentArray
                 );
 
                 $action = Log::ACTION_CONFORMING;
@@ -534,7 +540,9 @@ class AdminLeaseController extends SalesRestController
                     [
                         $lease->getSupervisorId(),
                     ],
-                    LeaseConstants::LEASE_PERFORMING_MESSAGE
+                    LeaseConstants::LEASE_PERFORMING_MESSAGE,
+                    null,
+                    $contentArray
                 );
 
                 $action = Log::ACTION_PERFORMING;
@@ -553,7 +561,9 @@ class AdminLeaseController extends SalesRestController
                     [
                         $lease->getSupervisorId(),
                     ],
-                    LeaseConstants::LEASE_CLOSED_MESSAGE
+                    LeaseConstants::LEASE_CLOSED_MESSAGE,
+                    null,
+                    $contentArray
                 );
 
                 if ($status == Lease::LEASE_STATUS_CONFIRMED) {
@@ -643,7 +653,9 @@ class AdminLeaseController extends SalesRestController
                     [
                         $lease->getSupervisorId(),
                     ],
-                    LeaseConstants::LEASE_ENDED_MESSAGE
+                    LeaseConstants::LEASE_ENDED_MESSAGE,
+                    null,
+                    $contentArray
                 );
 
                 $action = Log::ACTION_END;
@@ -845,13 +857,17 @@ class AdminLeaseController extends SalesRestController
             'id' => $lease->getId(),
         );
 
+        $urlParam = 'ptype=leasesDetail&leasesId='.$lease->getId();
+        $contentArray = $this->generateLeaseContentArray($urlParam);
         // send Jpush notification
         if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
             $this->generateJpushNotification(
                 [
                     $lease->getSupervisorId(),
                 ],
-                LeaseConstants::LEASE_CONFIRMING_MESSAGE
+                LeaseConstants::LEASE_CONFIRMING_MESSAGE,
+                null,
+                $contentArray
             );
         }
 
@@ -1085,6 +1101,8 @@ class AdminLeaseController extends SalesRestController
         $lease->setTotalRent($payload['total_rent']);
         $lease->setModificationDate(new \DateTime('now'));
 
+        $urlParam = 'ptype=leasesDetail&leasesId='.$lease()->getId();
+        $contentArray = $this->generateLeaseContentArray($urlParam);
         switch ($lease->getStatus()) {
             case Lease::LEASE_STATUS_DRAFTING:
                 $lease->setStatus($payload['status']);
@@ -1097,7 +1115,9 @@ class AdminLeaseController extends SalesRestController
                         [
                             $lease->getSupervisorId(),
                         ],
-                        LeaseConstants::LEASE_CONFIRMING_MESSAGE
+                        LeaseConstants::LEASE_CONFIRMING_MESSAGE,
+                        null,
+                        $contentArray
                     );
                 }
 
@@ -1121,7 +1141,9 @@ class AdminLeaseController extends SalesRestController
                     [
                         $lease->getSupervisorId(),
                     ],
-                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE
+                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE,
+                    null,
+                    $contentArray
                 );
 
                 break;

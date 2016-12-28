@@ -205,6 +205,7 @@ class ClientLeaseController extends SandboxRestController
                 'end_date' => $lease->getEndDate(),
                 'unpaid_lease_bills_amount' => count($bills),
                 'creation_date' => $lease->getCreationDate(),
+                'confirming_date' => $lease->getConfirmingDate(),
             ));
         }
 
