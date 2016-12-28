@@ -76,7 +76,7 @@ class AdminLeaseController extends AdminRestController
                Log::OBJECT_LEASE,
                $lease->getId(),
                array(
-                   Log::ACTION_CONFORMING,
+                   Log::ACTION_CREATE,
                )
            );
         if (!is_null($logConforming)) {
