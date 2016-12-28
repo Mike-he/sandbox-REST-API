@@ -52,6 +52,7 @@ class Log
     const ACTION_PRIVATE = 'private';
     const ACTION_REMOVE_PRIVATE = 'remove_private';
     const ACTION_CONFORMING = 'conforming';
+    const ACTION_CONFORMED = 'conformed';
     const ACTION_PERFORMING = 'performing';
     const ACTION_CLOSE = 'close';
     const ACTION_TERMINATE = 'terminate';

@@ -254,6 +254,7 @@ class ClientLeaseController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $action = Log::ACTION_EDIT;
         $em = $this->getDoctrine()->getManager();
         if ($status == Lease::LEASE_STATUS_CONFIRMING) {
             $lease->setAccessNo($this->generateAccessNumber());
@@ -292,6 +293,8 @@ class ClientLeaseController extends SandboxRestController
                     );
                 }
             }
+
+            $action = Log::ACTION_CONFORMED;
         }
 
         $lease->setStatus($payload['status']);
@@ -300,7 +303,7 @@ class ClientLeaseController extends SandboxRestController
         // generate log
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_LEASE,
-            'logAction' => Log::ACTION_EDIT,
+            'logAction' => $action,
             'logObjectKey' => Log::OBJECT_LEASE,
             'logObjectId' => $lease->getId(),
         ));
