@@ -43,7 +43,7 @@ class CheckLeaseBillsCommand extends ContainerAwareCommand
                     LeaseBill::STATUS_UNPAID
                 );
 
-            $leaseId = $lease()->getId();
+            $leaseId = $lease->getId();
             $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
             $contentArray = $this->generateLeaseContentArray($urlParam);
             // send Jpush notification
