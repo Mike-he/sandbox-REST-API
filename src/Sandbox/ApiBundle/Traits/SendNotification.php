@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Constants\BundleConstants;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Symfony\Component\Security\Acl\Exception\Exception;
 use Sandbox\ApiBundle\Entity\User\User;
 
@@ -422,5 +423,19 @@ trait SendNotification
 
         $this->sendJpushNotification($zhData);
         $this->sendJpushNotification($enData);
+    }
+
+    private function generateLeaseContentArray(
+        $urlParam
+    ) {
+        $leaseUrl = $this->getContainer()
+            ->getParameter('lease_url');
+
+        $url = $leaseUrl.$urlParam;
+
+        return [
+            'type' => LeaseConstants::ACTION_TYPE,
+            'url' => $url,
+        ];
     }
 }

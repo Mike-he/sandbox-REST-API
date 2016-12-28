@@ -233,6 +233,8 @@ class AdminLeaseBillController extends SalesRestController
                     LeaseBill::STATUS_UNPAID
                 );
 
+            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$bill->getLease()->getId();
+            $contentArray = $this->generateLeaseContentArray($urlParam);
             // send Jpush notification
             $this->generateJpushNotification(
                 [
@@ -240,8 +242,8 @@ class AdminLeaseBillController extends SalesRestController
                 ],
                 LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
                 LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-                [],
-                $billsAmount
+                $contentArray,
+                ' '.$billsAmount.' '
             );
         }
 
@@ -375,6 +377,8 @@ class AdminLeaseBillController extends SalesRestController
                 LeaseBill::STATUS_UNPAID
             );
 
+        $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$bill->getLease()->getId();
+        $contentArray = $this->generateLeaseContentArray($urlParam);
         // send Jpush notification
         $this->generateJpushNotification(
             [
@@ -382,8 +386,8 @@ class AdminLeaseBillController extends SalesRestController
             ],
             LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
             LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-            [],
-            $billsAmount
+            $contentArray,
+            ' '.$billsAmount.' '
         );
     }
 
@@ -434,6 +438,8 @@ class AdminLeaseBillController extends SalesRestController
                 LeaseBill::STATUS_UNPAID
             );
 
+        $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$bill->getLease()->getId();
+        $contentArray = $this->generateLeaseContentArray($urlParam);
         // send Jpush notification
         $this->generateJpushNotification(
             [
@@ -441,8 +447,8 @@ class AdminLeaseBillController extends SalesRestController
             ],
             LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
             LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-            [],
-            $billsAmount
+            $contentArray,
+            ' '.$billsAmount.' '
         );
 
         return new View($response, 201);
