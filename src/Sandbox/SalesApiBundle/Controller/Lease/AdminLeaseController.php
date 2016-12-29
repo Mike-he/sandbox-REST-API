@@ -356,9 +356,13 @@ class AdminLeaseController extends SalesRestController
                 ->countBills(
                     $lease,
                     LeaseBill::TYPE_LEASE,
-                    [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
+                    [
+                        LeaseBill::STATUS_UNPAID,
+                        LeaseBill::STATUS_PAID,
+                        LeaseBill::STATUS_CANCELLED
+                    ]
                 );
-            $lease->setPaidLeaseBillsAmount($paidLeaseBills);
+            $lease->setPushedLeaseBillsAmount($paidLeaseBills);
 
             $otherBills = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -642,6 +646,7 @@ class AdminLeaseController extends SalesRestController
                         );
                     }
 
+                    $newStatus = Lease::LEASE_STATUS_TERMINATED;
                     $action = Log::ACTION_TERMINATE;
 
                     // send Jpush notification
@@ -653,8 +658,6 @@ class AdminLeaseController extends SalesRestController
                         null,
                         $contentArray
                     );
-
-                    $newStatus = Lease::LEASE_STATUS_TERMINATED;
                 } else {
                     if (!empty($unpaidBills)) {
                         throw new BadRequestHttpException(self::ERROR_LEASE_END_BILL_UNPAID_MESSAGE);

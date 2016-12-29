@@ -17,8 +17,8 @@ sudo cp app/config/parameter_production.yml app/config/parameter.yml
 
 # cron jobs
 # sudo crontab -e
-#30 1 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_bills
-#30 1 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_expire_in
+#10 8 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_bills
+#10 8 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_expire_in
 
 ## version 2.3.1
 #

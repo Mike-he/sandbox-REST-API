@@ -58,9 +58,6 @@ class AdminLeaseController extends AdminRestController
         return $view;
     }
 
-
-
-
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -342,14 +339,18 @@ class AdminLeaseController extends AdminRestController
                 );
             $lease->setTotalLeaseBillsAmount($totalLeaseBills);
 
-            $paidLeaseBills = $this->getDoctrine()
+            $pushedLeaseBills = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Lease\LeaseBill')
                 ->countBills(
                     $lease,
                     LeaseBill::TYPE_LEASE,
-                    [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
+                    [
+                        LeaseBill::STATUS_UNPAID,
+                        LeaseBill::STATUS_PAID,
+                        LeaseBill::STATUS_CANCELLED
+                    ]
                 );
-            $lease->setPaidLeaseBillsAmount($paidLeaseBills);
+            $lease->setPushedLeaseBillsAmount($pushedLeaseBills);
 
             $otherBills = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Lease\LeaseBill')

@@ -100,14 +100,18 @@ trait LeaseTrait
             );
         $lease->setTotalLeaseBillsAmount($totalLeaseBills);
 
-        $paidLeaseBills = $this->getContainer()->get('doctrine')
+        $pushedLeaseBills = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBills(
                 $lease,
                 LeaseBill::TYPE_LEASE,
-                [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
+                [
+                    LeaseBill::STATUS_UNPAID,
+                    LeaseBill::STATUS_PAID,
+                    LeaseBill::STATUS_CANCELLED
+                ]
             );
-        $lease->setPaidLeaseBillsAmount($paidLeaseBills);
+        $lease->setPushedLeaseBillsAmount($pushedLeaseBills);
 
         $otherBills = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
