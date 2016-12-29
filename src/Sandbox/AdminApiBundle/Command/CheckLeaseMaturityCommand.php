@@ -10,8 +10,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckLeaseMaturityCommand extends ContainerAwareCommand
 {
-    use SendNotification;
-
     protected function configure()
     {
         $this->setName('sandbox:api-bundle:check_lease_maturity')
