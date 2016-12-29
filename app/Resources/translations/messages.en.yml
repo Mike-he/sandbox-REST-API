@@ -326,8 +326,8 @@ lease:
     lease_performing: Dear user, your leasing contract has taken into effect! Wish you a pleasant working experience here! Click to view details.
     lease_terminated: Dear user, your leasing contract has been terminated by Sandbox administrator! Click to view details.
     lease_reconfirming: Dear user, your leasing contract has been amended by Sandbox administrator! Please reconfirm it! Click to view details.
-    lease_ended_with_unpaid_bills: Dear user, your leasing contract has been expired! There are still unpaid bills waiting for payment. Please pay them as soon as possible. Click to view details.
-    lease_ended_without_unpaid_bills: Dear user, your leasing contract has been expired! Thanks for your support! Click to view details.
+    lease_ended_with_unpaid_bills: Dear user, your leasing contract will be expired at 0:00am tomorrow! There are still unpaid bills waiting for payment. Please pay them as soon as possible. Click to view details.
+    lease_ended_without_unpaid_bills: Dear user, your leasing contract will be expired at 0:00am tomorrow! Thanks for your support! Click to view details.
     lease_ended: Dear user, your leasing contract has been completed! Thanks for your trust and support. Click to view details.
     lease_bill_unpaid_first: Dear user,
     lease_bill_unpaid_second: bill(s) is(are) waiting for payment. Click to view details.

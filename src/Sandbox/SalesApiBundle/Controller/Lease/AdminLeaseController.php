@@ -756,6 +756,7 @@ class AdminLeaseController extends SalesRestController
 
         $startDate = new \DateTime($payload['start_date']);
         $endDate = new \DateTime($payload['end_date']);
+        $endDate->setTime(23, 59, 59);
 
         $lease->setDeposit($payload['deposit']);
         $lease->setEndDate($endDate);
@@ -799,10 +800,6 @@ class AdminLeaseController extends SalesRestController
                 ->find($payload['product_appointment']);
 
             $this->throwNotFoundIfNull($productAppointment, self::NOT_FOUND_MESSAGE);
-
-            if ($productAppointment->getStatus() != ProductAppointment::STATUS_ACCEPTED) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
 
             $lease->setProductAppointment($productAppointment);
         }
@@ -1180,6 +1177,7 @@ class AdminLeaseController extends SalesRestController
 
         $startDate = new \DateTime($payload['start_date']);
         $endDate = new \DateTime($payload['end_date']);
+        $endDate->setTime(23, 59, 59);
 
         if (
             $startDate != $lease->getStartDate() ||

@@ -43,7 +43,7 @@ class CheckLeaseExpireInCommand extends ContainerAwareCommand
             $now = new \DateTime('now');
 
             if ($now > $leaseExpireInDate) {
-                $lease->setStatus('expired');
+                $lease->setStatus(Lease::LEASE_STATUS_EXPIRED);
 
                 $leaseId = $lease->getId();
                 $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;

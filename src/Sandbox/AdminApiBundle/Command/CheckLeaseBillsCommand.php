@@ -25,7 +25,7 @@ class CheckLeaseBillsCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $now = new \DateTime('now');
-        $now->setTime(0, 0, 0);
+        $now->setTime(23, 59, 59);
 
         $leases = $em->getRepository('SandboxApiBundle:Lease\Lease')
             ->findBy(
