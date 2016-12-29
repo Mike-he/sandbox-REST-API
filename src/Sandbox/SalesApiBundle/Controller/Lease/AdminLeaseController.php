@@ -354,7 +354,7 @@ class AdminLeaseController extends SalesRestController
         Request $request
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $payload = json_decode($request->getContent(), true);
 
@@ -377,7 +377,7 @@ class AdminLeaseController extends SalesRestController
         $id
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $payload = json_decode($request->getContent(), true);
 
