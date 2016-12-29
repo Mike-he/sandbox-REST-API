@@ -66,7 +66,7 @@ class AdminLeaseBillController extends SalesRestController
         $id
     ) {
         // check user permission
-//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
