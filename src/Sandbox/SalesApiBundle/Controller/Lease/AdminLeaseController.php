@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -34,12 +35,6 @@ class AdminLeaseController extends SalesRestController
     use HasAccessToEntityRepositoryTrait;
     use LeaseNotificationTrait;
     use LeaseTrait;
-
-    const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_CODE = '400034';
-    const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE = 'Sorry, you can not remove all bills, please keeping at least one bill.';
-
-    const ERROR_LEASE_END_BILL_UNPAID_CODE = '400035';
-    const ERROR_LEASE_END_BILL_UNPAID_MESSAGE = 'Sorry, you can not end lease, there are bills unpaid.';
 
     /**
      * Get Lease Detail.
@@ -359,7 +354,7 @@ class AdminLeaseController extends SalesRestController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $payload = json_decode($request->getContent(), true);
 
@@ -382,7 +377,7 @@ class AdminLeaseController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $payload = json_decode($request->getContent(), true);
 
@@ -411,13 +406,6 @@ class AdminLeaseController extends SalesRestController
 
         $payload = json_decode($request->getContent(), true);
 
-        if (
-            !key_exists('status', $payload) ||
-            !filter_var($payload['status'], FILTER_DEFAULT)
-        ) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $lease = $this->getLeaseRepo()->find($id);
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
@@ -439,41 +427,6 @@ class AdminLeaseController extends SalesRestController
 
                 $lease->setConfirmingDate($now);
 
-                // set apointment status to accepted
-                $appointment = $lease->getProductAppointment();
-                if (!is_null($appointment)) {
-                    $appointment->setStatus(ProductAppointment::STATUS_ACCEPTED);
-
-                    $this->generateAdminLogs(array(
-                        'logModule' => Log::MODULE_PRODUCT_APPOINTMENT,
-                        'logAction' => Log::ACTION_AGREE,
-                        'logObjectKey' => Log::OBJECT_PRODUCT_APPOINTMENT,
-                        'logObjectId' => $appointment->getId(),
-                    ));
-
-                    // send Jpush notification
-                    $this->generateJpushNotification(
-                        [
-                            $appointment->getUserId(),
-                        ],
-                        LeaseConstants::APPLICATION_APPROVED_MESSAGE
-                    );
-                }
-
-                // set product visible to false
-                $product = $lease->getProduct();
-                if (!is_null($product)) {
-                    $product->setVisible(false);
-                    $product->setAppointment(false);
-
-                    $this->generateAdminLogs(array(
-                        'logModule' => Log::MODULE_PRODUCT,
-                        'logAction' => Log::ACTION_EDIT,
-                        'logObjectKey' => Log::OBJECT_PRODUCT,
-                        'logObjectId' => $product->getId(),
-                    ));
-                }
-
                 // send Jpush notification
                 $this->generateJpushNotification(
                     [
@@ -483,6 +436,8 @@ class AdminLeaseController extends SalesRestController
                     null,
                     $contentArray
                 );
+
+                $this->setAppointmentStatusToAccepted($lease);
 
                 $action = Log::ACTION_CONFORMING;
                 break;
@@ -607,7 +562,7 @@ class AdminLeaseController extends SalesRestController
                     );
                 } else {
                     if (!empty($unpaidBills)) {
-                        throw new BadRequestHttpException(self::ERROR_LEASE_END_BILL_UNPAID_MESSAGE);
+                        throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_END_BILL_UNPAID_MESSAGE);
                     }
 
                     // send Jpush notification
@@ -740,18 +695,18 @@ class AdminLeaseController extends SalesRestController
 
         if (!empty($payload['drawee'])) {
             $drawee = $this->getUserRepo()->find($payload['drawee']);
-            $this->throwNotFoundIfNull($drawee, self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($drawee, CustomErrorMessagesConstants::ERROR_DRAWEE_NOT_FOUND_MESSAGE);
             $lease->setDrawee($drawee);
         }
 
         if (!empty($payload['supervisor'])) {
             $supervisor = $this->getUserRepo()->find($payload['supervisor']);
-            $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($supervisor, CustomErrorMessagesConstants::ERROR_SUPERVISOR_NOT_FOUND_MESSAGE);
             $lease->setSupervisor($supervisor);
         }
 
         $product = $this->getProductRepo()->find($payload['product']);
-        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($product, CustomErrorMessagesConstants::ERROR_PRODUCT_NOT_FOUND_MESSAGE);
         $lease->setProduct($product);
 
         $startDate = new \DateTime($payload['start_date']);
@@ -776,36 +731,24 @@ class AdminLeaseController extends SalesRestController
         $lease->setStartDate($startDate);
         $lease->setSerialNumber($this->generateLeaseSerialNumber());
         $lease->setTotalRent($payload['total_rent']);
-
-        if (
-            isset($payload['other_expenses']) &&
-            gettype($payload['other_expenses'] == 'string')
-        ) {
-            $lease->setOtherExpenses($payload['other_expenses']);
-        }
-
-        if (
-            isset($payload['supplementary_terms']) &&
-            gettype($payload['supplementary_terms'] == 'string')
-        ) {
-            $lease->setSupplementaryTerms($payload['supplementary_terms']);
-        }
+        $lease->setOtherExpenses($payload['other_expenses']);
+        $lease->setSupplementaryTerms($payload['supplementary_terms']);
 
         // If lease create from product appointment
         if (
-            isset($payload['product_appointment']) &&
-            gettype($payload['product_appointment'] == 'integer')
+            isset($payload['product_appointment'])
         ) {
             $productAppointment = $this->getProductAppointmentRepo()
                 ->find($payload['product_appointment']);
 
-            $this->throwNotFoundIfNull($productAppointment, self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($productAppointment, CustomErrorMessagesConstants::ERROR_APPOINTMENT_NOT_FOUND_MESSAGE);
 
             $lease->setProductAppointment($productAppointment);
         }
 
         if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
             $lease->setConfirmingDate(new \DateTime('now'));
+            $this->setAppointmentStatusToAccepted($lease);
         }
 
         $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
@@ -956,14 +899,14 @@ class AdminLeaseController extends SalesRestController
 
         if (!empty($payload['drawee'])) {
             $drawee = $this->getUserRepo()->find($payload['drawee']);
-            $this->throwNotFoundIfNull($drawee, self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($drawee, CustomErrorMessagesConstants::ERROR_DRAWEE_NOT_FOUND_MESSAGE);
             $lease->setDrawee($drawee);
         }
 
         if (!empty($payload['supervisor'])) {
             $previousSupervisorId = $lease->getSupervisorId();
             $supervisor = $this->getUserRepo()->find($payload['supervisor']);
-            $this->throwNotFoundIfNull($supervisor, self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($supervisor, CustomErrorMessagesConstants::ERROR_SUPERVISOR_NOT_FOUND_MESSAGE);
 
             if ($previousSupervisorId !== $payload['supervisor']) {
                 if (
@@ -1044,7 +987,7 @@ class AdminLeaseController extends SalesRestController
         }
 
         $product = $this->getProductRepo()->find($payload['product']);
-        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($product, CustomErrorMessagesConstants::ERROR_PRODUCT_NOT_FOUND_MESSAGE);
         $lease->setProduct($product);
 
         $lease->setDeposit($payload['deposit']);
@@ -1062,6 +1005,19 @@ class AdminLeaseController extends SalesRestController
         $lease->setPurpose($payload['purpose']);
         $lease->setTotalRent($payload['total_rent']);
         $lease->setModificationDate(new \DateTime('now'));
+        $lease->setOtherExpenses($payload['other_expenses']);
+        $lease->setSupplementaryTerms($payload['supplementary_terms']);
+
+        // If lease created by product appointment
+        if (
+            isset($payload['product_appointment'])
+        ) {
+            $productAppointment = $this->getProductAppointmentRepo()
+                ->find($payload['product_appointment']);
+            $this->throwNotFoundIfNull($productAppointment, CustomErrorMessagesConstants::ERROR_APPOINTMENT_NOT_FOUND_MESSAGE);
+
+            $lease->setProductAppointment($productAppointment);
+        }
 
         $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
         $contentArray = $this->generateLeaseContentArray($urlParam);
@@ -1069,10 +1025,11 @@ class AdminLeaseController extends SalesRestController
             case Lease::LEASE_STATUS_DRAFTING:
                 $lease->setStatus($payload['status']);
 
-                // send Jpush notification
                 if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+                    $this->setAppointmentStatusToAccepted($lease);
                     $lease->setConfirmingDate(new \DateTime('now'));
 
+                    // send Jpush notification
                     $this->generateJpushNotification(
                         [
                             $lease->getSupervisorId(),
@@ -1088,7 +1045,7 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_CONFIRMED:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
                 }
                 $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
 
@@ -1105,7 +1062,7 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_RECONFIRMING:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
                 }
                 $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
 
@@ -1138,38 +1095,7 @@ class AdminLeaseController extends SalesRestController
 
                 break;
             default:
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        if (
-            isset($payload['other_expenses']) &&
-            gettype($payload['other_expenses'] == 'string')
-        ) {
-            $lease->setOtherExpenses($payload['other_expenses']);
-        }
-
-        if (
-            isset($payload['supplementary_terms']) &&
-            gettype($payload['supplementary_terms'] == 'string')
-        ) {
-            $lease->setSupplementaryTerms($payload['supplementary_terms']);
-        }
-
-        // If lease from product appointment
-        if (
-            isset($payload['product_appointment']) &&
-            gettype($payload['product_appointment'] == 'integer')
-        ) {
-            $productAppointment = $this->getProductAppointmentRepo()
-                ->find($payload['product_appointment']);
-
-            $this->throwNotFoundIfNull($productAppointment, self::NOT_FOUND_MESSAGE);
-
-            if ($productAppointment->getStatus() != ProductAppointment::STATUS_ACCEPTED) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-
-            $lease->setProductAppointment($productAppointment);
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         $this->handleLeaseRentTypesPut($payload['lease_rent_types'], $lease);
@@ -1183,26 +1109,31 @@ class AdminLeaseController extends SalesRestController
             $startDate != $lease->getStartDate() ||
             $endDate != $lease->getEndDate()
         ) {
-            $this->setAccessActionToDelete($lease->getAccessNo());
+            $base = $lease->getBuilding()->getServer();
+            $roomDoors = $lease->getRoom()->getDoorControl();
 
-            $em->flush();
+            if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
+                $this->setAccessActionToDelete($lease->getAccessNo());
 
-            $this->callRepealRoomOrderCommand(
-                $lease->getBuilding()->getServer(),
-                $lease->getAccessNo()
-            );
+                $em->flush();
 
-            $lease->setAccessNo($this->generateAccessNumber());
-            $lease->setStartDate($startDate);
-            $lease->setEndDate($endDate);
+                $this->callRepealRoomOrderCommand(
+                    $lease->getBuilding()->getServer(),
+                    $lease->getAccessNo()
+                );
 
-            $users = $lease->getInvitedPeopleIds();
-            array_push($users, $lease->getSupervisorId());
-            $this->addPeople(
-                $users,
-                $lease,
-                $lease->getBuilding()->getServer()
-            );
+                $lease->setAccessNo($this->generateAccessNumber());
+                $lease->setStartDate($startDate);
+                $lease->setEndDate($endDate);
+
+                $users = $lease->getInvitedPeopleIds();
+                array_push($users, $lease->getSupervisorId());
+                $this->addPeople(
+                    $users,
+                    $lease,
+                    $lease->getBuilding()->getServer()
+                );
+            }
         }
 
         $em->flush();
@@ -1230,7 +1161,7 @@ class AdminLeaseController extends SalesRestController
         foreach ($leaseRentTypeIds as $leaseRentTypeId) {
             $leaseRentType = $this->getLeaseRentTypesRepo()->find($leaseRentTypeId);
             if (is_null($leaseRentType)) {
-                throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+                throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
             }
             $lease->addLeaseRentTypes($leaseRentType);
         }
@@ -1270,7 +1201,7 @@ class AdminLeaseController extends SalesRestController
                 }
 
                 throw new BadRequestHttpException(
-                    self::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
+                    CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
                 );
             }
         }
@@ -1486,5 +1417,44 @@ class AdminLeaseController extends SalesRestController
         }
 
         return $adminToken->getUser();
+    }
+
+    private function setAppointmentStatusToAccepted(
+        $lease
+    ) {
+        // set appointment status to accepted
+        $appointment = $lease->getProductAppointment();
+        if (!is_null($appointment)) {
+            $appointment->setStatus(ProductAppointment::STATUS_ACCEPTED);
+
+            $this->generateAdminLogs(array(
+                'logModule' => Log::MODULE_PRODUCT_APPOINTMENT,
+                'logAction' => Log::ACTION_AGREE,
+                'logObjectKey' => Log::OBJECT_PRODUCT_APPOINTMENT,
+                'logObjectId' => $appointment->getId(),
+            ));
+
+            // send Jpush notification
+            $this->generateJpushNotification(
+                [
+                    $appointment->getUserId(),
+                ],
+                LeaseConstants::APPLICATION_APPROVED_MESSAGE
+            );
+        }
+
+        // set product visible to false
+        $product = $lease->getProduct();
+        if (!is_null($product)) {
+            $product->setVisible(false);
+            $product->setAppointment(false);
+
+            $this->generateAdminLogs(array(
+                'logModule' => Log::MODULE_PRODUCT,
+                'logAction' => Log::ACTION_EDIT,
+                'logObjectKey' => Log::OBJECT_PRODUCT,
+                'logObjectId' => $product->getId(),
+            ));
+        }
     }
 }
