@@ -324,7 +324,7 @@ class Lease
      * @var int
      * @Serializer\Groups({"main","lease_list"})
      */
-    private $paidLeaseBillsAmount;
+    private $pushedLeaseBillsAmount;
 
     /**
      * @var int
@@ -875,17 +875,17 @@ class Lease
     /**
      * @return int
      */
-    public function getPaidLeaseBillsAmount()
+    public function getPushedLeaseBillsAmount()
     {
-        return $this->paidLeaseBillsAmount;
+        return $this->pushedLeaseBillsAmount;
     }
 
     /**
-     * @param int $paidLeaseBillsAmount
+     * @param int $pushedLeaseBillsAmount
      */
-    public function setPaidLeaseBillsAmount($paidLeaseBillsAmount)
+    public function setPushedLeaseBillsAmount($pushedLeaseBillsAmount)
     {
-        $this->paidLeaseBillsAmount = $paidLeaseBillsAmount;
+        $this->pushedLeaseBillsAmount = $pushedLeaseBillsAmount;
     }
 
     /**

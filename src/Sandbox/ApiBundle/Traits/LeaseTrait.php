@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
-use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -23,6 +22,57 @@ trait LeaseTrait
      * @param Lease $lease
      */
     private function setLeaseAttributions(
+        $lease
+    ) {
+        $bills = $this->getLeaseBillRepo()->findBy(array(
+            'lease' => $lease,
+            'type' => LeaseBill::TYPE_LEASE,
+        ));
+        $lease->setBills($bills);
+
+        $totalLeaseBills = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_LEASE
+            );
+        $lease->setTotalLeaseBillsAmount($totalLeaseBills);
+
+        $pushedLeaseBills = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_LEASE,
+                [
+                    LeaseBill::STATUS_UNPAID,
+                    LeaseBill::STATUS_PAID,
+                    LeaseBill::STATUS_CANCELLED,
+                ]
+            );
+        $lease->setPushedLeaseBillsAmount($pushedLeaseBills);
+
+        $otherBills = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                LeaseBill::TYPE_OTHER
+            );
+        $lease->setOtherBillsAmount($otherBills);
+
+        $pendingLeaseBill = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->sumBillsFees(
+                $lease,
+                LeaseBill::STATUS_PENDING
+            );
+        $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
+        $lease->setPushedLeaseBillsFees($pendingLeaseBill);
+    }
+
+    /**
+     * @param $lease
+     */
+    private function setLeaseLogs(
         $lease
     ) {
         $changeLogs = array();
@@ -85,48 +135,8 @@ trait LeaseTrait
         }
 
         $lease->setChangeLogs($changeLogs);
-
-        $bills = $this->getLeaseBillRepo()->findBy(array(
-            'lease' => $lease,
-            'type' => LeaseBill::TYPE_LEASE,
-        ));
-        $lease->setBills($bills);
-
-        $totalLeaseBills = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $lease,
-                LeaseBill::TYPE_LEASE
-            );
-        $lease->setTotalLeaseBillsAmount($totalLeaseBills);
-
-        $paidLeaseBills = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $lease,
-                LeaseBill::TYPE_LEASE,
-                [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
-            );
-        $lease->setPaidLeaseBillsAmount($paidLeaseBills);
-
-        $otherBills = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $lease,
-                LeaseBill::TYPE_OTHER
-            );
-        $lease->setOtherBillsAmount($otherBills);
-
-        $pendingLeaseBill = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->sumBillsFees(
-                $lease,
-                LeaseBill::STATUS_PENDING
-            );
-        $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
-        $lease->setPushedLeaseBillsFees($pendingLeaseBill);
     }
-    
+
     /**
      * @param $userId
      *
@@ -144,5 +154,24 @@ trait LeaseTrait
         }
 
         return $user->getName();
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return string
+     */
+    private function generateAvatarUrl(
+        $userId
+    ) {
+        $imageDomain = $this->container->getParameter('image_url');
+        $supervisorAvatarUrl = $imageDomain.'/person/'.$userId.'/avatar_small.jpg';
+        $ch = curl_init($supervisorAvatarUrl);
+        $this->callAPI($ch, 'GET');
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if ($httpCode == '404') {
+            return 'https://property.sandbox3.cn/img/head.png';
+        }
     }
 }

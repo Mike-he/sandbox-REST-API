@@ -64,6 +64,8 @@ class AdminLeaseController extends SalesRestController
 
         $this->setLeaseAttributions($lease);
 
+        $this->setLeaseLogs($lease);
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])
@@ -159,25 +161,6 @@ class AdminLeaseController extends SalesRestController
                 'Content-Disposition' => "attachment; filename='$fileName'",
             )
         );
-    }
-
-    /**
-     * @param $userId
-     *
-     * @return string
-     */
-    private function generateAvatarUrl(
-        $userId
-    ) {
-        $imageDomain = $this->container->getParameter('image_url');
-        $supervisorAvatarUrl = $imageDomain.'/person/'.$userId.'/avatar_small.jpg';
-        $ch = curl_init($supervisorAvatarUrl);
-        $this->callAPI($ch, 'GET');
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if ($httpCode == '404') {
-            return 'https://property.sandbox3.cn/img/head.png';
-        }
     }
 
     /**
@@ -343,39 +326,7 @@ class AdminLeaseController extends SalesRestController
             );
 
         foreach ($leases as $lease) {
-            $totalLeaseBills = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->countBills(
-                    $lease,
-                    LeaseBill::TYPE_LEASE
-                );
-            $lease->setTotalLeaseBillsAmount($totalLeaseBills);
-
-            $paidLeaseBills = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->countBills(
-                    $lease,
-                    LeaseBill::TYPE_LEASE,
-                    [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
-                );
-            $lease->setPaidLeaseBillsAmount($paidLeaseBills);
-
-            $otherBills = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->countBills(
-                    $lease,
-                    LeaseBill::TYPE_OTHER
-                );
-            $lease->setOtherBillsAmount($otherBills);
-
-            $pendingLeaseBill = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->sumBillsFees(
-                    $lease,
-                    LeaseBill::STATUS_PENDING
-                );
-            $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
-            $lease->setPushedLeaseBillsFees($pendingLeaseBill);
+            $this->setLeaseAttributions($lease);
         }
 
         $view = new View();
@@ -642,6 +593,7 @@ class AdminLeaseController extends SalesRestController
                         );
                     }
 
+                    $newStatus = Lease::LEASE_STATUS_TERMINATED;
                     $action = Log::ACTION_TERMINATE;
 
                     // send Jpush notification
@@ -653,8 +605,6 @@ class AdminLeaseController extends SalesRestController
                         null,
                         $contentArray
                     );
-
-                    $newStatus = Lease::LEASE_STATUS_TERMINATED;
                 } else {
                     if (!empty($unpaidBills)) {
                         throw new BadRequestHttpException(self::ERROR_LEASE_END_BILL_UNPAID_MESSAGE);

@@ -8,7 +8,6 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
-use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
@@ -49,6 +48,8 @@ class AdminLeaseController extends AdminRestController
 
         $this->setLeaseAttributions($lease);
 
+        $this->setLeaseLogs($lease);
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])
@@ -57,9 +58,6 @@ class AdminLeaseController extends AdminRestController
 
         return $view;
     }
-
-
-
 
     /**
      * @param Request               $request
@@ -136,25 +134,6 @@ class AdminLeaseController extends AdminRestController
                 'Content-Disposition' => "attachment; filename='$fileName'",
             )
         );
-    }
-
-    /**
-     * @param $userId
-     *
-     * @return string
-     */
-    private function generateAvatarUrl(
-        $userId
-    ) {
-        $imageDomain = $this->container->getParameter('image_url');
-        $supervisorAvatarUrl = $imageDomain.'/person/'.$userId.'/avatar_small.jpg';
-        $ch = curl_init($supervisorAvatarUrl);
-        $this->callAPI($ch, 'GET');
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if ($httpCode == '404') {
-            return 'https://property.sandbox3.cn/img/head.png';
-        }
     }
 
     /**
@@ -334,39 +313,7 @@ class AdminLeaseController extends AdminRestController
             );
 
         foreach ($leases as $lease) {
-            $totalLeaseBills = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->countBills(
-                    $lease,
-                    LeaseBill::TYPE_LEASE
-                );
-            $lease->setTotalLeaseBillsAmount($totalLeaseBills);
-
-            $paidLeaseBills = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->countBills(
-                    $lease,
-                    LeaseBill::TYPE_LEASE,
-                    [LeaseBill::STATUS_UNPAID, LeaseBill::STATUS_PAID]
-                );
-            $lease->setPaidLeaseBillsAmount($paidLeaseBills);
-
-            $otherBills = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->countBills(
-                    $lease,
-                    LeaseBill::TYPE_OTHER
-                );
-            $lease->setOtherBillsAmount($otherBills);
-
-            $pendingLeaseBill = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->sumBillsFees(
-                    $lease,
-                    LeaseBill::STATUS_PENDING
-                );
-            $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
-            $lease->setPushedLeaseBillsFees($pendingLeaseBill);
+            $this->setLeaseAttributions($lease);
         }
 
         $view = new View();
