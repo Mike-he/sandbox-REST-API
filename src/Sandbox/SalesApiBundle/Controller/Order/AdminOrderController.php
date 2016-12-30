@@ -726,6 +726,15 @@ class AdminOrderController extends OrderController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="room",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by room id"
+     * )
      *
      * @Route("/orders")
      * @Method({"GET"})
@@ -768,6 +777,9 @@ class AdminOrderController extends OrderController
         $payEnd = $paramFetcher->get('pay_end');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $roomId = $paramFetcher->get('room');
+
+        $room = !is_null($roomId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->find($roomId) : null;
 
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -797,7 +809,8 @@ class AdminOrderController extends OrderController
                 $createDateRange,
                 $createStart,
                 $createEnd,
-                $status
+                $status,
+                $room
             );
 
         $query = $this->get('serializer')->serialize(

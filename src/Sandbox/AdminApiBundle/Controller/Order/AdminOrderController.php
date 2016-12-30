@@ -930,6 +930,16 @@ class AdminOrderController extends OrderController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="room",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by room id"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -965,12 +975,14 @@ class AdminOrderController extends OrderController
         $refundStatus = $paramFetcher->get('refundStatus');
         $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
+        $roomId = $paramFetcher->get('room');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
 
         $company = !is_null($companyId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId) : null;
         $building = !is_null($buildingId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId) : null;
+        $room = !is_null($roomId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->find($roomId) : null;
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -980,6 +992,7 @@ class AdminOrderController extends OrderController
                 null,
                 $company,
                 $building,
+                $room,
                 null,
                 $rentFilter,
                 $startDate,
@@ -1006,6 +1019,7 @@ class AdminOrderController extends OrderController
                 null,
                 $company,
                 $building,
+                $room,
                 null,
                 $rentFilter,
                 $startDate,
