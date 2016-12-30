@@ -1059,6 +1059,12 @@ class AdminLeaseController extends SalesRestController
 
                 break;
             case Lease::LEASE_STATUS_CONFIRMING:
+                if (
+                    $payload['status'] != Lease::LEASE_STATUS_CONFIRMING
+                ) {
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+                }
+
                 break;
             case Lease::LEASE_STATUS_CONFIRMED:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
