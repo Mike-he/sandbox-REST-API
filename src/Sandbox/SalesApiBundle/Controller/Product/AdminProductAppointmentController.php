@@ -332,12 +332,16 @@ class AdminProductAppointmentController extends AdminProductController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
+        $urlParam = 'ptype=rentDetail&rentId='.$appointment->getId();
+        $contentArray = $this->generateLeaseContentArray($urlParam,'longrent');
         // send Jpush notification
         $this->generateJpushNotification(
             [
                 $appointment->getUserId(),
             ],
-            LeaseConstants::APPLICATION_REJECTED_MESSAGE
+            LeaseConstants::APPLICATION_REJECTED_MESSAGE,
+            null,
+            $contentArray
         );
 
         $this->generateAdminLogs(array(

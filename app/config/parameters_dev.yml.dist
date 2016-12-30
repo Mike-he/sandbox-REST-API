@@ -108,4 +108,4 @@ parameters:
     room_mobile_url: http://devmobile.sandbox3.cn
     top_level_domain: sandbox3.cn
     jpush_apns_option: false
-    lease_url: http://devorders.sandbox3.cn/contract?
+    orders_url: http://devorders.sandbox3.cn

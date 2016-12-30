@@ -108,4 +108,4 @@ parameters:
     room_mobile_url: https://testmobile.sandbox3.cn
     top_level_domain: sandbox3.cn
     jpush_apns_option: false
-    lease_url: https://testorders.sandbox3.cn/contract?
+    orders_url: https://testorders.sandbox3.cn

@@ -1492,12 +1492,16 @@ class AdminLeaseController extends SalesRestController
                 'logObjectId' => $appointment->getId(),
             ));
 
+            $urlParam = 'ptype=rentDetail&rentId='.$appointment->getId();
+            $contentArray = $this->generateLeaseContentArray($urlParam,'longrent');
             // send Jpush notification
             $this->generateJpushNotification(
                 [
                     $appointment->getUserId(),
                 ],
-                LeaseConstants::APPLICATION_APPROVED_MESSAGE
+                LeaseConstants::APPLICATION_APPROVED_MESSAGE,
+                null,
+                $contentArray
             );
         }
 
