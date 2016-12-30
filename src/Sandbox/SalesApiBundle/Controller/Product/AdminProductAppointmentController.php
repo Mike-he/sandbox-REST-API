@@ -362,6 +362,7 @@ class AdminProductAppointmentController extends AdminProductController
      * @param $endDate
      * @param $pageIndex
      * @param $pageLimit
+     * @param $roomId
      *
      * @return View
      */
@@ -378,7 +379,8 @@ class AdminProductAppointmentController extends AdminProductController
         $startDate,
         $endDate,
         $pageIndex,
-        $pageLimit
+        $pageLimit,
+        $roomId
     ) {
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
@@ -399,7 +401,8 @@ class AdminProductAppointmentController extends AdminProductController
                 $createEnd,
                 $rentFilter,
                 $startDate,
-                $endDate
+                $endDate,
+                $roomId
             );
 
         $appointments = $this->getDoctrine()
@@ -416,7 +419,8 @@ class AdminProductAppointmentController extends AdminProductController
                 $startDate,
                 $endDate,
                 $limit,
-                $offset
+                $offset,
+                $roomId
             );
 
         foreach ($appointments as $appointment) {

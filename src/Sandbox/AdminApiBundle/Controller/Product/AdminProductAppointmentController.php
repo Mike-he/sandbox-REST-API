@@ -47,6 +47,15 @@ class AdminProductAppointmentController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="room",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room id"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -138,6 +147,7 @@ class AdminProductAppointmentController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
+        $roomId = $paramFetcher->get('room');
         $status = $paramFetcher->get('status');
 
         // search keyword and query
@@ -157,6 +167,7 @@ class AdminProductAppointmentController extends SandboxRestController
         return $this->handleProductAppointmentList(
             $buildingId,
             $companyId,
+            $roomId,
             $status,
             $keyword,
             $search,
@@ -209,6 +220,7 @@ class AdminProductAppointmentController extends SandboxRestController
     /**
      * @param $buildingId
      * @param $companyId
+     * @param $roomId
      * @param $status
      * @param $keyword
      * @param $search
@@ -226,6 +238,7 @@ class AdminProductAppointmentController extends SandboxRestController
     private function handleProductAppointmentList(
         $buildingId,
         $companyId,
+        $roomId,
         $status,
         $keyword,
         $search,
@@ -259,7 +272,8 @@ class AdminProductAppointmentController extends SandboxRestController
                 $rentFilter,
                 $startDate,
                 $endDate,
-                $companyId
+                $companyId,
+                $roomId
             );
 
         $appointments = $this->getDoctrine()
@@ -277,7 +291,8 @@ class AdminProductAppointmentController extends SandboxRestController
                 $endDate,
                 $limit,
                 $offset,
-                $companyId
+                $companyId,
+                $roomId
             );
 
         foreach ($appointments as $appointment) {
