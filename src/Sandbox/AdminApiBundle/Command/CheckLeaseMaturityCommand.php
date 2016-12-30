@@ -3,7 +3,6 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 use Sandbox\ApiBundle\Entity\Lease\Lease;
-use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,7 +32,7 @@ class CheckLeaseMaturityCommand extends ContainerAwareCommand
             $yesterday->setTime(23, 59, 59);
 
             if ($yesterday == $endDate) {
-                $lease->setStatus(Lease::LEASE_STATUS_MATURITY);
+                $lease->setStatus(Lease::LEASE_STATUS_MATURED);
             }
         }
         $em->flush();
