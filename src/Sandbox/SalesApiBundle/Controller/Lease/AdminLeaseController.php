@@ -1443,11 +1443,14 @@ class AdminLeaseController extends SalesRestController
     private function setAppointmentStatusToAccepted(
         $lease
     ) {
+        $em = $this->getDoctrine()->getManager();
+
         // set appointment status to accepted
         $appointment = $lease->getProductAppointment();
         if (!is_null($appointment)) {
             $appointment->setStatus(ProductAppointment::STATUS_ACCEPTED);
 
+            $em->flush();
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_PRODUCT_APPOINTMENT,
                 'logAction' => Log::ACTION_AGREE,
@@ -1470,6 +1473,7 @@ class AdminLeaseController extends SalesRestController
             $product->setVisible(false);
             $product->setAppointment(false);
 
+            $em->flush();
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_PRODUCT,
                 'logAction' => Log::ACTION_EDIT,
