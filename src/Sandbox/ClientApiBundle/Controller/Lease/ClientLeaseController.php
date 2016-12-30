@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
@@ -29,9 +30,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientLeaseController extends SandboxRestController
 {
-    const WRONG_LEASE_INVITED_PEOPLE_CODE = 400032;
-    const WRONG_LEASE_INVITED_PEOPLE_MESSAGE = 'Wrong Lease Status';
-
     use HasAccessToEntityRepositoryTrait;
     use DoorAccessTrait;
     use LeaseNotificationTrait;
@@ -239,7 +237,7 @@ class ClientLeaseController extends SandboxRestController
         }
 
         $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
-        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         // check user permission
         $this->checkUserLeasePermission($lease);
@@ -251,7 +249,7 @@ class ClientLeaseController extends SandboxRestController
             ($status != Lease::LEASE_STATUS_RECONFIRMING &&
             $status != Lease::LEASE_STATUS_CONFIRMING)
         ) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -329,15 +327,12 @@ class ClientLeaseController extends SandboxRestController
         // limit inviting people conditions
         if ((
                 $status !== Lease::LEASE_STATUS_CONFIRMED &&
-                $status !== Lease::LEASE_STATUS_PERFORMING
+                $status !== Lease::LEASE_STATUS_PERFORMING &&
+                $status !== Lease::LEASE_STATUS_RECONFIRMING
             ) ||
             $now >= $endDate
         ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_LEASE_INVITED_PEOPLE_CODE,
-                self::WRONG_LEASE_INVITED_PEOPLE_MESSAGE
-            );
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         $people = json_decode($request->getContent(), true);
