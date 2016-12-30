@@ -1018,7 +1018,7 @@ class AdminOrderController extends OrderController
                 null,
                 $company,
                 $building,
-                $room,
+                $roomId,
                 null,
                 $rentFilter,
                 $startDate,
