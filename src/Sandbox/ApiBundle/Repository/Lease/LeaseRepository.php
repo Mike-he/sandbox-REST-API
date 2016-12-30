@@ -19,6 +19,8 @@ class LeaseRepository extends EntityRepository
      * @param $rentFilter
      * @param $startDate
      * @param $endDate
+     * @param $companyId
+     * @param $roomId
      *
      * @return array
      */
@@ -32,7 +34,9 @@ class LeaseRepository extends EntityRepository
         $createEnd,
         $rentFilter,
         $startDate,
-        $endDate
+        $endDate,
+        $companyId,
+        $roomId
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
@@ -51,7 +55,9 @@ class LeaseRepository extends EntityRepository
             $createEnd,
             $rentFilter,
             $startDate,
-            $endDate
+            $endDate,
+            $companyId,
+            $roomId
         );
 
         return $query->getQuery()->getSingleScalarResult();
@@ -68,6 +74,7 @@ class LeaseRepository extends EntityRepository
      * @param $rentFilter
      * @param $startDate
      * @param $endDate
+     * @param $roomId
      * @param $limit
      * @param $offset
      *
@@ -84,6 +91,8 @@ class LeaseRepository extends EntityRepository
         $rentFilter,
         $startDate,
         $endDate,
+        $companyId,
+        $roomId,
         $limit,
         $offset
     ) {
@@ -105,7 +114,9 @@ class LeaseRepository extends EntityRepository
             $createEnd,
             $rentFilter,
             $startDate,
-            $endDate
+            $endDate,
+            $companyId,
+            $roomId
         );
 
         return $query->getQuery()->getResult();
@@ -149,6 +160,8 @@ class LeaseRepository extends EntityRepository
      * @param $rentFilter
      * @param $startDate
      * @param $endDate
+     * @param $companyId
+     * @param $roomId
      *
      * @return $query
      */
@@ -163,11 +176,24 @@ class LeaseRepository extends EntityRepository
         $createEnd,
         $rentFilter,
         $startDate,
-        $endDate
+        $endDate,
+        $companyId,
+        $roomId
     ) {
-        if (!is_null($myBuildingIds)) {
+        if (!is_null($myBuildingIds) && !empty($companyId)) {
             $query->andWhere('r.buildingId IN (:buildingIds)')
                 ->setParameter('buildingIds', $myBuildingIds);
+        }
+
+        if (!is_null($companyId) && !empty($companyId)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.buildingId = rb.id')
+                ->andWhere('rb.companyId = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        if (!is_null($roomId)) {
+            $query->andWhere('r.id = :roomId')
+                ->setParameter('roomId', $roomId);
         }
 
         if ($status == 'all') {

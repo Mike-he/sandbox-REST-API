@@ -249,6 +249,36 @@ class AdminLeaseController extends AdminRestController
      *    description="appointment end date"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by room id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by company id"
+     * )
+     *
      * @return View
      */
     public function getLeasesAction(
@@ -265,6 +295,9 @@ class AdminLeaseController extends AdminRestController
         $limit = $pageLimit;
 
         $status = $paramFetcher->get('status');
+        $buildingId = $paramFetcher->get('building');
+        $companyId = $paramFetcher->get('company');
+        $roomId = $paramFetcher->get('room');
 
         // search keyword and query
         $keyword = $paramFetcher->get('keyword');
@@ -283,7 +316,7 @@ class AdminLeaseController extends AdminRestController
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->findLeases(
-                null,
+                [$buildingId],
                 $status,
                 $keyword,
                 $keywordSearch,
@@ -293,6 +326,8 @@ class AdminLeaseController extends AdminRestController
                 $rentFilter,
                 $startDate,
                 $endDate,
+                $companyId,
+                $roomId,
                 $limit,
                 $offset
             );
@@ -300,7 +335,7 @@ class AdminLeaseController extends AdminRestController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->countLeasesAmount(
-                null,
+                [$buildingId],
                 $status,
                 $keyword,
                 $keywordSearch,
@@ -309,7 +344,9 @@ class AdminLeaseController extends AdminRestController
                 $createEnd,
                 $rentFilter,
                 $startDate,
-                $endDate
+                $endDate,
+                $companyId,
+                $roomId
             );
 
         foreach ($leases as $lease) {

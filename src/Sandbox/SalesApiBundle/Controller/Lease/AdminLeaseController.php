@@ -249,6 +249,26 @@ class AdminLeaseController extends SalesRestController
      *    description="appointment end date"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by company id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by room id"
+     * )
+     *
      * @return View
      */
     public function getLeasesAction(
@@ -265,6 +285,8 @@ class AdminLeaseController extends SalesRestController
         $limit = $pageLimit;
 
         $status = $paramFetcher->get('status');
+        $companyId = $paramFetcher->get('company');
+        $roomId = $paramFetcher->get('room');
 
         // search keyword and query
         $keyword = $paramFetcher->get('keyword');
@@ -301,6 +323,8 @@ class AdminLeaseController extends SalesRestController
                 $rentFilter,
                 $startDate,
                 $endDate,
+                $companyId,
+                $roomId,
                 $limit,
                 $offset
             );
@@ -317,7 +341,9 @@ class AdminLeaseController extends SalesRestController
                 $createEnd,
                 $rentFilter,
                 $startDate,
-                $endDate
+                $endDate,
+                $companyId,
+                $roomId
             );
 
         foreach ($leases as $lease) {

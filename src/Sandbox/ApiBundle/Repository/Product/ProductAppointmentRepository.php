@@ -43,6 +43,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $startDate
      * @param $endDate
      * @param $companyId
+     * @param $roomId
      *
      * @return int
      */
@@ -57,7 +58,8 @@ class ProductAppointmentRepository extends EntityRepository
         $rentFilter,
         $startDate,
         $endDate,
-        $companyId = null
+        $companyId = null,
+        $roomId = null
     ) {
         $query = $this->createQueryBuilder('a')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = a.productId')
@@ -77,7 +79,8 @@ class ProductAppointmentRepository extends EntityRepository
             $rentFilter,
             $startDate,
             $endDate,
-            $companyId
+            $companyId,
+            $roomId
         );
 
         return (int) $query->getQuery()->getSingleScalarResult();
@@ -97,6 +100,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param null $companyId
+     * @param null $roomId
      *
      * @return mixed
      */
@@ -113,7 +117,8 @@ class ProductAppointmentRepository extends EntityRepository
         $endDate,
         $limit,
         $offset,
-        $companyId = null
+        $companyId = null,
+        $roomId = null
     ) {
         $query = $this->createQueryBuilder('a')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = a.productId')
@@ -135,7 +140,8 @@ class ProductAppointmentRepository extends EntityRepository
             $rentFilter,
             $startDate,
             $endDate,
-            $companyId
+            $companyId,
+            $roomId
         );
 
         return $query->getQuery()->getResult();
@@ -154,6 +160,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $startDate
      * @param $endDate
      * @param $companyId
+     * @param $roomId
      *
      * @return mixed
      */
@@ -169,7 +176,8 @@ class ProductAppointmentRepository extends EntityRepository
         $rentFilter,
         $startDate,
         $endDate,
-        $companyId
+        $companyId,
+        $roomId
     ) {
         if (!is_null($myBuildingIds) && !empty($myBuildingIds)) {
             $query->andWhere('r.buildingId IN (:buildingIds)')
@@ -180,6 +188,11 @@ class ProductAppointmentRepository extends EntityRepository
             $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.buildingId = rb.id')
                 ->andWhere('rb.companyId = :companyId')
                 ->setParameter('companyId', $companyId);
+        }
+
+        if (!is_null($roomId) && !empty($roomId)) {
+            $query->andWhere('r.roomId = :roomId')
+                ->setParameter('roomId', $roomId);
         }
 
         if (!is_null($status)) {
