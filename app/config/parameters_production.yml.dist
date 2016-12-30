@@ -108,4 +108,4 @@ parameters:
     rest_file_server_url: https://rest.sandbox3.cn/plugins/fileServer/fileservice
     mobile_url: https://m.sandbox3.cn
     room_mobile_url: https://mobile.sandbox3.cn
-    lease_url: https://orders.sandbox3.cn/contract?
+    orders_url: https://orders.sandbox3.cn

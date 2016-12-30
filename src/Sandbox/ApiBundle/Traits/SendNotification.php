@@ -426,12 +426,17 @@ trait SendNotification
     }
 
     private function generateLeaseContentArray(
-        $urlParam
+        $urlParam,
+        $urlPath = null
     ) {
         $leaseUrl = $this->getContainer()
-            ->getParameter('lease_url');
+            ->getParameter('orders_url');
 
-        $url = $leaseUrl.$urlParam;
+
+        if (is_null($urlPath)) {
+            $urlPath = 'contract';
+        }
+        $url = $leaseUrl.'/'.$urlPath.'?'.$urlParam;
 
         return [
             'type' => LeaseConstants::ACTION_TYPE,
