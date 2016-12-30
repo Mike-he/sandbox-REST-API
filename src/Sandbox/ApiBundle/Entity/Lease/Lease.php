@@ -376,7 +376,7 @@ class Lease
     /**
      * @var array
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","lease_list"})
      */
     private $changeLogs;
 

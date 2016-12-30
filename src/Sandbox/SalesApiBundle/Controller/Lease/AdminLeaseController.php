@@ -322,6 +322,8 @@ class AdminLeaseController extends SalesRestController
 
         foreach ($leases as $lease) {
             $this->setLeaseAttributions($lease);
+
+            $this->setLeaseLogs($lease);
         }
 
         $view = new View();

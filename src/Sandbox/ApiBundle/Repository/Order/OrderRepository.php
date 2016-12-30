@@ -1013,6 +1013,7 @@ class OrderRepository extends EntityRepository
      * @param $city
      * @param $company
      * @param $building
+     * @param $room
      * @param $userId
      * @param $rentFilter
      * @param $startDate
@@ -1038,6 +1039,7 @@ class OrderRepository extends EntityRepository
         $city,
         $company,
         $building,
+        $room,
         $userId,
         $rentFilter,
         $startDate,
@@ -1110,6 +1112,11 @@ class OrderRepository extends EntityRepository
         if (!is_null($building)) {
             $query->andWhere('por.buildingId = :building')
                 ->setParameter('building', $building);
+        }
+
+        if (!is_null($room)) {
+            $query->andWhere('p.room = :room')
+                ->setParameter('room', $room);
         }
 
         if (!is_null($rentFilter) && !empty($rentFilter) &&
@@ -1248,6 +1255,7 @@ class OrderRepository extends EntityRepository
      * @param array $type
      * @param $city
      * @param $building
+     * @param $room
      * @param $userId
      * @param $rentFilter
      * @param $startDate
@@ -1271,6 +1279,7 @@ class OrderRepository extends EntityRepository
         $city,
         $company,
         $building,
+        $room,
         $userId,
         $rentFilter,
         $startDate,
@@ -1342,6 +1351,11 @@ class OrderRepository extends EntityRepository
         if (!is_null($building)) {
             $query->andWhere('por.buildingId = :building')
                 ->setParameter('building', $building);
+        }
+
+        if (!is_null($room)) {
+            $query->andWhere('p.room = :room')
+                ->setParameter('room', $room);
         }
 
         if (!is_null($rentFilter) && !empty($rentFilter) &&
@@ -1704,6 +1718,7 @@ class OrderRepository extends EntityRepository
      * @param $createStart
      * @param $createEnd
      * @param $status
+     * @param $room
      *
      * @return array
      */
@@ -1725,7 +1740,8 @@ class OrderRepository extends EntityRepository
         $createDateRange,
         $createStart,
         $createEnd,
-        $status
+        $status,
+        $room
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')
@@ -1778,6 +1794,11 @@ class OrderRepository extends EntityRepository
         } else {
             $query->andWhere('por.buildingId IN (:buildingIds)')
                 ->setParameter('buildingIds', $myBuildingIds);
+        }
+
+        if (!is_null($room)) {
+            $query->andWhere('p.room = :room')
+                ->setParameter('room', $room);
         }
 
         if (!is_null($rentFilter) && !empty($rentFilter) &&
