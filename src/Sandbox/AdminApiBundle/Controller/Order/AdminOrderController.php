@@ -982,7 +982,6 @@ class AdminOrderController extends OrderController
 
         $company = !is_null($companyId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId) : null;
         $building = !is_null($buildingId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId) : null;
-        $room = !is_null($roomId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->find($roomId) : null;
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -992,7 +991,7 @@ class AdminOrderController extends OrderController
                 null,
                 $company,
                 $building,
-                $room,
+                $roomId,
                 null,
                 $rentFilter,
                 $startDate,

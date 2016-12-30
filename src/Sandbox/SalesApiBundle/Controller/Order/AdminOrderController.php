@@ -779,8 +779,6 @@ class AdminOrderController extends OrderController
         $pageIndex = $paramFetcher->get('pageIndex');
         $roomId = $paramFetcher->get('room');
 
-        $room = !is_null($roomId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->find($roomId) : null;
-
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -810,7 +808,7 @@ class AdminOrderController extends OrderController
                 $createStart,
                 $createEnd,
                 $status,
-                $room
+                $roomId
             );
 
         $query = $this->get('serializer')->serialize(
