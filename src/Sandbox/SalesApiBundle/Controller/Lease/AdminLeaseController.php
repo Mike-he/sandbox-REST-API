@@ -55,7 +55,7 @@ class AdminLeaseController extends SalesRestController
         $lease = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
 
-        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $this->setLeaseAttributions($lease);
 
@@ -115,7 +115,7 @@ class AdminLeaseController extends SalesRestController
         $lease = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
 
-        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -407,7 +407,7 @@ class AdminLeaseController extends SalesRestController
         $payload = json_decode($request->getContent(), true);
 
         $lease = $this->getLeaseRepo()->find($id);
-        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -422,7 +422,7 @@ class AdminLeaseController extends SalesRestController
         switch ($newStatus) {
             case Lease::LEASE_STATUS_CONFIRMING:
                 if ($status != Lease::LEASE_STATUS_DRAFTING) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
                 $lease->setConfirmingDate($now);
@@ -441,7 +441,7 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_PERFORMING:
                 if ($status != Lease::LEASE_STATUS_CONFIRMED) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
                 // send Jpush notification
@@ -462,7 +462,7 @@ class AdminLeaseController extends SalesRestController
                     $status != Lease::LEASE_STATUS_CONFIRMING &&
                     $status != Lease::LEASE_STATUS_CONFIRMED
                 ) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
                 // send Jpush notification
@@ -508,7 +508,7 @@ class AdminLeaseController extends SalesRestController
                 if (
                     $status != Lease::LEASE_STATUS_PERFORMING
                 ) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
                 $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
@@ -578,7 +578,7 @@ class AdminLeaseController extends SalesRestController
 
                 break;
             default:
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         $lease->setStatus($newStatus);
@@ -625,7 +625,7 @@ class AdminLeaseController extends SalesRestController
                 )
             );
 
-        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $em->remove($lease);
         $em->flush();
@@ -660,7 +660,7 @@ class AdminLeaseController extends SalesRestController
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $lease = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\Lease")->find($id);
-        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $leaseJson = $this->container->get('serializer')->serialize($lease, 'json');
         $patch = new Patch($leaseJson, $request->getContent());
@@ -694,7 +694,7 @@ class AdminLeaseController extends SalesRestController
             $payload['status'] !== Lease::LEASE_STATUS_CONFIRMING &&
             $payload['status'] !== Lease::LEASE_STATUS_DRAFTING
         ) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         $this->checkLeaseAttributesIsValid($payload);
@@ -826,7 +826,7 @@ class AdminLeaseController extends SalesRestController
             !key_exists('bills', $payload) ||
             gettype($payload['lease_rent_types']) != 'array'
         ) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
         }
 
         if (
@@ -858,7 +858,7 @@ class AdminLeaseController extends SalesRestController
                 !filter_var($payload['supervisor'], FILTER_VALIDATE_INT) ||
                 !filter_var($payload['product'], FILTER_VALIDATE_INT)
             ) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
             }
         }
 
@@ -872,7 +872,7 @@ class AdminLeaseController extends SalesRestController
         foreach ($leaseRentTypeIds as $leaseRentTypeId) {
             $leaseRentType = $this->getLeaseRentTypesRepo()->find($leaseRentTypeId);
             if (is_null($leaseRentType)) {
-                throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+                throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
             }
             $lease->addLeaseRentTypes($leaseRentType);
         }
@@ -885,7 +885,7 @@ class AdminLeaseController extends SalesRestController
     ) {
         if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
             if (empty($payload['bills']['add'])) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
             }
         }
 
@@ -1038,7 +1038,7 @@ class AdminLeaseController extends SalesRestController
                     $payload['status'] != Lease::LEASE_STATUS_CONFIRMING &&
                     $payload['status'] != Lease::LEASE_STATUS_DRAFTING
                 ) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
                 $lease->setStatus($payload['status']);
@@ -1062,13 +1062,13 @@ class AdminLeaseController extends SalesRestController
                 if (
                     $payload['status'] != Lease::LEASE_STATUS_CONFIRMING
                 ) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
                 break;
             case Lease::LEASE_STATUS_CONFIRMED:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
                 $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
 
@@ -1085,7 +1085,7 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_RECONFIRMING:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
                 $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
 
@@ -1118,7 +1118,7 @@ class AdminLeaseController extends SalesRestController
 
                 break;
             default:
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         $this->handleLeaseRentTypesPut($payload['lease_rent_types'], $lease);
@@ -1275,7 +1275,7 @@ class AdminLeaseController extends SalesRestController
         $editBills = $payload['bills']['edit'];
         foreach ($editBills as $editBill) {
             if (empty($editBill['id'])) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
             }
 
             if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
@@ -1283,11 +1283,11 @@ class AdminLeaseController extends SalesRestController
             }
 
             $bill = $this->getLeaseBillRepo()->find($editBill['id']);
-            $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
+            $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
             // only pending bills could be edited
             if ($bill->getStatus() !== LeaseBill::STATUS_PENDING) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
             }
 
             $startDate = new \DateTime($editBill['start_date']);
@@ -1349,7 +1349,7 @@ class AdminLeaseController extends SalesRestController
             !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['start_date']) ||
             !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['end_date'])
         ) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
         }
     }
 
