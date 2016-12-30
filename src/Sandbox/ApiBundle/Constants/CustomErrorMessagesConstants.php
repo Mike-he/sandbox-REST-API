@@ -11,6 +11,7 @@ class CustomErrorMessagesConstants
     const ERROR_LEASE_END_BILL_UNPAID_MESSAGE = 'Sorry, you can not end lease, there are bills unpaid.';
 
     // 404 NOT FOUND MESSAGE
+    const ERROR_LEASE_NOT_FOUND_MESSAGE = 'The lease does not exist';
     const ERROR_PRODUCT_NOT_FOUND_MESSAGE = 'The product does not exist';
     const ERROR_DRAWEE_NOT_FOUND_MESSAGE = 'The drawee does not exist';
     const ERROR_SUPERVISOR_NOT_FOUND_MESSAGE = 'The supervisor does not exist';
