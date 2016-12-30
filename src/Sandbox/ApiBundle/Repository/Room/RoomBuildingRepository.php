@@ -309,7 +309,13 @@ class RoomBuildingRepository extends EntityRepository
         $lat,
         $excludeIds = null
     ) {
-        $buildingsQuery = $this->createQueryBuilder('rb');
+        $buildingsQuery = $this->createQueryBuilder('rb')
+            ->leftJoin(
+                'SandboxApiBundle:Room\Room',
+                'r',
+                'WITH',
+                'rb.id = r.building'
+            );
 
         // query by city id
         if (!is_null($cityId)) {
@@ -330,12 +336,6 @@ class RoomBuildingRepository extends EntityRepository
         // filter by room types
         if (!is_null($roomTypes) && !empty($roomTypes)) {
             $buildingsQuery
-                ->leftJoin(
-                    'SandboxApiBundle:Room\Room',
-                    'r',
-                    'WITH',
-                    'rb.id = r.building'
-                )
                 ->leftJoin(
                     'SandboxApiBundle:Room\RoomTypes',
                     'rt',
@@ -383,12 +383,6 @@ class RoomBuildingRepository extends EntityRepository
         // filter by building name or room name
         if (!is_null($queryText) && !empty($queryText)) {
             $buildingsQuery
-                ->leftJoin(
-                    'SandboxApiBundle:Room\Room',
-                    'r',
-                    'WITH',
-                    'rb.id = r.building'
-                )
                 ->andWhere('rb.name LIKE :query OR r.name LIKE :query')
                 ->setParameter('query', '%'.$queryText.'%');
         }
