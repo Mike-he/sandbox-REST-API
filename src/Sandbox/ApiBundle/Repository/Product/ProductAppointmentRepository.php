@@ -191,7 +191,7 @@ class ProductAppointmentRepository extends EntityRepository
         }
 
         if (!is_null($roomId) && !empty($roomId)) {
-            $query->andWhere('r.roomId = :roomId')
+            $query->andWhere('r.id = :roomId')
                 ->setParameter('roomId', $roomId);
         }
 
