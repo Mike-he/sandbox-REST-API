@@ -437,8 +437,6 @@ class AdminLeaseController extends SalesRestController
                     $contentArray
                 );
 
-                $this->setAppointmentStatusToAccepted($lease);
-
                 $action = Log::ACTION_CONFORMING;
                 break;
             case Lease::LEASE_STATUS_PERFORMING:
@@ -587,6 +585,10 @@ class AdminLeaseController extends SalesRestController
 
         $em->flush();
 
+        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+            $this->setAppointmentStatusToAccepted($lease);
+        }
+
         // generate log
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_LEASE,
@@ -688,6 +690,13 @@ class AdminLeaseController extends SalesRestController
     private function handleLeasePost(
         $payload
     ) {
+        if (
+            $payload['status'] !== Lease::LEASE_STATUS_CONFIRMING &&
+            $payload['status'] !== Lease::LEASE_STATUS_DRAFTING
+        ) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+        }
+
         $this->checkLeaseAttributesIsValid($payload);
 
         $em = $this->getDoctrine()->getManager();
@@ -748,7 +757,6 @@ class AdminLeaseController extends SalesRestController
 
         if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
             $lease->setConfirmingDate(new \DateTime('now'));
-            $this->setAppointmentStatusToAccepted($lease);
         }
 
         $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
@@ -774,6 +782,8 @@ class AdminLeaseController extends SalesRestController
                 null,
                 $contentArray
             );
+
+            $this->setAppointmentStatusToAccepted($lease);
         }
 
         // generate log
@@ -896,6 +906,7 @@ class AdminLeaseController extends SalesRestController
 
         $em = $this->getDoctrine()->getManager();
         $lease = $this->getLeaseRepo()->find($leaseId);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         if (!empty($payload['drawee'])) {
             $drawee = $this->getUserRepo()->find($payload['drawee']);
@@ -1023,10 +1034,16 @@ class AdminLeaseController extends SalesRestController
         $contentArray = $this->generateLeaseContentArray($urlParam);
         switch ($lease->getStatus()) {
             case Lease::LEASE_STATUS_DRAFTING:
+                if (
+                    $payload['status'] != Lease::LEASE_STATUS_CONFIRMING &&
+                    $payload['status'] != Lease::LEASE_STATUS_DRAFTING
+                ) {
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE);
+                }
+
                 $lease->setStatus($payload['status']);
 
                 if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
-                    $this->setAppointmentStatusToAccepted($lease);
                     $lease->setConfirmingDate(new \DateTime('now'));
 
                     // send Jpush notification
@@ -1137,6 +1154,10 @@ class AdminLeaseController extends SalesRestController
         }
 
         $em->flush();
+
+        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+            $this->setAppointmentStatusToAccepted($lease);
+        }
 
         // generate log
         $this->generateAdminLogs(array(
