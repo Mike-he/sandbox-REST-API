@@ -831,7 +831,7 @@ class AdminProductController extends ProductController
                 $product,
                 $rentDate
             );
-            $product->setAppointment(true);
+//            $product->setAppointment(true);
         } elseif ($newVisible && $product->isAppointment()) {
             $this->setAppointmentEarliestDate(
                 $product,

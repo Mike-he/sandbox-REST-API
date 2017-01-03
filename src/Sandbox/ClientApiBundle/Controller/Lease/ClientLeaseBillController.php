@@ -371,6 +371,15 @@ class ClientLeaseBillController extends PaymentController
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
                 ->findAttachmentsByRoom($room, 1);
 
+            $transfer = $bill->getTransfer();
+
+            $transfer = $this->get('serializer')->serialize(
+                $transfer,
+                'json',
+                SerializationContext::create()->setGroups(['client'])
+            );
+            $transfer = json_decode($transfer, true);
+
             $result[] = array(
                 'id' => $bill->getId(),
                 'serial_number' => $bill->getserialNumber(),
@@ -386,6 +395,7 @@ class ClientLeaseBillController extends PaymentController
                 'address' => $building->getCity()->getName().$building->getAddress(),
                 'content' => $attachment ? $attachment[0]['content'] : '',
                 'preview' => $attachment ? $attachment[0]['preview'] : '',
+                'transfer' => $transfer,
             );
         }
 
