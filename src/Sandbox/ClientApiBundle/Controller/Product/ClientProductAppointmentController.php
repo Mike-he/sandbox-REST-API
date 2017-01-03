@@ -183,6 +183,13 @@ class ClientProductAppointmentController extends ProductController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $lease = $this->getLeaseRepo()->findOneBy(['productAppointment' => $appointment]);
+        if (!is_null($lease)) {
+            if ($lease->getStatus() == Lease::LEASE_STATUS_DRAFTING) {
+                $lease->setStatus(Lease::LEASE_STATUS_CLOSED);
+            }
+        }
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
     }
