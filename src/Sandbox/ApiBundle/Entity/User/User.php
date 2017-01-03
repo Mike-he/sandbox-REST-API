@@ -152,6 +152,13 @@ class User implements UserInterface
     private $customerId;
 
     /**
+     * @var UserProfile
+     *
+     * @ORM\OneToOne(targetEntity="UserProfile", mappedBy="user")
+     */
+    private $userProfile;
+
+    /**
      * Get id.
      *
      * @return int
@@ -526,5 +533,21 @@ class User implements UserInterface
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
+    }
+
+    /**
+     * @return UserProfile
+     */
+    public function getUserProfile()
+    {
+        return $this->userProfile;
+    }
+
+    /**
+     * @param UserProfile $userProfile
+     */
+    public function setUserProfile($userProfile)
+    {
+        $this->userProfile = $userProfile;
     }
 }
