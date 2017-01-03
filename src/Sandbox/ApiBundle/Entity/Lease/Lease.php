@@ -355,7 +355,7 @@ class Lease
      *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
      * )
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Exclude
      */
     private $invitedPeople;
 
@@ -1159,5 +1159,25 @@ class Lease
     public function setConformedDate($conformedDate)
     {
         $this->conformedDate = $conformedDate;
+    }
+
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("invited_people")
+     * @Serializer\Groups({"main"})
+     */
+    public function degenerateInvitedPeople()
+    {
+        return array_map(
+            function ($invitedPerson) {
+                return [
+                    'id' => $invitedPerson->getId(),
+                    'name' => $invitedPerson->getUserProfile()->getName(),
+                    'phone' => $invitedPerson->getPhone(),
+                    'email' => $invitedPerson->getEmail(),
+                ];
+            },
+            $this->invitedPeople->toArray()
+        );
     }
 }
