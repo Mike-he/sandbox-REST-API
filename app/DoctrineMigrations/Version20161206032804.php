@@ -21,8 +21,8 @@ class Version20161206032804 extends AbstractMigration
 
         // this up() migration is auto-generated, please modify it to your needs
 
-        $this->addSql("INSERT INTO `menu`(`component`,`platform`,`minVersion`,`maxVersion`,`mainJson`,`profileJson`,`homeJson`) VALUES ('client','iphone','2.3.5','2.3.5','$mainJson','$profileJson','$homeJson')");
-        $this->addSql("INSERT INTO `menu`(`component`,`platform`,`minVersion`,`maxVersion`,`mainJson`,`profileJson`,`homeJson`) VALUES ('client','android','2.3.5','2.3.5','$mainJson','$profileJson','$homeJson')");
+        $this->addSql("INSERT INTO `menu`(`component`,`platform`,`minVersion`,`maxVersion`,`mainJson`,`profileJson`,`homeJson`) VALUES ('client','iphone','2.3.4','2.3.6','$mainJson','$profileJson','$homeJson')");
+        $this->addSql("INSERT INTO `menu`(`component`,`platform`,`minVersion`,`maxVersion`,`mainJson`,`profileJson`,`homeJson`) VALUES ('client','android','2.3.4','2.3.6','$mainJson','$profileJson','$homeJson')");
     }
 
     /**
