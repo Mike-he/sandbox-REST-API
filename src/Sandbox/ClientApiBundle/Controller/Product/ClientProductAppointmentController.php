@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPostType;
+use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -29,6 +30,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientProductAppointmentController extends ProductController
 {
+    use HasAccessToEntityRepositoryTrait;
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
