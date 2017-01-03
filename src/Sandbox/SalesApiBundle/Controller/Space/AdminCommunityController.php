@@ -95,6 +95,9 @@ class AdminCommunityController extends SalesRestController
                 AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
                 AdminPermission::KEY_SALES_BUILDING_ROOM,
                 AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
             )
         );
 
@@ -319,6 +322,9 @@ class AdminCommunityController extends SalesRestController
                 ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_ROOM],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER],
             ],
             $opLevel
         );
