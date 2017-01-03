@@ -180,7 +180,7 @@ class LeaseRepository extends EntityRepository
         $companyId,
         $roomId
     ) {
-        if (!is_null($myBuildingIds) && !empty($companyId)) {
+        if (!is_null($myBuildingIds) && !empty($myBuildingIds)) {
             $query->andWhere('r.buildingId IN (:buildingIds)')
                 ->setParameter('buildingIds', $myBuildingIds);
         }
