@@ -53,6 +53,9 @@ trait LogsTrait
             case Log::OBJECT_LEASE_BILL:
                 $json = $this->getLeaseBillJson($objectId);
                 break;
+            case Log::OBJECT_PRODUCT_APPOINTMENT:
+                $json = $this->getProductAppointmentJson($objectId);
+                break;
             default:
                 return false;
         }
@@ -299,5 +302,27 @@ trait LogsTrait
         $input
     ) {
         return $this->getContainer()->get('serializer')->serialize($input, 'json');
+    }
+
+    /**
+     * @param $objectId
+     *
+     * @return mixed|void
+     */
+    private function getProductAppointmentJson(
+        $objectId
+    ) {
+        $appointment = $this->getDoctrine()
+            ->getRepository("SandboxApiBundle:Product\ProductAppointment")
+            ->find($objectId);
+
+        if (is_null($appointment)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup(
+            $appointment,
+            'main'
+        );
     }
 }
