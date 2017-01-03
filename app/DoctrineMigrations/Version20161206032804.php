@@ -20,9 +20,8 @@ class Version20161206032804 extends AbstractMigration
         $homeJson = '[{"type":"bannerCarousel","hidden_asserts":[{"item_key":"banner","limit":5,"offset":1}],"items":[]},{"type":"icons","hidden_asserts":[{"item_key":"room_types","limit":10,"offset":1}],"items":[]},{"type":"banner","hidden_asserts":[{"item_key":"banner","limit":100,"offset":1}],"items":[]}]';
 
         // this up() migration is auto-generated, please modify it to your needs
-
-        $this->addSql("INSERT INTO `menu`(`component`,`platform`,`minVersion`,`maxVersion`,`mainJson`,`profileJson`,`homeJson`) VALUES ('client','iphone','2.3.3','2.3.3','$mainJson','$profileJson','$homeJson')");
-        $this->addSql("INSERT INTO `menu`(`component`,`platform`,`minVersion`,`maxVersion`,`mainJson`,`profileJson`,`homeJson`) VALUES ('client','android','2.3.3','2.3.3','$mainJson','$profileJson','$homeJson')");
+        $this->addSql("INSERT INTO `menu`(`component`,`platform`,`minVersion`,`maxVersion`,`mainJson`,`profileJson`,`homeJson`) VALUES ('client','iphone','2.3.4','2.3.6','$mainJson','$profileJson','$homeJson')");
+        $this->addSql("INSERT INTO `menu`(`component`,`platform`,`minVersion`,`maxVersion`,`mainJson`,`profileJson`,`homeJson`) VALUES ('client','android','2.3.4','2.3.6','$mainJson','$profileJson','$homeJson')");
     }
 
     /**
