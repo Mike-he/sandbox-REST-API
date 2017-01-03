@@ -5,17 +5,13 @@ namespace Sandbox\ClientApiBundle\Controller\Product;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Product\Product;
-use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
-use Sandbox\ApiBundle\Form\Product\ProductAppointmentPostType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for Client Product.
@@ -258,29 +254,32 @@ class ClientProductController extends ProductController
 
         foreach ($products as $product) {
             $room = $product->getRoom();
+            $type = $room->getType();
 
-            if ($room->getType() == Room::TYPE_FIXED) {
-                $priceRange = $this->getDoctrine()
+            $myType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomTypes')
+                ->findOneBy(['name' => $type]);
+            if (!is_null($myType)) {
+                $room->setRentType($myType->getType());
+            }
+
+            if ($type == Room::TYPE_FIXED) {
+                $price = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')
                     ->getFixedSeats($room);
 
-                if (!is_null($priceRange) && !empty($priceRange)) {
-                    $min = $priceRange[1];
-                    $max = $priceRange[2];
-
-                    if ($min == $max) {
-                        $product->setBasePrice($min);
-                    } else {
-                        $product->setBasePrice("$min - $max");
-                    }
+                if (!is_null($price)) {
+                    $product->setBasePrice($price);
                 }
+            } elseif ($type == Room::TYPE_LONG_TERM) {
+                $type = Room::TYPE_OFFICE;
             }
 
             $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
             $product->setUnitPrice($unitPrice);
 
-            $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
-            $room->setTypeDescription($type);
+            $typeDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
+            $room->setTypeDescription($typeDescription);
         }
 
         $view = new View();
@@ -781,52 +780,6 @@ class ClientProductController extends ProductController
         }
 
         return new View($response);
-    }
-
-    /**
-     * @Post("/products/{id}/appointments")
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
-     *
-     * @return View
-     */
-    public function postAnnualRentProductAppointmentsAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
-    ) {
-        $userId = $this->getUserId();
-
-        $product = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\Product')
-            ->find($id);
-        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
-
-        $appointment = new ProductAppointment();
-
-        $form = $this->createForm(new ProductAppointmentPostType(), $appointment);
-        $form->submit(json_decode($request->getContent(), true));
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        // set staff
-        $appointment->setUserId($userId);
-        $appointment->setProductId($product->getId());
-        $startRentDate = new \DateTime($appointment->getStartRentDate());
-        $startRentDate->setTime(00, 00, 00);
-        $appointment->setStartRentDate($startRentDate);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($appointment);
-        $em->flush();
-
-        return new View(array(
-            'id' => $appointment->getId(),
-        ));
     }
 
     /**

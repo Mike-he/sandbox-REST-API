@@ -75,6 +75,7 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         ),
         'K' => 
         array (
+            'Knp\\Bundle\\SnappyBundle\\' => 24,
             'Knp\\Bundle\\PaginatorBundle\\' => 27,
         ),
         'H' => 
@@ -222,6 +223,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'Laravel\\Homestead\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/homestead/src',
+        ),
+        'Knp\\Bundle\\SnappyBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/knplabs/knp-snappy-bundle',
         ),
         'Knp\\Bundle\\PaginatorBundle\\' => 
         array (
@@ -375,6 +380,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         ),
         'K' => 
         array (
+            'Knp\\Snappy' => 
+            array (
+                0 => __DIR__ . '/..' . '/knplabs/knp-snappy/src',
+            ),
             'Knp\\Component' => 
             array (
                 0 => __DIR__ . '/..' . '/knplabs/knp-components/src',

@@ -19,7 +19,9 @@ class SetRoomOrderCommand extends ContainerAwareCommand
             ->addArgument('base', InputArgument::REQUIRED, 'Server Address')
             ->addArgument('userArray', InputArgument::REQUIRED, 'Array of user IDs')
             ->addArgument('roomDoors', InputArgument::REQUIRED, 'Array of door IDs')
-            ->addArgument('order', InputArgument::REQUIRED, 'ProductOrder Object');
+            ->addArgument('accessNo', InputArgument::REQUIRED, 'Access Number')
+            ->addArgument('startDate', InputArgument::REQUIRED, 'Start Date')
+            ->addArgument('endDate', InputArgument::REQUIRED, 'End Date');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -28,14 +30,18 @@ class SetRoomOrderCommand extends ContainerAwareCommand
         $base = $arguments['base'];
         $userArray = $arguments['userArray'];
         $roomDoors = $arguments['roomDoors'];
-        $order = $arguments['order'];
+        $accessNo = $arguments['accessNo'];
+        $startDate = $arguments['startDate'];
+        $endDate = $arguments['endDate'];
 
         try {
             $this->setRoomOrderAccessIfUserArray(
                 $base,
                 $userArray,
                 $roomDoors,
-                $order
+                $accessNo,
+                $startDate,
+                $endDate
             );
         } catch (\Exception $e) {
             error_log('Set door access went wrong!');

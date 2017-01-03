@@ -151,30 +151,38 @@ class ShopOrderRepository extends EntityRepository
 
     /**
      * @param $shopId
+     * @param array $channel
      * @param $status
-     * @param $start
-     * @param $end
-     * @param $sort
-     * @param $search
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $keyword
+     * @param $keywordSearch
      * @param $user
-     * @param null $cityId
-     * @param null $buildingId
+     * @param $cityId
+     * @param $company
+     * @param $buildingId
+     * @param $shopId
      * @param $refundStatus
-     * @param $limit
-     * @param $offset
+     * @param null $limit
+     * @param null $offset
      *
      * @return array
      */
     public function getAdminShopOrdersForBackend(
         $shopId,
+        $channel,
         $status,
-        $start,
-        $end,
-        $sort,
-        $search,
+        $payDate,
+        $payStart,
+        $payEnd,
+        $keyword,
+        $keywordSearch,
         $user,
         $cityId,
+        $company,
         $buildingId,
+        $shopId,
         $refundStatus,
         $limit = null,
         $offset = null
@@ -184,46 +192,67 @@ class ShopOrderRepository extends EntityRepository
             ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
             ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId');
 
-        if (is_null($search) || empty($search)) {
-            $query->where('o.unoriginal = :unoriginal')
-                ->setParameter('unoriginal', false);
-        } else {
-            $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
-                ->where('o.orderNumber LIKE :search OR u.name LIKE :search')
-                ->setParameter('search', "%$search%");
-        }
-
         if (!is_null($shopId) && !empty($shopId)) {
-            $query = $query->andWhere('o.shopId = :shopId')
+            $query->andWhere('o.shopId = :shopId')
                 ->setParameter('shopId', $shopId);
         }
 
         if (!is_null($user) && !empty($user)) {
-            $query = $query->andWhere('o.userId = :userId')
+            $query->andWhere('o.userId = :userId')
                 ->setParameter('userId', $user);
         }
 
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('o.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
+        }
+
         if (!is_null($status) && !empty($status)) {
-            $query = $query->andWhere('o.status IN (:status)')
+            $query->andWhere('o.status IN (:status)')
                 ->setParameter('status', $status);
         }
 
-        if (!is_null($start) && !empty($start)) {
-            $start = new \DateTime($start);
-            $query = $query->andWhere('o.paymentDate >= :start')
-                ->setParameter('start', $start);
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
         }
 
-        if (!is_null($end) && !empty($end)) {
-            $end = new \DateTime($end);
-            $end->setTime(23, 59, 59);
-            $query = $query->andWhere('o.paymentDate <= :end')
-                ->setParameter('end', $end);
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('o.paymentDate >= :payStart')
+                ->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            if (!is_null($payStart) && !empty($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('o.paymentDate >= :start')
+                    ->setParameter('start', $payStart);
+            }
+
+            if (!is_null($payEnd) && !empty($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :end')
+                    ->setParameter('end', $payEnd);
+            }
         }
 
         if (!is_null($cityId)) {
             $query->andWhere('c.id = :cityId')
                 ->setParameter('cityId', $cityId);
+        }
+
+        if (!is_null($company)) {
+            $query->andWhere('b.company = :company')
+                ->setParameter('company', $company);
         }
 
         if (!is_null($buildingId)) {
@@ -246,7 +275,7 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('refunded', false)
                 ->orderBy('o.modificationDate', 'ASC');
         } else {
-            $query->orderBy('o.modificationDate', $sort);
+            $query->orderBy('o.modificationDate', 'DESC');
         }
 
         if (!is_null($limit) && !is_null($offset)) {
@@ -259,26 +288,36 @@ class ShopOrderRepository extends EntityRepository
 
     /**
      * @param $shopId
+     * @param array $channel
      * @param $status
-     * @param $start
-     * @param $end
-     * @param $search
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $keyword
+     * @param $keywordSearch
      * @param $user
-     * @param null $cityId
-     * @param null $buildingId
+     * @param $cityId
+     * @param $company
+     * @param $buildingId
+     * @param $shopId
      * @param $refundStatus
      *
      * @return mixed
      */
     public function countAdminShopOrdersForBackend(
         $shopId,
+        $channel,
         $status,
-        $start,
-        $end,
-        $search,
+        $payDate,
+        $payStart,
+        $payEnd,
+        $keyword,
+        $keywordSearch,
         $user,
         $cityId,
+        $company,
         $buildingId,
+        $shopId,
         $refundStatus
     ) {
         $query = $this->createQueryBuilder('o')
@@ -287,41 +326,57 @@ class ShopOrderRepository extends EntityRepository
             ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
             ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId');
 
-        if (is_null($search) || empty($search)) {
-            $query->where('o.unoriginal = :unoriginal')
-                ->setParameter('unoriginal', false);
-        } else {
-            $query->join('SandboxApiBundle:User\UserProfile', 'u', 'WITH', 'u.userId = o.userId')
-                ->where('o.orderNumber LIKE :search OR u.name LIKE :search')
-                ->setParameter('search', "%$search%");
-        }
-
         if (!is_null($shopId) && !empty($shopId)) {
-            $query = $query->andWhere('o.shopId = :shopId')
+            $query->andWhere('o.shopId = :shopId')
                 ->setParameter('shopId', $shopId);
         }
 
         if (!is_null($user) && !empty($user)) {
-            $query = $query->andWhere('o.userId = :userId')
+            $query->andWhere('o.userId = :userId')
                 ->setParameter('userId', $user);
         }
 
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('o.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
+        }
+
         if (!is_null($status) && !empty($status)) {
-            $query = $query->andWhere('o.status IN (:status)')
+            $query->andWhere('o.status IN (:status)')
                 ->setParameter('status', $status);
         }
 
-        if (!is_null($start) && !empty($start)) {
-            $start = new \DateTime($start);
-            $query = $query->andWhere('o.paymentDate >= :start')
-                ->setParameter('start', $start);
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
         }
 
-        if (!is_null($end) && !empty($end)) {
-            $end = new \DateTime($end);
-            $end->setTime(23, 59, 59);
-            $query = $query->andWhere('o.paymentDate <= :end')
-                ->setParameter('end', $end);
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('o.paymentDate >= :payStart')
+                ->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            if (!is_null($payStart) && !empty($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('o.paymentDate >= :start')
+                    ->setParameter('start', $payStart);
+            }
+
+            if (!is_null($payEnd) && !empty($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :end')
+                    ->setParameter('end', $payEnd);
+            }
         }
 
         if (!is_null($cityId)) {
@@ -332,6 +387,11 @@ class ShopOrderRepository extends EntityRepository
         if (!is_null($buildingId)) {
             $query->andWhere('b.id = :buildingId')
                 ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($company)) {
+            $query->andWhere('b.company = :company')
+                ->setParameter('company', $company);
         }
 
         if ($refundStatus == ProductOrder::REFUNDED_STATUS) {

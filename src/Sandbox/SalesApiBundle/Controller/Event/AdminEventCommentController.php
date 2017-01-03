@@ -141,7 +141,7 @@ class AdminEventCommentController extends EventCommentController
             $this->getAdminId(),
             array(
                 array(
-                    AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
                 ),
             ),
             $opLevel

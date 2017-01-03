@@ -25,6 +25,9 @@ class Product
     const UNIT_DAYS = 'days';
     const UNIT_MIN = 'min';
 
+    const LONG_TERM_ROOM_MISSING_INFO_CODE = 400100;
+    const LONG_TERM_ROOM_MISSING_INFO_MESSAGE = 'Information Missing for Long Term Room';
+
     /**
      * @var int
      *
@@ -32,7 +35,7 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "current_order", "client_appointment_list"})
      */
     private $id;
 
@@ -51,7 +54,7 @@ class Product
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\Room")
      * @ORM\JoinColumn(name="roomId", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "current_order", "admin_room", "client_appointment_list"})
      */
     private $room;
 
@@ -74,11 +77,11 @@ class Product
     private $visibleUserId;
 
     /**
-     * @var string
+     * @var float
      *
-     * @ORM\Column(name="basePrice", type="string", length=10, nullable=true)
+     * @ORM\Column(name="basePrice", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "client_appointment_list"})
      */
     private $basePrice;
 
@@ -87,7 +90,7 @@ class Product
      *
      * @ORM\Column(name="unitPrice", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "client_appointment_list"})
      */
     private $unitPrice;
 
@@ -114,7 +117,7 @@ class Product
      *
      * @ORM\Column(name="visible", type="boolean")
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $visible = true;
 
@@ -229,6 +232,42 @@ class Product
     private $salesInvoice = false;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="earliestRentDate", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     */
+    private $earliestRentDate;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     */
+    private $deposit;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="rentalInfo", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_detail"})
+     */
+    private $rentalInfo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="filename", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_detail"})
+     */
+    private $filename;
+
+    /**
      * @var int
      */
     private $pendingAppointmentCounts;
@@ -251,6 +290,31 @@ class Product
     private $seats;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="appointment", type="boolean", options={"default":true})
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $appointment = true;
+
+    /**
+     * @return bool
+     */
+    public function isAppointment()
+    {
+        return $this->appointment;
+    }
+
+    /**
+     * @param bool $appointment
+     */
+    public function setAppointment($appointment)
+    {
+        $this->appointment = $appointment;
+    }
+
+    /**
      * Get id.
      *
      * @return int
@@ -258,6 +322,70 @@ class Product
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEarliestRentDate()
+    {
+        return $this->earliestRentDate;
+    }
+
+    /**
+     * @param \DateTime $earliestRentDate
+     */
+    public function setEarliestRentDate($earliestRentDate)
+    {
+        $this->earliestRentDate = $earliestRentDate;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDeposit()
+    {
+        return $this->deposit;
+    }
+
+    /**
+     * @param float $deposit
+     */
+    public function setDeposit($deposit)
+    {
+        $this->deposit = $deposit;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRentalInfo()
+    {
+        return $this->rentalInfo;
+    }
+
+    /**
+     * @param string $rentalInfo
+     */
+    public function setRentalInfo($rentalInfo)
+    {
+        $this->rentalInfo = $rentalInfo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
+    /**
+     * @param string $filename
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
     }
 
     /**
@@ -405,7 +533,7 @@ class Product
     /**
      * Set basePrice.
      *
-     * @param string $basePrice
+     * @param float $basePrice
      *
      * @return Product
      */
@@ -419,7 +547,7 @@ class Product
     /**
      * Get basePrice.
      *
-     * @return string
+     * @return float
      */
     public function getBasePrice()
     {

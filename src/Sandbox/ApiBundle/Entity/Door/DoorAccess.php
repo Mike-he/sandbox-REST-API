@@ -46,9 +46,9 @@ class DoorAccess
     /**
      * @var int
      *
-     * @ORM\Column(name="orderId", type="integer")
+     * @ORM\Column(name="accessNo", type="string", length=30)
      */
-    private $orderId;
+    private $accessNo;
 
     /**
      * @var \DateTime
@@ -192,27 +192,27 @@ class DoorAccess
     }
 
     /**
-     * Set orderId.
+     * Set $accessNo.
      *
-     * @param int $orderId
+     * @param string $accessNo
      *
      * @return DoorAccess
      */
-    public function setOrderId($orderId)
+    public function setAccessNo($accessNo)
     {
-        $this->orderId = $orderId;
+        $this->accessNo = $accessNo;
 
         return $this;
     }
 
     /**
-     * Get orderId.
+     * Get $accessNo.
      *
-     * @return int
+     * @return string
      */
-    public function getOrderId()
+    public function getAccessNo()
     {
-        return $this->orderId;
+        return $this->accessNo;
     }
 
     /**

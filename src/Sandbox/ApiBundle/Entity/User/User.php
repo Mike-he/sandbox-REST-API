@@ -59,7 +59,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=128, nullable=true)
-     * @Serializer\Groups({"main", "login", "buddy"})
+     * @Serializer\Groups({"main", "login", "buddy", "admin_detail"})
      */
     private $email;
 
@@ -67,7 +67,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="phoneCode", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "login", "buddy"})
+     * @Serializer\Groups({"main", "login", "buddy", "admin_detail"})
      */
     private $phoneCode;
 
@@ -75,7 +75,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     * @Serializer\Groups({"main", "login", "buddy"})
+     * @Serializer\Groups({"main", "login", "buddy", "admin_detail"})
      */
     private $phone;
 
@@ -99,7 +99,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="cardNo", type="string", length=32, nullable=true)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $cardNo;
 
@@ -150,6 +150,13 @@ class User implements UserInterface
      * @Serializer\Groups({"main"})
      */
     private $customerId;
+
+    /**
+     * @var UserProfile
+     *
+     * @ORM\OneToOne(targetEntity="UserProfile", mappedBy="user")
+     */
+    private $userProfile;
 
     /**
      * Get id.
@@ -526,5 +533,21 @@ class User implements UserInterface
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
+    }
+
+    /**
+     * @return UserProfile
+     */
+    public function getUserProfile()
+    {
+        return $this->userProfile;
+    }
+
+    /**
+     * @param UserProfile $userProfile
+     */
+    public function setUserProfile($userProfile)
+    {
+        $this->userProfile = $userProfile;
     }
 }

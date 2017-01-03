@@ -341,28 +341,23 @@ class AdminDoorController extends DoorController
 
                 // get building door access server
                 $base = $building->getServer();
-
-                // get orders by building
-                $orderIds = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
-                    $userId,
-                    $id['buildingId']
-                );
-                if (is_null($orderIds) || empty($orderIds)) {
+                if (is_null($base) || empty($base)) {
                     continue;
                 }
 
-                foreach ($orderIds as $orderId) {
+                // get controls by building
+                $controls = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
+                    $userId,
+                    $id['buildingId']
+                );
+
+                foreach ($controls as $control) {
                     try {
                         $doorArray = [];
 
-                        $order = $this->getRepo('Order\ProductOrder')->find($orderId['orderId']);
-                        if (is_null($order)) {
-                            continue;
-                        }
-
-                        $startDate = $order->getStartDate();
-                        $endDate = $order->getEndDate();
-                        $roomId = $order->getProduct()->getRoom()->getId();
+                        $startDate = $control->getStartDate();
+                        $endDate = $control->getEndDate();
+                        $roomId = $control->getRoomId();
 
                         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
                         foreach ($roomDoors as $roomDoor) {
@@ -376,7 +371,7 @@ class AdminDoorController extends DoorController
                         $this->setRoomOrderPermission(
                             $base,
                             $userArray,
-                            $orderId['orderId'],
+                            $control->getAccessNo(),
                             $startDate,
                             $endDate,
                             $doorArray

@@ -1,10 +1,10 @@
 parameters:
     database_driver: pdo_mysql
-    database_host: 115.29.172.69
+    database_host: sandbox_db
     database_port: '3306'
-    database_name: sandbox_rest_api_db
-    database_user: sandbox_rest_api
-    database_password: sandbox_rest_api
+    database_name: sandbox_rest_db
+    database_user: sandbox
+    database_password: sandbox
     mailer_transport: smtp
     mailer_host: 127.0.0.1
     mailer_user: null
@@ -108,3 +108,4 @@ parameters:
     room_mobile_url: http://devmobile.sandbox3.cn
     top_level_domain: sandbox3.cn
     jpush_apns_option: false
+    orders_url: http://devorders.sandbox3.cn

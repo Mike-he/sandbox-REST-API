@@ -7,7 +7,6 @@ use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Log\Log;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Log\LogType;
 use Sandbox\ApiBundle\Traits\CurlUtil;
 use Sandbox\ApiBundle\Traits\LogsTrait;
@@ -46,6 +45,7 @@ class SandboxRestController extends FOSRestController
 
     const HTTP_STATUS_OK = 200;
     const HTTP_STATUS_OK_NO_CONTENT = 204;
+    const HTTP_STATUS_CREATE_SUCCESS = 201;
 
     const VERIFICATION_CODE_LENGTH = 6;
 
@@ -64,10 +64,6 @@ class SandboxRestController extends FOSRestController
     const SANDBOX_CLIENT_LOGIN_HEADER = 'http_sandboxclientauthorization';
 
     const ADMIN_COOKIE_NAME = 'sandbox_admin_token';
-
-    const SALES_COOKIE_NAME = 'sandbox_sales_admin_token';
-
-    const SHOP_COOKIE_NAME = 'sandbox_shop_admin_token';
 
     const HASH_ALGO_SHA256 = 'sha256';
 
@@ -215,6 +211,7 @@ class SandboxRestController extends FOSRestController
             $platform,
             $salesCompanyId
         );
+
         if ($isSuperAdmin) {
             $myPermissions = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermission')
@@ -422,7 +419,6 @@ class SandboxRestController extends FOSRestController
                     'name' => $permission->getName(),
                     'id' => $permission->getId(),
                     'position_id' => $position->getId(),
-                    'permission_parent_id' => $permission->getParentId(),
                 );
 
                 array_push($myPermissions, $permissionArray);
@@ -1088,7 +1084,7 @@ class SandboxRestController extends FOSRestController
     /**
      * @throws NotFoundHttpException when resource not exist
      */
-    protected function throwNotFoundIfNull($resource, $message)
+    protected function throwNotFoundIfNull($resource, $message = self::NOT_FOUND_MESSAGE)
     {
         $this->_throwHttpErrorIfNull(
             $resource,
@@ -1467,11 +1463,11 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $base
-     * @param $orderId
+     * @param $accessNo
      */
     protected function callRepealRoomOrderCommand(
         $base,
-        $orderId
+        $accessNo
     ) {
         try {
             $kernel = $this->get('kernel');
@@ -1481,7 +1477,7 @@ class SandboxRestController extends FOSRestController
             $input = new ArrayInput(array(
                 'command' => 'RoomOrder:Repeal',
                 'base' => $base,
-                'orderId' => $orderId,
+                'accessNo' => $accessNo,
             ));
 
             $output = new NullOutput();
@@ -1501,7 +1497,9 @@ class SandboxRestController extends FOSRestController
         $base,
         $userArray,
         $roomDoors,
-        $order
+        $accessNo,
+        $startDate,
+        $endDate
     ) {
         try {
             $kernel = $this->get('kernel');
@@ -1513,7 +1511,9 @@ class SandboxRestController extends FOSRestController
                 'base' => $base,
                 'userArray' => $userArray,
                 'roomDoors' => $roomDoors,
-                'order' => $order,
+                'accessNo' => $accessNo,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
             ));
 
             $output = new NullOutput();
@@ -1525,12 +1525,12 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $base
-     * @param $orderId
+     * @param $accessNo
      * @param $userArray
      */
     protected function callRemoveFromOrderCommand(
         $base,
-        $orderId,
+        $accessNo,
         $userArray
     ) {
         try {
@@ -1542,7 +1542,7 @@ class SandboxRestController extends FOSRestController
                 'command' => 'RoomOrderUser:Remove',
                 'base' => $base,
                 'userArray' => $userArray,
-                'orderId' => $orderId,
+                'accessNo' => $accessNo,
             ));
 
             $output = new NullOutput();
@@ -1619,75 +1619,88 @@ class SandboxRestController extends FOSRestController
      */
     public function syncAccessByOrder(
         $base,
-        $order
+        $orderControl
     ) {
-        $orderId = $order->getId();
-        $roomId = $order->getProduct()->getRoom()->getId();
+        $roomId = $orderControl->getRoomId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findByRoomId($roomId);
         if (empty($roomDoors)) {
             return;
         }
 
-        // check if order cancelled
-        if ($order->getStatus() == ProductOrder::STATUS_CANCELLED) {
-            // cancel order
-            $this->callRepealRoomOrderCommand(
-                $base,
-                $orderId
-            );
+        $accessNo = $orderControl->getAccessNo();
+        $startDate = $orderControl->getStartDate();
+        $endDate = $orderControl->getEndDate();
+
+        // get cancelled action controls
+        $cancelledControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
+            DoorAccessConstants::METHOD_CANCELLED,
+            $accessNo
+        );
+
+        if (!empty($cancelledControls)) {
+            foreach ($cancelledControls as $cancelledControl) {
+                // cancel order
+                $this->callRepealRoomOrderCommand(
+                    $base,
+                    $cancelledControl->getAccessNo()
+                );
+            }
         } else {
             // get add action controls
             $addControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
                 DoorAccessConstants::METHOD_ADD,
-                $orderId
+                $accessNo
             );
+
+            $userArray = [];
+            foreach ($addControls as $addControl) {
+                $userArray = $this->getUserArrayIfAuthed(
+                    $base,
+                    $addControl->getUserId(),
+                    $userArray
+                );
+            }
+
+            // set room access
+            if (!empty($userArray)) {
+                $this->callSetRoomOrderCommand(
+                    $base,
+                    $userArray,
+                    $roomDoors,
+                    $accessNo,
+                    $startDate,
+                    $endDate
+                );
+            }
 
             // get delete action controls
             $deleteControls = $this->getRepo('Door\DoorAccess')->getAllWithoutAccess(
                 DoorAccessConstants::METHOD_DELETE,
-                $orderId
+                $accessNo
             );
 
-            if (!empty($addControls)) {
-                $userArray = [];
-                foreach ($addControls as $addControl) {
-                    $userArray = $this->getUserArrayIfAuthed(
-                        $base,
-                        $addControl->getUserId(),
-                        $userArray
-                    );
-                }
-
-                // set room access
-                if (!empty($userArray)) {
-                    $this->callSetRoomOrderCommand(
-                        $base,
-                        $userArray,
-                        $roomDoors,
-                        $order
-                    );
+            $removeUserArray = [];
+            foreach ($deleteControls as $deleteControl) {
+                $userId = $deleteControl->getUserId();
+                $result = $this->getCardNoByUser($userId);
+                if (!is_null($result['card_no']) && !empty($result['card_no'])) {
+                    $empUser = ['empid' => $userId];
+                    array_push($removeUserArray, $empUser);
+                } else {
+                    $deleteControl->setAccess(true);
                 }
             }
 
-            if (!empty($deleteControls)) {
-                $removeUserArray = [];
-                foreach ($deleteControls as $deleteControl) {
-                    $userId = $deleteControl->getUserId();
-                    $result = $this->getCardNoByUser($userId);
-                    if ($result['status'] !== DoorController::STATUS_UNAUTHED) {
-                        $empUser = ['empid' => $userId];
-                        array_push($removeUserArray, $empUser);
-                    }
-                }
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
 
-                // remove room access
-                if (!empty($removeUserArray)) {
-                    $this->callRemoveFromOrderCommand(
-                        $base,
-                        $orderId,
-                        $removeUserArray
-                    );
-                }
+            // remove room access
+            if (!empty($removeUserArray)) {
+                $this->callRemoveFromOrderCommand(
+                    $base,
+                    $accessNo,
+                    $removeUserArray
+                );
             }
         }
     }

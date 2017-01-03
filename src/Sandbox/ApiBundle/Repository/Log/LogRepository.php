@@ -89,4 +89,44 @@ class LogRepository extends EntityRepository
 
         return $query->getQuery();
     }
+
+    /**
+     * @param $module
+     * @param $objectKey
+     * @param $objectId
+     * @param $actions
+     *
+     * @return array
+     */
+    public function getLatestAdminLog(
+        $module,
+        $objectKey,
+        $objectId,
+        $actions
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->where('l.id > 0');
+
+        if (!is_null($module)) {
+            $query->andWhere('l.logModule = :logModule')
+                ->setParameter('logModule', $module);
+        }
+
+        if (!is_null($objectKey) && !empty($objectKey) && !is_null($objectId) && !empty($objectId)) {
+            $query->andWhere('l.logObjectKey = :key')
+                ->andWhere('l.logObjectId = :objectId')
+                ->setParameter('key', $objectKey)
+                ->setParameter('objectId', $objectId);
+        }
+
+        if (!is_null($actions)) {
+            $query->andWhere('l.logAction IN (:actions)')
+                ->setParameter('actions', $actions);
+        }
+
+        $query->setMaxResults(1);
+        $query->orderBy('l.creationDate', 'DESC');
+
+        return $query->getQuery()->getOneOrNullResult();
+    }
 }

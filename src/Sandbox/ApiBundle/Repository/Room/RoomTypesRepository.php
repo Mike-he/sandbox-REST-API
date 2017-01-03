@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Room;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 
 class RoomTypesRepository extends EntityRepository
@@ -34,6 +35,8 @@ class RoomTypesRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('rt')
+            ->where('rt.name != :longterm')
+            ->setParameter('longterm', Room::TYPE_LONG_TERM)
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery();

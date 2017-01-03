@@ -67,7 +67,8 @@ class RoomBuilding implements JsonSerializable
      *      "client_order",
      *      "admin",
      *      "shop_nearby",
-     *      "client_shop"
+     *      "client_shop",
+     *      "admin_appointment"
      *  }
      * )
      */
@@ -177,7 +178,8 @@ class RoomBuilding implements JsonSerializable
      *      "admin_shop",
      *      "client_order",
      *      "shop_nearby",
-     *      "client_shop"
+     *      "client_shop",
+     *      "admin_appointment"
      *  }
      * )
      */
@@ -235,7 +237,8 @@ class RoomBuilding implements JsonSerializable
      *      "admin_building",
      *      "admin_shop",
      *      "client_shop",
-     *      "shop_nearby"
+     *      "shop_nearby",
+     *      "client_appointment_detail"
      * })
      */
     private $address;
@@ -360,7 +363,7 @@ class RoomBuilding implements JsonSerializable
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
      * @ORM\JoinColumn(name="companyId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_shop"})
      **/
     private $company;
 

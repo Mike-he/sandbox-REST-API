@@ -321,7 +321,7 @@ class ClientCompanyController extends CompanyController
     ) {
         $userId = $this->getUserId();
 
-        $query = $paramFetcher->get('query');
+        $search = $paramFetcher->get('query');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
@@ -329,15 +329,24 @@ class ClientCompanyController extends CompanyController
         $limit = $this->getLoadMoreLimit($limit);
 
         // find all companies who have the query in any of their mapped fields
-        $finder = $this->container->get('fos_elastica.finder.search.company');
+//        $finder = $this->container->get('fos_elastica.finder.search.company');
 
-        $multiMatchQuery = new \Elastica\Query\MultiMatch();
+//        $multiMatchQuery = new \Elastica\Query\MultiMatch();
 
-        $multiMatchQuery->setQuery($query);
-        $multiMatchQuery->setType('phrase_prefix');
-        $multiMatchQuery->setFields(array('name'));
+//        $multiMatchQuery->setQuery($query);
+//        $multiMatchQuery->setType('phrase_prefix');
+//        $multiMatchQuery->setFields(array('name'));
 
-        $results = $finder->find($multiMatchQuery);
+//        $results = $finder->find($multiMatchQuery);
+
+        $results = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Company\Company')
+            ->searchCompanies(
+                $search,
+                $limit,
+                $offset
+            );
+
         if (is_null($results) || empty($results)) {
             return new View(array());
         }
@@ -351,11 +360,6 @@ class ClientCompanyController extends CompanyController
             }
 
             $company = $results[$i];
-
-            // check company banned
-            if ($company->isBanned()) {
-                continue;
-            }
 
             $user = $this->getRepo('User\User')->find($company->getCreatorId());
             if (is_null($user) || $user->isBanned()) {

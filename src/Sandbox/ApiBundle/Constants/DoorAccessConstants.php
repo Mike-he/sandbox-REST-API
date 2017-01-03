@@ -10,4 +10,5 @@ class DoorAccessConstants
     const METHOD_LOST = 'lost';
     const METHOD_UNLOST = 'unlost';
     const METHOD_CHANGE_CARD = 'changecard';
+    const METHOD_CANCELLED = 'cancelled';
 }

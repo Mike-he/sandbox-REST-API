@@ -11,6 +11,11 @@ class LoadParameterData extends AbstractFixture implements OrderedFixtureInterfa
 {
     public function load(ObjectManager $manager)
     {
+
+        $p0 = new Parameter();
+        $p0->setKey('banner_top');
+        $p0->setValue('5');
+
         $p1 = new Parameter();
         $p1->setKey('all_spaces');
         $p1->setValue('https://testmobile.sandbox3.cn/search-xiehe?');
@@ -19,8 +24,14 @@ class LoadParameterData extends AbstractFixture implements OrderedFixtureInterfa
         $p2->setKey('quick_booking');
         $p2->setValue('https://testmobile.sandbox3.cn/search-xiehe?');
 
+        $p3 = new Parameter();
+        $p3->setKey('lease_confirm_expire_in');
+        $p3->setValue('P7D');
+
+        $manager->persist($p0);
         $manager->persist($p1);
         $manager->persist($p2);
+        $manager->persist($p3);
 
         $manager->flush();
     }

@@ -92,6 +92,31 @@ class RoomTypes
     private $quickBookingUrl;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="`range`", type="integer", options={"default": 30})
+     *
+     * @Serializer\Groups({"main", "drop_down"})
+     */
+    private $range = 30;
+
+    /**
+     * @return int
+     */
+    public function getRange()
+    {
+        return $this->range;
+    }
+
+    /**
+     * @param int $range
+     */
+    public function setRange($range)
+    {
+        $this->range = $range;
+    }
+
+    /**
      * Get id.
      *
      * @return int

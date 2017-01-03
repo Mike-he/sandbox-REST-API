@@ -33,6 +33,8 @@ class Log
     const MODULE_ORDER_PREORDER = 'room_order_preorder';
     const MODULE_USER = 'user';
     const MODULE_PRODUCT = 'product';
+    const MODULE_PRODUCT_APPOINTMENT = 'product_appointment';
+    const MODULE_LEASE = 'lease';
 
     const ACTION_CREATE = 'create';
     const ACTION_DELETE = 'delete';
@@ -49,6 +51,12 @@ class Log
     const ACTION_REJECT = 'reject';
     const ACTION_PRIVATE = 'private';
     const ACTION_REMOVE_PRIVATE = 'remove_private';
+    const ACTION_CONFORMING = 'conforming';
+    const ACTION_CONFORMED = 'conformed';
+    const ACTION_PERFORMING = 'performing';
+    const ACTION_CLOSE = 'close';
+    const ACTION_TERMINATE = 'terminate';
+    const ACTION_END = 'end';
 
     const OBJECT_ADMIN = 'admin';
     const OBJECT_BUILDING = 'building';
@@ -59,6 +67,9 @@ class Log
     const OBJECT_ROOM = 'room';
     const OBJECT_USER = 'user';
     const OBJECT_PRODUCT = 'product';
+    const OBJECT_PRODUCT_APPOINTMENT = 'product_appointment';
+    const OBJECT_LEASE = 'lease';
+    const OBJECT_LEASE_BILL = 'lease_bill';
 
     /**
      * @var int

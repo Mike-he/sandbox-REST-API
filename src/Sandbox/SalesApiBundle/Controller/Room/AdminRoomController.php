@@ -194,7 +194,12 @@ class AdminRoomController extends SalesRestController
             )
         );
 
-        if (!is_null($buildingId) && !in_array((int) $buildingId, $myBuildingIds)) {
+        if (empty($myBuildingIds) ||
+            (
+                !is_null($buildingId) &&
+                !in_array((int) $buildingId, $myBuildingIds)
+            )
+        ) {
             return new View();
         }
 
@@ -593,20 +598,15 @@ class AdminRoomController extends SalesRestController
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
             $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
-                ),
-            ),
+            [
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ROOM],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER],
+            ],
             AdminPermission::OP_LEVEL_VIEW
         );
 
@@ -1281,21 +1281,21 @@ class AdminRoomController extends SalesRestController
         $roomCity = $this->getRepo('Room\RoomCity')->find($roomBuilding->getCityId());
         $roomFloor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
 
-        $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
-                'building' => $roomBuilding,
-                'number' => $room->getNumber(),
-                'isDeleted' => false,
-            )
-        );
+//        $myRoom = $this->getRepo('Room\Room')->findOneBy(array(
+//                'building' => $roomBuilding,
+//                'number' => $room->getNumber(),
+//                'isDeleted' => false,
+//            )
+//        );
 
-        if (!is_null($myRoom)) {
-            //304 Not Modified
-            return $this->customErrorView(
-                400,
-                400001,
-                self::ALREADY_EXISTS_MESSAGE
-            );
-        }
+//        if (!is_null($myRoom)) {
+//            //304 Not Modified
+//            return $this->customErrorView(
+//                400,
+//                400001,
+//                self::ALREADY_EXISTS_MESSAGE
+//            );
+//        }
 
         if (is_null($roomCity) ||
             is_null($roomBuilding) ||

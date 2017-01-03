@@ -17,6 +17,7 @@ class LoadRoomTypesData extends AbstractFixture implements OrderedFixtureInterfa
         $rt1->setDescription('Private Office');
         $rt1->setIcon('/icon/1.png');
         $rt1->setType('seconds');
+        $rt1->setHomepageIcon('/icon/1.png');
         $this->addReference('first-room-type', $rt1);
 
         $rt2 = new RoomTypes();
@@ -24,6 +25,7 @@ class LoadRoomTypesData extends AbstractFixture implements OrderedFixtureInterfa
         $rt2->setDescription('Meeting Room');
         $rt2->setIcon('/icon/2.png');
         $rt2->setType('seconds');
+        $rt2->setHomepageIcon('/icon/2.png');
         $this->addReference('second-room-type', $rt2);
 
         $rt3 = new RoomTypes();
@@ -31,6 +33,7 @@ class LoadRoomTypesData extends AbstractFixture implements OrderedFixtureInterfa
         $rt3->setDescription('Fixed Room');
         $rt3->setIcon('/icon/3.png');
         $rt3->setType('seconds');
+        $rt3->setHomepageIcon('/icon/3.png');
         $this->addReference('third-room-type', $rt3);
 
         $rtu1 = new RoomTypeUnit();

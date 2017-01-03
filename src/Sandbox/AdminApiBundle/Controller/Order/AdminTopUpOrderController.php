@@ -52,18 +52,36 @@ class AdminTopUpOrderController extends PaymentController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="payment channel"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="search",
+     *    name="keyword",
      *    default=null,
      *    nullable=true,
-     *    description="search"
+     *    description="search query"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="payStart",
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -73,7 +91,7 @@ class AdminTopUpOrderController extends PaymentController
      * )
      *
      *  @Annotations\QueryParam(
-     *    name="payEnd",
+     *    name="pay_end",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -103,11 +121,13 @@ class AdminTopUpOrderController extends PaymentController
         );
 
         $channel = $paramFetcher->get('channel');
-        $search = $paramFetcher->get('search');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $payStart = $paramFetcher->get('payStart');
-        $payEnd = $paramFetcher->get('payEnd');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -116,9 +136,11 @@ class AdminTopUpOrderController extends PaymentController
             ->getRepository('SandboxApiBundle:Order\TopUpOrder')
             ->getTopUpOrdersForAdmin(
                 $channel,
+                $payDate,
                 $payStart,
                 $payEnd,
-                $search,
+                $keyword,
+                $keywordSearch,
                 $limit,
                 $offset
             );
@@ -127,9 +149,11 @@ class AdminTopUpOrderController extends PaymentController
             ->getRepository('SandboxApiBundle:Order\TopUpOrder')
             ->countTopUpOrdersForAdmin(
                 $channel,
+                $payDate,
                 $payStart,
                 $payEnd,
-                $search
+                $keyword,
+                $keywordSearch
             );
 
         $view = new View();

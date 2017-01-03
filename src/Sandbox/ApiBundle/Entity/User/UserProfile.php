@@ -317,9 +317,10 @@ class UserProfile
     /**
      * @var User
      *
-     * @ORM\OneToOne(targetEntity="User"))
+     * @ORM\OneToOne(targetEntity="User", inversedBy="userProfile")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
-     **/
+     *
+     */
     private $user;
 
     /**

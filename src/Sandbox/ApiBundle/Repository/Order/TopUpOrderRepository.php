@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityRepository;
 class TopUpOrderRepository extends EntityRepository
 {
     /**
-     * @param $channel
+     * @param array $channel
      * @param $payStart
      * @param $payEnd
      * @param $limit
@@ -17,9 +17,11 @@ class TopUpOrderRepository extends EntityRepository
      */
     public function getTopUpOrdersForAdmin(
         $channel,
+        $payDate,
         $payStart,
         $payEnd,
-        $search,
+        $keyword,
+        $keywordSearch,
         $limit,
         $offset
     ) {
@@ -27,31 +29,43 @@ class TopUpOrderRepository extends EntityRepository
             ->where('o.id IS NOT NULL');
 
         // filter by payment channel
-        if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
-        //filter by payStart
-        if (!is_null($payStart)) {
-            $payStart = new \DateTime($payStart);
-            $payStart->setTime(0, 0, 0);
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
             $query->andWhere('o.paymentDate >= :payStart')
-                ->setParameter('payStart', $payStart);
+                ->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $payStart->setTime(0, 0, 0);
+                $query->andWhere('o.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
         }
 
-        //filter by payEnd
-        if (!is_null($payEnd)) {
-            $payEnd = new \DateTime($payEnd);
-            $payEnd->setTime(23, 59, 59);
-            $query->andWhere('o.paymentDate <= :payEnd')
-                ->setParameter('payEnd', $payEnd);
-        }
-
-        if (!is_null($search) && !empty($search)) {
-            $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
-                ->andWhere('o.orderNumber LIKE :search OR up.name LIKE :search')
-                ->setParameter('search', "%$search%");
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
         }
 
         $query->setMaxResults($limit)
@@ -62,7 +76,7 @@ class TopUpOrderRepository extends EntityRepository
     }
 
     /**
-     * @param $channel
+     * @param array $channel
      * @param $payStart
      * @param $payEnd
      *
@@ -79,8 +93,8 @@ class TopUpOrderRepository extends EntityRepository
             ->where('o.id IS NOT NULL');
 
         // filter by payment channel
-        if (!is_null($channel)) {
-            $query->andWhere('o.payChannel = :channel')
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('o.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 

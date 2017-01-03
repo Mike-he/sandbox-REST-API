@@ -2,7 +2,7 @@ parameters:
     database_driver: pdo_mysql
     database_host: rdsuz7cpk5r23ytx02t0.mysql.rds.aliyuncs.com
     database_port: '3306'
-    database_name: staging_rest_db
+    database_name: staging_rest_api_db
     database_user: staging_rest
     database_password: S3deb0x_2016
     mailer_transport: smtp
@@ -108,3 +108,4 @@ parameters:
     room_mobile_url: https://testmobile.sandbox3.cn
     top_level_domain: sandbox3.cn
     jpush_apns_option: false
+    orders_url: https://testorders.sandbox3.cn

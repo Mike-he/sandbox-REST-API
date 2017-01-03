@@ -7,6 +7,29 @@ use Doctrine\ORM\EntityRepository;
 class CompanyRepository extends EntityRepository
 {
     /**
+     * @param $search
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function searchCompanies(
+        $search,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->where('c.banned = FALSE')
+            ->andWhere('c.name LIKE :search')
+            ->setParameter('search', $search);
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param array $recordIds
      * @param array $industryIds
      * @param int   $limit

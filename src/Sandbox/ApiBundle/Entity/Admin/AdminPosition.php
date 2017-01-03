@@ -148,6 +148,13 @@ class AdminPosition
     private $currentPlatform;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $permissionGroups;
+
+    /**
      * set permissionMappings.
      *
      * @return AdminPosition
@@ -461,6 +468,22 @@ class AdminPosition
     public function setSortTime($sortTime)
     {
         $this->sortTime = $sortTime;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPermissionGroups()
+    {
+        return $this->permissionGroups;
+    }
+
+    /**
+     * @param array $permissionGroups
+     */
+    public function setPermissionGroups($permissionGroups)
+    {
+        $this->permissionGroups = $permissionGroups;
     }
 
     /**

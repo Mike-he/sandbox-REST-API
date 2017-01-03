@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\SalesAdmin;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -32,12 +33,36 @@ class AdminSalesCompanyController extends LocationController
     public function getSalesCompaniesAction(
         Request $request
     ) {
-        $companies = $this->getRepo('SalesAdmin\SalesCompany')->getSalesCompanies();
+        $companies = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->getSalesCompanies();
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['dropdown']));
         $view->setData($companies);
 
         return $view;
+    }
+
+    /**
+     * @param $id
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/companies/{id}")
+     * @Method({"GET"})
+     *
+     * @return object
+     */
+    public function getOneSalesCompanyAction(
+        $id,
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($id);
+
+        return new View($company);
     }
 }

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 
 /**
@@ -45,6 +46,15 @@ trait LogsTrait
                 break;
             case Log::OBJECT_ADMIN:
                 $json = $this->getAdminJson($objectId);
+                break;
+            case Log::OBJECT_LEASE:
+                $json = $this->getLeaseJson($objectId);
+                break;
+            case Log::OBJECT_LEASE_BILL:
+                $json = $this->getLeaseBillJson($objectId);
+                break;
+            case Log::OBJECT_PRODUCT_APPOINTMENT:
+                $json = $this->getProductAppointmentJson($objectId);
                 break;
             default:
                 return false;
@@ -213,6 +223,58 @@ trait LogsTrait
     }
 
     /**
+     * @param $objectId
+     *
+     * @return mixed|void
+     */
+    private function getLeaseJson(
+        $objectId
+    ) {
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->find($objectId);
+
+        if (is_null($lease)) {
+            return;
+        }
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(array(
+            'lease' => $lease,
+            'type' => LeaseBill::TYPE_LEASE,
+        ));
+        $lease->setBills($bills);
+
+        return $this->transferToJsonWithViewGroup(
+            $lease,
+            'main'
+        );
+    }
+
+    /**
+     * @param $objectId
+     *
+     * @return mixed|void
+     */
+    private function getLeaseBillJson(
+        $objectId
+    ) {
+        $bill = $this->getDoctrine()
+            ->getRepository("SandboxApiBundle:Lease\LeaseBill")
+            ->find($objectId);
+
+        if (is_null($bill)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup(
+            $bill,
+            'lease_bill'
+        );
+    }
+
+    /**
      * @param $input
      * @param $group
      *
@@ -240,5 +302,27 @@ trait LogsTrait
         $input
     ) {
         return $this->getContainer()->get('serializer')->serialize($input, 'json');
+    }
+
+    /**
+     * @param $objectId
+     *
+     * @return mixed|void
+     */
+    private function getProductAppointmentJson(
+        $objectId
+    ) {
+        $appointment = $this->getDoctrine()
+            ->getRepository("SandboxApiBundle:Product\ProductAppointment")
+            ->find($objectId);
+
+        if (is_null($appointment)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup(
+            $appointment,
+            'main'
+        );
     }
 }

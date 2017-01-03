@@ -27,6 +27,7 @@ class Room
     const TYPE_MEETING = 'meeting';
     const TYPE_STUDIO = 'studio';
     const TYPE_SPACE = 'space';
+    const TYPE_LONG_TERM = 'longterm';
 
     /**
      * @var int
@@ -35,7 +36,7 @@ class Room
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_list"})
      */
     private $id;
 
@@ -44,7 +45,7 @@ class Room
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_list"})
      */
     private $name;
 
@@ -72,7 +73,7 @@ class Room
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
      * @ORM\JoinColumn(name="cityId", referencedColumnName="id", onDelete="SET NULL")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "admin_appointment"})
      */
     private $city;
 
@@ -91,7 +92,7 @@ class Room
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_detail"})
      */
     private $building;
 
@@ -116,9 +117,9 @@ class Room
     /**
      * @var string
      *
-     * @ORM\Column(name="number", type="string", length=64, nullable=false)
+     * @ORM\Column(name="number", type="string", length=64, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "admin_appointment"})
      */
     private $number;
 
@@ -127,16 +128,16 @@ class Room
      *
      * @ORM\Column(name="area", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "client_appointment_detail"})
      */
     private $area;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", nullable=false)
+     * @ORM\Column(name="type", type="string", length=64, nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_detail"})
      */
     private $type;
 
@@ -152,7 +153,7 @@ class Room
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
      *
-     * @Serializer\Groups({"main", "admin_room", "client"})
+     * @Serializer\Groups({"main", "admin_room", "client", "client_appointment_detail"})
      */
     private $allowedPeople;
 
@@ -250,14 +251,14 @@ class Room
      * @ORM\JoinColumn(name="id", referencedColumnName="roomId")
      * @ORM\OrderBy({"id" = "ASC"})
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "current_order"})
+     * @Serializer\Groups({"main", "admin_room", "client", "current_order", "client_appointment_list"})
      */
     private $attachment;
 
     /**
      * @var string
      *
-     * @Serializer\Groups({"main", "admin_room"})
+     * @Serializer\Groups({"main", "admin_room", "client"})
      */
     private $rentType;
 
@@ -769,5 +770,19 @@ class Room
     public function setRentType($rentType)
     {
         $this->rentType = $rentType;
+    }
+
+    public function degenerateAttachment()
+    {
+        $attachment = array_map(
+            function ($attachment) {
+                return
+                    $attachment->getAttachmentId()->getContent()
+                ;
+            },
+            $this->attachment->toArray()
+        );
+
+        return $attachment[0];
     }
 }
