@@ -246,7 +246,7 @@ class LeaseBill
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $transfer;
 
