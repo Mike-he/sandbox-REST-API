@@ -65,6 +65,15 @@ class AdminProductAppointmentController extends AdminProductController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="room",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room id"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -167,6 +176,7 @@ class AdminProductAppointmentController extends AdminProductController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $buildingId = $paramFetcher->get('buildingId');
+        $roomId = $paramFetcher->get('room');
         $status = $paramFetcher->get('status');
 
         // search keyword and query
@@ -213,7 +223,8 @@ class AdminProductAppointmentController extends AdminProductController
             $startDate,
             $endDate,
             $pageIndex,
-            $pageLimit
+            $pageLimit,
+            $roomId
         );
     }
 
