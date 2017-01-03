@@ -1497,6 +1497,15 @@ class AdminLeaseController extends SalesRestController
     ) {
         $em = $this->getDoctrine()->getManager();
 
+        // set product visible to false
+        $product = $lease->getProduct();
+        if (!is_null($product)) {
+            $product->setVisible(false);
+            $product->setAppointment(false);
+
+            $em->flush();
+        }
+
         // set appointment status to accepted
         $appointment = $lease->getProductAppointment();
         if (!is_null($appointment)) {
@@ -1525,13 +1534,7 @@ class AdminLeaseController extends SalesRestController
             }
         }
 
-        // set product visible to false
-        $product = $lease->getProduct();
         if (!is_null($product)) {
-            $product->setVisible(false);
-            $product->setAppointment(false);
-
-            $em->flush();
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_PRODUCT,
                 'logAction' => Log::ACTION_EDIT,
