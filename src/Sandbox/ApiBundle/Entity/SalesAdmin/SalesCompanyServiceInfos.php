@@ -67,6 +67,14 @@ class SalesCompanyServiceInfos
     private $drawer = self::DRAWER_SANDBOX;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="invoicing_subjects", type="string", length=60, nullable=true)
+     *
+     */
+    private $invoicingSubjects;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="status", type="boolean")
@@ -183,5 +191,21 @@ class SalesCompanyServiceInfos
     public function setStatus($status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInvoicingSubjects()
+    {
+        return $this->invoicingSubjects;
+    }
+
+    /**
+     * @param string $invoicingSubjects
+     */
+    public function setInvoicingSubjects($invoicingSubjects)
+    {
+        $this->invoicingSubjects = $invoicingSubjects;
     }
 }
