@@ -1093,6 +1093,16 @@ class AdminLeaseController extends SalesRestController
                     throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $lease->getSupervisorId(),
+                    ],
+                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE,
+                    null,
+                    $contentArray
+                );
+
                 break;
             case Lease::LEASE_STATUS_CONFIRMED:
                 if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
@@ -1482,27 +1492,29 @@ class AdminLeaseController extends SalesRestController
         // set appointment status to accepted
         $appointment = $lease->getProductAppointment();
         if (!is_null($appointment)) {
-            $appointment->setStatus(ProductAppointment::STATUS_ACCEPTED);
+            if($appointment == ProductAppointment::STATUS_PENDING) {
+                $appointment->setStatus(ProductAppointment::STATUS_ACCEPTED);
 
-            $em->flush();
-            $this->generateAdminLogs(array(
-                'logModule' => Log::MODULE_PRODUCT_APPOINTMENT,
-                'logAction' => Log::ACTION_AGREE,
-                'logObjectKey' => Log::OBJECT_PRODUCT_APPOINTMENT,
-                'logObjectId' => $appointment->getId(),
-            ));
+                $em->flush();
+                $this->generateAdminLogs(array(
+                    'logModule' => Log::MODULE_PRODUCT_APPOINTMENT,
+                    'logAction' => Log::ACTION_AGREE,
+                    'logObjectKey' => Log::OBJECT_PRODUCT_APPOINTMENT,
+                    'logObjectId' => $appointment->getId(),
+                ));
 
-            $urlParam = 'ptype=rentDetail&rentId='.$appointment->getId();
-            $contentArray = $this->generateLeaseContentArray($urlParam, 'longrent');
-            // send Jpush notification
-            $this->generateJpushNotification(
-                [
-                    $appointment->getUserId(),
-                ],
-                LeaseConstants::APPLICATION_APPROVED_MESSAGE,
-                null,
-                $contentArray
-            );
+                $urlParam = 'ptype=rentDetail&rentId='.$appointment->getId();
+                $contentArray = $this->generateLeaseContentArray($urlParam, 'longrent');
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $appointment->getUserId(),
+                    ],
+                    LeaseConstants::APPLICATION_APPROVED_MESSAGE,
+                    null,
+                    $contentArray
+                );
+            }
         }
 
         // set product visible to false
