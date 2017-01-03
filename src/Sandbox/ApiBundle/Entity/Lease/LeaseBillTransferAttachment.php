@@ -20,7 +20,7 @@ class LeaseBillTransferAttachment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $id;
 
@@ -41,7 +41,7 @@ class LeaseBillTransferAttachment
      *
      * @ORM\Column(name="content", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main" ,"client"})
+     * @Serializer\Groups({"main" ,"client","lease_bill"})
      */
     private $content;
 
@@ -50,7 +50,7 @@ class LeaseBillTransferAttachment
      *
      * @ORM\Column(name="attachment_type", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main" ,"client"})
+     * @Serializer\Groups({"main" ,"client","lease_bill"})
      */
     private $attachmentType;
 
@@ -59,7 +59,7 @@ class LeaseBillTransferAttachment
      *
      * @ORM\Column(name="filename", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main" ,"client"})
+     * @Serializer\Groups({"main" ,"client","lease_bill"})
      */
     private $filename;
 
@@ -68,7 +68,7 @@ class LeaseBillTransferAttachment
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $preview;
 
@@ -77,7 +77,7 @@ class LeaseBillTransferAttachment
      *
      * @ORM\Column(name="size", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $size;
 
