@@ -6,10 +6,12 @@ use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
+use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -19,6 +21,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 
 /**
  * Admin product appointment controller.
@@ -33,6 +36,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminProductAppointmentController extends AdminProductController
 {
     use SendNotification;
+    use HasAccessToEntityRepositoryTrait;
 
     /**
      * Get product appointments.
@@ -339,6 +343,14 @@ class AdminProductAppointmentController extends AdminProductController
         }
 
         $action = Log::ACTION_REJECT;
+
+        $lease = $this->getLeaseRepo()->findOneBy(['productAppointment' => $appointment]);
+
+        if (!is_null($lease)) {
+            if ($lease->getStatus() == Lease::LEASE_STATUS_DRAFTING) {
+                $lease->setStatus(Lease::LEASE_STATUS_CLOSED);
+            }
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

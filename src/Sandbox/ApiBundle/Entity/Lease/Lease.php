@@ -384,6 +384,7 @@ class Lease
      * @var \DateTime
      *
      * @ORM\Column(name="confirmed_date", type="datetime", nullable=true)
+     * @Serializer\Groups({"main", "lease_list", "client"})
      */
     private $conformedDate;
 
