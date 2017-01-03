@@ -344,7 +344,7 @@ class AdminProductAppointmentController extends AdminProductController
         $em->flush();
 
         $urlParam = 'ptype=rentDetail&rentId='.$appointment->getId();
-        $contentArray = $this->generateLeaseContentArray($urlParam,'longrent');
+        $contentArray = $this->generateLeaseContentArray($urlParam, 'longrent');
         // send Jpush notification
         $this->generateJpushNotification(
             [
