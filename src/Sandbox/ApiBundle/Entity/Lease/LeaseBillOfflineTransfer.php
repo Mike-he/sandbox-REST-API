@@ -27,7 +27,7 @@ class LeaseBillOfflineTransfer
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","lease_bill"})
      */
     private $id;
 
@@ -46,7 +46,7 @@ class LeaseBillOfflineTransfer
      *
      * @ORM\Column(name="account_name", type="string", length=64, nullable=true)
      *
-     * @Serializer\Groups({"main" ,"client"})
+     * @Serializer\Groups({"main" ,"client","lease_bill"})
      */
     private $accountName;
 
@@ -55,7 +55,7 @@ class LeaseBillOfflineTransfer
      *
      * @ORM\Column(name="account_no", type="string", length=64, nullable=true)
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $accountNo;
 
@@ -64,7 +64,7 @@ class LeaseBillOfflineTransfer
      *
      * @ORM\Column(name="transfer_status", type="string", length=16)
      *
-     * @Serializer\Groups({"main" ,"client"})
+     * @Serializer\Groups({"main" ,"client","lease_bill"})
      */
     private $transferStatus = self::STATUS_UNPAID;
 
@@ -74,7 +74,7 @@ class LeaseBillOfflineTransfer
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $creationDate;
 
@@ -84,14 +84,14 @@ class LeaseBillOfflineTransfer
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime")
      *
-     * @Serializer\Groups({"main" ,"client"})
+     * @Serializer\Groups({"main" ,"client","lease_bill"})
      */
     private $modificationDate;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"main","client"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $attachments;
 
@@ -101,7 +101,7 @@ class LeaseBillOfflineTransfer
      *   @ORM\JoinColumn(name="id", referencedColumnName="transfer_id")
      * })
      *
-     * @Serializer\Groups({"main" ,"client"})
+     * @Serializer\Groups({"main" ,"client","lease_bill"})
      */
     private $transferAttachments;
 
