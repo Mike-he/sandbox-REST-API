@@ -156,25 +156,6 @@ class SalesCompany
     private $modificationDate;
 
     /**
-     * @var RoomTypes
-     *
-     * @ORM\ManyToMany(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomTypes")
-     * @ORM\JoinTable(
-     *      name="sales_company_has_room_types",
-     *      joinColumns={@ORM\JoinColumn(name="sales_company_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="room_types_id", referencedColumnName="id")}
-     * )
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $roomTypes;
-
-    public function __construct()
-    {
-        $this->roomTypes = new ArrayCollection();
-    }
-
-    /**
      * Get id.
      *
      * @return int
@@ -494,28 +475,5 @@ class SalesCompany
     public function setHasPendingShop($hasPendingShop)
     {
         $this->hasPendingShop = $hasPendingShop;
-    }
-
-    public function getRoomTypes()
-    {
-        return $this->roomTypes;
-    }
-
-    /**
-     * @param RoomTypes $roomType
-     */
-    public function addRoomTypes($roomType)
-    {
-        $this->roomTypes[] = $roomType;
-    }
-
-    /**
-     * @param $roomType
-     *
-     * @return bool
-     */
-    public function removeRoomTypes($roomType)
-    {
-        return $this->roomTypes->removeElement($roomType);
     }
 }
