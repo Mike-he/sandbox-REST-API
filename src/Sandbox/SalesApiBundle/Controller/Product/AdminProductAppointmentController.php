@@ -417,6 +417,7 @@ class AdminProductAppointmentController extends AdminProductController
                 $rentFilter,
                 $startDate,
                 $endDate,
+                null,
                 $roomId
             );
 
@@ -435,6 +436,7 @@ class AdminProductAppointmentController extends AdminProductController
                 $endDate,
                 $limit,
                 $offset,
+                null,
                 $roomId
             );
 
