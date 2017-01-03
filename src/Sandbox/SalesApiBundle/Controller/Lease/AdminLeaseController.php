@@ -1492,7 +1492,7 @@ class AdminLeaseController extends SalesRestController
         // set appointment status to accepted
         $appointment = $lease->getProductAppointment();
         if (!is_null($appointment)) {
-            if($appointment->getStatus() == ProductAppointment::STATUS_PENDING) {
+            if ($appointment->getStatus() == ProductAppointment::STATUS_PENDING) {
                 $appointment->setStatus(ProductAppointment::STATUS_ACCEPTED);
 
                 $em->flush();
