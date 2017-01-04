@@ -189,8 +189,7 @@ class ClientLeaseController extends SandboxRestController
             $bills = $this->getLeaseBillRepo()
                 ->findBy(array(
                     'lease' => $lease,
-                    'status' => LeaseBill::STATUS_UNPAID,
-                    'type' => LeaseBill::TYPE_LEASE,
+                    'status' => LeaseBill::STATUS_UNPAID
                 ));
 
             array_push($response, array(
