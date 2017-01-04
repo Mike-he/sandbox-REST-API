@@ -373,7 +373,7 @@ class ClientLeaseBillController extends PaymentController
             ->findOneBy(
                 array(
                     'id' => $id,
-                    'status' => ProductOrder::STATUS_UNPAID,
+                    'status' => LeaseBill::STATUS_UNPAID,
                 )
             );
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);

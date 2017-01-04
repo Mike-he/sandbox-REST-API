@@ -253,6 +253,15 @@ class LeaseBill
     private $transfer;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="remark", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $remark;
+
+    /**
      * @return int
      */
     public function getId()
@@ -618,5 +627,21 @@ class LeaseBill
     public function setTransfer($transfer)
     {
         $this->transfer = $transfer;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemark()
+    {
+        return $this->remark;
+    }
+
+    /**
+     * @param string $remark
+     */
+    public function setRemark($remark)
+    {
+        $this->remark = $remark;
     }
 }
