@@ -129,9 +129,8 @@ class OrderController extends PaymentController
                 $language
             );
 
-            $building = $order->getProduct()->getRoom()->getBuilding();
-            $buildingName = $building->getName();
-            $companyName = $building->getCompany()->getName();
+            $buildingName = $order->getProduct()->getRoom()->getBuilding()->getName();
+            $companyName = $order->getProduct()->getRoom()->getBuilding()->getCompany()->getName();
 
             // set excel body
             $body = array(

@@ -21,7 +21,8 @@ class SalesCompanyRepository extends EntityRepository
         $banned,
         $search
     ) {
-        $query = $this->createQueryBuilder('sc');
+        $query = $this->createQueryBuilder('sc')
+            ->where('sc.id is not null');
 
         if (!is_null($banned)) {
             $query->andWhere('sc.banned = :banned')
