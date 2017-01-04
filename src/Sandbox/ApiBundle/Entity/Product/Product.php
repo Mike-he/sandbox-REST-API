@@ -299,6 +299,19 @@ class Product
     private $appointment = true;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $collectionMethod;
+
+    public function __construct()
+    {
+        $date = new \DateTime('2099-12-30 23:59:59');
+        $this->setEndDate($date);
+    }
+
+    /**
      * @return bool
      */
     public function isAppointment()
@@ -930,9 +943,19 @@ class Product
         $this->totalAppointmentCounts = $totalAppointmentCounts;
     }
 
-    public function __construct()
+    /**
+     * @return string
+     */
+    public function getCollectionMethod()
     {
-        $date = new \DateTime('2099-12-30 23:59:59');
-        $this->setEndDate($date);
+        return $this->collectionMethod;
+    }
+
+    /**
+     * @param string $collectionMethod
+     */
+    public function setCollectionMethod($collectionMethod)
+    {
+        $this->collectionMethod = $collectionMethod;
     }
 }

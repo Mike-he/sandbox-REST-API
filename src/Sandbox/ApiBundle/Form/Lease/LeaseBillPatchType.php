@@ -18,6 +18,7 @@ class LeaseBillPatchType extends AbstractType
             ->add('revised_amount')
             ->add('revision_note')
             ->add('status')
+            ->add('remark')
         ;
     }
 

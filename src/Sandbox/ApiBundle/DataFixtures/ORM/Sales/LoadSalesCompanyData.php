@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\DataFixtures\ORM\Sales;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 
@@ -27,17 +28,17 @@ class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInte
 
         $scs1 = new SalesCompanyServiceInfos();
         $scs1->setCompany($sc1);
-        $scs1->setRoomTypes('office');
+        $scs1->setRoomTypes(Room::TYPE_MEETING);
         $scs1->setServiceFee(10);
 
         $scs2 = new SalesCompanyServiceInfos();
         $scs2->setCompany($sc1);
-        $scs2->setRoomTypes('meeting');
+        $scs2->setRoomTypes(Room::TYPE_MEETING);
         $scs2->setServiceFee(10);
 
         $scs3 = new SalesCompanyServiceInfos();
         $scs3->setCompany($sc1);
-        $scs3->setRoomTypes('longterm');
+        $scs3->setRoomTypes(Room::TYPE_LONG_TERM);
         $scs3->setServiceFee(10);
         $scs3->setCollectionMethod(SalesCompanyServiceInfos::COLLECTION_METHOD_SALES);
         $scs3->setDrawer(SalesCompanyServiceInfos::DRAWER_SALES);

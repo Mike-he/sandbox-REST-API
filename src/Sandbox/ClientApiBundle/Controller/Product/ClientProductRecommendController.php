@@ -121,6 +121,22 @@ class ClientProductRecommendController extends ProductController
                     $product->setBasePrice($price);
                 }
             }
+
+            if ($type == Room::TYPE_LONG_TERM) {
+                $company = $room->getBuilding()->getCompany();
+
+                $companyService = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                    ->findOneBy(
+                        array(
+                            'company' => $company,
+                            'roomTypes' => $type,
+                        )
+                    );
+                if ($companyService) {
+                    $product->setCollectionMethod($companyService->getCollectionMethod());
+                }
+            }
         }
 
         $view = new View();
