@@ -432,7 +432,6 @@ trait SendNotification
         $leaseUrl = $this->getContainer()
             ->getParameter('orders_url');
 
-
         if (is_null($urlPath)) {
             $urlPath = 'contract';
         }

@@ -319,7 +319,6 @@ class UserProfile
      *
      * @ORM\OneToOne(targetEntity="User", inversedBy="userProfile")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
-     *
      */
     private $user;
 

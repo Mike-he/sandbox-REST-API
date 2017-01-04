@@ -21,7 +21,6 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 
 /**
  * Admin product appointment controller.
@@ -357,7 +356,7 @@ class AdminProductAppointmentController extends AdminProductController
         $em->flush();
 
         $urlParam = 'ptype=rentDetail&rentId='.$appointment->getId();
-        $contentArray = $this->generateLeaseContentArray($urlParam,'longrent');
+        $contentArray = $this->generateLeaseContentArray($urlParam, 'longrent');
         // send Jpush notification
         $this->generateJpushNotification(
             [

@@ -923,7 +923,8 @@ class PaymentController extends DoorController
         $status = $order->getStatus();
 
         if ($status != ProductOrder::STATUS_CANCELLED &&
-            $status != ProductOrder::STATUS_UNPAID
+            $status != ProductOrder::STATUS_UNPAID ||
+            $order->isCancelByUser()
         ) {
             throw new NotFoundHttpException();
         }

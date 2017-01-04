@@ -111,64 +111,63 @@ class AdminSalesAdminsController extends SandboxRestController
         // check user permission
         $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $salesCompanies = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+        $salesCompanies = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
             ->getCompanyList(
                 $banned,
                 $search
             );
 
-        if (!is_null($salesCompanies) && !empty($salesCompanies)) {
-            foreach ($salesCompanies as $company) {
-                $buildingCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->countSalesBuildings($company);
-                $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
-                $shopCounts = count($shops);
+        foreach ($salesCompanies as $company) {
+            $buildingCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->countSalesBuildings($company);
+            $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
+            $shopCounts = count($shops);
 
-                $adminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                    ->findOneBy(
-                        array(
-                            'salesCompany' => $company,
-                            'name' => self::POSITION_ADMIN,
-                            'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
-                            'isSuperAdmin' => true,
-                        )
-                    );
-                $adminPositionUser = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->findBy(array('position' => $adminPosition));
+            $adminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->findOneBy(
+                    array(
+                        'salesCompany' => $company,
+                        'name' => self::POSITION_ADMIN,
+                        'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
+                        'isSuperAdmin' => true,
+                    )
+                );
+            $adminPositionUser = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findBy(array('position' => $adminPosition));
 
-                $coffeeAdminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                    ->findOneBy(
-                        array(
-                            'salesCompany' => $company,
-                            'name' => self::POSITION_COFFEE_ADMIN,
-                            'platform' => AdminPermission::PERMISSION_PLATFORM_SHOP,
-                            'isSuperAdmin' => true,
-                        )
-                    );
+            $coffeeAdminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->findOneBy(
+                    array(
+                        'salesCompany' => $company,
+                        'name' => self::POSITION_COFFEE_ADMIN,
+                        'platform' => AdminPermission::PERMISSION_PLATFORM_SHOP,
+                        'isSuperAdmin' => true,
+                    )
+                );
 
-                $coffeeAdminPositionUser = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->findBy(array('position' => $coffeeAdminPosition));
+            $coffeeAdminPositionUser = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findBy(array('position' => $coffeeAdminPosition));
 
-                $company->setAdmin($adminPositionUser);
-                $company->setCoffeeAdmin($coffeeAdminPositionUser);
-                $company->setBuildingCounts((int) $buildingCounts);
-                $company->setShopCounts((int) $shopCounts);
+            $company->setAdmin($adminPositionUser);
+            $company->setCoffeeAdmin($coffeeAdminPositionUser);
+            $company->setBuildingCounts((int) $buildingCounts);
+            $company->setShopCounts((int) $shopCounts);
 
-                // new pending building
-                $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->findOneBy(array(
-                        'companyId' => $company,
-                        'status' => RoomBuilding::STATUS_PENDING,
-                        'isDeleted' => false,
-                    ));
-                if (!is_null($pendingBuilding)) {
-                    $company->setHasPendingBuilding(true);
-                }
+            // new pending building
+            $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->findOneBy(array(
+                    'companyId' => $company,
+                    'status' => RoomBuilding::STATUS_PENDING,
+                    'isDeleted' => false,
+                ));
+            if (!is_null($pendingBuilding)) {
+                $company->setHasPendingBuilding(true);
+            }
 
-                // new pending shop
-                foreach ($shops as $shop) {
-                    if (!$shop->isActive() && !$shop->isDeleted()) {
-                        $company->setHasPendingShop(true);
-                    }
+            // new pending shop
+            foreach ($shops as $shop) {
+                if (!$shop->isActive() && !$shop->isDeleted()) {
+                    $company->setHasPendingShop(true);
                 }
             }
         }

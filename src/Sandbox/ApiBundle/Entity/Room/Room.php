@@ -597,7 +597,7 @@ class Room
     /**
      * Get building.
      *
-     * @return Room
+     * @return RoomBuilding
      */
     public function getBuilding()
     {

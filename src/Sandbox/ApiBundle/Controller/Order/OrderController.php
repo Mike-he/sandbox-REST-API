@@ -129,9 +129,15 @@ class OrderController extends PaymentController
                 $language
             );
 
-            $building = $order->getProduct()->getRoom()->getBuilding();
-            $buildingName = $building->getName();
-            $companyName = $building->getCompany()->getName();
+            $companyName = null;
+            $buildingName = null;
+            $productId = $order->getProductId();
+            if (!is_null($productId)) {
+                $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->find($productId);
+                $building = $product->getRoom()->getBuilding();
+                $buildingName = $building->getName();
+                $companyName = $building->getCompany()->getName();
+            }
 
             // set excel body
             $body = array(
