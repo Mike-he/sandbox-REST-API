@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillTransferAttachment;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPost;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
@@ -365,11 +366,27 @@ class ClientLeaseBillController extends PaymentController
         $result = array();
         foreach ($bills as $bill) {
             $room = $bill->getLease()->getProduct()->getRoom();
+            $type = $room->getType();
             $building = $room->getBuilding();
 
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
                 ->findAttachmentsByRoom($room, 1);
+
+            $collectionMethod = null;
+            if ($type == Room::TYPE_LONG_TERM) {
+                $companyService = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                    ->findOneBy(
+                        array(
+                            'company' => $building->getCompany(),
+                            'roomTypes' => $type,
+                        )
+                    );
+                if ($companyService) {
+                    $collectionMethod = $companyService->getCollectionMethod();
+                }
+            }
 
             $transfer = $bill->getTransfer();
 
@@ -396,6 +413,7 @@ class ClientLeaseBillController extends PaymentController
                 'content' => $attachment ? $attachment[0]['content'] : '',
                 'preview' => $attachment ? $attachment[0]['preview'] : '',
                 'transfer' => $transfer,
+                'collection_method' => $collectionMethod,
             );
         }
 
@@ -412,7 +430,23 @@ class ClientLeaseBillController extends PaymentController
     ) {
         $product = $bill->getLease()->getProduct();
         $room = $product->getRoom();
+        $type = $room->getType();
         $building = $room->getBuilding();
+
+        $collectionMethod = null;
+        if ($type == Room::TYPE_LONG_TERM) {
+            $companyService = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->findOneBy(
+                    array(
+                        'company' => $building->getCompany(),
+                        'roomTypes' => $type,
+                    )
+                );
+            if ($companyService) {
+                $collectionMethod = $companyService->getCollectionMethod();
+            }
+        }
 
         $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
 
@@ -451,6 +485,7 @@ class ClientLeaseBillController extends PaymentController
                         'name' => $room->getName(),
                         'type' => $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType()),
                         'address' => $building->getCity()->getName().$building->getAddress(),
+                        'collection_method' => $collectionMethod,
                     ),
             'drawee' => $drawee,
             'attachment' => $attachment,

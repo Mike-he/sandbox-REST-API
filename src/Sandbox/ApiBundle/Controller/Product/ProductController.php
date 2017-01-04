@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Product;
 
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
@@ -54,6 +55,24 @@ class ProductController extends SalesRestController
                 self::PRODUCT_NOT_FOUND_CODE,
                 self::PRODUCT_NOT_FOUND_MESSAGE
             );
+        }
+
+        $room = $product->getRoom();
+        $type = $room->getType();
+        if ($type == Room::TYPE_LONG_TERM) {
+            $company = $room->getBuilding()->getCompany();
+
+            $companyService = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->findOneBy(
+                    array(
+                        'company' => $company,
+                        'roomTypes' => $type,
+                    )
+                );
+            if ($companyService) {
+                $product->setCollectionMethod($companyService->getCollectionMethod());
+            }
         }
 
         $view = new View();

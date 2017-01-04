@@ -272,6 +272,20 @@ class ClientProductController extends ProductController
                     $product->setBasePrice($price);
                 }
             } elseif ($type == Room::TYPE_LONG_TERM) {
+                $company = $room->getBuilding()->getCompany();
+
+                $companyService = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                    ->findOneBy(
+                        array(
+                            'company' => $company,
+                            'roomTypes' => $type,
+                        )
+                    );
+                if ($companyService) {
+                    $product->setCollectionMethod($companyService->getCollectionMethod());
+                }
+
                 $type = Room::TYPE_OFFICE;
             }
 
