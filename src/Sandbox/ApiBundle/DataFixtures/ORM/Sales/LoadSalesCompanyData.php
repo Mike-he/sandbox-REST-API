@@ -25,8 +25,9 @@ class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInte
 
         $scs1 = new SalesCompanyServiceInfos();
         $scs1->setCompany($sc1);
-        $scs1->setRoomTypes(Room::TYPE_MEETING);
+        $scs1->setRoomTypes(Room::TYPE_OFFICE);
         $scs1->setServiceFee(10);
+        $scs1->setStatus(1);
 
         $scs2 = new SalesCompanyServiceInfos();
         $scs2->setCompany($sc1);
@@ -40,6 +41,7 @@ class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInte
         $scs3->setCollectionMethod(SalesCompanyServiceInfos::COLLECTION_METHOD_SALES);
         $scs3->setDrawer(SalesCompanyServiceInfos::DRAWER_SALES);
         $scs3->setInvoicingSubjects('开票科目');
+        $scs3->setStatus(1);
 
         $manager->persist($sc1);
 
