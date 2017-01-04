@@ -3,6 +3,8 @@
 namespace Sandbox\ClientApiBundle\Controller\Lease;
 
 use JMS\Serializer\SerializationContext;
+use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
@@ -11,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBillTransferAttachment;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPost;
+use Sandbox\ApiBundle\Form\Lease\LeaseBillPatchType;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -19,6 +22,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientLeaseBillController extends PaymentController
 {
@@ -285,14 +289,7 @@ class ClientLeaseBillController extends PaymentController
                     'payChannel' => ProductOrder::CHANNEL_OFFLINE,
                 )
             );
-
-        if (is_null($bill)) {
-            return $this->customErrorView(
-                400,
-                self::BILL_NOT_FOUND_CODE,
-                self::BILL_NOT_FOUND_MESSAGE
-            );
-        }
+        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
         $transfer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
@@ -350,6 +347,54 @@ class ClientLeaseBillController extends PaymentController
 
         $transfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_PENDING);
 
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * Patch bill status.
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/leases/bills/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchBillAction(
+        Request $request,
+        $id
+    ) {
+        $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")
+            ->findOneBy(
+                array(
+                    'id' => $id,
+                    'status' => ProductOrder::STATUS_UNPAID,
+                )
+            );
+        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
+
+        $billJson = $this->container->get('serializer')->serialize($bill, 'json');
+        $patch = new Patch($billJson, $request->getContent());
+        $billJson = $patch->apply();
+        $form = $this->createForm(new LeaseBillPatchType(), $bill);
+        $form->submit(json_decode($billJson, true));
+
+        $newStatus = $bill->getStatus();
+        if ($newStatus != LeaseBill::STATUS_VERIFY) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_MESSAGE);
+        }
+
+        $bill->setPayChannel(LeaseBill::CHANNEL_SALES_OFFLINE);
+        $bill->setDrawee($this->getUserId());
+        $bill->setPaymentDate(new \DateTime());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($bill);
         $em->flush();
 
         return new View();

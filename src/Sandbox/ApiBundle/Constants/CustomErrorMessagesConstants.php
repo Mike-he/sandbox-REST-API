@@ -12,6 +12,8 @@ class CustomErrorMessagesConstants
     const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE = 'Sorry, you can not remove all bills, please keeping at least one bill.';
     const ERROR_LEASE_END_BILL_UNPAID_MESSAGE = 'Sorry, you can not end lease, there are bills unpaid.';
 
+    const ERROR_STATUS_MESSAGE = 'The status is error';
+
     // 404 NOT FOUND MESSAGE
     const ERROR_LEASE_NOT_FOUND_MESSAGE = 'The lease does not exist';
     const ERROR_PRODUCT_NOT_FOUND_MESSAGE = 'The product does not exist';
