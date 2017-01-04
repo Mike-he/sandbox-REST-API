@@ -13,7 +13,6 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
-use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -190,7 +189,7 @@ class ClientLeaseController extends SandboxRestController
             $bills = $this->getLeaseBillRepo()
                 ->findBy(array(
                     'lease' => $lease,
-                    'status' => LeaseBill::STATUS_UNPAID
+                    'status' => LeaseBill::STATUS_UNPAID,
                 ));
 
             array_push($response, array(

@@ -11,7 +11,6 @@ class LoadParameterData extends AbstractFixture implements OrderedFixtureInterfa
 {
     public function load(ObjectManager $manager)
     {
-
         $p0 = new Parameter();
         $p0->setKey('banner_top');
         $p0->setValue('5');
