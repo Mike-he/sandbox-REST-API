@@ -76,8 +76,14 @@ class ClientProductRecommendController extends ProductController
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
 
         // find recommend products
-        $products = $this->getRepo('Product\Product')->getProductsRecommend(
-            $userId, $city, $limit, $offset, true
+        $products = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->getProductsRecommend(
+                $userId,
+                $city,
+                $limit,
+                $offset,
+                true
         );
 //        $recommendCount = count($products);
 

@@ -6,6 +6,7 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 
 class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInterface
 {
@@ -24,7 +25,29 @@ class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInte
         $sc1->setModificationDate($date);
         $this->addReference('sales-company-sandbox', $sc1);
 
+        $scs1 = new SalesCompanyServiceInfos();
+        $scs1->setCompany($sc1);
+        $scs1->setRoomTypes('office');
+        $scs1->setServiceFee(10);
+
+        $scs2 = new SalesCompanyServiceInfos();
+        $scs2->setCompany($sc1);
+        $scs2->setRoomTypes('meeting');
+        $scs2->setServiceFee(10);
+
+        $scs3 = new SalesCompanyServiceInfos();
+        $scs3->setCompany($sc1);
+        $scs3->setRoomTypes('longterm');
+        $scs3->setServiceFee(10);
+        $scs3->setCollectionMethod(SalesCompanyServiceInfos::COLLECTION_METHOD_SALES);
+        $scs3->setDrawer(SalesCompanyServiceInfos::DRAWER_SALES);
+        $scs3->setInvoicingSubjects('开票科目');
+
         $manager->persist($sc1);
+
+        $manager->persist($scs1);
+        $manager->persist($scs2);
+        $manager->persist($scs3);
 
         $manager->flush();
     }

@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 
 /**
  * SalesCompanyServiceInfos.
@@ -29,7 +28,7 @@ class SalesCompanyServiceInfos
     private $id;
 
     /**
-     * @var String
+     * @var string
      *
      * @ORM\Column(name="room_types", type="string", length=30)
      */
@@ -54,7 +53,6 @@ class SalesCompanyServiceInfos
      * @var string
      *
      * @ORM\Column(name="collection_method", type="string", length=30)
-     *
      */
     private $collectionMethod = self::COLLECTION_METHOD_SANDBOX;
 
@@ -62,7 +60,6 @@ class SalesCompanyServiceInfos
      * @var string
      *
      * @ORM\Column(name="drawer", type="string", length=30)
-     *
      */
     private $drawer = self::DRAWER_SANDBOX;
 
@@ -70,7 +67,6 @@ class SalesCompanyServiceInfos
      * @var string
      *
      * @ORM\Column(name="invoicing_subjects", type="string", length=60, nullable=true)
-     *
      */
     private $invoicingSubjects;
 
@@ -98,7 +94,7 @@ class SalesCompanyServiceInfos
     }
 
     /**
-     * @return String
+     * @return string
      */
     public function getRoomTypes()
     {
@@ -106,7 +102,7 @@ class SalesCompanyServiceInfos
     }
 
     /**
-     * @param String $roomTypes
+     * @param string $roomTypes
      */
     public function setRoomTypes($roomTypes)
     {

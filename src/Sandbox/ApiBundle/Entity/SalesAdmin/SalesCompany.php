@@ -2,10 +2,8 @@
 
 namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 
 /**
  * SalesCompany.
