@@ -9,8 +9,11 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPostType;
+use Sandbox\ApiBundle\Form\SalesAdmin\ServiceInfoPostType;
+use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -22,6 +25,7 @@ use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
 use Doctrine\ORM\EntityManager;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 
 /**
  * SalesAdmin controller.
@@ -42,6 +46,8 @@ class AdminSalesAdminsController extends SandboxRestController
     const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE = 'Over the super administrator limit number';
     const ERROR_NOT_NULL_SUPER_ADMIN_CODE = 400006;
     const ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE = 'Must at least one super administrator position binding';
+
+    use HasAccessToEntityRepositoryTrait;
 
     /**
      * List all admins.
@@ -257,50 +263,58 @@ class AdminSalesAdminsController extends SandboxRestController
     }
 
     /**
-     * Create admin.
+     * Create sales company.
      *
      * @param Request $request the request object
      *
      * @ApiDoc(
      *   resource = true,
      *   statusCodes = {
-     *     200 = "Returned when successful"
+     *     201 = "Returned when successful"
      *  }
      * )
      *
      * @Method({"POST"})
-     * @Route("/admins")
+     * @Route("/companies")
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function postAdminsAction(
+    public function postSalesCompanyAction(
         Request $request
     ) {
         // check user permission
         $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $userId = $request->get('user_id');
+        $em = $this->getDoctrine()->getManager();
+
         $company = $request->get('company');
+        $communityAdmins = $request->get('community_admins');
+        $shopAdmins = $request->get('shop_admins');
+        $servicesInfos = $request->get('services');
         $excludePermissions = $request->get('exclude_permissions');
 
-        if (is_null($company)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
+        // set sales company
+        $salesCompany = $this->saveSalesCompany($em, $company);
 
-        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
-        if (is_null($user)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-        $salesCompany = $this->saveAdmin(
-            $user,
-            $company,
-            $excludePermissions
-        );
+        // set community admins
+        $this->setCommunityAdmins($communityAdmins, $salesCompany);
+
+        // set shop admins
+        $this->setShopAdmins($shopAdmins, $salesCompany);
+
+        // set services
+        $this->saveServices($em, $servicesInfos, $salesCompany);
+
+        // set modules
+        $this->saveExcludePermissions($em, $excludePermissions, $salesCompany);
+
+        $em->flush();
 
         // set view
         $view = new View();
+        $view->setStatusCode(201);
         $view->setData(array(
             'id' => $salesCompany->getId(),
         ));
@@ -490,52 +504,6 @@ class AdminSalesAdminsController extends SandboxRestController
 
     /**
      * @param $user
-     * @param $company
-     * @param $excludePermissions
-     *
-     * @return SalesCompany
-     */
-    private function saveAdmin(
-        $user,
-        $company,
-        $excludePermissions
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        $now = new \DateTime('now');
-
-        // set sales company
-        $salesCompany = new SalesCompany();
-        $form = $this->createForm(new SalesCompanyPostType(), $salesCompany);
-        $form->submit($company);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-        $salesCompany->setCreationDate($now);
-        $salesCompany->setModificationDate($now);
-        $em->persist($salesCompany);
-
-        $position = $this->createPosition(
-            $user,
-            $salesCompany,
-            self::POSITION_ADMIN
-        );
-
-        // set admin exclude permissions
-        $this->saveExcludePermissions(
-            $em,
-            $excludePermissions,
-            $salesCompany
-        );
-
-        $em->flush();
-
-        return $salesCompany;
-    }
-
-    /**
-     * @param $user
      * @param $salesCompany
      * @param $name
      *
@@ -566,8 +534,6 @@ class AdminSalesAdminsController extends SandboxRestController
         $adminPositionUser->setPosition($position);
         $adminPositionUser->setCreationDate($now);
         $em->persist($adminPositionUser);
-
-        return $position;
     }
 
     /**
@@ -781,5 +747,129 @@ class AdminSalesAdminsController extends SandboxRestController
             ],
             $opLevel
         );
+    }
+
+    /**
+     * @param $em
+     * @param $company
+     *
+     * @return SalesCompany
+     */
+    private function saveSalesCompany(
+        $em,
+        $company
+    ) {
+        if (is_null($company)) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+        }
+
+        $salesCompany = new SalesCompany();
+        $form = $this->createForm(
+            new SalesCompanyPostType(),
+            $salesCompany,
+            array(
+                'method' => 'POST',
+            )
+        );
+        $form->submit($company);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+        }
+
+        $em->persist($salesCompany);
+
+        return $salesCompany;
+    }
+
+    /**
+     * @param $communityAdmins
+     * @param $salesCompany
+     */
+    private function setCommunityAdmins(
+        $communityAdmins,
+        $salesCompany
+    ) {
+        if (is_null($communityAdmins)) {
+            return;
+        }
+
+        if (count($communityAdmins) > 2) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CAN_NOT_MORE_THAN_TWO_COMMUNITY_ADMINS);
+        }
+
+        foreach ($communityAdmins as $communityAdminId) {
+            $communityAdmin = $this->getUserRepo()->find($communityAdminId);
+            $this->throwNotFoundIfNull($communityAdmin, CustomErrorMessagesConstants::ERROR_COMMUNITY_ADMIN_NOT_FOUND_MESSAGE);
+
+            $this->createPosition(
+                $communityAdmin,
+                $salesCompany,
+                self::POSITION_ADMIN
+            );
+        }
+    }
+
+    /**
+     * @param $shopAdmins
+     * @param $salesCompany
+     */
+    private function setShopAdmins(
+        $shopAdmins,
+        $salesCompany
+    ) {
+        if (is_null($shopAdmins)) {
+            return;
+        }
+
+        if (count($shopAdmins) > 2) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CAN_NOT_MORE_THAN_TWO_SHOP_ADMINS);
+        }
+
+        foreach ($shopAdmins as $shopAdminId) {
+            $shopAdmin = $this->getUserRepo()->find($shopAdminId);
+            $this->throwNotFoundIfNull($shopAdmin, CustomErrorMessagesConstants::ERROR_SHOP_ADMIN_NOT_FOUND_MESSAGE);
+
+            $this->createPosition(
+                $shopAdmin,
+                $salesCompany,
+                self::POSITION_COFFEE_ADMIN
+            );
+        }
+    }
+
+    /**
+     * @param $em
+     * @param $servicesInfos
+     * @param $salesCompany
+     */
+    private function saveServices(
+        $em,
+        $servicesInfos,
+        $salesCompany
+    ) {
+        if (is_null($servicesInfos)) {
+            return;
+        }
+
+        foreach ($servicesInfos as $serviceInfo) {
+            $service = new SalesCompanyServiceInfos();
+            $form = $this->createForm(
+                new ServiceInfoPostType(),
+                $service,
+                array(
+                    'method' => 'POST',
+                )
+            );
+            $form->submit($serviceInfo);
+
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SERVICE_INFO_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+            }
+
+            $service->setCompany($salesCompany);
+
+            $em->persist($service);
+        }
     }
 }

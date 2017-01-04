@@ -13,17 +13,14 @@ class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInte
 {
     public function load(ObjectManager $manager)
     {
-        $date = new \DateTime('now');
-
         $sc1 = new SalesCompany();
         $sc1->setName('展现创合');
-        $sc1->setEmail('sandbox@sandbox3.cn');
+        $sc1->setContacterEmail('sandbox@sandbox3.cn');
         $sc1->setPhone('05012312312');
         $sc1->setAddress('浦东新区祖冲之路2290, 1#楼');
         $sc1->setDescription('咖啡销售');
-        $sc1->setApplicantName('sandbox');
-        $sc1->setCreationDate($date);
-        $sc1->setModificationDate($date);
+        $sc1->setContacter('sandbox');
+        $sc1->setContacterPhone('13010103232');
         $this->addReference('sales-company-sandbox', $sc1);
 
         $scs1 = new SalesCompanyServiceInfos();
