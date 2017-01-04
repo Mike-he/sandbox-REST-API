@@ -625,6 +625,9 @@ class AdminRoomController extends SalesRestController
                 AdminPermission::KEY_SALES_BUILDING_PRODUCT,
                 AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
                 AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
             )
         );
 
