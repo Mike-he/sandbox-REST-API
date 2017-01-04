@@ -223,15 +223,6 @@ class Product
     private $modificationDate;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="salesInvoice", type="boolean")
-     *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
-     */
-    private $salesInvoice = false;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="earliestRentDate", type="datetime", nullable=true)
@@ -885,30 +876,6 @@ class Product
     public function getVisible()
     {
         return $this->visible;
-    }
-
-    /**
-     * Set salesInvoice.
-     *
-     * @param bool $salesInvoice
-     *
-     * @return Product
-     */
-    public function setSalesInvoice($salesInvoice)
-    {
-        $this->salesInvoice = $salesInvoice;
-
-        return $this;
-    }
-
-    /**
-     * Get salesInvoice.
-     *
-     * @return bool
-     */
-    public function isSalesInvoice()
-    {
-        return $this->salesInvoice;
     }
 
     /**

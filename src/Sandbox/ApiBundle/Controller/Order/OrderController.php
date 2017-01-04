@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpFoundation\Request;
@@ -966,5 +967,29 @@ class OrderController extends PaymentController
         $salesUser->setModificationDate(new \DateTime('now'));
 
         $em->persist($salesUser);
+    }
+
+    /**
+     * @param Product      $product
+     * @param ProductOrder $order
+     */
+    protected function setOrderDrawer(
+        $product,
+        $order
+    ) {
+        $type = $product->getRoom()->getType();
+        $salesCompany = $product->getRoom()->getBuilding()->getCompany();
+        $salesCompanyInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'roomTypes' => $type,
+                'company' => $salesCompany,
+            ));
+        $drawer = $salesCompanyInfo->getDrawer();
+        if ($drawer == SalesCompanyServiceInfos::DRAWER_SALES) {
+            $order->setSalesInvoice(true);
+        } else {
+            $order->setSalesInvoice(false);
+        }
     }
 }

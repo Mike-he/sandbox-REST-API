@@ -521,7 +521,9 @@ class ClientOrderController extends OrderController
 
             //check if product exists
             $productId = $order->getProductId();
-            $product = $this->getRepo('Product\Product')->find($productId);
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->find($productId);
 
             $startDate = new \DateTime($order->getStartDate());
 
@@ -667,9 +669,11 @@ class ClientOrderController extends OrderController
                 $order->setRejected(true);
             }
 
-            if ($product->isSalesInvoice()) {
-                $order->setSalesInvoice(true);
-            }
+            // set order drawer
+            $this->setOrderDrawer(
+                $product,
+                $order
+            );
 
             $em->persist($order);
 
