@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * SalesCompany.
@@ -36,11 +37,20 @@ class SalesCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="applicantName", type="string", length=64)
+     * @ORM\Column(name="contacter", type="string", length=64)
      *
      * @Serializer\Groups({"main", "admin"})
      */
-    private $applicantName;
+    private $contacter;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="contacter_phone", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $contacterPhone;
 
     /**
      * @var string
@@ -54,11 +64,11 @@ class SalesCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="email", type="string", length=255)
+     * @ORM\Column(name="contacter_email", type="string", length=255)
      *
      * @Serializer\Groups({"main", "admin"})
      */
-    private $email;
+    private $contacterEmail;
 
     /**
      * @var string
@@ -138,7 +148,8 @@ class SalesCompany
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime")
+     * @ORM\Column(name="creation_date", type="datetime")
+     * @Gedmo\Timestampable(on="create")
      *
      * @Serializer\Groups({"main", "admin"})
      */
@@ -147,7 +158,8 @@ class SalesCompany
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="datetime")
+     * @ORM\Column(name="modification_date", type="datetime")
+     * @Gedmo\Timestampable(on="update")
      *
      * @Serializer\Groups({"main", "admin"})
      */
@@ -188,27 +200,35 @@ class SalesCompany
     }
 
     /**
-     * Set applicantName.
-     *
-     * @param string $applicantName
-     *
-     * @return SalesCompany
+     * @return string
      */
-    public function setApplicantName($applicantName)
+    public function getContacter()
     {
-        $this->applicantName = $applicantName;
-
-        return $this;
+        return $this->contacter;
     }
 
     /**
-     * Get applicantName.
-     *
+     * @param string $contacter
+     */
+    public function setContacter($contacter)
+    {
+        $this->contacter = $contacter;
+    }
+
+    /**
      * @return string
      */
-    public function getApplicantName()
+    public function getContacterPhone()
     {
-        return $this->applicantName;
+        return $this->contacterPhone;
+    }
+
+    /**
+     * @param string $contacterPhone
+     */
+    public function setContacterPhone($contacterPhone)
+    {
+        $this->contacterPhone = $contacterPhone;
     }
 
     /**
@@ -236,27 +256,19 @@ class SalesCompany
     }
 
     /**
-     * Set email.
-     *
-     * @param string $email
-     *
-     * @return SalesCompany
+     * @return string
      */
-    public function setEmail($email)
+    public function getContacterEmail()
     {
-        $this->email = $email;
-
-        return $this;
+        return $this->contacterEmail;
     }
 
     /**
-     * Get email.
-     *
-     * @return string
+     * @param string $contacterEmail
      */
-    public function getEmail()
+    public function setContacterEmail($contacterEmail)
     {
-        return $this->email;
+        $this->contacterEmail = $contacterEmail;
     }
 
     /**

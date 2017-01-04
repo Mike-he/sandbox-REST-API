@@ -52,7 +52,7 @@ class SalesCompanyServiceInfos
     /**
      * @var string
      *
-     * @ORM\Column(name="collection_method", type="string", length=30)
+     * @ORM\Column(name="collection_method", type="string", length=30, nullable=true)
      */
     private $collectionMethod = self::COLLECTION_METHOD_SANDBOX;
 
@@ -75,7 +75,7 @@ class SalesCompanyServiceInfos
      *
      * @ORM\Column(name="status", type="boolean")
      */
-    private $status = true;
+    private $status = false;
 
     /**
      * @return int
