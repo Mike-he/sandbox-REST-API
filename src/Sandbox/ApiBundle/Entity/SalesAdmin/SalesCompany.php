@@ -55,7 +55,7 @@ class SalesCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="phone", type="string", length=64)
+     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      *
      * @Serializer\Groups({"main", "admin"})
      */
@@ -82,7 +82,7 @@ class SalesCompany
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text")
+     * @ORM\Column(name="description", type="text", nullable=true)
      *
      * @Serializer\Groups({"main", "admin"})
      */
@@ -97,18 +97,18 @@ class SalesCompany
     private $banned = false;
 
     /**
-     * @var string
+     * @var array
      *
      * @Serializer\Groups({"main", "admin"})
      */
-    private $admin;
+    private $admins;
 
     /**
-     * @var string
+     * @var array
      *
      * @Serializer\Groups({"main", "admin"})
      */
-    private $coffeeAdmin;
+    private $coffeeAdmins;
 
     /**
      * @var int
@@ -125,11 +125,18 @@ class SalesCompany
     private $shopCounts;
 
     /**
-     * @var string
+     * @var array
      *
      * @Serializer\Groups({"main", "admin"})
      */
     private $permissions;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $excludePermissions;
 
     /**
      * @var bool
@@ -171,6 +178,13 @@ class SalesCompany
      * @Serializer\Groups({"main", "admin"})
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin"})
+     */
+    private $services;
 
     /**
      * Get id.
@@ -385,33 +399,33 @@ class SalesCompany
     /**
      * @return string
      */
-    public function getAdmin()
+    public function getAdmins()
     {
-        return $this->admin;
+        return $this->admins;
     }
 
     /**
-     * @param string $admin
+     * @param string $admins
      */
-    public function setAdmin($admin)
+    public function setAdmins($admins)
     {
-        $this->admin = $admin;
+        $this->admins = $admins;
     }
 
     /**
      * @return string
      */
-    public function getCoffeeAdmin()
+    public function getCoffeeAdmins()
     {
-        return $this->coffeeAdmin;
+        return $this->coffeeAdmins;
     }
 
     /**
-     * @param string $coffeeAdmin
+     * @param string $coffeeAdmins
      */
-    public function setCoffeeAdmin($coffeeAdmin)
+    public function setCoffeeAdmins($coffeeAdmins)
     {
-        $this->coffeeAdmin = $coffeeAdmin;
+        $this->coffeeAdmins = $coffeeAdmins;
     }
 
     /**
@@ -508,5 +522,37 @@ class SalesCompany
     public function setHasPendingShop($hasPendingShop)
     {
         $this->hasPendingShop = $hasPendingShop;
+    }
+
+    /**
+     * @return string
+     */
+    public function getServices()
+    {
+        return $this->services;
+    }
+
+    /**
+     * @param string $services
+     */
+    public function setServices($services)
+    {
+        $this->services = $services;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExcludePermissions()
+    {
+        return $this->excludePermissions;
+    }
+
+    /**
+     * @param array $excludePermissions
+     */
+    public function setExcludePermissions($excludePermissions)
+    {
+        $this->excludePermissions = $excludePermissions;
     }
 }

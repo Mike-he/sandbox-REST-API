@@ -288,25 +288,24 @@ class AdminSalesAdminsController extends SandboxRestController
 
         $em = $this->getDoctrine()->getManager();
 
-        $company = $request->get('company');
-        $communityAdmins = $request->get('community_admins');
-        $shopAdmins = $request->get('shop_admins');
-        $servicesInfos = $request->get('services');
-        $excludePermissions = $request->get('exclude_permissions');
+        // save sales company
+        $salesCompany = $this->saveSalesCompany($em, $request);
 
-        // set sales company
-        $salesCompany = $this->saveSalesCompany($em, $company);
+        $admins = $salesCompany->getAdmins();
+        $coffeeAdmins = $salesCompany->getCoffeeAdmins();
+        $servicesInfos = $salesCompany->getServices();
+        $excludePermissions = $salesCompany->getExcludePermissions();
 
-        // set community admins
-        $this->setCommunityAdmins($communityAdmins, $salesCompany);
+        // save admins
+        $this->saveAdmins($admins, $salesCompany, self::POSITION_ADMIN);
 
-        // set shop admins
-        $this->setShopAdmins($shopAdmins, $salesCompany);
+        // save coffee admins
+        $this->saveAdmins($coffeeAdmins, $salesCompany, self::POSITION_COFFEE_ADMIN);
 
-        // set services
+        // save services
         $this->saveServices($em, $servicesInfos, $salesCompany);
 
-        // set modules
+        // save modules
         $this->saveExcludePermissions($em, $excludePermissions, $salesCompany);
 
         $em->flush();
@@ -322,54 +321,68 @@ class AdminSalesAdminsController extends SandboxRestController
     }
 
     /**
-     * Update Admin.
+     * Update Sales Company.
      *
      * @param Request $request the request object
      * @param int     $id      the admin ID
      *
-     * @Route("/admins/{id}")
+     * @Route("/companies/{id}")
      * @Method({"PUT"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function putAdminAction(
+    public function putSalesCompanyAction(
         Request $request,
         $id
     ) {
         // check user permission
         $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
-        if (is_null($request->get('user_ids')) || empty($request->get('user_ids'))) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
-                self::ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE
-            );
-        }
+        $salesCompany = $this->getSalesCompanyRepo()->find($id);
+        $this->throwNotFoundIfNull($salesCompany, CustomErrorMessagesConstants::ERROR_SALES_COMPANY_NOT_FOUND_MESSAGE);
 
-        $userIds = explode(',', $request->get('user_ids'));
-        if (count($userIds) > 2) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_CODE,
-                self::ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE
-            );
-        }
+        $em = $this->getDoctrine()->getManager();
 
-        $company = $request->get('company');
-        $excludePermissions = $request->get('exclude_permissions');
-
-        $salesCompany = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($id);
-        $this->throwNotFoundIfNull($salesCompany, self::NOT_FOUND_MESSAGE);
-
-        $this->handleAdminPut(
+        // update sales company
+        $form = $this->createForm(
+            new SalesCompanyPostType(),
             $salesCompany,
-            $userIds,
-            $company,
-            $excludePermissions
+            array(
+                'method' => 'PUT'
+            )
         );
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+        }
+
+        $admins = $salesCompany->getAdmins();
+        $coffeeAdmins = $salesCompany->getAdmins();
+        $servicesInfos = $salesCompany->getServices();
+        $excludePermissions = $salesCompany->getExcludePermissions();
+
+        // update admins
+        $this->updateAdmins($admins, $salesCompany);
+
+        // update coffee admins
+        $this->updateAdmins($coffeeAdmins, $salesCompany);
+
+        // update services
+        $this->saveServices($em, $servicesInfos, $salesCompany);
+
+        // update modules
+        $this->saveExcludePermissions(
+            $em,
+            $excludePermissions,
+            $salesCompany
+        );
+
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -453,52 +466,6 @@ class AdminSalesAdminsController extends SandboxRestController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
-    }
-
-    /**
-     * @param $salesCompany
-     * @param $userIds
-     * @param $company
-     * @param $excludePermissions
-     *
-     * @return View
-     */
-    private function handleAdminPut(
-        $salesCompany,
-        $userIds,
-        $company,
-        $excludePermissions
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        // set sales company
-        if (!is_null($company) || !empty($company)) {
-            $form = $this->createForm(new SalesCompanyPostType(), $salesCompany);
-            $form->submit($company);
-
-            if (!$form->isValid()) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-            }
-        }
-        $now = new \DateTime('now');
-        $salesCompany->setModificationDate($now);
-
-        $this->updatePosition(
-            $salesCompany,
-            $userIds
-        );
-
-        // set admin exclude permissions
-        $this->saveExcludePermissions(
-            $em,
-            $excludePermissions,
-            $salesCompany
-        );
-
-        //save data
-        $em->flush();
-
-        return new View();
     }
 
     /**
@@ -750,27 +717,20 @@ class AdminSalesAdminsController extends SandboxRestController
 
     /**
      * @param $em
-     * @param $company
+     * @param $request
      *
      * @return SalesCompany
      */
     private function saveSalesCompany(
         $em,
-        $company
+        $request
     ) {
-        if (is_null($company)) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
-        }
-
         $salesCompany = new SalesCompany();
         $form = $this->createForm(
             new SalesCompanyPostType(),
-            $salesCompany,
-            array(
-                'method' => 'POST',
-            )
+            $salesCompany
         );
-        $form->submit($company);
+        $form->handleRequest($request);
 
         if (!$form->isValid()) {
             throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
@@ -782,57 +742,31 @@ class AdminSalesAdminsController extends SandboxRestController
     }
 
     /**
-     * @param $communityAdmins
+     * @param $admins
      * @param $salesCompany
+     * @param $positionName
      */
-    private function setCommunityAdmins(
-        $communityAdmins,
-        $salesCompany
+    private function saveAdmins(
+        $admins,
+        $salesCompany,
+        $positionName
     ) {
-        if (is_null($communityAdmins)) {
+        if (is_null($admins)) {
             return;
         }
 
-        if (count($communityAdmins) > 2) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CAN_NOT_MORE_THAN_TWO_COMMUNITY_ADMINS);
+        if (count($admins) > 2) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CAN_NOT_MORE_THAN_TWO_ADMINS);
         }
 
-        foreach ($communityAdmins as $communityAdminId) {
-            $communityAdmin = $this->getUserRepo()->find($communityAdminId);
-            $this->throwNotFoundIfNull($communityAdmin, CustomErrorMessagesConstants::ERROR_COMMUNITY_ADMIN_NOT_FOUND_MESSAGE);
+        foreach ($admins as $adminId) {
+            $admin = $this->getUserRepo()->find($adminId);
+            $this->throwNotFoundIfNull($admin, CustomErrorMessagesConstants::ERROR_ADMIN_NOT_FOUND_MESSAGE);
 
             $this->createPosition(
-                $communityAdmin,
+                $admin,
                 $salesCompany,
-                self::POSITION_ADMIN
-            );
-        }
-    }
-
-    /**
-     * @param $shopAdmins
-     * @param $salesCompany
-     */
-    private function setShopAdmins(
-        $shopAdmins,
-        $salesCompany
-    ) {
-        if (is_null($shopAdmins)) {
-            return;
-        }
-
-        if (count($shopAdmins) > 2) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CAN_NOT_MORE_THAN_TWO_SHOP_ADMINS);
-        }
-
-        foreach ($shopAdmins as $shopAdminId) {
-            $shopAdmin = $this->getUserRepo()->find($shopAdminId);
-            $this->throwNotFoundIfNull($shopAdmin, CustomErrorMessagesConstants::ERROR_SHOP_ADMIN_NOT_FOUND_MESSAGE);
-
-            $this->createPosition(
-                $shopAdmin,
-                $salesCompany,
-                self::POSITION_COFFEE_ADMIN
+                $positionName
             );
         }
     }
@@ -851,16 +785,30 @@ class AdminSalesAdminsController extends SandboxRestController
             return;
         }
 
+        $method = 'POST';
         foreach ($servicesInfos as $serviceInfo) {
-            $service = new SalesCompanyServiceInfos();
+            $service = $this->getSalesCompanyServiceInfosRepo()
+                ->findOneBy(
+                    array(
+                        'roomTypes' => $serviceInfo['room_types'],
+                        'company' => $salesCompany
+                    )
+                );
+
+            if (is_null($service)) {
+                $service = new SalesCompanyServiceInfos();
+            } else {
+                $method = 'PUT';
+            }
+
             $form = $this->createForm(
                 new ServiceInfoPostType(),
                 $service,
                 array(
-                    'method' => 'POST',
+                    'method' => $method,
                 )
             );
-            $form->submit($serviceInfo);
+            $form->submit($serviceInfo, false);
 
             if (!$form->isValid()) {
                 throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SERVICE_INFO_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
@@ -870,5 +818,27 @@ class AdminSalesAdminsController extends SandboxRestController
 
             $em->persist($service);
         }
+    }
+
+    /**
+     * @param $admins
+     * @param $salesCompany
+     */
+    private function updateAdmins(
+        $admins,
+        $salesCompany
+    ) {
+        if (is_null($admins)) {
+            return;
+        }
+
+        if (count($admins) > 2) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CAN_NOT_MORE_THAN_TWO_ADMINS);
+        }
+
+        $this->updatePosition(
+            $salesCompany,
+            $admins
+        );
     }
 }

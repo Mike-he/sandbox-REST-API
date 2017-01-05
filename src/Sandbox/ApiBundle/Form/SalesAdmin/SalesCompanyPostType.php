@@ -21,7 +21,11 @@ class SalesCompanyPostType extends AbstractType
             ->add('contacter')
             ->add('contacter_phone')
             ->add('contacter_email')
-            ->add('description');
+            ->add('description')
+            ->add('admins')
+            ->add('coffee_admins')
+            ->add('services')
+            ->add('exclude_permissions');
     }
 
     /**
