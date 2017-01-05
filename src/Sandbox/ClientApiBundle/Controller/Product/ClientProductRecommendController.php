@@ -125,17 +125,11 @@ class ClientProductRecommendController extends ProductController
             if ($type == Room::TYPE_LONG_TERM) {
                 $company = $room->getBuilding()->getCompany();
 
-                $companyService = $this->getDoctrine()
+                $collectionMethod = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                    ->findOneBy(
-                        array(
-                            'company' => $company,
-                            'roomTypes' => $type,
-                        )
-                    );
-                if ($companyService) {
-                    $product->setCollectionMethod($companyService->getCollectionMethod());
-                }
+                    ->getCollectionMethod($company, $type);
+
+                $product->setCollectionMethod($collectionMethod);
             }
         }
 
