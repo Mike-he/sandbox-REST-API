@@ -168,19 +168,13 @@ sandbox_admin_api_payment:
 
 # SalesAdmin /admin/sales/admins
 sandbox_admin_api_sales_admins:
-    resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesAdminsController.php"
+    resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesCompanyController.php"
     type:     annotation
     prefix:   /sales
 
 # SalesBuilding /admin/sales/buildings
 sandbox_admin_api_sales_buildings:
     resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesBuildingController.php"
-    type:     annotation
-    prefix:   /sales
-
-# SalesCompany /admin/sales/companies
-sandbox_admin_api_sales_companies:
-    resource: "@SandboxAdminApiBundle/Controller/SalesAdmin/AdminSalesCompanyController.php"
     type:     annotation
     prefix:   /sales
 

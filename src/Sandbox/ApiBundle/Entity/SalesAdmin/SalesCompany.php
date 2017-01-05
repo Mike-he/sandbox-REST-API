@@ -21,7 +21,7 @@ class SalesCompany
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_list", "admin", "dropdown", "client", "auth", "admin_detail", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_list", "admin", "dropdown", "client", "auth", "admin_detail", "admin_shop", "admin_view"})
      */
     private $id;
 
@@ -30,7 +30,7 @@ class SalesCompany
      *
      * @ORM\Column(name="name", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin_list", "admin", "auth", "dropdown", "client", "admin_detail", "client_event", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_list", "admin", "auth", "dropdown", "client", "admin_detail", "client_event", "admin_shop", "admin_view"})
      */
     private $name;
 
@@ -39,7 +39,7 @@ class SalesCompany
      *
      * @ORM\Column(name="contacter", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $contacter;
 
@@ -48,7 +48,7 @@ class SalesCompany
      *
      * @ORM\Column(name="contacter_phone", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $contacterPhone;
 
@@ -57,7 +57,7 @@ class SalesCompany
      *
      * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $phone;
 
@@ -66,7 +66,7 @@ class SalesCompany
      *
      * @ORM\Column(name="contacter_email", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $contacterEmail;
 
@@ -75,7 +75,7 @@ class SalesCompany
      *
      * @ORM\Column(name="address", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $address;
 
@@ -84,7 +84,7 @@ class SalesCompany
      *
      * @ORM\Column(name="description", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $description;
 
@@ -92,35 +92,35 @@ class SalesCompany
      * @var bool
      *
      * @ORM\Column(name="banned", type="boolean", nullable=false)
-     * @Serializer\Groups({"main", "admin", "admin_list"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $banned = false;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $admins;
 
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $coffeeAdmins;
 
     /**
      * @var int
      *
-     * @Serializer\Groups({"main", "admin", "admin_list"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $buildingCounts;
 
     /**
      * @var int
      *
-     * @Serializer\Groups({"main", "admin", "admin_list"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $shopCounts;
 
@@ -141,23 +141,30 @@ class SalesCompany
     /**
      * @var bool
      *
-     * @Serializer\Groups({"main", "admin", "admin_list"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $hasPendingBuilding = false;
 
     /**
      * @var bool
      *
-     * @Serializer\Groups({"main", "admin", "admin_list"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $hasPendingShop = false;
 
     /**
      * @var bool
      *
-     * @Serializer\Groups({"main", "admin", "admin_list"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $hasEventModule = false;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_view"})
+     */
+    private $services;
 
     /**
      * @var \DateTime
@@ -194,6 +201,22 @@ class SalesCompany
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return array
+     */
+    public function getServices()
+    {
+        return $this->services;
+    }
+
+    /**
+     * @param array $services
+     */
+    public function setServices($services)
+    {
+        $this->services = $services;
     }
 
     /**

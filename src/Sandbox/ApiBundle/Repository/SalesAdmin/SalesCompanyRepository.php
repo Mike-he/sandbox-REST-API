@@ -38,7 +38,7 @@ class SalesCompanyRepository extends EntityRepository
                 ->setParameter('search', '%'.$search.'%');
         }
 
-        $query->orderBy('sc.id', 'ASC');
+        $query->orderBy('sc.id', 'DESC');
 
         return $query->getQuery()->getResult();
     }
