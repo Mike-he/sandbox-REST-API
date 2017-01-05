@@ -1069,7 +1069,7 @@ class OrderRepository extends EntityRepository
                ')
             ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
             ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
-            ->setParameter('offline',  ProductOrder::CHANNEL_OFFLINE);
+            ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE);
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
@@ -1308,7 +1308,7 @@ class OrderRepository extends EntityRepository
                ')
             ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
             ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
-            ->setParameter('offline',  ProductOrder::CHANNEL_OFFLINE);
+            ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE);
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
