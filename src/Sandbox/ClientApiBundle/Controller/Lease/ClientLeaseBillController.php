@@ -386,7 +386,7 @@ class ClientLeaseBillController extends PaymentController
 
         $newStatus = $bill->getStatus();
         if ($newStatus != LeaseBill::STATUS_VERIFY) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_MESSAGE);
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         $bill->setPayChannel(LeaseBill::CHANNEL_SALES_OFFLINE);

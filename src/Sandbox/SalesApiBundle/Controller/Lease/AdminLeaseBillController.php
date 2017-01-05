@@ -362,7 +362,7 @@ class AdminLeaseBillController extends SalesRestController
         $form->submit(json_decode($billJson, true));
 
         if ($bill->getStatus() != LeaseBill::STATUS_PAID) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_STATUS_MESSAGE);
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         if (is_null($bill->getRemark())) {
