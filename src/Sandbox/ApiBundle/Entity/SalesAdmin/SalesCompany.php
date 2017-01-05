@@ -21,7 +21,7 @@ class SalesCompany
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin", "dropdown", "client", "auth", "admin_detail", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_list", "admin", "dropdown", "client", "auth", "admin_detail", "admin_shop"})
      */
     private $id;
 
@@ -30,7 +30,7 @@ class SalesCompany
      *
      * @ORM\Column(name="name", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin", "auth", "dropdown", "client", "admin_detail", "client_event", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_list", "admin", "auth", "dropdown", "client", "admin_detail", "client_event", "admin_shop"})
      */
     private $name;
 
@@ -92,7 +92,7 @@ class SalesCompany
      * @var bool
      *
      * @ORM\Column(name="banned", type="boolean", nullable=false)
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list"})
      */
     private $banned = false;
 
@@ -113,14 +113,14 @@ class SalesCompany
     /**
      * @var int
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list"})
      */
     private $buildingCounts;
 
     /**
      * @var int
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list"})
      */
     private $shopCounts;
 
@@ -134,16 +134,23 @@ class SalesCompany
     /**
      * @var bool
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list"})
      */
     private $hasPendingBuilding = false;
 
     /**
      * @var bool
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list"})
      */
     private $hasPendingShop = false;
+
+    /**
+     * @var bool
+     *
+     * @Serializer\Groups({"main", "admin", "admin_list"})
+     */
+    private $hasEventModule = false;
 
     /**
      * @var \DateTime
@@ -197,6 +204,22 @@ class SalesCompany
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isHasEventModule()
+    {
+        return $this->hasEventModule;
+    }
+
+    /**
+     * @param boolean $hasEventModule
+     */
+    public function setHasEventModule($hasEventModule)
+    {
+        $this->hasEventModule = $hasEventModule;
     }
 
     /**

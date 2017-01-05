@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\SalesAdmin;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -129,33 +130,6 @@ class AdminSalesAdminsController extends SandboxRestController
             $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
             $shopCounts = count($shops);
 
-            $adminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                ->findOneBy(
-                    array(
-                        'salesCompany' => $company,
-                        'name' => self::POSITION_ADMIN,
-                        'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
-                        'isSuperAdmin' => true,
-                    )
-                );
-            $adminPositionUser = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->findBy(array('position' => $adminPosition));
-
-            $coffeeAdminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                ->findOneBy(
-                    array(
-                        'salesCompany' => $company,
-                        'name' => self::POSITION_COFFEE_ADMIN,
-                        'platform' => AdminPermission::PERMISSION_PLATFORM_SHOP,
-                        'isSuperAdmin' => true,
-                    )
-                );
-
-            $coffeeAdminPositionUser = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->findBy(array('position' => $coffeeAdminPosition));
-
-            $company->setAdmin($adminPositionUser);
-            $company->setCoffeeAdmin($coffeeAdminPositionUser);
             $company->setBuildingCounts((int) $buildingCounts);
             $company->setShopCounts((int) $shopCounts);
 
@@ -176,7 +150,32 @@ class AdminSalesAdminsController extends SandboxRestController
                     $company->setHasPendingShop(true);
                 }
             }
+
+            // check event module
+            $permission = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+                ->findOneBy([
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT
+                ]);
+            if (!is_null($permission)) {
+                $excludePermission = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
+                    ->findOneBy([
+                        'salesCompany' => $company,
+                        'permission' => $permission
+                    ]);
+                if (is_null($excludePermission)) {
+                    $company->setHasEventModule(true);
+                }
+            }
         }
+
+        $salesCompanies = $this->get('serializer')->serialize(
+            $salesCompanies,
+            'json',
+            SerializationContext::create()->setGroups(['admin_list'])
+        );
+        $salesCompanies = json_decode($salesCompanies, true);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
