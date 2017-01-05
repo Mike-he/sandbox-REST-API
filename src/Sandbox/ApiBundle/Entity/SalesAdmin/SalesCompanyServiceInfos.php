@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * SalesCompanyServiceInfos.
  *
  * @ORM\Table(name="sales_company_service_infos")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\SalesAdmin\SalesCompanyServiceInfosRepository")
  */
 class SalesCompanyServiceInfos
 {

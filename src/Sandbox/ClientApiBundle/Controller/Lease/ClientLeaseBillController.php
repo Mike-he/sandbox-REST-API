@@ -420,17 +420,11 @@ class ClientLeaseBillController extends PaymentController
 
             $collectionMethod = null;
             if ($type == Room::TYPE_LONG_TERM) {
-                $companyService = $this->getDoctrine()
+                $company = $building->getCompany();
+
+                $collectionMethod = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                    ->findOneBy(
-                        array(
-                            'company' => $building->getCompany(),
-                            'roomTypes' => $type,
-                        )
-                    );
-                if ($companyService) {
-                    $collectionMethod = $companyService->getCollectionMethod();
-                }
+                    ->getCollectionMethod($company, $type);
             }
 
             $transfer = $bill->getTransfer();
@@ -480,17 +474,11 @@ class ClientLeaseBillController extends PaymentController
 
         $collectionMethod = null;
         if ($type == Room::TYPE_LONG_TERM) {
-            $companyService = $this->getDoctrine()
+            $company = $building->getCompany();
+
+            $collectionMethod = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->findOneBy(
-                    array(
-                        'company' => $building->getCompany(),
-                        'roomTypes' => $type,
-                    )
-                );
-            if ($companyService) {
-                $collectionMethod = $companyService->getCollectionMethod();
-            }
+                ->getCollectionMethod($company, $type);
         }
 
         $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
