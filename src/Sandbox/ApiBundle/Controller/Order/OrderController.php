@@ -1000,6 +1000,8 @@ class OrderController extends PaymentController
 
         if (is_null($salesCompanyInfo)) {
             $order->setSalesInvoice(false);
+
+            return;
         }
 
         $drawer = $salesCompanyInfo->getDrawer();
@@ -1008,5 +1010,6 @@ class OrderController extends PaymentController
         }
 
         $order->setSalesInvoice(true);
+        return;
     }
 }
