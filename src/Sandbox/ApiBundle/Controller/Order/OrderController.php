@@ -985,11 +985,16 @@ class OrderController extends PaymentController
                 'roomTypes' => $type,
                 'company' => $salesCompany,
             ));
-        $drawer = $salesCompanyInfo->getDrawer();
-        if ($drawer == SalesCompanyServiceInfos::DRAWER_SALES) {
-            $order->setSalesInvoice(true);
-        } else {
+
+        if (is_null($salesCompanyInfo)) {
             $order->setSalesInvoice(false);
         }
+
+        $drawer = $salesCompanyInfo->getDrawer();
+        if ($drawer == SalesCompanyServiceInfos::DRAWER_SANDBOX) {
+            $order->setSalesInvoice(false);
+        }
+
+        $order->setSalesInvoice(true);
     }
 }
