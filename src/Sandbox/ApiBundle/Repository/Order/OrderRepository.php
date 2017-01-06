@@ -2526,4 +2526,26 @@ class OrderRepository extends EntityRepository
 
         return  $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @return mixed
+     */
+    public function countRefundToAccountOrders(
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o.actualRefundAmount)')
+            ->where('o.refunded = TRUE')
+            ->andWhere('o.refundTo = :account')
+            ->andWhere('o.refundProcessedDate > :startDate')
+            ->andWhere('o.refundProcessedDate < :endDate')
+            ->setParameter('account', ProductOrder::REFUND_TO_ACCOUNT)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
+
+        return (float) $query->getQuery()->getSingleScalarResult();
+    }
 }
