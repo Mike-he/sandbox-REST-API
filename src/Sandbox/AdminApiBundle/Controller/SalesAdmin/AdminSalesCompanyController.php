@@ -278,12 +278,13 @@ class AdminSalesCompanyController extends SandboxRestController
         $coffeeAdmin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->findOneBy(array('position' => $coffeeAdminPosition));
+        if (!is_null($coffeeAdmin)) {
+            $coffeeUser = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($coffeeAdmin->getUserId());
 
-        $coffeeUser = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\User')
-            ->find($coffeeAdmin->getUserId());
-
-        $company->setCoffeeAdmins($coffeeUser);
+            $company->setCoffeeAdmins($coffeeUser);
+        }
 
         $buildingCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->countSalesBuildings($company);
         $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
