@@ -803,7 +803,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $salesCompany
     ) {
         // check input data, "null" means do not set exclude permission
-        if (is_null($excludePermissions) || empty($excludePermissions)) {
+        if (is_null($excludePermissions)) {
             return;
         }
 
