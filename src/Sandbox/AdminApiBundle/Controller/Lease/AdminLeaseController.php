@@ -289,8 +289,8 @@ class AdminLeaseController extends AdminRestController
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
 
         // filters
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
+        $pageLimit = (int) $paramFetcher->get('pageLimit');
+        $pageIndex = (int) $paramFetcher->get('pageIndex');
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
 
@@ -313,10 +313,15 @@ class AdminLeaseController extends AdminRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        $buildingIds = null;
+        if (!is_null($buildingId)) {
+            $buildingIds = array((int) $buildingId);
+        }
+
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->findLeases(
-                [$buildingId],
+                $buildingIds,
                 $status,
                 $keyword,
                 $keywordSearch,
