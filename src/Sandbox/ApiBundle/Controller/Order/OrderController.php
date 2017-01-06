@@ -142,6 +142,7 @@ class OrderController extends PaymentController
 
             $price = $order->getDiscountPrice();
             $refund = $order->getActualRefundAmount();
+            $refund = is_null($refund) ? 0 : null;
             $actualAmount = $price - $refund;
 
             // set excel body
