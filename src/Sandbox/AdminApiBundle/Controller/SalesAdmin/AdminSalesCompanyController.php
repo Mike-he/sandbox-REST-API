@@ -263,7 +263,7 @@ class AdminSalesCompanyController extends SandboxRestController
             array_push($userArray, $user);
         }
 
-        $company->setAdmin($userArray);
+        $company->setAdmins($userArray);
 
         $coffeeAdminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
@@ -283,7 +283,7 @@ class AdminSalesCompanyController extends SandboxRestController
             ->getRepository('SandboxApiBundle:User\User')
             ->find($coffeeAdmin->getUserId());
 
-        $company->setCoffeeAdmin($coffeeUser);
+        $company->setCoffeeAdmins($coffeeUser);
 
         $buildingCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->countSalesBuildings($company);
         $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
