@@ -241,6 +241,7 @@ class AdminSalesCompanyController extends SandboxRestController
             return new View();
         }
 
+        // set admins
         $adminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
                 array(
@@ -265,6 +266,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $company->setAdmins($userArray);
 
+        // set coffee admins
         $coffeeAdminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
                 array(
@@ -275,17 +277,22 @@ class AdminSalesCompanyController extends SandboxRestController
                 )
             );
 
-        $coffeeAdmin = $this->getDoctrine()
+        $coffeeAdmins = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->findOneBy(array('position' => $coffeeAdminPosition));
-        if (!is_null($coffeeAdmin)) {
+            ->findBy(array('position' => $coffeeAdminPosition));
+
+        $coffeeUserArray = [];
+        foreach ($coffeeAdmins as $coffeeAdmin) {
             $coffeeUser = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
                 ->find($coffeeAdmin->getUserId());
 
-            $company->setCoffeeAdmins($coffeeUser);
+            array_push($coffeeUserArray, $coffeeUser);
         }
 
+        $company->setCoffeeAdmins($coffeeUserArray);
+
+        // building and shop counts
         $buildingCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->countSalesBuildings($company);
         $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
         $shopCounts = count($shops);
@@ -441,7 +448,7 @@ class AdminSalesCompanyController extends SandboxRestController
         }
 
         $admins = $salesCompany->getAdmins();
-        $coffeeAdmins = $salesCompany->getAdmins();
+        $coffeeAdmins = $salesCompany->getCoffeeAdmins();
         $servicesInfos = $salesCompany->getServices();
         $excludePermissions = $salesCompany->getExcludePermissions();
 
@@ -562,25 +569,44 @@ class AdminSalesCompanyController extends SandboxRestController
         $name
     ) {
         $em = $this->getDoctrine()->getManager();
-        $now = new \DateTime('now');
 
-        $icon = $em->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
+        $position = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->findOneBy([
+               'salesCompany' => $salesCompany,
+                'name' => $name,
+                'isSuperAdmin' => true,
+                'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
+                'isHidden' => false,
+            ]);
 
-        $position = new AdminPosition();
-        $position->setName($name);
-        $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
-        $position->setIsSuperAdmin(true);
-        $position->setIcon($icon);
-        $position->setSalesCompany($salesCompany);
-        $position->setCreationDate($now);
-        $position->setModificationDate($now);
-        $em->persist($position);
+        if (is_null($position)) {
+            $icon = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')
+                ->find(1);
 
-        $adminPositionUser = new AdminPositionUserBinding();
-        $adminPositionUser->setUser($user);
-        $adminPositionUser->setPosition($position);
-        $adminPositionUser->setCreationDate($now);
-        $em->persist($adminPositionUser);
+            $position = new AdminPosition();
+            $position->setName($name);
+            $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
+            $position->setIsSuperAdmin(true);
+            $position->setIcon($icon);
+            $position->setSalesCompany($salesCompany);
+            $em->persist($position);
+        }
+
+        $binding = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->findOneBy([
+                'user' => $user,
+                'position' => $position
+            ]);
+
+        if (is_null($binding)) {
+            $adminPositionUser = new AdminPositionUserBinding();
+            $adminPositionUser->setUser($user);
+            $adminPositionUser->setPosition($position);
+            $em->persist($adminPositionUser);
+        }
     }
 
     /**
@@ -592,7 +618,6 @@ class AdminSalesCompanyController extends SandboxRestController
         $userIds
     ) {
         $em = $this->getDoctrine()->getManager();
-        $now = new \DateTime('now');
 
         $position = $em->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
@@ -605,19 +630,20 @@ class AdminSalesCompanyController extends SandboxRestController
                 )
             );
 
-        if ($position) {
-            $adminPositionUsers = $em->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+        if (!is_null($position)) {
+            $adminPositionUsers = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                 ->findBy(array('position' => $position));
 
             foreach ($adminPositionUsers as $adminPositionUser) {
                 $em->remove($adminPositionUser);
-                $em->flush();
             }
-        } else {
-            $em = $this->getDoctrine()->getManager();
-            $now = new \DateTime('now');
 
-            $icon = $em->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
+            $em->flush();
+        } else {
+            $icon = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')
+                ->find(1);
 
             $position = new AdminPosition();
             $position->setName(self::POSITION_ADMIN);
@@ -625,18 +651,26 @@ class AdminSalesCompanyController extends SandboxRestController
             $position->setIsSuperAdmin(true);
             $position->setIcon($icon);
             $position->setSalesCompany($company);
-            $position->setCreationDate($now);
-            $position->setModificationDate($now);
             $em->persist($position);
         }
 
         foreach ($userIds as $userId) {
             $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
-            if (!is_null($user)) {
+            if (is_null($user)) {
+                continue;
+            }
+
+            $binding = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findOneBy([
+                    'user' => $user,
+                    'position' => $position
+                ]);
+
+            if (is_null($binding)) {
                 $adminPositionUser = new AdminPositionUserBinding();
                 $adminPositionUser->setUser($user);
                 $adminPositionUser->setPosition($position);
-                $adminPositionUser->setCreationDate($now);
                 $em->persist($adminPositionUser);
             }
         }
@@ -737,7 +771,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $salesCompany
     ) {
         // check input data, "null" means do not set exclude permission
-        if (is_null($excludePermissions)) {
+        if (is_null($excludePermissions) || empty($excludePermissions)) {
             return;
         }
 
@@ -747,17 +781,12 @@ class AdminSalesCompanyController extends SandboxRestController
             ->findBy(array(
                 'salesCompany' => $salesCompany,
             ));
-        if (!empty($excludePermissionsRemove)) {
-            foreach ($excludePermissionsRemove as $excludePermission) {
-                $em->remove($excludePermission);
-            }
-        }
-        $em->flush();
 
-        // check input data, "empty" means set all permissions include
-        if (empty($excludePermissions)) {
-            return;
+        foreach ($excludePermissionsRemove as $excludePermission) {
+            $em->remove($excludePermission);
         }
+
+        $em->flush();
 
         foreach ($excludePermissions as $excludePermission) {
             if (!array_key_exists('key', $excludePermission)) {
@@ -832,7 +861,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $salesCompany,
         $positionName
     ) {
-        if (is_null($admins)) {
+        if (is_null($admins) || empty($admins)) {
             return;
         }
 
@@ -862,7 +891,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $servicesInfos,
         $salesCompany
     ) {
-        if (is_null($servicesInfos)) {
+        if (is_null($servicesInfos) || empty($servicesInfos)) {
             return;
         }
 
@@ -909,7 +938,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $admins,
         $salesCompany
     ) {
-        if (is_null($admins)) {
+        if (is_null($admins) || empty($admins)) {
             return;
         }
 
