@@ -162,7 +162,7 @@ class SalesCompany
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "admin_view"})
+     * @Serializer\Groups({"main", "admin_view", "admin"})
      */
     private $services;
 
@@ -185,13 +185,6 @@ class SalesCompany
      * @Serializer\Groups({"main", "admin"})
      */
     private $modificationDate;
-
-    /**
-     * @var array
-     *
-     * @Serializer\Groups({"main", "admin"})
-     */
-    private $services;
 
     /**
      * Get id.
@@ -545,22 +538,6 @@ class SalesCompany
     public function setHasPendingShop($hasPendingShop)
     {
         $this->hasPendingShop = $hasPendingShop;
-    }
-
-    /**
-     * @return string
-     */
-    public function getServices()
-    {
-        return $this->services;
-    }
-
-    /**
-     * @param string $services
-     */
-    public function setServices($services)
-    {
-        $this->services = $services;
     }
 
     /**
