@@ -340,7 +340,7 @@ class AdminLeaseController extends AdminRestController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->countLeasesAmount(
-                [$buildingId],
+                $buildingIds,
                 $status,
                 $keyword,
                 $keywordSearch,
