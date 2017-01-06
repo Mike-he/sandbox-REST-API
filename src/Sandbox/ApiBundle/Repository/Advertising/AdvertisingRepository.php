@@ -15,7 +15,7 @@ class AdvertisingRepository extends EntityRepository
     public function getAdvertisingList()
     {
         $query = $this->createQueryBuilder('a')
-            ->orderBy('id', 'DESC')
+            ->orderBy('a.id', 'DESC')
             ->getQuery();
 
         return $query;
