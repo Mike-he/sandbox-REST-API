@@ -277,12 +277,4 @@ class AdminPositionUserBinding
     {
         return $this->creationDate;
     }
-
-    /**
-     * AdminPositionUserBinding constructor.
-     */
-    public function __construct()
-    {
-        $this->creationDate = new \DateTime('now');
-    }
 }
