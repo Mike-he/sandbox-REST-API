@@ -140,6 +140,10 @@ class OrderController extends PaymentController
                 $companyName = $building->getCompany()->getName();
             }
 
+            $price = $order->getDiscountPrice();
+            $refund = $order->getActualRefundAmount();
+            $actualAmount = $price - $refund;
+
             // set excel body
             $body = array(
                 ProductOrderExport::COMPANY_NAME => $companyName,
@@ -151,7 +155,9 @@ class OrderController extends PaymentController
                 ProductOrderExport::BASE_PRICE => $productInfo['base_price'],
                 ProductOrderExport::UNIT_PRICE => $unitPrice,
                 ProductOrderExport::AMOUNT => $order->getPrice(),
-                ProductOrderExport::DISCOUNT_PRICE => $order->getDiscountPrice(),
+                ProductOrderExport::DISCOUNT_PRICE => $price,
+                ProductOrderExport::REFUND_AMOUNT => $refund,
+                ProductOrderExport::ACTUAL_AMOUNT => $actualAmount,
                 ProductOrderExport::LEASING_TIME => $leasingTime,
                 ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
@@ -177,6 +183,8 @@ class OrderController extends PaymentController
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),

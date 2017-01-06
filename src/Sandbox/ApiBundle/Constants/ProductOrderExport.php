@@ -14,6 +14,8 @@ class ProductOrderExport
     const UNIT_PRICE = 'unit_price';
     const AMOUNT = 'amount';
     const DISCOUNT_PRICE = 'discount_price';
+    const REFUND_AMOUNT = 'refund_amount';
+    const ACTUAL_AMOUNT = 'actual_amount';
     const LEASING_TIME = 'leasing_time';
     const ORDER_TIME = 'order_time';
     const PAYMENT_TIME = 'payment_time';
@@ -41,6 +43,8 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE = 'product_order.export_header.unit_price';
     const TRANS_PRODUCT_ORDER_HEADER_AMOUNT = 'product_order.export_header.amount';
     const TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE = 'product_order.export_header.discount_price';
+    const TRANS_PRODUCT_ORDER_HEADER_REFUND_AMOUNT = 'product_order.export_header.refund_amount';
+    const TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT = 'product_order.export_header.actual_amount';
     const TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME = 'product_order.export_header.leasing_time';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME = 'product_order.export_header.order_time';
     const TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME = 'product_order.export_header.payment_time';
