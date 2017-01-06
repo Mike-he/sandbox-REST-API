@@ -385,16 +385,34 @@ class AdminSalesCompanyController extends SandboxRestController
         $excludePermissions = $salesCompany->getExcludePermissions();
 
         // save admins
-        $this->saveAdmins($admins, $salesCompany, self::POSITION_ADMIN);
+        $this->saveAdmins(
+            $admins,
+            $salesCompany,
+            self::POSITION_ADMIN,
+            AdminPermission::PERMISSION_PLATFORM_SALES
+        );
 
         // save coffee admins
-        $this->saveAdmins($coffeeAdmins, $salesCompany, self::POSITION_COFFEE_ADMIN);
+        $this->saveAdmins(
+            $coffeeAdmins,
+            $salesCompany,
+            self::POSITION_COFFEE_ADMIN,
+            AdminPermission::PERMISSION_PLATFORM_SHOP
+        );
 
         // save services
-        $this->saveServices($em, $servicesInfos, $salesCompany);
+        $this->saveServices(
+            $em,
+            $servicesInfos,
+            $salesCompany
+        );
 
         // save modules
-        $this->saveExcludePermissions($em, $excludePermissions, $salesCompany);
+        $this->saveExcludePermissions(
+            $em,
+            $excludePermissions,
+            $salesCompany
+        );
 
         $em->flush();
 
@@ -453,13 +471,25 @@ class AdminSalesCompanyController extends SandboxRestController
         $excludePermissions = $salesCompany->getExcludePermissions();
 
         // update admins
-        $this->updateAdmins($admins, $salesCompany);
+        $this->updateAdmins(
+            $admins,
+            $salesCompany,
+            AdminPermission::PERMISSION_PLATFORM_SALES
+        );
 
         // update coffee admins
-        $this->updateAdmins($coffeeAdmins, $salesCompany);
+        $this->updateAdmins(
+            $coffeeAdmins,
+            $salesCompany,
+            AdminPermission::PERMISSION_PLATFORM_SHOP
+        );
 
         // update services
-        $this->saveServices($em, $servicesInfos, $salesCompany);
+        $this->saveServices(
+            $em,
+            $servicesInfos,
+            $salesCompany
+        );
 
         // update modules
         $this->saveExcludePermissions(
@@ -566,7 +596,8 @@ class AdminSalesCompanyController extends SandboxRestController
     private function createPosition(
         $user,
         $salesCompany,
-        $name
+        $name,
+        $platform
     ) {
         $em = $this->getDoctrine()->getManager();
 
@@ -576,7 +607,7 @@ class AdminSalesCompanyController extends SandboxRestController
                'salesCompany' => $salesCompany,
                 'name' => $name,
                 'isSuperAdmin' => true,
-                'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
+                'platform' => $platform,
                 'isHidden' => false,
             ]);
 
@@ -587,7 +618,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
             $position = new AdminPosition();
             $position->setName($name);
-            $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
+            $position->setPlatform($platform);
             $position->setIsSuperAdmin(true);
             $position->setIcon($icon);
             $position->setSalesCompany($salesCompany);
@@ -615,7 +646,8 @@ class AdminSalesCompanyController extends SandboxRestController
      */
     private function updatePosition(
         $company,
-        $userIds
+        $userIds,
+        $platform
     ) {
         $em = $this->getDoctrine()->getManager();
 
@@ -624,7 +656,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 array(
                     'salesCompany' => $company,
                     'name' => self::POSITION_ADMIN,
-                    'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
+                    'platform' => $platform,
                     'isSuperAdmin' => true,
                     'isHidden' => false,
                 )
@@ -647,7 +679,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
             $position = new AdminPosition();
             $position->setName(self::POSITION_ADMIN);
-            $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
+            $position->setPlatform($platform);
             $position->setIsSuperAdmin(true);
             $position->setIcon($icon);
             $position->setSalesCompany($company);
@@ -859,7 +891,8 @@ class AdminSalesCompanyController extends SandboxRestController
     private function saveAdmins(
         $admins,
         $salesCompany,
-        $positionName
+        $positionName,
+        $platform
     ) {
         if (is_null($admins) || empty($admins)) {
             return;
@@ -876,7 +909,8 @@ class AdminSalesCompanyController extends SandboxRestController
             $this->createPosition(
                 $admin,
                 $salesCompany,
-                $positionName
+                $positionName,
+                $platform
             );
         }
     }
@@ -936,7 +970,8 @@ class AdminSalesCompanyController extends SandboxRestController
      */
     private function updateAdmins(
         $admins,
-        $salesCompany
+        $salesCompany,
+        $platform
     ) {
         if (is_null($admins) || empty($admins)) {
             return;
@@ -948,7 +983,8 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $this->updatePosition(
             $salesCompany,
-            $admins
+            $admins,
+            $platform
         );
     }
 }
