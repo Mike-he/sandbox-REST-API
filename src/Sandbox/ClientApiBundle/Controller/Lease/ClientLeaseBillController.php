@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillTransferAttachment;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillPatchType;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
@@ -26,11 +27,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientLeaseBillController extends PaymentController
 {
-    const BILL_NOT_FOUND_CODE = 400001;
-    const BILL_NOT_FOUND_MESSAGE = 'Can not find bill';
-    const BILL_NOT_SUPPORT_BALANCE_PAYMENT_CODE = 400002;
-    const BILL_NOT_SUPPORT_BALANCE_PAYMENT__MESSAGE = 'Does not support the balance payment';
-
     /**
      * Get all bills for current user.
      *
@@ -140,13 +136,7 @@ class ClientLeaseBillController extends PaymentController
             ->getRepository("SandboxApiBundle:Lease\LeaseBill")
             ->find($id);
 
-        if (is_null($bill)) {
-            return $this->customErrorView(
-                400,
-                self::BILL_NOT_FOUND_CODE,
-                self::BILL_NOT_FOUND_MESSAGE
-            );
-        }
+        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
         $data = array();
         if ($bill->getDrawee() == $userId ||
@@ -177,36 +167,37 @@ class ClientLeaseBillController extends PaymentController
     ) {
         $bill = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Lease\LeaseBill")
-            ->find($id);
-
-        if (is_null($bill)) {
-            return $this->customErrorView(
-                400,
-                self::BILL_NOT_FOUND_CODE,
-                self::BILL_NOT_FOUND_MESSAGE
+            ->findOneBy(
+                array(
+                    'id' => $id,
+                    'status' => LeaseBill::STATUS_UNPAID,
+                )
             );
-        }
+        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
         // check if request user is the same as drawee
         $this->throwAccessDeniedIfNotSameUser($bill->getLease()->getDrawee()->getId());
 
-        if ($bill->getStatus() !== 'unpaid') {
-            return $this->customErrorView(
-                400,
-                self::WRONG_PAYMENT_STATUS_CODE,
-                self::WRONG_PAYMENT_STATUS_MESSAGE
-            );
+        //check collection method
+        $room = $bill->getLease()->getProduct()->getRoom();
+        $type = $room->getType();
+        if ($type == Room::TYPE_LONG_TERM) {
+            $company = $room->getBuilding()->getCompany();
+
+            $collectionMethod = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->getCollectionMethod($company, $type);
+
+            if ($collectionMethod == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
+            }
         }
 
         $requestContent = json_decode($request->getContent(), true);
         $channel = $requestContent['channel'];
 
         if (is_null($channel)) {
-            return $this->customErrorView(
-                400,
-                self::CHANNEL_IS_EMPTY_CODE,
-                self::CHANNEL_IS_EMPTY_MESSAGE
-            );
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_CHANNEL_IS_EMPTY_MESSAGE);
         }
 
         $token = '';
@@ -216,11 +207,7 @@ class ClientLeaseBillController extends PaymentController
 
         switch ($channel) {
             case LeaseBill::CHANNEL_ACCOUNT:
-                return $this->customErrorView(
-                    400,
-                    self::BILL_NOT_SUPPORT_BALANCE_PAYMENT_CODE,
-                    self::BILL_NOT_SUPPORT_BALANCE_PAYMENT__MESSAGE
-                );
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_NOT_SUPPORT_BALANCE_PAYMENT_MESSAGE);
                 break;
 
             case LeaseBill::CHANNEL_OFFLINE:
@@ -285,8 +272,8 @@ class ClientLeaseBillController extends PaymentController
             ->findOneBy(
                 array(
                     'id' => $id,
-                    'status' => ProductOrder::STATUS_UNPAID,
-                    'payChannel' => ProductOrder::CHANNEL_OFFLINE,
+                    'status' => LeaseBill::STATUS_UNPAID,
+                    'payChannel' => LeaseBill::CHANNEL_OFFLINE,
                 )
             );
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);

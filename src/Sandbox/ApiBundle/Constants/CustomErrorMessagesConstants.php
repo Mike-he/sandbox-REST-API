@@ -31,6 +31,9 @@ class CustomErrorMessagesConstants
 
     // LEASE BILL
     const ERROR_BILL_NOT_FOUND_MESSAGE = 'The bill does not exist';
+    const ERROR_BILL_CHANNEL_IS_EMPTY_MESSAGE = 'Channel cannot be empty';
+    const ERROR_BILL_NOT_SUPPORT_BALANCE_PAYMENT_MESSAGE = 'Does not support the balance payment';
+    const ERROR_BILL_COLLECTION_METHOD_MESSAGE = 'The collection method is sales';
 
     // PRODUCT
     const ERROR_PRODUCT_NOT_FOUND_MESSAGE = 'The product does not exist';
