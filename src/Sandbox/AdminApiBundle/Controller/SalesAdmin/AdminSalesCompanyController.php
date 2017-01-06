@@ -802,11 +802,6 @@ class AdminSalesCompanyController extends SandboxRestController
         $excludePermissions,
         $salesCompany
     ) {
-        // check input data, "null" means do not set exclude permission
-        if (is_null($excludePermissions)) {
-            return;
-        }
-
         // remove old data
         $excludePermissionsRemove = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
