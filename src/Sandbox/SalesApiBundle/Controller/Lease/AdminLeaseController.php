@@ -84,7 +84,7 @@ class AdminLeaseController extends SalesRestController
      *    description="company id"
      * )
      *
-     * @Route("/leases/{id}/export_to_pdf")
+     * @Route("/leases/export_to_pdf/{id}")
      * @Method({"GET"})
      *
      * @return Response

@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -322,6 +323,65 @@ class AdminLeaseBillController extends SalesRestController
         $payload = json_decode($request->getContent(), true);
 
         $this->handleBatchPush($payload);
+    }
+
+    /**
+     * Bill Collection.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/leases/bills/{id}/collection")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function PatchCollectionActioon(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")
+            ->findOneBy(
+                array(
+                    'id' => $id,
+                    'status' => LeaseBill::STATUS_VERIFY,
+                    'payChannel' => LeaseBill::CHANNEL_SALES_OFFLINE,
+                )
+            );
+        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
+
+        $billJson = $this->container->get('serializer')->serialize($bill, 'json');
+        $patch = new Patch($billJson, $request->getContent());
+        $billJson = $patch->apply();
+        $form = $this->createForm(new LeaseBillPatchType(), $bill);
+        $form->submit(json_decode($billJson, true));
+
+        if ($bill->getStatus() != LeaseBill::STATUS_PAID) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
+        }
+
+        if (is_null($bill->getRemark())) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($bill);
+        $em->flush();
+
+        // generate log
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_LEASE_BILL,
+            'logObjectId' => $bill->getId(),
+        ));
+
+        return new View();
     }
 
     /**

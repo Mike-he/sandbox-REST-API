@@ -33,12 +33,12 @@ class SalesCompanyRepository extends EntityRepository
             $query->andWhere('
                     (sc.name LIKE :search OR
                     sc.phone LIKE :search OR
-                    sc.email LIKE :search)
+                    sc.contacterEmail LIKE :search)
                 ')
                 ->setParameter('search', '%'.$search.'%');
         }
 
-        $query->orderBy('sc.id', 'ASC');
+        $query->orderBy('sc.id', 'DESC');
 
         return $query->getQuery()->getResult();
     }

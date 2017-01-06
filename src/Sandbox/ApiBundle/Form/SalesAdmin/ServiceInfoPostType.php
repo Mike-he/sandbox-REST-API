@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class SalesCompanyPostType extends AbstractType
+class ServiceInfoPostType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,17 +15,12 @@ class SalesCompanyPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
-            ->add('phone')
-            ->add('address')
-            ->add('contacter')
-            ->add('contacter_phone')
-            ->add('contacter_email')
-            ->add('description')
-            ->add('admins')
-            ->add('coffee_admins')
-            ->add('services')
-            ->add('exclude_permissions');
+            ->add('room_types')
+            ->add('service_fee')
+            ->add('collection_method')
+            ->add('drawer')
+            ->add('invoicing_subjects')
+            ->add('status');
     }
 
     /**
@@ -34,7 +29,7 @@ class SalesCompanyPostType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany',
+            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos',
         ));
     }
 

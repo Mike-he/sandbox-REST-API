@@ -223,15 +223,6 @@ class Product
     private $modificationDate;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="salesInvoice", type="boolean")
-     *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
-     */
-    private $salesInvoice = false;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="earliestRentDate", type="datetime", nullable=true)
@@ -297,6 +288,19 @@ class Product
      * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $appointment = true;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $collectionMethod;
+
+    public function __construct()
+    {
+        $date = new \DateTime('2099-12-30 23:59:59');
+        $this->setEndDate($date);
+    }
 
     /**
      * @return bool
@@ -875,30 +879,6 @@ class Product
     }
 
     /**
-     * Set salesInvoice.
-     *
-     * @param bool $salesInvoice
-     *
-     * @return Product
-     */
-    public function setSalesInvoice($salesInvoice)
-    {
-        $this->salesInvoice = $salesInvoice;
-
-        return $this;
-    }
-
-    /**
-     * Get salesInvoice.
-     *
-     * @return bool
-     */
-    public function isSalesInvoice()
-    {
-        return $this->salesInvoice;
-    }
-
-    /**
      * @return int
      */
     public function getPendingAppointmentCounts()
@@ -930,9 +910,19 @@ class Product
         $this->totalAppointmentCounts = $totalAppointmentCounts;
     }
 
-    public function __construct()
+    /**
+     * @return string
+     */
+    public function getCollectionMethod()
     {
-        $date = new \DateTime('2099-12-30 23:59:59');
-        $this->setEndDate($date);
+        return $this->collectionMethod;
+    }
+
+    /**
+     * @param string $collectionMethod
+     */
+    public function setCollectionMethod($collectionMethod)
+    {
+        $this->collectionMethod = $collectionMethod;
     }
 }

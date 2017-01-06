@@ -1527,7 +1527,9 @@ class AdminOrderController extends OrderController
             $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
             $productId = $order->getProductId();
-            $product = $this->getRepo('Product\Product')->find($productId);
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->find($productId);
 
             $startDate = new \DateTime($order->getStartDate());
 
@@ -1635,9 +1637,11 @@ class AdminOrderController extends OrderController
                 $order->setPaymentDate($now);
             }
 
-            if ($product->isSalesInvoice()) {
-                $order->setSalesInvoice(true);
-            }
+            // set order drawer
+            $this->setOrderDrawer(
+                $product,
+                $order
+            );
 
             $em->persist($order);
 

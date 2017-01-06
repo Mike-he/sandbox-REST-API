@@ -3,3 +3,4 @@ web/bundles
 /app/logs/
 /app/cache/
 /Homestead.yaml
+.php_cs.cache

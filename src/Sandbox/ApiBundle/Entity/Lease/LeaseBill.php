@@ -16,6 +16,7 @@ class LeaseBill
     const STATUS_UNPAID = 'unpaid';
     const STATUS_PAID = 'paid';
     const STATUS_CANCELLED = 'cancelled';
+    const STATUS_VERIFY = 'verify';
 
     const TYPE_LEASE = 'lease';
     const TYPE_OTHER = 'other';
@@ -30,6 +31,7 @@ class LeaseBill
     const CHANNEL_UNION_CREDIT = 'cnp_u';
     const CHANNEL_WECHAT_PUB = 'wx_pub';
     const CHANNEL_OFFLINE = 'offline';
+    const CHANNEL_SALES_OFFLINE = 'sales_offline';
 
     const PAYMENT_SUBJECT = 'SANDBOX3-支付账单';
     const PAYMENT_BODY = 'PAY THE BILLS';
@@ -249,6 +251,15 @@ class LeaseBill
      * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $transfer;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remark", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $remark;
 
     /**
      * @return int
@@ -616,5 +627,21 @@ class LeaseBill
     public function setTransfer($transfer)
     {
         $this->transfer = $transfer;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemark()
+    {
+        return $this->remark;
+    }
+
+    /**
+     * @param string $remark
+     */
+    public function setRemark($remark)
+    {
+        $this->remark = $remark;
     }
 }
