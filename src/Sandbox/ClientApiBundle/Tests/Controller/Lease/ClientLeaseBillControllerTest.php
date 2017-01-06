@@ -108,7 +108,7 @@ class ClientLeaseBillControllerTest extends WebTestCase
                 'preview' => '',
                 'transfer' => [],
                 'collection_method' => $service->getCollectionMethod(),
-            ]
+            ],
         );
 
         return $data;

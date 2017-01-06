@@ -177,14 +177,14 @@ class AdminSalesCompanyController extends SandboxRestController
             $permission = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermission')
                 ->findOneBy([
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
                 ]);
             if (!is_null($permission)) {
                 $excludePermission = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
                     ->findOneBy([
                         'salesCompany' => $company,
-                        'permission' => $permission
+                        'permission' => $permission,
                     ]);
                 if (is_null($excludePermission)) {
                     $company->setHasEventModule(true);
@@ -315,20 +315,20 @@ class AdminSalesCompanyController extends SandboxRestController
         $permission = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy([
-                'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT
+                'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
             ]);
         if (!is_null($permission)) {
             $excludePermission = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
                 ->findOneBy([
                     'salesCompany' => $company,
-                    'permission' => $permission
+                    'permission' => $permission,
                 ]);
             if (is_null($excludePermission)) {
                 $company->setHasEventModule(true);
             }
         }
-        
+
         $services = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findBy(['company' => $company]);
@@ -431,7 +431,7 @@ class AdminSalesCompanyController extends SandboxRestController
             new SalesCompanyPostType(),
             $salesCompany,
             array(
-                'method' => 'PUT'
+                'method' => 'PUT',
             )
         );
         $form->handleRequest($request);
@@ -872,7 +872,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 ->findOneBy(
                     array(
                         'roomTypes' => $serviceInfo['room_types'],
-                        'company' => $salesCompany
+                        'company' => $salesCompany,
                     )
                 );
 

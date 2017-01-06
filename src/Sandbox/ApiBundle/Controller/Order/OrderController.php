@@ -1010,6 +1010,7 @@ class OrderController extends PaymentController
         }
 
         $order->setSalesInvoice(true);
+
         return;
     }
 }

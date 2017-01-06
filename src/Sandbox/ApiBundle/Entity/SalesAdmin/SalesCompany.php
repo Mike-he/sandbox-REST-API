@@ -237,7 +237,7 @@ class SalesCompany
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isHasEventModule()
     {
@@ -245,7 +245,7 @@ class SalesCompany
     }
 
     /**
-     * @param boolean $hasEventModule
+     * @param bool $hasEventModule
      */
     public function setHasEventModule($hasEventModule)
     {

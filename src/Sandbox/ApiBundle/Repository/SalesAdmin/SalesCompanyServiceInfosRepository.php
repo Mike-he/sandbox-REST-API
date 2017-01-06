@@ -9,8 +9,6 @@ class SalesCompanyServiceInfosRepository extends EntityRepository
     /**
      * @param $company
      * @param $type
-     *
-     * @return null
      */
     public function getCollectionMethod(
         $company,

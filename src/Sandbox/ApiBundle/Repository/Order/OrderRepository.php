@@ -2530,6 +2530,7 @@ class OrderRepository extends EntityRepository
     /**
      * @param $startDate
      * @param $endDate
+     *
      * @return mixed
      */
     public function countRefundToAccountOrders(
