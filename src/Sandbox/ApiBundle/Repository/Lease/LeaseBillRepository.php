@@ -191,4 +191,81 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $company
+     * @param $status
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $sendStart
+     * @param $sendEnd
+     * @param $amountStart
+     * @param $amountEnd
+     *
+     * @return array
+     */
+    public function findBillsByCompany(
+        $company,
+        $status,
+        $keyword,
+        $keywordSearch,
+        $sendStart,
+        $sendEnd,
+        $amountStart,
+        $amountEnd
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->leftJoin('lb.lease', 'l')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('b.company = :company')
+            ->setParameter('company', $company);
+
+        if (!is_null($status)) {
+            $query->andWhere('lb.status in (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'lease':
+                    $query->andWhere('l.serialNumber LIKE :search');
+                    break;
+                case 'bill':
+                    $query->andWhere('lb.serialNumber LIKE :search');
+                    break;
+            }
+
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        if (!is_null($sendStart)) {
+            $sendStart = new \DateTime($sendStart);
+            $sendStart->setTime(00, 00, 00);
+            $query->andWhere('lb.sendDate >= :sendStart')
+                ->setParameter('sendStart', $sendStart);
+        }
+
+        if (!is_null($sendEnd)) {
+            $sendEnd = new \DateTime($sendEnd);
+            $sendEnd->setTime(23, 59, 59);
+            $query->andWhere('lb.sendDate <= :sendEnd')
+                ->setParameter('sendEnd', $sendEnd);
+        }
+
+        if (!is_null($amountStart)) {
+            $query->andWhere('lb.revisedAmount >= :amountStart')
+                ->setParameter('amountStart', $amountStart);
+        }
+
+        if (!is_null($amountEnd)) {
+            $query->andWhere('lb.revisedAmount <= :amountEnd')
+                ->setParameter('amountEnd', $amountEnd);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
