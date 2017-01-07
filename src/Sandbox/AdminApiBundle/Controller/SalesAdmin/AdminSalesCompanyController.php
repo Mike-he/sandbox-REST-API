@@ -793,6 +793,28 @@ class AdminSalesCompanyController extends SandboxRestController
     }
 
     /**
+     * @param $company
+     * @param $status
+     * @param $roomType
+     */
+    private function hideAllProductsByRoomType(
+        $company,
+        $status,
+        $roomType
+    ) {
+        if ($status == false) {
+            $products = $this->getProductRepo()->findProductsByType(
+                $company,
+                $roomType
+            );
+
+            foreach ($products as $product) {
+                $product->setVisible(false);
+            }
+        }
+    }
+
+    /**
      * @param EntityManager $em
      * @param array         $excludePermissions
      * @param SalesCompany  $salesCompany
@@ -802,6 +824,10 @@ class AdminSalesCompanyController extends SandboxRestController
         $excludePermissions,
         $salesCompany
     ) {
+        if (is_null($excludePermissions) || empty($excludePermissions)) {
+            return;
+        }
+
         // remove old data
         $excludePermissionsRemove = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
@@ -938,6 +964,13 @@ class AdminSalesCompanyController extends SandboxRestController
                 $service = new SalesCompanyServiceInfos();
             } else {
                 $method = 'PUT';
+
+                // set visible of product to false if closing the service
+                $this->hideAllProductsByRoomType(
+                    $salesCompany,
+                    $serviceInfo['status'],
+                    $service->getRoomTypes()
+                );
             }
 
             $form = $this->createForm(
