@@ -79,6 +79,7 @@ class AdminLeaseBillController extends SalesRestController
             LeaseBill::STATUS_UNPAID,
             LeaseBill::STATUS_PAID,
             LeaseBill::STATUS_CANCELLED,
+            LeaseBill::STATUS_VERIFY,
         );
 
         $bills = $this->getDoctrine()
