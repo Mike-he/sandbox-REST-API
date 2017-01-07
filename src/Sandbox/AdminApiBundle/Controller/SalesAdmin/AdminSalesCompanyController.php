@@ -824,7 +824,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $excludePermissions,
         $salesCompany
     ) {
-        if (is_null($excludePermissions) || empty($excludePermissions)) {
+        if (is_null($excludePermissions)) {
             return;
         }
 
