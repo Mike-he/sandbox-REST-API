@@ -48,6 +48,7 @@ class ProductOrder
     const ENTITY_PATH = 'Order\ProductOrder';
     const REFUNDED_STATUS = 'refunded';
     const NEED_TO_REFUND = 'needToRefund';
+    const ALL_REFUND = 'all';
 
     const RESERVE_TYPE = 'reserve';
     const PREORDER_TYPE = 'preorder';
