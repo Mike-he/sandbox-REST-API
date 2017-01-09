@@ -293,6 +293,8 @@ class AdminCommunityController extends SandboxRestController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ROOM],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT],
             ],
             $opLevel
         );
