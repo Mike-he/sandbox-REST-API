@@ -49,7 +49,7 @@ class AdminExcludePermission
     /**
      * @var int
      *
-     * @ORM\Column(name="permissionId", type="integer", nullable=false)
+     * @ORM\Column(name="permissionId", type="integer", nullable=true)
      */
     private $permissionId;
 
@@ -58,6 +58,19 @@ class AdminExcludePermission
      * @ORM\JoinColumn(name="permissionId", referencedColumnName="id", onDelete="CASCADE")
      */
     private $permission;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="groupId", type="integer", nullable=true)
+     */
+    private $groupId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AdminPermissionGroups")
+     * @ORM\JoinColumn(name="groupId", referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $group;
 
     /**
      * @var \DateTime
@@ -170,6 +183,38 @@ class AdminExcludePermission
     public function setPermission($permission)
     {
         $this->permission = $permission;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGroupId()
+    {
+        return $this->groupId;
+    }
+
+    /**
+     * @param int $groupId
+     */
+    public function setGroupId($groupId)
+    {
+        $this->groupId = $groupId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
     }
 
     /**
