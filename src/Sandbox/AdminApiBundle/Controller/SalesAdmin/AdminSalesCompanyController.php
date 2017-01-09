@@ -6,6 +6,7 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -49,6 +50,40 @@ class AdminSalesCompanyController extends SandboxRestController
     const ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE = 'Must at least one super administrator position binding';
 
     use HasAccessToEntityRepositoryTrait;
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/companies/exclude_permissions_options")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getExcludePermissionsOptionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $eventGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+            ->findOneBy(array(
+                'groupKey' => AdminPermissionGroups::GROUP_KEY_EVENT,
+                'platform' => AdminPermissionGroups::GROUP_PLATFORM_SALES,
+            ));
+
+        return new View(array(
+            'exclude_permissions_options' => array(
+                array(
+                    'group_key' => $eventGroup->getGroupKey(),
+                    'group_name' => $eventGroup->getGroupName(),
+                    'permissions' => array(
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_EVENT),
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER),
+                    ),
+                ),
+            ),
+        ));
+    }
 
     /**
      * @param Request $request
@@ -629,7 +664,7 @@ class AdminSalesCompanyController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->findOneBy([
                 'user' => $user,
-                'position' => $position
+                'position' => $position,
             ]);
 
         if (is_null($binding)) {
@@ -696,7 +731,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                 ->findOneBy([
                     'user' => $user,
-                    'position' => $position
+                    'position' => $position,
                 ]);
 
             if (is_null($binding)) {
