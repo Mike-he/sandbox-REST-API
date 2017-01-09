@@ -48,7 +48,7 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
             ));
 
         $salesPermission1 = new AdminPermission();
-        $salesPermission1->setKey('sales.platform.long_term_service_bills');
+        $salesPermission1->setKey(AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS);
         $salesPermission1->setName('长租服务费账单权限');
         $salesPermission1->setPlatform('sales');
         $salesPermission1->setLevel('global');
@@ -56,7 +56,7 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
         $salesPermission1->setMaxOpLevel('2');
 
         $salesPermission2 = new AdminPermission();
-        $salesPermission2->setKey('sales.platform.monthly_bills');
+        $salesPermission2->setKey(AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS);
         $salesPermission2->setName('秒租月结账单权限');
         $salesPermission2->setPlatform('sales');
         $salesPermission2->setLevel('global');
@@ -64,7 +64,7 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
         $salesPermission2->setMaxOpLevel('2');
 
         $salesPermission3 = new AdminPermission();
-        $salesPermission3->setKey('sales.platform.financial_summary');
+        $salesPermission3->setKey(AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY);
         $salesPermission3->setName('财务汇总权限');
         $salesPermission3->setPlatform('sales');
         $salesPermission3->setLevel('global');
@@ -72,15 +72,15 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
         $salesPermission3->setMaxOpLevel('2');
 
         $salesPermission4 = new AdminPermission();
-        $salesPermission4->setKey('sales.platform.withdraw');
-        $salesPermission4->setName('财务汇总权限');
+        $salesPermission4->setKey(AdminPermission::KEY_SALES_PLATFORM_WITHDRAWAL);
+        $salesPermission4->setName('提现权限');
         $salesPermission4->setPlatform('sales');
         $salesPermission4->setLevel('global');
         $salesPermission4->setOpLevelSelect('1,2');
         $salesPermission4->setMaxOpLevel('2');
 
         $salesPermission5 = new AdminPermission();
-        $salesPermission5->setKey('sales.platform.audit');
+        $salesPermission5->setKey(AdminPermission::KEY_SALES_PLATFORM_AUDIT);
         $salesPermission5->setName('线下支付审核权限');
         $salesPermission5->setPlatform('sales');
         $salesPermission5->setLevel('global');
@@ -88,7 +88,7 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
         $salesPermission5->setMaxOpLevel('2');
 
         $salesPermission6 = new AdminPermission();
-        $salesPermission6->setKey('sales.platform.account');
+        $salesPermission6->setKey(AdminPermission::KEY_SALES_PLATFORM_ACCOUNT);
         $salesPermission6->setName('企业账户管理权限');
         $salesPermission6->setPlatform('sales');
         $salesPermission6->setLevel('global');

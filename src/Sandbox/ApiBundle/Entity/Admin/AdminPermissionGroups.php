@@ -13,6 +13,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class AdminPermissionGroups
 {
+    const GROUP_KEY_EVENT = 'activity';
+    const GROUP_PLATFORM_SALES = 'sales';
+
     /**
      * @var int
      *

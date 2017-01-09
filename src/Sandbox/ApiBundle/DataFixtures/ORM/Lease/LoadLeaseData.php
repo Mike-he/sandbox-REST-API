@@ -77,7 +77,8 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $lb2->setType(LeaseBill::TYPE_OTHER);
         $lb2->setStatus(LeaseBill::STATUS_UNPAID);
         $lb2->setLease($l1);
-        $this->addReference('lease_bill_for_type_other', $lb1);
+        $lb2->setRevisedAmount('88.8');
+        $this->addReference('lease_bill_for_type_other', $lb2);
 
         $manager->persist($l1);
         $manager->persist($l2);

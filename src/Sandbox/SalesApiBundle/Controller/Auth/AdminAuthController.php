@@ -2,12 +2,15 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Auth;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Auth\AuthController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Admin Auth controller.
@@ -21,6 +24,57 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
  */
 class AdminAuthController extends AuthController
 {
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/exclude_permissions")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSalesExcludePermissionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        if ($platform != AdminPermissionGroups::GROUP_PLATFORM_SALES) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $excludePermissions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
+            ->findBy(array(
+                'salesCompanyId' => $salesCompanyId,
+            ));
+
+        $response = array(
+            'groups' => array(),
+            'permissions' => array(),
+        );
+        foreach ($excludePermissions as $excludePermission) {
+            $group = $excludePermission->getGroup();
+            $permission = $excludePermission->getPermission();
+
+            if (!is_null($group)) {
+                array_push($response['groups'], array(
+                    'id' => $group->getId(),
+                ));
+            }
+
+            if (!is_null($permission)) {
+                array_push($response['permissions'], array(
+                    'id' => $permission->getId(),
+                ));
+            }
+        }
+
+        return new View($response);
+    }
+
     /**
      * Token auth.
      *

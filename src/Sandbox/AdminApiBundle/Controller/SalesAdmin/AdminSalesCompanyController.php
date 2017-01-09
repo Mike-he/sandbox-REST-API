@@ -6,6 +6,7 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -49,6 +50,40 @@ class AdminSalesCompanyController extends SandboxRestController
     const ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE = 'Must at least one super administrator position binding';
 
     use HasAccessToEntityRepositoryTrait;
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/companies/exclude_permissions_options")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getExcludePermissionsOptionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $eventGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+            ->findOneBy(array(
+                'groupKey' => AdminPermissionGroups::GROUP_KEY_EVENT,
+                'platform' => AdminPermissionGroups::GROUP_PLATFORM_SALES,
+            ));
+
+        return new View(array(
+            'exclude_permissions_options' => array(
+                array(
+                    'group_key' => $eventGroup->getGroupKey(),
+                    'group_name' => $eventGroup->getGroupName(),
+                    'permissions' => array(
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_EVENT),
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER),
+                    ),
+                ),
+            ),
+        ));
+    }
 
     /**
      * @param Request $request
@@ -174,22 +209,7 @@ class AdminSalesCompanyController extends SandboxRestController
             }
 
             // check event module
-            $permission = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPermission')
-                ->findOneBy([
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT
-                ]);
-            if (!is_null($permission)) {
-                $excludePermission = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
-                    ->findOneBy([
-                        'salesCompany' => $company,
-                        'permission' => $permission
-                    ]);
-                if (is_null($excludePermission)) {
-                    $company->setHasEventModule(true);
-                }
-            }
+            $this->checkExcludePermissions($company);
         }
 
         $salesCompanies = $this->get('serializer')->serialize(
@@ -241,6 +261,7 @@ class AdminSalesCompanyController extends SandboxRestController
             return new View();
         }
 
+        // set admins
         $adminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
                 array(
@@ -265,6 +286,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $company->setAdmins($userArray);
 
+        // set coffee admins
         $coffeeAdminPosition = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
                 array(
@@ -275,17 +297,22 @@ class AdminSalesCompanyController extends SandboxRestController
                 )
             );
 
-        $coffeeAdmin = $this->getDoctrine()
+        $coffeeAdmins = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->findOneBy(array('position' => $coffeeAdminPosition));
-        if (!is_null($coffeeAdmin)) {
+            ->findBy(array('position' => $coffeeAdminPosition));
+
+        $coffeeUserArray = [];
+        foreach ($coffeeAdmins as $coffeeAdmin) {
             $coffeeUser = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
                 ->find($coffeeAdmin->getUserId());
 
-            $company->setCoffeeAdmins($coffeeUser);
+            array_push($coffeeUserArray, $coffeeUser);
         }
 
+        $company->setCoffeeAdmins($coffeeUserArray);
+
+        // building and shop counts
         $buildingCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->countSalesBuildings($company);
         $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
         $shopCounts = count($shops);
@@ -311,24 +338,9 @@ class AdminSalesCompanyController extends SandboxRestController
             }
         }
 
-        // check event module
-        $permission = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findOneBy([
-                'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT
-            ]);
-        if (!is_null($permission)) {
-            $excludePermission = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
-                ->findOneBy([
-                    'salesCompany' => $company,
-                    'permission' => $permission
-                ]);
-            if (is_null($excludePermission)) {
-                $company->setHasEventModule(true);
-            }
-        }
-        
+        // check exclude permission groups
+        $this->checkExcludePermissions($company);
+
         $services = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findBy(['company' => $company]);
@@ -340,6 +352,29 @@ class AdminSalesCompanyController extends SandboxRestController
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_view']));
 
         return $view;
+    }
+
+    /**
+     * @param SalesCompany $company
+     */
+    private function checkExcludePermissions(
+        $company
+    ) {
+        $excludePermissions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminExcludePermission')
+            ->findBy([
+                'salesCompany' => $company,
+            ]);
+
+        $excludePermissionsArray = array();
+        foreach ($excludePermissions as $excludePermission) {
+            if (!is_null($excludePermission->getPermission()) || is_null($excludePermission->getGroup())) {
+                continue;
+            }
+
+            array_push($excludePermissionsArray, $excludePermission->getGroup()->getGroupKey());
+        }
+        $company->setExcludePermissions($excludePermissionsArray);
     }
 
     /**
@@ -378,16 +413,34 @@ class AdminSalesCompanyController extends SandboxRestController
         $excludePermissions = $salesCompany->getExcludePermissions();
 
         // save admins
-        $this->saveAdmins($admins, $salesCompany, self::POSITION_ADMIN);
+        $this->saveAdmins(
+            $admins,
+            $salesCompany,
+            self::POSITION_ADMIN,
+            AdminPermission::PERMISSION_PLATFORM_SALES
+        );
 
         // save coffee admins
-        $this->saveAdmins($coffeeAdmins, $salesCompany, self::POSITION_COFFEE_ADMIN);
+        $this->saveAdmins(
+            $coffeeAdmins,
+            $salesCompany,
+            self::POSITION_COFFEE_ADMIN,
+            AdminPermission::PERMISSION_PLATFORM_SHOP
+        );
 
         // save services
-        $this->saveServices($em, $servicesInfos, $salesCompany);
+        $this->saveServices(
+            $em,
+            $servicesInfos,
+            $salesCompany
+        );
 
         // save modules
-        $this->saveExcludePermissions($em, $excludePermissions, $salesCompany);
+        $this->saveExcludePermissions(
+            $em,
+            $excludePermissions,
+            $salesCompany
+        );
 
         $em->flush();
 
@@ -431,7 +484,7 @@ class AdminSalesCompanyController extends SandboxRestController
             new SalesCompanyPostType(),
             $salesCompany,
             array(
-                'method' => 'PUT'
+                'method' => 'PUT',
             )
         );
         $form->handleRequest($request);
@@ -441,18 +494,30 @@ class AdminSalesCompanyController extends SandboxRestController
         }
 
         $admins = $salesCompany->getAdmins();
-        $coffeeAdmins = $salesCompany->getAdmins();
+        $coffeeAdmins = $salesCompany->getCoffeeAdmins();
         $servicesInfos = $salesCompany->getServices();
         $excludePermissions = $salesCompany->getExcludePermissions();
 
         // update admins
-        $this->updateAdmins($admins, $salesCompany);
+        $this->updateAdmins(
+            $admins,
+            $salesCompany,
+            AdminPermission::PERMISSION_PLATFORM_SALES
+        );
 
         // update coffee admins
-        $this->updateAdmins($coffeeAdmins, $salesCompany);
+        $this->updateAdmins(
+            $coffeeAdmins,
+            $salesCompany,
+            AdminPermission::PERMISSION_PLATFORM_SHOP
+        );
 
         // update services
-        $this->saveServices($em, $servicesInfos, $salesCompany);
+        $this->saveServices(
+            $em,
+            $servicesInfos,
+            $salesCompany
+        );
 
         // update modules
         $this->saveExcludePermissions(
@@ -559,28 +624,48 @@ class AdminSalesCompanyController extends SandboxRestController
     private function createPosition(
         $user,
         $salesCompany,
-        $name
+        $name,
+        $platform
     ) {
         $em = $this->getDoctrine()->getManager();
-        $now = new \DateTime('now');
 
-        $icon = $em->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
+        $position = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->findOneBy([
+               'salesCompany' => $salesCompany,
+                'name' => $name,
+                'isSuperAdmin' => true,
+                'platform' => $platform,
+                'isHidden' => false,
+            ]);
 
-        $position = new AdminPosition();
-        $position->setName($name);
-        $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
-        $position->setIsSuperAdmin(true);
-        $position->setIcon($icon);
-        $position->setSalesCompany($salesCompany);
-        $position->setCreationDate($now);
-        $position->setModificationDate($now);
-        $em->persist($position);
+        if (is_null($position)) {
+            $icon = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')
+                ->find(1);
 
-        $adminPositionUser = new AdminPositionUserBinding();
-        $adminPositionUser->setUser($user);
-        $adminPositionUser->setPosition($position);
-        $adminPositionUser->setCreationDate($now);
-        $em->persist($adminPositionUser);
+            $position = new AdminPosition();
+            $position->setName($name);
+            $position->setPlatform($platform);
+            $position->setIsSuperAdmin(true);
+            $position->setIcon($icon);
+            $position->setSalesCompany($salesCompany);
+            $em->persist($position);
+        }
+
+        $binding = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->findOneBy([
+                'user' => $user,
+                'position' => $position,
+            ]);
+
+        if (is_null($binding)) {
+            $adminPositionUser = new AdminPositionUserBinding();
+            $adminPositionUser->setUser($user);
+            $adminPositionUser->setPosition($position);
+            $em->persist($adminPositionUser);
+        }
     }
 
     /**
@@ -589,54 +674,63 @@ class AdminSalesCompanyController extends SandboxRestController
      */
     private function updatePosition(
         $company,
-        $userIds
+        $userIds,
+        $platform
     ) {
         $em = $this->getDoctrine()->getManager();
-        $now = new \DateTime('now');
 
         $position = $em->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy(
                 array(
                     'salesCompany' => $company,
                     'name' => self::POSITION_ADMIN,
-                    'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
+                    'platform' => $platform,
                     'isSuperAdmin' => true,
                     'isHidden' => false,
                 )
             );
 
-        if ($position) {
-            $adminPositionUsers = $em->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+        if (!is_null($position)) {
+            $adminPositionUsers = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                 ->findBy(array('position' => $position));
 
             foreach ($adminPositionUsers as $adminPositionUser) {
                 $em->remove($adminPositionUser);
-                $em->flush();
             }
-        } else {
-            $em = $this->getDoctrine()->getManager();
-            $now = new \DateTime('now');
 
-            $icon = $em->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
+            $em->flush();
+        } else {
+            $icon = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')
+                ->find(1);
 
             $position = new AdminPosition();
             $position->setName(self::POSITION_ADMIN);
-            $position->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
+            $position->setPlatform($platform);
             $position->setIsSuperAdmin(true);
             $position->setIcon($icon);
             $position->setSalesCompany($company);
-            $position->setCreationDate($now);
-            $position->setModificationDate($now);
             $em->persist($position);
         }
 
         foreach ($userIds as $userId) {
             $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
-            if (!is_null($user)) {
+            if (is_null($user)) {
+                continue;
+            }
+
+            $binding = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->findOneBy([
+                    'user' => $user,
+                    'position' => $position,
+                ]);
+
+            if (is_null($binding)) {
                 $adminPositionUser = new AdminPositionUserBinding();
                 $adminPositionUser->setUser($user);
                 $adminPositionUser->setPosition($position);
-                $adminPositionUser->setCreationDate($now);
                 $em->persist($adminPositionUser);
             }
         }
@@ -727,6 +821,28 @@ class AdminSalesCompanyController extends SandboxRestController
     }
 
     /**
+     * @param $company
+     * @param $status
+     * @param $roomType
+     */
+    private function hideAllProductsByRoomType(
+        $company,
+        $status,
+        $roomType
+    ) {
+        if ($status == false) {
+            $products = $this->getProductRepo()->findProductsByType(
+                $company,
+                $roomType
+            );
+
+            foreach ($products as $product) {
+                $product->setVisible(false);
+            }
+        }
+    }
+
+    /**
      * @param EntityManager $em
      * @param array         $excludePermissions
      * @param SalesCompany  $salesCompany
@@ -736,7 +852,6 @@ class AdminSalesCompanyController extends SandboxRestController
         $excludePermissions,
         $salesCompany
     ) {
-        // check input data, "null" means do not set exclude permission
         if (is_null($excludePermissions)) {
             return;
         }
@@ -747,35 +862,52 @@ class AdminSalesCompanyController extends SandboxRestController
             ->findBy(array(
                 'salesCompany' => $salesCompany,
             ));
-        if (!empty($excludePermissionsRemove)) {
-            foreach ($excludePermissionsRemove as $excludePermission) {
-                $em->remove($excludePermission);
-            }
+
+        foreach ($excludePermissionsRemove as $excludePermission) {
+            $em->remove($excludePermission);
         }
+
         $em->flush();
 
-        // check input data, "empty" means set all permissions include
-        if (empty($excludePermissions)) {
-            return;
-        }
-
         foreach ($excludePermissions as $excludePermission) {
-            if (!array_key_exists('key', $excludePermission)) {
+            if (!array_key_exists('permissions', $excludePermission)
+            && !array_key_exists('group_key', $excludePermission)) {
                 continue;
             }
 
-            $permission = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            // set exclude permission groups
+            $permissionGroupKey = $excludePermission['group_key'];
+            $permissionGroup = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
                 ->findOneBy(array(
-                    'key' => $excludePermission['key'],
+                    'groupKey' => $permissionGroupKey,
+                    'platform' => AdminPermissionGroups::GROUP_PLATFORM_SALES,
                 ));
 
-            $excludePermissionEm = new AdminExcludePermission();
-            $excludePermissionEm->setSalesCompany($salesCompany);
-            $excludePermissionEm->setPermission($permission);
-            $excludePermissionEm->setPlatform(AdminPosition::PLATFORM_SALES);
+            if (!is_null($permissionGroup)) {
+                $excludePermissionGroupEm = new AdminExcludePermission();
+                $excludePermissionGroupEm->setSalesCompany($salesCompany);
+                $excludePermissionGroupEm->setGroup($permissionGroup);
+                $excludePermissionGroupEm->setPlatform(AdminPosition::PLATFORM_SALES);
 
-            $em->persist($excludePermissionEm);
+                $em->persist($excludePermissionGroupEm);
+            }
+
+            // set exclude permissions
+            foreach ($excludePermission['permissions'] as $permissionKey) {
+                $permission = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+                    ->findOneBy(array(
+                        'key' => $permissionKey['key'],
+                    ));
+
+                $excludePermissionEm = new AdminExcludePermission();
+                $excludePermissionEm->setSalesCompany($salesCompany);
+                $excludePermissionEm->setPermission($permission);
+                $excludePermissionEm->setPlatform(AdminPosition::PLATFORM_SALES);
+
+                $em->persist($excludePermissionEm);
+            }
         }
     }
 
@@ -830,9 +962,10 @@ class AdminSalesCompanyController extends SandboxRestController
     private function saveAdmins(
         $admins,
         $salesCompany,
-        $positionName
+        $positionName,
+        $platform
     ) {
-        if (is_null($admins)) {
+        if (is_null($admins) || empty($admins)) {
             return;
         }
 
@@ -847,7 +980,8 @@ class AdminSalesCompanyController extends SandboxRestController
             $this->createPosition(
                 $admin,
                 $salesCompany,
-                $positionName
+                $positionName,
+                $platform
             );
         }
     }
@@ -862,7 +996,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $servicesInfos,
         $salesCompany
     ) {
-        if (is_null($servicesInfos)) {
+        if (is_null($servicesInfos) || empty($servicesInfos)) {
             return;
         }
 
@@ -872,7 +1006,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 ->findOneBy(
                     array(
                         'roomTypes' => $serviceInfo['room_types'],
-                        'company' => $salesCompany
+                        'company' => $salesCompany,
                     )
                 );
 
@@ -880,6 +1014,13 @@ class AdminSalesCompanyController extends SandboxRestController
                 $service = new SalesCompanyServiceInfos();
             } else {
                 $method = 'PUT';
+
+                // set visible of product to false if closing the service
+                $this->hideAllProductsByRoomType(
+                    $salesCompany,
+                    $serviceInfo['status'],
+                    $service->getRoomTypes()
+                );
             }
 
             $form = $this->createForm(
@@ -907,9 +1048,10 @@ class AdminSalesCompanyController extends SandboxRestController
      */
     private function updateAdmins(
         $admins,
-        $salesCompany
+        $salesCompany,
+        $platform
     ) {
-        if (is_null($admins)) {
+        if (is_null($admins) || empty($admins)) {
             return;
         }
 
@@ -919,7 +1061,8 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $this->updatePosition(
             $salesCompany,
-            $admins
+            $admins,
+            $platform
         );
     }
 }

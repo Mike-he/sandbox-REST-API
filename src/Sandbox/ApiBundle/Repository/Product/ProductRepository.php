@@ -1277,4 +1277,23 @@ class ProductRepository extends EntityRepository
 
         return $query->getQuery()->getOneOrNullResult();
     }
+
+    public function findProductsByType(
+        $company,
+        $type
+    ) {
+        return $this->createQueryBuilder('p')
+            ->select('p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('p.isDeleted = FALSE')
+            ->where('p.visible = TRUE')
+            ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('b.company = :company')
+            ->andWhere('r.type = :type')
+            ->setParameter('company', $company)
+            ->setParameter('type', $type)
+            ->getQuery()
+            ->getResult();
+    }
 }

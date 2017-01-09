@@ -42,6 +42,7 @@ class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInte
         $scs3->setDrawer(SalesCompanyServiceInfos::DRAWER_SALES);
         $scs3->setInvoicingSubjects('开票科目');
         $scs3->setStatus(1);
+        $this->addReference('sales-company-service-for-longterm', $scs3);
 
         $manager->persist($sc1);
 
