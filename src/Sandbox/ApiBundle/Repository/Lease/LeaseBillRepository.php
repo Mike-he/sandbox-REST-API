@@ -194,6 +194,7 @@ class LeaseBillRepository extends EntityRepository
 
     /**
      * @param $company
+     * @param $channel
      * @param $status
      * @param $keyword
      * @param $keywordSearch
@@ -206,6 +207,7 @@ class LeaseBillRepository extends EntityRepository
      */
     public function findBillsByCompany(
         $company,
+        $channel,
         $status,
         $keyword,
         $keywordSearch,
@@ -216,11 +218,20 @@ class LeaseBillRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
-            ->leftJoin('l.product', 'p')
-            ->leftJoin('p.room', 'r')
-            ->leftJoin('r.building', 'b')
-            ->where('b.company = :company')
-            ->setParameter('company', $company);
+            ->where('1 = 1');
+
+        if (!is_null($company)) {
+            $query->leftJoin('l.product', 'p')
+                ->leftJoin('p.room', 'r')
+                ->leftJoin('r.building', 'b')
+                ->andWhere('b.company = :company')
+                ->setParameter('company', $company);
+        }
+
+        if (!is_null($channel)) {
+            $query->andWhere('lb.payChannel = :channel')
+                ->setParameter('channel', $channel);
+        }
 
         if (!is_null($status)) {
             $query->andWhere('lb.status in (:status)')

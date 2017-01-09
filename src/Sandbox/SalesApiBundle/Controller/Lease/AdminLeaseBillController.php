@@ -30,7 +30,7 @@ class AdminLeaseBillController extends SalesRestController
 
 
     /**
-     * Get Lease Bills.
+     * Get Sale offline Bills lists.
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -149,6 +149,7 @@ class AdminLeaseBillController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsByCompany(
                 $company,
+                LeaseBill::CHANNEL_SALES_OFFLINE,
                 $status,
                 $keyword,
                 $keywordSearch,
