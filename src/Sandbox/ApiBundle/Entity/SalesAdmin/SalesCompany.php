@@ -134,7 +134,7 @@ class SalesCompany
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view", "admin_list"})
      */
     private $excludePermissions;
 
@@ -151,13 +151,6 @@ class SalesCompany
      * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $hasPendingShop = false;
-
-    /**
-     * @var bool
-     *
-     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
-     */
-    private $hasEventModule = false;
 
     /**
      * @var array
@@ -234,22 +227,6 @@ class SalesCompany
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHasEventModule()
-    {
-        return $this->hasEventModule;
-    }
-
-    /**
-     * @param bool $hasEventModule
-     */
-    public function setHasEventModule($hasEventModule)
-    {
-        $this->hasEventModule = $hasEventModule;
     }
 
     /**

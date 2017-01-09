@@ -1927,7 +1927,7 @@ class OrderRepository extends EntityRepository
         }
 
         $query->orderBy('o.creationDate', 'DESC');
-        
+
         $result = $query->getQuery()->getResult();
 
         return $result;
