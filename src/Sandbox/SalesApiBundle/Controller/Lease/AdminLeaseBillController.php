@@ -28,7 +28,6 @@ class AdminLeaseBillController extends SalesRestController
     use GenerateSerialNumberTrait;
     use SendNotification;
 
-
     /**
      * Get Lease Bills.
      *
@@ -141,7 +140,7 @@ class AdminLeaseBillController extends SalesRestController
         if (is_null($status)) {
             $status = [
                 LeaseBill::STATUS_VERIFY,
-                LeaseBill::STATUS_PAID
+                LeaseBill::STATUS_PAID,
             ];
         }
 
@@ -174,7 +173,6 @@ class AdminLeaseBillController extends SalesRestController
 
         return new View($pagination);
     }
-
 
     /**
      * Get Lease Bills.
