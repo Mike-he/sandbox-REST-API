@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class AdminAuthController extends AuthController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/exclude_permissions")
@@ -41,7 +41,7 @@ class AdminAuthController extends AuthController
         $platform = $adminPlatform['platform'];
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
-        if ($platform != AdminPermissionGroups::GROUP_PLATFORM_SALES){
+        if ($platform != AdminPermissionGroups::GROUP_PLATFORM_SALES) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
