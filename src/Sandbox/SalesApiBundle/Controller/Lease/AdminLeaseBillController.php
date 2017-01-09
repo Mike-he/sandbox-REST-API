@@ -121,7 +121,13 @@ class AdminLeaseBillController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $adminPlatform = $this->getAdminPlatform();
         $company = $adminPlatform['sales_company_id'];
@@ -491,7 +497,13 @@ class AdminLeaseBillController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
+        );
 
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")
             ->findOneBy(
