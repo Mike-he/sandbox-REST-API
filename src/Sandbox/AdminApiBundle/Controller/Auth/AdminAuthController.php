@@ -152,7 +152,10 @@ class AdminAuthController extends AuthController
         if ($isSuper) {
             $groups = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
-                ->getPermissionGroupByPlatform($platform);
+                ->getPermissionGroupByPlatform(
+                    $platform,
+                    $salesCompanyId
+                );
         } else {
             $groups = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')

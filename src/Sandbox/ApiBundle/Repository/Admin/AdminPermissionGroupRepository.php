@@ -41,6 +41,11 @@ class AdminPermissionGroupRepository extends EntityRepository
         $positions = $positionBindingsQuery->getQuery()->getResult();
         $positionIds = array_map('current', $positions);
 
+        $excludeGroupIds = $this->getExcludeGroupIds(
+            $platform,
+            $salesCompanyId
+        );
+
         $groupBindingsQuery = $this->getEntityManager()->createQueryBuilder()
             ->select('
                 gr.id,
@@ -54,12 +59,29 @@ class AdminPermissionGroupRepository extends EntityRepository
             ->groupBy('gr.id')
             ->setParameter('positionIds', $positionIds);
 
+        if (!empty($excludeGroupIds)) {
+            $groupBindingsQuery->andWhere('gr.id NOT IN (:ids)')
+                ->setParameter('ids', $excludeGroupIds);
+        }
+
         return $groupBindingsQuery->getQuery()->getResult();
     }
 
+    /**
+     * @param $platform
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
     public function getPermissionGroupByPlatform(
-        $platform
+        $platform,
+        $salesCompanyId
     ) {
+        $excludeGroupIds = $this->getExcludeGroupIds(
+            $platform,
+            $salesCompanyId
+        );
+
         $query = $this->createQueryBuilder('g')
             ->select('
                 g.id,
@@ -69,6 +91,39 @@ class AdminPermissionGroupRepository extends EntityRepository
             ->where('g.platform = :platform')
             ->setParameter('platform', $platform);
 
+        if (!empty($excludeGroupIds)) {
+            $query->andWhere('g.id NOT IN (:ids)')
+                ->setParameter('ids', $excludeGroupIds);
+        }
+
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $platform
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
+    private function getExcludeGroupIds(
+        $platform,
+        $salesCompanyId
+    ) {
+        $excludeGroupIdsQuery = $this->getEntityManager()->createQueryBuilder()
+            ->select('ep.groupId')
+            ->from('SandboxApiBundle:Admin\AdminExcludePermission', 'ep')
+            ->where('ep.platform = :platform')
+            ->andWhere('ep.groupId IS NOT NULL')
+            ->setParameter('platform', $platform);
+
+        if (!is_null($salesCompanyId)) {
+            $excludeGroupIdsQuery
+                ->andWhere('(ep.salesCompanyId = :salesCompanyId OR ep.salesCompanyId IS NULL)')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        $excludeGroupIds = array_map('current', $excludeGroupIdsQuery->getQuery()->getResult());
+
+        return $excludeGroupIds;
     }
 }
