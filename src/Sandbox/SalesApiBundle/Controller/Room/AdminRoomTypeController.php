@@ -44,7 +44,7 @@ class AdminRoomTypeController extends SalesRestController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findBy(array(
                 'company' => $salesCompany,
-                'status' => false,
+                'status' => true,
             ));
 
         if (empty($salesInfos)) {
