@@ -354,8 +354,8 @@ class AdminLeaseBillController extends SalesRestController
             LeaseBill::STATUS_UNPAID,
         );
 
-        if (!in_array($bill->getStatus(), $status)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        if (!in_array($oldStatus, $status)) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
         }
 
         $billJson = $this->container->get('serializer')->serialize($bill, 'json');
@@ -365,7 +365,7 @@ class AdminLeaseBillController extends SalesRestController
         $form->submit(json_decode($billJson, true));
 
         if ($bill->getStatus() != LeaseBill::STATUS_UNPAID) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
         }
 
         if (is_null($bill->getRevisedAmount())) {
@@ -472,7 +472,7 @@ class AdminLeaseBillController extends SalesRestController
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
-        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $payload = json_decode($request->getContent(), true);
 
@@ -567,12 +567,14 @@ class AdminLeaseBillController extends SalesRestController
             }
             if (!is_null($payload['revised_amount'])) {
                 $bill->setRevisedAmount($payload['revised_amount']);
+                if (is_null($payload['revision_note'])) {
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+                }
+                $bill->setRevisionNote($payload['revision_note']);
             } else {
                 $bill->setRevisedAmount($bill->getAmount());
             }
-            if (!is_null($payload['revision_note'])) {
-                $bill->setRevisionNote($payload['revision_note']);
-            }
+
             $bill->setStatus(LeaseBill::STATUS_UNPAID);
             $bill->setSendDate(new \DateTime());
             $bill->setSender($this->getUserId());
