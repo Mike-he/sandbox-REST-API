@@ -53,6 +53,14 @@ class ClientProductRecommendController extends ProductController
      *    description="start of the page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="exclude_company_id",
+     *    array=true,
+     *    nullable=true,
+     *    default=null,
+     *    description="exclude_company_id"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -71,6 +79,7 @@ class ClientProductRecommendController extends ProductController
         $cityId = $paramFetcher->get('city');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $excludeIds = $paramFetcher->get('exclude_company_id');
 
         // get city
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
@@ -81,6 +90,7 @@ class ClientProductRecommendController extends ProductController
             ->getProductsRecommend(
                 $userId,
                 $city,
+                $excludeIds,
                 $limit,
                 $offset,
                 true
