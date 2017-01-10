@@ -14,7 +14,6 @@ class CustomErrorMessagesConstants
     // LEASE BILL
     const ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE = 'The status of bill does not correct';
     const ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for bills does not correct';
-    const ERROR_STATUS_MESSAGE = 'The status is error';
 
     // SALES COMPANY
     const ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for sales company does not correct';
