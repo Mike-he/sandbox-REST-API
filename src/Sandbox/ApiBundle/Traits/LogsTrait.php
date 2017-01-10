@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 
@@ -210,16 +211,80 @@ trait LogsTrait
     private function getAdminJson(
         $objectId
     ) {
-        $admin = $this->getContainer()
-             ->get('doctrine')
-             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-             ->findPositionByAdmin($objectId);
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
 
-        if (is_null($admin)) {
-            return;
+        $positionBinds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindUserInfo(
+                $objectId,
+                $platform,
+                $companyId
+            );
+        $positionArr = array();
+        foreach ($positionBinds as $positionBind) {
+            $position = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->find($positionBind['id']);
+            $positionArr[] = $position;
         }
 
-        return $this->transferToJsonWithViewGroup($admin, 'admin');
+        $buildingArr = array();
+        if ($platform == AdminPosition::PLATFORM_SALES) {
+            $buildingBinds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindBuilding(
+                    $objectId,
+                    $platform,
+                    $companyId
+                );
+
+            foreach ($buildingBinds as $buildingBind) {
+                $buildingInfo = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($buildingBind['buildingId']);
+                $buildingArr[] = $buildingInfo;
+            }
+        }
+
+        $shopArr = array();
+        if ($platform == AdminPosition::PLATFORM_SHOP) {
+            $shopBinds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->getBindShop(
+                    $objectId,
+                    $platform,
+                    $companyId
+                );
+
+            foreach ($shopBinds as $shopBind) {
+                $shopInfo = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')
+                    ->find($shopBind['shopId']);
+                $shopArr[] = $shopInfo;
+            }
+        }
+
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($objectId);
+
+        $bind = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsByUser(
+                $objectId,
+                $platform,
+                $companyId
+            );
+
+        $admin = array(
+            'user_id' => $objectId,
+            'user' => $user,
+            'position' => $positionArr,
+            'position_count' => count($positionArr),
+            'building' => $buildingArr,
+            'shop' => $shopArr,
+            'bind' => $bind,
+        );
+
+        return $this->transferToJson($admin);
     }
 
     /**
