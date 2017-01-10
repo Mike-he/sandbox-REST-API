@@ -2567,4 +2567,23 @@ class OrderRepository extends EntityRepository
 
         return (float) $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $orderNumber
+     *
+     * @return array
+     */
+    public function getOrderIdsByOrderNumber(
+        $orderNumber
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('o.id')
+            ->where('o.orderNumber LIKE :orderNumber')
+            ->setParameter('orderNumber', $orderNumber.'%');
+
+        $result = $query->getQuery()->getScalarResult();
+        $result = array_map('current', $result);
+
+        return $result;
+    }
 }
