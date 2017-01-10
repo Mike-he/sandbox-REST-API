@@ -215,58 +215,9 @@ trait LogsTrait
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
-        $positionBinds = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->getBindUserInfo(
-                $objectId,
-                $platform,
-                $companyId
-            );
-        $positionArr = array();
-        foreach ($positionBinds as $positionBind) {
-            $position = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                ->find($positionBind['id']);
-            $positionArr[] = $position;
-        }
-
-        $buildingArr = array();
-        if ($platform == AdminPosition::PLATFORM_SALES) {
-            $buildingBinds = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->getBindBuilding(
-                    $objectId,
-                    $platform,
-                    $companyId
-                );
-
-            foreach ($buildingBinds as $buildingBind) {
-                $buildingInfo = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($buildingBind['buildingId']);
-                $buildingArr[] = $buildingInfo;
-            }
-        }
-
-        $shopArr = array();
-        if ($platform == AdminPosition::PLATFORM_SHOP) {
-            $shopBinds = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->getBindShop(
-                    $objectId,
-                    $platform,
-                    $companyId
-                );
-
-            foreach ($shopBinds as $shopBind) {
-                $shopInfo = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')
-                    ->find($shopBind['shopId']);
-                $shopArr[] = $shopInfo;
-            }
-        }
-
         $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($objectId);
 
-        $bind = $this->getDoctrine()
+        $binds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->getBindingsByUser(
                 $objectId,
@@ -274,14 +225,19 @@ trait LogsTrait
                 $companyId
             );
 
+        $bindArr = array();
+        foreach ($binds as $bind) {
+            array_push($bindArr, array(
+                'position_name' => $bind->getPosition()->getName(),
+                'building_name' => $bind->getBuilding(),
+                'shop_name' => $bind->getShop(),
+            ));
+        }
+
         $admin = array(
             'user_id' => $objectId,
             'user' => $user,
-            'position' => $positionArr,
-            'position_count' => count($positionArr),
-            'building' => $buildingArr,
-            'shop' => $shopArr,
-            'bind' => $bind,
+            'bind' => $bindArr,
         );
 
         return $this->transferToJson($admin);
