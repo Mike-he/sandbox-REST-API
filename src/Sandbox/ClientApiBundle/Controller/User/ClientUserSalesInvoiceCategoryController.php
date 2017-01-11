@@ -20,8 +20,8 @@ class ClientUserSalesInvoiceCategoryController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *     name="order_id",
-     *     array=false,
+     *     name="order_ids",
+     *     array=true,
      *     strict=true
      * )
      *
@@ -34,30 +34,40 @@ class ClientUserSalesInvoiceCategoryController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $orderId = $paramFetcher->get('order_id');
+        $orderIds = $paramFetcher->get('order_ids');
 
-        $order = $this->getDoctrine()
+        $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->find($orderId);
-        if (is_null($order)) {
+            ->getProductOrdersByIds($orderIds);
+        if (empty($orders)) {
             return new View(array());
         }
 
-        $roomType = $order->getProduct()->getRoom()->getType();
-        $salesCompany = $order->getProduct()->getRoom()->getBuilding()->getCompany();
-
-        $infos = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->findBy(array(
-                'company' => $salesCompany,
-                'roomTypes' => $roomType,
-            ));
-
         $response = array();
-        foreach ($infos as $info) {
-            array_push($response, array(
-                'name' => $info->getInvoicingSubjects(),
-            ));
+        foreach ($orders as $order) {
+            $roomType = $order->getProduct()->getRoom()->getType();
+            $roomType = 'longterm';
+            $salesCompany = $order->getProduct()->getRoom()->getBuilding()->getCompany();
+
+            $infos = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->findBy(array(
+                    'company' => $salesCompany,
+                    'roomTypes' => $roomType,
+                ));
+
+            $orderArray = array(
+                'order_id' => $order->getId(),
+                'categories' => array(),
+            );
+
+            foreach ($infos as $info) {
+                array_push($orderArray['categories'], array(
+                    'name' => $info->getInvoicingSubjects(),
+                ));
+            }
+
+            array_push($response, $orderArray);
         }
 
         return new View($response);
