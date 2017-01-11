@@ -772,7 +772,7 @@ class ProductRepository extends EntityRepository
     /**
      * @param int      $userId
      * @param RoomCity $city
-     * @param array $excludeIds
+     * @param array    $excludeIds
      * @param int      $limit
      * @param int      $offset
      * @param bool     $recommend
@@ -1098,12 +1098,14 @@ class ProductRepository extends EntityRepository
     /**
      * @param $building
      * @param $visible
+     * @param $roomtype
      *
      * @return mixed
      */
     public function countsProductByBuilding(
         $building,
-        $visible = null
+        $visible = null,
+        $roomtype = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
@@ -1111,6 +1113,11 @@ class ProductRepository extends EntityRepository
             ->where('r.building = :building')
             ->andWhere('p.isDeleted = FALSE')
             ->setParameter('building', $building);
+
+        if (!is_null($roomtype) || !empty($roomtype)) {
+            $query->andWhere('r.type in (:type)')
+                ->setParameter('type', $roomtype);
+        }
 
         if (!is_null($visible)) {
             $query->andWhere('p.visible = :visible')
