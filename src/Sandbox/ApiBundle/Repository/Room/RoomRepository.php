@@ -641,8 +641,8 @@ class RoomRepository extends EntityRepository
             ->andWhere('r.isDeleted = FALSE')
             ->setParameter('building', $building);
 
-        if (!is_null($roomtype)) {
-            $query->andWhere('r.type = :type')
+        if (!is_null($roomtype) || !empty($roomtype)) {
+            $query->andWhere('r.type in (:type)')
                 ->setParameter('type', $roomtype);
         }
 
