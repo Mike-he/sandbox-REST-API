@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Class AdminCommunityController.
@@ -135,13 +136,28 @@ class AdminCommunityController extends SalesRestController
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
+        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
-        $roomTypes = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomTypes')->findAll();
+        $UsedRoomTypes = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getCompanyService($salesCompanyId);
 
         $result = array();
-        foreach ($roomTypes as $roomType) {
+        foreach ($UsedRoomTypes as $usedRoomType) {
+            $roomType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomTypes')
+                ->findOneBy(array('name' => $usedRoomType->getRoomTypes()));
+
             $using_number = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->countsProductByType(

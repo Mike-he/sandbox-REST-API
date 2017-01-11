@@ -30,4 +30,23 @@ class SalesCompanyServiceInfosRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $company
+     *
+     * @return array
+     */
+    public function getCompanyService(
+        $company
+    ) {
+        $query = $this->createQueryBuilder('scs')
+            ->where('scs.company = :company')
+            ->andWhere('scs.status = :status')
+            ->setParameter('company', $company)
+            ->setParameter('status', true);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
