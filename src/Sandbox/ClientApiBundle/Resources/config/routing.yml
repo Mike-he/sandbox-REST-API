@@ -366,3 +366,8 @@ sandbox_client_api_lease_bill:
     type:     annotation
     prefix:   /
 
+# User Invoice Categories
+sandbox_client_api_user_invoice_categories:
+    resource: "@SandboxClientApiBundle/Controller/User/ClientUserSalesInvoiceCategoryController.php"
+    type:     annotation
+    prefix:   /
