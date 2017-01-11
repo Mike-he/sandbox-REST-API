@@ -23,7 +23,6 @@ class Version20161207025409 extends AbstractMigration implements ContainerAwareI
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     public function postUp(Schema $schema)
@@ -760,6 +759,5 @@ class Version20161207025409 extends AbstractMigration implements ContainerAwareI
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

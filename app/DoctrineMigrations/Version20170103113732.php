@@ -34,5 +34,6 @@ class Version20170103113732 extends AbstractMigration
         $this->addSql('CREATE TABLE room_building_type_binding (id INT AUTO_INCREMENT NOT NULL, creationDate DATETIME NOT NULL, buildingId INT NOT NULL, typeId INT NOT NULL, UNIQUE INDEX typeId_buildingId (typeId, buildingId), INDEX IDX_BAC0350F55CF348 (buildingId), INDEX IDX_BAC03509BF49490 (typeId), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
         $this->addSql('ALTER TABLE room_building_type_binding ADD CONSTRAINT FK_BAC03509BF49490 FOREIGN KEY (typeId) REFERENCES room_types (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE room_building_type_binding ADD CONSTRAINT FK_BAC0350F55CF348 FOREIGN KEY (buildingId) REFERENCES room_building (id) ON DELETE CASCADE');
-        $this->addSql('DROP TABLE sales_company_service_infos');    }
+        $this->addSql('DROP TABLE sales_company_service_infos');
+    }
 }
