@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\SalesAdmin;
 
+use Elastica\Exception\Connection\HttpException;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
@@ -479,54 +480,66 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $em = $this->getDoctrine()->getManager();
 
-        // update sales company
-        $form = $this->createForm(
-            new SalesCompanyPostType(),
-            $salesCompany,
-            array(
-                'method' => 'PUT',
-            )
-        );
-        $form->handleRequest($request);
+        $em->beginTransaction();
 
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+        try{
+            // update sales company
+            $form = $this->createForm(
+                new SalesCompanyPostType(),
+                $salesCompany,
+                array(
+                    'method' => 'PUT',
+                )
+            );
+            $form->handleRequest($request);
+
+            if (!$form->isValid()) {
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+            }
+
+            $admins = $salesCompany->getAdmins();
+            $coffeeAdmins = $salesCompany->getCoffeeAdmins();
+            $servicesInfos = $salesCompany->getServices();
+            $excludePermissions = $salesCompany->getExcludePermissions();
+
+            // update admins
+            $this->updateAdmins(
+                $admins,
+                $salesCompany,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
+
+            // update coffee admins
+            $this->updateAdmins(
+                $coffeeAdmins,
+                $salesCompany,
+                AdminPermission::PERMISSION_PLATFORM_SHOP
+            );
+
+            // update services
+            $this->saveServices(
+                $em,
+                $servicesInfos,
+                $salesCompany
+            );
+
+            // update modules
+            $this->saveExcludePermissions(
+                $em,
+                $excludePermissions,
+                $salesCompany
+            );
+
+            $em->flush();
+
+            $em->commit();
+        } catch (\Exception $exception) {
+            $em->rollback();
+
+            throw new BadRequestHttpException(
+                self::BAD_PARAM_MESSAGE
+            );
         }
-
-        $admins = $salesCompany->getAdmins();
-        $coffeeAdmins = $salesCompany->getCoffeeAdmins();
-        $servicesInfos = $salesCompany->getServices();
-        $excludePermissions = $salesCompany->getExcludePermissions();
-
-        // update admins
-        $this->updateAdmins(
-            $admins,
-            $salesCompany,
-            AdminPermission::PERMISSION_PLATFORM_SALES
-        );
-
-        // update coffee admins
-        $this->updateAdmins(
-            $coffeeAdmins,
-            $salesCompany,
-            AdminPermission::PERMISSION_PLATFORM_SHOP
-        );
-
-        // update services
-        $this->saveServices(
-            $em,
-            $servicesInfos,
-            $salesCompany
-        );
-
-        // update modules
-        $this->saveExcludePermissions(
-            $em,
-            $excludePermissions,
-            $salesCompany
-        );
-
-        $em->flush();
 
         return new View();
     }
