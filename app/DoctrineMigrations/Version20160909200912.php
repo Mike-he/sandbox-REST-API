@@ -560,7 +560,6 @@ class Version20160909200912 extends AbstractMigration
                   ('event_order', 'https://image.sandbox3.cn/icon/profile_orders_event_order.png', 'https://orders.sandbox3.cn/event');
         ");
 
-
         $this->addSql('
             CREATE OR REPLACE VIEW admin_api_auth_view AS
             SELECT
@@ -689,6 +688,5 @@ class Version20160909200912 extends AbstractMigration
      */
     public function down(Schema $schema)
     {
-
     }
 }

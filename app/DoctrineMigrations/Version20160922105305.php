@@ -24,7 +24,6 @@ class Version20160922105305 extends AbstractMigration
         $this->addSql('ALTER TABLE admin_exclude_permission DROP FOREIGN KEY FK_D18B3F8EC50DB8C4');
         $this->addSql('ALTER TABLE admin_exclude_permission CHANGE salesCompanyId salesCompanyId INT DEFAULT NULL');
         $this->addSql('ALTER TABLE admin_exclude_permission ADD CONSTRAINT FK_D18B3F8EC50DB8C4 FOREIGN KEY (salesCompanyId) REFERENCES sales_company (id) ON DELETE SET NULL');
-
     }
 
     /**

@@ -19,7 +19,7 @@ class Version20161111105621 extends AbstractMigration
         $this->addSql("
             UPDATE `admin_permission` SET `platform`='official', `level` = 'global', `opLevelSelect` = '1,2', `maxOpLevel` = '2' WHERE `key` = 'platform.log';
         ");
-        $this->addSql("UPDATE top_up_order SET paymentDate = top_up_order.creationDate WHERE id>0;");
+        $this->addSql('UPDATE top_up_order SET paymentDate = top_up_order.creationDate WHERE id>0;');
     }
 
     /**

@@ -17,7 +17,7 @@ class Version20161130063116 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
 
-        $this->addSql("UPDATE `room_city` SET `capital`=1 WHERE `id`=22");
+        $this->addSql('UPDATE `room_city` SET `capital`=1 WHERE `id`=22');
     }
 
     /**
@@ -26,6 +26,5 @@ class Version20161130063116 extends AbstractMigration
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }
