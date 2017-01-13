@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Order;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
 
@@ -2600,5 +2601,221 @@ class OrderRepository extends EntityRepository
             ->setParameter('ids', $ids);
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $channel
+     * @param $payStart
+     * @param $payEnd
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $status
+     * @param $amountStart
+     * @param $amountEnd
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getOrdersForFinance(
+        $channel,
+        $payStart,
+        $payEnd,
+        $keyword,
+        $keywordSearch,
+        $status,
+        $amountStart,
+        $amountEnd,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->where('
+                    (
+                        (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder)
+                    )
+               ')
+            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID);
+
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('o.payChannel = :channel')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($status)) {
+            $query->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id');
+            switch ($status) {
+                case 'pending':
+                    $query->andWhere('
+                            (t.transferStatus = :pending) OR
+                            (t.transferStatus = :verify)
+                        ')
+                        ->setParameter('pending', OrderOfflineTransfer::STATUS_PENDING)
+                        ->setParameter('verify', OrderOfflineTransfer::STATUS_VERIFY);
+                    break;
+                case 'processed':
+                    $query->andWhere('
+                            (t.transferStatus = :paid) OR
+                            (t.transferStatus = :rejectRefund) OR
+                            (t.transferStatus = :acceptRefund)
+                        ')
+                        ->setParameter('paid', OrderOfflineTransfer::STATUS_PAID)
+                        ->setParameter('rejectRefund', OrderOfflineTransfer::STATUS_REJECT_REFUND)
+                        ->setParameter('acceptRefund', OrderOfflineTransfer::STATUS_ACCEPT_REFUND);
+                    break;
+                case 'returned':
+                    $query->andWhere('t.transferStatus = :returned')
+                        ->setParameter('returned', OrderOfflineTransfer::STATUS_RETURNED);
+                    break;
+            }
+        }
+
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('o.paymentDate >= :payStart')
+                ->setParameter('payStart', $payStart);
+        }
+
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payEnd', $payEnd);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
+        }
+
+        if (!is_null($amountStart)) {
+            $query->andWhere('o.discountPrice >= :amountStart')
+                ->setParameter('amountStart', $amountStart);
+        }
+
+        if (!is_null($amountEnd)) {
+            $query->andWhere('o.discountPrice <= :amountEnd')
+                ->setParameter('amountEnd', $amountEnd);
+        }
+
+        $query->orderBy('o.creationDate', 'DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $channel
+     * @param $payStart
+     * @param $payEnd
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $status
+     * @param $amountStart
+     * @param $amountEnd
+     *
+     * @return mixed
+     */
+    public function countOrdersForFinance(
+        $channel,
+        $payStart,
+        $payEnd,
+        $keyword,
+        $keywordSearch,
+        $status,
+        $amountStart,
+        $amountEnd
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->select('COUNT(o)')
+            ->where('
+                    (
+                        (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder)
+                    )
+               ')
+            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID);
+
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('o.payChannel = :channel')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($status)) {
+            $query->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id');
+            switch ($status) {
+                case 'pending':
+                    $query->andWhere('
+                            (t.transferStatus = :pending) OR
+                            (t.transferStatus = :verify)
+                        ')
+                        ->setParameter('pending', OrderOfflineTransfer::STATUS_PENDING)
+                        ->setParameter('verify', OrderOfflineTransfer::STATUS_VERIFY);
+                    break;
+                case 'processed':
+                    $query->andWhere('
+                            (t.transferStatus = :paid) OR
+                            (t.transferStatus = :rejectRefund) OR
+                            (t.transferStatus = :acceptRefund)
+                        ')
+                        ->setParameter('paid', OrderOfflineTransfer::STATUS_PAID)
+                        ->setParameter('rejectRefund', OrderOfflineTransfer::STATUS_REJECT_REFUND)
+                        ->setParameter('acceptRefund', OrderOfflineTransfer::STATUS_ACCEPT_REFUND);
+                    break;
+                case 'returned':
+                    $query->andWhere('t.transferStatus = :returned')
+                        ->setParameter('returned', OrderOfflineTransfer::STATUS_RETURNED);
+                    break;
+            }
+        }
+
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('o.paymentDate >= :payStart')
+                ->setParameter('payStart', $payStart);
+        }
+
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payEnd', $payEnd);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
+        }
+
+        if (!is_null($amountStart)) {
+            $query->andWhere('o.discountPrice >= :amountStart')
+                ->setParameter('amountStart', $amountStart);
+        }
+
+        if (!is_null($amountEnd)) {
+            $query->andWhere('o.discountPrice <= :amountEnd')
+                ->setParameter('amountEnd', $amountEnd);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return $result;
     }
 }
