@@ -46,7 +46,6 @@ class ClientUserSalesInvoiceCategoryController extends SalesRestController
         $response = array();
         foreach ($orders as $order) {
             $roomType = $order->getProduct()->getRoom()->getType();
-            $roomType = 'longterm';
             $salesCompany = $order->getProduct()->getRoom()->getBuilding()->getCompany();
 
             $infos = $this->getDoctrine()
