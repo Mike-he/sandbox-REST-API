@@ -35,6 +35,8 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
                 'platform' => 'sales',
             ));
         $em->remove($salesInvoiceGroup);
+        $em->flush();
+        $em->clear();
 
         $salesFinanceGroup = new AdminPermissionGroups();
         $salesFinanceGroup->setGroupKey('finance');
