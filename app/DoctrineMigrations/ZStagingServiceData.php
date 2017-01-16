@@ -15,7 +15,7 @@ class ZStagingServiceData extends AbstractMigration implements ContainerAwareInt
 {
     use ContainerAwareTrait;
 
-    //Version20170111090021
+    //Version20170111090020
     
     /**
      * @param Schema $schema
